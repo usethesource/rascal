@@ -13,7 +13,7 @@ import lang::rascal::\syntax::Rascal;
 //import ParseTree;
 import lang::rascalcore::check::ATypeBase;
 import String;
-//import IO;
+import IO;
 import Node;
 
 
@@ -89,8 +89,10 @@ public AType sym2AType(Sym sym) {
       return conditional(sym2AType(s), {ACondition::\delete(sym2AType(r))});
     case except(Sym s, NonterminalLabel n):
       return conditional(sym2AType(s), {ACondition::\a-except("<n>")});
-    default: 
+    default: {
+      iprintln(sym);
       throw "sym2AType, missed a case <sym>";
+    }
   }
 }
 
@@ -102,8 +104,10 @@ public AType defsym2AType(Sym sym, SyntaxRole sr) {
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
         return AType::aadt("<n>",separgs2ATypes(syms), sr); 
     
-    default: 
+    default: {
+      iprintln(sym);
       throw "defsym2AType, missed a case <sym>";
+    }
   }
 }
 

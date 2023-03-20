@@ -118,7 +118,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                     adtType = s.getType(adt);
                     kwFormalTypes = [<s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
-                    return acons(adtType, formalTypes, kwFormalTypes)[alabel=prettyPrintName(name)];
+                    return acons(adtType, formalTypes, kwFormalTypes)[alabel=getUnqualifiedName(prettyPrintName(name))];
                 }));
             c.fact(current, name);
              // The standard rules would declare arguments and kwFormals as variableId();

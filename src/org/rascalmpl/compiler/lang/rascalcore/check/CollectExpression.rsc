@@ -2,7 +2,9 @@
 module lang::rascalcore::check::CollectExpression
  
 extend lang::rascalcore::check::CheckerCommon;
-import lang::rascalcore::check::PathAnalysis;
+extend lang::rascalcore::check::PathAnalysis;
+
+import lang::rascalcore::check::CollectStatement;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -12,6 +14,7 @@ import Set;
 import String;
 import ValueIO;
 import util::Math;
+import IO;
 
 // ---- Rascal literals
 
@@ -327,35 +330,8 @@ void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`
     collect(first, last, c);    
 }
 
-// ---- visit
+// ---- visit -- handled in CollectStatement
 
-void collect(current: (Expression) `<Label label> <Visit vst>`, Collector c){
-    c.enterScope(current);
-        scope = c.getScope();
-        c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
-        if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
-        }
-        c.calculate("visit", current, [vst.subject], 
-            AType(Solver s){ 
-                checkNonVoid(vst.subject, s, "Subject of visit");
-                return s.getType(vst.subject); 
-            });
-        collect(vst, c);
-        
-        //TODO: experiment
-        //casePatterns = [ cs.patternWithAction.pattern | cs <- vst.cases, cs is patternWithAction ];
-        //c.require("cases from specific to general", current, casePatterns, void(Solver s){
-        //    caseType = [ s.getType(cpat) | cpat <- casePatterns ];
-        //    for(int i <- index(casePatterns), int j <- index(casePatterns)){
-        //        if(i < j && asubtype(caseType[j], caseType[i])){
-        //            s.report(warning(casePatterns[j], "Case pattern has more specific type %t than previous case with type %t", caseType[j], caseType[i]));
-        //        }
-        //    }
-        //
-        //});
-    c.leaveScope(current);
-}
 
 // ---- reifyType
 
@@ -621,7 +597,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 validReturnTypeOverloads = {};
                 validOverloads = {};
                 next_fun:
-                for(ovl: <key, _, tp> <- overloads){                       
+                for(ovl: <key, idRole, tp> <- overloads){                       
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
@@ -631,19 +607,21 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             if(size(formals) == 0){
                                 s.report(error(expression, "Nullary function may not be overloaded"));
                             }
-                            validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                            validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
-                       } catch checkFailed(list[FailMessage] _):
+                       } catch checkFailed(list[FailMessage] _): {
                             continue next_fun;
+                            }
                          catch NoBinding():
                             continue next_fun;
                     }
                  }
+                 reportMissingNonTerminalCases(current, overloads, validOverloads, actuals, s);
                  next_cons:
-                 for(ovl: <key, _, tp> <- overloads){
+                 for(ovl: <key,idRole, tp> <- overloads){
                     if(acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp){
                        try {
-                            validReturnTypeOverloads += <key, dataId(), computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                            validReturnTypeOverloads += <key, idRole, computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
                              continue next_cons;
@@ -677,7 +655,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               return computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
+               res =  computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int _ <- index(fields)], s);
+               return res;
             }
             reportCallError(current, expression, actuals, keywordArguments, s);
             return avalue();
@@ -698,6 +677,22 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
         s.report(error(current, "%q is defined as %t and cannot be applied to %v `%v` and %v %v", 
                                 "<callee>", callee, arguments, actuals, kwarguments, 
                                 kws));
+    }
+}
+
+void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRole, AType atype] overloads, rel[loc def, IdRole idRole, AType atype] validOverloads, list[Expression] actuals, Solver s){
+    for(int i <- index(actuals)){
+        actual_type = s.getType(actuals[i]);
+        if(isNonTerminalType(actual_type)){
+            if(!isEmpty(validOverloads) && all(ovl <- validOverloads, 
+                                               arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype),       
+                                               size(arg_types) == size(actuals), isADTType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){                
+                nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalType(arg_types[i]) ];
+                if(!isEmpty(nont)){
+                    s.report(warning(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
+                }
+            }       
+        }
     }
 }
 
@@ -796,7 +791,7 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
     return computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s);
 }
 
-private AType computeReturnType(Expression current, loc _, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, Solver s){
+private AType computeReturnType(Expression current, loc _src, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, Solver s){
     //println("computeReturnType: retType=<retType>, formalTypes=<formalTypes>, actualTypes=<actualTypes>");
     index_formals = index(formalTypes);
     Bindings bindings = ();
@@ -829,7 +824,7 @@ private AType computeReturnType(Expression current, loc _, AType retType, list[A
            } else
               continue;
         }
-        s.requireComparable(ai, iformalTypes[i], error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, iformalTypes[i], ai));       
+        s.requireComparable(ai, iformalTypes[i], error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, iformalTypes[i], ai));     
     }
     
     checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
@@ -891,6 +886,30 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
         collect(mappings, c);
     }
 }
+
+//void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings> )`, Collector c){
+//    froms = [ m.from | m <- mappings ];
+//    tos =  [ m.to | m <- mappings ];
+//    if(isEmpty(froms)){
+//        c.fact(current, amap(avoid(), avoid()));
+//    } else {
+//        c.calculate("map expression", current, mappings,
+//            AType(Solver s) {
+//                return s.lubList([ s.getType(m) | m <- mappings ]);
+//            });
+//        collect(mappings, c);
+//    }
+//}
+//
+//void collect((Mapping[Expression]) `<Mapping[Expression] mapping>`, collector c){
+//    c.calculate("map expression", mapping,[mapping.from, mapping.to],
+//            AType(Solver s) {
+//                checkNonVoid(mapping.from, s, "Key element of map");
+//                checkNonVoid(mapping.to, s, "Value element of map");
+//                return amap(s.getType(mapping.from), ms.getType(mapping.to));
+//            });
+//    collect(mapping.from, mapping.to, c);
+//}
 
 // TODO: does not work in interpreter
 //void collect(Mapping[&T] mappings, collector c){

@@ -23,12 +23,30 @@ void addADTsAndCommonKeywordFields(Solver s){
     addCommonKeywordFields(s);
 }
 
+bool commonTypeParameter(list[AType] params1, list[AType] params2){
+    n1 = size(params1);
+    n2 = size(params2);
+    if(n1 == 0 || n2 == 0) return false;
+    return n1 == n2 && all(i <- [0..n1], params1[i] == params2[i] || isTypeParameter(params1[i]) && isTypeParameter(params2[i]));
+}
+
+list[AType] removeLabels(list[AType] params) = [ unset(p, "alabel") | p <- params ];
+
 void addADTs(Solver s){
-    //defines = s.getAllDefines();
-    //definedADTs = { t | Define def <- defines, /AType t:aadt(str name, list[AType] parameters, sr) := def.defInfo.atype };
     facts = s.getFacts();
-    usedADTs = { t | loc k <- facts, /AType t:aadt(str _, list[AType] _, _) := facts[k] };
-    s.push(key_ADTs, /*definedADTs + */usedADTs);
+    defines = s.getAllDefines();
+    definedADTs = { unset(t, "alabel") | def <- defines, /AType t:aadt(str _, list[AType] _, _) := def };
+    usedADTs = { unset(t, "alabel") | loc k <- facts, /AType t:aadt(str _, list[AType] parameters, _) := facts[k], !isEmpty(parameters), any(p <- parameters, !isTypeParameter(p)) };  
+    ADTs = { a[parameters=removeLabels(a.parameters)] | a <- definedADTs + usedADTs };
+    
+    // remove versions with type parameter on same position.
+
+    solve(ADTs){
+        if(any(a1 <- ADTs, a2 <- ADTs, a1 != a2, a1.adtName == a2.adtName, commonTypeParameter(a1.parameters, a2.parameters))){
+            ADTs -= a2;
+        }
+    }
+    s.push(key_ADTs, ADTs);
 }
 
 void addCommonKeywordFields(Solver s){
@@ -120,6 +138,8 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
             prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, isStrictlyContainedIn(k, l)) };
 
             definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
+            //definedProductions += {<p1.def, p1> | loc k <- prodLocs2, aprod(p) := facts[k], p1 := p[def=unset(p.def)] };/*syn*/
+ 
             allStarts += { t | loc k <- facts, \start(t) := facts[k] };
         }
         

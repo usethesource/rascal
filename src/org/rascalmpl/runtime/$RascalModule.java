@@ -71,7 +71,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 
-public abstract class $RascalModule/*<Base, Extension extends Base> /*extends $ExtendableRascalModule<Base,Extension>*/ {
+public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 	/*************************************************************************/
 	/*		Utilities for generated code									 */
@@ -373,7 +373,7 @@ public abstract class $RascalModule/*<Base, Extension extends Base> /*extends $E
 //	}
 	
 	public final boolean $isComparable(Type t1, Type t2) {
-		return $isSubtypeOf(t1, t2) || $isSubtypeOf(t2, t1);
+		return $isSubtypeOf(t1, t2);// || $isSubtypeOf(t2, t1);
 	}
 	
 	private final boolean checkRightValueOrParam(Type left, Type right) {
@@ -389,8 +389,8 @@ public abstract class $RascalModule/*<Base, Extension extends Base> /*extends $E
 	//TODO: consider caching this method
 	
 	public final boolean $isSubtypeOf(Type left, Type right) {
-		if(left.isSubtypeOf(right))
-			return true;
+//		if(left.isSubtypeOf(right))
+//			return true;
 		
 		boolean res = left.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
 			
@@ -527,7 +527,18 @@ public abstract class $RascalModule/*<Base, Extension extends Base> /*extends $E
 					return !type_name.isEmpty() && type_name.equals(((IString)symbol.get(0)).getValue()) ? Rascal_TRUE : Rascal_FALSE;
 				}
 				if(right.isAbstractData()) {
-					return type.getName().equals(right.getName()) ? Rascal_TRUE : Rascal_FALSE;
+					Type lpars = type.getTypeParameters();
+					Type rpars = right.getTypeParameters();
+					int larity = lpars.getArity();
+					int rarity = rpars.getArity();
+					String lname = type.getName();
+					String rname = right.getName();
+					if(larity == 0 && rarity == 0) {
+						return lname.equals(rname) ? Rascal_TRUE : Rascal_FALSE;
+					} else if($isSubtypeOf(lpars, rpars)) {
+						return lname.equals(rname) || lname.startsWith(rname + "_") ? Rascal_TRUE : Rascal_FALSE;
+					}
+					return Rascal_FALSE;
 				}
 				if(right.isNode()){
 					return Rascal_TRUE;
@@ -626,6 +637,19 @@ public abstract class $RascalModule/*<Base, Extension extends Base> /*extends $E
 			}).getValue();
 //		System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
 		return res;
+	}
+	
+	public boolean $isTreeProductionEqual(IConstructor tree, IConstructor production) {
+	    return ((org.rascalmpl.values.parsetrees.ITree) tree).isAppl() && (production).equals(((org.rascalmpl.values.parsetrees.ITree) tree).getProduction());
+	}
+	
+	public boolean $isNonTerminal(Type treeType, IConstructor expected) {
+		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).getSymbol().equals(expected));
+	}
+	
+	public boolean $isNonTerminal(Type treeType, Type expected) {
+	    // TODO: this is an inefficient test, but it does unify parameterized ADTs, sorts and lexes.
+		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
 	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path) {

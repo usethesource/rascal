@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::ComputeType
 
 extend lang::rascalcore::check::ATypeInstantiation;
@@ -274,8 +275,17 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         if(!bindings[p.pname]?) bindings[p.pname] = avoid();
     }
     if(!isEmpty(bindings)){
-        try    return instantiateRascalTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings);
-        catch invalidInstantiation(str msg):
+        try {
+            ctype_old = s.getType(current);
+            ctype_new = instantiateRascalTypeParams(ctype_old, bindings);
+            if(ctype_new != ctype_old){
+                s.specializedFact(current, ctype_new);
+            }
+        } catch TypeUnavailable(): /* ignore */ ;
+          catch invalidInstantiation(str msg): /* nothing to instantiate */ ;
+        try {
+            return instantiateRascalTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings);
+        } catch invalidInstantiation(str msg):
                s.report(error(current, msg));
     }
    

@@ -509,8 +509,13 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
     // TODO require symbol is nonterminal
-    c.define(un, fieldId(), n, defType([symbol], AType(Solver s){ 
-        return getSyntaxType(symbol, s)[alabel=un]; }));
+    c.define(un, fieldId(), n, defType([symbol], 
+        AType(Solver s){ 
+            res = s.getType(symbol)[alabel=un]; 
+          return res;
+        }));
+      
+        //return getSyntaxType(symbol, s)[alabel=un]; }));
     c.fact(current, n);
     collect(symbol, c);
 }
@@ -550,7 +555,9 @@ void collect(current:(Sym) `<Sym symbol>+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iter", current, [symbol], AType(Solver s) { 
-        return isLexical ? \iter(getSyntaxType(symbol, s), isLexical=true) : \iter(getSyntaxType(symbol, s));
+        symbol_type = s.getType(symbol);
+        return isLexical ? \iter(symbol_type, isLexical=true) : \iter(symbol_type);
+        //return isLexical ? \iter(getSyntaxType(symbol, s), isLexical=true) : \iter(getSyntaxType(symbol, s));
     });
     collect(symbol, c);
 }
@@ -559,7 +566,9 @@ void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterStar", current, [symbol], AType(Solver s) { 
-        return isLexical ? \iter-star(getSyntaxType(symbol, s), isLexical=true) : \iter-star(getSyntaxType(symbol, s));
+        symbol_type = s.getType(symbol);
+        return isLexical ? \iter-star(symbol_type, isLexical=true) : \iter-star(symbol_type);
+        //return isLexical ? \iter-star(getSyntaxType(symbol, s), isLexical=true) : \iter-star(getSyntaxType(symbol, s));
     });
     collect(symbol, c);
 }
@@ -571,7 +580,9 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
         AType(Solver s) { 
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
-            return isLexical ? \iter-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-seps(getSyntaxType(symbol, s), seps);
+            symbol_type = s.getType(symbol);
+            return isLexical ? \iter-seps(symbol_type, seps, isLexical=true) : \iter-seps(symbol_type, seps);
+            //return isLexical ? \iter-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-seps(getSyntaxType(symbol, s), seps);
         });
     collect(symbol, sep, c);
 }
@@ -583,7 +594,9 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
         AType(Solver s) { 
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
-            return isLexical ? \iter-star-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-star-seps(getSyntaxType(symbol, s), seps);
+            symbol_type = s.getType(symbol);
+            return isLexical ? \iter-star-seps(symbol_type, seps, isLexical=true) : \iter-star-seps(symbol_type, seps);
+            //return isLexical ? \iter-star-seps(getSyntaxType(symbol, s), seps, isLexical=true) : \iter-star-seps(getSyntaxType(symbol, s), seps);
         });
     collect(symbol, sep, c);
 }
@@ -646,7 +659,10 @@ void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     // TODO: c.use(n, {productionId()});
     un = unescape("<n>");
-    c.calculate("except", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\a-except(un) }); });
+    c.calculate("except", current, [symbol], AType(Solver s) { 
+        res = AType::conditional(s.getType(symbol), {ACondition::\a-except(un) }); 
+        return res;
+    });
     collect(symbol, c);
 }
     
@@ -671,7 +687,8 @@ void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
    c.calculate("notFollow", current, [symbol, match], 
         AType(Solver s) { 
             s.requireTrue(isTerminal(match), warning(match, "Not Followed By (`!\>\>`) requires literal or character class, found %v", match));
-            return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); 
+            res = AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); 
+            return res;
         });
    collect(symbol, match, c);
 }
@@ -695,7 +712,7 @@ void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
-   c.calculate("unequal", current, [symbol, match], 
+   c.calculate("exclude", current, [symbol, match], 
         AType(Solver s) { 
             t = s.getType(match);
             if(alit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){

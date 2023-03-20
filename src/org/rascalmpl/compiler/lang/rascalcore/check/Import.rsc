@@ -307,7 +307,8 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         //if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
         //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
-        //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
+        m1.facts += m1.specializedFacts;
+        
         
         m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
         

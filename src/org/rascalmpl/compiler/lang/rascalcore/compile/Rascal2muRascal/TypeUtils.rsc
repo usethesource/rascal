@@ -286,10 +286,10 @@ void extractScopes(TModel tm){
             }  
             case constructorId(): {
                  constructors += def.defined;
-                 consType = getDefType(def.defined);
+                 consType = def.defInfo.atype;
                  consName = consType.alabel;
                  consAdtType = consType.adt;
-                 adt_uses_type += { <consName, consAdtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
+                 adt_uses_type +=   { <consName, consAdtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
                                   + { <consName, consAdtType, unsetRec(kwFieldType)> | /AType kwFieldType := consType.kwFields };
                  if(adt_constructors[consAdtType]?){
                     adt_constructors[consAdtType] = adt_constructors[consAdtType] + consType;
@@ -310,6 +310,14 @@ void extractScopes(TModel tm){
             case fieldId():
                 vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
        }
+    }
+    for(/consType: acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts){
+        consName = consType.alabel;
+        if(adt_constructors[adt]?){
+           adt_constructors[adt] = adt_constructors[adt] + consType;
+        } else {
+           adt_constructors[adt] = {consType};
+        }
     }
        
     reachableTypes = (adt_uses_type<1,2>)+;
@@ -480,12 +488,12 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     } else { // a parameterized ADT, find it and substitute actual parameters (also in fieldType)
         for(adt <- adt_constructors){
             if(adt.adtName == adtType.adtName && size(adt.parameters) == adt_arity){
-                pnames = (adt.parameters[i].pname : i | i <- [0..adt_arity]);
+                pnames = (adt.parameters[i] : i | i <- [0..adt_arity]);
                 constructors = adt_constructors[adt];
                 <constructors, fieldType> = 
                     visit(<constructors, fieldType>) { 
-                        case p:aparameter(str pname, _): { if(pnames[pname]?){
-                                                                repl = adtType.parameters[pnames[pname]];
+                        case p:aparameter(str pname, _): { if(pnames[p]?){
+                                                                repl = adtType.parameters[pnames[p]];
                                                                 if(p.alabel?) repl = repl[alabel=p.alabel];
                                                                 insert repl;
                                                            }
@@ -726,6 +734,11 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                                       !my_grammar_rules[adt1]?
                                 );
     }
+    
+    ///*syn*/// Ensure that the each production is unlabelled
+    //my_definitions = visit(my_definitions){
+    //    case p:prod(AType def, list[AType] atypes)  => unset(p,"alabel")
+    //}
     return my_definitions;
 }
 

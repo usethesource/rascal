@@ -1,76 +1,84 @@
 @bootstrapParser
 module lang::rascalcore::compile::Examples::Tst4
 
-import IO;
-import Type;
-import lang::csv::IO;
-import ParseTree;
-import DateTime;
-import util::UUID;
+anno loc Tree@\loc;
 
-loc targetFile = |test-temp:///csv-test-file--<"<uuidi()>">.csv|;
+data Tree = appl(Production prod, list[Tree] args);
 
-bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
-bool readWrite(type[&T] returnType, set[&T1] dt) {
-    if (dt == {}) return true;
-    writeCSV(returnType, dt, targetFile);
+data Production;
 
-    if (dt != readCSV(returnType, targetFile)) {
-        throw "Default read/write params";
-    }
-    writeCSV(returnType, dt, targetFile, header = false);
-    if (dt != readCSV(returnType, targetFile, header = false)) {
-        throw "Header = false";
-    }
+public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
 
-    writeCSV(returnType, dt, targetFile, separator = ";");
-    if (dt != readCSV(returnType, targetFile, separator = ";")) {
-        throw "separator = ;";
-    }
 
-    if (/\node() !:= typeOf(dt)) {
-       dt = fixAmbStrings(dt);
-        writeCSV(returnType, dt, targetFile);
-        if (dt != readCSV(targetFile)) {
-        println("expected: <returnType>");
-        println(dt);
-        println(readCSV(targetFile));
-            throw "inferred types"; 
+@doc{
+#### Synopsis
+
+Select the innermost Tree of a given type which is enclosed by a given location.
+
+#### Description
+
+}
+public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
+    if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+        for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
+            return r;
+        }
+        
+        if (&T<:Tree tree := a) {
+            return treeFound(tree);
         }
     }
-    return true;
+    return treeNotFound();
 }
+//syntax N[&T,&U] = "\<\<" &T "," &U "\>\>";
 
-&T fixAmbStrings(&T v) {
-    return visit(v) {
-        case str s => "a" + s
-            when /^[ \t\n]*[0-9]+[ \t\n]*$/ := s
-        case str s => "a" + s
-            when /^[ \t\n]*[0-9]+[ \t\n]*\.[0-9]*[ \t\n]*$/ := s
-        case str s => "a" + s
-            when /^[ \t\n]*[0-9][ \t\n]*+r[ \t\n]*[0-9]*[ \t\n]*$/ := s
-        case str s => "a" + s
-            when /^[ \t\n]*\<[ \t\<\>]*\>[ \t\n]*$/ := s
-        case str s => "a" + s
-            when /^[ \t\n]*\<([ \t]|[^\>,])*\>[ \t\n]*$/ := s
-        case str s => "a" + s + "a"
-            when /^[ \t\n]*[{\(\[][ \t\n]*[\)}\]][ \t\n]*$/ := s
-    };
-}
 
-test bool csvBooleanInfer() {
-    writeFile(targetFile, "col1,col2\nTRUE,True");
-    return readCSV(targetFile) == {<true, true>};
-}
+//data Maybe[&T] = none() | some(&T t);
+//
+//data C = c(Maybe[int] i);
 
-test bool csvBoolean() {
-    writeFile(targetFile, "col1,col2\nTRUE,True");
-    return readCSV(#rel[bool col1, bool col2], targetFile) == {<true, true>};
-}
 
-test bool csvDateTime() {
-    writeFile(targetFile, "col1,col2\n2012-06-24T00:59:56+02:00,<createDateTime(2012, 6, 24, 0, 59, 56, 0, 2, 00)>");
-    r = readCSV(#lrel[datetime a, datetime b], targetFile)[0];
-    println(r);
-    return r.a == r.b;
-}
+//lexical Name = "name";
+//syntax Pattern = "pat" | call: KeywordArguments[Pattern];
+//
+//syntax Expression = "exp"
+//                  | call: KeywordArguments[Expression] keywordArguments
+//                  ;
+//
+//
+//syntax KeywordArguments[&T]
+//    = //\default: {KeywordArgument[&T] ","}+ keywordArgumentList
+//      none: ()
+//    ;
+//    
+////syntax KeywordArgument[&T] = \default: Name name "=" &T expression ;
+//
+//value main() = 42;
+//syntax A = "a";
+//syntax X[&T] = &T "x" &T;
+//
+//syntax XA = X[A];
+//
+//int f((X[A]) `axa`) = 1;
+//
+//value main() = f((X[A]) `axa`);
+
+////data D[&T] = d(&T n);
+//import lang::rascalcore::compile::Examples::Tst3;
+//
+
+//data D[&T] = d(&T n);
+//
+//int f(D[int] x) = 1;
+//int f(D[str] x) = 3;
+//
+//
+//value main() = f(d("abc")) + f(d(10));
+
+//extend lang::rascalcore::check::ATypeInstantiation;
+//import lang::rascal::\syntax::Rascal;
+//
+//
+//void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings){
+//
+//}

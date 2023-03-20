@@ -74,11 +74,11 @@ public final class ModuleStore {
      * @param extension The extending class
      */
 	@SuppressWarnings("unchecked")
-    public <Base, Extension> Base extendModule(Class<Base> baseModule, RascalExecutionContext rex, BiFunction<RascalExecutionContext, Extension, Base> builder, Extension extension) {
+    public <Base, Extension> Base extendModule(Class<Base> baseModule, RascalExecutionContext rex, BiFunction<RascalExecutionContext, Object, Base> builder, Object extension) {
     	Entry<Class<?>, Class<?>> entry = new AbstractMap.SimpleEntry<Class<?>,Class<?>> (baseModule, extension.getClass());
     	Extension ext =  (Extension) extendedModules.get(entry);
     	if (ext == null) {
-    		Extension newResult =  (Extension) builder.apply(rex, extension);
+    		Extension newResult =  (Extension) builder.apply(rex, (Extension)extension);
     		entry = new AbstractMap.SimpleEntry<Class<?>,Class<?>> (baseModule, extension.getClass());
     		extendedModules.put(entry, newResult);
             return (Base)newResult;

@@ -21,6 +21,8 @@ extend ParseTree;
 import analysis::typepal::Messenger;
 import lang::rascal::\syntax::Rascal;
 
+import lang::rascalcore::compile::util::Names; // TODO: undesired forward reference
+
 import IO;
 import List;
 import Node;
@@ -30,6 +32,8 @@ import String;
 str unescape(str s) = replaceAll(s, "\\", "");
 
 AType removeLabels(AType t) = unsetRec(t, "alabel");
+
+AType inheritLabel(AType x, AType y) = (x.alabel?) ? y[alabel=x.alabel] : y;
 
 // ---- print atypes ----------------------------------------------------------
 
@@ -97,8 +101,8 @@ str prettyAType(AType::\aempty()) = "()";
 str prettyAType(\opt(AType symbol)) = "<prettyAType(symbol)>?";
 str prettyAType(\iter(AType symbol)) = "<prettyAType(symbol)>+";
 str prettyAType(\iter-star(AType symbol)) = "<prettyAType(symbol)>*";
-str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ prettyAType(sep) | sep <- separators ])>}+";
-str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ prettyAType(sep) | sep <- separators ])>}*";
+str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutType(sep) ])>}+";
+str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutType(sep) ])>}*";
 str prettyAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyAType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
 str prettyAType(\seq(list[AType] sequence)) = "( <intercalate(" ", [ prettyAType(a) | a <- sequence ])> )" when size(sequence) > 1;
 str prettyAType(\conditional(AType symbol, set[ACondition] conditions)) = "<prettyAType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
@@ -119,7 +123,7 @@ Symbol atype2symbol(AType tp){
     //println("atype2symbol: <tp>");
     res = atype2symbol1(tp);
     a = tp.alabel?;
-    return a ? Symbol::\label(tp.alabel, res) : res;
+    return a ? Symbol::\label(getUnqualifiedName(tp.alabel), res) : res;
 }
 
 Symbol atype2symbol1(aint()) = Symbol::\int();
@@ -251,7 +255,7 @@ default Production aprod2prod(AType t) {
 }
 
 Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[AAttr] as))
-  = Production::prod((p.alabel?) ? Symbol::label(p.alabel, atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], { aattr2attr(a) | a <- as }
+  = Production::prod((p.alabel?) ? Symbol::label(getUnqualifiedName(p.alabel), atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], { aattr2attr(a) | a <- as }
   ); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
@@ -269,7 +273,7 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
 Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] kwFields)) {
     //res = Production::\cons(atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | g <- kwFields], {});
     //if(a.alabel?) res = Symbol::label(a.alabel, res);
-    res = Production::\cons((a.alabel?) ? Symbol::label(a.alabel, atype2symbol(adt)) : atype2symbol(adt), 
+    res = Production::\cons((a.alabel?) ? Symbol::label(getUnqualifiedName(a.alabel), atype2symbol(adt)) : atype2symbol(adt), 
                             [atype2symbol(f) | f <- fields], 
                             [Symbol::label(g.fieldType.alabel, atype2symbol(g.fieldType)) | g <- kwFields], {});
     return res;
@@ -1467,7 +1471,7 @@ default list[AType] getSeqTypes(AType t){
     throw rascalCheckerInternalError("<prettyAType(t)> is not a seq non-terminal type");
 }
 
-
+//AType getSyntaxType(AType t, Solver _) = t;
 
 AType getSyntaxType(AType t, Solver _) = stripStart(removeConditional(t));
 
