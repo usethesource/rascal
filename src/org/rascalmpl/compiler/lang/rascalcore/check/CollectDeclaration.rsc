@@ -3,10 +3,11 @@ module lang::rascalcore::check::CollectDeclaration
 
 extend lang::rascalcore::check::CollectDataDeclaration;
 extend lang::rascalcore::check::CollectSyntaxDeclaration;
+
 extend lang::rascalcore::check::Fingerprint;
+extend lang::rascalcore::check::PathAnalysis;
 
-import lang::rascalcore::check::PathAnalysis;
-
+import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectVarArgs;
 
 import lang::rascal::\syntax::Rascal;

@@ -47,7 +47,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     
    	try {
         //if(verbose) 
-        println("compile: Compiling <qualifiedModuleName>");
+        println("Compile: <qualifiedModuleName>");
        	<tm, muMod> = r2mu(M, tm, /*reloc=reloc,*/ verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
    
         if(errorsPresent(tm)){
@@ -66,7 +66,8 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         }
         
         writeBinaryValueFile(constantsFile, constants);
-        println("Written: <constantsFile>");    
+        println("Written: <constantsFile>"); 
+           
         return tm.messages;
        
     } catch _: CompileTimeError(Message m): {
@@ -85,7 +86,7 @@ list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|norel
     
     // Temporary conversion step needed for bootstrap (new tuple element orgId has been added)
     // TODO: remove after next iteration  
-    tmodels = visit(tmodels){ case [value]<loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> => <scope, id, id, idRole, defined, defInfo> };
+    //tmodels = visit(tmodels){ case [value]<loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> => <scope, id, id, idRole, defined, defInfo> };
     
     //iprintln(tmodels[qualifiedModuleName], lineLimit=10000);
     //return tmodels[qualifiedModuleName].messages;

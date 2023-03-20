@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::CheckerCommon
 
 //extend lang::rascalcore::check::NameUtils;

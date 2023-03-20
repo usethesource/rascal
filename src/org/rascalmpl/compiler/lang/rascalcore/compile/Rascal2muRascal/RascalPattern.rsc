@@ -521,8 +521,12 @@ private MuExp translateParsedConcretePattern(t:appl(prod:Production::regular(Sym
         body = muBlock([ muConInit(subject_arg, muSubscript(muTreeGetArgs(subject), muCon(i))),
                             translateParsedConcretePattern(args[i], symbol2atype(symbols[i]), getType(subject_arg), subject_arg, btscopes, body, falseCont, restore=restore)
                        ]);
-   }  
-   cond = muAndNativeBool(muTreeIsAppl(subject), muEqual(muCon(prod), muTreeGetProduction(subject))); 
+   }
+   
+   ///*syn*/if(label(str _, Symbol tp) := prod.def){     
+   //     prod.def = tp; 
+   //} 
+   cond = muTreeIsProductionEqual(subject, muCon(prod));
    return muIfElse(cond, body, falseCont);         
 }
 
@@ -532,7 +536,10 @@ private MuExp translateParsedConcretePattern(t:appl(prod:Production::regular(s:S
                        AType patType, AType subjectType,  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
    
     body = translateParsedConcretePattern(args[0], symbol2atype(symbol), getType(subject), subject, btscopes, trueCont, falseCont, restore=restore);
-    cond = muAndNativeBool(muTreeIsAppl(subject), muEqual(muCon(prod), muTreeGetProduction(subject))); 
+    ///*syn*/if(label(str _, Symbol tp) := prod.def){     
+    //    prod.def = tp; 
+    //} 
+    cond = muTreeIsProductionEqual(subject, muCon(prod));
     return muIfElse(cond, body, falseCont);             
 }
                        
@@ -554,8 +561,11 @@ default MuExp translateParsedConcretePattern(t:appl(Production prod, list[Tree] 
                             translateParsedConcretePattern(args[i], symbol2atype(prod has symbols ? prod.symbols[i] : prod.def), getType(subject_arg), subject_arg, btscopes, body, falseCont, restore=restore)
                           ]);
        }
-   }                    
-   cond = muAndNativeBool(muTreeIsAppl(subjectExp), muEqual(muCon(prod), muTreeGetProduction(subjectExp)));         
+   }   
+   ///*syn*/if(label(str _, Symbol tp) := prod.def){     
+   //     prod.def = tp; 
+   //}   
+   cond = muTreeIsProductionEqual(subjectExp, muCon(prod));        
    return muIfElse(cond, body, falseCont);
 }
 

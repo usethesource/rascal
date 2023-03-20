@@ -32,6 +32,8 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 import lang::rascalcore::compile::Rascal2muRascal::RascalPattern;
 import lang::rascalcore::compile::Rascal2muRascal::RascalStatement;
 
+import lang::rascalcore::compile::muRascal2Java::Conversions;   // TODO:undesired dependency
+
 
 
 
@@ -93,7 +95,8 @@ void generateAllFieldGetters(loc module_scope){
 
 private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
 
-    adtName = adtType.adtName;
+    //adtName = adtType.adtName;
+    adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
     /*
      * Create getters for common keyword fields of this data type
      */

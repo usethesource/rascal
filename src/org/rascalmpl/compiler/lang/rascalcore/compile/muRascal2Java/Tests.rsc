@@ -23,8 +23,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
     
     testMethods = "<for(f <- functions){>
                   '    <generateTestMethod(f, className, jg)><}>
-                  ";
-    if(isEmpty(testMethods)) return "";
+                  '";
+    if(isEmpty(trim(testMethods))) return "";
     
     res  = "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import java.util.*;

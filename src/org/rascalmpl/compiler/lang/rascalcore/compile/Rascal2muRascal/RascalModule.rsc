@@ -28,6 +28,8 @@ import lang::rascalcore::compile::Rascal2muRascal::ConcreteSyntax;
 import lang::rascalcore::compile::Rascal2muRascal::RascalDeclaration;
 import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 
+
+
 /*
  * Translate a Rascal module to muRascal.
  * The essential function is:

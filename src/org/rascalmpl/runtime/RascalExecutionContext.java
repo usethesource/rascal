@@ -83,18 +83,18 @@ public class RascalExecutionContext implements IRascalMonitor {
 			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
 			String[]entries = URIResolverRegistry.getInstance().listEntries(projectsDir);
 			if (entries != null) {
-				System.err.print("INFO adding projects: ");
+				//System.err.print("INFO adding projects: ");
 				for(String entryName : entries) {
 					if(entryName.charAt(0) != '.' && !(entryName.equals("pom-parent") || entryName.equals("bin") || entryName.equals("src") || entryName.equals("META-INF"))) {
 						ISourceLocation entryRoot = $RVF.sourceLocation(projectsDir.getScheme(), projectsDir.getAuthority(), projectsDir.getPath() + "/" + entryName);
 						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
 							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
 							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
-							System.err.print(entryName + " ");
+							//System.err.print(entryName + " ");
 						}
 					}
 				}
-				System.err.println("");
+				//System.err.println("");
 			}
 		} catch (IOException e) {
 			return;

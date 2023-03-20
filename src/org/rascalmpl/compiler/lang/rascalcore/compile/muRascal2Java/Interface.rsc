@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::compile::muRascal2Java::Interface
 
 import lang::rascalcore::compile::muRascal::AST;

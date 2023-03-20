@@ -158,6 +158,7 @@ public data MuExp =
           | muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)
           | muGetFieldFromConstructor(AType resultType, AType consType, MuExp var, str fieldName)
           | muTreeGetProduction(MuExp tree)
+          | muTreeIsProductionEqual(MuExp tree, MuExp production)
           | muTreeGetArgs(MuExp tree)
           | muGetKwp(MuExp var, AType atype, str kwpName)
           | muHasKwp(MuExp var, str kwpName)
@@ -297,7 +298,6 @@ public data MuExp =
           | muTreeUnparse(MuExp tree)
           | muTreeUnparseToLowerCase(MuExp tree)
           | muTreeListSize(MuExp exp, AType atype)
-          | muTreeIsAppl(MuExp exp)
           
           // Type parameters
           | muTypeParameterMap(set[AType] parameters)
@@ -394,7 +394,7 @@ default bool producesNativeBool(MuExp exp)
     = getName(exp) in {"muEqual", "muMatch", "muMatchAndBind", "muEqualNativeInt", "muIsVarKwpDefined", "muIsKwpConstructorDefined", "muHasKwp", "muHasKwpWithValue", "muHasTypeAndArity",
                   "muHasNameAndArity", "muValueIsSubtypeOf", "muValueIsComparable", "muValueIsComparableWithInstantiatedType", 
                   "muValueIsSubtypeOfInstantiatedType", "muValueIsSubtypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
-                  "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField", "muTreeIsAppl"};
+                  "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField", "muTreeIsProductionEqual"};
 
 // Produces NativeInt
 

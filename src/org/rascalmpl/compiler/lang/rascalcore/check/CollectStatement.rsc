@@ -2,6 +2,10 @@
 module lang::rascalcore::check::CollectStatement
 
 extend lang::rascalcore::check::CheckerCommon;
+
+import lang::rascalcore::check::CollectPattern;
+import lang::rascalcore::check::CollectDeclaration;
+
 import lang::rascal::\syntax::Rascal;
 
 import List;
@@ -44,7 +48,7 @@ void collect(current: (Statement) `<Expression expression>;`, Collector c){
     }
 }
 
-// ---- visit and insert ------------------------------------------------------
+// ---- visit statement and insert ------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
     c.enterScope(current);
@@ -69,6 +73,36 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         //
         //});
         
+    c.leaveScope(current);
+}
+
+// ---- visit expression
+
+void collect(current: (Expression) `<Label label> <Visit vst>`, Collector c){
+    c.enterScope(current);
+        scope = c.getScope();
+        c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
+        if(label is \default){
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
+        }
+        c.calculate("visit", current, [vst.subject], 
+            AType(Solver s){ 
+                checkNonVoid(vst.subject, s, "Subject of visit");
+                return s.getType(vst.subject); 
+            });
+        collect(vst, c);
+        
+        //TODO: experiment
+        //casePatterns = [ cs.patternWithAction.pattern | cs <- vst.cases, cs is patternWithAction ];
+        //c.require("cases from specific to general", current, casePatterns, void(Solver s){
+        //    caseType = [ s.getType(cpat) | cpat <- casePatterns ];
+        //    for(int i <- index(casePatterns), int j <- index(casePatterns)){
+        //        if(i < j && asubtype(caseType[j], caseType[i])){
+        //            s.report(warning(casePatterns[j], "Case pattern has more specific type %t than previous case with type %t", caseType[j], caseType[i]));
+        //        }
+        //    }
+        //
+        //});
     c.leaveScope(current);
 }
 
@@ -332,13 +366,17 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
 
 // ---- break -----------------------------------------------------------------
 
-void collect(current:(Statement) `break <Target target>;`, Collector c){
-    c.fact(current, avoid());
-    loopName = "";
-    if(target is labeled){
-        loopName = prettyPrintName(target.name);
+void collect(Target target, Collector c){
+   if(target is labeled){
         c.use(target.name, {labelId()});
     }
+}
+
+str getTargetName(Target target) = target is labeled ? prettyPrintName(target.name) : "";
+
+void collect(current:(Statement) `break <Target target>;`, Collector c){
+    c.fact(current, avoid());
+    loopName = getTargetName(target);
  
     for(<_, scopeInfo> <- c.getScopeInfo(loopScope())){
         if(loopInfo(loopName1, list[Statement] _) := scopeInfo){
@@ -357,11 +395,7 @@ void collect(current:(Statement) `break <Target target>;`, Collector c){
 
 void collect(current:(Statement) `continue <Target target>;`, Collector c){
     c.fact(current, avoid());
-    loopName = "";
-    if(target is labeled){
-        loopName = prettyPrintName(target.name);
-        c.use(target.name, {labelId()});
-    }
+    loopName = getTargetName(target);
     
     for(<_, scopeInfo> <- c.getScopeInfo(loopScope())){
         if(loopInfo(loopName1, list[Statement] _) := scopeInfo){
@@ -449,11 +483,11 @@ data SwitchInfo = switchInfo(Expression e);
 // ---- fail ------------------------------------------------------------------
 
 void collect(current: (Statement)`fail <Target target>;`, Collector c){
-    loopName = "";
-    if(target is labeled){
-        loopName = prettyPrintName(target.name);
-        c.use(target.name, {labelId(), functionId()});
-    }
+    //loopName = "";
+    //if(target is labeled){
+    //    loopName = prettyPrintName(target.name);
+    //    c.use(target.name, {labelId(), functionId()});
+    //}
     c.fact(current, avoid());
 }
 

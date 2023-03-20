@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::compile::muRascal2Java::CodeGen
 
 import lang::rascal::\syntax::Rascal;
@@ -78,9 +79,11 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     
     moduleScopes = range(moduleLocs); //{ s |tm <- range(tmodels), s <- tm.scopes, tm.scopes[s] == |global-scope:///| };
     
-    cons_in_module = { def.defInfo.atype | def <- range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) };
-    adt_in_module = { def.defInfo.atype | def <- range(tm.definitions), def.idRole in dataOrSyntaxRoles, isContainedIn(def.scope, module_scope) };
-    
+    //cons_in_module = { def.defInfo.atype | Define def <-range(tm.definitions), def.idRole == constructorId(), isContainedIn(def.scope, module_scope) };
+    //adt_in_module = { def.defInfo.atype | Define def <- range(tm.definitions), def.idRole in dataOrSyntaxRoles, isContainedIn(def.scope, module_scope) };
+    facts = tm.facts;
+    cons_in_module = { t | loc k <- facts, /AType t:acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts[k] };
+    adt_in_module = getADTs();
     <adtTypeDecls, adtTypeInits, consTypeDecls, consTypeInits, kwpDecls> = generateTypeStoreAndKwpDecls(adt_in_module, cons_in_module, jg);
     
     bool hasMainFunction = false;
@@ -137,9 +140,9 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '    this(rex, null);
                         '}
                         '
-                        'public <className>(RascalExecutionContext rex, $<className> extended){
+                        'public <className>(RascalExecutionContext rex, Object extended){
                         '   super(rex);
-                        '   this.$me = extended == null ? this : extended;
+                        '   this.$me = extended == null ? this : ($<className>)extended;
                         '   ModuleStore mstore = rex.getModuleStore();
                         '   mstore.put(<getClassRef(getQualClassName(moduleName), moduleName)>.class, this);
                         '   <for(imp <- imports, imp notin extends){>
@@ -147,7 +150,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '   <for(imp <- imports, imp notin extends){>
                         '   <module2field(imp)> = mstore.getModule(<getClassRef(imp, moduleName)>.class);<}> 
                         '   <for(ext <- extends){>
-                        '   <module2field(ext)> = mstore.extendModule(<getClassRef(ext, moduleName)>.class, rex, <getClassRef(ext, moduleName)>::new, this);<}>
+                        '   <module2field(ext)> = mstore.extendModule(<getClassRef(ext, moduleName)>.class, rex, <getClassRef(ext, moduleName)>::new, $me);<}>
                       
                         '   <for(imp <- imports+extends){>
                         '   $TS.importStore(<module2field(imp)>.$TS);<}>
@@ -174,18 +177,25 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
       hasDefaultArgs = mainFunction.ftype.kwFormals != [];
       //RascalExecutionContext rex, ModuleStore mstore, TypeStore tstore
       main_method = "public static void main(String[] args) {
+                    '  long start_time = System.currentTimeMillis();
                     '  RascalExecutionContext rex = new RascalExecutionContext(System.in, System.out, System.err, null, null, <packageName>.<className>.class);
+                    '  <className> instance = new <className>(rex);
+                    '  long init_time = System.currentTimeMillis();
                     '  <if (!hasListStrArgs && !hasDefaultArgs) {>
-                    '  <if (!mainIsVoid) {>IValue res = <}>new <className>(rex).<mainName>();
+                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>();
                     '  <}><if (hasListStrArgs) {>
-                    '  <if (!mainIsVoid) {>IValue res = <}>new <className>(rex).<mainName>(java.util.Arrays.stream(args).map(a -\> $VF.string(a)).collect($VF.listWriter()));
+                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>(java.util.Arrays.stream(args).map(a -\> $VF.string(a)).collect($VF.listWriter()));
                     '  <}><if (hasDefaultArgs) {>
-                    '  <if (!mainIsVoid) {>IValue res = <}>new <className>(rex).<mainName>($parseCommandlineParameters(\"<className>\", args, <atype2vtype(atuple(atypeList([t |  <t,_> <- mainFunction.ftype.kwFormals])), jg)>));
-                    '  <}><if (!mainIsVoid) {>if (res == null) {
+                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>($parseCommandlineParameters(\"<className>\", args, <atype2vtype(atuple(atypeList([t |  <t,_> <- mainFunction.ftype.kwFormals])), jg)>));
+                    '  <}>
+                    '  long end_time = System.currentTimeMillis();
+                    '  <if (!mainIsVoid) {>if (res == null) {
                     '     throw new RuntimeException(\"Main function failed\"); 
                     '  } else {
-                    '    System.out.println(res);
-                    '  }<}>
+                    '     System.out.println(res);
+                    '  }
+                    '  System.err.println(\"Running <className>: init: \" + (init_time - start_time) + \" ms, exec: \" + (end_time - init_time) + \" ms, total: \" + (end_time - start_time) + \" ms\"); 
+                    <}>
                     '}";
     }
     
@@ -224,8 +234,8 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '    <library_decls>
                         '    <module_variables>
                         '    <constant_decls>
-                        '    <adtTypeDecls>
                         '    <consTypeDecls>
+                        '    <adtTypeDecls>
                         '    <class_constructor>
                         '    <resolvers>
                         '    <function_decls>
@@ -284,30 +294,78 @@ MuFunction addTransitiveRefs(MuFunction fun){
 tuple[str adtTypeDecls, str adtTypeInits, str consTypeDecls, str consTypeInits, str kwpTypeDecls] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] constructors, JGenie jg){
     adtTypeDecls = "";
     adtTypeInits = "";
+    adtTypeInstantiateInits = "";
     seenAdtNames = {};
-    for(aadt(str adtName, list[AType] _, SyntaxRole _) <- ADTs){
-        if(adtName notin seenAdtNames/*, isEmpty(jg.getATypeAccessor(a))*/){
-            adtTypeDecls += "public io.usethesource.vallang.type.Type <getADTName(adtName)>;\n";
-            adtTypeInits += "<getADTName(adtName)> = $TF.abstractDataType($TS, \"<adtName>\");\n";
-            seenAdtNames += adtName;
-        }
-    }
+    parameterized_ADTs = { a | /a:aadt(str adtName, list[AType] parameters, SyntaxRole _) := ADTs, !isEmpty(parameters), all(p <- parameters, isTypeParameter(p)) };
+    
+    for(a <- ADTs) jg.shareType(a);
+    //for(aadt(str adtName, list[AType] parameters, SyntaxRole _) <- parameterized_ADTs){
+    //    aname = "<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+    //    params = intercalate(", ", [ atype2vtype(p, jg) | p <- parameters]);
+    //    adtTypeInits += "<getADTName(aname)> = $TF.abstractDataType($TS, \"<aname>\", <params>); /*CodeGen1b*/\n";
+    //}
+    //
+    //for(/a:aadt(str adtName, list[AType] parameters, SyntaxRole _) := ADTs, a notin parameterized_ADTs){
+    //    a = unset(a, "alabel");
+    //    if(/*isEmpty(jg.getATypeAccessor(a)) && */!jg.isSharedType(a)){
+    //        aname = isEmpty(parameters) ? adtName : "<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+    //
+    //        if(aname notin seenAdtNames/*, isEmpty(jg.getATypeAccessor(a))*/){
+    //            adtTypeDecls += "public io.usethesource.vallang.type.Type <getADTName(aname)>; /*CodeGen1a: <a>*/\n";
+    //            if(isEmpty(parameters)){
+    //            //params = isEmpty(parameters) ? "" : ", <intercalate(", ", [aparameter(str pname, AType bound) := p ? "$TF.valueType()" : atype2vtype(p, jg) | p <- parameters])>";
+    //                adtTypeInits += "<getADTName(aname)> = $TF.abstractDataType($TS, \"<aname>\"); /*CodeGen1b*/\n";
+    //            } else {
+    //                bindings = "";
+    //                for(pa <- parameterized_ADTs){
+    //                    if(pa.adtName == adtName && size(parameters) == size(pa.parameters)){
+    //                        for(int i <- index(parameters)){
+    //                             bindings += "<atype2vtype(pa.parameters[i], jg)>, <atype2vtype(parameters[i], jg)>";
+    //                        }
+    //                        break;
+    //                    }
+    //                }
+    //                adtTypeInstantiateInits += "<getADTName(aname)> = <getADTName(adtName)>_.instantiate(Map.of(<bindings>));\n";
+    //            }
+    //            seenAdtNames += aname;
+    //        }
+    //    }
+    //}
+    //adtTypeInits += adtTypeInstantiateInits;
+    
     consTypeDecls = "";
     consTypeInits = "";
     kwpTypeDecls = "";
+    seenConsNames = {};
     
-    for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors, isEmpty(jg.getATypeAccessor(c))){
-        //println(c);
-        adt_cons = atype2idpart(c);
-        hasFieldNames = all(fld <- fields, !isEmpty(fld.alabel));
-        fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,jg)>, \"<fld.alabel>\"" | fld <- fields ] : [ "<atype2vtype(fld, jg)>" | fld <- fields ];
-        consTypeDecls += "public io.usethesource.vallang.type.Type <jg.getATypeAccessor(c)><adt_cons>;\n";
-        consTypeInits += "<adt_cons> = $TF.constructor($TS, <jg.getATypeAccessor(c)><getADTName(adt.adtName)>, \"<c.alabel>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
-        
-        for(kwpField <- kwpFields){
-            kwpTypeDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.alabel>\", <atype2vtype(kwpField.fieldType, jg)>);\n";
-        }
-    }    
+    for(c <- constructors) jg.shareType(c);
+    //for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors, isEmpty(jg.getATypeAccessor(c))){
+    //    //println(c);
+    //    cname = atype2idpart(c);
+    //    
+    //    hasFieldNames = all(fld <- fields, !isEmpty(fld.alabel));
+    //    fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,jg)>, \"<fld.alabel>\"" | fld <- fields ] : [ "<atype2vtype(fld, jg)>" | fld <- fields ];
+    //    if(cname notin seenConsNames){
+    //        //jg.shareType(c);
+    //        consTypeDecls += "public io.usethesource.vallang.type.Type <jg.getATypeAccessor(c)><cname>; /*CodeGen2a*/\n";
+    //        aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
+    //        if(aname notin seenAdtNames && !jg.isSharedType(adt)){
+    //            params = isEmpty(adt.parameters) ? "" : ", <intercalate(", ", [aparameter(str pname, AType bound) := p ? "$TF.valueType()" : atype2vtype(p, jg) | p <- adt.parameters])>";
+    //            adtTypeInits += "<getADTName(aname)> = $TF.abstractDataType($TS, \"<aname>\"<params>);/*CodeGen2b*/\n";
+    //            seenAdtNames += aname;
+    //        }
+    //    }
+    //    if(cname notin seenConsNames){
+    //        //if(isEmpty(adt.parameters) || !any(p <- adt.parameters, isTypeParameter(p))){
+    //            adt_name = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
+    //            consTypeInits += "<cname> = $TF.constructor($TS, <jg.getATypeAccessor(c)><getADTName(adt_name)>, \"<getUnqualifiedName(c.alabel)>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);/*CodeGen3*/\n";
+    //            seenConsNames += cname;
+    //        //}
+    //    }
+    //    for(kwpField <- kwpFields){
+    //        kwpTypeDecls += "$TS.declareKeywordParameter(<cname>,\"<kwpField.fieldType.alabel>\", <atype2vtype(kwpField.fieldType, jg)>);\n";
+    //    }
+    //}    
     return <adtTypeDecls, adtTypeInits,
             consTypeDecls, consTypeInits,
             kwpTypeDecls>;
@@ -441,6 +499,9 @@ JCode trans(MuFunction fun, JGenie jg){
     
     ftype = fun.ftype;
     jg.setFunction(fun);
+    if(getUniqueFunctionName(fun) == "collect_31A756"){
+        println("collect_31A756");
+    }
     shortName = getJavaName(getUniqueFunctionName(fun));
     
     visibility = "public "; // isSyntheticFunctionName(shortName) ? "private " : "public "; $getkw_ should be public
@@ -647,8 +708,8 @@ str trans(muTreeGetProduction(MuExp t), JGenie jg) {
     return  "((org.rascalmpl.values.parsetrees.ITree) <trans(t,jg)>).getProduction()";
 }
 
-str trans(muTreeIsAppl(MuExp t), JGenie jg) {
-    return "((org.rascalmpl.values.parsetrees.ITree) <trans(t, jg)>).isAppl()";
+str trans(muTreeIsProductionEqual(MuExp tree, MuExp production), JGenie jg){
+    return  "$isTreeProductionEqual((IConstructor)<trans(tree, jg)>, <trans(production, jg)>)";
 }
 
 str trans(muTreeGetArgs(MuExp t), JGenie jg) {
@@ -1028,7 +1089,8 @@ str prefix(str moduleName, JGenie jg){
     return res;
 }
 JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName, str moduleName), JGenie jg){
-    adtName = adtType.adtName;
+    //adtName = adtType.adtName;
+    adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
     if(asubtype(adtType, treeType)){
         if(fieldName == "loc") fieldName = "src"; // TODO: remove when @\loc is gone
         adtName = "Tree";
@@ -1037,7 +1099,8 @@ JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str
 }
 
 JCode trans(muGetKwField(AType resultType,  consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
-    adtName = adt.adtName;
+    //adtName = adt.adtName;
+    adtName = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
     if(asubtype(adt, treeType)){
         if(fieldName == "loc") fieldName = "src";   // TODO: remove when @\loc is gone
         adtName = "Tree";

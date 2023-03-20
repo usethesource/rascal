@@ -38,8 +38,8 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
   
   return syms;
 }
-
-private AType inheritLabel(AType x, AType y) = (x.alabel?) ? y[alabel=x.alabel] : y;
+//Moved to ATypeUtils;
+//private AType inheritLabel(AType x, AType y) = (x.alabel?) ? y[alabel=x.alabel] : y;
 
 private bool isValidSep(AType sep,  set[AType] others) = !(seq([a,_,b]) := sep && (a in others || b in others));
  

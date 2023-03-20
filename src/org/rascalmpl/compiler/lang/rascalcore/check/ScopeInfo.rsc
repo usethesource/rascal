@@ -1,4 +1,4 @@
-//@bootstrapParser
+@bootstrapParser
 module lang::rascalcore::check::ScopeInfo
 
 import lang::rascalcore::check::BasicRascalConfig;

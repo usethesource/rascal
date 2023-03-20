@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::AType
 
 extend lang::rascalcore::check::ATypeBase;
@@ -75,32 +76,39 @@ bool asubtype(aadt(_, _, sr), aadt("Tree", _, _)) = true when isConcreteSyntaxRo
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 bool asubtype(AType a, \start(AType b)) = asubtype(a, b);
 
-bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
-bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter(AType t)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-bool asubtype(AType::\iter(AType s), AType::\iter-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-
-bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
-bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);
-
-bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
-bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), AType::\iter-star(AType t)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-bool asubtype(AType::\iter-star(AType s), AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-
-bool asubtype(AType::\iter(AType s), aadt("Tree", [], _)) = true;
+bool asubtype(AType::\iter(AType s), aadt("Tree", [], dataSyntax())) = true;
 bool asubtype(AType::\iter(AType s), anode(_)) = true;
+bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);
+bool asubtype(AType::\iter(AType s), AType::\iter-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
+bool asubtype(AType::\iter(AType s), AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
 
-bool asubtype(AType::\iter-star(AType s), aadt("Tree", [], _)) = true;
-bool asubtype(AType::\iter-star(AType s), anode(_)) = true;
-
-bool asubtype(AType::\iter-seps(AType s, list[AType] seps), aadt("Tree", [], _)) = true;
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), aadt("Tree", [], dataSyntax())) = true;
 bool asubtype(AType::\iter-seps(AType s, list[AType] seps), anode(_)) = true;
 
-bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [], _)) = true;
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter(AType t)) = asubtype(s,t) && isEmpty(removeLayout(seps));
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star(AType t)) = asubtype(s,t) && isEmpty(removeLayout(seps));
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
+
+bool asubtype(AType::\iter-star(AType s), aadt("Tree", [], dataSyntax())) = true;
+bool asubtype(AType::\iter-star(AType s), anode(_)) = true;
+bool asubtype(AType::\iter-star(AType s), AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
+
+bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [], dataSyntax())) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
+bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
+
+bool asubtype(AType s, AType::\iter(t)) = asubtype(s, t);
+bool asubtype(AType s, AType::\iter-star(AType t)) =  asubtype(s, t);
+bool asubtype(AType s, AType::\iter-seps(AType t, list[AType] seps)) = asubtype(s,t);// && isEmpty(removeLayout(seps));
+bool asubtype(AType s, AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t);// && isEmpty(removeLayout(seps));
 
 bool asubtype(AType::alit(_), aadt("Tree", [], _)) = true;
 bool asubtype(AType::acilit(_), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\achar-class(_), aadt("Tree", [], _)) = true;
+
+bool asubtype(AType::conditional(AType s, _), AType t) = asubtype(s, t);
+bool asubtype(AType s, AType::conditional(AType t, _)) = asubtype(s, t);
 
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
