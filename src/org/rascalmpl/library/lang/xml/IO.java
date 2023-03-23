@@ -2,6 +2,7 @@ package org.rascalmpl.library.lang.xml;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -32,18 +33,21 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 import org.xml.sax.XMLReader;
+import org.xml.sax.ext.LexicalHandler;
 
 public class IO {
 
     private final IValueFactory vf;
+    private final PrintWriter stdout;
 
-    public IO(IValueFactory vf) {
+    public IO(IValueFactory vf, PrintWriter stdout) {
         this.vf = vf;
+        this.stdout = stdout;
     }
     
-    public INode readXML(ISourceLocation loc, IBool trim, IBool fullyQualify) {
+    public INode readXML(ISourceLocation loc, IBool trim, IBool fullyQualify, IBool trackOrigins) {
         try (Reader content = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
-            return toNode(content, trim.getValue(), fullyQualify.getValue());
+            return toNode(content, loc, trim.getValue(), fullyQualify.getValue(),  trackOrigins.getValue());
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
@@ -51,16 +55,16 @@ public class IO {
     }
 
 
-    public INode readXML(IString content, IBool trim, IBool fullyQualify) {
+    public INode readXML(IString content, ISourceLocation src, IBool trim, IBool fullyQualify, IBool trackOrigins) {
         try (Reader contentReader = new StringReader(content.getValue())) {
-            return toNode(contentReader, trim.getValue(), fullyQualify.getValue());
+            return toNode(contentReader, src, trim.getValue(), fullyQualify.getValue(), trackOrigins.getValue());
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
         }
     }
 
-    private INode toNode(Reader characterReader, boolean trim, boolean fullyQualify) throws IOException {
+    private INode toNode(Reader characterReader, ISourceLocation src, boolean trim, boolean fullyQualify, boolean trackOrigins) throws IOException {
         try {
             XMLReader reader = XMLReaders.NONVALIDATING.createXMLReader();
             // XML reader reads the DTD to findout what it is reading at the moment.
@@ -74,7 +78,8 @@ public class IO {
                     return new InputSource(new ByteArrayInputStream(new byte[] {}));
                 }
             });
-            reader.setContentHandler(new ParseToRascalNode(trim, fullyQualify));
+            
+            reader.setContentHandler(new ParseToRascalNode(src, trim, fullyQualify, trackOrigins));
             addExtraContentHandlers(reader);
             reader.parse(new InputSource(characterReader));
             return ((ParseToRascalNode)reader.getContentHandler()).getResult();
@@ -95,18 +100,24 @@ public class IO {
         }
     }
 
-    private final class ParseToRascalNode implements ContentHandler {
+    private final class ParseToRascalNode implements ContentHandler, LexicalHandler {
         private final Stack<List<IValue>> stack = new Stack<>();
         private IMapWriter seenNamespaces = null; 
 		private final Stack<Map<String,IValue>> attributes = new Stack<>();
         private final boolean trim;
         private final boolean fullyQualify;
+        private final ISourceLocation src;
+        private final boolean trackOrigins;
+        
+        private Locator locator;
 		
         private INode result = null;
-
-        public ParseToRascalNode(boolean trim, boolean fullyQualify) {
+        
+        public ParseToRascalNode(ISourceLocation src, boolean trim, boolean fullyQualify, boolean trackOrigins) {
             this.trim = trim;
             this.fullyQualify = fullyQualify;
+            this.src = src;
+            this.trackOrigins= trackOrigins;
         }
 
         public INode getResult() {
@@ -125,6 +136,7 @@ public class IO {
         }
 
         private final Map<String, IValue> emptyMap = new HashMap<>(0);
+        
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
             stack.push(new ArrayList<>());
@@ -137,8 +149,14 @@ public class IO {
                 if (seenNamespaces != null) {
                     newAttrs.put("xmlns", seenNamespaces.done());
                     seenNamespaces = null;
-                }
+                }   
             }
+
+            if (trackOrigins) {
+                assert locator != null;
+                newAttrs.put("src", vf.sourceLocation(src, 0, 0, locator.getColumnNumber(), locator.getColumnNumber(), locator.getLineNumber(), locator.getLineNumber()));
+            }
+            
             attributes.push(newAttrs);
         }
 
@@ -146,7 +164,15 @@ public class IO {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             IListWriter children = vf.listWriter();
             children.appendAll(stack.pop());
-            stack.peek().add(vf.node( fullyQualify ? fixColonSyntax(qName) : localName, new IValue[]{ children.done() }, attributes.pop()));
+            Map<String, IValue> attrs = attributes.pop();
+
+            if (trackOrigins) {
+                ISourceLocation before = (ISourceLocation) attrs.get("src");
+                assert locator != null;
+                attrs.put("src", vf.sourceLocation(src, 0, 0, before.getBeginColumn(), locator.getColumnNumber(), before.getEndLine(), locator.getLineNumber()));
+            }
+            
+            stack.peek().add(vf.node( fullyQualify ? fixColonSyntax(qName) : localName, new IValue[]{ children.done() }, attrs));
         }
 
         @Override
@@ -182,6 +208,7 @@ public class IO {
 
         @Override
         public void setDocumentLocator(Locator locator) {
+            this.locator = locator;
         }
 
         @Override
@@ -194,6 +221,43 @@ public class IO {
         
         private String fixColonSyntax(String qName) {
             return qName.replaceAll(":", "-");
+        }
+
+        @Override
+        public void startDTD(String name, String publicId, String systemId) throws SAXException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'startDTD'");
+        }
+
+        @Override
+        public void endDTD() throws SAXException {
+            // TODO Auto-generated method stub
+            throw new UnsupportedOperationException("Unimplemented method 'endDTD'");
+        }
+
+        @Override
+        public void startEntity(String name) throws SAXException {
+            stdout.println("start of " + name +  " at: " + locator.getLineNumber() + ", " + locator.getColumnNumber());
+        }
+
+        @Override
+        public void endEntity(String name) throws SAXException {
+            stdout.println("end of " + name +  " at: " + locator.getLineNumber() + ", " + locator.getColumnNumber());
+        }
+
+        @Override
+        public void startCDATA() throws SAXException {
+            
+        }
+
+        @Override
+        public void endCDATA() throws SAXException {
+            
+        }
+
+        @Override
+        public void comment(char[] ch, int start, int length) throws SAXException {
+            
         }
     }
 }
