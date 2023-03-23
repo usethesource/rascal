@@ -1,10 +1,10 @@
 module lang::xml::IO
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java node readXML(loc file, bool trim = true, bool fullyQualify = false);
+java node readXML(loc file, bool trim = true, bool fullyQualify = false, bool trackOrigins = false);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java node readXML(str contents, bool trim = true, bool fullyQualify = false);
+java node readXML(str contents, loc src = |unknown:///|, bool trim = true, bool fullyQualify = false, bool trackOrigins = false);
 
 test bool nestedElementTest() {
   example = "\<aap\>\<noot\>mies\</noot\>\</aap\>";

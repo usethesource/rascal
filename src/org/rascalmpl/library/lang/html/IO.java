@@ -28,6 +28,7 @@ import org.jsoup.nodes.Document.OutputSettings.Syntax;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities.EscapeMode;
 import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Range;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
@@ -64,22 +65,31 @@ public class IO {
         this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
     }
     
-    public IValue readHTMLString(IString string, ISourceLocation base) {
+    public IValue readHTMLString(IString string, ISourceLocation base, IBool trackOrigins, ISourceLocation src) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty HTML document");
         }
 
-        Document doc = Jsoup.parse(string.getValue(), base.getURI().toString());
+        Parser htmlParser = Parser.htmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+             
+        Document doc = Jsoup.parse(string.getValue(), base.getURI().toString(), htmlParser);
             
-        return toConstructorTree(doc);        
+        return toConstructorTree(doc, trackOrigins.getValue() ? src : null);        
     }
 
-    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base) {
+    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins) {
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
-            Parser htmlParser = Parser.htmlParser().settings(new ParseSettings(false, false));
+            Parser htmlParser = Parser.htmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+            
             Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
             
-            return toConstructorTree(doc);
+            return toConstructorTree(doc, trackOrigins.getValue() ? file : null);
         } catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString());
         } catch (IOException e) {
@@ -87,16 +97,27 @@ public class IO {
         }
     }
 
-    private IValue toConstructorTree(Document doc) {
-        return factory.constructor(htmlConstructor, factory.list(toConstructorTree(doc.head()), toConstructorTree(doc.body())));
+    private IValue toConstructorTree(Document doc, ISourceLocation file) {
+        IConstructor result = factory.constructor(htmlConstructor, 
+                    factory.list(
+                        toConstructorTree(doc.head(), file), 
+                        toConstructorTree(doc.body(), file)
+                    )
+                );
+
+        if (file != null) {
+            return result.asWithKeywordParameters().setParameter("src", file);
+        }
+
+        return result;
     }
 
-    private IValue toConstructorTree(Node node) {
+    private IValue toConstructorTree(Node node, ISourceLocation file) {
         if (node instanceof TextNode) {
-            return toTextConstructor((TextNode) node);
+            return toTextConstructor((TextNode) node, file);
         }
         else if (node instanceof DataNode) {
-            return toDataConstructor((DataNode) node);
+            return toDataConstructor((DataNode) node, file);
         }
         else {
             assert node instanceof Element;
@@ -113,23 +134,46 @@ public class IO {
 
         IListWriter w = factory.listWriter();
         for (Node n : elem.childNodes()) {
-            w.append(toConstructorTree(n));
+            w.append(toConstructorTree(n, file));
         }
 
-        if (cons.getArity() > 0) {
-            return factory.constructor(cons, new IValue[] { w.done() }, kws);
-        }
-        else {
-            return factory.constructor(cons, new IValue[0], kws);
+        IConstructor result = cons.getArity() > 0
+            ? factory.constructor(cons, new IValue[] { w.done() }, kws)
+            : factory.constructor(cons, new IValue[0], kws);
+        
+        if (file != null) {
+            ISourceLocation src = nodeToLoc(node, file);
+            return result.asWithKeywordParameters().setParameter("src", src);
+        } else {
+            return result;
         }
     }
 
-    private IValue toDataConstructor(DataNode node) {
-        return factory.constructor(dataConstructor, factory.string(node.getWholeData()));
+    private ISourceLocation nodeToLoc(Node node, ISourceLocation file) {
+        Range r = node.sourceRange();
+        ISourceLocation src = factory.sourceLocation(file, 
+            r.start().pos(), 
+            r.end().pos() - r.start().pos(),
+            r.start().lineNumber(),
+            r.end().lineNumber(),
+            r.start().columnNumber(),
+            r.end().columnNumber()
+            );
+        return src;
     }
 
-    private IValue toTextConstructor(TextNode elem) {
-        return factory.constructor(textConstructor, factory.string(elem.getWholeText()));
+    private IValue toDataConstructor(DataNode node, ISourceLocation file) {
+        IConstructor cons = factory.constructor(dataConstructor, factory.string(node.getWholeData()));
+        return file != null 
+            ? cons.asWithKeywordParameters().setParameter("src", nodeToLoc(node, file))
+            : cons;
+    }
+
+    private IValue toTextConstructor(TextNode elem, ISourceLocation file) {
+        IConstructor cons = factory.constructor(textConstructor, factory.string(elem.getWholeText()));
+        return file != null 
+            ? cons.asWithKeywordParameters().setParameter("src", nodeToLoc(elem, file))
+            : cons;
     }
 
     /**
