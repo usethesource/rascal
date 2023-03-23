@@ -30,7 +30,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g"
+            "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {
             "type": "java",
