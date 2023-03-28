@@ -76,7 +76,7 @@ public class IO {
     }
 
 
-    public IValue readXML(IString string, ISourceLocation src, IBool trim, IBool fullyQualify, IBool trackOrigins) {
+    public IValue readXML(IString string, ISourceLocation src, IBool trackOrigins) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty XML document");
         }
@@ -88,7 +88,7 @@ public class IO {
              
         Document doc = Jsoup.parse(string.getValue(), src.getURI().toString(), xmlParser);
             
-        return toINode(doc, trackOrigins.getValue() ? src : null);        
+        return toINode(doc.firstChild(), trackOrigins.getValue() ? src : null);        
     }
 
     public IValue readXMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins) {
