@@ -30,6 +30,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
+            "cwd": "/Users/jurgenv/git/rascal",
             "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {
