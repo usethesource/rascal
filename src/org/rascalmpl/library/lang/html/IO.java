@@ -151,6 +151,10 @@ public class IO {
 
     private ISourceLocation nodeToLoc(Node node, ISourceLocation file) {
         Range r = node.sourceRange();
+        if (r.start().pos() < 0) {
+            return file;
+        }
+        
         ISourceLocation src = factory.sourceLocation(file, 
             r.start().pos(), 
             r.end().pos() - r.start().pos(),
