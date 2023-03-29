@@ -25,7 +25,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -192,11 +191,12 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	public boolean supportsHost() {
 		return false;
 	}
-	
-	@Override
-	public Charset getCharset(ISourceLocation uri) throws IOException {
-		return null;
-	}
+
+        // Commented out during PR draft; this makes no sense. Is a test dependent on this?
+	// @Override
+	// public Charset getCharset(ISourceLocation uri) throws IOException {
+	// 	return null;
+	// }
 	
 	@Override
 	public boolean supportsReadableFileChannel() {

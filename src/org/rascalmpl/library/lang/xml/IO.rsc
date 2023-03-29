@@ -1,10 +1,10 @@
 module lang::xml::IO
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java node readXML(loc file, bool trackOrigins = false, str charset="UTF-8", bool inferCharset=!(charset?));
+java value readXML(loc file, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java node readXML(str contents, loc src = |unknown:///|, bool trackOrigins = false);
+java value readXML(str contents, loc src = |unknown:///|, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 @synopsis{Pretty-print any value as an XML string}
