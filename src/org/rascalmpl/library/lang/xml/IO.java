@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Document.OutputSettings;
@@ -49,7 +50,7 @@ public class IO {
         this.vf = vf;
     }
     
-    public IValue readXML(ISourceLocation loc, IBool trackOrigins, IString charset, IBool inferCharset) {
+    public IValue readXML(ISourceLocation loc, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
         try {
             if (inferCharset.getValue()) {
                 charset = vf.string(URIResolverRegistry.getInstance().getCharset(loc).toString());
@@ -67,7 +68,7 @@ public class IO {
             
             Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), htmlParser);
             
-            return toINode(doc, trackOrigins.getValue() ? loc : null);
+            return toINode(doc, trackOrigins.getValue() ? loc : null, includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
         } catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(loc.getURI().toASCIIString());
         } catch (IOException e) {
@@ -76,7 +77,7 @@ public class IO {
     }
 
 
-    public IValue readXML(IString string, ISourceLocation src, IBool trackOrigins) {
+    public IValue readXML(IString string, ISourceLocation src, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty XML document");
         }
@@ -88,72 +89,73 @@ public class IO {
              
         Document doc = Jsoup.parse(string.getValue(), src.getURI().toString(), xmlParser);
             
-        return toINode(doc.firstChild(), trackOrigins.getValue() ? src : null);        
+        return toINode(doc.firstChild(), trackOrigins.getValue() ? src : null, includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());        
     }
 
-    public IValue readXMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins) {
-        try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
-            Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(false, false))
-                .setTrackPosition(trackOrigins.getValue())
-                ;
-            
-            Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), xmlParser);
-            
-            return toINode(doc, trackOrigins.getValue() ? file : null);
-        } catch (MalformedURLException e) {
-            throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString());
-        } catch (IOException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
-        }
+    private IValue toINode(Document doc, ISourceLocation file, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
+        return toINode(doc.body(), file, includeEndTags, ignoreWhitespace, ignoreComments);
     }
 
-    private IValue toINode(Document doc, ISourceLocation file) {
-        return toINode(doc.body(), file);
-    }
-
-    private IValue toINode(Node node, ISourceLocation file) {
+    private IValue toINode(Node node, ISourceLocation file, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
         if (node instanceof TextNode) {
             return toIString((TextNode) node, file);
         }
         else if (node instanceof DataNode) {
             return toIString((DataNode) node, file);
         }
+        else if (node instanceof Comment) {
+            return vf.node("comment", vf.string(((Comment) node).getData()));
+        }
+        else if (node instanceof Element) {            
+            Element elem = (Element) node;
+
+            Map<String,IValue> kws = 
+                StreamSupport.stream(elem.attributes().spliterator(), false)
+                    .collect(Collectors.toMap(a -> a.getKey(), a -> vf.string(a.getValue())));
+            
+            IValue[] args = elem.childNodes().stream()
+                .filter(p -> !ignoreComments || !(p instanceof Comment))
+                .filter(p -> !ignoreWhitespace || !(p instanceof TextNode && ((TextNode) p).isBlank()))
+                .map(n -> toINode(n, file, includeEndTags, ignoreWhitespace, ignoreComments))
+                .toArray(IValue[]::new);
+
+            if (file != null) {
+                kws.put("src", nodeToLoc((Element) node, file, includeEndTags));
+            }
+
+            return vf.node(node.nodeName(), args).asWithKeywordParameters().setParameters(kws);
+        }
         else {
-            assert node instanceof Element;
+            throw RuntimeExceptionFactory.illegalArgument(vf.string(node.toString()), vf.string("unexpected kind of XML node: " + node.getClass().getCanonicalName()));
         }
-        
-        Element elem = (Element) node;
-
-        Map<String,IValue> kws = 
-            StreamSupport.stream(elem.attributes().spliterator(), false)
-                .collect(Collectors.toMap(a -> a.getKey(), a -> vf.string(a.getValue())));
-        
-        IValue[] args = elem.childNodes().stream()
-            .map(n -> toINode(n, file))
-            .toArray(IValue[]::new);
-
-        if (file != null) {
-            kws.put("src", nodeToLoc(node, file));
-        }
-
-        return vf.node(node.nodeName(), args).asWithKeywordParameters().setParameters(kws);
     }
 
-    private ISourceLocation nodeToLoc(Node node, ISourceLocation file) {
+    private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
         Range r = node.sourceRange();
         if (r.start().pos() < 0) {
             return file;
         }
         
-        ISourceLocation src = vf.sourceLocation(file, 
-            r.start().pos(), 
-            r.end().pos() - r.start().pos(),
-            r.start().lineNumber(),
-            r.end().lineNumber(),
-            r.start().columnNumber(),
-            r.end().columnNumber()
-            );
+        Range e = node.endSourceRange();
+
+        ISourceLocation src = includeEndTags
+            ? vf.sourceLocation(file,
+                r.start().pos(),
+                e.end().pos() - r.start().pos(),
+                r.start().lineNumber(),
+                e.end().lineNumber(),
+                r.start().columnNumber() - 1,
+                e.end().columnNumber() - 1
+            )
+            : vf.sourceLocation(file, 
+                r.start().pos(), 
+                r.end().pos() - r.start().pos(),
+                r.start().lineNumber(),
+                r.end().lineNumber(),
+                r.start().columnNumber() - 1,
+                r.end().columnNumber() - 1
+                );
+        
         return src;
     }
 
