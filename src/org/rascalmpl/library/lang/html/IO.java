@@ -142,21 +142,18 @@ public class IO {
             : factory.constructor(cons, new IValue[0], kws);
         
         if (file != null) {
-            ISourceLocation src = nodeToLoc(node, file, includeEndTags);
+            ISourceLocation src = nodeToLoc(elem.sourceRange(), elem.endSourceRange(), file, includeEndTags);
             return result.asWithKeywordParameters().setParameter("src", src);
         } else {
             return result;
         }
     }
 
-    private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
-        Range r = node.sourceRange();
+    private ISourceLocation nodeToLoc(Range r, Range e, ISourceLocation file, boolean includeEndTags) {
         if (r.start().pos() < 0) {
             return file;
         }
-        
-        Range e = node.endSourceRange();
-        
+
         return includeEndTags
             ? factory.sourceLocation(file,
                 r.start().pos(),
@@ -179,14 +176,14 @@ public class IO {
     private IValue toDataConstructor(DataNode node, ISourceLocation file) {
         IConstructor cons = factory.constructor(dataConstructor, factory.string(node.getWholeData()));
         return file != null 
-            ? cons.asWithKeywordParameters().setParameter("src", nodeToLoc(node, file))
+            ? cons.asWithKeywordParameters().setParameter("src", nodeToLoc(node.sourceRange(), node.sourceRange(), file, false))
             : cons;
     }
 
     private IValue toTextConstructor(TextNode elem, ISourceLocation file) {
         IConstructor cons = factory.constructor(textConstructor, factory.string(elem.getWholeText()));
         return file != null 
-            ? cons.asWithKeywordParameters().setParameter("src", nodeToLoc(elem, file))
+            ? cons.asWithKeywordParameters().setParameter("src", nodeToLoc(elem.sourceRange(), elem.sourceRange(), file, false))
             : cons;
     }
 
