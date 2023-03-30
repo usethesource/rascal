@@ -109,9 +109,10 @@ public class IO {
         else if (node instanceof Element) {            
             Element elem = (Element) node;
 
+        
             Map<String,IValue> kws = 
                 StreamSupport.stream(elem.attributes().spliterator(), false)
-                    .collect(Collectors.toMap(a -> a.getKey(), a -> vf.string(a.getValue())));
+                    .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(a.getValue())));
             
             IValue[] args = elem.childNodes().stream()
                 .filter(p -> !ignoreComments || !(p instanceof Comment))
@@ -138,7 +139,7 @@ public class IO {
         
         Range e = node.endSourceRange();
 
-        ISourceLocation src = includeEndTags
+        return includeEndTags
             ? vf.sourceLocation(file,
                 r.start().pos(),
                 e.end().pos() - r.start().pos(),
@@ -155,8 +156,6 @@ public class IO {
                 r.start().columnNumber() - 1,
                 r.end().columnNumber() - 1
                 );
-        
-        return src;
     }
 
     private IValue toIString(DataNode node, ISourceLocation file) {
@@ -308,13 +307,15 @@ public class IO {
             Element cons = new Element(o.getName());
 
             o.asWithKeywordParameters().getParameters().entrySet().stream()
-                .forEach(e -> cons.attr(e.getKey(), e.getValue().toString()));
+                .forEach(e -> cons.attr(deNormalizeAttr(e.getKey()), e.getValue().toString()));
 
             StreamSupport.stream(o.spliterator(), false)
                 .forEach(e -> cons.appendChild(e.accept(this)));
                 
             return cons;
         }
+
+       
 
         @Override
         public Node visitInteger(IInteger o) throws RuntimeException {
@@ -356,5 +357,13 @@ public class IO {
             datetime.attr("val", o.toString());
             return datetime;
         }
+    }
+
+    private static String normalizeAttr(String attr) {
+        return attr.replaceAll(":", "-");
+    }
+
+    private static String deNormalizeAttr(String attr) {
+        return attr.replaceAll("-", ":");
     }
 }
