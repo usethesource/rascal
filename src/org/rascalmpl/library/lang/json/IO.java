@@ -28,6 +28,8 @@ import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -79,7 +81,7 @@ public class IO {
 		}
 	}
 	
-	public IValue fromJSON(IValue type, IString src) {
+	public IValue fromJSON(IValue type, IString src, IBool trackOrigins) {
         TypeStore store = new TypeStore();
         Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
         Gson gson = new GsonBuilder()
@@ -98,13 +100,13 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
 		in.setLenient(lenient.getValue());
-        return new JsonValueReader(values, store, monitor)
+        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
             .setCalendarFormat(dateTimeFormat.getValue())
             .read(in, start);
       }
@@ -117,13 +119,13 @@ public class IO {
       }
     }
 	
-	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient) {
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 	      
 	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
 			in.setLenient(lenient.getValue());
-	        return new JsonValueReader(values, store, monitor)
+	        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
 	            .setCalendarFormat(dateTimeFormat.getValue())
 	            .read(in, start);
 	      }
