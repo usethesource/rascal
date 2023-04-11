@@ -37,7 +37,7 @@ test bool simpleXMLTest2()
     = checkXMLResult(buildXML("xml", children = [ buildXML("a") ]), "xml"("a"()));
 
 test bool simpleXMLTest3() 
-    = checkXMLResult(buildXML("xml", attrs = ("href" : "#42")), "xml"([], href="#42"));
+    = checkXMLResult(buildXML("xml", attrs = ("href" : "#42")), "xml"(href="#42"));
     
 test bool namespaceIgnored1() 
     = checkXMLResult(buildXML("table", attrs = ("xmlns" : "http://www.w3.org/TR/html4/")), "table"());
