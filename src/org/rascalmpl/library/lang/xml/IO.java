@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
@@ -111,13 +113,33 @@ public class IO {
         else if (node instanceof Element) {            
             Element elem = (Element) node;
 
-        
+            IMapWriter namespaces = vf.mapWriter();
+            
             Map<String,IValue> kws = 
                 StreamSupport.stream(elem.attributes().spliterator(), false)
-                    .filter(a -> fullyQualify || !a.getKey().startsWith("xmlns"))
+                    .filter(a -> { 
+                        // collect the namespaces in a map
+                        if (a.getKey().startsWith("xmlns:")) {
+                            namespaces.put(vf.string(a.getKey().substring("xmlns:".length())), vf.string(a.getValue()));
+                        } 
+                        else if (a.getKey().equals("xmlns")) {
+                            namespaces.put(vf.string("xml"), vf.string(a.getValue()));
+                        }
+
+                        // remove all the namespace attributes
+                        return !a.getKey().startsWith("xmlns");
+                    })
                     .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
                     .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(a.getValue())));
             
+            if (fullyQualify) {
+                IMap m = namespaces.done();
+
+                if (m.size() > 0) {
+                    kws.put("xmlns", m);
+                }
+            }
+
             IValue[] args = elem.childNodes().stream()
                 .filter(p -> !ignoreComments || !(p instanceof Comment))
                 .filter(p -> !ignoreWhitespace || !(p instanceof TextNode && ((TextNode) p).isBlank()))
