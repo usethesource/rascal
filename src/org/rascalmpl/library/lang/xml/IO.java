@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.net.MalformedURLException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -353,10 +352,27 @@ public class IO {
 
         @Override
         public Node visitNode(INode o) throws RuntimeException {
-            Element node = new Element(o.getName());
+            Element node = new Element(o.getName().replaceAll("-", ":"));
 
-            o.asWithKeywordParameters().getParameters().entrySet().stream()
-                .forEach(e -> node.attr(e.getKey(), e.getValue().toString()));
+            Map<String, IValue> parameters = o.asWithKeywordParameters().getParameters();
+
+            if (parameters.containsKey("xmlns")) {
+                IMap ps = (IMap) parameters.get("xmlns");
+                for (IValue e : ps) {
+                    IString skey = (IString) e;
+                    if (skey.getValue().equals("xml")) {
+                        node.attr("xmlns", ((IString) ps.get(skey)).getValue());
+                    }
+                    else {
+                        node.attr("xmlns:" + skey.getValue(), ((IString) ps.get(skey)).getValue());
+                    }
+                }
+
+                parameters.remove("xmlns");
+            }
+
+            parameters.entrySet().stream()
+                .forEach(e -> node.attr(e.getKey().replaceAll("-", ":"), e.getValue().toString()));
 
             StreamSupport.stream(o.spliterator(), false)
                 .forEach(e -> node.appendChild(e.accept(this)));
@@ -366,18 +382,8 @@ public class IO {
 
         @Override
         public Node visitConstructor(IConstructor o) throws RuntimeException {
-            Element cons = new Element(o.getName());
-
-            o.asWithKeywordParameters().getParameters().entrySet().stream()
-                .forEach(e -> cons.attr(deNormalizeAttr(e.getKey()), e.getValue().toString()));
-
-            StreamSupport.stream(o.spliterator(), false)
-                .forEach(e -> cons.appendChild(e.accept(this)));
-                
-            return cons;
+            return visitNode(o);
         }
-
-       
 
         @Override
         public Node visitInteger(IInteger o) throws RuntimeException {
