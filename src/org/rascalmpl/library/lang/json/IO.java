@@ -81,7 +81,7 @@ public class IO {
 		}
 	}
 	
-	public IValue fromJSON(IValue type, IString src, IBool trackOrigins) {
+	public IValue fromJSON(IValue type, IString src) {
         TypeStore store = new TypeStore();
         Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
         Gson gson = new GsonBuilder()
