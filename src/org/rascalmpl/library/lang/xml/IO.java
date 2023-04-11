@@ -372,7 +372,7 @@ public class IO {
             }
 
             parameters.entrySet().stream()
-                .forEach(e -> node.attr(e.getKey().replaceAll("-", ":"), e.getValue().toString()));
+                .forEach(e -> node.attr(deNormalizeAttr(e.getKey()), e.getValue().toString()));
 
             StreamSupport.stream(o.spliterator(), false)
                 .forEach(e -> node.appendChild(e.accept(this)));
