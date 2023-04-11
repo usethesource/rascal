@@ -182,7 +182,7 @@ public class Webserver {
                             // otherwise the content is parsed as JSON and validated against the given type
                             IValue dtf = keyArgValues.get("dateTimeFormat");
                          
-                            return new JsonValueReader(vf, store, monitor)
+                            return new JsonValueReader(vf, store, monitor, null)
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                                 .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
