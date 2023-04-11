@@ -24,7 +24,7 @@ public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{use readJSON}
-public java &T fromJSON(type[&T] typ, str src, bool trackOrigins=false);
+public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @doc{reads JSON values from a stream
