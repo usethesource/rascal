@@ -13,14 +13,17 @@ package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Document.OutputSettings;
@@ -45,6 +48,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 
@@ -55,14 +59,16 @@ public class IO {
     private final Type textConstructor;
     private final Type dataConstructor;
     private final Type htmlConstructor;
+    private final PrintWriter err;
 
-    public IO(IValueFactory factory, TypeStore store) {
+    public IO(IValueFactory factory, TypeStore store, PrintWriter out, PrintWriter err) {
         this.factory = factory;
         this.store = store;
         this.HTMLElement = store.lookupAbstractDataType("HTMLElement");
         this.textConstructor = store.lookupConstructor(HTMLElement, "text").iterator().next();
         this.dataConstructor = store.lookupConstructor(HTMLElement, "data").iterator().next();
         this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
+        this.err = err;
     }
     
     public IValue readHTMLString(IString string, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, ISourceLocation src) {
@@ -120,11 +126,21 @@ public class IO {
             return toDataConstructor((DataNode) node, file);
         }
         else {
-            assert node instanceof Element;
+            assert node instanceof Element : node.toString();
         }
         
         Element elem = (Element) node;
-        Type cons = store.lookupConstructor(HTMLElement, elem.tagName()).iterator().next();
+        Set<Type> alternatives = store.lookupConstructor(HTMLElement, elem.tagName());
+
+        TypeFactory tf = TypeFactory.getInstance();
+
+        Type cons = alternatives.size() > 0 
+            ? alternatives.iterator().next()
+            : tf.constructorFromTuple(store, HTMLElement, elem.tagName(), tf.tupleType(tf.listType(HTMLElement)));
+
+        if (alternatives.size() == 0) {
+            err.println("No HTML constructor declared for "  + elem.tagName());
+        }
 
         Map<String,IValue> kws = new HashMap<>();
         
@@ -134,9 +150,11 @@ public class IO {
 
         IListWriter w = factory.listWriter();
         for (Node n : elem.childNodes()) {
-            w.append(toConstructorTree(n, file, includeEndTags));
+            if (!(n instanceof Comment)) {
+                w.append(toConstructorTree(n, file, includeEndTags));
+            }
         }
-
+                
         IConstructor result = cons.getArity() > 0
             ? factory.constructor(cons, new IValue[] { w.done() }, kws)
             : factory.constructor(cons, new IValue[0], kws);
@@ -150,11 +168,11 @@ public class IO {
     }
 
     private ISourceLocation nodeToLoc(Range r, Range e, ISourceLocation file, boolean includeEndTags) {
-        if (r.start().pos() < 0) {
+        if (!r.isTracked()) {
             return file;
         }
 
-        return includeEndTags
+        return includeEndTags && e.isTracked()
             ? factory.sourceLocation(file,
                 r.start().pos(),
                 e.end().pos() - r.start().pos(),
