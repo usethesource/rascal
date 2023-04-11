@@ -24,7 +24,7 @@ public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{use readJSON}
-public java &T fromJSON(type[&T] typ, str src);
+public java &T fromJSON(type[&T] typ, str src, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @doc{reads JSON values from a stream
@@ -39,13 +39,13 @@ In general the translation behaves as follows:
  * If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
    a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}
 }
-java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false);
+java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @doc{parses JSON values from a string
 In general the translation behaves as the same as for ((readJSON)).
 }
-java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false);
+java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0);

@@ -14,6 +14,8 @@ package org.rascalmpl.library.lang.json.internal;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,6 +32,7 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -52,20 +55,39 @@ public class JsonValueReader {
   private final IValueFactory vf;
   private ThreadLocal<SimpleDateFormat> format;
   private final IRascalMonitor monitor;
+  private ISourceLocation src;
+  private VarHandle posHandler;
+  private VarHandle lineHandler;
+  private VarHandle lineStartHandler;
   
   /**
    * @param vf     factory which will be used to construct values
    * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
    */
-  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor) {
+  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor, ISourceLocation src) {
     this.vf = vf;
     this.store = store;
     this.monitor = monitor;
+    this.src = src;
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+    if (src != null) {
+      try {
+        var lookup = MethodHandles.lookup();
+        var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
+        this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
+        this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+        this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+      }
+      catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+        // we disable the origin tracking if we can not get to the fields
+        src = null;
+      }
+    }
   }
   
-  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor) {
-    this(vf, new TypeStore(), monitor);
+  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
+    this(vf, new TypeStore(), monitor, src);
   }
   
   /**
@@ -187,8 +209,6 @@ public class JsonValueReader {
               throw new IOException("Could not find string or source location object here: " + in.getPath());
         }
       }        
-      
-      
         
       private IValue sourceLocationObject() throws IOException {
         String scheme = null;
@@ -407,6 +427,52 @@ public class JsonValueReader {
         return vf.bool(in.nextBoolean());
       }
       
+      private int getPos() {
+        if (src == null) {
+          return 0;
+        }
+
+        try {
+          return (int) posHandler.get(in);
+        }
+        catch (IllegalArgumentException | SecurityException e) {
+          // stop trying to recover the positions
+          src = null;
+          return 0;
+        }
+      }
+
+      private int getLine() {
+        if (src == null) {
+          return 0;
+        }
+
+        try {
+           return (int) lineHandler.get(in);
+        }
+        catch (IllegalArgumentException | SecurityException e) {
+           // stop trying to recover the positions
+           src = null;
+           return 0;
+        }
+      }
+
+      private int getCol() {
+        if (src == null) {
+          return 0;
+        }
+
+        try {
+          return getPos() - (int) lineStartHandler.get(in);
+        }
+        catch (IllegalArgumentException | SecurityException e) {
+          // stop trying to recover the positions
+          src = null;
+          return 0;
+        }
+      }
+
+
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
         if (in.peek() == JsonToken.STRING) {
@@ -431,6 +497,10 @@ public class JsonValueReader {
         Type cons = alternatives.iterator().next();
        
         in.beginObject();
+        int startPos = getPos();
+        int startLine = getLine();
+        int startCol = getCol();
+        
         IValue[] args = new IValue[cons.getArity()];
         Map<String,IValue> kwParams = new HashMap<>();
         
@@ -460,8 +530,11 @@ public class JsonValueReader {
             throw new IOException("Unknown field " + label + ":" + in.getPath());
           }
         }
-          
+        
         in.endObject();
+        int endPos = getPos();
+        int endLine = getLine();
+        int endCol = getCol();
         
         for (int i = 0; i < args.length; i++) {
           if (args[i] == null) {
@@ -469,7 +542,12 @@ public class JsonValueReader {
           }
         }
         
-        return vf.constructor(cons, args, kwParams);
+        if (src != null) {
+          return vf.constructor(cons, args, kwParams);
+        }
+        else {
+          return vf.constructor(cons, args, kwParams).asWithKeywordParameters().setParameter("src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+        }
       }
       
       @Override
@@ -480,6 +558,10 @@ public class JsonValueReader {
       @Override
       public IValue visitNode(Type type) throws IOException {
         in.beginObject();
+        int startPos = getPos();
+        int startLine = getLine();
+        int startCol = getCol();
+       
         Map<String,IValue> kws = new HashMap<>();
         
         while (in.hasNext()) {
@@ -492,8 +574,16 @@ public class JsonValueReader {
         }
         
         in.endObject();
+        int endPos = getPos();
+        int endLine = getLine();
+        int endCol = getCol();
 
-        return vf.node("object", new IValue[] { }, kws);
+        if (src != null) {
+          return vf.node("object", new IValue[] { }, kws).asWithKeywordParameters().setParameter("src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+        } 
+        else {
+          return vf.node("object", new IValue[] { }, kws);
+        }
       }
       
       @Override
