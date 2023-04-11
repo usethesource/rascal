@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
@@ -50,7 +52,7 @@ public class IO {
         this.vf = vf;
     }
     
-    public IValue readXML(ISourceLocation loc, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
+    public IValue readXML(ISourceLocation loc, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
         try {
             if (inferCharset.getValue()) {
                 charset = vf.string(URIResolverRegistry.getInstance().getCharset(loc).toString());
@@ -68,7 +70,7 @@ public class IO {
             
             Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), htmlParser);
             
-            return toINode(doc, trackOrigins.getValue() ? loc : null, includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
+            return toINode(doc, trackOrigins.getValue() ? loc : null, fullyQualify.getValue(), includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
         } catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(loc.getURI().toASCIIString());
         } catch (IOException e) {
@@ -77,7 +79,7 @@ public class IO {
     }
 
 
-    public IValue readXML(IString string, ISourceLocation src, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace) {
+    public IValue readXML(IString string, ISourceLocation src, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags, IBool ignoreComments, IBool ignoreWhitespace) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty XML document");
         }
@@ -89,14 +91,14 @@ public class IO {
              
         Document doc = Jsoup.parse(string.getValue(), src.getURI().toString(), xmlParser);
             
-        return toINode(doc.firstChild(), trackOrigins.getValue() ? src : null, includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());        
+        return toINode(doc.firstChild(), trackOrigins.getValue() ? src : null, fullyQualify.getValue(),  includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());        
     }
 
-    private IValue toINode(Document doc, ISourceLocation file, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
-        return toINode(doc.body(), file, includeEndTags, ignoreWhitespace, ignoreComments);
+    private IValue toINode(Document doc, ISourceLocation file, boolean fullyQualify, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
+        return toINode(doc.body(), file, fullyQualify, includeEndTags, ignoreWhitespace, ignoreComments);
     }
 
-    private IValue toINode(Node node, ISourceLocation file, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
+    private IValue toINode(Node node, ISourceLocation file, boolean fullyQualify, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
         if (node instanceof TextNode) {
             return toIString((TextNode) node, file);
         }
@@ -112,23 +114,61 @@ public class IO {
         
             Map<String,IValue> kws = 
                 StreamSupport.stream(elem.attributes().spliterator(), false)
+                    .filter(a -> fullyQualify || !a.getKey().startsWith("xmlns"))
+                    .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
                     .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(a.getValue())));
             
             IValue[] args = elem.childNodes().stream()
                 .filter(p -> !ignoreComments || !(p instanceof Comment))
                 .filter(p -> !ignoreWhitespace || !(p instanceof TextNode && ((TextNode) p).isBlank()))
-                .map(n -> toINode(n, file, includeEndTags, ignoreWhitespace, ignoreComments))
+                .map(n -> toINode(n, file, fullyQualify, includeEndTags, ignoreWhitespace, ignoreComments))
                 .toArray(IValue[]::new);
 
             if (file != null) {
                 kws.put("src", nodeToLoc((Element) node, file, includeEndTags));
             }
 
-            return vf.node(node.nodeName(), args).asWithKeywordParameters().setParameters(kws);
+            return vf.node(removeNamespace(node.nodeName(), fullyQualify), args).asWithKeywordParameters().setParameters(kws);
         }
         else {
             throw RuntimeExceptionFactory.illegalArgument(vf.string(node.toString()), vf.string("unexpected kind of XML node: " + node.getClass().getCanonicalName()));
         }
+    }
+
+    private static String removeNamespace(String name, boolean fullyQualify) {
+        if (fullyQualify) {
+            return name;
+        }
+
+        int index = name.indexOf(":");
+
+        if (index == -1) {
+            return name;
+        }
+
+        return name.substring(index+1);
+
+    }
+    private static Attribute removeNamespace(Attribute a, Attributes otherAttributes, boolean fullyQualify) {
+        if (fullyQualify) {
+            return a;
+        }
+        
+        String key = a.getKey();
+        int index = key.indexOf(":");
+
+        if (index == -1) {
+            return a;
+        }
+
+        String newKey = key.substring(index+1);
+
+        if (otherAttributes.hasKey(newKey)) {
+            // keep disambiguation if necessary
+            return a;
+        }
+
+        return new Attribute(newKey, a.getValue());
     }
 
     private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
