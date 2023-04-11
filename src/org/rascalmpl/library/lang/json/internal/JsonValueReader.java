@@ -433,7 +433,7 @@ public class JsonValueReader {
         }
 
         try {
-          return (int) posHandler.get(in);
+          return (int) posHandler.get(in) - 1;
         }
         catch (IllegalArgumentException | SecurityException e) {
           // stop trying to recover the positions
@@ -448,7 +448,7 @@ public class JsonValueReader {
         }
 
         try {
-           return (int) lineHandler.get(in);
+           return (int) lineHandler.get(in) + 1;
         }
         catch (IllegalArgumentException | SecurityException e) {
            // stop trying to recover the positions
