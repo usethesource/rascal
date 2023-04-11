@@ -194,13 +194,13 @@ public class IO {
 
     private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
         Range r = node.sourceRange();
-        if (r.start().pos() < 0) {
+        if (!r.isTracked()) {
             return file;
         }
         
         Range e = node.endSourceRange();
 
-        return includeEndTags
+        return includeEndTags && e.isTracked()
             ? vf.sourceLocation(file,
                 r.start().pos(),
                 e.end().pos() - r.start().pos(),
