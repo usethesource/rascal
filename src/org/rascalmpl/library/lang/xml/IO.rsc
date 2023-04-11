@@ -1,10 +1,10 @@
 module lang::xml::IO
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java value readXML(loc file, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
+java value readXML(loc file, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true, str charset="UTF-8", bool inferCharset=!(charset?));
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java value readXML(str contents, loc src = |unknown:///|, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true);
+java value readXML(str contents, loc src = |unknown:///|, bool fullyQualify=false, bool trackOrigins = false, bool includeEndTags=false, bool ignoreComments=true, bool ignoreWhitespace=true);
 
 @javaClass{org.rascalmpl.library.lang.xml.IO}
 @synopsis{Pretty-print any value as an XML string}
@@ -27,7 +27,7 @@ test bool nestedElementTest() {
   
   val = readXML(example);
   
-  return val == "aap"(["noot"(["mies"])]);
+  return val == "aap"("noot"("mies"));
 }
   
 test bool attributeTest() {
@@ -35,7 +35,7 @@ test bool attributeTest() {
   
   val = readXML(example);
   
-  return val == "aap"([], age="1");
+  return val == "aap"(age="1");
 }
 
 test bool namespaceTest() {
@@ -43,5 +43,5 @@ test bool namespaceTest() {
   
   val = readXML(example);
   
-  return "aap"([], \ns-age="1", age="2") := val;
+  return "aap"(\ns-age="1", age="2") := val;
 }
