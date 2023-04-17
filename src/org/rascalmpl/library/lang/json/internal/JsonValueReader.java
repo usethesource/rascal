@@ -544,11 +544,13 @@ public class JsonValueReader {
         }
         
         if (src != null) {
-          return vf.constructor(cons, args, kwParams);
+          // we use "origin" if it already contains "src", just in case
+          assert !(kwParams.containsKey("src") && kwParams.containsKey("origin"));
+          kwParams.put(kwParams.containsKey("src") ? "origin" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
         }
-        else {
-          return vf.constructor(cons, args, kwParams).asWithKeywordParameters().setParameter("src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
-        }
+
+
+        return vf.constructor(cons, args, kwParams);
       }
       
       @Override
@@ -580,11 +582,13 @@ public class JsonValueReader {
         int endCol = getCol();
 
         if (src != null) {
-          return vf.node("object", new IValue[] { }, kws).asWithKeywordParameters().setParameter("src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
-        } 
-        else {
-          return vf.node("object", new IValue[] { }, kws);
+          // we use "origin" if it already contains "src", just in case
+          assert !(kws.containsKey("src") && kws.containsKey("origin"));
+          kws.put(kws.containsKey("src") ? "origin" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
         }
+
+        
+        return vf.node("object", new IValue[] { }, kws);
       }
       
       @Override
