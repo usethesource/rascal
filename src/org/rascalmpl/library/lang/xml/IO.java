@@ -193,29 +193,29 @@ public class IO {
     }
 
     private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
-        Range r = node.sourceRange();
-        if (!r.isTracked()) {
+        Range startRange = node.sourceRange();
+        if (!startRange.isTracked()) {
             return file;
         }
         
-        Range e = node.endSourceRange();
+        Range endRange = node.endSourceRange();
 
-        return includeEndTags && e.isTracked()
+        return includeEndTags && endRange.isTracked()
             ? vf.sourceLocation(file,
-                r.start().pos(),
-                e.end().pos() - r.start().pos(),
-                r.start().lineNumber(),
-                e.end().lineNumber(),
-                r.start().columnNumber() - 1,
-                e.end().columnNumber() - 1
+                startRange.start().pos(),
+                endRange.end().pos() - startRange.start().pos(),
+                startRange.start().lineNumber(),
+                endRange.end().lineNumber(),
+                startRange.start().columnNumber() - 1,
+                endRange.end().columnNumber() - 1
             )
             : vf.sourceLocation(file, 
-                r.start().pos(), 
-                r.end().pos() - r.start().pos(),
-                r.start().lineNumber(),
-                r.end().lineNumber(),
-                r.start().columnNumber() - 1,
-                r.end().columnNumber() - 1
+                startRange.start().pos(), 
+                startRange.end().pos() - startRange.start().pos(),
+                startRange.start().lineNumber(),
+                startRange.end().lineNumber(),
+                startRange.start().columnNumber() - 1,
+                startRange.end().columnNumber() - 1
                 );
     }
 

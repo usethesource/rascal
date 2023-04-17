@@ -167,27 +167,27 @@ public class IO {
         }
     }
 
-    private ISourceLocation nodeToLoc(Range r, Range e, ISourceLocation file, boolean includeEndTags) {
-        if (!r.isTracked()) {
+    private ISourceLocation nodeToLoc(Range startRange, Range endRange, ISourceLocation file, boolean includeEndTags) {
+        if (!startRange.isTracked()) {
             return file;
         }
 
-        return includeEndTags && e.isTracked()
+        return includeEndTags && endRange.isTracked()
             ? factory.sourceLocation(file,
-                r.start().pos(),
-                e.end().pos() - r.start().pos(),
-                r.start().lineNumber(),
-                e.end().lineNumber(),
-                r.start().columnNumber() - 1,
-                e.end().columnNumber() - 1
+                startRange.start().pos(),
+                endRange.end().pos() - startRange.start().pos(),
+                startRange.start().lineNumber(),
+                endRange.end().lineNumber(),
+                startRange.start().columnNumber() - 1,
+                endRange.end().columnNumber() - 1
             )
             : factory.sourceLocation(file, 
-                r.start().pos(), 
-                r.end().pos() - r.start().pos(),
-                r.start().lineNumber(),
-                r.end().lineNumber(),
-                r.start().columnNumber() - 1,
-                r.end().columnNumber() - 1
+                startRange.start().pos(), 
+                startRange.end().pos() - startRange.start().pos(),
+                startRange.start().lineNumber(),
+                startRange.end().lineNumber(),
+                startRange.start().columnNumber() - 1,
+                startRange.end().columnNumber() - 1
                 );
     }
 
