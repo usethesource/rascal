@@ -171,7 +171,7 @@ public class LuceneAdapter {
                 int countDown = max.intValue();
 
                 while ((bytes = list.next()) != null && countDown-- > 0) {
-                    IString val = vf.string(new String(bytes.bytes, bytes.offset, bytes.length, "UTF8"));
+                    IString val = vf.string(bytes.utf8ToString());
                     IInteger freq = vf.integer(reader.totalTermFreq(new Term(label, bytes)));
                     result.insert(vf.tuple(val, freq));
                 }
