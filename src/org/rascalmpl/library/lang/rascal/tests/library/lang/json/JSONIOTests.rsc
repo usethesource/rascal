@@ -3,6 +3,7 @@ module lang::rascal::tests::library::lang::json::JSONIOTests
 import String;
 import lang::json::IO;
 import util::UUID;
+import IO;
 
 loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
 
@@ -55,3 +56,16 @@ test bool json2() = writeRead(#DATA2, data2("123"));
 test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
 test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
+test bool originTracking() {
+   example = readJSON(#node, |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
+   content = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|);
+
+   poss = [x.src | /node x := example]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
+
+   for (loc p <- poss) {
+      assert content[p.offset] == "{";                // all nodes start with a {
+      assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
+   }
+
+   return true;
+}
