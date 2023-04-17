@@ -93,8 +93,11 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
     }
 
     private void registerLibrary(String event, ConcurrentHashMap<String, ISourceLocation> libs, String libName, ISourceLocation loc) {
-        System.err.println("INFO: " + event + " |lib://" + libName + "| at " + loc);
-        libs.merge(libName, loc, (o, n) -> o /* we want the first match, just like the classpath! */);
+        /* we want the first match, just like the classpath, so always using the old value */
+        if (libs.merge(libName, loc, (o, n) -> o) == loc) {
+            /* now we have a new one: report it */
+            System.err.println("INFO: " + event + " |lib://" + libName + "| at " + loc);
+        }
     }
     
     /**
