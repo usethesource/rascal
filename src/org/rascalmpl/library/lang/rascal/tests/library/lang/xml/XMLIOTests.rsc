@@ -81,9 +81,6 @@ test bool originTrackingElementsWithEndTags() {
 }
 
 private bool originTracking(node example, str content) {
-   example = readXML(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|, trackOrigins=true);   
-   content = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|);
-
    poss = [x.src | /node x := example]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
 
    for (loc p <- poss, p.offset?) { // some (top) nodes do not have offsets
