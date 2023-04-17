@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.29.1-RC4-SNAPSHOT</version>
+    <version>0.29.1-RC6-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -52,6 +52,7 @@
                 <includes>
                     <include>plugin.xml</include>
                     <include>META-INF/RASCAL.MF</include>
+                    <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
             </resource>
             <resource>
@@ -219,6 +220,22 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>tree</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <output>rascal-DEPENDENCIES.txt</output>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -52,7 +52,7 @@ Filter wordSplitFilter() = splitFilter(list[str] (str term) {
 Analyzer  extraAnalyzer() = analyzer(classicTokenizer(), [ splitFilter(lauSplitDanda), \editFilter(abFilter), removeFilter(utFilter)]);
  
 // We combine the analyzers for the different fields with a `fieldsAnalyzer`. 
-// createIndex and searcIndex do not have access to default parameters (yet) since that is a
+// createIndex and searchIndex do not have access to default parameters (yet) since that is a
 // Rascal feature and not a vallang feature, so each field has to be set explicitly:
 Analyzer indexAnalyzer() = fieldsAnalyzer(an(), comments=commentAnalyzer(), extra=extraAnalyzer());
 
