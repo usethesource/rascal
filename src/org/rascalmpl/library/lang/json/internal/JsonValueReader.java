@@ -82,6 +82,7 @@ public class JsonValueReader {
       catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
         // we disable the origin tracking if we can not get to the fields
         src = null;
+        monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
       }
     }
   }
