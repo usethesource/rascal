@@ -68,3 +68,28 @@ test bool namespacesMultiple()
                 , xmlns = ("ht": "http://www.w3.org/TR/html4/")
             )
         , fullyQualify = true);
+
+
+test bool originTrackingElements() {
+    loc l = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|;
+    return originTracking(readXML(l, trackOrigins=true), readFile(l));
+}
+
+test bool originTrackingElementsWithEndTags() {
+    loc l = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|;
+    return originTracking(readXML(l, trackOrigins=true, includeEndTags=true), readFile(l));
+}
+
+private bool originTracking(node example, str content) {
+   example = readXML(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|, trackOrigins=true);   
+   content = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|);
+
+   poss = [x.src | /node x := example]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
+
+   for (loc p <- poss, p.offset?) { // some (top) nodes do not have offsets
+      assert content[p.offset] == "\<";                // all nodes start with a opening tag <
+      assert content[p.offset + p.length - 1] == "\>"; // all nodes end with a closing tag >
+   }
+
+   return true;
+}
