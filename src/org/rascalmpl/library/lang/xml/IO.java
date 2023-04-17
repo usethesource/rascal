@@ -146,7 +146,8 @@ public class IO {
                 .toArray(IValue[]::new);
 
             if (file != null) {
-                kws.put("src", nodeToLoc((Element) node, file, includeEndTags));
+                assert !(kws.containsKey("src") && kws.containsKey("origin"));
+                kws.put(kws.containsKey("src") ? "origin" : "src", nodeToLoc((Element) node, file, includeEndTags));
             }
 
             return vf.node(removeNamespace(node.nodeName(), fullyQualify), args).asWithKeywordParameters().setParameters(kws);
