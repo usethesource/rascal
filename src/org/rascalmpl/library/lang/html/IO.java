@@ -53,6 +53,7 @@ import io.usethesource.vallang.type.TypeStore;
 
 
 public class IO {
+    private static final String ORIGIN_FIELD = "rascal-src";
     private final IValueFactory factory;
     private final TypeStore store;
     private final Type HTMLElement;
@@ -112,7 +113,7 @@ public class IO {
                 );
 
         if (file != null) {
-            return result.asWithKeywordParameters().setParameter("location", file);
+            return result.asWithKeywordParameters().setParameter(ORIGIN_FIELD, file);
         }
 
         return result;
@@ -161,7 +162,7 @@ public class IO {
         
         if (file != null) {
             ISourceLocation src = nodeToLoc(elem.sourceRange(), elem.endSourceRange(), file, includeEndTags);
-            return result.asWithKeywordParameters().setParameter("location", src);
+            return result.asWithKeywordParameters().setParameter(ORIGIN_FIELD, src);
         } else {
             return result;
         }
@@ -194,14 +195,14 @@ public class IO {
     private IValue toDataConstructor(DataNode node, ISourceLocation file) {
         IConstructor cons = factory.constructor(dataConstructor, factory.string(node.getWholeData()));
         return file != null 
-            ? cons.asWithKeywordParameters().setParameter("location", nodeToLoc(node.sourceRange(), node.sourceRange(), file, false))
+            ? cons.asWithKeywordParameters().setParameter(ORIGIN_FIELD, nodeToLoc(node.sourceRange(), node.sourceRange(), file, false))
             : cons;
     }
 
     private IValue toTextConstructor(TextNode elem, ISourceLocation file) {
         IConstructor cons = factory.constructor(textConstructor, factory.string(elem.getWholeText()));
         return file != null 
-            ? cons.asWithKeywordParameters().setParameter("location", nodeToLoc(elem.sourceRange(), elem.sourceRange(), file, false))
+            ? cons.asWithKeywordParameters().setParameter(ORIGIN_FIELD, nodeToLoc(elem.sourceRange(), elem.sourceRange(), file, false))
             : cons;
     }
 
@@ -309,7 +310,7 @@ public class IO {
         Map<String, IValue> parameters = cons.asWithKeywordParameters().getParameters();
         
         for (Entry<String, IValue> e : parameters.entrySet()) {
-            if (!dropOrigins || !e.getKey().equals("location")) {
+            if (!dropOrigins || !e.getKey().equals(ORIGIN_FIELD)) {
                 IValue v = e.getValue();
 
                 elem = elem.attr(e.getKey(),v.getType().isString() ? ((IString) v).getValue() : v.toString());

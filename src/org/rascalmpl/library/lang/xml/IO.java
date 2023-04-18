@@ -298,7 +298,7 @@ public class IO {
 
     private static class ElementCreator implements IValueVisitor<Node, RuntimeException> {
         private static final String SRC_ATTR = "src";
-        private static final String LOCATION_ATTR = "location";
+        private static final String QUALIFIED_SRC_ATTR = "rascal-src";
         private final boolean dropOrigins;
 
         public ElementCreator(boolean dropOrigins) {
@@ -389,8 +389,8 @@ public class IO {
                 parameters.remove("xmlns");
             }
 
-            // if there is both a src and an location attr, then "location" is the origin key, otherwise "src"
-            String originKey = parameters.containsKey(SRC_ATTR) && parameters.containsKey(LOCATION_ATTR) ? LOCATION_ATTR : SRC_ATTR;
+            // if there is both a src and an location attr, then "rascal-src" is the origin key, otherwise "src"
+            String originKey = parameters.containsKey(SRC_ATTR) && parameters.containsKey(QUALIFIED_SRC_ATTR) ? QUALIFIED_SRC_ATTR : SRC_ATTR;
 
             parameters.entrySet().stream()
                 .filter(v -> !dropOrigins || !v.getKey().equals(originKey))
