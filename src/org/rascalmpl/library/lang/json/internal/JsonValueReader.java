@@ -544,9 +544,7 @@ public class JsonValueReader {
         }
         
         if (src != null) {
-          // we use "origin" if it already contains "src", just in case
-          assert !(kwParams.containsKey("src") && kwParams.containsKey("origin"));
-          kwParams.put(kwParams.containsKey("src") ? "origin" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+          kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
         }
 
 
@@ -582,11 +580,8 @@ public class JsonValueReader {
         int endCol = getCol();
 
         if (src != null) {
-          // we use "origin" if it already contains "src", just in case
-          assert !(kws.containsKey("src") && kws.containsKey("origin"));
-          kws.put(kws.containsKey("src") ? "origin" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
+          kws.put(kws.containsKey("src") ? "rascal-src" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
         }
-
         
         return vf.node("object", new IValue[] { }, kws);
       }
