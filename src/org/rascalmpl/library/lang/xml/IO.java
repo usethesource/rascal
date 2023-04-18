@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.DocumentType;
 import org.jsoup.nodes.Document.OutputSettings;
 import org.jsoup.nodes.Document.OutputSettings.Syntax;
 import org.jsoup.nodes.Element;
@@ -96,12 +98,20 @@ public class IO {
     }
 
     private IValue toINode(Document doc, ISourceLocation file, boolean fullyQualify, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
-        return toINode(doc.body(), file, fullyQualify, includeEndTags, ignoreWhitespace, ignoreComments);
+         // TODO: filter documentttypes and chose the right node
+        return toINode((Node) doc, file, fullyQualify, includeEndTags, ignoreWhitespace, ignoreComments);
     }
 
     private IValue toINode(Node node, ISourceLocation file, boolean fullyQualify, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
         if (node instanceof TextNode) {
             return toIString((TextNode) node, file);
+        }
+        else if (node instanceof DocumentType) {
+            DocumentType dt = (DocumentType) node;
+            Map<String, IValue> args = new HashMap<>();
+            args.put("publicId", vf.string(dt.publicId()));
+            args.put("systemId", vf.string(dt.systemId()));
+            return vf.node("documentType", new IValue[0], args);
         }
         else if (node instanceof DataNode) {
             return toIString((DataNode) node, file);
@@ -140,9 +150,10 @@ public class IO {
             }
 
             IValue[] args = elem.childNodes().stream()
-                .filter(p -> !ignoreComments || !(p instanceof Comment))
+                .filter(p -> !ignoreComments || (!(p instanceof Comment) && !(p instanceof DocumentType)))
                 .filter(p -> !ignoreWhitespace || !(p instanceof TextNode && ((TextNode) p).isBlank()))
                 .map(n -> toINode(n, file, fullyQualify, includeEndTags, ignoreWhitespace, ignoreComments))
+                .filter(c -> c != null) // filter document types
                 .toArray(IValue[]::new);
 
             if (file != null) {
