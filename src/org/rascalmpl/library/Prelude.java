@@ -1277,8 +1277,8 @@ public class Prelude {
 	
 		// if inferCharset we overwrite the given charset (which is usually the default in that case)
 		if (append && inferCharset.getValue()) {
-			charset = REGISTRY.detectCharSet(sloc);
-		}
+			charset = values.string(REGISTRY.detectCharset(sloc).name());
+		} 
 		
 		writeFileEnc(sloc, charset, V, append);
 	}

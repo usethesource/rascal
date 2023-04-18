@@ -59,15 +59,10 @@ public class IO {
     }
     
     public IValue readXML(ISourceLocation loc, IBool fullyQualify, IBool trackOrigins, IBool includeEndTags,  IBool ignoreComments, IBool ignoreWhitespace, IString charset, IBool inferCharset) {
-        try {
-            if (inferCharset.getValue()) {
-                charset = vf.string(URIResolverRegistry.getInstance().getCharset(loc).toString());
-            }
+        if (inferCharset.getValue()) {
+            charset = vf.string(URIResolverRegistry.getInstance().detectCharset(loc).toString());
         }
-        catch (IOException e) {
-            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
-        }
-
+       
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc)) {
             Parser xmlParser = Parser.xmlParser()
                 .settings(new ParseSettings(false, false))
@@ -77,9 +72,11 @@ public class IO {
             Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), xmlParser);
             
             return toINode(doc, trackOrigins.getValue() ? loc : null, fullyQualify.getValue(), includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
-        } catch (MalformedURLException e) {
+        } 
+        catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(loc.getURI().toASCIIString());
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
         }
     }
