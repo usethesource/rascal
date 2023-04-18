@@ -137,7 +137,7 @@ public class IO {
 	      }
 	    }
 	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins) {
 	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
 	        if (indent.intValue() > 0) {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
@@ -147,13 +147,14 @@ public class IO {
 	        .setCalendarFormat(dateTimeFormat.getValue())
 	        .setDatesAsInt(dateTimeAsInt.getValue())
 	        .setUnpackedLocations(unpackedLocations.getValue())
+			.setDropOrigins(dropOrigins.getValue())
 	        .write(out, value);
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 	    } 
 	}
 	
-	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins) {
 	    StringWriter string = new StringWriter();
 
 	    try (JsonWriter out = new JsonWriter(string)) {
@@ -164,6 +165,7 @@ public class IO {
 	        	.setCalendarFormat(dateTimeFormat.getValue())
 	        	.setDatesAsInt(dateTimeAsInt.getValue())
 	        	.setUnpackedLocations(unpackedLocations.getValue())
+				.setDropOrigins(dropOrigins.getValue())
 	        	.write(out, value);
 
 	        return values.string(string.toString());
