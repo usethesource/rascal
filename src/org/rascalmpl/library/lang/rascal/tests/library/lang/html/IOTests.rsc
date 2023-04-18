@@ -22,6 +22,12 @@ test bool originTrackingElementsWithEndTags() {
     return originTracking(readHTMLFile(exampleHTML, trackOrigins=true, includeEndTags=true), readFile(exampleHTML));
 }
 
+test bool canWriteWhatWeReadWithoutExceptions() {
+    aaa = readHTMLFile(exampleHTML, trackOrigins=true);
+    writeHTMLString(aaa);
+    return true;
+}
+
 private bool originTracking(node example, str content) {
    poss = [x.location | /HTMLElement x := example, !(x is text), !(x is \data)]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
 
