@@ -45,7 +45,7 @@ java HTMLElement readHTMLString(str content, loc base=|http://localhost|, bool t
 This function uses [JSoup's](http://www.jsoup.org) DOM functionality to 
 yield a syntactically correct (X)HTML string.
 }
-java str writeHTMLString(HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax());
+java str writeHTMLString(HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true);
 
 @synopsis{Pretty-print the HTMLElement AST to a string}
 @description{
@@ -53,7 +53,7 @@ This function uses [JSoup's](http://www.jsoup.org) DOM functionality to
 yield a syntactically correct (X)HTML file.
 }
 @javaClass{org.rascalmpl.library.lang.html.IO}
-java void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax());
+java void writeHTMLFile(loc file, HTMLElement dom, str charset="UTF-8", HTMLEscapeMode escapeMode = baseMode(), bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, HTMLSyntax \syntax=htmlSyntax(), bool dropOrigins=true);
 
 @synopsis{Convenience function to visualize an HTMLElement tree in the browser}
 Content serve(HTMLElement elem) = html(writeHTMLString(elem));
