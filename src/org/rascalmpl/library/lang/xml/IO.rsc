@@ -12,7 +12,7 @@ java value readXML(str contents, loc src = |unknown:///|, bool fullyQualify=fals
 This function uses [JSoup's](http://www.jsoup.org) DOM functionality to 
 yield a syntactically correct XML string.
 }
-java str writeXMLString(value val, str charset="UTF-8", bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30);
+java str writeXMLString(value val, str charset="UTF-8", bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, bool dropOrigins=true);
 
 @synopsis{Pretty-print any value to an XML file}
 @description{
@@ -20,7 +20,7 @@ This function uses [JSoup's](http://www.jsoup.org) DOM functionality to
 yield a syntactically correct (X)HTML file.
 }
 @javaClass{org.rascalmpl.library.lang.xml.IO}
-java void writeXMLFile(loc file, value val, str charset="UTF-8", bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30);
+java void writeXMLFile(loc file, value val, str charset="UTF-8", bool outline=false, bool prettyPrint=true, int indentAmount=4, int maxPaddingWidth=30, bool dropOrigins=true);
 
 test bool nestedElementTest() {
   example = "\<aap\>\<noot\>mies\</noot\>\</aap\>";

@@ -308,12 +308,8 @@ public class IO {
 
         Map<String, IValue> parameters = cons.asWithKeywordParameters().getParameters();
         
-        String srcParamName = parameters.containsKey("src") && parameters.containsKey("origin")
-            ? "origin"
-            : "src";
-
         for (Entry<String, IValue> e : parameters.entrySet()) {
-            if (!dropOrigins || !e.getKey().equals(srcParamName)) {
+            if (!dropOrigins || !e.getKey().equals("location")) {
                 IValue v = e.getValue();
 
                 elem = elem.attr(e.getKey(),v.getType().isString() ? ((IString) v).getValue() : v.toString());
