@@ -306,9 +306,18 @@ public class IO {
     private Element emptyElementWithAttributes(IConstructor cons, boolean dropOrigins) {
         Element elem = new Element(cons.getName());
 
-        // TODO: drop origins if true
-        for (Entry<String, IValue> e : cons.asWithKeywordParameters().getParameters().entrySet()) {
-            elem = elem.attr(e.getKey(), ((IString) e.getValue()).getValue());
+        Map<String, IValue> parameters = cons.asWithKeywordParameters().getParameters();
+        
+        String srcParamName = parameters.containsKey("src") && parameters.containsKey("origin")
+            ? "origin"
+            : "src";
+
+        for (Entry<String, IValue> e : parameters.entrySet()) {
+            if (!dropOrigins || !e.getKey().equals(srcParamName)) {
+                IValue v = e.getValue();
+
+                elem = elem.attr(e.getKey(),v.getType().isString() ? ((IString) v).getValue() : v.toString());
+            }
         }
 
         return elem;
