@@ -13,14 +13,17 @@ package org.rascalmpl.library.lang.html;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Document.OutputSettings;
@@ -28,6 +31,7 @@ import org.jsoup.nodes.Document.OutputSettings.Syntax;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities.EscapeMode;
 import org.jsoup.nodes.Node;
+import org.jsoup.nodes.Range;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
@@ -44,42 +48,55 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 
 public class IO {
+    private static final String ORIGIN_FIELD = "rascal-src";
     private final IValueFactory factory;
     private final TypeStore store;
     private final Type HTMLElement;
     private final Type textConstructor;
     private final Type dataConstructor;
     private final Type htmlConstructor;
+    private final PrintWriter err;
 
-    public IO(IValueFactory factory, TypeStore store) {
+    public IO(IValueFactory factory, TypeStore store, PrintWriter out, PrintWriter err) {
         this.factory = factory;
         this.store = store;
         this.HTMLElement = store.lookupAbstractDataType("HTMLElement");
         this.textConstructor = store.lookupConstructor(HTMLElement, "text").iterator().next();
         this.dataConstructor = store.lookupConstructor(HTMLElement, "data").iterator().next();
         this.htmlConstructor = store.lookupConstructor(HTMLElement, "html").iterator().next();
+        this.err = err;
     }
     
-    public IValue readHTMLString(IString string, ISourceLocation base) {
+    public IValue readHTMLString(IString string, ISourceLocation base, IBool trackOrigins, IBool includeEndTags, ISourceLocation src) {
         if (string.length() == 0) {
             throw RuntimeExceptionFactory.io("empty HTML document");
         }
 
-        Document doc = Jsoup.parse(string.getValue(), base.getURI().toString());
+        Parser htmlParser = Parser.htmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+             
+        Document doc = Jsoup.parse(string.getValue(), base.getURI().toString(), htmlParser);
             
-        return toConstructorTree(doc);        
+        return toConstructorTree(doc, trackOrigins.getValue() ? src : null, includeEndTags.getValue());        
     }
 
-    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base) {
+    public IValue readHTMLFile(ISourceLocation file, ISourceLocation base, IBool trackOrigins, IBool includeEndTags) {
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(file)) {
-            Parser htmlParser = Parser.htmlParser().settings(new ParseSettings(false, false));
+            Parser htmlParser = Parser.htmlParser()
+                .settings(new ParseSettings(false, false))
+                .setTrackPosition(trackOrigins.getValue())
+                ;
+            
             Document doc = Jsoup.parse(reader, "UTF-8", base.getURI().toString(), htmlParser);
             
-            return toConstructorTree(doc);
+            return toConstructorTree(doc, trackOrigins.getValue() ? file : null, includeEndTags.getValue());
         } catch (MalformedURLException e) {
             throw RuntimeExceptionFactory.malformedURI(file.getURI().toASCIIString());
         } catch (IOException e) {
@@ -87,23 +104,44 @@ public class IO {
         }
     }
 
-    private IValue toConstructorTree(Document doc) {
-        return factory.constructor(htmlConstructor, factory.list(toConstructorTree(doc.head()), toConstructorTree(doc.body())));
+    private IValue toConstructorTree(Document doc, ISourceLocation file, boolean includeEndTags) {
+        IConstructor result = factory.constructor(htmlConstructor, 
+                    factory.list(
+                        toConstructorTree(doc.head(), file, includeEndTags), 
+                        toConstructorTree(doc.body(), file, includeEndTags)
+                    )
+                );
+
+        if (file != null) {
+            return result.asWithKeywordParameters().setParameter(ORIGIN_FIELD, file);
+        }
+
+        return result;
     }
 
-    private IValue toConstructorTree(Node node) {
+    private IValue toConstructorTree(Node node, ISourceLocation file, boolean includeEndTags) {
         if (node instanceof TextNode) {
-            return toTextConstructor((TextNode) node);
+            return toTextConstructor((TextNode) node, file);
         }
         else if (node instanceof DataNode) {
-            return toDataConstructor((DataNode) node);
+            return toDataConstructor((DataNode) node, file);
         }
         else {
-            assert node instanceof Element;
+            assert node instanceof Element : node.toString();
         }
         
         Element elem = (Element) node;
-        Type cons = store.lookupConstructor(HTMLElement, elem.tagName()).iterator().next();
+        Set<Type> alternatives = store.lookupConstructor(HTMLElement, elem.tagName());
+
+        TypeFactory tf = TypeFactory.getInstance();
+
+        Type cons = alternatives.size() > 0 
+            ? alternatives.iterator().next()
+            : tf.constructorFromTuple(store, HTMLElement, elem.tagName(), tf.tupleType(tf.listType(HTMLElement)));
+
+        if (alternatives.size() == 0) {
+            err.println("No HTML constructor declared for "  + elem.tagName());
+        }
 
         Map<String,IValue> kws = new HashMap<>();
         
@@ -113,23 +151,59 @@ public class IO {
 
         IListWriter w = factory.listWriter();
         for (Node n : elem.childNodes()) {
-            w.append(toConstructorTree(n));
+            if (!(n instanceof Comment)) {
+                w.append(toConstructorTree(n, file, includeEndTags));
+            }
         }
-
-        if (cons.getArity() > 0) {
-            return factory.constructor(cons, new IValue[] { w.done() }, kws);
-        }
-        else {
-            return factory.constructor(cons, new IValue[0], kws);
+                
+        IConstructor result = cons.getArity() > 0
+            ? factory.constructor(cons, new IValue[] { w.done() }, kws)
+            : factory.constructor(cons, new IValue[0], kws);
+        
+        if (file != null) {
+            ISourceLocation src = nodeToLoc(elem.sourceRange(), elem.endSourceRange(), file, includeEndTags);
+            return result.asWithKeywordParameters().setParameter(ORIGIN_FIELD, src);
+        } else {
+            return result;
         }
     }
 
-    private IValue toDataConstructor(DataNode node) {
-        return factory.constructor(dataConstructor, factory.string(node.getWholeData()));
+    private ISourceLocation nodeToLoc(Range startRange, Range endRange, ISourceLocation file, boolean includeEndTags) {
+        if (!startRange.isTracked()) {
+            return file;
+        }
+
+        return includeEndTags && endRange.isTracked()
+            ? factory.sourceLocation(file,
+                startRange.start().pos(),
+                endRange.end().pos() - startRange.start().pos(),
+                startRange.start().lineNumber(),
+                endRange.end().lineNumber(),
+                startRange.start().columnNumber() - 1,
+                endRange.end().columnNumber() - 1
+            )
+            : factory.sourceLocation(file, 
+                startRange.start().pos(), 
+                startRange.end().pos() - startRange.start().pos(),
+                startRange.start().lineNumber(),
+                startRange.end().lineNumber(),
+                startRange.start().columnNumber() - 1,
+                startRange.end().columnNumber() - 1
+                );
     }
 
-    private IValue toTextConstructor(TextNode elem) {
-        return factory.constructor(textConstructor, factory.string(elem.getWholeText()));
+    private IValue toDataConstructor(DataNode node, ISourceLocation file) {
+        IConstructor cons = factory.constructor(dataConstructor, factory.string(node.getWholeData()));
+        return file != null 
+            ? cons.asWithKeywordParameters().setParameter(ORIGIN_FIELD, nodeToLoc(node.sourceRange(), node.sourceRange(), file, false))
+            : cons;
+    }
+
+    private IValue toTextConstructor(TextNode elem, ISourceLocation file) {
+        IConstructor cons = factory.constructor(textConstructor, factory.string(elem.getWholeText()));
+        return file != null 
+            ? cons.asWithKeywordParameters().setParameter(ORIGIN_FIELD, nodeToLoc(elem.sourceRange(), elem.sourceRange(), file, false))
+            : cons;
     }
 
     /**
@@ -138,9 +212,9 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.jdom.
      */
-    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
+    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins) {
         try {
-            Document doc = createHTMLDocument(cons);
+            Document doc = createHTMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             
             return factory.string(doc.outerHtml());
@@ -156,10 +230,10 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.w3c.dom.
      */
-    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
+    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins ) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
-            Document doc = createHTMLDocument(cons);
+            Document doc = createHTMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             out.write(doc.outerHtml());
         }
@@ -183,10 +257,10 @@ public class IO {
     /**
      * Translates a constructor tree to a jdom DOM tree, adding nodes where necessary to complete a html element.
      */
-    private Document createHTMLDocument(IConstructor cons) throws IOException {
+    private Document createHTMLDocument(IConstructor cons, boolean dropOrigins) throws IOException {
         Document doc = new Document("http://localhost");
 
-        Node node = normalise(cons, createElement(cons));
+        Node node = normalise(cons, createElement(cons, dropOrigins));
         
         doc.appendChild(node);
         return doc.normalise();
@@ -205,10 +279,10 @@ public class IO {
         }
     }
 
-    private Node createElement(IConstructor cons) {
+    private Node createElement(IConstructor cons, boolean dropOrigins) {
         if (cons.getConstructorType().getArity() == 0) {
             // nullary nodes do not require recursion
-            return emptyElementWithAttributes(cons);
+            return emptyElementWithAttributes(cons, dropOrigins);
         } 
         else if (cons.getName().equals("text")) {
             // text nodes are flattened into the parent element, no recursion required
@@ -220,21 +294,27 @@ public class IO {
         }
         else {
             // normal elements require recursion
-            Element elem = emptyElementWithAttributes(cons);
+            Element elem = emptyElementWithAttributes(cons, dropOrigins);
       
             for (IValue child : (IList) cons.get(0)) {
-                elem.appendChild(createElement((IConstructor) child));
+                elem.appendChild(createElement((IConstructor) child, dropOrigins));
             }
 
             return elem;
         }
     }
 
-    private Element emptyElementWithAttributes(IConstructor cons) {
+    private Element emptyElementWithAttributes(IConstructor cons, boolean dropOrigins) {
         Element elem = new Element(cons.getName());
 
-        for (Entry<String, IValue> e : cons.asWithKeywordParameters().getParameters().entrySet()) {
-            elem = elem.attr(e.getKey(), ((IString) e.getValue()).getValue());
+        Map<String, IValue> parameters = cons.asWithKeywordParameters().getParameters();
+        
+        for (Entry<String, IValue> e : parameters.entrySet()) {
+            if (!dropOrigins || !e.getKey().equals(ORIGIN_FIELD)) {
+                IValue v = e.getValue();
+
+                elem = elem.attr(e.getKey(),v.getType().isString() ? ((IString) v).getValue() : v.toString());
+            }
         }
 
         return elem;

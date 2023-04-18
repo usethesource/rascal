@@ -192,9 +192,12 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	public boolean supportsHost() {
 		return false;
 	}
-	
+
+    
 	@Override
 	public Charset getCharset(ISourceLocation uri) throws IOException {
+		// TODO: this requires an explanation. The docs
+		// of the super implementation do not say anything about returning null.
 		return null;
 	}
 	

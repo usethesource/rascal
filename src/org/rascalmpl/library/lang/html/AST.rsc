@@ -9,8 +9,9 @@ This is HTML encoded like so:
 * <3> text nodes and data nodes (which are invisible in HTML) have the \data or text constructor
 * <4> attributes are keyword parameters of type `str`
 * <5> unknown tags (such as SVG) are mapped to `unknownElement` nodes and their children are not included.
+* <6> the `location` field is reserved for source locations of tags and other content. Normally this would be called `src` but `src` is reserved for other attributes in HTML
 }
-data HTMLElement // <1>
+data HTMLElement(loc location=|unknown:///|) // <1>
     = a(list[HTMLElement] elems)
     | abbr(list[HTMLElement] elems)
     | address(list[HTMLElement] elems)
