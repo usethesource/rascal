@@ -156,8 +156,8 @@ public class IO {
                 .toArray(IValue[]::new);
 
             if (file != null) {
-                assert !(kws.containsKey("src") && kws.containsKey("origin"));
-                kws.put(kws.containsKey("src") ? "origin" : "src", nodeToLoc((Element) node, file, includeEndTags));
+                assert !(kws.containsKey("src") && kws.containsKey("location"));
+                kws.put(kws.containsKey("src") ? "location" : "src", nodeToLoc((Element) node, file, includeEndTags));
             }
 
             return vf.node(removeNamespace(node.nodeName(), fullyQualify), args).asWithKeywordParameters().setParameters(kws);
@@ -244,9 +244,9 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from jsoup
      */
-    public IString writeXMLString(IValue cons, IString charset, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth) {
+    public IString writeXMLString(IValue cons, IString charset, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IBool dropOrigins) {
         try {
-            Document doc = createXMLDocument(cons);
+            Document doc = createXMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue()));
             
             return vf.string(doc.outerHtml());
@@ -262,10 +262,10 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from JSoup
      */
-    public void writeXMLFile(ISourceLocation file, IValue cons, IString charset, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth) {
+    public void writeXMLFile(ISourceLocation file, IValue cons, IString charset, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IBool dropOrigins) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
-            Document doc = createXMLDocument(cons);
+            Document doc = createXMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue()));
             out.write(doc.outerHtml());
         }
@@ -288,15 +288,22 @@ public class IO {
     /**
      * Translates a constructor tree to a xml DOM tree
      */
-    private Document createXMLDocument(IValue cons) throws IOException {
+    private Document createXMLDocument(IValue cons, boolean dropOrigins) throws IOException {
         Document doc = new Document("http://localhost");
 
-        Node node = cons.accept(new ElementCreator());
+        Node node = cons.accept(new ElementCreator(dropOrigins));
         
         return (Document) doc.appendChild(node);
     }
 
     private static class ElementCreator implements IValueVisitor<Node, RuntimeException> {
+        private static final String SRC_ATTR = "src";
+        private static final String LOCATION_ATTR = "location";
+        private final boolean dropOrigins;
+
+        public ElementCreator(boolean dropOrigins) {
+            this.dropOrigins = dropOrigins;
+        }
 
         @Override
         public Node visitString(IString o) throws RuntimeException {
@@ -382,7 +389,11 @@ public class IO {
                 parameters.remove("xmlns");
             }
 
+            // if there is both a src and an location attr, then "location" is the origin key, otherwise "src"
+            String originKey = parameters.containsKey(SRC_ATTR) && parameters.containsKey(LOCATION_ATTR) ? LOCATION_ATTR : SRC_ATTR;
+
             parameters.entrySet().stream()
+                .filter(v -> !dropOrigins || !v.getKey().equals(originKey))
                 .forEach(e -> {
                     IValue v = e.getValue();
                     node.attr(deNormalizeAttr(e.getKey()), v.getType().isString() ? ((IString) v).getValue() : v.toString());
