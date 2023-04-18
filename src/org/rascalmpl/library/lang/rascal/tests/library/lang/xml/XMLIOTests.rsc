@@ -71,12 +71,12 @@ test bool namespacesMultiple()
 
 
 test bool originTrackingElements() {
-    loc l = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|;
+    loc l = |std:///lang/rascal/tests/library/lang/xml/glossary.xml|;
     return originTracking(readXML(l, trackOrigins=true), readFile(l));
 }
 
 test bool originTrackingElementsWithEndTags() {
-    loc l = |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/xml/glossary.xml|;
+    loc l = |std:///lang/rascal/tests/library/lang/xml/glossary.xml|;
     return originTracking(readXML(l, trackOrigins=true, includeEndTags=true), readFile(l));
 }
 
