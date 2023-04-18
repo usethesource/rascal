@@ -57,8 +57,8 @@ test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
 test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
 test bool originTracking() {
-   example = readJSON(#node, |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
-   content = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|);
+   example = readJSON(#node, |std:///lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
+   content = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
 
    poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
 
