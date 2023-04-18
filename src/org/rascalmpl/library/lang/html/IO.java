@@ -211,9 +211,9 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.jdom.
      */
-    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
+    public IString writeHTMLString(IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins) {
         try {
-            Document doc = createHTMLDocument(cons);
+            Document doc = createHTMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             
             return factory.string(doc.outerHtml());
@@ -229,10 +229,10 @@ public class IO {
      * Why go through all the trouble of building a DOM? The only reason is compliance.
      * Escapes, encodings, etc. all are maintained by these classes from org.w3c.dom.
      */
-    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax ) {
+    public void writeHTMLFile(ISourceLocation file, IConstructor cons, IString charset, IConstructor escapeMode, IBool outline, IBool prettyPrint, IInteger indentAmount, IInteger maxPaddingWidth, IConstructor syntax, IBool dropOrigins ) {
         
         try (Writer out = URIResolverRegistry.getInstance().getCharacterWriter(file, charset.getValue(), false)) {
-            Document doc = createHTMLDocument(cons);
+            Document doc = createHTMLDocument(cons, dropOrigins.getValue());
             doc = doc.outputSettings(createOutputSettings(charset.getValue(), escapeMode.getName(), outline.getValue(), prettyPrint.getValue(), indentAmount.intValue(), maxPaddingWidth.intValue(), syntax.getName()));
             out.write(doc.outerHtml());
         }
@@ -256,10 +256,10 @@ public class IO {
     /**
      * Translates a constructor tree to a jdom DOM tree, adding nodes where necessary to complete a html element.
      */
-    private Document createHTMLDocument(IConstructor cons) throws IOException {
+    private Document createHTMLDocument(IConstructor cons, boolean dropOrigins) throws IOException {
         Document doc = new Document("http://localhost");
 
-        Node node = normalise(cons, createElement(cons));
+        Node node = normalise(cons, createElement(cons, dropOrigins));
         
         doc.appendChild(node);
         return doc.normalise();
@@ -278,10 +278,10 @@ public class IO {
         }
     }
 
-    private Node createElement(IConstructor cons) {
+    private Node createElement(IConstructor cons, boolean dropOrigins) {
         if (cons.getConstructorType().getArity() == 0) {
             // nullary nodes do not require recursion
-            return emptyElementWithAttributes(cons);
+            return emptyElementWithAttributes(cons, dropOrigins);
         } 
         else if (cons.getName().equals("text")) {
             // text nodes are flattened into the parent element, no recursion required
@@ -293,19 +293,20 @@ public class IO {
         }
         else {
             // normal elements require recursion
-            Element elem = emptyElementWithAttributes(cons);
+            Element elem = emptyElementWithAttributes(cons, dropOrigins);
       
             for (IValue child : (IList) cons.get(0)) {
-                elem.appendChild(createElement((IConstructor) child));
+                elem.appendChild(createElement((IConstructor) child, dropOrigins));
             }
 
             return elem;
         }
     }
 
-    private Element emptyElementWithAttributes(IConstructor cons) {
+    private Element emptyElementWithAttributes(IConstructor cons, boolean dropOrigins) {
         Element elem = new Element(cons.getName());
 
+        // TODO: drop origins if true
         for (Entry<String, IValue> e : cons.asWithKeywordParameters().getParameters().entrySet()) {
             elem = elem.attr(e.getKey(), ((IString) e.getValue()).getValue());
         }
