@@ -50,6 +50,9 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class IO {
     private final IValueFactory vf;
+    private static final String SRC_ATTR = "src";
+    private static final String QUALIFIED_SRC_ATTR = "rascal-src";
+
 
     public IO(IValueFactory vf) {
         this.vf = vf;
@@ -156,8 +159,7 @@ public class IO {
                 .toArray(IValue[]::new);
 
             if (file != null) {
-                assert !(kws.containsKey("src") && kws.containsKey("location"));
-                kws.put(kws.containsKey("src") ? "location" : "src", nodeToLoc((Element) node, file, includeEndTags));
+                kws.put(kws.containsKey(SRC_ATTR) ? QUALIFIED_SRC_ATTR : SRC_ATTR, nodeToLoc((Element) node, file, includeEndTags));
             }
 
             return vf.node(removeNamespace(node.nodeName(), fullyQualify), args).asWithKeywordParameters().setParameters(kws);
@@ -297,8 +299,6 @@ public class IO {
     }
 
     private static class ElementCreator implements IValueVisitor<Node, RuntimeException> {
-        private static final String SRC_ATTR = "src";
-        private static final String QUALIFIED_SRC_ATTR = "rascal-src";
         private final boolean dropOrigins;
 
         public ElementCreator(boolean dropOrigins) {
