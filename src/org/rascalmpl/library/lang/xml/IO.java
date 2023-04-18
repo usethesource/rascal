@@ -98,7 +98,6 @@ public class IO {
     }
 
     private IValue toINode(Document doc, ISourceLocation file, boolean fullyQualify, boolean includeEndTags, boolean ignoreWhitespace, boolean ignoreComments) {
-         // TODO: filter documentttypes and chose the right node
         return toINode((Node) doc, file, fullyQualify, includeEndTags, ignoreWhitespace, ignoreComments);
     }
 
@@ -384,7 +383,10 @@ public class IO {
             }
 
             parameters.entrySet().stream()
-                .forEach(e -> node.attr(deNormalizeAttr(e.getKey()), e.getValue().toString()));
+                .forEach(e -> {
+                    IValue v = e.getValue();
+                    node.attr(deNormalizeAttr(e.getKey()), v.getType().isString() ? ((IString) v).getValue() : v.toString());
+                });
 
             StreamSupport.stream(o.spliterator(), false)
                 .forEach(e -> node.appendChild(e.accept(this)));
