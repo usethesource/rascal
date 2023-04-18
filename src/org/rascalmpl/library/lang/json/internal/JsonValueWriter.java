@@ -14,6 +14,7 @@ package org.rascalmpl.library.lang.json.internal;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import com.google.gson.stream.JsonWriter;
@@ -42,6 +43,7 @@ public class JsonValueWriter {
   private ThreadLocal<SimpleDateFormat> format;
   private boolean datesAsInts = true;
   private boolean unpackedLocations = false;
+  private boolean dropOrigins = true;
   
   public JsonValueWriter() {
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -69,6 +71,11 @@ public class JsonValueWriter {
   public JsonValueWriter setUnpackedLocations(boolean setting) {
       this.unpackedLocations = setting;
       return this;
+  }
+
+  public JsonValueWriter setDropOrigins(boolean setting) {
+    this.dropOrigins = setting;
+    return this;
   }
 
   public void write(JsonWriter out, IValue value) throws IOException {
@@ -195,7 +202,16 @@ public class JsonValueWriter {
           out.name("arg" + i++); 
           arg.accept(this);
         }
-        for (Entry<String,IValue> e : o.asWithKeywordParameters().getParameters().entrySet()) {
+
+        Map<String, IValue> parameters = o.asWithKeywordParameters().getParameters();
+
+        String originKey = parameters.containsKey("rascal-src") ? "rascal-src" : "src";
+        
+        for (Entry<String,IValue> e : parameters.entrySet()) {
+          if (dropOrigins && e.getKey().equals(originKey)) {
+            continue;
+          }
+
           out.name(e.getKey()); 
           e.getValue().accept(this); 
         }

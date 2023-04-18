@@ -51,8 +51,7 @@ import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 @SuppressWarnings("rawtypes")
-public class JSONReadingTypeVisitor implements
-		ITypeVisitor<IValue, IOException> {
+public class JSONReadingTypeVisitor implements ITypeVisitor<IValue, IOException> {
 
 	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final IValueFactory vf;
