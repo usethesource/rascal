@@ -37,6 +37,7 @@ import java.io.Writer;
 import java.lang.ref.WeakReference;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -1276,36 +1277,10 @@ public class Prelude {
 	
 		// if inferCharset we overwrite the given charset (which is usually the default in that case)
 		if (append && inferCharset.getValue()) {
-			charset = detectCharSet(sloc);
+			charset = REGISTRY.detectCharSet(sloc);
 		}
 		
 		writeFileEnc(sloc, charset, V, append);
-	}
-
-	private IString detectCharSet(ISourceLocation sloc) {
-		IString charset;
-		// in case the file already has a encoding, we have to correctly append that.
-		Charset detected = null;
-		try (InputStream in = REGISTRY.getInputStream(sloc);){
-			detected = REGISTRY.getCharset(sloc);
-			if (detected == null) {
-				
-				detected = UnicodeDetector.estimateCharset(in);
-			}
-		} 
-		catch (FileNotFoundException fnfex) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		} 
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
-		
-		if (detected != null)
-			charset = values.string(detected.name());
-		else {
-			charset = values.string(Charset.defaultCharset().name());
-		}
-		return charset;
 	}
 	
 	public IBool canEncode(IString charset) {
