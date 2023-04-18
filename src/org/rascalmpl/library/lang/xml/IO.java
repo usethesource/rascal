@@ -64,12 +64,12 @@ public class IO {
         }
 
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc)) {
-            Parser htmlParser = Parser.htmlParser()
+            Parser xmlParser = Parser.xmlParser()
                 .settings(new ParseSettings(false, false))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
             
-            Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), htmlParser);
+            Document doc = Jsoup.parse(reader, charset.getValue(), loc.getURI().toString(), xmlParser);
             
             return toINode(doc, trackOrigins.getValue() ? loc : null, fullyQualify.getValue(), includeEndTags.getValue(), ignoreWhitespace.getValue(), ignoreComments.getValue());
         } catch (MalformedURLException e) {
