@@ -883,17 +883,23 @@ public class URIResolverRegistry {
 		return resolver.getReadableFileChannel(uri);
 	}
 
-	public Charset detectCharset(ISourceLocation sloc) throws IOException {
+	public Charset detectCharset(ISourceLocation sloc) {
 		URIResolverRegistry reg = URIResolverRegistry.getInstance();
 		
 		// in case the file already has a encoding, we have to correctly append that.
 		Charset detected = null;
 		try (InputStream in = reg.getInputStream(sloc);) {
 			detected = reg.getCharset(sloc);
-			
+
 			if (detected == null) {
 				detected = UnicodeDetector.estimateCharset(in);
 			}
+		}
+		catch (IOException e) {
+			// we stick with the default if something happened above.
+			// if the writing hereafter fails as well, the exception will
+			// be just as descriptive
+			detected = null; 
 		} 
 
 		return detected != null ? Charset.forName(detected.name()) : Charset.defaultCharset();
