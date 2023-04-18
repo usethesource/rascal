@@ -60,11 +60,12 @@ test bool originTracking() {
    example = readJSON(#node, |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
    content = readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/tests/library/lang/json/glossary.json|);
 
-   poss = [x.src | /node x := example]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
+   poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
 
-   for (loc p <- poss) {
+   for (<loc p, str line> <- poss) {
       assert content[p.offset] == "{";                // all nodes start with a {
       assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
+      assert "<p.begin.line>" == line;
    }
 
    return true;

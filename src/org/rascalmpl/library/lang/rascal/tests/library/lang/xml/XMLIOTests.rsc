@@ -81,7 +81,7 @@ test bool originTrackingElementsWithEndTags() {
 }
 
 private bool originTracking(node example, str content) {
-   poss = [<x.src, x.line> | /node x := example]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
+   poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an explicitTemplateSpecialization
 
    for (<loc p, str line> <- poss, p.offset?) { // some (top) nodes do not have offsets
       assert content[p.offset] == "\<";                // all nodes start with a opening tag <
