@@ -39,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -882,7 +883,21 @@ public class URIResolverRegistry {
 		return resolver.getReadableFileChannel(uri);
 	}
 
+	public Charset detectCharset(ISourceLocation sloc) throws IOException {
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		
+		// in case the file already has a encoding, we have to correctly append that.
+		Charset detected = null;
+		try (InputStream in = reg.getInputStream(sloc);) {
+			detected = reg.getCharset(sloc);
+			
+			if (detected == null) {
+				detected = UnicodeDetector.estimateCharset(in);
+			}
+		} 
 
+		return detected != null ? Charset.forName(detected.name()) : Charset.defaultCharset();
+	}
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
