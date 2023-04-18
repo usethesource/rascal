@@ -1,20 +1,20 @@
-<!DOCTYPE glossary PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
- <glossary>
- <Smooth>example glossary</Smooth>
-  <GlossDiv><Title>S
+<!DOCTYPE glossary PUBLIC "-//OASIS//DTD DocBook V3.1//EN" line=1>
+ <glossary line=2>
+ <Smooth line=3>example glossary</Smooth>
+  <GlossDiv line=4><Title line=4>S
   </Title>
-   <GlossList>
-    <GlossEntry ID="SGML" SortAs="SGML">
-     <GlossTerm>Standard Generalized Markup Language</GlossTerm>
-     <Acronym>SGML</Acronym>
-     <Abbrev>ISO 8879:1986</Abbrev>
-     <GlossDef>
-      <para>A meta-markup language, used to create markup
+   <GlossList line=6>
+    <GlossEntry line=7 ID="SGML" SortAs="SGML">
+     <GlossTerm line=8>Standard Generalized Markup Language</GlossTerm>
+     <Acronym line=9>SGML</Acronym>
+     <Abbrev line=10>ISO 8879:1986</Abbrev>
+     <GlossDef line=11>
+      <para line=12>A meta-markup language, used to create markup
 languages such as DocBook.</para>
-      <GlossSeeAlso OtherTerm="GML">
-      <GlossSeeAlso OtherTerm="XML">
+      <GlossSeeAlso line=14 OtherTerm="GML">
+      <GlossSeeAlso line=15 OtherTerm="XML">
      </GlossDef>
-     <GlossSee OtherTerm="markup">
+     <GlossSee line=17 OtherTerm="markup">
     </GlossEntry>
    </GlossList>
   </GlossDiv>
