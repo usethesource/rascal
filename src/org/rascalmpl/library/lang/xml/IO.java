@@ -13,6 +13,7 @@ import java.util.stream.StreamSupport;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Attributes;
+import org.jsoup.nodes.CDataNode;
 import org.jsoup.nodes.Comment;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
@@ -24,6 +25,7 @@ import org.jsoup.nodes.Entities.EscapeMode;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Range;
 import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.XmlDeclaration;
 import org.jsoup.parser.ParseSettings;
 import org.jsoup.parser.Parser;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -111,6 +113,12 @@ public class IO {
             args.put("publicId", vf.string(dt.publicId()));
             args.put("systemId", vf.string(dt.systemId()));
             return vf.node("documentType", new IValue[0], args);
+        }
+        else if (node instanceof XmlDeclaration) {
+            XmlDeclaration xd = (XmlDeclaration) node;
+            Map<String, IValue> args = new HashMap<>();
+            args.put("content", vf.string(xd.getWholeDeclaration()));
+            return vf.node("xmlDeclaration", new IValue[0], args);
         }
         else if (node instanceof DataNode) {
             return toIString((DataNode) node, file);
