@@ -729,12 +729,12 @@ data LocationChangeEvent
 
 data LocationChangeType
     = created() 
-	| deleted() 
-	| modified();
+    | deleted() 
+    | modified();
 
 data LocationType
     = file() 
-	| directory();
+    | directory();
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void watch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
