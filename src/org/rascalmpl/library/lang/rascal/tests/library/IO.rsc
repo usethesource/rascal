@@ -23,5 +23,5 @@ test bool watchDoesNotCrashOnURIRewrites() {
 
 test bool createdDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    return created(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|) < now();
+    return created(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|) <= now();
 }
