@@ -10,3 +10,9 @@ test bool testFileCopyCompletely() {
 
     return readFile(|tmp:///longFile|) == readFile(|tmp:///shortFile|);
 }
+
+test bool watchDoesNotCrashOnURIRewrites() {
+    writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { println(event); });
+    return true;
+}
