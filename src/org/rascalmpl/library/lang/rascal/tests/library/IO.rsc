@@ -1,6 +1,7 @@
 module lang::rascal::tests::library::IO
 
 import IO;
+import DateTime;
 
 test bool testFileCopyCompletely() {
     writeFile(|tmp:///longFile|, "123456789");
@@ -15,4 +16,9 @@ test bool watchDoesNotCrashOnURIRewrites() {
     writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
     watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { println(event); });
     return true;
+}
+
+test bool createdDoesNotCrashOnURIRewrites() {
+    writeFile(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
+    return created(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|) < now();
 }
