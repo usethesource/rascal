@@ -31,7 +31,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -99,7 +98,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	
 	@Override
 	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
-		new File(getPath(uri)).setLastModified(timestamp);
+		resolveToFile(uri).setLastModified(timestamp);
 	}
 	
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
@@ -112,7 +111,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
-		new File(getPath(uri)).delete();
+		resolveToFile(uri).delete();
 	} 
 
 	@Override
@@ -123,7 +122,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 			}
 
 			// fast path
-			if (!new File(getPath(from)).renameTo(new File(getPath(to)))) {
+			if (!resolveToFile(from).renameTo(resolveToFile(to))) {
 				throw new IOException("rename failed: " + from + " to " + to);
 			}
 		}
@@ -137,7 +136,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	}
 	
 	public boolean exists(ISourceLocation uri) {
-		return new File(getPath(uri)).exists();
+		return resolveToFile(uri).exists();
 	}
 	
 	/**
@@ -148,31 +147,36 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	}
 	
 	public boolean isDirectory(ISourceLocation uri) {
-		return new File(getPath(uri)).isDirectory();
+		return resolveToFile(uri).isDirectory();
 	}
 	
 	public boolean isFile(ISourceLocation uri) {
-		return new File(getPath(uri)).isFile();
+		return resolveToFile(uri).isFile();
 	}
 	
 	public long lastModified(ISourceLocation uri) {
-		return new File(getPath(uri)).lastModified();
+		return resolveToFile(uri).lastModified();
 	}
 
 	@Override
 	public long created(ISourceLocation uri) throws IOException {
-		BasicFileAttributeView basicfile = Files.getFileAttributeView(Paths.get(getPath(uri)), BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
+		BasicFileAttributeView basicfile = Files.getFileAttributeView(resolveToFile(uri).toPath(), BasicFileAttributeView.class, LinkOption.NOFOLLOW_LINKS);
         BasicFileAttributes attr = basicfile.readAttributes() ;
         return attr.creationTime().toMillis();
 	}
 	
 	@Override
 	public String[] list(ISourceLocation uri) {
-		return new File(getPath(uri)).list();
+		return resolveToFile(uri).list();
+	}
+
+
+	private File resolveToFile(ISourceLocation uri) {
+		return new File(getPath(uri));
 	}
 	
 	public void mkDirectory(ISourceLocation uri) {
-		new File(getPath(uri)).mkdirs();
+		resolveToFile(uri).mkdirs();
 	}
 	
 	/**
@@ -210,7 +214,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	public FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
 		String path = getPath(uri);
 		if (path != null) {
-			return FileChannel.open(new File(path).toPath(), StandardOpenOption.READ);
+			return FileChannel.open(resolveToFile(uri).toPath(), StandardOpenOption.READ);
 		}
 		throw new IOException("uri has no path: " + uri);
 	}
@@ -240,7 +244,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	public void watch(ISourceLocation root, Consumer<ISourceLocationChanged> callback) throws IOException {
 		watchers.computeIfAbsent(root, k -> ConcurrentHashMap.newKeySet()).add(callback);
 
-		WatchKey key = Paths.get(root.getURI()).register(watcher,
+		WatchKey key = resolveToFile(root).toPath().register(watcher,
 			StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY
 		);
 
