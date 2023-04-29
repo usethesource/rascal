@@ -37,6 +37,7 @@ import analysis::graphs::Graph;
 import Node;
 import Map;
 import List;
+import Relation;
 extend analysis::m3::TypeSymbol;
  
 data Modifier;
@@ -199,4 +200,28 @@ list[Message] checkM3(M3 model) {
   result += [error("undeclared element in containment", decl) | decl <- model.containment<to> - model.declarations<name>];
   result += [error("non-root element is not contained anywhere", decl) | decl <- model.containment<from> - model.declarations<name> - top(model.containment)];
   return result;
+}
+
+test bool testM3ModelConsistency(M3 m) {
+    decls = m.declarations<name>;
+
+    // nothing that is contained here does not not have a declaration, except the outermost translationUnit
+    assert m.declarations<name> - m.containment<to> - top(m.containment) == {};
+   
+    // everything in the containment relation has been declared somewhere
+    assert carrier(m.containment) - decls == {};
+
+    // everything in the declarations relation is contained somewhere
+    assert decls - carrier(m.containment) == {};
+
+    // all uses point to actual declarations
+    assert m.uses<name> - m.declarations<name> == {};
+
+    // in this example, all declarations are used at least once
+    assert m.declarations<name> - m.uses<name> == {};
+
+    // m.declarations is one-to-one
+    assert size(m.declarations<name>) == size(m.declarations);
+
+   return true;
 }

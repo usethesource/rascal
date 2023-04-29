@@ -35,17 +35,18 @@ metrics or other analysis tools should still take semantic differences between p
 module analysis::m3::AST
 
 import Message;
+import Node;
 import analysis::m3::TypeSymbol;
 
-public data \AST(loc file = |unknown:///|)
+data \AST(loc file = |unknown:///|)
   = declaration(Declaration declaration)
   | lines(list[str] contents)
   | noAST(Message msg)
   ;
   
-public loc unknownSource = |unknown:///|;
-public loc unresolvedDecl = |unresolved:///|;
-public loc unresolvedType = |unresolved:///|;  
+loc unknownSource = |unknown:///|;
+loc unresolvedDecl = |unresolved:///|;
+loc unresolvedType = |unresolved:///|;  
 
 data Declaration(
 	loc src = |unknown:///|,
@@ -73,7 +74,40 @@ data Type(
 
 data Modifier;
 
+@synopsis{Test for the consistency characteristics of an M3 annotated abstract syntax tree}
+bool astNodeSpecification(node n, str language = "java", bool checkNameResolution=false, bool checkSourceLocation=true) {
+	// get a loc from any node if there is any.
+	loc  pos(node y) = (loc f := (y.src?|unknown:///|(0,0))) ? f : |unknown:///|(0,0);
+	loc  decl(node y) = (loc d := y.decl?|unresolved:///|) ? d : |unresolved:///|;
+	int  begin(node y) = begin(pos(y));
+	int  end(node y) = end(pos(y));
+	int  begin(loc l) = l.offset;
+	int  end(loc l) = l.offset + l.length;
+	bool leftToRight(loc l, loc r) = end(l) <= begin(r);
+	bool leftToRight(node a, node b) = leftToRight(pos(a), pos(b));
 
+	if (checkSourceLocation) {
+		// all nodes have src annotations
+		assert all(/node x := n, x.src?);
+
+		// siblings are sorted in the input, even if some of them are lists
+		assert all(/node x := n, [*_, node a, node b, *_] := getChildren(x), leftToRight(a,b));
+		assert all(/node x := n, [*_, node a, [node b, *_], *_] := getChildren(x), leftToRight(a,b));
+		assert all(/node x := n, [*_, [*_, node a], node b, *_] := getChildren(x), leftToRight(a,b));
+		assert all(/node x := n, [*_, [*_, node a], [node b, *_], *_] := getChildren(x), leftToRight(a,b));
+		assert all(/[*_, node a, node b, *_] := n, leftToRight(a,b));
+
+		// children positions are included in the parent input scope
+		assert all(/node parent := n, /node child := parent, begin(parent) <= begin(child), end(child) <= end(parent));
+	}
+	
+	if (checkNameResolution) {
+		// all resolved names have the language as schema prefix
+		assert all(/node m := n, m.decl?, /^<language>/ := decl(m).scheme);
+	}
+	
+	return true;
+}
 
 
 
