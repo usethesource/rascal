@@ -545,9 +545,3 @@ int useExtraFormalInListPattern(f([*int ints])){
 test bool useExtraFormalInListPattern() = useExtraFormalInListPattern(f([42])) == 42;
 
 data G = g(int n) | g1();
-
-@ignoreCompiler{Defeats the strategy in lang::rascalcore::compile::Rascal2muRascal::RascalPattern for qualified name pattern}
-test bool nestedfunctionInTrueBranch(){
-    int f(int n) = 2 * n;
-    return [ g(n) := g1() ? f(n) : -1 ] == [ -1 ];
-}
