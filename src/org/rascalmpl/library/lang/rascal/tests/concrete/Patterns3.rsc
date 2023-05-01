@@ -255,7 +255,7 @@ appl(
             [label(
                 "hole",
                 sort("ConcreteHole"))],
-            {\tag("category"("MetaVariable"))}),
+            {Attr:\tag("category"("MetaVariable"))}),
           [appl(
               prod(
                 label(
