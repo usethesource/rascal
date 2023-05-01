@@ -655,6 +655,14 @@ test bool matchNestedList12() = !(([[1], *list[int] L, [6,7,8]] := [[1],[2,3],[4
   		
 test bool matchNestedList13() = ([[1], *list[int] L, [6,7,8], *L] := [[1],[2,3],[4,5],[6,7,8],[2,3],[4,5]]) && (L == [[2,3],[4,5]]);
 
+test bool matchNestedList14() {
+    if([*list[int] L] := [[1,2]] && L == [1,2,3]){
+        return false;
+     } else {
+        return true;
+     }
+}
+
 // matchExternalListVars
 
 // int n is uninitialized on purpose here
@@ -689,6 +697,13 @@ test bool matchListTuples5() = [*c, <a, a>] := [<1, 2>, <3, 3>];
 test bool matchListTuples6() = [*c, <int a, a>] := [<1, 2>, <3, 3>];
 test bool matchListTuples7() = [<int a, int b>, <b, b>, *c] := [<1, 2>, <2, 2>, <3, 4>];
 
+test bool matchListTuples8() {
+    if([<1, int n, 3>] := [<1, 2, 3>] && n == -2){
+        return false;
+    } else {
+        return true;
+    }
+}
 // match list of lists
 
 test bool matchListLists1() = [[1, 2, 3]] := [[1, 2, 3]];
