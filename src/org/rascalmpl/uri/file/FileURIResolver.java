@@ -261,7 +261,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 			return;
 		}
 		if (registered.isEmpty()) {
-			// we have to try and clear the relavant watchkey
+			// we have to try and clear the relevant watchkey
 			// but sadly this is a full loop
 			for (Entry<WatchKey, ISourceLocation> e: watchKeys.entrySet()) {
 				if (e.getValue().equals(root)) {
