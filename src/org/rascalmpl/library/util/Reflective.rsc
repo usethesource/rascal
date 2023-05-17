@@ -318,7 +318,7 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
     }
     str name = folder.file;
 
-    if (/[^a-z0-9\-]/ := name) {
+    if (/[^a-z0-9\-_]/ := name) {
         throw "Folder <name> should have only lowercase characters, digits and dashes from [a-z0-9\\-]";
     }
     
