@@ -18,7 +18,7 @@ module Exception
 This data type declares all exceptions that are thrown by the
 Rascal run-time environment which can be caught by a Rascal program.
 
-Since declarations for ((AlgebraicDataType))s are extensible, the user can add new exceptions when needed.
+Since declarations for ((Rascal:AlgebraicDataType))s are extensible, the user can add new exceptions when needed.
 However, this is not necessary. The [throw]((Rascal:Statements-Throw)) can throw
 any ((Rascal:Values)).
 
