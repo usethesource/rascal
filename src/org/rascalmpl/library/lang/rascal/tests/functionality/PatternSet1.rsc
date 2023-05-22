@@ -617,7 +617,7 @@ test bool matchNestedSet12() = !(({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5
 test bool matchNestedSet13() = ({{1}, *set[int] L, {6,7,8}, *L} := {{1},{2,3},{4,5},{6,7,8},{2,3},{4,5}}) && (L == {{2,3},{4,5}});
 
 test bool matchNestedSet14() {
-    if({*set[int] S} := {{1,2}} && S == {1,2,3}){
+    if({*set[int] S} := {{1,2}} && S == {{1,2,3}}){
         return false;
      } else {
         return true;
