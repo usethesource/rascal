@@ -118,7 +118,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
         Output::empty(),
         out("```rascal"),
-        *[out(defLine), empty() | ov <- overloads, str defLine <- split("\n", ov)],
+        *([out(defLine), empty() | ov <- overloads, str defLine <- split("\n", ov)][..-1]),
         out("```")
     ];   
 
