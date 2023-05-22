@@ -542,6 +542,4 @@ int useExtraFormalInListPattern(f([*int ints])){
     return g();
 } 
 
-test bool useExtraFormalInListPattern() = useExtraFormalInListPattern(f([42])) == 42;
-
-data G = g(int n) | g1();
+test bool useExtraFormalInListPattern1() = useExtraFormalInListPattern(f([42])) == 42;
