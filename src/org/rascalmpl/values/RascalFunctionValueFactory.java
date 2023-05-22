@@ -263,6 +263,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleEmpty());
 
         // Funny diamond issue with multiple interface inheritance requires double cast to avoid compiler error here.
+        @SuppressWarnings("unchecked")
         final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) (Class<?>) RascalParser.class;
 
         AbstractAST current = ctx.getCurrentAST();
