@@ -1,6 +1,8 @@
 @doc{tests regression of issue #1594}
 module lang::rascal::tests::concrete::PrefixMatching
 
+import ParseTree;
+
 lexical Layout = [\t\ ]+ !>> [\t\ ];
 layout LayoutList = Layout* !>> [\t\ ;];
 lexical Integer = integer: [0-9];
@@ -32,7 +34,7 @@ test bool specialCaseForAppl1() {
     return appl(prod(sort("S"),[],{}),[]) := appl(prod(sort("S"),[],{}),[]);
 }
 
-test bool specialCaseForAppl1() {
+test bool specialCaseForAppl2() {
     return Tree::appl(prod(sort("S"),[],{}),[]) := appl(prod(sort("S"),[],{}),[]);
 }
 
