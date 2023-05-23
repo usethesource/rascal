@@ -55,11 +55,12 @@ which should be a unique name for the project or file that the m3 model was cons
 Attached to this m3 model will be annotations with the specific information.
 }
 data M3(
-	rel[loc name, loc src] declarations = {},	// maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
-	rel[loc name, TypeSymbol typ] types = {},	// assigns types to declared source code artifacts
-	rel[loc src, loc name] uses = {},			// maps source locations of usages to the respective declarations
-	rel[loc from, loc to] containment = {},		// what inner declaration (to) is logically contained in what outer declaration (`from`) (not necessarily physically, but usually also)
-	list[Message] messages = [],				// error messages and warnings produced while constructing a single m3 model
+	rel[loc name, loc src] declarations = {},	            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
+  set[loc name] implicitDeclarations = {},              // some languages provide builtin implicit declarations, e.g. |java+class:///java/lang/Object| may not have a source location but still exist.
+	rel[loc name, TypeSymbol typ] types = {},	            // assigns types to declared source code artifacts
+	rel[loc src, loc name] uses = {},			                // maps source locations of usages to the respective declarations
+	rel[loc from, loc to] containment = {},		            // what inner declaration (to) is logically contained in what outer declaration (`from`) (not necessarily physically, but usually also)
+	list[Message] messages = [],				                  // error messages and warnings produced while constructing a single m3 model
 	rel[str simpleName, loc qualifiedName] names = {},		// convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 	rel[loc definition, loc comments] documentation = {},	// comments and javadoc attached to declared things
 	rel[loc definition, Modifier modifier] modifiers = {}	// modifiers associated with declared things
@@ -85,6 +86,7 @@ M3 composeM3(loc id, set[M3] models) {
 	M3 comp = m3(id);
 
 	comp.declarations = {*model.declarations | model <- models};
+  comp.implicitDeclarations = {*model.implicitDeclarations | model <- models};
 	comp.types = {*model.types | model <- models};
 	comp.uses = {*model.uses | model <- models};
 	comp.containment = {*model.containment | model <- models};
@@ -108,6 +110,7 @@ M3 diffM3(loc id, list[M3] models) {
 	M3 diff = m3(id);
 
 	diff.declarations = first.declarations - others.declarations;
+  diff.implicitDeclarations = first.implicitDeclarations - others.implicitDeclarations;
 	diff.types = first.types - others.types;
 	diff.uses = first.uses - others.uses;
 	diff.containment = first.containment - others.containment;
@@ -209,13 +212,13 @@ test bool testM3ModelConsistency(M3 m) {
     assert m.declarations<name> - m.containment<to> - top(m.containment) == {};
    
     // everything in the containment relation has been declared somewhere
-    assert carrier(m.containment) - decls == {};
+    assert carrier(m.containment) - decls - m.implicitDeclarations == {};
 
     // everything in the declarations relation is contained somewhere
     assert decls - carrier(m.containment) == {};
 
     // all uses point to actual declarations
-    assert m.uses<name> - m.declarations<name> == {};
+    assert m.uses<name> - m.declarations<name> - m.implicitDeclarations == {};
 
     // in this example, all declarations are used at least once
     assert m.declarations<name> - m.uses<name> == {};
