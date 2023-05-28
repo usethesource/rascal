@@ -31,6 +31,8 @@ import org.jdom2.Text;
 import org.jdom2.input.SAXBuilder;
 import org.jdom2.output.Format;
 import org.jdom2.output.XMLOutputter;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -50,43 +52,56 @@ public class DOM {
 		private static final long serialVersionUID = -6330585199877497106L;
 	}
 	
-	public IConstructor parseXMLDOMTrim(IString str) throws IOException, JDOMException {
+	public IConstructor parseXMLDOMTrim(IString str) {
 		return parseXMLDOM(str, true);
 	}
 
-	public IConstructor parseXMLDOM(IString str) throws IOException, JDOMException {
+	public IConstructor parseXMLDOM(IString str) {
 		return parseXMLDOM(str, false);
 	}
 	
-	public IString xmlRaw(IConstructor node) throws IOException {
+	public IString xmlRaw(IConstructor node) {
 		return xmlToString(node, Format.getRawFormat());
 	}
 	
-	public IString xmlPretty(IConstructor node) throws IOException {
+	public IString xmlPretty(IConstructor node) {
 		return xmlToString(node, Format.getPrettyFormat());
 	}
 
-	public IString xmlCompact(IConstructor node) throws IOException {
+	public IString xmlCompact(IConstructor node) {
 		return xmlToString(node, Format.getCompactFormat());
 	}
 	
-	private IConstructor parseXMLDOM(IString str, boolean trim) throws JDOMException, IOException {
-		SAXBuilder builder = new SAXBuilder();
-		CharArrayReader reader = new CharArrayReader(str.getValue().toCharArray());
-		Document doc = builder.build(reader);
-		return convertDocument(doc, trim);
+	private IConstructor parseXMLDOM(IString str, boolean trim) {
+	    try {
+	        SAXBuilder builder = new SAXBuilder();
+	        CharArrayReader reader = new CharArrayReader(str.getValue().toCharArray());
+	        Document doc = builder.build(reader);
+	        return convertDocument(doc, trim);
+	    } 
+	    catch(JDOMException e) {
+	        throw RuntimeExceptionFactory.io(e.getMessage());
+	    }
+	    catch(IOException e) {
+	         throw RuntimeExceptionFactory.io(e.getMessage());
+	    }
 	}
 	
-	private IString xmlToString(IConstructor node, Format format) throws IOException {
+	private IString xmlToString(IConstructor node, Format format) {
 		StringWriter writer = new StringWriter();
 		writeXML(writer, nodeToDocument(node), format);
 		return vf.string(writer.toString());
 	}
 	
-	private void writeXML(Writer writer, Document document, Format format) throws IOException {
+	private void writeXML(Writer writer, Document document, Format format) {
 		XMLOutputter outputter = new XMLOutputter(format);
-		outputter.output(document, writer);
-		writer.close();
+		try {
+            outputter.output(document, writer);
+            writer.close();
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e.getMessage());
+        }
 	}
 	
 	
