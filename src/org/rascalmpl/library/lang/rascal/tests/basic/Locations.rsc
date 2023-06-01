@@ -519,3 +519,10 @@ test bool extensionSetSimple()
 
 // we don't want backslashes in windows
 test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;
+
+test bool encodingIsTheSameForPathAdditionAndTemplateInstantation()
+    = |file:///<"some path">/<"with spaces">| == |file:///| + "some path" + "with spaces";
+
+test bool encodingDecodingPaths()
+    = (|file:///| + x).path == ((/^\// := x) ? x : "/<x>")
+    when x := "some path right?";
