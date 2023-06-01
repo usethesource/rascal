@@ -213,14 +213,14 @@ public class RascalJUnitTestRunner extends Runner {
 
                     // the order of the tests aren't decided by this list so no need to randomly order them.
                     for (AbstractFunction f : tests) {
-                        modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
+                        modDesc.addChild(Description.createTestDescription(module, computeTestName(f.getName(), f.getAst().getLocation())));
                     }
                 }
                 catch (Throwable e) {
                     System.err.println("[ERROR] " + e);
                     desc.addChild(modDesc);
 
-                    Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
+                    Description testDesc = Description.createTestDescription(module, name + "compilation failed", new CompilationFailed() {
                         @Override
                         public Class<? extends Annotation> annotationType() {
                             return getClass();
@@ -243,7 +243,6 @@ public class RascalJUnitTestRunner extends Runner {
         if (desc == null) {
             desc = getDescription();
         }
-        notifier.fireTestRunStarted(desc);
 
         for (Description mod : desc.getChildren()) {
             if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
@@ -255,8 +254,6 @@ public class RascalJUnitTestRunner extends Runner {
             TestEvaluator runner = new TestEvaluator(evaluator, listener);
             runner.test(mod.getDisplayName());
         }
-
-        notifier.fireTestRunFinished(new Result());
     }
 
     private final class Listener implements ITestResultListener {
@@ -283,7 +280,7 @@ public class RascalJUnitTestRunner extends Runner {
 
         @Override
         public void start(String context, int count) {
-            notifier.fireTestRunStarted(module);
+            // notifier.fireTestRunStarted(module);
         }
 
         @Override
@@ -306,7 +303,7 @@ public class RascalJUnitTestRunner extends Runner {
 
         @Override
         public void done() {
-            notifier.fireTestRunFinished(new Result());
+            // notifier.fireTestRunFinished(new Result());
         }
     }
 }
