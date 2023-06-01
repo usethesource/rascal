@@ -96,7 +96,21 @@ JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie j
                                                                                            when isMapType(a), isMapType(b);
 
 // ---- create_... ------------------------------------------------------------
-                                                                                    
+
+//list[str] transPrimArgs(str prim, AType r, list[AType] atypes, list[MuExp] exps, JGenie jg)                          
+//                             newArgs = [];
+//    for(arg <- args){
+//        if(<true, auxVars, pre, [flatArg]> := flattenArgs(args) && !isEmpty(pre)){
+//            newArgs +=  muValueBlock(getType(arg), auxVars + pre + flatArg);
+//        } else {
+//            newArgs += arg;
+//        }
+//    }
+//    if(newArgs == args){
+//        fail;
+//    } else {
+//        return muPrim(op, result, details, newArgs, src);
+//    }                                                         
 // TODO reconsider arg [AType a]
 JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)             = "$VF.list(<intercalate(", ", args)>)";
 JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)              = "$VF.set(<intercalate(", ", args)>)";
@@ -112,7 +126,7 @@ JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, J
 list[str] transPrimArgs("create_node", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
                                                                                           = [ trans(exp, jg) | exp <- exps ];
 JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str args, str kwpMap], JGenie jg)
-                                                                                          = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
+                                                                                          = "$VF.node(<castArg(astr(), name)>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
                                                                                           
 list[str] transPrimArgs("create_reifiedType", AType r, list[AType] atypes, list[MuExp] exps, JGenie jg) 
                                                                                           = [ trans(exp, jg) | exp <- exps ];
@@ -347,9 +361,9 @@ list[str] transSliceArgs(MuExp first, MuExp second, MuExp end, JGenie jg) =  [ f
 list[str] transPrimArgs("slice", AType r, [AType a], [MuExp x, MuExp first, MuExp second, MuExp end], JGenie jg) = [ trans(x,jg), *transSliceArgs(first, second, end, jg)];
                                                                                    
 
-JCode transPrim("slice", AType r, [astr()], [str x, str first, str second, str end], JGenie jg)   = "$astr_slice(<x>, <first>, <second>, <end>)";
-JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$alist_slice(<x>, <first>, <second>, <end>)" when isListLikeType(a);
-JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$anode_slice(<x>, <first>, <second>, <end>)" when isNodeType(a);
+JCode transPrim("slice", AType r, [astr()], [str x, str first, str second, str end], JGenie jg)   = "$astr_slice(<castArg(astr(), x)>, <first>, <second>, <end>)";
+JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$alist_slice(<castArg(a, x)>, <first>, <second>, <end>)" when isListLikeType(a);
+JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$anode_slice(<castArg(a, x)>, <first>, <second>, <end>)" when isNodeType(a);
 JCode transPrim("slice", AType r, [\iter(aadt(_,[], lexicalSyntax()))], [str x, str first, str second, str end], JGenie jg)  
                                                                                          = "$lexical_slice(<x>,<first>, <second>, <end>)";
 JCode transPrim("slice", AType r, [\iter(aadt(_,[], contextFreeSyntax()))], [str x,  str first, str second, str end], JGenie jg)  

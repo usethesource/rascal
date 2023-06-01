@@ -51,7 +51,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
       mtags = translateTags(M.header.tags);
       setModuleTags(mtags);
       if(ignoreTest(mtags)){
-            return <tmodel, errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M@\loc)}, M@\loc)>;
+            e = error("Ignore tag suppressed compilation", M@\loc);
+            tmodel.messages += [e];
+            return <tmodel, errorMuModule(getModuleName(), {e}, M@\loc)>;
       }
      
       if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");

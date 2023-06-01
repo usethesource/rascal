@@ -3,6 +3,7 @@ module lang::rascalcore::check::CollectStatement
 
 extend lang::rascalcore::check::CheckerCommon;
 
+import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectDeclaration;
 

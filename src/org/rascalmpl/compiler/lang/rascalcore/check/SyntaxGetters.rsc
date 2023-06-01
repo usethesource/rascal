@@ -40,8 +40,21 @@ list[KeywordFormal] getCommonKwFormals(Declaration decl)
    = decl.commonKeywordParameters is present ?  [kwf | kwf <- decl.commonKeywordParameters.keywordFormalList] : [];
 
 
-map[str,str] getTags(Tags tags)
-    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
+map[str,str] getTags(Tags tags){
+    res = ();
+    for(tg <- tags.tags){
+        if(tg has contents){
+            res["<tg.name>"] = "<tg.contents.contents>";
+        } else {
+            res["<tg.name>"] = "";
+        }
+    }
+    return res;
+}    
+
+// TODO: replaced by the above code, due to compiler issue, see lang::rascal::tests::basic::CompilerIssues::TemplateInConditional
+//map[str,str] getTags(Tags tags)
+//    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
 
 bool ignoreCompiler(map[str,str] tagsMap)
     = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});

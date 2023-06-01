@@ -65,9 +65,10 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
 // Generate a test method per function with "test" modifier
 
 str generateTestMethod(MuFunction f, str _className, JGenie jg){
+   
     if("test" notin f.modifiers) return "";
     
-    test_name = getJavaName(f.uniqueName);
+    test_name = asJavaName(f.uniqueName);
     test_name_uniq = "<test_name>_<f.src.begin.line>";
     formals = f.ftype.formals;
     expected = f.tags["expected"] ? "";
@@ -86,7 +87,7 @@ str generateTestMethod(MuFunction f, str _className, JGenie jg){
         if(isEmpty(expected)){
             return "@Test
                    'void <test_name_uniq>(){
-                   '   assertTrue(<fun_name>(<externalArgs>).getValue());
+                   '   assertTrue(((IBool)<fun_name>(<externalArgs>)).getValue());
                    '}\n";
         } else {
             return "@Test

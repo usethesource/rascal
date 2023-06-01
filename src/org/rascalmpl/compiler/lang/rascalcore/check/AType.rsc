@@ -98,21 +98,25 @@ bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", []
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
 
-bool asubtype(AType s, AType::\iter(t)) = asubtype(s, t);
+bool asubtype(AType s, AType::\iter(AType t)) = asubtype(s, t);
 bool asubtype(AType s, AType::\iter-star(AType t)) =  asubtype(s, t);
 bool asubtype(AType s, AType::\iter-seps(AType t, list[AType] seps)) = asubtype(s,t);// && isEmpty(removeLayout(seps));
 bool asubtype(AType s, AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t);// && isEmpty(removeLayout(seps));
 
-bool asubtype(AType::alit(_), aadt("Tree", [], _)) = true;
-bool asubtype(AType::acilit(_), aadt("Tree", [], _)) = true;
-bool asubtype(AType::\achar-class(_), aadt("Tree", [], _)) = true;
+bool asubtype(\opt(AType _),aadt("Tree", [], dataSyntax())) = true;
+bool asubtype(\alt(set[AType] _),aadt("Tree", [], dataSyntax())) = true;
+bool asubtype(\seq(list[AType] _),aadt("Tree", [], dataSyntax())) = true;
 
-bool asubtype(AType::conditional(AType s, _), AType t) = asubtype(s, t);
-bool asubtype(AType s, AType::conditional(AType t, _)) = asubtype(s, t);
+bool asubtype(alit(_), aadt("Tree", [], _)) = true;
+bool asubtype(acilit(_), aadt("Tree", [], _)) = true;
+bool asubtype(\achar-class(_), aadt("Tree", [], _)) = true;
+
+bool asubtype(conditional(AType s, _), AType t) = asubtype(s, t);
+bool asubtype(AType s, conditional(AType t, _)) = asubtype(s, t);
 
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
-// bool subtype(AType s, \opt(AType t)) = subtype(s,t);
-// bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
+// bool asubtype(AType s, \opt(AType t)) = subtype(s,t);
+// bool asubtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
 
 bool asubtype(aint(), anum()) = true;
 bool asubtype(arat(), anum()) = true;
@@ -146,10 +150,12 @@ bool asubtype(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, 
 // aparameter
 bool asubtype(aparameter(str pname1, AType bound1), AType r) =
      aparameter(str _, AType bound2) := r ? asubtype(bound1, bound2) : asubtype(bound1, r)
-    when /aparameter(pname1,_) !:= r;
+    //when /aparameter(pname1,_) !:= r
+    ;
 bool asubtype(AType l, r:aparameter(str pname2, AType bound2)) = 
     aparameter(str _, AType bound1) := l ? asubtype(bound1, bound2) : asubtype(l, bound2)
-    when /aparameter(pname2,_) !:= l;
+    //when /aparameter(pname2,_) !:= l
+    ;
 
 // areified
 bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
@@ -191,17 +197,17 @@ list[AType] removeLayout(list[AType] seps) = [ s | s <- seps, !isLayoutType(s) ]
 @doc{Synopsis: Determine if the given type is a layout type.}
 bool isLayoutType(aparameter(_,AType tvb)) = isLayoutType(tvb);
 
-bool isLayoutType(AType::\conditional(AType ss,_)) = isLayoutType(ss);
+bool isLayoutType(\conditional(AType ss,_)) = isLayoutType(ss);
 bool isLayoutType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutType(AType::\start(AType ss)) = isLayoutType(ss);
-bool isLayoutType(AType::\iter(AType s)) = isLayoutType(s);
-bool isLayoutType(AType::\iter-star(AType s)) = isLayoutType(s);
-bool isLayoutType(AType::\iter-seps(AType s,_)) = isLayoutType(s);
-bool isLayoutType(AType::\iter-star-seps(AType s,_)) = isLayoutType(s);
+bool isLayoutType(\start(AType ss)) = isLayoutType(ss);
+bool isLayoutType(\iter(AType s)) = isLayoutType(s);
+bool isLayoutType(\iter-star(AType s)) = isLayoutType(s);
+bool isLayoutType(\iter-seps(AType s,_)) = isLayoutType(s);
+bool isLayoutType(\iter-star-seps(AType s,_)) = isLayoutType(s);
 
-bool isLayoutType(AType::\opt(AType s)) = isLayoutType(s);
-bool isLayoutType(AType::\alt(set[AType] alts)) = any(a <- alts, isLayoutType(a));
-bool isLayoutType(AType::\seq(list[AType] symbols)) = all(s <- symbols, isLayoutType(s));
+bool isLayoutType(\opt(AType s)) = isLayoutType(s);
+bool isLayoutType(\alt(set[AType] alts)) = any(a <- alts, isLayoutType(a));
+bool isLayoutType(\seq(list[AType] symbols)) = all(s <- symbols, isLayoutType(s));
 default bool isLayoutType(AType _) = false;
 
 @doc{
@@ -284,7 +290,7 @@ public java bool eq(value x, value y);
 
 // ---- lub: least-upper-bound ------------------------------------------------
 
-int size(atypeList(list[AType] l)) = size(l);
+//int size(atypeList(list[AType] l)) = size(l);
 
 @doc{
 .Synopsis

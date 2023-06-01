@@ -113,12 +113,12 @@ private MuExp translateAddFunction(Expression e){
   enterFunctionScope(add_fuid);
   lhsFormals = getFormals(lhsType);
   nargs = size(lhsFormals);
-  lactuals = [muVar("$<j>", add_fuid, j, lhsFormals[j]) | int j <- [0 .. nargs]];
+  lactuals = [muVar("$<j>", add_fuid, j, lhsFormals[j], formalId()) | int j <- [0 .. nargs]];
   lhsCall = muOCall(lhsReceiver, lhsType, lactuals, [], e.lhs@\loc);
   
   rhsFormals = getFormals(rhsType);
   nargs = size(rhsFormals);
-  ractuals = [muVar("$<j>" , add_fuid, j, rhsFormals[j]) | int j <- [0 .. nargs]];
+  ractuals = [muVar("$<j>" , add_fuid, j, rhsFormals[j], formalId()) | int j <- [0 .. nargs]];
   rhsCall = muOCall(rhsReceiver, rhsType, ractuals, [], e.rhs@\loc);
   
   body = muReturnFirstSucceeds(["$<i>" | int i <- [0 .. nargs]], [muReturn1(resType, lhsCall), muReturn1(resType, rhsCall)]);
@@ -649,7 +649,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     // TODO: we plan to introduce keyword patterns as formal parameters
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat, ()) | stat <- cbody]), false, []);
     typeVarsInParams = getFunctionTypeParameters(ftype);
-    if(!isEmpty(typeVarsInParams)){
+    if(!isEmpty(typeVarsInParams)){ // && /muTypeParameterMap(_) !:= funBody){
         funBody = muBlock([muTypeParameterMap(typeVarsInParams), funBody]);
     }
       
@@ -933,7 +933,8 @@ MuExp translateQuantor(list[Expression] generators, bool quantorAll = true, bool
     my_fail  = enter_quantor = nextTmp(quantorAll ? "ALL" : "ANY");
     my_btscopes = getBTScopesAnd(gens, enter_quantor, ());
     
-    enter_gen_for = getEnter(gens[0], my_btscopes) + "_FOR";
+    enter_gen = getEnter(gens[0], my_btscopes);
+    enter_gen_for = enter_gen + "_FOR";
     exit = quantorAll ? (negateGenerators ? muContinue(enter_gen_for)
                                           : muBlock([muAssign(done, muCon(false)), muBreak(whileName)]) )
                       : (negateGenerators ? muBlock([muAssign(done, muCon(true)), muBreak(whileName)])
@@ -946,19 +947,37 @@ MuExp translateQuantor(list[Expression] generators, bool quantorAll = true, bool
                                               
     for(gen <- reverse(gens)){       
         // TODO: replace generator cases with ordinary handling of generators?
-        // TODO: add syntactic generators
        
         if((Expression) `<Pattern pat> \<- <Expression exp>` := gen){
-            enter_gen_for = getEnter(gen, my_btscopes) +"_FOR";         
+            enter_gen_for = getEnter(gen, my_btscopes) +"_FOR"; 
+            expType = getType(exp);
+            elemType = getElementType(expType);
+            // -- enumerator with range expression        
             if((Expression) `[ <Expression first> .. <Expression last> ]` := exp){
                 elemType = alub(getType(first), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
                 code = muForRange(enter_gen_for, elem, translate(first), muCon(0), translate(last), translatePat(pat, elemType, elem, my_btscopes, code, quantorAll ? exit : muFail(my_fail)), muBlock([]));
             } else 
+            // -- enumerator with range and step expression
             if((Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]` := exp){
                 elemType = alub(alub(getType(first), getType(second)), getType(last));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
                 code = muForRange(enter_gen_for, elem, translate(first), translate(second), translate(last), translatePat(pat, elemType, elem, my_btscopes, code,  quantorAll ? exit : muFail(my_fail)), muBlock([]));
+            } else
+            // -- a syntactic list or optional
+            if(isIterType(expType) || isOptType(expType)){
+                delta = getIterOrOptDelta(expType); // take care of skipping layout and separators
+                elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
+                expVar = muTmpIValue(nextTmp("exp"), fuid, expType);
+                lastVar = muTmpInt(nextTmp("last"), fuid);
+                ivar = muTmpInt(nextTmp("i"), fuid);
+                body = muBlock([ muConInit(elem, muSubscript(expVar, ivar)),
+                                 translatePat(pat, elemType, elem, my_btscopes, code,quantorAll ? exit : muFail(my_fail))
+                               ]);
+                 code = muBlock([ muConInit(expVar, translate(exp)),
+                                  muConInit(lastVar, muSubNativeInt(muSize(expVar, expType), muCon(1))),
+                                  muForRangeInt(enter_gen_for, ivar, 0, delta, lastVar, body, muBlock([]))
+                                ]);
             } else {
                 elemType = getElementType(getType(exp));
                 if(isVoidType(elemType)){
@@ -1482,7 +1501,7 @@ MuExp translate(e:(Expression) `!<Expression exp>`) {
         case e:(Expression) `<Pattern pat> !:= <Expression exp2>`:
             return translateMatchOp(e, pat, exp2,  getBTScopes(e, nextTmp("NOMATCH")));  
         case e:(Expression) `<Pattern pat> \<- <Expression exp2>`:
-            return translateNoGenOp(e, pat, exp2);  
+            return translateNoGenOp(e, pat, exp2, btscopes, trueCont, falseCont);  
         case (Expression) `any ( <{Expression ","}+ generators> )`:
             return translateQuantor([ g | g <- generators ], quantorAll = true, negateGenerators = true);
         case (Expression) `all ( <{Expression ","}+ generators> )`:
@@ -2015,8 +2034,10 @@ str getFailScope(MuExp exp){
 
 MuExp redirect(MuExp exp, from, to){
     return visit(exp){
-           case mf:muFail(from)    => muFail(to, comment="redirected <from> to <to>; <mf.comment>")
-           case ms: muSucceed(from) => muSucceed(to, comment="redirected <from> to <to>; <ms.comment>")
+           case mf: muFail(from)     => muFail(to, comment="redirected <from> to <to>; <mf.comment>")
+           case ms: muSucceed(from)  => muSucceed(to, comment="redirected <from> to <to>; <ms.comment>")
+           case mc: muContinue(from) => muContinue(to)
+           //case mb: muBreak(from)    => muBreak(to)
     };
 }
   

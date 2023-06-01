@@ -11,65 +11,60 @@ data PathConfig(
     loc testResources =|unknown:///|
 );
 
-
 public /*const*/ str compiled_rascal_package = "rascal";
 
 str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
 }
 
-list[str] split(str qname)
+private list[str] split(str qname)
     = split("::", qname);
 
-list[str] normalize(list[str] parts)
+private list[str] normalize(list[str] parts)
     = [ replaceAll(replaceAll(p, "-", "_"), "\\", "") | p <- parts ];
 
-list[str] escapeJavaKeywords(list[str] parts)
+private list[str] escapeJavaKeywords(list[str] parts)
     = [ p in javaKeywords ? "$<p>" : p | p <- parts ];
     
-str normalizeQName(str qname)
-    = intercalate(".", escapeJavaKeywords(normalize(split(qname))));
-
-str replaceColonAndDash(str s) = replaceAll(replaceAll(replaceAll(s, "-", "_"), "::", "."), "\\", "");
-
-str getQualClassName(str qname){
-    return normalizeQName(qname); //replaceColonAndDash(qname);
+private str normalizeQName(str qname){
+    parts = escapeJavaKeywords(normalize(split(qname)));
+    return intercalate(".", parts);
 }
 
-str getUnqualifiedName(str qname){
+str asQualifiedClassName(str qname){
+    return normalizeQName(qname);
+}
+
+str asUnqualifiedName(str qname){
     n = findLast(qname, "::");
     res = n >= 0 ? qname[n+2 ..] : qname;
     return res[0] == "\\" ? res[1..] : res;
 }
 
-str getQualifier(str qname){
-    n = findLast(qname, "::");
-    res = n >= 0 ? qname[..n] : "";
-    return (res != "" && res[0] == "\\") ? res[1..] : res;
+str asClassName(str qname){
+    return prefixLast("$", qname);
 }
 
-str getClassName(str qname){
-    qname = normalizeQName(qname); // replaceColonAndDash(qname);
-    n = findLast(qname, ".");
-    return n >= 0 ? qname[n+1 ..] : qname;
+str prefixLast(str pref, str qname){
+    qname = normalizeQName(qname);
+    parts = split(".", qname);
+    parts = parts[0 .. size(parts)-1] + "<pref><parts[-1]>";
+    res = intercalate(".", parts);
+    //println("prefixLast(<pref>, <qname>) =\> <res>");
+    return res;
 }
 
-str getClassRef(str qname, str _inModule){
-    qname = normalizeQName(qname); // replaceColonAndDash(qname);
-    n = findLast(qname, ".");
-   
-    qname = "<compiled_rascal_package>.<qname>";
-    return qname;
+str asClassRef(str qname){
+    return "<compiled_rascal_package>.<prefixLast("$", qname)>";;
 }
 
-str getPackageName(str qname){
+str asPackageName(str qname){
     className = normalizeQName(qname);
     n = findLast(className, ".");
-    //return n >= 0 ? className[0 .. n] : "";
     return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>" : compiled_rascal_package;
 }
 
-str getPackagePath(str qname){
+str asPackagePath(str qname){
     className = normalizeQName(qname);
     n = findLast(className, ".");
     return n >= 0 ? "<className[0 .. n]>" : "";
@@ -91,21 +86,20 @@ str makeDirName(str qualifiedModuleName){
     return isEmpty(parts) ? "" : intercalate("/", parts[0..-1]);
 }
 
-str getClass(str qname){
-    qname = normalizeQName(qname); // replaceColonAndDash(qname);
+str asBaseClassName(str qname){
+    qname = normalizeQName(qname);
     n = findLast(qname, ".");
-    //return n >= 0 ? qname[n+1 ..] : qname;
-    return n >= 0 ? "<compiled_rascal_package>.<qname[n+1 ..]>" : "<compiled_rascal_package>.<qname>";
+    return n >= 0 ? "$<qname[n+1 ..]>" : "$<qname>";
 }
 
-str getBaseClass(str qname){
-    qname = normalizeQName(qname); // replaceColonAndDash(qname);
+str asBaseInterfaceName(str qname){
+    qname = normalizeQName(qname);
     n = findLast(qname, ".");
-    return n >= 0 ? qname[n+1 ..] : qname;
+    return n >= 0 ? "$I_<qname[n+1 ..]>" : "$I_<qname>";
 }
 
-str getADTName(str adt)
-    = "ADT_<getJavaName(adt, completeId=false)>";
+str asADTName(str adtName)
+    = "ADT_<asJavaName(adtName, completeId=false)>";
     
 set[str] javaKeywords = {
     "abstract", "continue", "for",        "new",       "switch",
@@ -120,27 +114,24 @@ set[str] javaKeywords = {
     "const",    "float",    "native",     "super",     "while",  "true", "false", "null"};
     
 
-str getJavaName(str fname, bool completeId = true){
+str asJavaName(str fname, bool completeId = true){
     res = completeId && fname in javaKeywords ? "$<fname>" : replaceAll(replaceAll(fname, "-", "_"), "\\", "");
     return res == "_" ? "$_" : res; //single _ not allowed since Java9
 }
 
 str module2class(str qname){
-    return getBaseClass(qname); //replaceAll(qname, "::", ".");
+    return asBaseClassName(qname); //replaceAll(qname, "::", ".");
 }
-
 
 str module2field(str qname){
-    return "M_" + replaceAll(normalizeQName(qname) /*replaceColonAndDash(qname)*/, ".", "_");
+    return "M_" + replaceAll(normalizeQName(qname), ".", "_");
 }
-
-str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
 
 str module2interface(str qname){
     className = normalizeQName(qname);
     n = findLast(className, ".");
     //return n >= 0 ? "<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
-    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$<className[n+1..]>" : "<compiled_rascal_package>.$<className>";
+    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$I_<className[n+1..]>" : "<compiled_rascal_package>.$I_<className>";
 }
 
 str escapeAsJavaString(str s){

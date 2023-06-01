@@ -41,11 +41,11 @@ void addADTs(Solver s){
     
     // remove versions with type parameter on same position.
 
-    solve(ADTs){
-        if(any(a1 <- ADTs, a2 <- ADTs, a1 != a2, a1.adtName == a2.adtName, commonTypeParameter(a1.parameters, a2.parameters))){
-            ADTs -= a2;
-        }
-    }
+    //solve(ADTs){
+    //    if(any(AType a1 <- ADTs, AType a2 <- ADTs, a1 != a2, a1.adtName == a2.adtName, commonTypeParameter(a1.parameters, a2.parameters))){
+    //        ADTs -= a2;
+    //    }
+    //}
     s.push(key_ADTs, ADTs);
 }
 
@@ -294,7 +294,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
             }
         }
     }
-    for(AType adtType <- domain(allProductions), ((\start(AType t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
+    for(AType adtType <- domain(allProductions), ((\start(t) := adtType) ? t.syntaxRole : adtType.syntaxRole) == keywordSyntax()){
         for(p:prod(AType _, list[AType] asymbols) <- allProductions[adtType]){
             if(size(asymbols) != 1){
                 tm.messages += [warning(size(asymbols) == 0 ? "One symbol needed in keyword declaration, found none" : "Keyword declaration should consist of one symbol", p.src)];

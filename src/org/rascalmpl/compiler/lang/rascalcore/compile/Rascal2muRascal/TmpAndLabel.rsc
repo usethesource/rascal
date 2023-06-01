@@ -46,12 +46,12 @@ public int tmpVar = -1;   						// *** state
 
 public str nextTmp(){
 	tmpVar += 1;
-    return "TMP<tmpVar>";
+    return "$TMP<tmpVar>";
 }
 
 public str nextTmp(str name){
     tmpVar += 1;
-    return "<name>_<tmpVar>";
+    return "$<name>_<tmpVar>";
 }
 
 public int tmpLabel = -1;						// *** state

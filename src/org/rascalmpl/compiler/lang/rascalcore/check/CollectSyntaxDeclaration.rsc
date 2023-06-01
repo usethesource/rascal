@@ -3,8 +3,8 @@ module lang::rascalcore::check::CollectSyntaxDeclaration
 
 extend lang::rascalcore::check::CheckerCommon;
 
+import IO;
 import Set;
-import Node;
 import util::Maybe;
 
 import lang::rascalcore::grammar::definition::Symbols;
@@ -138,15 +138,18 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
             AType(Solver s) {
-                try return s.getType(current); catch _: /*not yet known*/;
-                res = aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
-                return res;
+                try {
+                    return s.getType(current);
+                 } catch _: {
+                    res = aprod(computeProd(current, unescape("<name>"), s.getType(adt), modifiers, symbols, s) /* no labels on assoc groups [label=unescape("<name>")]*/);
+                    return res;
+                 }
             });
         //qualName = unescape("<name>"); // 
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
         
          // Define the constructor (using a location annotated with "cons" to differentiate from the above)
-        c.defineInScope(adtParentScope, unescape("<name>") /*qualName*/, constructorId(), getLoc(current)[fragment="cons"], defType([current], 
+        c.defineInScope(adtParentScope, unescape("<name>") /*qualName*/, constructorId(), name /*getLoc(current)[fragment="cons"]*/, defType([current], 
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){

@@ -88,8 +88,8 @@ str prettyAType(Keyword kw) = "<prettyAType(kw.fieldType) <kw.fieldType.alabel/*
 str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyAType(s)> : (<intercalate(", ", [ prettyAType(f) | f <- fs ])>)"; //TODO others
 
 // terminal symbols
-str prettyAType(AType::alit(str string)) = string;
-str prettyAType(AType::acilit(str string)) = string;
+str prettyAType(alit(str string)) = string;
+str prettyAType(acilit(str string)) = string;
 str prettyAType(cc: \achar-class(list[ACharRange] ranges)) { 
     return cc == anyCharType ? "![]" : "[<intercalate(" ", [ "<stringChar(r.begin)>-<stringChar(r.end)>" | r <- ranges ])>]";
 }
@@ -97,7 +97,7 @@ str prettyAType(cc: \achar-class(list[ACharRange] ranges)) {
 str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
 
 // regular symbols
-str prettyAType(AType::\aempty()) = "()";
+str prettyAType(\aempty()) = "()";
 str prettyAType(\opt(AType symbol)) = "<prettyAType(symbol)>?";
 str prettyAType(\iter(AType symbol)) = "<prettyAType(symbol)>+";
 str prettyAType(\iter-star(AType symbol)) = "<prettyAType(symbol)>*";
@@ -123,7 +123,7 @@ Symbol atype2symbol(AType tp){
     //println("atype2symbol: <tp>");
     res = atype2symbol1(tp);
     a = tp.alabel?;
-    return a ? Symbol::\label(getUnqualifiedName(tp.alabel), res) : res;
+    return a ? Symbol::\label(asUnqualifiedName(tp.alabel), res) : res;
 }
 
 Symbol atype2symbol1(aint()) = Symbol::\int();
@@ -248,14 +248,14 @@ map[Symbol, Production] adefinitions2definitions(map[AType, set[AType]] defs) {
 
 set[Production] aprods2prods(set[AType] alts) = {aprod2prod(p) | p <- alts/*, acons(AType adt, list[AType] fields, list[Keyword] kwFields) !:= p*/}; // TODO test added???
  
-Production aprod2prod(AType::aprod(AProduction prod)) = aprod2prod(prod);
+Production aprod2prod(aprod(AProduction prod)) = aprod2prod(prod);
 
 default Production aprod2prod(AType t) {
   throw "internal error: do not know how to translate a <t> to a production rule?!";
 }
 
 Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[AAttr] as))
-  = Production::prod((p.alabel?) ? Symbol::label(getUnqualifiedName(p.alabel), atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], { aattr2attr(a) | a <- as }
+  = Production::prod((p.alabel?) ? Symbol::label(asUnqualifiedName(p.alabel), atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], { aattr2attr(a) | a <- as }
   ); 
   
 Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
@@ -273,9 +273,9 @@ Production aprod2prod(AProduction::reference(AType def, str cons))
 Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] kwFields)) {
     //res = Production::\cons(atype2symbol(adt), [atype2symbol(f) | f <- fields], [atype2symbol(g) | g <- kwFields], {});
     //if(a.alabel?) res = Symbol::label(a.alabel, res);
-    res = Production::\cons((a.alabel?) ? Symbol::label(getUnqualifiedName(a.alabel), atype2symbol(adt)) : atype2symbol(adt), 
+    res = Production::\cons((a.alabel?) ? Symbol::label(asUnqualifiedName(a.alabel), atype2symbol(adt)) : atype2symbol(adt), 
                             [atype2symbol(f) | f <- fields], 
-                            [Symbol::label(g.fieldType.alabel, atype2symbol(g.fieldType)) | g <- kwFields], {});
+                            [/*(g.fieldType.alabel?) ? Symbol::label(g.fieldType.alabel, atype2symbol(g.fieldType)) : */atype2symbol(g.fieldType) | g <- kwFields], {});
     return res;
 }
 
@@ -1041,6 +1041,7 @@ str getADTName(AType t) {
     if (acons(a,_,_) := unwrapType(t)) return getADTName(a);
     if (\start(ss) := unwrapType(t)) return getADTName(ss);
     if (areified(_) := unwrapType(t)) return "type";
+     if (aprod(prod(AType def, list[AType] _)) := unwrapType(t)) return getADTName(def);
     throw rascalCheckerInternalError("getADTName, invalid type given: <prettyAType(t)>");
 }
 
@@ -1050,6 +1051,7 @@ list[AType] getADTTypeParameters(AType t) {
     if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (\start(ss) := unwrapType(t)) return getADTTypeParameters(ss);
     if (areified(_) := unwrapType(t)) return [];
+    if (aprod(prod(AType def, list[AType] _)) := unwrapType(t)) return getADTTypeParameters(def);
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyAType(t)>");
 }
 
@@ -1293,7 +1295,7 @@ default AType getEnumeratorElementType(AType t) = avalue();
 @doc{Synopsis: Determine if the given type is a nonterminal.}
 bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
 bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
-bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr); // || adtName == "Tree";
+bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr);// || adtName == "Tree";
 bool isNonTerminalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isNonTerminalType(adt);
 bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
 bool isNonTerminalType(AType::aprod(AProduction p)) = isNonTerminalType(p.def);
@@ -1304,8 +1306,8 @@ bool isNonTerminalType(AType::\iter-seps(AType t,_)) = isNonTerminalType(t);
 bool isNonTerminalType(AType::\iter-star-seps(AType t,_)) = isNonTerminalType(t);
 bool isNonTerminalType(AType::\aempty()) = false;
 bool isNonTerminalType(AType::\opt(AType t)) = isNonTerminalType(t);
-//bool isNonTerminalType(AType::\alt(set[AType] alternatives)) = any(a <- alternatives, isNonTerminalType(a));
-//bool isNonTerminalType(AType::\seq(list[AType] atypes)) = any(t <- atypes, isNonTerminalType(t));
+bool isNonTerminalType(AType::\alt(set[AType] alternatives)) = any(a <- alternatives, isNonTerminalType(a));
+bool isNonTerminalType(AType::\seq(list[AType] atypes)) = any(t <- atypes, isNonTerminalType(t));
 default bool isNonTerminalType(AType t) = false;   
 
 bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
@@ -1435,23 +1437,23 @@ default int getIterOrOptDelta(AType i) {
 
 // empty
 
-bool isEmpty(AType::aempty()) = true;
+bool isEmpty(aempty()) = true;
 default bool isEmpty(AType tp) = false;
 
 // opt
 bool isOptType(aparameter(_,AType tvb)) = isOptType(tvb);
-bool isOptType(AType::\opt(AType ot)) = true;
+bool isOptType(\opt(AType ot)) = true;
 default bool isOptType(AType _) = false;
 
 AType getOptType(aparameter(_,AType tvb)) = getOptType(tvb);
-AType getOptType(AType::\opt(AType ot)) = ot;
+AType getOptType(\opt(AType ot)) = ot;
 default AType getOptType(AType ot) {
     throw rascalCheckerInternalError("<prettyAType(ot)> is not an optional non-terminal type");
 }
 
 // alt
 bool isAltType(aparameter(_,AType tvb)) = isAltType(tvb);
-bool isAltType(AType:\alt(_)) = true;
+bool isAltType(\alt(set[AType] _)) = true;
 default bool isAltType(AType _) = false;
 
 set[AType] getAltTypes(aparameter(_,AType tvb)) = getAltTypes(tvb);
@@ -1462,7 +1464,7 @@ default set[AType] getAltTypes(AType t){
 
 // seq
 bool isSeqType(aparameter(_,AType tvb)) = isSeqType(tvb);
-bool isSeqType(AType:\seq(_)) = true;
+bool isSeqType(\seq(list[AType] _)) = true;
 default bool isSeqType(AType _) = false;
 
 list[AType] getSeqTypes(aparameter(_,AType tvb)) = getSeqTypes(tvb);

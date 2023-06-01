@@ -373,7 +373,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 //	}
 	
 	public final boolean $isComparable(Type t1, Type t2) {
-		return $isSubtypeOf(t1, t2);// || $isSubtypeOf(t2, t1);
+		return $isSubtypeOf(t1, t2) || $isSubtypeOf(t2, t1);
 	}
 	
 	private final boolean checkRightValueOrParam(Type left, Type right) {
@@ -388,10 +388,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	//TODO: consider caching this method
 	
-	public final boolean $isSubtypeOf(Type left, Type right) {
-//		if(left.isSubtypeOf(right))
-//			return true;
-		
+	public final boolean $isSubtypeOf(Type left, Type right) {		
 		boolean res = left.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
 			
 			@Override
@@ -513,7 +510,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 			@Override
 			public IBool visitAbstractData(Type type) throws RuntimeException {
-				//TODO: parameters
 				if(right instanceof NonTerminalType) {
 					IConstructor symbol = ((NonTerminalType)right).getSymbol();
 					if(SymbolAdapter.isStartSort(symbol)) {
@@ -527,18 +523,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					return !type_name.isEmpty() && type_name.equals(((IString)symbol.get(0)).getValue()) ? Rascal_TRUE : Rascal_FALSE;
 				}
 				if(right.isAbstractData()) {
-					Type lpars = type.getTypeParameters();
-					Type rpars = right.getTypeParameters();
-					int larity = lpars.getArity();
-					int rarity = rpars.getArity();
-					String lname = type.getName();
-					String rname = right.getName();
-					if(larity == 0 && rarity == 0) {
-						return lname.equals(rname) ? Rascal_TRUE : Rascal_FALSE;
-					} else if($isSubtypeOf(lpars, rpars)) {
-						return lname.equals(rname) || lname.startsWith(rname + "_") ? Rascal_TRUE : Rascal_FALSE;
-					}
-					return Rascal_FALSE;
+					return type.getName().equals(right.getName()) && $isSubtypeOf(type.getTypeParameters(), right.getTypeParameters()) ? Rascal_TRUE : Rascal_FALSE;
 				}
 				if(right.isNode()){
 					return Rascal_TRUE;
@@ -603,7 +588,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 
 			  @Override
 			  public IBool visitNonTerminal(RascalType type) throws RuntimeException {
-				  //TODO: parameters
+				  
+			      //TODO: parameters
 				  if(right instanceof NonTerminalType) {
 					  return ((NonTerminalType)type).isSubtypeOfNonTerminal((NonTerminalType) right)? Rascal_TRUE : Rascal_FALSE;
 					  //return ((NonTerminalType)type).getSymbol().equals(((NonTerminalType) right).getSymbol()) ? Rascal_TRUE : Rascal_FALSE;
@@ -649,7 +635,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	public boolean $isNonTerminal(Type treeType, Type expected) {
 	    // TODO: this is an inefficient test, but it does unify parameterized ADTs, sorts and lexes.
-		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
+		if(treeType == expected) return true;
+		if(treeType instanceof NonTerminalType) {
+			NonTerminalType givenNT = (NonTerminalType) treeType;
+			NonTerminalType expectedNT = (NonTerminalType)  expected;
+		    return givenNT.getSymbol().equals(expectedNT.getSymbol()); // && givenNT.getArity() == expectedNT.getArity();
+		}
+		return false;
+
+		//		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
 	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path) {
@@ -2226,7 +2220,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
 		int prod_arity = 0;
 		for(IValue varg : args) {
-			if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
+			if(org.rascalmpl.values.parsetrees.TreeAdapter.isLexical((ITree)varg) ||
+			    org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
 			   org.rascalmpl.values.parsetrees.TreeAdapter.isList((ITree)varg)
 			) {
 				prod_arity++;
@@ -2249,7 +2244,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		int i = 0;
 		for(IValue varg : args) {
 			if(!org.rascalmpl.values.parsetrees.TreeAdapter.isLayout((ITree)varg)) {
-				if(org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
+				if(org.rascalmpl.values.parsetrees.TreeAdapter.isLexical((ITree)varg) ||
+				    org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
 				   org.rascalmpl.values.parsetrees.TreeAdapter.isList((ITree)varg)
 				  ) {
 					if(i == idx) {
@@ -4093,27 +4089,39 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	}
 	
 	public final IValue $subject_subscript(final IValue subject, final int idx) {
-		if(subject.getType().isList()) {
+		Type subjectType = subject.getType();
+		if(subjectType.isList()) {
 			return ((IList) subject).get(idx);
 		}
-		if(subject.getType().isTuple()) {
+		if(subjectType.isTuple()) {
 			return ((ITuple) subject).get(idx);
 		}
-		if(subject.getType().isString()) {
+		if(subjectType.isString()) {
 			return ((IString) subject).substring(idx, 1);
 		}
-		if(subject.getType().isAbstractData()) {
+		if(subjectType.isAbstractData()) {
 			if(subject instanceof ITree){
 				if(org.rascalmpl.values.parsetrees.TreeAdapter.isChar((ITree)subject)) {
 					return $VF.integer(org.rascalmpl.values.parsetrees.TreeAdapter.getCharacter((ITree)subject));
 				}
-				IValue res = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject).get(idx);
-				//IValue res = ((ITree) subject).getArgs().get(idx);
-				return res;
+				if(org.rascalmpl.values.parsetrees.TreeAdapter.isAppl((ITree)subject)) {
+					IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction((ITree)subject);
+					if(ProductionAdapter.isList(prod) || ProductionAdapter.isOpt(prod)) {
+						IList args = ((ITree)subject).getArgs();
+					    return args.get(idx);
+					}
+					if(idx == 0) {
+						return prod;
+					} else if(idx == 1){
+						return org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject);
+					} else
+						throw new RuntimeException("Valid index on appl node is 0 or 1, found " + idx + " on " + subject);
+				}
+				return org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject).get(idx);
 			}
 			return ((IConstructor) subject).get(idx);
 		}
-		if(subject.getType().isNode()) {
+		if(subjectType.isNode()) {
 			return ((INode) subject).get(idx);
 		}
 		throw new RuntimeException("Unsupported subject of type " + subject.getType());
@@ -4274,7 +4282,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	 */
 	
 	public final IMap $amap_update(final IValue key, final IValue v, final IMap map) {	
-		return map.put(key, v);
+		IMap res = map.put(key, v);
+		return res;
 	}
 
 	/**

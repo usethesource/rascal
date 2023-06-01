@@ -29,9 +29,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     if(errorsPresent(tm)){
         return tm.messages;
     }
-    className = getBaseClass(qualifiedModuleName);
+    className = asBaseClassName(qualifiedModuleName);
+    interfaceName = asBaseInterfaceName(qualifiedModuleName);
     genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);  
-    interfaceFile =  genSourcesDir + "$<className>.java";
+    interfaceFile =  genSourcesDir + "<interfaceName>.java";
     classFile = genSourcesDir + "<className>.java";
     testClassFile = genSourcesDir + "<className>Tests.java";
     
@@ -83,11 +84,7 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|,
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=true){
     start_check = cpuTime();   
     <tmodels, moduleLocs, modules> =  rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig()/*[logSolverSteps=true]*/);
-    
-    // Temporary conversion step needed for bootstrap (new tuple element orgId has been added)
-    // TODO: remove after next iteration  
-    //tmodels = visit(tmodels){ case [value]<loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> => <scope, id, id, idRole, defined, defInfo> };
-    
+       
     //iprintln(tmodels[qualifiedModuleName], lineLimit=10000);
     //return tmodels[qualifiedModuleName].messages;
     check_time = (cpuTime() - start_check)/1000000;

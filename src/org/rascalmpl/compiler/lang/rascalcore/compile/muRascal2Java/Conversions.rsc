@@ -13,6 +13,7 @@ extend lang::rascalcore::check::CheckerCommon;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
+import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
 data JGenie; // hack to break cycle?
 
@@ -95,16 +96,18 @@ str atype2idpart(AType t) {
                                          = "node";
     
     str convert(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
-        aname = isEmpty(parameters) ? adtName : all(p <- parameters, isTypeParameter(p)) ? "<adtName>_<size(parameters)>" : "ADT_<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        aname = getUniqueADTName(a);
+        //aname = isEmpty(parameters) ? adtName : all(p <- parameters, isTypeParameter(p)) ? "<adtName>_<size(parameters)>" : "ADT_<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
         //aname = isEmpty(parameters) ? adtName : "<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-        return getJavaName(aname);
+        return asJavaName(aname);
     }
                                                   
     str convert(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields)){
+        aname = getUniqueADTName(adt);
         //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<size(adt.parameters)>";
-        aname = isEmpty(adt.parameters) ? adt.adtName : all(p <- adt.parameters, isTypeParameter(p)) ? "<adt.adtName>_<size(adt.parameters)>" : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
+        //aname = isEmpty(adt.parameters) ? adt.adtName : all(p <- adt.parameters, isTypeParameter(p)) ? "<adt.adtName>_<size(adt.parameters)>" : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
         //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
-        ext = "<getJavaName(aname, completeId=false)><t.alabel? ? "_" + getJavaName(getUnqualifiedName(t.alabel), completeId=false) : "">_<intercalate("_", [convert(f) | f <- fields])>";
+        ext = "<asJavaName(aname, completeId=false)><t.alabel? ? "_" + asJavaName(asUnqualifiedName(t.alabel), completeId=false) : "">_<intercalate("_", [convert(f) | f <- fields])>";
         //return "<useAccessor ? jg.getATypeAccessor(t) : ""><ext>";
         return ext;
     }
@@ -154,8 +157,8 @@ str atype2idpart(AType t) {
 /*  Convert an AType to an IValue (i.e., reify the AType)                    */
 /*****************************************************************************/
 
-str lab(AType t) = t.alabel? ? value2IValue(getUnqualifiedName(t.alabel)) : "";
-str lab2(AType t) = t.alabel? ? ", <value2IValue(getUnqualifiedName(t.alabel))>" : "";
+str lab(AType t) = t.alabel? ? value2IValue(asUnqualifiedName(t.alabel)) : "";
+str lab2(AType t) = t.alabel? ? ", <value2IValue(asUnqualifiedName(t.alabel))>" : "";
 
 bool isBalanced(str s){
     pars = 0;
@@ -224,7 +227,8 @@ str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]]
     = "$anode(<lab(at)>)";
 
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, dataSyntax()), map[AType, set[AType]] defs)
-    = "$aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, dataSyntax)";
+    = "$RVF.constructor(RascalValueFactory.Symbol_Adt, $RVF.string(\"<adtName>\"), <atype2IValue(parameters,defs)>)";
+    //= "$aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>)";
     
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, lexicalSyntax()), map[AType, set[AType]] defs)
     = "$RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(\"<adtName>\"))";
@@ -250,7 +254,8 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType,
 }
 
 str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs)
-    = "$aparameter(<atype2IValue(bound,defs)>)"; 
+    = "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"), <atype2IValue(bound, defs)>)";
+    //= "$aparameter(<atype2IValue(bound,defs)>)"; 
     
 str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) {
     return "$aprod(<aprod2IValue(production, defs)>)";
@@ -303,15 +308,15 @@ private str tree2IValue(Tree t,  map[AType, set[AType]] defs){
 
 private str prod2IValue(Production t,  map[AType, set[AType]] defs){
     res = prod2IValue1(t, defs);
-    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    if(!isBalanced(res)) throw "prod2IValue: unbalanced, <t>, <res>";
     return res; 
 }
 
-private str aprod2IValue(AProduction t,  map[AType, set[AType]] defs){
-    res = aprod2IValue1(t, defs);
-    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
-    return res; 
-}
+//private str aprod2IValue(AProduction t,  map[AType, set[AType]] defs){
+//    res = aprod2IValue1(t, defs);
+//    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+//    return res; 
+//}
 
 private str cond2IValue(Condition c, map[AType, set[AType]] defs){
     res = cond2IValue1(c, defs);
@@ -377,11 +382,11 @@ private str prod2IValue1(tr:prod(Symbol def, list[Symbol] symbols), map[AType, s
 private str prod2IValue1(regular(Symbol def), map[AType, set[AType]] defs)
     = "$RVF.constructor(Symbol_Production_regular,<atype2IValue(symbol2atype(def), defs)>)";
 
-private str tree2IValue1(error(AProduction prod, int dot), map[AType, set[AType]] defs) //<<
-    = "error(<tree2IValue(prod, defs)>, <value2IValue(dot)>)";
+//private str tree2IValue1(error(AProduction prod, int dot), map[AType, set[AType]] defs) //<<
+//    = "error(<tree2IValue(prod, defs)>, <value2IValue(dot)>)";
 
-private str tree2IValue1(skipped(), map[AType, set[AType]] defs)
-    = "skipped()";
+//private str tree2IValue1(skipped(), map[AType, set[AType]] defs)
+//    = "skipped()";
   
 /*&*/  
 private str prod2IValue1(\priority(Symbol def, list[Production] choices), map[AType, set[AType]] defs)
@@ -401,18 +406,18 @@ private str charrange2IValue1(range(int begin, int end))
     = "range(<value2IValue(begin)>, <value2IValue(end)>)";
     
 // ---- AType extensions for parse trees --------------------------------------
-private str atype2IValue1(AType::alit(str string), map[AType, set[AType]] defs)
+private str atype2IValue1(alit(str string), map[AType, set[AType]] defs)
     //= "$lit(<value2IValue(string)>)";
     = "$VF.constructor(RascalValueFactory.Symbol_Lit, $RVF.string(\"<string>\"))"; // TODO escape
 
-private str atype2IValue1(AType::acilit(str string), map[AType, set[AType]] defs)
+private str atype2IValue1(acilit(str string), map[AType, set[AType]] defs)
     //= "$cilit(<value2IValue(string)>)";
     = "$VF.constructor(RascalValueFactory.Symbol_CiLit, $RVF.string(\"<string>\"))";
 /*&*/
-private str atype2IValue1(AType::\char-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
+private str atype2IValue1(\achar-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
     = "$char_class(<tree2IValue(ranges, defs)>)";   
  
-private str atype2IValue1(AType::\aempty(), map[AType, set[AType]] defs)
+private str atype2IValue1(\aempty(), map[AType, set[AType]] defs)
     = "$aempty()";     
 
 private str atype2IValue1(AType::\opt(AType symbol), map[AType, set[AType]] defs)
@@ -784,17 +789,17 @@ default str value2outertype(AType t) = "IValue";
 /*******************************************************************************/
 /*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
 /*******************************************************************************/
-AType setScopeInfoType = afunc(
-          avoid(),
-          [
-            aloc(alabel="scope"),
-            aadt(
-              "ScopeRole",
-              [],
-              dataSyntax()),
-            avalue()
-          ],
-          []);
+//AType setScopeInfoType = afunc(
+//          avoid(),
+//          [
+//            aloc(alabel="scope"),
+//            aadt(
+//              "ScopeRole",
+//              [],
+//              dataSyntax()),
+//            avalue()
+//          ],
+//          []);
           
 str refType(AType t, JGenie jg, bool inTest)
     = inTest ? "$me.<jg.shareType(t)>" : jg.shareType(t);
@@ -830,16 +835,20 @@ str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)
                                 );
     vkwformals = isEmpty(kwFormals) ? "$TF.tupleEmpty()" 
                                     : "$TF.tupleType(<intercalate(", ", [ refType(t.fieldType, jg, inTest) | Keyword t <- kwFormals])>)"; 
-    return "$TF.functionType(<jg.shareType(ret)>, <vformals>, <vkwformals>)";
+    return "$TF.functionType(<jg.accessType(ret)>, <vformals>, <vkwformals>)";
 }
 
+str atype2vtype(overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads), JGenie jg, bool inTest=false){
+    res = atype2vtype(lubList(toList(overloads.atype)), jg);
+    return res;
+}
 
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg, bool inTest=false){
     if(isEmpty(parameters)){
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>";
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
     } else {
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>_<size(parameters)>";
-        //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
+        //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
     }
  }   
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)   {
@@ -852,16 +861,16 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, contextFreeSyntax())
        
         //res = "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <params>), $TS, p -\> Collections.emptySet())";
         //res = "$TF.constructor($TS, RascalValueFactory.Symbol_ParameterizedSort, \"<adtName>\", <params>)";
-        res = return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        res = return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
         return res;
     }
 }
     
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, lexicalSyntax()), JGenie jg, bool inTest=false){    
     if(isEmpty(parameters)){
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>";
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
     } else {
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
     }
 }
     
@@ -869,13 +878,13 @@ str atype2vtype(aadt(str adtName, list[AType] parameters, keywordSyntax()), JGen
     = "$TF.constructor($TS, RascalValueFactory.Symbol, \"keywords\", $VF.string(\"<adtName>\"))";
     
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, layoutSyntax()), JGenie jg, bool inTest=false)    
-    = (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><getADTName(adtName)>";
+    = (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
     //= "$TF.constructor($TS, RascalValueFactory.Symbol, \"layout\", $VF.string(\"<adtName>\"))";
                                  
 str atype2vtype(c:acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields), JGenie jg, bool inTest=false){
-    res = "$TF.constructor(<jg.getATypeAccessor(c)>$TS, <jg.shareType(adt)>, \"<getUnqualifiedName(c.alabel)>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- fields])>)";
+    res = "$TF.constructor(<jg.getATypeAccessor(c)>$TS, <jg.accessType(adt)>, \"<asUnqualifiedName(c.alabel)>\"<isEmpty(fields) ? "" : ", "><intercalate(", ", [ *[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- fields])>)";
     return res;
 }
 str atype2vtype(aparameter(str pname, AType bound), JGenie jg, bool inTest=false) = "$TF.parameterType(\"<pname>\", <refType(bound, jg, inTest)>)";
@@ -935,3 +944,15 @@ str atype2vtype(\iter-seps(AType atype, list[AType] separators), JGenie jg, bool
 default str atype2vtype(AType t, JGenie jg, bool inTest=false) {
     return "$TF.valueType()";
 }
+
+// Create unique symbolic names for functions, constructors and productions
+
+str getUniqueADTName(aadt(str adtName, list[AType] parameters, SyntaxRole _)){
+    res = "<asJavaName(adtName)>";
+    if(!isEmpty(parameters)){
+        res += "_<all(p <- parameters, isTypeParameter(p)) ? size(parameters) : intercalate("_", [atype2idpart(p) | p <- parameters])>";
+    }  
+    return res;
+}
+
+str prefixADT(str s) = "ADT_<s>";

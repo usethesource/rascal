@@ -44,6 +44,7 @@ data JGenie
         str() getKwpDefaultsName,
         bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
+        str(AType atype) accessType,
         bool(AType atype) isSharedType,
         str(value con) shareConstant,
         str(Symbol, map[Symbol,Production]) shareReifiedConstant,
@@ -179,13 +180,13 @@ JGenie makeJGenie(MuModule m,
     bool b = false;
     @memo
     str _getATypeAccessor(AType t){
-        if(getName(t) in {"avoid", "abool", "aint", "areal", "arat", "anum", 
-                         "astr", "aloc", "adatetime", "alist", "aset", "abag", "arel", "alrel", "atuple",
-                         "amap", "anode", "avalue", "aparameter", "afunc"}){
-            return "";
-        }
+        //if(getName(t) in {"avoid", "abool", "aint", "areal", "arat", "anum", 
+        //                 "astr", "aloc", "adatetime", "alist", "aset", "abag", "arel", "alrel", "atuple",
+        //                 "amap", "anode", "avalue", "aparameter", "afunc"}){
+        //    return "";
+        //}
         t1 = unsetR(t, "alabel");
-        tlabel = t.alabel? ? getUnqualifiedName(t.alabel) : "";
+        tlabel = t.alabel? ? asUnqualifiedName(t.alabel) : "";
         
         // Instantiated adt will allways come from current module
         if(aadt(adtName,params,_) := t, !isEmpty(params)){
@@ -210,7 +211,7 @@ JGenie makeJGenie(MuModule m,
                 return res;
             }
         }
-        if(b)println("getTypeAccessor(<t>) =\> \"\"");
+        //println("getTypeAccessor(<t>) =\> \"\"");
         return ""; //throw "No accessor found for <t>";
     }
     
@@ -222,7 +223,7 @@ JGenie makeJGenie(MuModule m,
             if(currentTModel.definitions[src]?){
                 def = currentTModel.definitions[src];
                 if(defType(AType _) := def.defInfo){
-                    baseName = getJavaName(def.id);
+                    baseName = asJavaName(def.id);
                     
                     if(isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
@@ -241,7 +242,7 @@ JGenie makeJGenie(MuModule m,
                 if(tmodels[mname].definitions[src]?){
                     def = tmodels[mname].definitions[src];
                     if(defType(AType _) := def.defInfo){
-                        baseName = getJavaName(def.id);
+                        baseName = asJavaName(def.id);
                         
                         //if(isClosureName(baseName)){
                         //    return baseName;
@@ -273,7 +274,7 @@ JGenie makeJGenie(MuModule m,
         }
         
         scopeIn = definedInInnerScope(srcs);
-        jname = getJavaName(name);
+        jname = asJavaName(name);
         
         if(scopeIn != ""){
             return "<scopeIn>_<jname>";
@@ -287,14 +288,16 @@ JGenie makeJGenie(MuModule m,
             return "$me.<jname>";
         }
         
-        for(ms <- sortedImportAndExtendScopes){
-            if(any(d <- srcs, isContainedIn(d, ms))){
-                return "<module2field(allLocs2Module[ms])>.<jname>";
-                //return "<ms in importScopes ? module2field(allLocs2Module[ms]) : "$me">.<jname>";
-            }
-        }
+        //// The following selects the first one available, reconsider!
+        //for(ms <- sortedImportAndExtendScopes){
+        //    if(any(d <- srcs, isContainedIn(d, ms))){
+        //        //return "<module2field(allLocs2Module[ms])>.<jname>";
+        //        return "<ms in importScopes ? module2field(allLocs2Module[ms]) : "$me">.<jname>";
+        //    }
+        //}
        
-        return "$me.<jname>";
+       return jname;
+       //return "$me.<jname>";
     }
     
     str definedInInnerScope(list[loc] srcs){
@@ -413,38 +416,30 @@ JGenie makeJGenie(MuModule m,
         }
     }
     
-    AType setScopeInfoType = afunc(
-          avoid(),
-          [
-            aloc(alabel="scope"),
-            aadt(
-              "ScopeRole",
-              [],
-              dataSyntax()),
-            avalue()
-          ],
-          []);
+    //AType setScopeInfoType = afunc(
+    //      avoid(),
+    //      [
+    //        aloc(alabel="scope"),
+    //        aadt(
+    //          "ScopeRole",
+    //          [],
+    //          dataSyntax()),
+    //        avalue()
+    //      ],
+    //      []);
     
     str _shareType(AType atype){
-        //println("%%%%% shareType: <atype>");
-        //atype = unset(atype, "alabel");
         couter = "";
         if(type2id[atype]?){
             return type2id[atype];
-        } else if(aadt(str adtName, list[AType] parameters, SyntaxRole _) := atype){
-            res = "ADT_<getJavaName(adtName)>";
-            if(!isEmpty(parameters)){
-                res += "_<all(p <- parameters, isTypeParameter(p)) ? size(parameters) : intercalate("_", [atype2idpart(p) | p <- parameters])>";
-            }  
-            acc = _getATypeAccessor(atype);
-            couter = "<acc><res>" ;
-            type2id[unset(atype, "alabel")] = couter;
-            isLocal = isEmpty(acc);                          
-            if(!isLocal) return couter;
-            
+        } else if(a: aadt(str adtName, list[AType] parameters, SyntaxRole _) := atype){
+            res = prefixADT(getUniqueADTName(a));  
+            couter = res;
+            type2id[unset(atype, "alabel")] = res;
+                                    
         } else if(c:acons(AType _, list[AType] _, list[Keyword] _)  := atype){
             couter = atype2idpart(c);
-            atype = atype[alabel=getUnqualifiedName(atype.alabel)];
+            atype = atype[alabel=asUnqualifiedName(atype.alabel)];
             type2id[atype] = couter;
         } else {
             ut = unset(atype, "alabel");
@@ -455,17 +450,10 @@ JGenie makeJGenie(MuModule m,
         }
         bottom-up visit(atype){
             case AType t: if(t != atype){
-                if(aadt(str adtName, list[AType] parameters, SyntaxRole _) := t){
-                    ;//acc = _getATypeAccessor(t);
-                    //isLocal = isEmpty(acc);     
-                    //if(isLocal){  
-                    //    res = "ADT_<getJavaName(adtName)>";
-                    //    if(!isEmpty(parameters)){
-                    //        res += "_<all(p <- parameters, isTypeParameter(p)) ? size(parameters) : intercalate("_", [atype2idpart(p) | p <- parameters])>";
-                    //    }
-                    //    couter = res ;
-                    //    type2id[unset(t, "alabel")] = couter;
-                    //}
+                if(AType a: aadt(str adtName, list[AType] parameters, SyntaxRole _) := t){
+                    acc = _getATypeAccessor(t);
+                    res = prefixADT(getUniqueADTName(a)); 
+                    type2id[unset(t, "alabel")] = res; //"<acc><res>";
                 } else if(acons(AType _, list[AType] _, list[Keyword] _) := t){
                         ;
                 } else if(atypeList(_) := t){
@@ -539,7 +527,8 @@ JGenie makeJGenie(MuModule m,
         str adtinits_param = "";
         str kwpTypeDecls = "";
         done = {};
-        parameterized_ADTs = { a | /a:aadt(str adtName, list[AType] parameters, SyntaxRole _) := domain(type2id), !isEmpty(parameters), all(p <- parameters, isTypeParameter(p)) };
+        declared_ADT_names = {};
+        parameterized_ADTs = { a | a:aadt(str adtName, list[AType] parameters, SyntaxRole _) <- getADTs(), !isEmpty(parameters), all(p <- parameters, isTypeParameter(p)) };
         
         // Generate type constants in the right declaration order, such that
         // they are always declared before they are used in the list of type fields
@@ -548,57 +537,73 @@ JGenie makeJGenie(MuModule m,
               case AType s:
                     if (s notin done, s in type2id) {
                       isLocal = isEmpty(_getATypeAccessor(s));
-                      if(isLocal){
+                      //if(isLocal){
                           //tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
                           if(a:aadt(str adtName, list[AType] parameters, SyntaxRole sr) := s){
-                                tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
-                                aname = all(p <- parameters, isTypeParameter(p)) ? "<getADTName(adtName)>_<size(parameters)>" : "<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-                               
-                                if(isEmpty(parameters)){
-                                     adtdef = "$TF.abstractDataType($TS, \"<adtName>\")";
-                                     adtinits += "<type2id[s]> = <adtdef>;\n";
-                                } else {
-                                    bindings = [];
-                                    if(s in parameterized_ADTs){
-                                        params = intercalate(", ", [ type2id[par] | par <- parameters]);
-                                        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
-                                        adtinits_param += "<type2id[s]> = <adtdef>;\n";
+                                aname = getUniqueADTName(a);
+                                  
+                                if(aname notin declared_ADT_names){
+                                    declared_ADT_names += {aname};
+                                    tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
+                                    adtdef = "";
+                                    if(isEmpty(parameters)){
+                                         switch(sr){
+                                              case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\")";
+                                              case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")))";
+                                              case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(\"<adtName>\")))";
+                                              case layoutSyntax():      adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $VF.string(\"<adtName>\")))";
+                                              case keywordSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $VF.string(\"<adtName>\")))";
+                                         };
+                                         adtinits += "<type2id[s]> = <adtdef>;\n";
                                     } else {
-                                        padt = a;
-                                        for(pa <- parameterized_ADTs){
-                                            if(pa.adtName == adtName && size(parameters) == size(pa.parameters)) {                                               
-                                                for(int i <- index(parameters)){
-                                                    bindings += "<type2id[pa.parameters[i]]>, <type2id[parameters[i]]>";
+                                        if(s in parameterized_ADTs || all(p <- parameters, !isTypeParameter(p))){
+                                            params = intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters]);
+                                            paramsV = "$VF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
+                                            switch(sr){
+                                                 case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
+                                                 case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <paramsV>))";
+                                                 case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(\"<adtName>\"), <paramsV>))";
+                                             }
+                                            adtinits_param += "<type2id[s]> = <adtdef>;\n";
+                                        } else {
+                                            bindings = [];
+                                            padt = a;
+                                            for(pa <- parameterized_ADTs){
+                                                if(pa.adtName == adtName && size(parameters) == size(pa.parameters)) {                                               
+                                                    for(int i <- index(parameters)){
+                                                        if(!type2id[parameters[i]]?){
+                                                            println("<parameters[i]> not found");
+                                                        }
+                                                        bindings += "<type2id[pa.parameters[i]]>, <type2id[parameters[i]]>";
+                                                    }
+                                                    padt = pa;
+                                                    break;
                                                 }
-                                                padt = pa;
-                                                break;
                                             }
+                                            adtinits_instantiate += "<prefixADT(aname)> = <_getATypeAccessor(padt)><asADTName(adtName)>_<size(parameters)>.instantiate(java.util.Map.of(<intercalate(", ", bindings)>));\n";
                                         }
-                                        adtinits_instantiate += "<getADTName(aname)> = <_getATypeAccessor(padt)><getADTName(adtName)>_<size(parameters)>.instantiate(java.util.Map.of(<intercalate(", ", bindings)>));\n";
                                     }
                                 }
-                            } else if(c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields)  := s){
-                                cname = atype2idpart(c);
-                                hasFieldNames = all(fld <- fields, !isEmpty(fld.alabel));
-                                fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,thisJGenie)>, \"<fld.alabel>\"" | fld <- fields ] : [ "<atype2vtype(fld, thisJGenie)>" | fld <- fields ];
-                                adt_name = "ADT_<getJavaName(adtType.adtName)>";
-                                if(!isEmpty(adtType.parameters)){
-                                    adt_name += "_<all(p <- adtType.parameters, isTypeParameter(p)) ? size(adtType.parameters) : intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
-                                }  
-                                //adt_name = isEmpty(adtType.parameters) ? getADTName(adtType.adtName) : "<getADTName(adtType.adtName)>_<size(adtType.parameters)>";
-                                if(adtType notin parameterized_ADTs){
-                                    tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
-                                    consinits += "<cname> = $TF.constructor($TS, <_getATypeAccessor(adtType)><adt_name>, \"<getUnqualifiedName(c.alabel)>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);/*jgenie2*/\n";
-                                    for(kwpField <- kwpFields){
-                                        kwpTypeDecls += "$TS.declareKeywordParameter(<cname>,\"<kwpField.fieldType.alabel>\", <_getATypeAccessor(kwpField.fieldType)><atype2vtype(kwpField.fieldType, thisJGenie)>);\n";
-                                    }
+                            } else if(c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields) := s){
+                                if(isLocal){
+                                    cname = atype2idpart(c);                                 
+                                    hasFieldNames = all(fld <- fields, !isEmpty(fld.alabel));
+                                    fieldDecls = hasFieldNames ? [ "<atype2vtype(fld,thisJGenie)>, \"<fld.alabel>\"" | fld <- fields ] : [ "<atype2vtype(fld, thisJGenie)>" | fld <- fields ];
+                                    adt_name = prefixADT(getUniqueADTName(adtType));
+                                    //if(adtType notin parameterized_ADTs){
+                                        tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
+                                        consinits += "<cname> = $TF.constructor($TS, <adt_name>, \"<asUnqualifiedName(c.alabel)>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);/*jgenie2*/\n";
+                                        for(kwpField <- kwpFields){
+                                            kwpTypeDecls += "$TS.declareKeywordParameter(<cname>,\"<kwpField.fieldType.alabel>\", <_getATypeAccessor(kwpField.fieldType)><atype2vtype(kwpField.fieldType, thisJGenie)>);\n";
+                                        }
+                                    //}
                                 }
                             } else {
                                 tdecls += "public final io.usethesource.vallang.type.Type <type2id[s]>;\t/*<s>*/\n";
                                 tinits += "<type2id[s]> = <atype2vtype(s, thisJGenie)>;/*jgenie3*/\n";
                             }
                             done += {s};
-                        }
+                        //}
                     }
             }
         }
@@ -613,6 +618,10 @@ JGenie makeJGenie(MuModule m,
                 "<tinits><rinits><kwpTypeDecls>",
                 constantlist
                >;
+    }
+    
+    str _accessType(AType tp){
+        return "<_getATypeAccessor(tp)><_shareType(tp)>";
     }
     
     bool _isWildCard(str con){
@@ -641,7 +650,7 @@ JGenie makeJGenie(MuModule m,
     
     bool _isRef(MuExp var) { 
         var1 = unsetRec(var, "alabel"); 
-        return  varIn(var1, function.externalRefs) || varIn(var1, localRefs);
+        return  /*var1 is muVar && var1.idRole in assignableRoles && */(varIn(var1, function.externalRefs) || varIn(var1, localRefs));
     }
     
     bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.uniqueName;
@@ -697,6 +706,7 @@ JGenie makeJGenie(MuModule m,
                 _getKwpDefaultsName,
                 _hasCommonKeywordFields,
                 _shareType,
+                _accessType,
                 _isSharedType,
                 _shareConstant,
                 _shareReifiedConstant,

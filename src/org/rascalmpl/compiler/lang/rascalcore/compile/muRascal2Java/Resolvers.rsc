@@ -26,16 +26,39 @@ alias Name_Arity = tuple[str name, int arity];
 // Get all functions and constructors from a given tmodel
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
-     return {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
+     mscope = tmodel.moduleLocs[tmodel.modelName];
+     
+     //overloads0 = {*uids | u <- tmodel.facts, isContainedIn(u, mscope), /muOFun(uids, _) := tmodel.facts[u], bprintln(uids) };
+     //
+     //overloads_used_in_module = {<<def.id, size(ov.atype has formals ? ov.atype.formals : ov.atype.fields)>, def> 
+     //                           | d <- overloads0, 
+     //                             def := tmodel.definitions[d], 
+     //                             (def.idRole == functionId() || def.idRole == constructorId()),
+     //                             !isSyntheticFunctionName(def.id),
+     //                             bprintln(ov)
+     //                           };
+                                
+     overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, isContainedIn(u, mscope), /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
+     overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
+                                | tuple[loc def, IdRole idRole, AType atype] ov <- overloads0, 
+                                  (ov.idRole == functionId() || ov.idRole == constructorId()),
+                                  Define def := tmodel.definitions[ov.def], 
+                                  defType(AType tp) := def.defInfo,
+                                  !isSyntheticFunctionName(def.id)
+                                };
+     
+     overloads_created_in_module =
+           { <<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
            | Define def <- tmodel.defines, 
              defType(AType tp) := def.defInfo,
              (def.idRole == functionId() && any(me_scope <- module_and_extend_scopes, isContainedIn(def.defined, me_scope))) || def.idRole == constructorId(),
              !(acons(AType adt, list[AType] _, list[Keyword] _) := tp && isNonTerminalType(adt))
            };
+     return overloads_used_in_module + overloads_created_in_module; 
 }
  
-str varName(muVar(str name, str _fuid, int pos, AType _)){ // duplicate, see CodeGen
-    return (name[0] != "$") ? "<getJavaName(name)><(pos >= 0 || isWildCard(name)) ? "_<abs(pos)>" : "">" : getJavaName(name);
+str varName(muVar(str name, str _fuid, int pos, AType _, IdRole idRole)){ // duplicate, see CodeGen
+    return (name[0] != "$") ? "<asJavaName(name)><(pos >= 0 || isWildCard(name)) ? "_<abs(pos)>" : "">" : asJavaName(name);
 } 
 
 /*****************************************************************************/
@@ -51,13 +74,13 @@ str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGen
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
 
 str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg) {
-    res = "$isComparable(<e>.getType(), <jg.shareType(a)>)";
+    res = "$isComparable(<e>.getType(), <jg.accessType(a)>)";
     return res;
 }
 
 
 str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg) {
-    res = "$isNonTerminal(<e>.getType(), <jg.shareType(a)>)";
+    res = "$isNonTerminal(<e>.getType(), <jg.accessType(a)>)";
     return res;
     //return "<e>.getType() instanceof NonTerminalType && ((NonTerminalType) <e>.getType()).getSymbol().equals(<jg.shareConstant(sort(adtName))>)";
 }
@@ -73,7 +96,7 @@ str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, keywordSynta
 }
 
 default str atype2istype(str e, AType t, JGenie jg) {
-    res = "$isComparable(<e>.getType(),<jg.shareType(t)>)";
+    res = "$isComparable(<e>.getType(),<jg.accessType(t)>)";
     return res;
 }
 
@@ -148,7 +171,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, map[loc, str] loc2module, JGenie jg){
     module_scopes = domain(loc2module);
     
-    set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)};
+    set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)/*, "test" notin loc2muFunction[def.defined].modifiers*/ };
     
     nonlocal_fun_defs0 = 
         for(def <- fun_defs){
@@ -174,7 +197,7 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
     if(isEmpty(relevant_fun_defs)) return "";
   
     acons_adt = avoid();
-    acons_fields = [];
+    list[AType] acons_fields = [];
     acons_kwfields = [];
     
     for(cdef <- cons_defs, defType(AType ctp) := cdef.defInfo){
@@ -201,7 +224,7 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
             break;
         }
     }
-    resolverName = "<inner_scope><getJavaName(functionName)>";
+    resolverName = "<inner_scope><asJavaName(functionName)>";
     
     fun_kwFormals = acons_kwfields;
     for(def <- relevant_fun_defs /*local_fun_defs*/, def notin cons_defs, defType(AType tp) := def.defInfo){
@@ -256,7 +279,7 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
         externalRefs = getExternalRefs(relevant_fun_defs, loc2muFunction);
      
         if(!isEmpty(externalRefs) ){
-            argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ "ValueRef\<<jtype>\> <varName(var)>" | var <- externalRefs, jtype := atype2javatype(var.atype)]);
+            argTypes += (isEmpty(argTypes) ? "" : ", ") +  intercalate(", ", [ /*var.idRole in assignableRoles ?*/ "ValueRef\<<jtype>\> <varName(var)>" /*:  "<jtype> <var.name>_<var.pos>"*/ | var <- externalRefs, jtype := atype2javatype(var.atype)]);
         }
     }
  
@@ -307,7 +330,7 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
             fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
         }
-        uniqueName = "<inner_scope><getJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
+        uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
         def_type = def.defInfo.atype;
         conds = [];
         call_actuals = [];
@@ -347,7 +370,7 @@ str generateResolver(str _moduleName, str functionName, set[Define] fun_defs, ma
             if(def.scope != module_scope){
                 for(odef <- fun_defs){
                     if(odef.defined == def.scope){
-                        pref = "<getJavaName(odef.id, completeId=false)>_<odef.defined.begin.line>A<odef.defined.offset>_";
+                        pref = "<asJavaName(odef.id, completeId=false)>_<odef.defined.begin.line>A<odef.defined.offset>_";
                     }
                 }
             }
