@@ -333,7 +333,7 @@ void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`
 // ---- visit -- handled in CollectStatement
 
 
-// ---- reifyType
+// ---- reifyType - type literals
 
 void collect(current: (Expression) `# <Type tp>`, Collector c) {
     // A type literal expression like `#int` guarantees that the dynamic type of the value it produces
@@ -358,7 +358,7 @@ void collect(current: (Expression) `# <Type tp>`, Collector c) {
     collect(tp, c);
 }
 
-// ---- reifiedType
+// ---- reifiedType - type values
 
 void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`, Collector c) {
     // This is where the dynamic type system and the static type system touch, but
@@ -370,21 +370,19 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // be "unreified" to a specific type at run-time. At compile-time we do not know yet
     // what that type will be, so we must assume it will be `value`.
 
-    c.calculate("reified type", current, [es], AType(Solver s) { 
-        // a type value is never statically more precise than value.
-        // with constant propagation of the symbol parameter, we could compute
-        // more precise types, but `type[value]` is always a proper type for all
-        // possible instances.
-        return areified(\avalue());
-    });
+    // A type value is never statically more precise than value.
+    // with constant propagation of the symbol parameter, we could compute
+    // more precise types, but `type[value]` is always a proper type for all
+    // possible instances.
+    c.fact(current, areified(\avalue()));
 
     c.require("reified type", current, [es, ed],
         void (Solver s) {
             checkNonVoid(es, s, "First element of reified type");
-            s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected a Symbol, instead found %t", es));
+            s.requireSubType(es, aadt("Symbol", [], dataSyntax()), error(es, "Expected a Symbol, instead found %t", es));
             
             checkNonVoid(ed, s, "Second element of reified type");
-            s.requireSubType(ed, amap(aadt("Symbol",[], dataSyntax()),aadt("Production",[],dataSyntax())), 
+            s.requireSubType(ed, amap(aadt("Symbol", [], dataSyntax()), aadt("Production", [], dataSyntax())), 
                 error(ed, "Expected a map[Symbol, Production], instead found %t", ed));
         }
     );
