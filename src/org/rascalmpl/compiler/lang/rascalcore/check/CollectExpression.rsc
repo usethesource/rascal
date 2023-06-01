@@ -343,8 +343,16 @@ void collect(current: (Expression) `# <Type tp>`, Collector c){
 // ---- reifiedType
 
 void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`, Collector c) {
-    // TODO: Is there anything we can do statically to make the result type more accurate?
-    c.calculate("reified type", current, [es], AType(Solver s) { return areified(s.getType(es)); });
+    // This is where the dynamic type system and the static type system touch, but
+    // they can not have the _same_ type. For the other reified type expression, `#Type`,
+    // the story is different. There the static type coincides with the static type, by design.
+    
+    // Here, the type() expression has much more dynamic behavior, also by design. The first 
+    // parameter is a computed value, and that value will
+    // be "unreified" to a specific type at run-time. At compile-time we do not know yet
+    // what that type will be, so we must assume it will be `value`.
+
+    c.calculate("reified type", current, [es], AType(Solver s) { return areified(\avalue()); });
     //c.fact(current, areified(aadt("Symbol",[], dataSyntax())));
     //c.fact(current, areified(avalue()));
     c.require("reified type", current, [es, ed],
