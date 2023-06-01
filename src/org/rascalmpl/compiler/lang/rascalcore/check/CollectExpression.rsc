@@ -370,18 +370,25 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // be "unreified" to a specific type at run-time. At compile-time we do not know yet
     // what that type will be, so we must assume it will be `value`.
 
-    c.calculate("reified type", current, [es], AType(Solver s) { return areified(\avalue()); });
+    c.calculate("reified type", current, [es], AType(Solver s) { 
+        // a type value is never statically more precise than value.
+        // with constant propagation of the symbol parameter, we could compute
+        // more precise types, but `type[value]` is always a proper type for all
+        // possible instances.
+        return areified(\avalue());
+    });
+
     //c.fact(current, areified(aadt("Symbol",[], dataSyntax())));
     //c.fact(current, areified(avalue()));
     c.require("reified type", current, [es, ed],
         void (Solver s){
             checkNonVoid(es, s, "First element of reified type");
-            s.requireSubType(es, aadt("Symbol",[], contextFreeSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
+            s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
             
             checkNonVoid(ed, s, "Second element of reified type");
-            s.requireSubType(ed, amap(aadt("Symbol",[],contextFreeSyntax()),aadt("Production",[],dataSyntax())), 
+            s.requireSubType(ed, amap(aadt("Symbol",[], dataSyntax()),aadt("Production",[],dataSyntax())), 
                 error(ed, "Expected subtype of map[Symbol,Production], instead found %t", ed));
-          });
+            });
     collect(es, ed, c);
 }
 
