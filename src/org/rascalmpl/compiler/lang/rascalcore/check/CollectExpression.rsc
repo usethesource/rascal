@@ -335,8 +335,26 @@ void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`
 
 // ---- reifyType
 
-void collect(current: (Expression) `# <Type tp>`, Collector c){
-    c.calculate("reified type", current, [tp], AType(Solver s) { return areified(s.getType(tp)); });
+void collect(current: (Expression) `# <Type tp>`, Collector c) {
+    // A type literal expression like `#int` guarantees that the dynamic type of the value it produces
+    // is equal to its static type (ignoring the effect to type parameter instantiation).
+    // so, `#int` of static type `type[int]` will produce a value `type(\int(),())` also of 
+    // type `type[int]`.
+    // 
+    // this simple property is the core assumption under the type-safety of generic functions that
+    // take a reified type value as parameter, like `&T cast(type[&T] _, value x)`, and the pattern
+    // matches in their bodies: `&T _ := x` also float on that property.
+    //
+    // Compare this to Java's class literals, `Object.class`, `Integer.class` which also produce
+    // `Class<Object>` and `Class<Integer>`; except that Rascal does not have type erasure and
+    // it does have co-variance, also for type literals. 
+
+    // All of this is implied by the following inocuous type calculation:
+    c.calculate("reified type", current, [tp], AType(Solver s) { 
+        // notice how the type _literal_ here is lifted to a type _instance_
+        return areified(s.getType(tp)); 
+    });
+
     collect(tp, c);
 }
 
