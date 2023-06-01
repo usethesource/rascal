@@ -103,7 +103,12 @@ bool astNodeSpecification(node n, str language = "java", bool checkNameResolutio
 	
 	if (checkNameResolution) {
 		// all resolved names have the language as schema prefix
-		assert all(/node m := n, m.decl?, /^<language>/ := decl(m).scheme);
+		//TODO: for the benefit of the compiler, changed
+		//    assert all(/node m := n, m.decl?, /^<language>/ := decl(m).scheme);
+		//to:
+		for(/node m := n){
+		  assert m.decl? && /^<language>/ := decl(m).scheme;
+		}
 	}
 	
 	return true;
