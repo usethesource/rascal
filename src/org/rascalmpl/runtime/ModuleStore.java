@@ -44,7 +44,7 @@ public final class ModuleStore {
         		return;
         	}
         	importInProgress.add(module);
-            // we have to compute and then merge, computeIfAbstent can not be used, as we'll have to use the map during the compute.
+            // we have to compute and then merge, computeIfAbsent can not be used, as we'll have to use the map during the compute.
             T newResult = builder.apply(rex);
             // we merge, most cases we won't get a merge, but if we do, we keep the one in the store
             importedModules.merge(module, newResult, (a, b) -> (a == newResult) ? b : a);

@@ -1,5 +1,6 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
 
+import java.math.BigInteger;
 import java.util.Iterator;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -24,7 +25,7 @@ public class SubSetGenerator implements Iterable<ISet> {
 }
 
 /*
- * For a set with n elements, enumerate the numbers 0 .. n and use their binary representation
+ * For a set with n elements (n < 64), enumerate the numbers 0 .. n and use their binary representation
  * to determine which elements to include in the next subset.
  */
 class SubSetIterator implements Iterator<ISet> {
@@ -37,7 +38,7 @@ class SubSetIterator implements Iterator<ISet> {
 	SubSetIterator(ISet s){
 		len = s.size();
 		if(len >= 64) {
-			throw RuntimeExceptionFactory.illegalArgument(s, "Set patterns with more than 64 elements are not supported");
+			throw RuntimeExceptionFactory.illegalArgument(s, "SubSetIterator can only handle sets with less than 64 elements");
 		}
 		n = 0;
 		max = (1L << len);
@@ -65,5 +66,4 @@ class SubSetIterator implements Iterator<ISet> {
 		n++;
 		return w.done();
 	}
-
 }

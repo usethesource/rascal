@@ -210,6 +210,7 @@ bool is_non_keyword_variable(Define d) = d.idRole in variableRoles - {keywordFor
 bool is_module_variable(Define d) = d.idRole == variableId() && d.scope in module_scopes;
 bool is_module_or_function(loc l) = definitions[l]? && definitions[l].idRole in {moduleId(), functionId()};
 bool is_module(Define d) = d.idRole in {moduleId()};
+bool is_assignable(Define d) = d.idRole in assignableRoles;
 
 bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid])].idRole == moduleId();
 
@@ -311,7 +312,7 @@ void extractScopes(TModel tm){
                 vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
        }
     }
-    for(/consType: acons(AType adt, list[AType] fields, list[Keyword] kwFields) := facts){
+    for(/consType: acons(AType adt, list[AType] _fields, list[Keyword] _kwFields) := facts){
         consName = consType.alabel;
         if(adt_constructors[adt]?){
            adt_constructors[adt] = adt_constructors[adt] + consType;
@@ -352,7 +353,8 @@ void extractScopes(TModel tm){
         dummies = dummyVars(ftype);
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
         //println("vars_per_scope:"); iprintln(vars_per_scope);
-        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
+        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionType(getType(sc))) ? sc == fun : true};
+        //locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
         locally_defined = {v | v <- locally_defined, v.defInfo.atype notin dummies };
         
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
@@ -492,7 +494,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
                 constructors = adt_constructors[adt];
                 <constructors, fieldType> = 
                     visit(<constructors, fieldType>) { 
-                        case p:aparameter(str pname, _): { if(pnames[p]?){
+                        case p:aparameter(str _pname, _): { if(pnames[p]?){
                                                                 repl = adtType.parameters[pnames[p]];
                                                                 if(p.alabel?) repl = repl[alabel=p.alabel];
                                                                 insert repl;
@@ -562,7 +564,7 @@ KeywordParamMap getKeywords(Parameters parameters){
 
 list[MuExp] getExtendedFunctionFormals(loc funsrc, str scopeName){
     vars = vars_per_fun[funsrc];
-    return  [muVar(var.id, scopeName, i, unsetRec(getTypeFromDef(var), "alabel")) | i <- index(vars), var := vars[i]];
+    return  [muVar(var.id, scopeName, i, unsetRec(getTypeFromDef(var), "alabel"), formalId()) | i <- index(vars), var := vars[i]];
 }
 
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
@@ -596,11 +598,23 @@ int getPositionInScope(str _name, loc l){
     return position_in_container[uid] ? 0;
 }
 
-// Create unique symbolic names for functions, constructors and productions
 
-str getGetterNameForKwpField(AType tp, str fieldName)
-    =  unescapeAndStandardize(tp is acons ? "$getkw_<tp.adt.adtName>_<tp.alabel>_<fieldName>"
-                                          : "$getkw_<tp.adtName>_<fieldName>");
+
+//str getGetterNameForKwpField(tp: aadt(str adtName, list[AType] parameters, SyntaxRole _), str fieldName){
+//    n = isEmpty(parameters) ? "" : "_<size(parameters)>";
+//    return unescapeAndStandardize("$getkw_<tp.adtName><n>_<fieldName>");
+//}
+
+//str prefixADT(str s) = "ADT_<s>";
+
+//str getGetterNameForKwpField(tp: acons(AType adtType, list[AType] fields, list[Keyword] kwpFields), str fieldName){
+//    n = isEmpty(adtType.parameters) ? "" : "_<size(adtType.parameters)>";
+//    return unescapeAndStandardize("$getkw_<adtType.adtName><n>_<fieldName>");
+//}
+                                          
+//str getGetterNameForKwpField(AType tp, str fieldName)
+//    =  unescapeAndStandardize(tp is acons ? "$getkw_<tp.adt.adtName>_<tp.alabel>_<fieldName>"
+//                                          : "$getkw_<tp.adtName>_<fieldName>");
 
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
@@ -777,7 +791,7 @@ bool occursBefore(loc before, loc after){
 MuExp mkVar(str name, loc l) {
   //println("<name>, <l>");
  
-  uqname = getUnqualifiedName(name);
+  uqname = asUnqualifiedName(name);
   name_type = getType(l);
   defs = useDef[l];
   if(size(defs) > 1){
@@ -795,7 +809,7 @@ MuExp mkVar(str name, loc l) {
         uid = l;
         def = definitions[l];
     } else if(isWildCard(name)){
-        return muVar("_", "", -1, name_type);
+        return muVar("_", "", -1, name_type, variableId());
     } else {
         throw "mkVar: <uqname> at <l>";
     }   
@@ -812,7 +826,7 @@ MuExp mkVar(str name, loc l) {
   if(def.idRole == fieldId()) {
     scp = getScope(uid);
     //pos = getPositionInScope(name, uid);
-    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, -1, name_type);
+    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, -1, name_type, def.idRole);
   }
   
   if(def.idRole == keywordFieldId()){
@@ -822,7 +836,7 @@ MuExp mkVar(str name, loc l) {
   if(def.idRole in variableRoles){
     scp = getScope(uid);
     pos = is_module_variable(def) ? - 1 : getPositionInScope(uqname, uid);
-    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, pos, getType(def.defined));
+    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, pos, getType(def.defined), def.idRole);
   }
   
   if(def.idRole == constructorId()){
@@ -832,33 +846,44 @@ MuExp mkVar(str name, loc l) {
   if(def.idRole == functionId()){ 
     return muFun(uid, name_type);
   }
-  throw "End of mkVar reached for <uqname> at <l>: <def>";
+  throw "mkVar no case for <uqname> at <l>: <def>";
 }
 
 // Generate a MuExp for an assignment
 
 MuExp mkAssign(str name, loc l, MuExp exp) {
-
-    uid = l in definitions ? l : getFirstFrom(useDef[l]); // TODO: what if more than one def?
-    def = definitions[uid];
+    Define def;
+    UID uid;
+    if(l in definitions){
+    	uid = l;
+        def = definitions[l];
+    } else {
+        defs = [ d | d <- useDef[l], is_assignable(definitions[d])];
+        if(isEmpty(defs)){
+            throw "mkAssign: no assignable define for <name>, <l>";
+        }
+        if(size(defs) > 1){
+            throw "mkAssig: ambiguous define for <name>, <l>, <defs>";
+        }
+        uid = defs[0];
+        def = definitions[defs[0]];
+    }
+    
     if(def.idRole == keywordFormalId()) {
         return muAssign(muVarKwp(name, getScope(uid), getType(l)), exp);
     }
     if(def.idRole in positionalFormalRoles){
-        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp);   // TODO
+        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l), def.idRole), exp);   // TODO
    }
 
     if(def.idRole in variableRoles){
-        //println("mkAssign: <l>");
-        //println("mkAssign, scope: <getScope(uid)>");
-        //println("mkAssign: <def>");
-        //println("mkAssign: isinit: <l == def.defined>");
          pos = def.scope in module_scopes ? -1 : getPositionInScope(name, uid);
         
-        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, getType(l)), exp)
-                                : muAssign(muVar(name, getScope(uid), pos, getType(l)), exp);
+        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, getType(l), def.idRole), exp)
+                                : muAssign(muVar(name, getScope(uid), pos, getType(l), def.idRole), exp);
     }
-    throw "mkAssign fails for <name>, <l>, <exp>";
+    iprintln(useDef[l]);
+    throw "mkAssign fails for <name>, <l>, <exp>, <def>";
 }
 
 // Reachability

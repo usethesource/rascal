@@ -346,7 +346,7 @@ tuple[MuExp var, list[MuExp] exps] extractNamedRegExp((RegExp) `\<<Name name>:<N
    }
    exps += muCon(fragment + ")");
    <fuid, pos> = getVariableScope("<name>", name@\loc);
-   return <muVar("<name>", fuid, pos, astr()), exps>;
+   return <muVar("<name>", fuid, pos, astr(), patternVariableId()), exps>;
 }
 
 // ==== concrete syntax pattern ===============================================
@@ -780,7 +780,7 @@ MuExp translatePatAsConcreteListElem(t:appl(Production applProd, list[Tree] args
         
         //println("holeType = <holeType>");
         if(isIterSymbol(holeType)){
-            var = muVar(varname, fuid, pos, symbol2atype(holeType));
+            var = muVar(varname, fuid, pos, symbol2atype(holeType), patternVariableId());
             return translateMultiVarAsConcreteListElem(var, isDefinition(varloc), lookahead, subjectType, subject, sublen, cursor, posInPat, getEnter(t, btscopes), trueCont, falseCont, restore=restore, delta=delta);
      }
    }
@@ -882,14 +882,53 @@ default MuExp translateApplAsConcreteListElem(t:appl(Production prod, list[Tree]
 //    return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
 //}  
 
+MuExp inlineVar(MuExp var, MuExp replacement, MuExp cont){
+    res = top-down-break visit(cont) { 
+        case muAssign(MuExp v1, MuExp exp)  => muAssign(v1, inlineVar(var, replacement, exp))
+        case muVarInit(MuExp v1, MuExp exp) => muVarInit(v1, inlineVar(var, replacement, exp))
+        case muConInit(MuExp v1, MuExp exp) => muConInit(v1, inlineVar(var, replacement, exp))
+        case muVarDecl(MuExp v1): ;
+        case MuExp v1 => replacement when v1 is muVar, v1.name == var.name, v1.fuid == var.fuid, v1.pos == var.pos
+      };
+    return res;
+}
+
+bool maybeUsedAsExternal(MuExp var, MuExp cont){
+    return /muFun(_,_) := cont;
+}
+
+bool maybeAssignedTo(MuExp var, MuExp cont){
+    visit(cont){
+        case muAssign(MuExp v1, MuExp exp) : if(v1.name == var.name && v1.fuid == var.fuid && v1.pos == var.pos) return true;
+        case muVarInit(MuExp v1, MuExp exp) : if( v1.name == var.name && v1.fuid == var.fuid && v1.pos == var.pos) return true;
+        case muConInit(MuExp v1, MuExp exp) : if(v1.name == var.name &&  v1.fuid == var.fuid && v1.pos == var.pos) return true;
+    }
+    return false;
+}
+
+bool inliningBlocked(MuExp var, MuExp trueCont) 
+    = maybeUsedAsExternal(var, trueCont) || maybeAssignedTo(var, trueCont);
+
 MuExp translatePat(p:(Pattern) `<QualifiedName name>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])){
    if(isWildCard("<name>")){
       return trueCont;
    }
-   //println("qualified name: <name>, <name@\loc>");
    var = mkVar(prettyPrintName(name), name@\loc);
    if(isDefinition(name@\loc) && !subjectAssigned){
-    return muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont]);
+     //return inlineVar(var, subjectExp, trueCont);
+     //return muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+     //return muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont]);
+     
+     // Here is a counter example for which the code below fails.
+     // A more precise maybeUsedAsExternal would help
+     // See lang::rascal::tests::basic::CompilerIssues::QualifiedName for counter example
+    
+     if(inliningBlocked(var, trueCont)){ // we cannot inlineVar
+         return muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont]);
+     } else {
+        return muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+     }
+     
    } else {
     return muIfElse(muIsInitialized(var), muIfElse(muMatch(var, subjectExp), trueCont, falseCont),
                                           muBlock([ muAssign(var, subjectExp), trueCont ]));
@@ -910,8 +949,11 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
     	   }
     	   ppname = prettyPrintName(name);
     	   <fuid, pos> = getVariableScope(ppname, name@\loc);
-    	   var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
-    	   return var == subjectExp ? trueCont : muIfElse(minSizeCheck, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+    	   var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
+    	   
+    	   trueBranch = inliningBlocked(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
+    	                                               : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+    	   return var == subjectExp ? trueCont : muIfElse(minSizeCheck, trueBranch, falseCont);
        }
        precond = muAndNativeBool(inSignatureSection() ? muValueIsComparable(subjectExp, trType) : muValueIsSubtypeOf(subjectExp, trType), minSizeCheck);
        if(isWildCard("<name>") || subjectAssigned){
@@ -919,9 +961,11 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
        }
        ppname = prettyPrintName(name);
        <fuid, pos> = getVariableScope(ppname, name@\loc);
-       var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
+       var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
+       trueBranch = inliningBlocked(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
+                                                   : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
        return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
-                                : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+                                : muIfElse(precond, trueBranch, falseCont);
     } else {
     
         if(inSignatureSection()){
@@ -931,7 +975,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             }
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
-            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
             return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
                                      : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         
@@ -942,12 +986,12 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             }
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
-            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname]);
+            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
+            trueBranch = maybeUsedAsExternal(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
+                                                           : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
             return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
-                                     : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+                                     : muIfElse(precond, trueBranch, falseCont);
         }
-        
-    
     }
 }  
 
@@ -963,8 +1007,8 @@ MuExp translatePat(p:(Pattern) `type ( <Pattern symbol> , <Pattern definitions> 
 // ---- getBTInfo
 
 str consLabel((Pattern) `<StringLiteral s>`) = "STR";
-str consLabel((Pattern) `<QualifiedName s>`) = getJavaName(getUnqualifiedName("<s>"));
-str consLabel((Pattern) `<Type tp> <Name nm>`) = getJavaName("<nm>");
+str consLabel((Pattern) `<QualifiedName s>`) = asJavaName(asUnqualifiedName("<s>"));
+str consLabel((Pattern) `<Type tp> <Name nm>`) = asJavaName("<nm>");
 default str consLabel(Pattern p) = "GEN";
 
 BTINFO getBTInfo(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, BTSCOPE btscope, BTSCOPES btscopes) {
@@ -985,7 +1029,8 @@ BTINFO getBTInfo(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> 
 MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {
    //iprintln(btscopes);
    str fuid = topFunctionScope();
-   subject = muTmpIValue(nextTmp("subject"), fuid, subjectType);
+   subjectExpIsVar = isVarOrTmp(subjectExp);
+   subject = subjectExpIsVar ? subjectExp : muTmpIValue(nextTmp("subject"), fuid, subjectType);
    contExp = trueCont;
    
    if((KeywordArguments[Pattern]) `<OptionalComma _> <{KeywordArgument[Pattern] ","}+ keywordArgumentList>` := keywordArguments){
@@ -996,8 +1041,8 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    }
    
    lpats = [pat | pat <- arguments];   //TODO: should be unnnecessary
-   //TODO: bound check
-   isNonTerm = isNonTerminalType(subjectType);
+
+   isNonTerm = isNonTerminalType(subjectType);// || aadt("Tree",[],SyntaxRole _) := subjectType;
  
    body = contExp;
    code = muBlock([]);
@@ -1008,7 +1053,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    }
  
    expType = getType(expression);
-   subjectInit = /*subjectAssigned ? [] : */muConInit(subject, subjectExp);
+   subjectInit = subjectExpIsVar ? muBlock([]) : muConInit(subject, subjectExp);
    if(expression is qualifiedName){
       qname = "";
       if(expType.alabel?){
@@ -1023,7 +1068,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
       } else {
         throw "Cannot get name in call pattern: <expType>";
       }
-      fun_name = getUnqualifiedName(prettyPrintName(qname));
+      fun_name = asUnqualifiedName(prettyPrintName(qname));
       code = muBlock([subjectInit, muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
       return code;
    } else if(expression is literal){ // StringConstant
@@ -1396,7 +1441,8 @@ default MuExp translatePatAsSetElem(Pattern p, bool last, AType elmType, MuExp s
                                       trueCont ]),            
                             muFail(forAll_scope, comment="default set elem")
                             ),
-                        muBlock([]));
+                        falseCont //muBlock([])
+                      );
         //return code;
         return redirect(code, my_btscope.enter, forAll_scope);
   }
@@ -1469,31 +1515,31 @@ private MuExp mkVar(Pattern pat){
      return mkVar(pat.argument);
   } else if(pat is multiVariable){
         if(isWildCard("<pat.qualifiedName>")){
-            return muVar("<pat.qualifiedName>", topFunctionScope(), -1, avalue());
+            return muVar("<pat.qualifiedName>", topFunctionScope(), -1, avalue(), patternVariableId());
         } else {
             return mkVar("<pat.qualifiedName>", pat.qualifiedName@\loc);
         }
   } else if(pat is qualifiedName){
         if(isWildCard("<pat>")){
-             return muVar("<pat>", topFunctionScope(), -1, avalue());
+             return muVar("<pat>", topFunctionScope(), -1, avalue(), patternVariableId());
         } else {
             return mkVar("<pat>", pat@\loc);
         }
   } else if(pat is typedVariable){
         if(isWildCard("<pat.name>")){
-             return muVar("<pat.name>", topFunctionScope(), -1, getType(pat.name));
+             return muVar("<pat.name>", topFunctionScope(), -1, getType(pat.name), patternVariableId());
          } else {
             return mkVar("<pat.name>", pat.name@\loc);
          }
   } else if(pat is variableBecomes){
         if(isWildCard("<pat.name>")){
-             return muVar("<pat.name>", topFunctionScope(), -1, avalue());
+             return muVar("<pat.name>", topFunctionScope(), -1, avalue(), patternVariableId());
         } else {
             return mkVar("<pat.name>", pat.name@\loc);
         }
   } else if(pat is typedVariableBecomes){
         if(isWildCard("<pat.name>")){
-            return muVar("<pat.name>", topFunctionScope(), -1, getType(pat.name));
+            return muVar("<pat.name>", topFunctionScope(), -1, getType(pat.name), patternVariableId());
         } else {
             return mkVar("<pat.name>", pat.name@\loc);
         }
@@ -2229,9 +2275,9 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
     str fuid = ""; int pos=0;           // TODO: this keeps type checker happy, why?
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
     ppname = prettyPrintName(name);
-    var = muVar(ppname, fuid, pos, trType/*[alabel=ppname]*/);
+    var = muVar(ppname, fuid, pos, trType/*[alabel=ppname]*/, patternVariableId());
     trueCont2 = trueCont;
-    if(subjectExp != var){
+    if(!(subjectExp has name) || subjectExp has name && subjectExp.name != var.name){
         trueCont2 =  muValueBlock(avalue(), [ /*subjectAssigned ? muAssign(var, subjectExp) :*/ muVarInit(var, subjectExp), trueCont ]);
     } 
     trPat = translatePat(pattern, subjectType, subjectExp, btscopes, trueCont2, falseCont, subjectAssigned=subjectAssigned, restore=restore);

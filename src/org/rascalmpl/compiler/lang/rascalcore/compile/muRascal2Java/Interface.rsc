@@ -18,13 +18,13 @@ import String;
 
 // Generate an interface for a Rascal module
 
-str generateInterface(str moduleName, str packageName, str className, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
+str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
            '
            '@SuppressWarnings(\"unused\")
-           'public interface $<className>  {
+           'public interface <asBaseInterfaceName(moduleName)>  {
            '    <generateInterfaceMethods(moduleName, functions, imports, extends, tmodels)>
            '}";
 }
@@ -37,9 +37,10 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
    
     
     for(f <- functions, isEmpty(f.scopeIn), isContainedIn(f.src, mscope),
-                                            !(//"test" in f.modifiers 
+                                            !( //"test" in f.modifiers 
                                                 isSyntheticFunctionName(f.name) 
-                                             || isMainName(f.name))
+                                             || isMainName(f.name)
+                                             )
        ){
         signatures += <f.name, getArity(f.ftype), f.ftype>;
     }
@@ -77,7 +78,7 @@ str generateInterfaceMethods(str moduleName, list[MuFunction] functions, set[str
 
 str generateInterfaceMethod(str fname, AType ftype){
     //println("generateInterfaceMethod: <fname>, <ftype>");
-    method_name = getJavaName(fname);
+    method_name = asJavaName(fname);
     
     formals = getFormals(ftype);
     method_formals = intercalate(", ", ["IValue $<i>" | i <- index(formals)]);

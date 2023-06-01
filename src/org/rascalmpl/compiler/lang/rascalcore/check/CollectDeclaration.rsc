@@ -7,6 +7,7 @@ extend lang::rascalcore::check::CollectSyntaxDeclaration;
 extend lang::rascalcore::check::Fingerprint;
 extend lang::rascalcore::check::PathAnalysis;
 
+import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectVarArgs;
 
@@ -663,7 +664,7 @@ void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
 
 void collect(current: (Statement) `return <Statement statement>`, Collector c){  
     functionScopes = c.getScopeInfo(functionScope());
-
+    assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
         if(returnInfo(Type returnType) := scopeInfo){
            c.require("check return type", current, [returnType], makeReturnRequirement(statement, returnType));

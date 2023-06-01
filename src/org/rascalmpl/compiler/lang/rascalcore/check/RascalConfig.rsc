@@ -208,6 +208,7 @@ AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[I
 }
 
 AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope, Solver s){
+    //println("rascalGetTypeInNamelessType: <containerType>, <selector>, <scope>");
     return computeFieldType(containerType, selector, scope, s);
 }
 
@@ -237,6 +238,13 @@ bool rascalReportUnused(loc def, TModel tm){
     if(!config.warnUnused) return false;
      
     definitions = tm.definitions;
+    
+    if(!definitions[def]? || !tm.moduleLocs[tm.modelName]?) return false;
+    
+    if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName])){
+        return false;
+    }
+    
     scopes = tm.scopes;
     facts = tm.facts;
     
@@ -347,19 +355,19 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                                 d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.fields, t2.fields),
                                 ! (isSyntaxType(t1) && isSyntaxType(t2))
                                 )){
-            msgs = [ warning("Constructor `<id>` clashes with other declaration with comparable fields", d.defined) | d <- defs ];
+            msgs = [ info("Constructor `<id>` overlaps with other declaration with comparable fields, on use add a qualifier", d.defined) | d <- defs ];
             s.addMessages(msgs);
         }      
     }
     try {
-    matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
-    for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
-        for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
-            msgs = [ warning("Field `<fld1.alabel>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
-                   ];
-            s.addMessages(msgs);
+        matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
+        for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
+            for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
+                msgs = [ info("Field `<fld1.alabel>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
+                       ];
+                s.addMessages(msgs);
+            }
         }
-    }
     } catch _: {
         // Guard against type incorrect defines, but record for now
         println("Skipping (type-incorrect) defines while checking duplicate labels in constructors");
@@ -377,12 +385,17 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-TypePalConfig rascalTypePalConfig(bool classicReifier = true,  bool logImports = false)
+TypePalConfig rascalTypePalConfig(bool classicReifier      = true,  
+                                  bool logSolverIterations = false,
+                                  bool logSolverSteps      = false,
+                                  bool logAttempts         = false,
+                                  bool logImports          = false
+                                 )
     = tconfig(
         logTime                       = false,
-        logSolverIterations           = false,
-        logSolverSteps                = false,
-        logAttempts                   = false,
+        logSolverIterations           = logSolverIterations,
+        logSolverSteps                = logSolverSteps,
+        logAttempts                   = logAttempts,
         logImports                    = logImports,
         validateConstraints           = true,
         

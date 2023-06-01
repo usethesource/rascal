@@ -269,7 +269,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         mloc = getModuleLocation(m, pcfg);  
                         //ms.moduleLocs[m] = mloc;  
                         path2module[mloc.path] = m;        
-                        //if(config.verbose) println("*** parsing <m> from <mloc>");
+                        if(config.verbose) println("*** parsing <m> from <mloc>");
                         ms.moduleLastModified[m] = lastModified(mloc);
                         try {
                             Module pt = parseModuleWithSpaces(mloc).top;
@@ -285,7 +285,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                     <found, tplLoc> = getTPLReadLoc(m, pcfg);
                     if(found){   
                         try {
-                            //if(config.verbose) println("*** reading <m> from <tplLoc>");  
+                            if(config.verbose) println("*** reading <m> from <tplLoc>");  
                             ms.moduleLastModified[m] = lastModified(tplLoc);     
                             ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
                         } catch IO(str msg): {
@@ -309,17 +309,18 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
                         usedModules += {*invertedExtends[um] | um <- usedModules}; // use of an extended module via import
                         msgs = [];
+                        check_imports:
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
                             if(iname notin usedModules){ 
                                if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){      
-                                 continue;
+                                 continue check_imports;
                                }
                                if(ms.moduleLocs[iname]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
-                                continue;
+                                continue check_imports;
                                }
                                if(ms.moduleLocs[iname]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
-                                continue;
+                                continue check_imports;
                                }
                                if(imod is \default){
                                  msgs += warning("Unused import of `<iname>`", imod@\loc);
@@ -366,7 +367,8 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
      return  <("<mloc>" : tmodel()[messages = [ error("During type checking: <msg>", msg.at) ]] | mloc <- mlocs), (), ()>;
     } 
     //catch value e: {
-    //    return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
+    //    return <("<mloc>" : tmodel()[messages = [ error("During type checking: <e>", mloc) ]] | mloc <- mlocs), (), ()>;
+        //return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
     //}    
 }
 

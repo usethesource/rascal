@@ -46,7 +46,7 @@ void translate((Toplevel) `<Declaration decl>`) = translate(decl);
 // -- variable declaration ------------------------------------------
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	str module_name = getUnqualifiedName(getModuleName());
+	str module_name = asUnqualifiedName(getModuleName());
     ftype = afunc(avalue(),[avalue()], []);
     enterFunctionScope("<module_name>_init");
    	for(var <- variables){
@@ -55,7 +55,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
    		//variables_in_module += [];
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, getType(tp)), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, getType(tp), variableId()), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}
@@ -77,7 +77,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
  
  MuExp promoteVarsToFieldReferences(MuExp exp, AType consType, MuExp consVar)
     = visit(exp){
-        case muVar(str fieldName, _, -1, AType tp)        => muGetField(tp, consType, consVar, fieldName)
+        case muVar(str fieldName, _, -1, AType tp, IdRole idRole) => muGetField(tp, consType, consVar, fieldName)
         case muVarKwp(str fieldName, str _, AType tp) => muGetKwField(tp, consType, consVar, fieldName, getModuleName())
      };
     
@@ -85,18 +85,23 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 
 
 void generateAllFieldGetters(loc module_scope){
-    map[AType, set[AType]] adt_constructors = getConstructorsMap();
-    map[AType, list[Keyword]] adt_common_keyword_fields = getCommonKeywordFieldsMap();
+    map[AType, set[AType]] constructors = getConstructorsMap();
+    map[AType, list[Keyword]] common_keyword_fields = getCommonKeywordFieldsMap();
     
     for(adtType <- getADTs(), !isSyntaxType(adtType)){
-        generateGettersForAdt(adtType, module_scope, adt_constructors[adtType] ? {}, adt_common_keyword_fields[adtType] ? []);
+        generateGettersForAdt(adtType, module_scope, constructors[adtType] ? {}, common_keyword_fields[adtType] ? []);
     }
 }
 
 private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
 
     //adtName = adtType.adtName;
-    adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
+    //adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
+    adtName = getUniqueADTName(adtType);
+    //adtName = "<asJavaName(adtType.adtName)>";
+    //if(!isEmpty(adtType.parameters)){
+    //    adtName += "_<all(p <- adtType.parameters, isTypeParameter(p)) ? size(adtType.parameters) : intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
+    //}  
     /*
      * Create getters for common keyword fields of this data type
      */
@@ -107,22 +112,22 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         if(asubtype(adtType, treeType)){
             if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
         }
-        str fuid = getGetterNameForKwpField(adtType, kwFieldName);
+        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
        
         getterType = afunc(kwType, [adtType], []);
-        adtVar = muVar(getterName, fuid, 0, adtType);
+        adtVar = muVar(getterName, getterName, 0, adtType, variableId());
         
         defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar);
         body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
      * Create getters for constructor specific keyword fields.
      */
     
-    kwfield2cons = [];
+    lrel[str, AType, AType] kwfield2cons = [];
        
     for(consType <- constructors){
        /*
@@ -133,15 +138,15 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
        for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp@\loc, module_scope)){
             str kwFieldName = kwType.alabel;
             kwfield2cons += <kwFieldName, kwType, consType>;
-            str fuid = getGetterNameForKwpField(consType, kwFieldName);
+            //str fuid = getGetterNameForKwpField(consType, kwFieldName);
             str getterName = unescapeAndStandardize("$getkw_<adtName>_<consName>_<kwFieldName>");
             
             getterType = afunc(kwType, [consType], []);
-            consVar = muVar(consName, fuid, 0, consType);
+            consVar = muVar(consName, getterName, 0, consType, constructorId());
             
             defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
             body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+            addFunctionToModule(muFunction(getterName, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
        }
     }
     
@@ -151,19 +156,19 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
     
     for(str kwFieldName <- domain(kwfield2cons)){
         conses = kwfield2cons[kwFieldName];
-        str fuid = getGetterNameForKwpField(adtType, kwFieldName);
+        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
             
         returnType = lubList(conses<0>);
         getterType = afunc(returnType, [adtType], []);
-        adtVar = muVar(adtName, fuid, 0, adtType);
-        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(consType.alabel), size(consType.fields), adtVar),
+        adtVar = muVar(adtName, getterName, 0, adtType, dataId());
+        body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(asUnqualifiedName(consType.alabel)), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName, findDefiningModule(getLoc(consType.kwFields[0].defaultExp)))))
                        | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope)
                        ]
                        + muFailReturn(returnType)
                       );
-        addFunctionToModule(muFunction(fuid, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+        addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
     
     /*
@@ -251,15 +256,13 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
     
       enterFunctionScope(fuid);
       
-     
-      
       //// Keyword parameters
       lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters);
       
       my_btscopes = getBTScopesParams([ft | ft <- fd.signature.parameters.formals.formals], fname);
       mubody = muBlock([]);
       if(ttags["javaClass"]?){
-         params = [ muVar(ftype.formals[i].alabel, fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
+         params = [ muVar(ftype.formals[i].alabel, fuid, i, ftype.formals[i], formalId()) | i <- [ 0 .. nformals] ];
          mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, params, fuid));
       } else if(body_expression == dummy_body_expression){ // statements are present in body
           if(!isEmpty(body)){
@@ -283,7 +286,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       <formalVars, tbody> = translateFunction(fname, fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
       
       typeVarsInParams = getFunctionTypeParameters(ftype);
-      if(!isEmpty(useTypeParams)){
+      
+      if(!isEmpty(useTypeParams)){ // && /muTypeParameterMap(_) !:= tbody){
         tbody = muBlock([muTypeParameterMap(typeVarsInParams), tbody]);
       }
       
@@ -357,7 +361,7 @@ default bool hasParameterName(Pattern p, int i) = false;
  * Get all variables that are assigned inside a visit but are not locally introduced in that visit
  */
 set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def)
-    = { v1 | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str _name, str _scope, int _, AType t), MuExp _) := exp, !(/muVarInit(v, _) := exp), t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    = { v1 | exp <- [c.exp | c <- cases] + def, /muAssign(v:muVar(str _name, str _scope, int _, AType t, IdRole idRole), MuExp _) := exp, !(/muVarInit(v, _) := exp), t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 
 /*
  * Get all assigned variables in all visits that need to be treated as reference variables
@@ -369,7 +373,7 @@ set[MuExp] getLocalRefs(MuExp exp)
  * Get all variables that have been introduced outside the given function scope
  */
 set[MuExp] getExternalRefs(MuExp exp, str fuid){
-   res = { v1 | /v:muVar(str _, str fuid2, int _, AType t) := exp, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+   res = { v1 | /v:muVar(str _, str fuid2, int _, AType t, IdRole idRole) := exp, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
    return res;
 }
 /*
@@ -397,8 +401,8 @@ lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Paramet
 /********************************************************************/
 
 MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo, bool addReturn=false) {
+  res = body;
   if(ftype.ret == avoid()){ 
-    res = body;
     if(isMemo){
          res = visit(res){
             case muReturn0() => muMemoReturn0(ftype, formalVars)
@@ -408,11 +412,30 @@ MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool i
      return res;
   } else {
       res = addReturn ? muReturn1(ftype.ret, body) : body;
+      
       if(isMemo){
          res = visit(res){
             case muReturn1(_, e) => muMemoReturn1(ftype, formalVars, e)
          }
       }
+      
+     // parameters = { par | /par:aparameter(name, bound) := ftype };
+     //
+     // if(!isEmpty(parameters) && /TypeVar _ := ftype && /muReturn1(_,_) := res){
+     //   str fuid = topFunctionScope();
+     //   result = muTmpIValue(nextTmp("result"), fuid, ftype.ret);
+     //   res = visit(res){
+     //       case muReturn1(_, e) => muBlock([ muConInit(result, e),
+     //                                         muIfElse(muValueIsSubtypeOfInstantiatedType(result, ftype.ret),
+     //                                                  muReturn1(ftype.ret, result),
+     //                                                  muFailReturn(ftype.ret))
+     //                                       ])
+     //   };
+     //  if(/muTypeParameterMap(_) !:= body){
+     //    res = muBlock([ muTypeParameterMap(parameters), res ]);
+     //  }
+     //}
+      
       return res;   
   }
 }
@@ -434,8 +457,8 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      str fuid = topFunctionScope();
      my_btscopes = getBTScopesParams(formalsList, fname);
      
-     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), unsetRec(getType(formalsList[i]), "alabel"))
-                                                                                    : muVar(pname, fuid, -i, unsetRec(getType(formalsList[i]), "alabel"))   
+     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), unsetRec(getType(formalsList[i]), "alabel"), formalId())
+                                                                                    : muVar(pname, fuid, -i, unsetRec(getType(formalsList[i]), "alabel"), formalId())   
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
      leaveSignatureSection();

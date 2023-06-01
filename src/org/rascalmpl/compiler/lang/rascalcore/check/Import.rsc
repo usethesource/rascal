@@ -22,8 +22,11 @@ import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an und
 
 bool traceTPL = false;
 
-tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
-    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){    
+    parts = split("::", qualifiedModuleName);
+    parts = parts[0 .. size(parts)-1] + "$<parts[-1]>";
+    res = intercalate("/", parts);
+    fileName = intercalate("/", parts) + ".tpl";
     dirName = makeDirName(qualifiedModuleName);
     
     for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?     
@@ -41,11 +44,11 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
 
 tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
     //fileName = makeFileName(qualifiedModuleName, extension="tpl");
-    fileName = "<getBaseClass(qualifiedModuleName)>.tpl";
+    fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
     tplLoc = getDerivedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
     //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-    //tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+    //tplLoc = classesDir + "<asBaseClassName(qualifiedModuleName)>.tpl";
     //if(traceTPL) println("getTPLWriteLoc: <qualifiedModuleName> =\> \<<exists(tplLoc)>, <tplLoc>\>");
     //return <exists(tplLoc), tplLoc>;
 }
@@ -53,18 +56,23 @@ tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     try {
-        return moduleLastModified[qualifiedModuleName];
+        res = moduleLastModified[qualifiedModuleName];
+        //println("getLastModified <qualifiedModuleName> from map: <res>");
+        return res;
    } catch NoSuchKey(_): {
         try {
             mloc = getModuleLocation(qualifiedModuleName, pcfg);
-            return lastModified(mloc);
+            res = lastModified(mloc);
+            //println("getLastModified <mloc> via lastModified: <res>");
+            return res;
         } catch value _: {
             return $2000-01-01T00:00:00.000+00:00$;
         }
     }
 }
 
-alias ModuleStructure = tuple[rel[str, PathRole, str] strPaths, 
+data ModuleStructure = moduleStructure(
+                              rel[str, PathRole, str] strPaths, 
                               rel[loc, PathRole, loc] paths, 
                               map[str,TModel] tmodels, 
                               map[str,loc] moduleLocs, 
@@ -74,7 +82,7 @@ alias ModuleStructure = tuple[rel[str, PathRole, str] strPaths,
                               set[str] invalid,
                               map[str, list[Message]] messages,
                               set[str] visited
-                              ];
+                              );
 void printModuleStructure(ModuleStructure ms){
     println("strPaths:"); iprintln(ms.strPaths);
     println("paths:"); iprintln(ms.paths);
@@ -85,7 +93,7 @@ void printModuleStructure(ModuleStructure ms){
     println("visited: <ms.visited>");
 }
 
-ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}, (), {}>;
+ModuleStructure newModuleStructure() = moduleStructure({}, {}, (), (), (), (), {}, {}, (), {});
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
@@ -158,12 +166,18 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             tm = readBinaryValueFile(#TModel, tplLoc);
             if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
                //println("BOM:"); iprintln(bom);
-               for(<str m, timestampInBom, pathRole> <- bom){
+               for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
                    if(m != qualifiedModuleName){
                         localImportsAndExtends += <m, pathRole>;
                    }
-                   if(decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 500) > timestampInBom) {
+                   lm = getLastModified(m, ms.moduleLastModified, pcfg);
+                   //TODO: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
+                   current = decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 1000);
+                   //println("lm = <lm>");
+                   //println("<current> \> <timestampInBom> =\> <current > timestampInBom>");
+                   if(decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 1000) > timestampInBom) {
                         allImportsAndExtendsValid = false;
+                        //println("m notin ms.invalid =\> <m notin ms.invalid>");
                         if(m notin ms.invalid){
                             println("--- using <getLastModified(m, ms.moduleLastModified, pcfg)> (most recent) version of <m>, 
                                     '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
@@ -201,7 +215,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
         }
     }
     try {
-        Module pt = [Module] "module xxx";
+        Module pt; // = [Module] "module xxx";
         if(ms.modules[qualifiedModuleName]?){
             pt = ms.modules[qualifiedModuleName];
         } else {
@@ -276,7 +290,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
         <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
         //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-        //tplLoc = classesDir + "<getBaseClass(qualifiedModuleName)>.tpl";
+        //tplLoc = classesDir + "<asBaseClassName(qualifiedModuleName)>.tpl";
         //println("saveModule(<qualifiedModuleName>) =\> <tplLoc>");
         //tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
@@ -335,23 +349,22 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
         m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in saveModuleRoles || isContainedIn(u, mscope) };
         
-        //roles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), keywordDormal() + annoId()} + anyVariableRoles;
         // Filter model for current module and replace functions in defType by their defined type
         
-        defs = for(tup: <loc scope, str _, str _, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
-                   if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
-                      scope in filteredModuleScopes || 
-                      (scope.path == mscope.path && idRole in saveModuleRoles)
-                      //(idRole == functionId() && isContainedIn(scope.path == mscope.path))
-                      ){
-                          
-                      if(scope in extendedModuleScopes){
-                         if(defType(_) !:= defInfo){
-                            throw "Suspicious define in TModel: <tup>";
-                         }
-                         //tup.scope = mscope;
-                      }         
-                      append tup;
+        defs = for(tup: <loc scope, str _, str _, IdRole idRole, loc defined, DefInfo _> <- tm.defines){ 
+                   if(  idRole in saveModuleRoles
+                      && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
+                         || scope in filteredModuleScopes
+                         || scope.path == mscope.path
+                         )
+                     ){ 
+                     //if(scope in extendedModuleScopes){
+                     //   if(defType(_) !:= defInfo){
+                     //      throw "Suspicious define in TModel: <tup>";
+                     //   }
+                     //   //tup.scope = mscope;
+                     //}         
+                     append tup;
                   }
                };
         

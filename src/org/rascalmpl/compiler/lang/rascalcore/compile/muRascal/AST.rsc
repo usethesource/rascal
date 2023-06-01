@@ -118,7 +118,7 @@ public data MuExp =
           | muAddedFun(MuExp left, MuExp right, AType leftType, AType rightType, AType resultType)
           
           	// Variables and temporaries
-          | muVar(str name, str fuid, int pos, AType atype)		// Variable: retrieve its value
+          | muVar(str name, str fuid, int pos, AType atype, IdRole idRole) // Variable: retrieve its value
           | muTmpIValue(str name, str fuid, AType atype)	    // Temporary variable introduced by compiler
           | muTmpNative(str name, str fuid, NativeKind nkind)   // Temporary variable introduced by compiler
              
@@ -318,12 +318,12 @@ data MuCase = muCase(int fingerprint, MuExp exp);
 
 // ==== Checks ================================================================
 
-MuExp muVar(str name, str fuid, int pos, AType atype){
+MuExp muVar(str name, str fuid, int pos, AType atype, IdRole idRole){
     assert !isEmpty(name);
     if(atype.alabel?){
     u_atype = unsetRec(atype, "alabel");
     if(atype != u_atype)
-        return muVar(name, fuid, pos, u_atype);
+        return muVar(name, fuid, pos, u_atype, idRole);
     }
     fail;
 }
@@ -434,7 +434,7 @@ default bool producesNativeGuardedIValue(MuExp exp)
 // Get the result type of a MuExp
 
 AType getType(muCon(value v)) = symbol2atype(typeOf(v));
-AType getType(muVar(str name, str fuid, int pos, AType atype)) = atype;
+AType getType(muVar(str name, str fuid, int pos, AType atype, IdRole idRole)) = atype;
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
 AType getType(muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
@@ -1187,9 +1187,9 @@ MuExp muAssign(MuExp var, muFail(btscope))
     
 // ---- muIf ------------------------------------------------------------------
     
-//MuExp muIf(muCon(true), MuExp thenPart) = thenPart;
-//
-//MuExp muIf(muCon(false), MuExp thenPart) = muBlock([]);
+MuExp muIf(muCon(true), MuExp thenPart) = thenPart;
+
+MuExp muIf(muCon(false), MuExp thenPart) = muBlock([]);
 //
 //MuExp muIf(me:muExists(enter, cond), MuExp thenPart)   
 //      = muExists(enter, insertThenPart(cond, thenPart, {enter}));
@@ -1574,13 +1574,26 @@ AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)
 AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = getResultType(lubList(toList(overloads<2>)));
 default AType getResultType(AType t) = t;
      
-MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
-    = muValueBlock(getResultType(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src))
-when <b1, auxVars1, pre1, flatArgs1> := flattenArgs(args), 
-     <b2, auxVars2, pre2, flatArgs2> := flattenArgs(kwargs<1>),
-     !(isEmpty(pre1) && isEmpty(pre2)),
-     b1 || b2,
-     kwargs2 := [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
+MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src){
+    <b1, auxVars1, pre1, flatArgs1> = flattenArgs(args);
+    <b2, auxVars2, pre2, flatArgs2> = flattenArgs(kwargs<1>);
+   
+    if((b1 || b2) && !(isEmpty(pre1) && isEmpty(pre2))){
+        kwargs2 = [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
+        return muValueBlock(getResultType(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src));
+    } else {
+        fail;
+    }
+}
+     
+//TODO: rewritten to the above code for compiler
+//MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)
+//    = muValueBlock(getResultType(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src))
+//when <b1, auxVars1, pre1, flatArgs1> := flattenArgs(args), 
+//     <b2, auxVars2, pre2, flatArgs2> := flattenArgs(kwargs<1>),
+//     !(isEmpty(pre1) && isEmpty(pre2)),
+//     b1 || b2,
+//     kwargs2 := [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
 
 MuExp muPrim(str op, AType result, list[AType] details, list[MuExp] args, loc src)
     = muValueBlock(result, auxVars + pre + muPrim(op, result, details, flatArgs, src))

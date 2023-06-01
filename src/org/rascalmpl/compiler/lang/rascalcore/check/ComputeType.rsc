@@ -10,6 +10,7 @@ import lang::rascal::\syntax::Rascal;
 //import IO;
 import Map;
 import Set;
+import List;
 import String;
 
 void checkConditions(list[Expression] condList, Solver s){
@@ -282,7 +283,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
                 s.specializedFact(current, ctype_new);
             }
         } catch TypeUnavailable(): /* ignore */ ;
-          catch invalidInstantiation(str msg): /* nothing to instantiate */ ;
+          catch invalidInstantiation(str _msg): /* nothing to instantiate */ ;
         try {
             return instantiateRascalTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings);
         } catch invalidInstantiation(str msg):
@@ -369,6 +370,7 @@ default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
     
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldTypeWithADT: <containerType>, <field>");
+    containerType = unwrapType(containerType);
     requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
     if(isNonTerminalType(containerType) && fieldName == "top"){
@@ -379,7 +381,8 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(AType containerType, Tree field, loc scope, Solver s) {
-    //println("computeFieldType: <containerType>, <field>");
+   //println("computeFieldType: <containerType>, <field>");
+    containerType = unwrapType(containerType);
     requireFullyInstantiated(s, containerType);
     if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");

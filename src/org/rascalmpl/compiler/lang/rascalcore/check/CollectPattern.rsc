@@ -2,6 +2,7 @@
 module lang::rascalcore::check::CollectPattern
 
 extend lang::rascalcore::check::CheckerCommon;
+extend lang::rascalcore::check::CollectLiteral;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -214,11 +215,15 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
           if(!inPatternNames(uname, c)){
              c.push(patternNames, <uname, getLoc(argName)>);
           }
+          //c.define(uname, formalOrPatternFormal(c), argName, defType(tp));     
+          
           c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
                AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));     
        } else {
-          c.calculate("typed anonymous variable in splice pattern", argName, [tp], AType(Solver s){ 
-            return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); });
+          c.calculate("typed anonymous variable in splice pattern", argName, [tp], 
+                AType(Solver s){ 
+                    return inSet ? aset(s.getType(tp)) : alist(s.getType(tp));
+                });
        }
        c.calculate("typed variable in splice pattern", current, [tp], AType(Solver s){ return s.getType(tp); });
        collect(tp, c);
