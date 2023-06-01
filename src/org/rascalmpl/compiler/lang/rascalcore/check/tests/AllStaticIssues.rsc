@@ -277,3 +277,13 @@ test bool Issue1353() {
                     '  }");
    return checkOK("hello();", importedModules=["MC"]);                 
 }
+
+// https://github.com/usethesource/rascal/issues/1800
+test bool Issue1800() {
+   makeModule("RT", "import ParseTree;
+                    'bool f() {
+	                '  return type[Tree] _ := type(sort(\"A\"), ());
+                    '}
+                    '");
+   return checkOK("f();", importedModules=["RT"]);                 
+}
