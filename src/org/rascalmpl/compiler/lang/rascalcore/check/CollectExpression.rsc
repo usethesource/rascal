@@ -378,17 +378,17 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
         return areified(\avalue());
     });
 
-    //c.fact(current, areified(aadt("Symbol",[], dataSyntax())));
-    //c.fact(current, areified(avalue()));
     c.require("reified type", current, [es, ed],
-        void (Solver s){
+        void (Solver s) {
             checkNonVoid(es, s, "First element of reified type");
-            s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
+            s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected a Symbol, instead found %t", es));
             
             checkNonVoid(ed, s, "Second element of reified type");
             s.requireSubType(ed, amap(aadt("Symbol",[], dataSyntax()),aadt("Production",[],dataSyntax())), 
-                error(ed, "Expected subtype of map[Symbol,Production], instead found %t", ed));
-            });
+                error(ed, "Expected a map[Symbol, Production], instead found %t", ed));
+        }
+    );
+    
     collect(es, ed, c);
 }
 
