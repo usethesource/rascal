@@ -43,6 +43,8 @@ public abstract class PathTail extends org.rascalmpl.ast.PathTail {
 			Result<IValue> mid = this.getMid().interpret(__eval);
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 
+			// The semantics of .add is used here to coerce different kinds of values
+			// to path strings (e.g. parse trees, string constants, type names)
 			IString path = (IString) ResultFactory.makeResult(TF.stringType(), VF.string(""), __eval)
 				.add(expr).getValue();
 			
