@@ -1,4 +1,4 @@
-@ignoreCompiler{Tests randomly fails due to "inferred types"}
+//@ignoreCompiler{Tests randomly fails due to "inferred types"}
 module lang::rascal::tests::library::lang::csv::CSVIOTests
  
 import IO;
