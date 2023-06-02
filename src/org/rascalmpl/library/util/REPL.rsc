@@ -17,7 +17,7 @@ data REPL
      str () stacktrace = str () { return ""; }
    );
 
-private Content echo(str line) = text(line);
+private Content echo(str line) = plainText(line);
    
 private Completion noSuggestions(str _, int _) = <0, []>;
 
