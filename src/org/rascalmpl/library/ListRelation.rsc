@@ -17,9 +17,7 @@ Library functions for list relations.
 
 #### Description
 
-For operators on listrelations see [ListRelation]((Rascal:Values-ListRelation)) in the Rascal Language Reference.
-
-The following functions are defined for list relations :
+The following library functions are defined for list relations :
 (((TOC)))
 }
 module ListRelation

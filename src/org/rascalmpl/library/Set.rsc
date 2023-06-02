@@ -17,9 +17,7 @@ Library functions for sets.
 
 #### Description
 
-For operators on sets see [Set]((Rascal:Values-Set)) in the Rascal Language Reference.
-
-The following functions are defined for sets:
+The following library functions are defined for sets:
 (((TOC)))
 }
 module Set
@@ -260,26 +258,21 @@ power1({1,2,3,4});
 ```}
 public set[set[&T]] power1(set[&T] st) = power(st) - {{}};
 
-@doc{
-#### Synopsis
-
-Apply a function to successive elements of a set and combine the results (__deprecated__).
-
-#### Description
-
+@synopsis{Apply a function to successive elements of a set and combine the results (__deprecated__).}
+@description{
 Apply the function `fn` to successive elements of set `s` starting with `unit`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Set;
 int add(int x, int y) { return x + y; }
 reducer({10, 20, 30, 40}, add, 0); 
 ```
-
-#### Pitfalls
-
-WARNING: This function is *deprecated*, use a [reducer]((Rascal:Expressions-Reducer)) instead.
+}
+@pitfalls{
+:::warning
+This function is *deprecated*, use a reducer expression instead, such as `(init | fn(it,e) | e <- st)`.
+:::
 }
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);

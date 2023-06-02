@@ -15,9 +15,7 @@ Library functions for Booleans.
 
 #### Description
 
-For operators on Boolean values see [Boolean]((Rascal:Values-Boolean)) in the Rascal Language Reference.
-
-The following functions are defined for Booleans:
+The following library functions are defined for Booleans:
 (((TOC)))
 }
 module Boolean

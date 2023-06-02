@@ -14,9 +14,7 @@ Library functions for source locations.
 
 #### Description
 
-For a description of source locations see [Location]((Rascal:Values-Location)) in the Rascal Language Reference.
-
-The following functions are defined for source locations:
+The following library functions are defined for source locations:
 (((TOC)))
 
 A source location `l` refers to a text fragment in another file or resource. To ease the description we will

@@ -14,9 +14,7 @@ Library functions for nodes.
 
 #### Description
 
-For operators on nodes see [Node]((Rascal:Values-Node)) in the Rascal Language Reference.
-
-The following functions are defined for nodes:
+The following library functions are defined for nodes:
 (((TOC)))
 }
 module Node

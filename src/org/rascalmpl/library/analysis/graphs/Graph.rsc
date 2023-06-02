@@ -9,21 +9,12 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
-@doc{
-#### Synopsis
+@synopsis{A `Graph` alias for reflective relations with associated graph analysis functions.}
+@description{
+The Graph data type is an alias for binary type-reflective relations. So all operators and functions defined
+on **reflective** relations are also defined on Graphs.
 
-A `Graph` datatype with associated functions.
-
-#### Types
-
-`alias Graph[&T] = rel[&T from, &T to];`
-
-#### Description
-
-The Graph data type is a binary relation and all operators and functions defined
-on [relations]((Rascal:Values-Relation)) are also defined on Graphs.
-
-The `Graph` library provides the following functions:
+The `Graph` library provides the following additional functions:
 (((TOC)))
 }
 module analysis::graphs::Graph
