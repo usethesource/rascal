@@ -21,6 +21,7 @@ This module is quite new and may undergo some tweaks in the coming time.
 module vis::Graphs
 
 import lang::html::IO;
+import lang::html::AST;
 import util::IDEServices;
 import Content;
 import ValueIO;
