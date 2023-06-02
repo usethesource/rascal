@@ -17,9 +17,7 @@ Library functions for strings.
 
 #### Description
 
-For operators on strings see [String]((Rascal:Values-String)) in the Rascal Language Reference.
-
-The following functions are defined for strings:
+The following library functions are defined for strings:
 (((TOC)))
 }
 module String

@@ -24,16 +24,13 @@ while the leaf nodes are labeled by terminals (characters) of the grammar.
 
 `Tree` is the universal parse tree data type in Rascal and can be used to represent parse trees for any language.
 
-*  `Tree` is a subtype of the type [node]((Rascal:Values-Node)).
-*  All types (non-terminals) declared in [syntax definitions]((Rascal:Declarations-SyntaxDefinition)) are sub-types of `Tree`.
-*  All [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax)) produce parse trees with a type corresponding to a non-terminal.
+*  `Tree` is a subtype of the type `node`
+*  All types (non-terminals) declared in `syntax`, `lexical`, `layout` and `keyword`  definitions are sub-types of `Tree`.
+*  All concrete syntax expressions produce parse trees with a type corresponding to a non-terminal.
 *  Trees can be annotated in various ways.  Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
 
-Parse trees are usually analyzed and constructed using [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
-and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
- 
 _Advanced users_ may want to create tools that analyze any parse tree, regardless of the 
-[syntax definition]((Rascal:Declarations-SyntaxDefinition)) that generated it, you can manipulate them on the abstract level.
+syntax definition that generated it, you can manipulate them on the abstract level.
 
 A parse tree is of type ((ParseTree-Tree)) using the auxiliary types 
 ((ParseTree-Production)), ((ParseTree-Symbol)), ((ParseTree-Condition)),
@@ -42,7 +39,7 @@ Effectively, a parse tree is a nested tree structure of type `Tree`.
 
 *  Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes. 
    `Production` is the abstract representation of a rule in a
-   [syntax definition]((Rascal:Declarations-SyntaxDefinition)), 
+   syntax definition.
    which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
 *  The leaves of a parse tree are always
 characters (`char`), which have an integer index in the UTF8 table. 
@@ -50,18 +47,16 @@ characters (`char`), which have an integer index in the UTF8 table.
 *  Some internal nodes encode ambiguity (`amb`) by pointing to a set of 
 alternative `Tree` nodes.
 
-The `Production` and `Symbol` types are an abstract notation for rules in 
-[syntax definitions]((Rascal:Declarations-SyntaxDefinition)),
+The `Production` and `Symbol` types are an abstract notation for rules in syntax definitions,
 while the `Tree` type is the actual notation for parse trees. 
 
 Parse trees are called parse forests when they contain `amb` nodes.
 
 You can analyze and manipulate parse trees in three ways:
 
-*  Directly on the `Tree` level, just like any other [algebraic data type]((Rascal:Declarations-AlgebraicDataType)).
-*  Using [concrete syntax expressions]((Rascal:Expressions-ConcreteSyntax))
-and [concrete syntax patterns]((Rascal:Patterns-Concrete)).
-*  Using [actions]((Rascal:Disambiguation-Action)).
+*  Directly on the `Tree` level, just like any other algebraic data type.
+*  Using concrete syntax expressions and concrete syntax patterns.
+*  Using disambiguation actions (parameters of the `parse` function)
 
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
@@ -138,7 +133,7 @@ labels in the list of children of a `prod`.
 }
 @pitfalls{
 * For historical reasons the name of the annotation is "loc" and this interferes with the Rascal keyword `loc`
-for the type of [source locations]((Rascal:Values-Location)). Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
+for the type of source locations. Therefore the annotation name has to be escaped as `\loc` when it is declared or used.
 * We are in transition from deprecating the annotation `@\loc` with the keyword field `.src=|unknown:///|`. Currently the
 run-time already uses `.src` while the source code still uses `@\loc`.
 }
