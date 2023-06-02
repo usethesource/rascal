@@ -21,7 +21,7 @@ println("Hello Rascal!");
 
 The ((Library:module:IO)) module is otherwise most commonly used, because it contains ((println)).
 
-The standard library has its own ((Values-Location)) scheme `std` which can be used to explore
+The standard library has its own location scheme `std:///` which can be used to explore
 its folder structure on the REPL. Note that source locations have auto-complete for the path component.
 
 ```rascal-shell
@@ -34,7 +34,7 @@ These are the entry points to the entire library:
 #### Benefits
 
 * The standard library comes with "batteries included", a number of reusable data-types and data-structures for building code analysis and manipulation tools. See for example ((analysis::m3::Core)).
-* Utility functions are sorted per data-type. So if you need something that operates on ((Rascal:Values-List))then look in the ((Library:module:List)) module of the library. For ((Rascal:Values-Set)) look in ((Library:module:Set)), etc.
+* Utility functions are sorted per data-type. So if you need something that operates on lists then look in the ((Library:module:List)) module of the library. For sets look in ((Library:module:Set)), etc.
 * To process [CSV]((lang::csv)), [XML]((lang::xml)), [JSON]((lang::json)), [YAML]((lang::yaml)) you will find utilities here, even support to access [SQL]((resource::jdbc::JDBC)) databases via JDBC.
 
 #### Pitfalls

@@ -27,7 +27,7 @@ a specific language.
 
 #### Benefits
 
-*  this enables qualified names as ((Values-Location))s to be hyperlinks in the IDE
+*  this enables qualified names as locations to be hyperlinks in the IDE
 
 #### Pitfalls
 

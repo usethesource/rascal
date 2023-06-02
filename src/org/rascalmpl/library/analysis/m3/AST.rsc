@@ -13,19 +13,15 @@ If not, then these front-ends will extend the existing types with new constructo
 be added. The shared representation limits the element of surprise when working with different languages, and perhaps may
 make some downstream analyses reusable.
 
-The concept of a source ((Location)) is important for abstract syntax trees. The annotation `src` will always point to value of type `loc`,
-pointing to the physical location of the construct in the source code.
+The concept of a source location is important for abstract syntax trees. The annotation `src` will always point to value of type `loc`, pointing to the physical location of the construct in the source code.
 
-The concept of _declaration_ is also relevant. A `decl` annotation points from a use of a concept to its definition, but always
-via an indirection (i.e. fully qualified name). The `decl` annotation is also of type `loc`, where each ((Expressions-Values-Location)) is a fully qualified name of the
-definition that is used. 
+The concept of _declaration_ is also relevant. A `decl` annotation points from a use of a concept to its definition, but always via an indirection (i.e. fully qualified name). The `decl` annotation is also of type `loc`, where each location is a fully qualified name of the definition that is used. 
 
-Finally, the concept of a _type_ is relevant for ASTs. In particular an `Expression` may have a `typ` annotation, or
-a variable declaration, etc.
+Finally, the concept of a _type_ is relevant for ASTs. In particular an `Expression` may have a `typ` annotation, or a variable declaration, etc.
 
 #### Benefits
 
-*  Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as ((Patterns)), ((Expressions-Comprehensions)), and ((Statements-Visit)).
+*  Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as patterns, comprehensions and visit.
 
 #### Pitfalls
 
