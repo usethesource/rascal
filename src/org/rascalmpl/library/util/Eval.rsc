@@ -38,8 +38,7 @@ Note that a command can be one of:
 *  SyntaxDefinition
    
 
-The notable exclusion are ((Rascal:Expressions)). An Expression is not allowed as a command to the eval function. You can easily make
-a Statement from an Expression by adding a semi-colon.
+The notable exclusion are exprssions. An expression is not allowed as a command to the eval function. You can easily make a Statement from an Expression by adding a semi-colon.
  
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
