@@ -14,9 +14,7 @@ Library functions for date and time.
 
 #### Description
 
-For operators on `datetime` see [DateTime]((Rascal:Values-DateTime)) in the Rascal Language Reference.
-
-The following functions are defined for datetime:
+The following library functions are defined for datetime:
 (((TOC)))
 }
 module DateTime

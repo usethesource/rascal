@@ -14,8 +14,8 @@ Messages can be used to communicate information about source texts.
 They can be interpreted by IDEs to display type errors and warnings, etc.
 
 `Message`s are, for instance, used as additional keyword fields of
-[algebraic data type]((Rascal:Declarations-AlgebraicDataType)).
-A common example is to annotate parse trees with error messages.
+other data types (syntax trees), or collected in sets or lists of errors to 
+be published in an IDE. See ((util::IDEServices)).
 }
 module Message
 

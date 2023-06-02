@@ -18,10 +18,10 @@ The following definition is built into Rascal:
 data type[&T] = type(Symbol symbol, map[Symbol, Production] definitions);
 ```
 
-For values of type `type[...]` the static and dynamic type systems satisfy three additional constraints over the rules of type-parameterized ((Rascal:AlgebraicDataType))s:
+For values of type `type[...]` the static and dynamic type systems satisfy three additional constraints over the rules of type-parameterized data types:
 1. For any type `T`: `#T` has type `type[T]`
-2. For any type T and any value of `type[T]`, namely `type(S, D)` it holds that S is the symbolic representation of type `T` using the ((Rascal:AlgebraicDataType)) ((Type-Symbol)), and
-3. ... `D` holds all the necessary ((Rascal:AlgebraicDataType)) and ((Rascal:SyntaxDefinition)) rules required to form values of type `T`.
+2. For any type T and any value of `type[T]`, namely `type(S, D)` it holds that S is the symbolic representation of type `T` using the ((Type-Symbol)) type, and
+3. ... `D` holds all the necessary data and syntax rules required to form values of type `T`.
 
 In other words, the `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified _and_ said value will contain the full grammatical definition for what was bound to `&T`.
 }
@@ -491,11 +491,11 @@ public &T typeCast(type[&T] typ, value v) {
   throw typeCastException(typeOf(v), typ);
 }
 
-@synopsis{Dynamically instantiate an ((Rascal:AlgebraicDataType)) constructor of a given type with the given children and optional keyword arguments.}
+@synopsis{Dynamically instantiate an data constructor of a given type with the given children and optional keyword arguments.}
 @description{
 This function will build a constructor if the definition exists and the parameters fit its description, or throw an exception otherwise.
 
-This function can be used to validate external data sources against an ((Rascal:AlgebraicDataType)) such as XML, JSON and YAML documents.
+This function can be used to validate external data sources against a data type such as XML, JSON and YAML documents.
 }
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args);
@@ -524,9 +524,8 @@ type(typeOf(x), ())
 ```
 }
 @pitfalls{
-*  Note that the `typeOf` function does not produce definitions, like the 
-   [reify]((Rascal:Values-ReifiedTypes)) operator `#` does, 
-   since values may escape the scope in which they've been constructed leaving their contents possibly undefined.
+Note that the `typeOf` function does not produce definitions, like the 
+reify operator `#` does, since values may escape the scope in which they've been constructed.
 }
 @javaClass{org.rascalmpl.library.Type}
 public java Symbol typeOf(value v);

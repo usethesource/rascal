@@ -14,9 +14,7 @@ Library functions for relations.
 
 #### Description
 
-For operators on relations see [Relation]((Rascal:Values-Relation)) in the Rascal Language Reference.
-
-The following functions are defined for relations:
+The following library functions are defined for relations:
 (((TOC)))
 }
 module Relation

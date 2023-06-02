@@ -16,9 +16,7 @@ Library functions for maps.
 
 #### Description
 
-For operators on maps see [Map]((Rascal:Values-Map)) in the Rascal Language Reference.
-
-The following functions are defined for maps:
+The following library functions are defined for maps:
 (((TOC)))
 }
 module Map
