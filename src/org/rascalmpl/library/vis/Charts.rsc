@@ -11,7 +11,7 @@
 This modules provides a simple API to create charts for Rascal
 (numerical) data, based on [chart.js](https://chartjs.org/). 
 This library mirrors chart.js' JSON-based configuration API more or less one-to-one
-using ((Declarations-AlgebraicDataType))s of Rascal. Documentation about chart.js should be easy
+using data types of Rascal. Documentation about chart.js should be easy
 to interpret.
 
 This module is quite new and may undergo some tweaks in the coming time.
@@ -61,6 +61,7 @@ pieChart([<"<x>",x+arbInt(25)> | x <- [1..10]])
 module vis::Charts
 
 import lang::html::IO;
+import lang::html::AST;
 import Content;
 import Set;
 import List;
