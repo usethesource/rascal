@@ -55,11 +55,11 @@ public str TEST_YAML =
    
 public Node BAD_YAML =
   mapping((
-   scalar(3)[@anchor=3]:
+   scalar(3)[anchor=3]:
    sequence([
       scalar("abc")[\tag=#int],
       scalar("cde")[\tag=#str],
-      scalar("unsupported")[@\tag=#node],
+      scalar("unsupported")[\tag=#node],
       reference(4),
       sequence([])[anchor=4]
    ])[anchor=2]))[anchor=2];
