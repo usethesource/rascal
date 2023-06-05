@@ -182,6 +182,51 @@ data CytoElement
   | \edge(str source, str target, str id="<source>-<target>", str label="")
   ;
 
+data CytoHorizontalAlign
+    = left()
+    | center()
+    | right()
+    | auto()
+    ;
+
+data CytoVerticalAlign
+    = top()
+    | center()
+    | bottom()
+    | auto()
+    ;
+
+data CytoArrowHeadStyle
+    = triangle()
+    | \triangle-tee()
+    | \circle-triangle()
+    | \triangle-cross()
+    | \triangle-backcurve()
+    | vee()
+    | tee()
+    | square()
+    | circle()
+    | diamond()
+    | chevron()
+    | none()
+    ;
+
+data CytoTextWrap
+    = none()
+    | wrap()
+    | ellipses()
+    ;
+
+data CytoCurveStyle
+    = bezier()
+    | \unbundled-bezier()
+    | straight()
+    | segments()
+    | \straight-triangle()
+    | taxi()
+    | haystack()
+    ;
+
 data CytoStyleOf
     = cytoNodeStyleOf(
         CytoSelector selector = \node(),
@@ -204,7 +249,7 @@ CytoStyle defaultNodeStyle()
         \font-size        = "20pt",
         \font-weight      = bold(),
         label             = "data(label)",
-        shape             =  \round-rectangle(),
+        shape             = \round-rectangle(),
         \text-halign      = CytoHorizontalAlign::\center(),
         \text-valign      = CytoVerticalAlign::\center()
     );
@@ -228,21 +273,6 @@ data CytoFontWeight
     | bold()
     | bolder()
     ;
-
-data CytoHorizontalAlign
-    = left()
-    | center()
-    | right()
-    | auto()
-    ;
-
-data CytoVerticalAlign
-    = top()
-    | center()
-    | bottom()
-    | auto()
-    ;
-
 
 data CytoStyle
     = cytoNodeStyle(
@@ -278,47 +308,23 @@ data CytoStyle
         str label               = "data(label)"
     )
     ;
-
-data CytoTextWrap
-    = none()
-    | wrap()
-    | ellipses()
-    ;
-
-data CytoCurveStyle
-    = bezier()
-    | \unbundled-bezier()
-    | straight()
-    | segments()
-    | \straight-triangle()
-    | taxi()
-    | haystack()
-    ;
-    
-data CytoArrowHeadStyle
-    = triangle()
-    | \triangle-tee()
-    | \circle-triangle()
-    | \triangle-cross()
-    | \triangle-backcurve()
-    | vee()
-    | tee()
-    | square()
-    | circle()
-    | diamond()
-    | chevron()
-    | none()
-    ;
     
 data CytoSelector
     = \node()
     | \edge()
     ; 
 
+data CytoLayoutName
+    = grid()
+    | circle()
+    | breadthfirst()
+    | cose()
+    ;
+
 data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
     = cytolayout()
     | breadthfirstLayout(
-        CytoLayoutName name = CytoLayoutName::breadthfirst(),
+        CytoLayoutName name = breadthfirst(),
         num spacingFactor= 1,
         list[str] roots = [],
         bool circle=false,
@@ -338,20 +344,20 @@ data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
         num spacingFactor=1
     )
     | coseLayout(
-        CytoLayoutName name = CytoLayoutName::cose()
+        CytoLayoutName name = cose()
     )
     ;
 
 CytoLayout defaultCoseLayout()
     = coseLayout(
-        name=CytoLayoutName::cose(),
+        name=cose(),
         animate=false
     )
     ;
 
 CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
     = circleLayout(
-        name = CytoLayoutName::circle(),
+        name = circle(),
         animate=false,
         avoidOverlap=avoidOverlap,
         spacingFactor=spacingFactor
@@ -359,7 +365,7 @@ CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
 
 CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=1)
     = gridLayout(
-        name=CytoLayoutName::grid(),
+        name=grid(),
         animate=false,
         rows=rows,
         cols=cols,
@@ -371,7 +377,7 @@ CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, 
 CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, bool grid=!circle, bool directed=false)
     = 
     breadthfirstLayout(
-        name=CytoLayoutName::breadthfirst(),
+        name=breadthfirst(),
         animate=false,
         spacingFactor=spacingFactor,
         circle=circle,
@@ -379,12 +385,6 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, boo
         directed=directed
     );
 
-data CytoLayoutName
-    = grid()
-    | circle()
-    | breadthfirst()
-    | cose()
-    ;
 
 @synopsis{this is the main server generator for any graph value}
 @description{
