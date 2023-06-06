@@ -324,7 +324,7 @@ data CytoLayoutName
 data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
     = cytolayout()
     | breadthfirstLayout(
-        CytoLayoutName name = breadthfirst(),
+        CytoLayoutName name = CytoLayoutName::breadthfirst(),
         num spacingFactor= 1,
         list[str] roots = [],
         bool circle=false,
@@ -357,7 +357,7 @@ CytoLayout defaultCoseLayout()
 
 CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
     = circleLayout(
-        name = circle(),
+        name = CytoLayoutName::circle(),
         animate=false,
         avoidOverlap=avoidOverlap,
         spacingFactor=spacingFactor
@@ -365,7 +365,7 @@ CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
 
 CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=1)
     = gridLayout(
-        name=grid(),
+        name=CytoLayoutName::grid(),
         animate=false,
         rows=rows,
         cols=cols,
@@ -377,7 +377,7 @@ CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, 
 CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, bool grid=!circle, bool directed=false)
     = 
     breadthfirstLayout(
-        name=breadthfirst(),
+        name=CytoLayoutName::breadthfirst(),
         animate=false,
         spacingFactor=spacingFactor,
         circle=circle,
