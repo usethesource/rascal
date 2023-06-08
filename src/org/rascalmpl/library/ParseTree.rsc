@@ -422,16 +422,21 @@ to false. So this is quite an important flag to consider.
 
 #### Examples
 
-```rascal-shell,error
-import demo::lang::Exp::Concrete::NoLayout::Syntax;
+```rascal-shell
+lexical Number = [0-9]+;
+syntax Exp
+    = Number
+    | left Exp "+" Exp
+    ;
+
 import ParseTree;
 ```
 Seeing that `parse` returns a parse tree:
-```rascal-shell,continue,error
+```rascal-shell,continue
 parse(#Exp, "2+3");
 ```
 Catching a parse error:
-```rascal-shell,continue,error
+```rascal-shell,continue
 import IO;
 try {
   Exp e = parse(#Exp, "2@3");
