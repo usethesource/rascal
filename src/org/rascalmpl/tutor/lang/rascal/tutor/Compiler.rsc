@@ -723,8 +723,9 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     exec.reset();
   }
 
+  errorsDetected = false;
   lineOffsetHere = 0;
-  return OUT:for (str line <- block) {
+  result = OUT:for (str line <- block) {
     if (/^\s*\/\/<comment:.*>$/ := line) { // comment line
       append OUT : out("```");
       append OUT : out(trim(comment));
@@ -742,6 +743,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
       for (allowErrors, str errLine <- split("\n", stderr)) {
+        errorsDetected = true;
         append OUT : out(errLine);
       }
 
@@ -783,6 +785,17 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
     lineOffsetHere +=1;
   }
+
+  if (allowErrors && !errorsDetected) {
+    result += [
+      out(":::warning"),
+      out("The above code block was declared to expect errors, but no errors were detected during its execution."),
+      out(":::"),
+      err(error("Code execution failed to produce an expected error", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>)))
+    ];
+  }
+
+  return result;
 }
 
 @synopsis{Prepare blocks run the REPL but show no input or output}
@@ -792,6 +805,7 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
   }
 
   lineOffsetHere = 0;
+
   return OUT:for (str line <- block) {
     output = exec.eval(line);
     result = output["text/plain"]?"";
