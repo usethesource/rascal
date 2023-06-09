@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.16.2</rascal-maven.version>
+        <rascal-maven.version>0.18.2</rascal-maven.version>
     </properties>
 
 
@@ -346,7 +346,7 @@
         <dependency>
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>0.14.7</version>
+            <version>0.15.0</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
