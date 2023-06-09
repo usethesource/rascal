@@ -156,7 +156,7 @@ Also see ((Map-invert)) and ((module:Exception)).
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import Map;
 invertUnique(("apple": 1, "pear": 2, "orange": 3));
 ```

@@ -340,11 +340,11 @@ List the entries in directory `file`.
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import IO;
 ```
 List all entries in the standard library:
-```rascal-shell,continue,error
+```rascal-shell,continue
 listEntries(|std:///|);
 ```
 }
