@@ -559,7 +559,7 @@ Throws `IllegalArgument` when `s` cannot be converted.
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import String;
 toInt("11");
 toInt("11", 8);

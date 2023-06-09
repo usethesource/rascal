@@ -443,7 +443,7 @@ Convert a set of tuples to a map. The result should be a legal map (i.e., withou
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import Set;
 toMapUnique({<"a", 1>, <"b", 2>, <"c", 10>});
 ```

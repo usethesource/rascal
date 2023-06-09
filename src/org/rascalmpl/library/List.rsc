@@ -168,11 +168,11 @@ Get the first element(s) from a list.
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import List;
 ```
 Get the first element:
-```rascal-shell,continue,error
+```rascal-shell,continue
 head([1, 2, 3]);
 head(["zebra", "elephant", "snake", "owl"]);
 ```
@@ -181,7 +181,7 @@ An exception is thrown when taking the head of an empty list:
 head([]);
 ```
 Get the first n elements:
-```rascal-shell,continue,error
+```rascal-shell,continue
 head([1, 2, 3, 4], 2);
 head(["zebra", "elephant", "snake", "owl"], 2);
 ```
@@ -279,7 +279,7 @@ Returns a new list with the value of `elm` inserted at index position `n` of the
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import List;
 insertAt([1,2,3], 1, 5);
 insertAt(["zebra", "elephant", "snake", "owl"], 2, "eagle");
@@ -819,10 +819,8 @@ Get the tail element(s) from a list.
 
 #### Examples
 
-```rascal-shell,error
-```
 All but first element:
-```rascal-shell,continue,error
+```rascal-shell,continue
 import List;
 tail([10,20,30]);
 ```
@@ -831,7 +829,7 @@ Try an error case:
 tail([]);
 ```
 Last n elements:
-```rascal-shell,continue,error
+```rascal-shell,continue
 tail([10, 20, 30, 40, 50, 60], 3);
 ```
 Try an error case:
@@ -950,7 +948,7 @@ Convert a list of tuples to a map; result must be a map.
 
 #### Examples
 
-```rascal-shell,error
+```rascal-shell
 import List;
 toMapUnique([<1,10>, <2, 20>, <3, 30>]);
 ```
