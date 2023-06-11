@@ -899,12 +899,12 @@ MuExp translateReturn(AType resultType, Expression expression, BTSCOPES btscopes
 	   return translateReturn(resultType, statements, btscopes);
 	}
 	//resultType = getType(expression);
-	if(hasFinally()) { // TODO adapt
-	    str fuid = topFunctionScope();
-		str varname = asTmp(nextLabel());
-		result = muTmpIValue(nextLabel("result"), fuid, resultType);
-		return muValueBlock(resultType, [ muConInit(result, translate(statement, btscopes)), muReturn1(resultType, result) ]);
-	} 
+	//if(hasFinally()) { // TODO adapt
+	//    str fuid = topFunctionScope();
+	//	str varname = asTmp(nextLabel());
+	//	result = muTmpIValue(nextLabel("result"), fuid, resultType);
+	//	return muValueBlock(resultType, [ muConInit(result, translate(statement, btscopes)), muReturn1(resultType, result) ]);
+	//} 
    	if(isBoolType(resultType)){
    	    res =  translate(expression);
    	    res = muReturn1(abool(), res);
@@ -913,9 +913,7 @@ MuExp translateReturn(AType resultType, Expression expression, BTSCOPES btscopes
    	    return res;                    
     } else
     if(isConditional(expression) /*&& !backtrackFree(expression)*/){
-        while((Expression) `( <Expression expression1> )` := expression){
-            expression = expression1;
-        }
+        expression = stripParens(expression);
         btscopes1 = getBTScopes(expression, nextTmp("RET"));
         res = muBlock([ muExists(getEnter(expression, btscopes1), 
                                 translateBool(expression.condition, btscopes1, muReturn1(resultType, translate(expression.thenExp)), muBlock([]))),
@@ -980,7 +978,7 @@ MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statem
 // -- local function declaration statement ---------------------------------
 
 MuExp translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`, BTSCOPES btscopes) { 
-    translate(functionDeclaration); return muBlock([]); 
+    translateDecl(functionDeclaration); return muBlock([]); 
 }
 
 // -- local variable declaration statement ---------------------------

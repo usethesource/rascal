@@ -174,10 +174,10 @@ bool haveEntered(str enter, BTSCOPES btscopes){
 
 // ==== literal pattern =======================================================
 
-default MuExp translatePat(p:(Pattern) `<Literal lit>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+default MuExp translatePat(p:(Pattern) `<Literal lit>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore = muBlock([])) 
     = translateLitPat(lit, subjectType, subject, btscopes, trueCont, falseCont);
 
-MuExp translatePat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp _restore = muBlock([]))
+MuExp translatePat(Literal lit, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp _restore = muBlock([]))
     = translateLitPat(lit, subjectType, subject, btscopes, trueCont, falseCont);
 
 MuExp translateLitPat(Literal lit, AType _subjectType, MuExp subject, BTSCOPES _btscopes, MuExp trueCont, MuExp falseCont) 
@@ -185,7 +185,7 @@ MuExp translateLitPat(Literal lit, AType _subjectType, MuExp subject, BTSCOPES _
 
 // ==== regexp pattern ========================================================
 
-MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) 
+MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore = muBlock([])) 
     = translateRegExpLiteral(r, subjectType, subject, btscopes, trueCont, falseCont);
 
 /*
@@ -286,11 +286,13 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
             fragment = "";
         }
         switch(r){
-          case (RegExp) `\<<Name name>\>`:
-        	if(varnames["<name>"]?){
-        	   fragment += "\\<varnames["<name>"]>";
-        	} else {
-        	  fragmentCode += [ muPrim("str_escape_for_regexp", astr(), [getType(name)], [ translate(name) ], r@\loc)];
+          case (RegExp) `\<<Name name>\>`: {
+                nm = "<name>";
+            	if(varnames[nm]?){
+            	   fragment += "\\<varnames[nm]>";
+            	} else {
+            	  fragmentCode += [ muPrim("str_escape_for_regexp", astr(), [getType(name)], [ translate(name) ], r@\loc)];
+            	}
         	}
           case (RegExp) `\<<Name name>:<NamedRegExp* _>\>`: {
          		<varref, fragmentCode1> = extractNamedRegExp(r);
@@ -590,7 +592,7 @@ loc getConcreteHoleVarLoc(h: appl(Production _prod, list[Tree] args)) {
 	iprintln(h);
 	println("hole: <args[0].args[4].args[0]>");
 	iprintln(args[0].args[4].args[0]);
-	println("<h@\loc?>, <(args[0])@\loc?>,  <(args[0].args[4])@\loc?>, <(args[0].args[4].args[0])@\loc?>");
+	//println("<h@\loc?>, <(args[0])@\loc?>,  <(args[0].args[4])@\loc?>, <(args[0].args[4].args[0])@\loc?>");
 	throw "getConcreteHoleVarLoc: Missing loc";
 }
 
@@ -1621,7 +1623,8 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* _>}`, AType subjectType, MuE
         return muIfExp(muEqual(subjectExp, muCon(constantPat)), trueCont, falseCont);
     } catch _: /* not a constant pattern */;
     
-   elmType = (aset(tp) := subjectType && tp != avoid()) ? tp : avalue();
+   elmType = avalue();
+   if(aset(tp) := subjectType && tp != avoid()) elmType = tp;
    typecheckNeeded = !asubtype(getType(p), subjectType);
    my_btscope = btscopes[getLoc(p)];
    //btscope = my_btscope.enter;
@@ -1711,7 +1714,7 @@ BTINFO getBTInfo(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCO
 
 // ---- translate tuple pattern
 
-MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])) {
+MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {
     try {
         constantPat = translatePatternAsConstant(p);
         return muIfExp(muEqual(subjectExp, muCon(constantPat)), trueCont, falseCont);
@@ -2155,7 +2158,7 @@ MuExp translatePat(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType subject
 // -- descendant pattern ---------------------------------------------
 
 BTINFO getBTInfo(p:(Pattern) `/ <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES btscopes) {
-    enter_desc = "<btscope.enter>_DESC";
+    enter_desc = "<btscope.enter>_DESC<getLoc(p).offset>";
     <pat_btscope, btscopes1> = getBTInfo(pattern, <enter_desc, enter_desc, enter_desc>, btscopes);
     return registerBTScope(p, <enter_desc, enter_desc, btscope.resume>, btscopes1);
 }
@@ -2169,7 +2172,7 @@ BTINFO getBTInfo(p:(Pattern) `/ <Pattern pattern>`,  BTSCOPE btscope, BTSCOPES b
 //    }
 //}
 
-MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])){
+MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont,  bool subjectAssigned=false, MuExp restore=muBlock([])){
 	desc_btscope = btscopes[getLoc(p)];
 	concreteMatch = concreteTraversalAllowed(pattern, subjectType);
 

@@ -414,13 +414,13 @@ tuple[str argTypes, str constantKwpDefaults, str nonConstantKwpDefaults, str ref
     for(i <- index(fun.formals)){
         formal = fun.formals[i];
         jtype = atype2javatype(fun.ftype.formals[i]);
-        varName = varName(fun.formals[i], jg);
+        vname = varName(fun.formals[i], jg);
         if(formal in formalsUsedAsRef){
-            aux = "$aux_<varName>";
+            aux = "$aux_<vname>";
             argTypeList += "<jtype> <aux>";
-            refInits += "ValueRef\<<jtype>\> <varName> = <newValueRef(varName, jtype, aux)>;\n";  //new ValueRef\<<jtype>\>(<aux>);\n";
+            refInits += "ValueRef\<<jtype>\> <vname> = <newValueRef(vname, jtype, aux)>;\n";  //new ValueRef\<<jtype>\>(<aux>);\n";
         } else {
-            argTypeList += "<jtype> <varName>";
+            argTypeList += "<jtype> <vname>";
         }
     }
 
@@ -606,8 +606,8 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
             fun = loc2muFunction[uid];
             current_fun = jg.getFunction();
             
-            ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? ((jg.isRef(var) || var.idRole notin assignableRoles)  ? "<var.name>_<var.pos>" : newValueRef(var.name, atype2javatype(var.atype), "<var.name>_<var.pos>"))
-                                                                      : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs ]);
+            ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? ((jg.isRef(var) || var.idRole notin assignableRoles)  ? vp : newValueRef(var.name, atype2javatype(var.atype), vp))
+                                                                      : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs, vp :=  "<var.name>_<var.pos>"]);
             
             //ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? "<var.name>_<var.pos>" : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs ]);
             //ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? (jg.isLocalRef(var) ? "<var.name>_<var.pos>" : newValueRef(var.name, atype2javatype(var.atype), "<var.name>_<var.pos>"))
@@ -752,7 +752,10 @@ str trans(c:muComposedFun(MuExp left, MuExp right, AType leftType, AType rightTy
 // ---- muVar -----------------------------------------------------------------
 
 str varName(muVar(str name, str _, int pos, AType _, IdRole idRole), JGenie _jg){
-    return (name[0] != "$") ? "<asJavaName(name)><(pos >= 0 || isWildCard(name)) ? "_<abs(pos)>" : "">" : asJavaName(name);
+    if (name[0] != "$")
+        return asJavaName(name) + ((pos >= 0 || isWildCard(name)) ? "_<abs(pos)>" : "") ;
+    else 
+        return asJavaName(name);
 }
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype, IdRole idRole), JGenie jg){
@@ -2023,8 +2026,6 @@ JCode trans(muHasNameAndArity(AType atype, AType consType, MuExp name, int arity
             }
         default:
             return "<v> instanceof INode && ((INode)<v>).arity() == <arity> && ((INode)<v>).getName().equals(<trans2NativeStr(name,jg)>)";
-        //default:
-        //    throw "muHasNameAndArity: <atype>, <name>, <arity>, <exp>";
     }
 }
 
