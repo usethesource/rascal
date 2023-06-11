@@ -1,6 +1,5 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
 
-import java.math.BigInteger;
 import java.util.Iterator;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
