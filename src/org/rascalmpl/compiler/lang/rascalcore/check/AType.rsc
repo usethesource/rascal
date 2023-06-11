@@ -337,17 +337,17 @@ AType alub(aset(AType s), aset(AType t)) = aset(alub(s, t));
 AType alub(aset(AType s), arel(atypeList(list[AType] ts))) = aset(alub(s,atuple(atypeList(ts))));  
 AType alub(arel(atypeList(list[AType] ts)), aset(AType s)) = aset(alub(s,atuple(atypeList(ts))));
 
-AType alub(r1: arel(atypeList(list[AType] l)), r2:arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(alubList(l, r))) : aset(avalue());
+AType alub(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(alubList(l, r))) : aset(avalue());
 
 AType alub(alist(AType s), alist(AType t)) = alist(alub(s, t));  
 AType alub(alist(AType s), alrel(atypeList(list[AType] ts))) = alist(alub(s,atuple(atypeList(ts))));  
 AType alub(alrel(atypeList(list[AType] ts)), alist(AType s)) = alist(alub(s,atuple(atypeList(ts))));
 
-AType alub(lr1: alrel(atypeList(list[AType] l)), lr2:alrel(atypeList(list[AType] r)))  = size(l) == size(r) ? alrel(atypeList(alubList(l, r))) : alist(avalue());
+AType alub(alrel(atypeList(list[AType] l)), alrel(atypeList(list[AType] r)))  = size(l) == size(r) ? alrel(atypeList(alubList(l, r))) : alist(avalue());
 
-AType alub(t1: atuple(atypeList(list[AType] l)), t2:atuple(atypeList(list[AType] r))) = size(l) == size(r) ? atuple(atypeList(alubList(l, r))) : atuple(avalue());
+AType alub(atuple(atypeList(list[AType] l)), atuple(atypeList(list[AType] r))) = size(l) == size(r) ? atuple(atypeList(alubList(l, r))) : avalue();
 
-AType alub(m1: amap(ld, lr), m2: amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));
+AType alub(amap(ld, lr), amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));
 
 AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 

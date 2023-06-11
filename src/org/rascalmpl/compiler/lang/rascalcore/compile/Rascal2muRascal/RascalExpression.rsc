@@ -623,7 +623,7 @@ MuExp translateBool((Expression) `(<Expression expression>)`, BTSCOPES btscopes,
 
 // -- closure expression --------------------------------------------
 
-MuExp translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) =
+MuExp translate (e:(Expression) `<Type tp> <Parameters parameters> { <Statement+ statements> }`) =
     translateClosure(e, parameters, [stat | stat <- statements]);
 
 MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) =
@@ -930,7 +930,8 @@ MuExp translateQuantor(list[Expression] generators, bool quantorAll = true, bool
     done = muTmpIValue(nextTmp("done"), fuid, abool());
     enterLoop(whileName,fuid);
    
-    my_fail  = enter_quantor = nextTmp(quantorAll ? "ALL" : "ANY");
+    my_fail  = nextTmp(quantorAll ? "ALL" : "ANY");
+    enter_quantor = my_fail;
     my_btscopes = getBTScopesAnd(gens, enter_quantor, ());
     
     enter_gen = getEnter(gens[0], my_btscopes);
@@ -1481,27 +1482,30 @@ BTINFO getBTInfo(Expression e:(Expression) `!<Expression exp>`, BTSCOPE btscope,
     return registerBTScope(e, exp_btscope, btscopes1);
 }
 
+Expression stripParens((Expression) `(<Expression exp>)`) = stripParens(exp);
+default Expression stripParens(Expression exp) = exp;
+
 MuExp translate(e:(Expression) `!<Expression exp>`) {
-    while( (Expression) `(<Expression exp2>)` := exp){
-        exp = exp2;
-    }
+    exp = stripParens(exp);
     switch(exp){
         case (Expression) `! <Expression exp2>`:
             return translate(exp2);
-        case e:(Expression) `<Expression _> in <Expression _>`:
-            return infix("notin", e);
-        case e: (Expression) `<Expression _> notin <Expression _>`:
-            return infix("in", e);
-        case e: (Expression) `<Expression _> == <Expression _>`:
-            return infix("notequal", e);
-        case e: (Expression) `<Expression _> != <Expression _>`:
-            return infix("equal", e);
-        case e:(Expression) `<Pattern pat> := <Expression exp2>`:
-            return translateNoMatchOp(e, pat, exp2,  getBTScopes(e, nextTmp("MATCH")));
-        case e:(Expression) `<Pattern pat> !:= <Expression exp2>`:
-            return translateMatchOp(e, pat, exp2,  getBTScopes(e, nextTmp("NOMATCH")));  
-        case e:(Expression) `<Pattern pat> \<- <Expression exp2>`:
-            return translateNoGenOp(e, pat, exp2, btscopes, trueCont, falseCont);  
+        case (Expression) `<Expression _> in <Expression _>`:
+            return infix("notin", exp);
+        case (Expression) `<Expression _> notin <Expression _>`:
+            return infix("in", exp);
+        case (Expression) `<Expression _> == <Expression _>`:
+            return infix("notequal", exp);
+        case (Expression) `<Expression _> != <Expression _>`:
+            return infix("equal", exp);
+        case (Expression) `<Pattern pat> := <Expression exp2>`:
+            return translateNoMatchOp(exp, pat, exp2,  getBTScopes(exp, nextTmp("MATCH")));
+        case (Expression) `<Pattern pat> !:= <Expression exp2>`:
+            return translateMatchOp(exp, pat, exp2,  getBTScopes(exp, nextTmp("NOMATCH")));  
+        case (Expression) `<Pattern pat> \<- <Expression exp2>`:{
+            my_btscopes = getBTScopes(exp, nextTmp("NOGEN"));
+            return translateNoGenOp(exp, pat, exp2, my_btscopes);  
+            }
         case (Expression) `any ( <{Expression ","}+ generators> )`:
             return translateQuantor([ g | g <- generators ], quantorAll = true, negateGenerators = true);
         case (Expression) `all ( <{Expression ","}+ generators> )`:
@@ -1512,26 +1516,24 @@ MuExp translate(e:(Expression) `!<Expression exp>`) {
 }
     
 MuExp translateBool((Expression) `!<Expression exp>`, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont) {
-    while( (Expression) `(<Expression exp2>)` := exp){
-        exp = exp2;
-    }
+    exp = stripParens(exp);
     switch(exp){
         case (Expression) `! <Expression exp2>`:
             return muIfExp(translate(exp2), trueCont, falseCont);
-        case e:(Expression) `<Expression _> in <Expression _>`:
-            return muIfExp(infix("notin", e), trueCont, falseCont);
-        case e: (Expression) `<Expression _> notin <Expression _>`:
-            return muIfExp(infix("in", e), trueCont, falseCont);
-        case e: (Expression) `<Expression _> == <Expression _>`:
-            return muIfExp(infix("notequal", e), trueCont, falseCont);
-        case e: (Expression) `<Expression _> != <Expression _>`:
-            return muIfExp(infix("equal", e), trueCont, falseCont);
-        case e:(Expression) `<Pattern pat> := <Expression exp2>`:
-            return muIfExp(translateNoMatchOp(e, pat, exp2,  btscopes), trueCont, falseCont);
-        case e:(Expression) `<Pattern pat> !:= <Expression exp2>`:
-            return muIfExp(translateMatchOp(e, pat, exp2,  btscopes), trueCont, falseCont);  
-        case e:(Expression) `<Pattern pat> \<- <Expression exp2>`:
-            return translateNoGenOp(e, pat, exp2, btscopes, trueCont, falseCont); 
+        case (Expression) `<Expression _> in <Expression _>`:
+            return muIfExp(infix("notin", exp), trueCont, falseCont);
+        case (Expression) `<Expression _> notin <Expression _>`:
+            return muIfExp(infix("in", exp), trueCont, falseCont);
+        case (Expression) `<Expression _> == <Expression _>`:
+            return muIfExp(infix("notequal", exp), trueCont, falseCont);
+        case (Expression) `<Expression _> != <Expression _>`:
+            return muIfExp(infix("equal", exp), trueCont, falseCont);
+        case (Expression) `<Pattern pat> := <Expression exp2>`:
+            return muIfExp(translateNoMatchOp(exp, pat, exp2,  btscopes), trueCont, falseCont);
+        case (Expression) `<Pattern pat> !:= <Expression exp2>`:
+            return muIfExp(translateMatchOp(exp, pat, exp2,  btscopes), trueCont, falseCont);  
+        case (Expression) `<Pattern pat> \<- <Expression exp2>`:
+            return translateNoGenOp(exp, pat, exp2, btscopes, trueCont, falseCont); 
         case (Expression) `any ( <{Expression ","}+ generators> )`:
             return muIfExp(translateQuantor([ g | g <- generators ], quantorAll = true, negateGenerators = true), trueCont, falseCont);
         case (Expression) `all ( <{Expression ","}+ generators> )`:
@@ -1795,6 +1797,9 @@ MuExp translateBool(e:(Expression) `<Pattern pat> \<- <Expression exp>`, BTSCOPE
     return  translateGenerator(pat, exp, btscopes, trueCont, falseCont);
 }
 
+MuExp translateNoGenOp(Expression e, Pattern pat, Expression exp, BTSCOPES btscopes){
+    return translateGenerator(pat, exp, btscopes, muSucceed(getEnter(e, "NOGEN", btscopes)),  muFail(getResume(e, "NOGEN", btscopes)));
+}
 MuExp translateNoGenOp(Expression e, Pattern pat, Expression exp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont){
     return translateGenerator(pat, exp, btscopes, falseCont, trueCont);
 }

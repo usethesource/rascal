@@ -23,7 +23,7 @@ public void resetTmpAndLabel(){
 	resumptionScopes = ();
 	itVariables = [];
 	writerVariables = [];
-	tryCatchFinally = [];
+	//tryCatchFinally = [];
 	visits = [];
 	resetAllCounter();
 	resetOrCounter();
@@ -186,21 +186,21 @@ void leaveWriter(){
   writerVariables = tail(writerVariables);
 }
 
-// Administration of try-catch-finally blocks
-
-// The stack of try-catch-finally block is managed to check whether there is a finally block
-// that must be executed before 'return' if any
-private list[bool] tryCatchFinally = [];	// *** state
-
-bool hasFinally() = !isEmpty(tryCatchFinally);
-
-void enterTryCatchFinally() {
-	tryCatchFinally = true + tryCatchFinally;
-}
-
-void leaveTryCatchFinally() {
-	tryCatchFinally = tail(tryCatchFinally);
-}
+//// Administration of try-catch-finally blocks
+//
+//// The stack of try-catch-finally block is managed to check whether there is a finally block
+//// that must be executed before 'return' if any
+//private list[bool] tryCatchFinally = [];	// *** state
+//
+//bool hasFinally() = !isEmpty(tryCatchFinally);
+//
+//void enterTryCatchFinally() {
+//	tryCatchFinally = true + tryCatchFinally;
+//}
+//
+//void leaveTryCatchFinally() {
+//	tryCatchFinally = tail(tryCatchFinally);
+//}
 
 private list[loc] functionDeclarations = []; // *** state
 private bool _inSignatureSection = false;

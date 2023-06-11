@@ -72,86 +72,81 @@ default str atype2javatype(AType t) = "ITree"; //"IConstructor"; // This covers 
 /*  Convert AType to a descriptor that can be used in a Java identifier      */
 /*****************************************************************************/
 
-str atype2idpart(AType t) {
-    str convert(avoid())                 = "void";
-    str convert(abool())                 = "bool";
-    str convert(aint())                  = "int";
-    str convert(areal())                 = "real";
-    str convert(arat())                  = "rat";
-    str convert(anum())                  = "num";
-    str convert(astr())                  = "str";
-    str convert(aloc())                  = "loc";
-    str convert(adatetime())             = "datetime";
-    str convert(alist(AType t))          = "list_<convert(t)>";
-    str convert(aset(AType t))           = "set_<convert(t)>";
-    str convert(arel(AType ts))          = "rel_<convert(ts)>";
-    str convert(alrel(AType ts))         = "listrel_<convert(ts)>";
-    str convert(atuple(AType ts))        = "tuple_<convert(ts)>";
-    str convert(amap(AType d, AType r))  = "map_<convert(d)>_<convert(r)>";
-    
-    str convert(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                         = "<convert(ret)>_<intercalate("_", [convert(f) | f <- formals])>";
-    
-    str convert(anode(list[AType fieldType] fields))
-                                         = "node";
-    
-    str convert(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
-        aname = getUniqueADTName(a);
-        //aname = isEmpty(parameters) ? adtName : all(p <- parameters, isTypeParameter(p)) ? "<adtName>_<size(parameters)>" : "ADT_<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-        //aname = isEmpty(parameters) ? adtName : "<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-        return asJavaName(aname);
-    }
-                                                  
-    str convert(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields)){
-        aname = getUniqueADTName(adt);
-        //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<size(adt.parameters)>";
-        //aname = isEmpty(adt.parameters) ? adt.adtName : all(p <- adt.parameters, isTypeParameter(p)) ? "<adt.adtName>_<size(adt.parameters)>" : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
-        //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
-        ext = "<asJavaName(aname, completeId=false)><t.alabel? ? "_" + asJavaName(asUnqualifiedName(t.alabel), completeId=false) : "">_<intercalate("_", [convert(f) | f <- fields])>";
-        //return "<useAccessor ? jg.getATypeAccessor(t) : ""><ext>";
-        return ext;
-    }
-    
-    str convert(overloadedAType(rel[loc, IdRole, AType] overloads)){
-        resType = avoid();
-        formalsType = avoid();
-        for(<_, _, tp> <- overloads){
-            resType = alub(resType, getResult(tp));
-            formalsType = alub(formalsType, atypeList(getFormals(tp)));
-        }
-        ftype = atypeList(_) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
-        return convert(ftype);
-    }
-    
-    str convert(aprod(AProduction production))      = "aprod";
-    
-    str convert(atypeList(list[AType] ts))          = intercalate("_", [convert(t) | t <- ts]);
-    
-    str convert(aparameter(str pname, AType bound)) = ""; //"<avalue() := bound ? "" : convert(bound)>"; 
-    str convert(areified(AType atype))              = "reified_<convert(atype)>";
-    str convert(avalue())                           = "value";
-    
-    str convert(\alit(str s))                       = "lit(\"<s>\")";
-    str convert(\acilit(str s))                     = "cilit(\"<s>\")";
-    str convert(\aempty())                          = "empty";
-    str convert(\opt(AType atype))                  = "opt_<convert(atype)>";
-    str convert(\iter(AType atype))                 = "iter_<convert(atype)>"; 
-    str convert(\iter-star(AType atype))            = "iter_star_<convert(atype)>"; 
-    str convert(\iter-seps(AType atype, list[AType] separators))
-                                                    = "iter_seps_<convert(atype)>"; 
-    str convert(\iter-star-seps(AType atype, list[AType] separators))
-                                                    = "iter_star_seps_<convert(atype)>"; 
-    str convert(\alt(set[AType] alternatives))      = "alt_"; //TODO
-    str convert(\seq(list[AType] atypes))           = "seq_";  //TODO
-    str convert(\start(AType atype))                = "start_<convert(atype)>";
-    str convert(\conditional(AType atype, set[ACondition] conditions))
-                                                    = convert(atype);
-    
-    default str convert(AType t) { throw "convert: cannot handle <t>"; }
-    
-    return convert(t);
+str atype2idpart(avoid())                 = "void";
+str atype2idpart(abool())                 = "bool";
+str atype2idpart(aint())                  = "int";
+str atype2idpart(areal())                 = "real";
+str atype2idpart(arat())                  = "rat";
+str atype2idpart(anum())                  = "num";
+str atype2idpart(astr())                  = "str";
+str atype2idpart(aloc())                  = "loc";
+str atype2idpart(adatetime())             = "datetime";
+str atype2idpart(alist(AType t))          = "list_<atype2idpart(t)>";
+str atype2idpart(aset(AType t))           = "set_<atype2idpart(t)>";
+str atype2idpart(arel(AType ts))          = "rel_<atype2idpart(ts)>";
+str atype2idpart(alrel(AType ts))         = "listrel_<atype2idpart(ts)>";
+str atype2idpart(atuple(AType ts))        = "tuple_<atype2idpart(ts)>";
+str atype2idpart(amap(AType d, AType r))  = "map_<atype2idpart(d)>_<atype2idpart(r)>";
 
+str atype2idpart(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+                                          = "<atype2idpart(ret)>_<intercalate("_", [atype2idpart(f) | f <- formals])>";
+
+str atype2idpart(anode(list[AType fieldType] fields))
+                                          = "node";
+
+str atype2idpart(a: aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
+    aname = getUniqueADTName(a);
+    //aname = isEmpty(parameters) ? adtName : all(p <- parameters, isTypeParameter(p)) ? "<adtName>_<size(parameters)>" : "ADT_<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+    //aname = isEmpty(parameters) ? adtName : "<adtName>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+    return asJavaName(aname);
 }
+                                              
+str atype2idpart(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields)){
+    aname = getUniqueADTName(adt);
+    //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<size(adt.parameters)>";
+    //aname = isEmpty(adt.parameters) ? adt.adtName : all(p <- adt.parameters, isTypeParameter(p)) ? "<adt.adtName>_<size(adt.parameters)>" : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
+    //aname = isEmpty(adt.parameters) ? adt.adtName : "<adt.adtName>_<intercalate("_", [atype2idpart(p) | p <- adt.parameters])>";
+    ext = "<asJavaName(aname, completeId=false)><t.alabel? ? "_" + asJavaName(asUnqualifiedName(t.alabel), completeId=false) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
+    //return "<useAccessor ? jg.getATypeAccessor(t) : ""><ext>";
+    return ext;
+}
+
+str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
+    resType = avoid();
+    formalsType = avoid();
+    for(<_, _, tp> <- overloads){
+        resType = alub(resType, getResult(tp));
+        formalsType = alub(formalsType, atypeList(getFormals(tp)));
+    }
+    ftype = atypeList(_) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
+    return atype2idpart(ftype);
+}
+
+str atype2idpart(aprod(AProduction production))      = "aprod";
+
+str atype2idpart(atypeList(list[AType] ts))          = intercalate("_", [atype2idpart(t) | t <- ts]);
+
+str atype2idpart(aparameter(str pname, AType bound)) = ""; //"<avalue() := bound ? "" : atype2idpart(bound)>"; 
+str atype2idpart(areified(AType atype))              = "reified_<atype2idpart(atype)>";
+str atype2idpart(avalue())                           = "value";
+
+str atype2idpart(\alit(str s))                       = "lit(\"<s>\")";
+str atype2idpart(\acilit(str s))                     = "cilit(\"<s>\")";
+str atype2idpart(\aempty())                          = "empty";
+str atype2idpart(\opt(AType atype))                  = "opt_<atype2idpart(atype)>";
+str atype2idpart(\iter(AType atype))                 = "iter_<atype2idpart(atype)>"; 
+str atype2idpart(\iter-star(AType atype))            = "iter_star_<atype2idpart(atype)>"; 
+str atype2idpart(\iter-seps(AType atype, list[AType] separators))
+                                                     = "iter_seps_<atype2idpart(atype)>"; 
+str atype2idpart(\iter-star-seps(AType atype, list[AType] separators))
+                                                     = "iter_star_seps_<atype2idpart(atype)>"; 
+str atype2idpart(\alt(set[AType] alternatives))      = "alt_"; //TODO
+str atype2idpart(\seq(list[AType] atypes))           = "seq_";  //TODO
+str atype2idpart(\start(AType atype))                = "start_<atype2idpart(atype)>";
+str atype2idpart(\conditional(AType atype, set[ACondition] conditions))
+                                                     = atype2idpart(atype);
+
+default str atype2idpart(AType t) { throw "atype2idpart: cannot handle <t>"; }
 
 /*****************************************************************************/
 /*  Convert an AType to an IValue (i.e., reify the AType)                    */
@@ -257,9 +252,9 @@ str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] 
     = "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"), <atype2IValue(bound, defs)>)";
     //= "$aparameter(<atype2IValue(bound,defs)>)"; 
     
-str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) {
-    return "$aprod(<aprod2IValue(production, defs)>)";
-}
+//str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) {
+//    return "$aprod(<aprod2IValue(production, defs)>)";
+//}
 str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) 
     = "$reifiedAType((IConstructor) <atype2IValue(atype, definitions)>, <defs(definitions)>)";
     
@@ -369,15 +364,15 @@ private str tree2IValue1(SyntaxRole sr, map[AType, set[AType]] defs) = "<sr>";
 // ---- AProduction -----------------------------------------------------------
 
 /*&*/
-private str tree2IValue1(\choice(AType def, set[AProduction] alternatives), map[AType, set[AType]] defs)
-    = "choice(<atype2IValue(def, defs)>, <tree2IValue(alternatives, defs)>)";
+//private str tree2IValue1(\choice(AType def, set[AProduction] alternatives), map[AType, set[AType]] defs)
+//    = "choice(<atype2IValue(def, defs)>, <tree2IValue(alternatives, defs)>)";
 
-private str prod2IValue1(tr:prod(Symbol def, list[Symbol] symbols), map[AType, set[AType]] defs){
-    base =   "prod(<atype2IValue(symbol2atype(def, defs))>, <[atype2IValue(symbol2atype(sym), defs) | sym <- symbols]>, <tree2IValue(tr.attributes, defs)>)";
-    ///*syn*/base = "prod(<atype2IValue(symbol2atype(unset(def, "alabel")), defs)>, <[atype2IValue(symbol2atype(sym), defs) | sym <- symbols]>, <tree2IValue(tr.attributes, defs)>)";
-    
-    return base;
-}
+//private str prod2IValue1(tr:prod(Symbol def, list[Symbol] symbols, set[Attr] attributes), map[AType, set[AType]] defs){
+//    base =   "prod(<atype2IValue(symbol2atype(def, defs))>, <[atype2IValue(symbol2atype(sym), defs) | sym <- symbols]>, <tree2IValue(tr.attributes, defs)>)";
+//    ///*syn*/base = "prod(<atype2IValue(symbol2atype(unset(def, "alabel")), defs)>, <[atype2IValue(symbol2atype(sym), defs) | sym <- symbols]>, <tree2IValue(tr.attributes, defs)>)";
+//    
+//    return base;
+//}
 
 private str prod2IValue1(regular(Symbol def), map[AType, set[AType]] defs)
     = "$RVF.constructor(Symbol_Production_regular,<atype2IValue(symbol2atype(def), defs)>)";
@@ -414,8 +409,8 @@ private str atype2IValue1(acilit(str string), map[AType, set[AType]] defs)
     //= "$cilit(<value2IValue(string)>)";
     = "$VF.constructor(RascalValueFactory.Symbol_CiLit, $RVF.string(\"<string>\"))";
 /*&*/
-private str atype2IValue1(\achar-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
-    = "$char_class(<tree2IValue(ranges, defs)>)";   
+//private str atype2IValue1(\achar-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
+//    = "$char_class(<tree2IValue(ranges, defs)>)";   
  
 private str atype2IValue1(\aempty(), map[AType, set[AType]] defs)
     = "$aempty()";     
@@ -443,8 +438,8 @@ private str atype2IValue1(AType::\seq(list[AType] symbols) , map[AType, set[ATyp
 private str atype2IValue1(AType::\start(AType symbol), map[AType, set[AType]] defs)
     = "$start(<atype2IValue(symbol, defs)>)";   
 
-private str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
-    = "$conditional(<atype2IValue(symbol, defs)>, <cond2IValue(conditions, defs)>)";   
+//private str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
+//    = "$conditional(<atype2IValue(symbol, defs)>, <cond2IValue(conditions, defs)>)";   
     
 // ---- Condition ------------------------------------------------------------
 
@@ -473,7 +468,10 @@ private str cond2IValue1(\end-of-line(), map[AType, set[AType]] defs)
     = "$end_of_line()"; 
     
 private str cond2IValue1(\except(str label), map[AType, set[AType]] defs)
-    = "$except(<value2IValue(label)>)";              
+    = "$except(<value2IValue(label)>)";     
+    
+//private str cond2IValue1(set[ACondition] conditions, map[AType, set[AType]] defs)
+//    = "$VF.set(<intercalate(", ", { cond2IValue1(c, defs) | c <- conditions })>)";
                   
 //---- list/set wrappers for some parse tree constructs
 
@@ -861,8 +859,7 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, contextFreeSyntax())
        
         //res = "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <params>), $TS, p -\> Collections.emptySet())";
         //res = "$TF.constructor($TS, RascalValueFactory.Symbol_ParameterizedSort, \"<adtName>\", <params>)";
-        res = return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-        return res;
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
     }
 }
     

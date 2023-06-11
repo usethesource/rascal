@@ -687,18 +687,24 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
         c.useQualified([qualifier, base], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
-           c.define(base, variableId(), name, defLub([statement], AType(Solver s){ return s.getType(statement); }));
+           c.define(base, variableId(), name, defLub([statement], 
+            AType(Solver s){ 
+                return s.getType(statement); 
+            }));
            //c.useLub(name, variableRoles);
         } else {
            //if(c.isAlreadyDefined(base, name)) {
             //c.useLub(name, variableRoles);
            //} else {
-            c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){ return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s); }));
+            c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){ 
+                return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s); 
+            }));
            //}
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
-        AType(Solver s) { nameType = s.getType(name);
+        AType(Solver s) { 
+                   nameType = s.getType(name);
          		   asgType = computeAssignmentRhsType(current, nameType, operator, s.getType(statement), s);
                    if(operator == "=") 
                       s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q", asgType, nameType, "<name>")); 

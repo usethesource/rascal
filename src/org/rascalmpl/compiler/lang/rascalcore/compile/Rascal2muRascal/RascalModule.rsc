@@ -120,7 +120,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
 
 void translateModule((Module) `<Header header> <Body body>`) {
     for(imp <- header.imports) importModule(imp);
-	for( tl <- body.toplevels) translate(tl);
+	for( tl <- body.toplevels) translateToplevel(tl);
 }
 
 /********************************************************************/

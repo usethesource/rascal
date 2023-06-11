@@ -317,22 +317,26 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     for(id <- funIds){
         defs = funDefs[id];
         if(size(defs) > 1){
-            if(any(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
+            for(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
                    t1 := facts[d1.defined]?afunc(avoid(),[],[]),
                    t2 := facts[d2.defined]?afunc(avoid(),[],[]),
-                   (d1.scope in moduleScopes && d2.scope in moduleScopes && size(t1.formals) == size(t2.formals) && t1.ret == avoid() && t2.ret != avoid())
-                   //|| (d1.scope notin moduleScopes && d2.scope notin moduleScopes)
-                   )){
-                msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d.defined].ret == avoid() ? "non-`void`" : "`void`"> result type", d.defined) | d <- defs ];
-                s.addMessages(msgs);
+                   d1.scope in moduleScopes, d2.scope in moduleScopes, size(t1.formals) == size(t2.formals)
+                   ){
+                if(t1.ret == avoid() && t2.ret != avoid()){
+                    msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
+                    s.addMessages(msgs);
+                }
             }
-            if(any(d1 <- defs, d2 <- defs, d1 != d2, 
+            for(d1 <- defs, d2 <- defs, d1 != d2, 
                    t1 := facts[d1.defined]?afunc(avoid(),[],[]), 
                    t2 := facts[d2.defined]?afunc(avoid(),[],[]), 
-                   (d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.formals, t2.formals)),
-                   t1.kwFormals<0> != t2.kwFormals<0>)){                 
-                msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameters", d.defined) | d <- defs ];
-                s.addMessages(msgs);
+                   (d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.formals, t2.formals))) {  
+                 if(t1.kwFormals<0> != t2.kwFormals<0>){     
+                    diffkws = t2.kwFormals<0> - t1.kwFormals<0>;  
+                    plural = size(diffkws) > 1 ? "s" : "";
+                    msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameter<plural> <intercalate(",", [ "`<k.alabel>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
+                    s.addMessages(msgs);
+                  }
             }
             if(any(d1 <- defs, d2 <- defs, d1 != d2, 
                    t1 := facts[d1.defined]?afunc(avoid(),[],[]), 

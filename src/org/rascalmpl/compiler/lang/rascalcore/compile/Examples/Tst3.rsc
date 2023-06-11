@@ -1,74 +1,67 @@
 module lang::rascalcore::compile::Examples::Tst3
 
-import String;
-import lang::json::IO;
-import util::UUID;
-import IO;
+import List;
+//data QueryResult;
+//alias Corpus = list[str];
+//
+//public void showUsageCounts(Corpus corpus, lrel[str p, str v, QueryResult qr] res) {
+//    mr = ( p : size([ e | <p,_,e> <- res ]) | p <- corpus );
+//    //for (p <- sort([p | str p <- mr<0>])) println("<p>:<mr[p]>");
+//}
 
-loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
+//value main(){
+//    res = [<1,2>, <2,4>, <2,40>, <3, 9>,<3,90>];
+//    corpus = {1,2,3};
+//    mr = (p : size([ e | <p,e> <- res ]) | int p <- corpus);
+//    return mr;
+//   
+//
+//}
 
-bool jsonFeaturesSupported(value v) {
-    for (/num r := v, size("<r>") > 10) {
-         // json can only contain double precision numbers (doubles)
-         // so let's ignore the cases where we get higher random numbers
-        return false;
-    }
+value main(){
+    return [x | x <- [<1,2>,<3,4>,<5,6>], /2 := x, /3:= x];
     
-    return true;
-}    
-
-bool writeRead(type[&T] returnType, &T dt) {
-    if (!jsonFeaturesSupported(dt)) {
-        return true;
-    }
-    json = toJSON(dt);
-    return fromJSON(returnType, json) == dt;
+    println("<h@\loc?>, <(args[0])@\loc?>,  <(args[0].args[4])@\loc?>, <(args[0].args[4].args[0])@\loc?>");
 }
-    
-//// only single constructors supported for now
-data DATA1 = data1(int n);
-data DATA2 = data2(str n);
-data DATA3 = data3(int n, str kw = "abc");
-data Enum = x() | y() | z();
-data DATA4 = data4(Enum e = x());
-//
-//test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
-//test bool jsonWithInt1(int dt) = writeRead(#int, dt);
-//test bool jsonWithReal1(real dt) = writeRead(#real, dt);
-//test bool jsonWithRat1(rat dt) = writeRead(#rat, dt);
-//test bool jsonWithNum1(num dt) = writeRead(#num, dt);
-//
-//test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
-//test bool jsonWithStr1(str dt) = writeRead(#str, dt);
-//test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
-//test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
-//test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
-//test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
-//test bool jsonWithNode1(node  dt) = writeRead(#node, dt);
-//
-//test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
-//test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
-//
-//test bool jsonRandom1(value dt) = writeRead(#value, dt);
-//
-//test bool json1() = writeRead(#DATA1, data1(123));
-//test bool json2() = writeRead(#DATA2, data2("123"));
-//test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
-//test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
-value main(){ //test bool originTracking() {
-   example = readJSON(#node, |std:///lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
-   content = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
+loc moduleScope = |unknown:///|;
 
-   lrel[loc,int] poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an exception
+void setModuleScope(loc l){
+    moduleScope = l;
+}  
 
-   for (<loc p, str line> <- poss) {
-   println("<p>, <line>");
-      assert p.begin.line == line;
-   }
+loc getModuleScope()
+    = moduleScope;
 
-   return true;
-}
+
+//value main(){
+//    x = {<1, true>};
+//    x += {<2, false, "b">};
+//    return  x;
+//}
+//syntax A = "a";
+////import ParseTree;
+//
+//data Tree;
+//data Symbol;
+//
+//data Production;
+//
+//@javaClass{org.rascalmpl.library.Prelude}
+//public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
+//
+//public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+//  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
+//
+//
+//Tree doParseFragment(Symbol sym, map[Symbol, Production] rules) {
+//   return parse(type(sym, rules),  "a", |todo:///|);
+//}
+//
+//value main(){ 
+//    return doParseFragment(#A.symbol, #A.definitions);
+//}
+
 //data x = x() | x(int x);
 //
 ////x x(int n) { return x(2 * n); }
