@@ -9,29 +9,23 @@ import List;
 //    //for (p <- sort([p | str p <- mr<0>])) println("<p>:<mr[p]>");
 //}
 
-//value main(){
-//    res = [<1,2>, <2,4>, <2,40>, <3, 9>,<3,90>];
-//    corpus = {1,2,3};
-//    mr = (p : size([ e | <p,e> <- res ]) | int p <- corpus);
-//    return mr;
-//   
-//
-//}
-
 value main(){
-    return [x | x <- [<1,2>,<3,4>,<5,6>], /2 := x, /3:= x];
-    
-    println("<h@\loc?>, <(args[0])@\loc?>,  <(args[0].args[4])@\loc?>, <(args[0].args[4].args[0])@\loc?>");
+    res = [<1,2>, <2,4>, <2,40>, <3, 9>,<3,90>];
+    corpus = {1,2,3};
+    mr = (p : size([ e | <p,e> <- res ]) | p <- corpus);
+    return mr;
+   
+
 }
 
-loc moduleScope = |unknown:///|;
-
-void setModuleScope(loc l){
-    moduleScope = l;
-}  
-
-loc getModuleScope()
-    = moduleScope;
+//loc moduleScope = |unknown:///|;
+//
+//void setModuleScope(loc l){
+//    moduleScope = l;
+//}  
+//
+//loc getModuleScope()
+//    = moduleScope;
 
 
 //value main(){

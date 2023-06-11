@@ -497,7 +497,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    //iprintln(fun); // print function
+    iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     
@@ -2180,6 +2180,12 @@ default JCode trans(muTemplateAdd(MuExp template, AType atype, MuExp exp), JGeni
     }
     if(isStrType(atype)){
         return "<trans(template, jg)>.addStr(<transWithCast(atype, exp, jg)>.getValue());\n";
+    }
+    if(producesNativeBool(exp)){
+        return "<trans(template, jg)>.addVal($VF.bool(<trans(exp,jg)>));\n";
+    }
+    if(producesNativeInt(exp)){
+        return "<trans(template, jg)>.addVal($VF.integer(<trans(exp,jg)>));\n";
     }
     return "<trans(template, jg)>.addVal(<trans(exp,jg)>);\n";
 }
