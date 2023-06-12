@@ -97,6 +97,14 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
     copy(pcfg.license, pcfg.bin + "LICENSE_<pcfg.packageName>.txt");
   }
 
+  if (pcfg.citation? && exists(pcfg.citation)) {
+    copy(pcfg.citation, pcfg.bin + "CITATION.md");
+  }
+
+  if (pcfg.funding? && exists(pcfg.funding)) {
+    copy(pcfg.funding, pcfg.bin + "FUNDING.md");
+  }
+
   dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
 
   if (dependencies != []) {
@@ -118,6 +126,39 @@ void generatePackageIndex(PathConfig pcfg) {
       '---
       '
       '<readFile(pcfg.license)>");
+  }
+
+  if (pcfg.funding?) {
+    writeFile(targetFile.parent + "Funding.md", 
+      "---
+      'title: Funding sources of <pcfg.packageName> 
+      '---
+      '
+      ':::info
+      'Open-source software is free for use, yet it does not come for free.
+      'The following sources of funding have been instrumental in the creation 
+      'and maintenance of <pcfg.packageName>. You may consider also to become
+      'a [sponsor](https://github.com/sponsors/usethesource?o=esb)
+      ':::
+      '
+      '<readFile(pcfg.funding)>");
+  }
+
+  if (pcfg.citation?) {
+    writeFile(targetFile.parent + "Citation.md", 
+      "---
+      'title: Citing <pcfg.packageName> 
+      '---
+      '
+      ':::info
+      'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
+      'Citing software **recognizes** the associated investment and the quality of the result.
+      'If you use this software, it is becoming standard practise to recognize the authors by citing this work as
+      'they have indicated below. In turn their effort might be **awarded** with renewed funding
+      'based on the evidence of your appreciation.
+      ':::
+      '
+      '<readFile(pcfg.citation)>");
   }
 
   dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
@@ -153,7 +194,9 @@ void generatePackageIndex(PathConfig pcfg) {
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalize(src.file)>)
     '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<pcfg.packageName>/License.md)<}>
-    '<if (dependencies != []) {> * [Dependencies](../../Packages/<pcfg.packageName>/Dependencies.md)<}>
+    '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<pcfg.packageName>/Citation.md)<}>
+    '<if (pcfg.funding?) {>* Follow the [money](../../Packages/<pcfg.packageName>/Funding.md) sources.<}>
+    '<if (dependencies != []) {> * Check the [dependencies](../../Packages/<pcfg.packageName>/Dependencies.md)<}>
     '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
     '<if (pcfg.issues?) {>* [Issue tracker](<"<pcfg.issues>"[1..-1]>)<}>
     '

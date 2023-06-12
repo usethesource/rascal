@@ -12,6 +12,8 @@ data PathConfig(
   loc  sources=|http://github.com/usethesource/rascal|,
   loc  issues=|http://github.com/usethesource/rascal/issues|,
   loc  license=|cwd:///LICENSE.md|,
+  loc  citation=|cwd:///CITATION.md|,
+  loc  funding=|cwd:///FUNDING.md|,
   str  packageVersion=getRascalVersion(),
   bool isPackageCourse=false
 );
