@@ -153,9 +153,9 @@ void generatePackageIndex(PathConfig pcfg) {
       ':::info
       'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
       'Citing software **recognizes** the associated investment and the quality of the result.
-      'If you use this software, it is becoming standard practise to recognize the authors by citing this work as
-      'they have indicated below. In turn their effort might be **awarded** with renewed funding
-      'based on the evidence of your appreciation.
+      'If you use open-source software, it is becoming standard practise to recognize the work as
+      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<pcfg.packageName>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
+      'based on the evidence of your appreciation, and it may help their individual career perspectives.
       ':::
       '
       '<readFile(pcfg.citation)>");
