@@ -18,6 +18,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -54,7 +56,7 @@ public class StandardLibraryContributor implements
 						}
 					}
 					else {
-						l.add(vf.sourceLocation("file","", path));
+						l.add(URIUtil.createFileLocation(path));
 					}
 				} catch (URISyntaxException e) {
 				}
