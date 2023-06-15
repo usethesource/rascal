@@ -11,6 +11,7 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,8 +56,14 @@ public class URIUtil {
 	 * @throws URISyntaxException
 	 */
 	public static URI createFile(String path) throws URISyntaxException {
-		path = fixWindowsPath(path);
-		return fixUnicode(new File(path).toURI());
+		File file = new File(fixWindowsPath(path));
+		try {
+			file = file.getCanonicalFile();
+		}
+		catch (IOException e) {
+			// swallow, let's keep the old file
+		}
+		return fixUnicode(file.toURI());
 	}
 	
 	/**
