@@ -52,6 +52,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
@@ -941,12 +942,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			List<org.rascalmpl.ast.Assignable> arguments = this.getElements();
 
-			if (!__eval.__getValue().getStaticType().isTuple()) {
-				// TODO construct a better expected type
-				throw new UnexpectedType(
-						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
-								.tupleEmpty(), __eval.__getValue().getStaticType(),
-						this);
+			TypeFactory tf = AssignableEvaluator.__getTf();
+			Type tupleTemplate = tf.tupleType(arguments.stream().map(a ->  tf.valueType()).toArray(Type[]::new));
+
+			if (!__eval.__getValue().getStaticType().comparable(tupleTemplate)) {
+				throw new UnexpectedType(tupleTemplate, __eval.__getValue().getStaticType(), this);
 			}
 
 			Type tupleType = __eval.__getValue().getStaticType();
