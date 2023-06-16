@@ -298,10 +298,10 @@ test bool assignableTupleAlias() {
   return a == 0 && b == 1;
 }
 
-// @doc{this tests if the solution for #1811 still checks the arity of the tuple}
-// @expect{UnexpectedType}
-// test bool assignableTupleAliasError() {
-//   T[int] x = <0,1>;
-//   <a,b,c> = x; // this should throw an exception
-//   return a == 0 && b == 1;
-// }
+@doc{this tests if the solution for #1811 still checks the arity of the tuple}
+@expected{UnexpectedType}
+test bool assignableTupleAliasError() {
+  T[int] x = <0,1>;
+  <a,b,c> = x; // this should throw an exception
+  return a == 0 && b == 1;
+}
