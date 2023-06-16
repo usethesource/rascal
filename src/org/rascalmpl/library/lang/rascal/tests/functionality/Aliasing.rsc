@@ -288,3 +288,20 @@ test bool enumerableAlias() {
   
   return {*x} == tmp;
 }
+
+alias T[&T] = tuple[&T, &T];
+
+@doc{this triggered #1811}
+test bool assignableTupleAlias() {
+  T[int] x = <0,1>;
+  <a,b> = x; // this would throw an exception
+  return a == 0 && b == 1;
+}
+
+// @doc{this tests if the solution for #1811 still checks the arity of the tuple}
+// @expect{UnexpectedType}
+// test bool assignableTupleAliasError() {
+//   T[int] x = <0,1>;
+//   <a,b,c> = x; // this should throw an exception
+//   return a == 0 && b == 1;
+// }
