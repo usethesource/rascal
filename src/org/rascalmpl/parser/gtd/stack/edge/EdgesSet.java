@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack.edge;
 
+import java.util.Arrays;
+
 import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
@@ -48,10 +50,9 @@ public class EdgesSet<P>{
 	}
 	
 	private void enlarge(){
-		AbstractStackNode<P>[] oldEdges = edges;
-		edges = (AbstractStackNode<P>[]) new AbstractStackNode[size << 1];
-		System.arraycopy(oldEdges, 0, edges, 0, size);
+		edges = Arrays.copyOf(edges, size << 1, edges.getClass());
 	}
+
 	
 	public void add(AbstractStackNode<P> edge){
 		while(size >= edges.length){ // While instead of if to enable the JIT to eliminate the bounds check on the edges array 
