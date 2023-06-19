@@ -310,7 +310,7 @@ data Symbol
 data Symbol // <19>
      = \conditional(Symbol symbol, set[Condition] conditions);
 
-public bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
+bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
 
 @doc{
 #### Synopsis
@@ -341,7 +341,7 @@ data Condition
 
 Nested priority is flattened.
 }
-public Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production] b), *Production c])
+Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production] b), *Production c])
   = priority(s,a+b+c);
    
 @doc{
@@ -446,13 +446,13 @@ catch ParseError(loc l): {
 }
 ```
 }
-public &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-public &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
   
-public &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, input);
 
 @doc{
@@ -485,7 +485,7 @@ The parse function behaves differently depending of the given keyword parameters
      *                    parse forest to be constructed in polynomial time.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
 
 @doc{
 #### Synopsis
@@ -498,7 +498,7 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
  }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false,  set[Tree(Tree)] filters={}); 
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false,  set[Tree(Tree)] filters={}); 
 
 @synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
 @description{
@@ -508,12 +508,11 @@ the cost of constructing nested ambiguity clusters.
 
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
-public Tree firstAmbiguity(type[Tree] begin, str input)
+Tree firstAmbiguity(type[Tree] begin, str input)
   = parser(begin, firstAmbiguity=true)(input, |unknown:///|);
 
-public Tree firstAmbiguity(type[Tree] begin, loc input)
+Tree firstAmbiguity(type[Tree] begin, loc input)
   = parser(begin, firstAmbiguity=true)(input, input);
-
 
 @doc{
 #### Synopsis
@@ -540,10 +539,10 @@ First parse an expression, this results in a parse tree. Then unparse this parse
 unparse(parse(#Exp, "2+3"));
 ```
 }
-public str unparse(Tree tree) = "<tree>";
+str unparse(Tree tree) = "<tree>";
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printSymbol(Symbol sym, bool withLayout);
+java str printSymbol(Symbol sym, bool withLayout);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @doc{
@@ -682,21 +681,21 @@ Can be imploded into:
 data Exp = add(Exp, Exp);
 ```
 }
-public java &T<:value implode(type[&T<:value] t, Tree tree);
+java &T<:value implode(type[&T<:value] t, Tree tree);
 
 @doc{
 #### Synopsis
 
 Annotate a parse tree node with an (error) message.
 }
-public anno Message Tree@message;
+anno Message Tree@message;
 
 @doc{
 #### Synopsis
 
 Annotate a parse tree node with a list of (error) messages.
 }
-public anno set[Message] Tree@messages;
+anno set[Message] Tree@messages;
 
 @doc{
 #### Synopsis
@@ -742,7 +741,7 @@ anno rel[loc,loc] Tree@hyperlinks;
 
 Tree search result type for ((treeAt)).
 }
-public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
+data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
 
 
 @doc{
@@ -753,7 +752,7 @@ Select the innermost Tree of a given type which is enclosed by a given location.
 #### Description
 
 }
-public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
+TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
 	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
@@ -766,25 +765,25 @@ public TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_,
 	return treeNotFound();
 }
 
-public default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
+default TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree root) = treeNotFound();
 
-public bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);
-public bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
-public bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
-public bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
-public bool sameType(Symbol s, s) = true;
-public default bool sameType(Symbol s, Symbol t) = false;
+bool sameType(label(_,Symbol s),Symbol t) = sameType(s,t);
+bool sameType(Symbol s,label(_,Symbol t)) = sameType(s,t);
+bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
+bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
+bool sameType(Symbol s, s) = true;
+default bool sameType(Symbol s, Symbol t) = false;
 
 @doc{
 #### Synopsis
 
 Determine if the given type is a non-terminal type.
 }
-public bool isNonTerminalType(Symbol::\sort(str _)) = true;
-public bool isNonTerminalType(Symbol::\lex(str _)) = true;
-public bool isNonTerminalType(Symbol::\layouts(str _)) = true;
-public bool isNonTerminalType(Symbol::\keywords(str _)) = true;
-public bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
-public bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
-public bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
-public default bool isNonTerminalType(Symbol s) = false;
+bool isNonTerminalType(Symbol::\sort(str _)) = true;
+bool isNonTerminalType(Symbol::\lex(str _)) = true;
+bool isNonTerminalType(Symbol::\layouts(str _)) = true;
+bool isNonTerminalType(Symbol::\keywords(str _)) = true;
+bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = true;
+bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
+bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
+default bool isNonTerminalType(Symbol s) = false;
