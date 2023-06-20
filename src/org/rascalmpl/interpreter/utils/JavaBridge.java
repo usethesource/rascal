@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -30,6 +31,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
+import org.objectweb.asm.ClassReader;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.KeywordFormal;
@@ -51,8 +53,10 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.RascalType;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.util.ListClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -106,6 +110,41 @@ public class JavaBridge {
 
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
 		return compileJava(loc, className, getClass(), source);
+	}
+
+	public Class<?> loadClass(ISourceLocation loc) throws IOException {
+		try (InputStream forClassName = URIResolverRegistry.getInstance().getInputStream(loc)) {
+			ClassReader cr = new ClassReader(forClassName);
+			String className = cr.getClassName();
+
+			// ad-hoc loader to just get the bytes of _this_ specific file without
+			// searching in a classpath or anything. It needs access to the parser classes 
+			// as parent.
+			ClassLoader loader = new ClassLoader(getClass().getClassLoader()) {
+				@Override
+				protected Class<?> findClass(final String name) throws ClassNotFoundException {
+					if (!name.equals(className)) {
+						return super.findClass(name);
+					}
+					else {
+						try (InputStream forClass = URIResolverRegistry.getInstance().getInputStream(loc)) {
+							byte[] bytes = Prelude.consumeInputStream(URIResolverRegistry.getInstance().getInputStream(loc));
+							return this.defineClass(null, bytes, 0, bytes.length);
+						}
+						catch (IOException e) {
+							throw new ClassNotFoundException(className);
+						}
+					}
+				}
+			};
+
+			try {
+				return (Class<?>) loader.loadClass(className);
+			}
+			catch (ClassNotFoundException e) {
+				throw new IOException(e.getMessage(), e);
+			}
+		}
 	}
 
 	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
