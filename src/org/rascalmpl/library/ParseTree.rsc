@@ -514,6 +514,21 @@ Tree firstAmbiguity(type[Tree] begin, str input)
 Tree firstAmbiguity(type[Tree] begin, loc input)
   = parser(begin, firstAmbiguity=true)(input, input);
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Generate a parser and store it in serialized form for later reuse.}
+@description{
+The stored parsers would be able to be recovered later using ((loadParsers)).
+}
+java void storeParsers(type[Tree] grammar, loc saveLocation);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Load a previously serialized parser from disk for usage}
+@description{
+The semantics of loadParsers is described by the following equation:
+   loadParsers o storeParsers (#Type, inputLoc, inputLoc) = 
+}
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={});
+
 @doc{
 #### Synopsis
 

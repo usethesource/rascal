@@ -107,6 +107,11 @@ public class JavaBridge {
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
 		return compileJava(loc, className, getClass(), source);
 	}
+
+	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
+		compileJava(loc, className, getClass(), source);
+	}
+
 	
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
@@ -115,6 +120,27 @@ public class JavaBridge {
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			return result;
+		} 
+		catch (ClassCastException e) {
+			throw new JavaCompilation(e.getMessage(), e);
+		} 
+		catch (JavaCompilerException e) {
+		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
+		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
+		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", e);
+		    }
+		    else {
+		        throw new JavaCompilation(e.getMessage(), e);
+		    }
+		}
+	}
+
+	public <T> void compileJava(ISourceLocation loc, String className, Class<?> parent, String source, OutputStream classBytes) {
+		try {
+			// watch out, if you start sharing this compiler, classes will not be able to reload
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
+			javaCompiler.compile(classBytes, className, source, null);
 		} 
 		catch (ClassCastException e) {
 			throw new JavaCompilation(e.getMessage(), e);

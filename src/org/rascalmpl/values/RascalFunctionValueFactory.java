@@ -111,8 +111,27 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
     }
 
+    private void writeParsers(IMap grammar, ISourceLocation target) throws IOException {
+        try {
+            getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, target);
+        } 
+        catch (ExceptionInInitializerError e) {
+            throw new ImplementationError(e.getMessage(), e);
+        }
+    }
+
     protected Class<IGTD<IConstructor, ITree, ISourceLocation>> getParserClass(IMap grammar) {
         return parserCache.get(grammar);
+    }
+
+    protected void writeParserClass(IMap grammar, ISourceLocation target) throws IOException {
+        getParserGenerator().writeNewParser(
+            new NullRascalMonitor(), 
+            URIUtil.rootLocation("parser-generator"), 
+            "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), 
+            grammar, 
+            target
+        );
     }
     
     @Override
@@ -244,6 +263,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
         
         return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+    }
+
+    @Override
+    public void storeParsers(IValue reifiedGrammar, ISourceLocation saveLocation) throws IOException {
+        IMap grammar = (IMap) ((IConstructor) reifiedGrammar).get("definitions");
+        getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, saveLocation);
     }
 
     /**
