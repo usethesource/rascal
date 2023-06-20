@@ -109,9 +109,8 @@ public class JavaBridge {
 	}
 
 	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
-		compileJava(loc, className, getClass(), source);
+		compileJava(loc, className, getClass(), source, classBytes);
 	}
-
 	
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {

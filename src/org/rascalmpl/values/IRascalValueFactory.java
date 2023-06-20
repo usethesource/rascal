@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.rascalmpl.values;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -112,8 +113,9 @@ public interface IRascalValueFactory extends IValueFactory {
 	 * 
 	 * @param start
 	 * @param saveLocation
+	 * @throws IOException
 	 */
-    default void storeParsers(IValue start, ISourceLocation saveLocation) {
+    default void storeParsers(IValue start, ISourceLocation saveLocation) throws IOException {
 		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can store parsers on disk." + getClass());
 	}
 
