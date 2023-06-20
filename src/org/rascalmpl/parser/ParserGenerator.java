@@ -266,7 +266,7 @@ public class ParserGenerator {
 	String JOB = "Generating parser:" + name;
 	monitor.jobStart(JOB, 100, 60);
 
-	try {
+	try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
 		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
 		monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
 		IString classString;
@@ -278,7 +278,7 @@ public class ParserGenerator {
 		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
 		monitor.jobStep(JOB,"Compiling generated java code: " + name, 30);
 		
-		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), URIResolverRegistry.getInstance().getOutputStream(target, false));
+		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
 	} catch (ClassCastException e) {
 		throw new ImplementationError("parser generator:" + e.getMessage(), e);
 	} catch (Throw e) {
