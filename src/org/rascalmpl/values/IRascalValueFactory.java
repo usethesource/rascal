@@ -121,8 +121,9 @@ public interface IRascalValueFactory extends IValueFactory {
 
 	/**
 	 * Reverse of storeParsers and with the same effect as the {@see parsers} method.
+	 * @throws IOException
 	 */
-	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException {
 		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
 	}
 }
