@@ -111,15 +111,6 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
     }
 
-    private void writeParsers(IMap grammar, ISourceLocation target) throws IOException {
-        try {
-            getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, target);
-        } 
-        catch (ExceptionInInitializerError e) {
-            throw new ImplementationError(e.getMessage(), e);
-        }
-    }
-
     protected Class<IGTD<IConstructor, ITree, ISourceLocation>> getParserClass(IMap grammar) {
         return parserCache.get(grammar);
     }
@@ -269,6 +260,37 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     public void storeParsers(IValue reifiedGrammar, ISourceLocation saveLocation) throws IOException {
         IMap grammar = (IMap) ((IConstructor) reifiedGrammar).get("definitions");
         getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, saveLocation);
+    }
+
+    @Override
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects,IBool firstAmbiguity, ISet filters) throws IOException {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        // here the return type is parametrized and instantiated when the parser function is called with the
+        // given start non-terminal:
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+        
+        Type functionType = tf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+
+        
+
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                .__getJavaBridge().loadClass(saveLocation);
+          
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                
+        return function(
+            functionType, 
+            new ParametrizedParseFunction(() -> getParserGenerator(), 
+            this, 
+            caller, 
+            parser, 
+            allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
 
     /**
