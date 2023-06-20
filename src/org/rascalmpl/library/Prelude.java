@@ -2326,6 +2326,19 @@ public class Prelude {
 	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
     }
+
+	public void storeParsers(IValue start, ISourceLocation saveLocation) {
+		try {
+			rascalValues.storeParsers(start, saveLocation);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+		return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {

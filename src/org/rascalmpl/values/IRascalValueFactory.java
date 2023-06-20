@@ -22,6 +22,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
@@ -105,6 +106,21 @@ public interface IRascalValueFactory extends IValueFactory {
 	default IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
     }
-	
-	
+
+	/**
+	 * Same as `parsers` but saves the result to disk rather than wrapping it as an IFunction.
+	 * 
+	 * @param start
+	 * @param saveLocation
+	 */
+    default void storeParsers(IValue start, ISourceLocation saveLocation) {
+		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can store parsers on disk." + getClass());
+	}
+
+	/**
+	 * Reverse of storeParsers and with the same effect as the {@see parsers} method.
+	 */
+	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
+	}
 }
