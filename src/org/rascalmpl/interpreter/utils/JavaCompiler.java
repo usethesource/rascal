@@ -29,6 +29,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.Set;
 
 import javax.tools.DiagnosticCollector;
@@ -260,7 +264,7 @@ public class JavaCompiler<T> {
 
          // side-effect alert:
          //     now the local classloader contains the .class file
-         classLoader.outputClassBytes(qualifiedClassName, classBytes);
+         classLoader.outputClassesToJar(qualifiedClassName, classBytes);
       }
       catch (IOException e) {
          throw new JavaCompilerException(fileMap.keySet(), e, diagnostics);
@@ -585,14 +589,22 @@ final class ClassLoaderImpl extends ClassLoader {
       super(parentClassLoader);
    }
 
-   public void outputClassBytes(String qualifiedClassName, OutputStream output) throws IOException {
-      JavaFileObject file = classes.get(qualifiedClassName);
-      if (file != null) {
-         output.write(((JavaFileObjectImpl) file).getByteCode());
-      }
-      else {
-         throw new FileNotFoundException(qualifiedClassName);
-      }
+   public void outputClassesToJar(String qualifiedClassName, OutputStream output) throws IOException {
+      Manifest manifest = new Manifest();
+      manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+      manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, qualifiedClassName);
+   
+      try (JarOutputStream target = new JarOutputStream(output, manifest)) {
+         for (Entry<String, JavaFileObject> entry : classes.entrySet()) {
+            String className = entry.getKey();
+            JavaFileObjectImpl file = (JavaFileObjectImpl) entry.getValue();
+            JarEntry jarEntry = new JarEntry(className);
+            jarEntry.setTime(file.getLastModified());
+            target.putNextEntry(jarEntry);
+            target.write(file.getByteCode());
+            target.closeEntry();
+         }
+      }  
    }
 
    /**
