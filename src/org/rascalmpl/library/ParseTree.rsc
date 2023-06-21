@@ -518,14 +518,63 @@ Tree firstAmbiguity(type[Tree] begin, loc input)
 @synopsis{Generate a parser and store it in serialized form for later reuse.}
 @description{
 The stored parsers would be able to be recovered later using ((loadParsers)).
+
+For any concrete grammar, a.k.a. reified syntax type, `g` it holds that:
+* after `storeParsers(g, file);`
+* then `g = loadParsers(file);`
+* and given `h = parsers(g);`
+* then for all valid `nt`, `input` and `origin`: `g(nt, input, origin) == g(nt, input, origin)`
+
+In other words, a loaded parser function behaves exactly as a freshly generated parser
+for the same grammar, if (and only if) it was stored for the same grammar value.
+}
+@benefits{
+* storing parsers is to cache the work of reifing a grammar, and generating a parser from that grammar.
+* stored parsers are nice for deployment scenerios where the language is fixed and efficiency is appreciated.
+}
+@pitfalls{
+* caching parsers with `storeParsers` is your responsibility; the cache is not cleaned automatically when the grammar changes.
 }
 java void storeParsers(type[Tree] grammar, loc saveLocation);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Load a previously serialized parser from disk for usage}
 @description{
-The semantics of loadParsers is described by the following equation:
-   loadParsers o storeParsers (#Type, inputLoc, inputLoc) = 
+For any concrete grammar, a.k.a. reified syntax type, `g` it holds that:
+* after `storeParsers(g, file);`
+* then `g = loadParsers(file);`
+* and given `h = parsers(g);`
+* then for all valid `nt`, `input` and `origin`: `g(nt, input, origin) == g(nt, input, origin)`
+
+In other words, a loaded parser function behaves exactly as a freshly generated parser
+for the same grammar, if (and only if) it was stored for the same grammar value.
+}
+@examples{
+
+First we store a parser:
+```rascal-shell
+import ParseTree;
+syntax E = E "+" E | "e";
+storeParsers(#E, |test-temp:///E.parsers|)
+```
+
+Here we show a new shell does not even know about the grammar:
+```rascal-shell,errors
+#E
+```
+
+Then in a next run, we load the parser and use it:
+```
+import ParseTree;
+p = loadParsers(|test-temp:///E.parsers|);
+p(type(sort("E"), ()), "e+e", |src:///|);
+}
+@benefits{
+* loaded parsers can be used immediately without the need of loadig and executing a parser generator.
+}
+@pitfalls{
+* reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
+this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
 }
 java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={});
 
