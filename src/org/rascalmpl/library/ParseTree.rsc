@@ -549,6 +549,26 @@ For any concrete grammar, a.k.a. reified syntax type, `g` it holds that:
 In other words, a loaded parser function behaves exactly as a freshly generated parser
 for the same grammar, if (and only if) it was stored for the same grammar value.
 }
+@examples{
+
+First we store a parser:
+```rascal-shell
+import ParseTree;
+syntax E = E "+" E | "e";
+storeParsers(#E, |test-temp:///E.parsers|)
+```
+
+Here we show a new shell does not even know about the grammar:
+```rascal-shell,errors
+#E
+```
+
+Then in a next run, we load the parser and use it:
+```
+import ParseTree;
+p = loadParsers(|test-temp:///E.parsers|);
+p(type(sort("E"), ()), "e+e", |src:///|);
+}
 @benefits{
 * loaded parsers can be used immediately without the need of loadig and executing a parser generator.
 }
