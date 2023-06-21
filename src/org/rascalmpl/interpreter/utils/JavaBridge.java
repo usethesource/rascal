@@ -31,7 +31,7 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
-import org.objectweb.asm.ClassReader;
+import org.checkerframework.checker.units.qual.t;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.KeywordFormal;
@@ -53,10 +53,8 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.MissingTag;
 import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
-import org.rascalmpl.library.Prelude;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.RascalType;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.util.ListClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -112,41 +110,6 @@ public class JavaBridge {
 		return compileJava(loc, className, getClass(), source);
 	}
 
-	public Class<?> loadClass(ISourceLocation loc) throws IOException {
-		try (InputStream forClassName = URIResolverRegistry.getInstance().getInputStream(loc)) {
-			ClassReader cr = new ClassReader(forClassName);
-			String className = cr.getClassName();
-
-			// ad-hoc loader to just get the bytes of _this_ specific file without
-			// searching in a classpath or anything. It needs access to the parser classes 
-			// as parent.
-			ClassLoader loader = new ClassLoader(getClass().getClassLoader()) {
-				@Override
-				protected Class<?> findClass(final String name) throws ClassNotFoundException {
-					if (!name.equals(className)) {
-						return super.findClass(name);
-					}
-					else {
-						try (InputStream forClass = URIResolverRegistry.getInstance().getInputStream(loc)) {
-							byte[] bytes = Prelude.consumeInputStream(URIResolverRegistry.getInstance().getInputStream(loc));
-							return this.defineClass(null, bytes, 0, bytes.length);
-						}
-						catch (IOException e) {
-							throw new ClassNotFoundException(className);
-						}
-					}
-				}
-			};
-
-			try {
-				return (Class<?>) loader.loadClass(className);
-			}
-			catch (ClassNotFoundException e) {
-				throw new IOException(e.getMessage(), e);
-			}
-		}
-	}
-
 	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
 		compileJava(loc, className, getClass(), source, classBytes);
 	}
@@ -171,6 +134,12 @@ public class JavaBridge {
 		        throw new JavaCompilation(e.getMessage(), e);
 		    }
 		}
+	}
+
+	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException {
+		List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+		JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), null, commandline);
+		return javaCompiler.load(in);
 	}
 
 	public <T> void compileJava(ISourceLocation loc, String className, Class<?> parent, String source, OutputStream classBytes) {
