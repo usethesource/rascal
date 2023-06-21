@@ -625,12 +625,10 @@ final class ClassLoaderImpl extends ClassLoader {
          }
 
          while ((jarEntry = jarIn.getNextJarEntry()) != null) {
-            String className = jarEntry.getName();
-            System.err.println("loading className: " + className);
-            long size = (int) jarEntry.getCompressedSize();
-            System.err.println("size: " + size);
             if (!jarEntry.isDirectory()) {
+               var className = jarEntry.getName();
                var file = new JavaFileObjectImpl(className, JavaFileObject.Kind.CLASS);
+               
                try (var fo = file.openOutputStream()) {
                   fo.write(Prelude.consumeInputStream(jarIn));
                }
