@@ -227,11 +227,34 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
 
-        String name = getParserGenerator().getParserMethodName(startSort);
+        String name = getParserMethodName(startSort);
+        if (name == null) {
+            name = generator.getParserMethodName(startSort);
+        }
 
         return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
     
+    protected static String getParserMethodName(IConstructor symbol) {
+		// we use a fast non-synchronized path for simple cases; 
+		// this is to prevent locking the evaluator in IDE contexts
+		// where many calls into the evaluator/parser are fired in rapid
+		// succession.
+
+		switch (symbol.getName()) {
+			case "start":
+				return "start__" + getParserMethodName(SymbolAdapter.getStart(symbol));
+			case "layouts":
+				return "layouts_" + SymbolAdapter.getName(symbol);
+			case "sort":
+			case "lex":
+			case "keywords":
+				return SymbolAdapter.getName(symbol);
+		}
+
+        return null;
+    }
+
     @Override
     public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
@@ -533,7 +556,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 throw fail(parameters);
             }
 
-            String name = generator.get().getParserMethodName(startSort);
+            String name = getParserMethodName(startSort);
+            if (name == null) {
+                name = generator.get().getParserMethodName(startSort);
+            }
 
             if (firstAmbiguity) {
                 if (parameters[1].getType().isString()) {
