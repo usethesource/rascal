@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.Set;
@@ -46,7 +47,9 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarInputStreamFileTree;
 
 /**
  * Compile a String or other {@link CharSequence}, returning a Java
@@ -269,6 +272,10 @@ public class JavaCompiler<T> {
       catch (IOException e) {
          throw new JavaCompilerException(fileMap.keySet(), e, diagnostics);
       }
+   }
+
+   public Class<?> load(InputStream file) throws IOException, ClassNotFoundException {
+      return classLoader.inputClassesFromJar(file);
    }
 
    /**
@@ -605,6 +612,35 @@ final class ClassLoaderImpl extends ClassLoader {
             target.closeEntry();
          }
       }  
+   }
+
+   public Class<?> inputClassesFromJar(InputStream in) throws IOException, ClassNotFoundException {
+      try (JarInputStream jarIn = new JarInputStream(in)) {
+         Manifest mf = jarIn.getManifest();
+         String mainClass = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
+         JarEntry jarEntry;
+
+         if (mainClass == null) {
+            throw new IOException("missing Main-Class in jar manifest");
+         }
+
+         while ((jarEntry = jarIn.getNextJarEntry()) != null) {
+            String className = jarEntry.getName();
+            System.err.println("loading className: " + className);
+            long size = (int) jarEntry.getCompressedSize();
+            System.err.println("size: " + size);
+            if (!jarEntry.isDirectory()) {
+               var file = new JavaFileObjectImpl(className, JavaFileObject.Kind.CLASS);
+               try (var fo = file.openOutputStream()) {
+                  fo.write(Prelude.consumeInputStream(jarIn));
+               }
+
+               add(className, file);
+            }
+         }
+
+         return loadClass(mainClass);
+      }
    }
 
    /**
