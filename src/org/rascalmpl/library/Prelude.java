@@ -2350,7 +2350,7 @@ public class Prelude {
 		try {
 			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
 		}
-		catch (IOException e) {
+		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}

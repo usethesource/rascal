@@ -263,7 +263,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     @Override
-    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects,IBool firstAmbiguity, ISet filters) throws IOException {
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects,IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
@@ -275,11 +275,9 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
-        
-
         final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
             = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                .__getJavaBridge().loadClass(saveLocation);
+                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
           
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
@@ -290,7 +288,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             this, 
             caller, 
             parser, 
-            allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+            allowAmbiguity, hasSideEffects, firstAmbiguity, filters)
+        );
     }
 
     /**
