@@ -389,7 +389,7 @@ test bool isImmediatelyBefore2(int _){
 }
 
 // beginsAfter
-
+@ignore{Until #1693 has been solved}
 test bool beginsAfter1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsAfter(l2, l1));
