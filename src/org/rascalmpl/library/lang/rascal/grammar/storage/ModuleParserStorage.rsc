@@ -53,6 +53,17 @@ import IO;
 Use ((loadParsers)) to retrieve the parsers stored by this function. In particular the
 Rascal interpreter will use this instead of spinning up its own parser generator.
 }
+@benefits{
+* the single pathConfig parameter makes it easy to wire this function into Maven scripts (see generate-sources maven plugin)
+* time spent here generating parsers, once, does not have to be spent while running IDE plugins, many times.
+}
+@pitfalls{
+* this compiler has very weak error reporting. it just crashes with stacktraces in case of trouble.
+* for large projects running this can take a few minutes; it is slower than importing the same modules in the interpreter.
+* this compiler assumes the grammars are all correct and can be used to parse the concrete syntax fragments in each respective module.
+* this compiler may have slight differences in semantics with the way the interpreter composes grammars for modules, since
+it is implemented differently. However, no such issues are currently known.
+}
 void storeParsersForModules(PathConfig pcfg) {
     storeParsersForModules({*find(src, "rsc") | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
 }
@@ -71,8 +82,13 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
     // this has to be done from scratch due to different ways combining layout definitions
     // with import and extend. Each main module has a different grammar because of this.
     def = modules2definition(main, modules);
+
+    // here the layout semantics comes really into action
     gr = fuse(def);
+
+    // find a file in the target folder to write to
     target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
+
     println("Generating parser for <main> at <target>");
     if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
         storeParsers(rt, target);
