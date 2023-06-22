@@ -523,7 +523,7 @@ For any concrete grammar, a.k.a. reified syntax type, `g` it holds that:
 * after `storeParsers(g, file);`
 * then `g = loadParsers(file);`
 * and given `h = parsers(g);`
-* then for all valid `nt`, `input` and `origin`: `g(nt, input, origin) == g(nt, input, origin)`
+* then for all valid `nt`, `input` and `origin`: `g(nt, input, origin) == h(nt, input, origin)`
 
 In other words, a loaded parser function behaves exactly as a freshly generated parser
 for the same grammar, if (and only if) it was stored for the same grammar value.
