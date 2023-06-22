@@ -225,6 +225,4 @@ public class QuickCheck {
             super(functionName, "test did not throw '" + expected + "' exception", actualTypes, tpbindings, values);
         }
     }
-
-
 }
