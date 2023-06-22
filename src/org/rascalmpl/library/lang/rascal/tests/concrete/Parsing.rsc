@@ -62,3 +62,9 @@ test bool parsingWithAManualGrammar()
   && Tree t := parse(gr, "hello")
   && "<t>" == "hello";
   
+test bool saveAndRestoreParser() {
+  storeParsers(#start[A], |test-temp:///parsers.jar|);
+  p = loadParsers(|test-temp:///parsers.jar|);
+
+  return p(type(\start(sort("A")), ()), "a", |origin:///|) == parse(#start[A], "a", |origin:///|);
+}

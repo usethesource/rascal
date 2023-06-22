@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -250,6 +251,42 @@ public class ParserGenerator {
 			monitor.jobEnd(JOB, true);
 		}
 	}
+
+	/**
+   * Generate a parser from a Rascal grammar and write it to disk
+   * 
+   * @param monitor a progress monitor; this method will contribute 100 work units
+   * @param loc     a location for error reporting
+   * @param name    the name of the parser for use in code generation and for later reference
+   * @param grammar a grammar
+   * @return A parser class, ready for instantiation
+	 * @throws IOException
+   */
+  public void writeNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition, ISourceLocation target) throws IOException {
+	String JOB = "Generating parser:" + name;
+	monitor.jobStart(JOB, 100, 60);
+
+	try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
+		monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
+		IString classString;
+		IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
+
+		synchronized (evaluator) {
+			classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
+		}
+		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
+		monitor.jobStep(JOB,"Compiling generated java code: " + name, 30);
+		
+		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
+	} catch (ClassCastException e) {
+		throw new ImplementationError("parser generator:" + e.getMessage(), e);
+	} catch (Throw e) {
+		throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+	} finally {
+		monitor.jobEnd(JOB, true);
+	}
+}
 
 	public IString createHole(IConstructor part, IInteger size) {
 		synchronized (evaluator) {

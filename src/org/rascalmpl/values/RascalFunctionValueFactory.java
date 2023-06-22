@@ -114,6 +114,16 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     protected Class<IGTD<IConstructor, ITree, ISourceLocation>> getParserClass(IMap grammar) {
         return parserCache.get(grammar);
     }
+
+    protected void writeParserClass(IMap grammar, ISourceLocation target) throws IOException {
+        getParserGenerator().writeNewParser(
+            new NullRascalMonitor(), 
+            URIUtil.rootLocation("parser-generator"), 
+            "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), 
+            grammar, 
+            target
+        );
+    }
     
     @Override
     public IFunction function(io.usethesource.vallang.type.Type functionType, BiFunction<IValue[], Map<String, IValue>, IValue> func) {
@@ -217,11 +227,34 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         AbstractAST current = ctx.getCurrentAST();
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
 
-        String name = getParserGenerator().getParserMethodName(startSort);
+        String name = getParserMethodName(startSort);
+        if (name == null) {
+            name = generator.getParserMethodName(startSort);
+        }
 
         return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
     
+    protected static String getParserMethodName(IConstructor symbol) {
+		// we use a fast non-synchronized path for simple cases; 
+		// this is to prevent locking the evaluator in IDE contexts
+		// where many calls into the evaluator/parser are fired in rapid
+		// succession.
+
+		switch (symbol.getName()) {
+			case "start":
+				return "start__" + getParserMethodName(SymbolAdapter.getStart(symbol));
+			case "layouts":
+				return "layouts_" + SymbolAdapter.getName(symbol);
+			case "sort":
+			case "lex":
+			case "keywords":
+				return SymbolAdapter.getName(symbol);
+		}
+
+        return null;
+    }
+
     @Override
     public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
@@ -244,6 +277,42 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
         
         return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+    }
+
+    @Override
+    public void storeParsers(IValue reifiedGrammar, ISourceLocation saveLocation) throws IOException {
+        IMap grammar = (IMap) ((IConstructor) reifiedGrammar).get("definitions");
+        getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, saveLocation);
+    }
+
+    @Override
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects,IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        // here the return type is parametrized and instantiated when the parser function is called with the
+        // given start non-terminal:
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+        
+        Type functionType = tf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+          
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                
+        return function(
+            functionType, 
+            new ParametrizedParseFunction(() -> getParserGenerator(), 
+            this, 
+            caller, 
+            parser, 
+            allowAmbiguity, hasSideEffects, firstAmbiguity, filters)
+        );
     }
 
     /**
@@ -487,7 +556,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 throw fail(parameters);
             }
 
-            String name = generator.get().getParserMethodName(startSort);
+            String name = getParserMethodName(startSort);
+            if (name == null) {
+                name = generator.get().getParserMethodName(startSort);
+            }
 
             if (firstAmbiguity) {
                 if (parameters[1].getType().isString()) {

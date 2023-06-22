@@ -36,7 +36,7 @@ public set[&T]  carrier (rel[&T,&T] R)
   return R<0> + R<1>;
 }
 
-public set[&T]  carrier (rel[&T,&T,&T] R)
+public set[&T]  carrier (rel[&T, &T, &T] R)
 {
   return (R<0> + R<1>) + R<2>;
 }

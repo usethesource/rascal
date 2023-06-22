@@ -1149,6 +1149,16 @@ public class Prelude {
 		}
 		return res.toString();
 	}
+
+	public static byte[] consumeInputStream(InputStream in) throws IOException {
+		ByteArrayOutputStream res = new ByteArrayOutputStream();
+		byte[] chunk = new byte[FILE_BUFFER_SIZE];
+		int read;
+		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
+		    res.write(chunk, 0, read);
+		}
+		return res.toByteArray();
+	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
         try {
@@ -2326,6 +2336,24 @@ public class Prelude {
 	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
     }
+
+	public void storeParsers(IValue start, ISourceLocation saveLocation) {
+		try {
+			rascalValues.storeParsers(start, saveLocation);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+		try {
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
