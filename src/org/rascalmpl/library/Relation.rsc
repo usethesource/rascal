@@ -33,7 +33,7 @@ carrier({<1,10,100,1000>, <2,20,200,2000>});
 ```}
 public set[&T]  carrier (rel[&T from, &T to] R)
 {
-  return R.from + R.to;
+  return R<0> + R<1>;
 }
 
 public set[&T]  carrier (rel[&T,&T,&T] R)
