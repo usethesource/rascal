@@ -42,5 +42,39 @@ module lang::rascal::grammar::storage::ModuleParserStorage
 import lang::rascal::grammar::definition::Modules;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
+import util::FileSystem;
+import Location;
+import ParseTree;
+import Grammar;
+import IO;
 
+@synopsis{For all modules in pcfg.srcs this will produce a `.parsers` stored parser capable of parsing concrete syntax fragment in said module.}
+@description{
+Use ((loadParsers)) to retrieve the parsers stored by this function. In particular the
+Rascal interpreter will use this instead of spinning up its own parser generator.
+}
+void storeParsersForModules(PathConfig pcfg) {
+    storeParsersForModules({*find(src, "rsc") | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
+}
+    
+void storeParsersForModules(set[loc] moduleFiles, PathConfig pcfg) {
+    storeParsersForModules({parseModule(m) | m <- moduleFiles, bprintln("Loading <m>")}, pcfg);
+}
 
+void storeParsersForModules(set[Module] modules, PathConfig pcfg) {
+    for (m <- modules) {
+        storeParserForModule("<m.header.name>", m@\loc, modules, pcfg);
+    }
+}
+
+void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pcfg) {
+    // this has to be done from scratch due to different ways combining layout definitions
+    // with import and extend. Each main module has a different grammar because of this.
+    def = modules2definition(main, modules);
+    gr = fuse(def);
+    target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
+    println("Generating parser for <main> at <target>");
+    if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
+        storeParsers(rt, target);
+    }
+}
