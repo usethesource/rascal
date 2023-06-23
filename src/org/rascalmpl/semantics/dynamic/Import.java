@@ -86,6 +86,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class Import {
 	
@@ -394,7 +395,7 @@ private static boolean isDeprecated(Module preModule){
     current.setSyntaxDefined(current.definesSyntax() || module.definesSyntax());
   }
   
-  public static ITree parseModuleAndFragments(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval){
+  public static ITree parseModuleAndFragments(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval) {
       eval.__setInterrupt(false);
       IActionExecutor<ITree> actions = new NoActionExecutor();
 
@@ -454,24 +455,38 @@ private static boolean isDeprecated(Module preModule){
 
       // parse the embedded concrete syntax fragments of the current module
       ITree result = tree;
-      if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
-          RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-          IFunction parsers = null;
-          
-          if (env.getBootstrap()) {
-             parsers = vf.bootstrapParsers();
-          }
-          else {
-            IConstructor dummy = TreeAdapter.getType(tree); // I just need _any_ ok non-terminal
-            IMap syntaxDefinition = env.getSyntaxDefinition();
-            IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
-            IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-            parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
-          }
-      
-          result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
-      }
+      try {
+        if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
+            RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
+            URIResolverRegistry reg = URIResolverRegistry.getInstance();
+            ISourceLocation parserCacheFile = URIUtil.changeExtension(env.getLocation(), "parsers");
 
+            IFunction parsers = null;
+            
+            if (env.getBootstrap()) {
+              // no need to generste a parser for the Rascal language itself
+              parsers = vf.bootstrapParsers();
+            }
+            else if (reg.exists(parserCacheFile)) {
+              // if we cached a ModuleFile.parsers file, we will use the parser from that (typically after deployment time)
+              parsers = vf.loadParsers(parserCacheFile, vf.bool(false),vf.bool(false),vf.bool(false), vf.set());
+            }
+            else {
+              // otherwise we have to generate a fresh parser for this module now
+              IConstructor dummy = TreeAdapter.getType(tree); // I just need _any_ ok non-terminal
+              IMap syntaxDefinition = env.getSyntaxDefinition();
+              IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
+              IConstructor reifiedType = vf.reifiedType(dummy, grammar);
+              parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+            }
+        
+            result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
+        }
+      }
+      catch (URISyntaxException | ClassNotFoundException | IOException e) {
+        eval.warning("reusing parsers failed during module import: " + e.getMessage(), env.getLocation());
+      }
+      
       return result;
   } 
   
