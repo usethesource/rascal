@@ -64,6 +64,43 @@ Rascal interpreter will use this instead of spinning up its own parser generator
 * this compiler may have slight differences in semantics with the way the interpreter composes grammars for modules, since
 it is implemented differently. However, no such issues are currently known.
 }
+@examples{
+Typically you would call the generate-sources MOJO from the rascal-maven-plugin, in `pom.xml`, like so:
+
+```xml
+<plugin>
+    <groupId>org.rascalmpl</groupId>
+    <artifactId>rascal-maven-plugin</artifactId>
+    <version>0.14.6</version>
+    <configuration>
+        <mainModule>YourMainModule</mainModule>
+    </configuration>
+    <executions>
+        <execution>
+            <id>it-compile</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+                <goal>generate-sources</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+And you'd write this module to make it work:
+
+```rascal
+module YourMainModule
+
+import util::Reflective;
+import lang::rascal::grammar::storage::ModuleParserStorage;
+
+int main(list[str] args) {
+    pcfg = getProjectPathConfig(|project://yourProject|);
+    storeParsersForModules(pcfg);
+}
+```
+}
 void storeParsersForModules(PathConfig pcfg) {
     storeParsersForModules({*find(src, "rsc") | src <- pcfg.srcs, bprintln("Crawling <src>")}, pcfg);
 }
