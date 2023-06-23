@@ -509,31 +509,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				String ext = newStringValue;
 				
-				boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
-				if (endsWithSlash) {
-					path = path.substring(0, path.length() - 1);
-				}
-
-				if (path.length() > 1) {
-					int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
-					int index = path.substring(slashIndex).lastIndexOf('.');
-
-					if (index == -1 && !ext.isEmpty()) {
-						path = path + (!ext.startsWith(".") ? "." : "") + ext;
-					}
-					else if (!ext.isEmpty()) {
-						path = path.substring(0, slashIndex + index) + (!ext.startsWith(".") ? "." : "") + ext;
-					}
-					else if (index != -1) {
-						path = path.substring(0, slashIndex + index);
-					}
-
-					if (endsWithSlash) {
-						path = path + URIUtil.URI_PATH_SEPARATOR;
-					}
-				}
+				path = URIUtil.changeExtension(loc, newStringValue).getPath();
 				uriPartChanged = true;
 			}
 			else if (name.equals("top")) {
