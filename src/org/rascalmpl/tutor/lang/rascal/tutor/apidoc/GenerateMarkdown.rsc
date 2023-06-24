@@ -100,8 +100,10 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("import <replaceAll(d.moduleName, "/", "::")>;"),
         out("```"),
         Output::empty(),
-        out("#### Source code"),
-        out("\<<((pcfg.sources + "blob") + "main") + relativize(pcfg.currentRoot, d.src).path>\>"),
+        *[out("#### Source code"),
+            out("\<<(pcfg.sources + relativize(pcfg.packageRoot, pcfg.currentRoot).path) + relativize(pcfg.currentRoot, d.src).path>\>"),
+            Output::empty() | pcfg.sources?, pcfg.packageRoot?
+        ],
         *[
             out("#### Dependencies"),
             out("```rascal"),
