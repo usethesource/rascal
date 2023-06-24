@@ -8,8 +8,8 @@ This means that the first syntax highlighting sometimes can only appear
 after more than 20s after loading an extension (VScode) or plugin (Eclipse).
 
 This "compiler" takes any number of Rascal modules and extracts a grammar
-for each of them, in order to use the ((Library::ParseTree)) module's
-functions ((saveParsers)) on them respectively to store each parser
+for each of them, in order to use the ((ParseTree)) module's
+functions ((storeParsers)) on them respectively to store each parser
 in a `.parsers` file. 
 
 After that the Rascal interpreter has a special mode for using ((loadParsers))
