@@ -196,7 +196,7 @@ void generatePackageIndex(PathConfig pcfg) {
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<pcfg.packageName>/License.md)<}>
     '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<pcfg.packageName>/Citation.md)<}>
     '<if (pcfg.funding?) {>* Follow the [money](../../Packages/<pcfg.packageName>/Funding.md) sources.<}>
-    '<if (dependencies != []) {> * Check the [dependencies](../../Packages/<pcfg.packageName>/Dependencies.md)<}>
+    '<if (dependencies != []) {>* Check the [dependencies](../../Packages/<pcfg.packageName>/Dependencies.md)<}>
     '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
     '<if (pcfg.issues?) {>* [Issue tracker](<"<pcfg.issues>"[1..-1]>)<}>
     '
