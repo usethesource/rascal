@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.18.2</rascal-maven.version>
+        <rascal-maven.version>0.19.0-RC1</rascal-maven.version>
     </properties>
 
 
@@ -125,7 +125,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <errorsAsWarnings>true</errorsAsWarnings>
+                    <errorsAsWarnings>false</errorsAsWarnings>
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
