@@ -3,6 +3,7 @@ module lang::rascal::tutor::apidoc::GenerateMarkdown
 import List;
 import String;
 import util::Reflective;
+import Location;
 import Message;
 
 import lang::rascal::tutor::apidoc::DeclarationInfo; 
@@ -99,6 +100,8 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("import <replaceAll(d.moduleName, "/", "::")>;"),
         out("```"),
         Output::empty(),
+        out("#### Source code"),
+        out("\<<((pcfg.sources + "blob") + "main") + relativize(pcfg.currentRoot, d.src).path>\>"),
         *[
             out("#### Dependencies"),
             out("```rascal"),
@@ -114,12 +117,11 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
 list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
-        Output::empty(),
-        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
-        Output::empty(),
         out("```rascal"),
         *([out(defLine), empty() | ov <- overloads, str defLine <- split("\n", ov)][..-1]),
-        out("```")
+        out("```"),
+        Output::empty(),
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)        
     ];   
 
 list[Output] declInfo2Doc(str parent, d:testInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
