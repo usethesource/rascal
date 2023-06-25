@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.19.0-RC1</rascal-maven.version>
+        <rascal-maven.version>0.19.0</rascal-maven.version>
     </properties>
 
 
@@ -131,6 +131,9 @@
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
                     </srcs>
                     <sourceLookup>|std:///|</sourceLookup>
+                    <funding>${project.basedir}/FUNDING</funding>
+                    <citation>${project.basedir}/CITATION.md</citation>
+                    <issues>|https://github.com/usethesource/rascal/issues|</issues>
                     <srcIgnores>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
