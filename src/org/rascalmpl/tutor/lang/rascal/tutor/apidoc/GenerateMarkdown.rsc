@@ -101,8 +101,8 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         out("```"),
         Output::empty(),
         *[out("#### Source code"),
-          out("<(pcfg.sources + relativize(pcfg.packageRoot, pcfg.currentRoot).path) + relativize(pcfg.currentRoot, d.src).path>"),
-          Output::empty() | pcfg.sources?, pcfg.packageRoot?
+          out("<(pcfg.sources + relativize(pcfg.packageRoot, pcfg.currentRoot).path) + relativize(pcfg.currentRoot, d.src).path>"[1..-1]),
+          Output::empty() | pcfg.isPackageCourse, pcfg.sources?, pcfg.packageRoot?
         ],
         *[
             out("#### Dependencies"),
