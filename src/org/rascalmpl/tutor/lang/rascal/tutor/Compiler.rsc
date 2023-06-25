@@ -428,7 +428,7 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
 
   if (!exists(targetFile) || lastModified(m) > lastModified(targetFile)) {
     println("compiling <m> [Normal Markdown]");
-    list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, order, sidebar_position=sidebar_position) + [Output::empty()];
+    list[Output] output = compileMarkdown(m, pcfg[currentFile=m], exec, ind, sidebar_position=sidebar_position) + [Output::empty()];
    
     writeFile(targetFile,
         "<for (line(x) <- output) {><x>
@@ -768,6 +768,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
 
   errorsDetected = false;
   lineOffsetHere = 0;
+  list[Output] result = [];
+  
   result = OUT:for (str line <- block) {
     if (/^\s*\/\/<comment:.*>$/ := line) { // comment line
       append OUT : out("```");
@@ -778,11 +780,11 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
     append out("<exec.prompt()><line>");
     
     output = exec.eval(line);
-    result = output["text/plain"]?"";
-    stderr = output["application/rascal+stderr"]?"";
-    stdout = output["application/rascal+stdout"]?"";
-    shot   = output["application/rascal+screenshot"]?"";
-    png    = output["image/png"]?"";
+    str result = output["text/plain"]?"";
+    str stderr = output["application/rascal+stderr"]?"";
+    str stdout = output["application/rascal+stdout"]?"";
+    str shot   = output["application/rascal+screenshot"]?"";
+    str png    = output["image/png"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
       for (allowErrors, str errLine <- split("\n", stderr)) {

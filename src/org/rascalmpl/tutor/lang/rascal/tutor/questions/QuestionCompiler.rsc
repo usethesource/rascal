@@ -13,9 +13,9 @@ import util::Eval;
 import DateTime;
 import ParseTree;
 
-import lang::rascal::tutor::Questions; 
-import lang::rascal::tutor::ParseQuestions;
-import lang::rascal::tutor::ValueGenerator;
+import lang::rascal::tutor::questions::Questions; 
+import lang::rascal::tutor::questions::ParseQuestions;
+import lang::rascal::tutor::questions::ValueGenerator;
  
 int countGenAndUse((Cmd) `<EvalCmd c>`){
     n = 0;
@@ -196,7 +196,7 @@ str removeComments(Intro? intro){
 }
 
 public str compileQuestions(loc qloc, PathConfig pcfg) {
-    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin,courses=pcfg.courses);
+    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin);
     return process(qloc, pcfg);
 }
 

@@ -33,7 +33,7 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
         // filter the tests
         tests = [t | t:testInfo() <- dinfo];
 
-        isDemo = DeclarationInfo i <- dinfo && i is moduleInfo && i.demo;
+        isDemo = DeclarationInfo k <- dinfo && k is moduleInfo && k.demo;
 
         // remove the tests
         dinfo -= tests;

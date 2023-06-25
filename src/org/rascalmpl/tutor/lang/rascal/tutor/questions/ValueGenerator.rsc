@@ -7,7 +7,7 @@ import List;
 import Set;
 import String;
 import DateTime;
-import lang::rascal::tutor::Questions;
+import lang::rascal::tutor::questions::Questions;
 import Type;
 
 lexical IntCon = [0-9]+ !>> [0-9];
