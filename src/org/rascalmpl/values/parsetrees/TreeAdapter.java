@@ -25,7 +25,6 @@ import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
@@ -830,7 +829,7 @@ public class TreeAdapter {
 			unparse(tree, highlight, stream);
 			return stream.toString();
 		}
-		catch (IOLimitReachedException e) {
+		catch (/*IOLimitReachedException*/ RuntimeException e) {
 			return stream.toString();
 		}
 		catch (IOException e) {
