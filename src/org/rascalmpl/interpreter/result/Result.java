@@ -33,7 +33,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.IValue;
@@ -129,7 +128,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		try {
 			stw.write(getValue(), lros);
 		}
-		catch (IOLimitReachedException iolrex){
+		catch (/*IOLimitReachedException*/ RuntimeException iolrex){
 			// This is fine, ignore.
 		}
 		catch (IOException ioex) {

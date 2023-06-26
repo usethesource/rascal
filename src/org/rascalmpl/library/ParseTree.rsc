@@ -568,6 +568,7 @@ Then in a next run, we load the parser and use it:
 import ParseTree;
 p = loadParsers(|test-temp:///E.parsers|);
 p(type(sort("E"), ()), "e+e", |src:///|);
+```
 }
 @benefits{
 * loaded parsers can be used immediately without the need of loadig and executing a parser generator.

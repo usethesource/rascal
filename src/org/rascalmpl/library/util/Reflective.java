@@ -182,7 +182,7 @@ public class Reflective {
 	      try (Writer wrt = new LimitedWriter(out, CHAR_LIMIT)) {
 	    	  singleLinePrettyPrinter.write(value, wrt);
 	      }
-	      catch (IOLimitReachedException e) {
+	      catch (/*IOLimitReachedException*/ RuntimeException e) {
 	          // ignore since this is what we wanted
 	      }
 	    }
