@@ -74,7 +74,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -915,7 +914,7 @@ public class Prelude {
 		try {
 		    w.write(arg, output);
 		} 
-	    catch (IOLimitReachedException e) {
+	    catch (/*IOLimitReachedException*/ RuntimeException e) {
 	        // ignore, it's what we wanted
 	    }
 		catch (IOException e) {

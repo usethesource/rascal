@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
@@ -233,15 +232,19 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     indentedPrettyPrinter.write(value, wrt);
                 }
-                catch (IOLimitReachedException e) {
+                catch (/*IOLimitReachedException*/ RuntimeException e) {
                     // ignore since this is what we wanted
+                    // if we catch IOLimitReachedException we get an IllegalArgument exception instead
+                    // "Self-suppression not permitted"
                 }
                 w.write("\n---\n");
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     ((IString) value).write(wrt);
                 }
-                catch (IOLimitReachedException e) {
+                catch (/*IOLimitReachedException*/ RuntimeException e) {
                     // ignore since this is what we wanted
+                    // if we catch IOLimitReachedException we get an IllegalArgument exception instead
+                    // "Self-suppression not permitted"
                 }
                 w.write("\n---");
             });
@@ -252,8 +255,10 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     indentedPrettyPrinter.write(value, wrt);
                 }
-                catch (IOLimitReachedException e) {
+                catch (/*IOLimitReachedException*/ RuntimeException e) {
                     // ignore since this is what we wanted
+                    // if we catch IOLimitReachedException we get an IllegalArgument exception instead
+                    // "Self-suppression not permitted"
                 }
             });
         }

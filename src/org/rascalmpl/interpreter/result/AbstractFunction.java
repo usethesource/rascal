@@ -37,7 +37,6 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
@@ -265,11 +264,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			new StandardTextWriter(true, 2).write(value, w);
 			return w.toString();
 		} 
-		catch (IOLimitReachedException e) {
-			return w.toString();
-		}
 		catch (IOException e) {
 			return "...";
+		}
+		catch (/*IOLimitReachedException*/ RuntimeException e) {
+			return w.toString();
 		}
 	}
 	protected void printHeader(StringBuilder b, IValue[] actuals) {
