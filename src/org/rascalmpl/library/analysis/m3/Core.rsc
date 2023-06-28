@@ -205,7 +205,7 @@ list[Message] checkM3(M3 model) {
   return result;
 }
 
-test bool testM3ModelConsistency(M3 m) {
+bool testM3ModelConsistency(M3 m) {
     decls = m.declarations<name>;
 
     // nothing that is contained here does not not have a declaration, except the outermost translationUnit
