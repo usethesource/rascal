@@ -31,7 +31,7 @@ For environment variables in `envVars` the same treatment is given to convert va
 @javaClass{org.rascalmpl.library.util.ShellExec}
 java PID createProcess(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] envVars = ());
 
-@synopis{start, run and kill an external process returning its output as a string.}
+@synopsis{start, run and kill an external process returning its output as a string.}
 @deprecrated{Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.}
 str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
@@ -40,7 +40,7 @@ str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[
    return result;
 }
 
-@synopis{start, run and kill an external process returning its output as a string.}
+@synopsis{start, run and kill an external process returning its output as a string.}
 str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
@@ -58,7 +58,7 @@ tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=
     return <result, exitCode(pid)>;
 }
 
-@synopis{start, run and kill an external process returning its output as a string with an exit code.}
+@synopsis{start, run and kill an external process returning its output as a string with an exit code.}
 tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);
