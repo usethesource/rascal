@@ -587,6 +587,9 @@ public class PathConfig {
 
         @Override
         public ISourceLocation resolve(ISourceLocation input) throws IOException {
+            if (!libraryName.equals(input.getAuthority())) {
+                return input;
+            }
             return URIUtil.getChildLocation(jarLoc, input.getPath());
         }
 
