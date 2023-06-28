@@ -521,11 +521,14 @@ public class PathConfig {
                     
                     if (jar.getScheme().equals("lib")) {
                         String libraryName = jar.getAuthority();
+                        if (libraryName.equals("rascal")) {
+                            // ignore ourselves
+                            continue;
+                        }
                         ISourceLocation libraryLoc = mavenLibs.get(libraryName);
 
                         if (libraryLoc != null) {
                             jarLoc = libraryLoc;
-                            reg.registerLogical(new LibResolverForMavenDependencies(libraryName, jarLoc));
                         }
                     }
 
