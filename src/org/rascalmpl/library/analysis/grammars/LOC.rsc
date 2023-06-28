@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@synopis{Generic utilities to compute (S)LOC metrics based on grammars}
+@synopsis{Generic utilities to compute (S)LOC metrics based on grammars}
 @description{
 We use this definition to separate lines from: <http://en.wikipedia.org/wiki/Newline>:
  
