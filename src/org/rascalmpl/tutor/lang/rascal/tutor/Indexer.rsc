@@ -48,7 +48,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
 
     // First we handle the root concept
     {
-      <capitalize(src.file), "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/index.md">
+      <capitalize(src.file), "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/index.md">,
+      <"course:<capitalize(src.file)>", "<if (isPackageCourse) {>/Packages/<packageName><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/index.md">
     }
     +
     // Then we handle the cases where the concept name is the same as the folder it is nested in:
