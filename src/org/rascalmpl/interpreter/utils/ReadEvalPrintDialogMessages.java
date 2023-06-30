@@ -145,7 +145,7 @@ public class ReadEvalPrintDialogMessages {
 	
 	public static void parseOrStaticOrThrowMessage(PrintWriter out, RuntimeException e, StandardTextWriter prettyPrinter) {
 		if (e instanceof ParseError) {
-			parseErrorMessage(out, "unkown", "unkown", (ParseError)e, prettyPrinter);
+			parseErrorMessage(out, "unknown", "unknown", (ParseError)e, prettyPrinter);
 		}
 		else if (e instanceof StaticError)  {
 			staticErrorMessage(out, (StaticError)e, prettyPrinter);
