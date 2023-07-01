@@ -32,6 +32,11 @@ str fragment(loc root, loc concept) = fragment(root, concept.parent + "index.md"
 
 str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
 str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
+ 
+@synopsis{capitalizes and removes hyphens}
+default str package(str input) = input;
+str package(str input:/^[a-z].*$/) = package(capitalize(input));
+str package(/^<prefix:[a-zA-Z\_0-9]*>\-<rest:.*>$/) = package("<prefix><capitalize(rest)>");
 
 str removeSpaces(/^<prefix:.*><spaces:\s+><postfix:.*>$/) 
   = removeSpaces("<prefix><capitalize(postfix)>");

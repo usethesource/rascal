@@ -114,10 +114,10 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
       "
     );
   }
-}
+} 
 
 void generatePackageIndex(PathConfig pcfg) {
-  targetFile = pcfg.bin + "Packages" + pcfg.packageName + "index.md";
+  targetFile = pcfg.bin + "Packages" + package(pcfg.packageName) + "index.md";
 
   if (pcfg.license?) {
     writeFile(targetFile.parent + "License.md", 
@@ -154,7 +154,7 @@ void generatePackageIndex(PathConfig pcfg) {
       'Open-source software is [citeable](https://www.software.ac.uk/how-cite-software) output of research and development efforts.
       'Citing software **recognizes** the associated investment and the quality of the result.
       'If you use open-source software, it is becoming standard practise to recognize the work as
-      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<pcfg.packageName>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
+      'its authors have indicated below. In turn their effort might be **awarded** with renewed <if (pcfg.funding?) {>[funding](../../Packages/<package(pcfg.packageName)>/Funding.md)<} else {>funding<}> for <pcfg.packageName>
       'based on the evidence of your appreciation, and it may help their individual career perspectives.
       ':::
       '
@@ -190,13 +190,13 @@ void generatePackageIndex(PathConfig pcfg) {
     '
     'This is the documentation for version <pcfg.packageVersion> of <pcfg.packageName>.
     '
-    '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<pcfg.packageName>/API)<}>
-    '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<pcfg.packageName>/<capitalize(src.file)>)
+    '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<package(pcfg.packageName)>/API)<}>
+    '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<package(pcfg.packageName)>/<capitalize(src.file)>)
     '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
-    '<if (pcfg.license?) {>* [Open-source license](../../Packages/<pcfg.packageName>/License.md)<}>
-    '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<pcfg.packageName>/Citation.md)<}>
-    '<if (pcfg.funding?) {>* Follow the [money](../../Packages/<pcfg.packageName>/Funding.md) sources.<}>
-    '<if (dependencies != []) {>* Check the [dependencies](../../Packages/<pcfg.packageName>/Dependencies.md)<}>
+    '<if (pcfg.license?) {>* [Open-source license](../../Packages/<package(pcfg.packageName)>/License.md)<}>
+    '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<package(pcfg.packageName)>/Citation.md)<}>
+    '<if (pcfg.funding?) {>* Follow the [money](../../Packages/<package(pcfg.packageName)>/Funding.md) sources.<}>
+    '<if (dependencies != []) {>* Check the [dependencies](../../Packages/<package(pcfg.packageName)>/Dependencies.md)<}>
     '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
     '<if (pcfg.issues?) {>* [Issue tracker](<"<pcfg.issues>"[1..-1]>)<}>
     '
@@ -252,7 +252,7 @@ list[Message] compile(loc src, PathConfig pcfg, CommandExecutor exec, Index ind,
     else if (src.extension in {"png","jpg","svg","jpeg", "html", "js"}) {
         try {  
           println("copying   <src> [Asset]");
-          copy(src, pcfg.bin + (pcfg.isPackageCourse ? "assets/Packages/<pcfg.packageName>" : "assets") + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
+          copy(src, pcfg.bin + (pcfg.isPackageCourse ? "assets/Packages/<package(pcfg.packageName)>" : "assets") + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, src).path);
           
           return [];
         }
@@ -288,7 +288,7 @@ list[Message] compileDirectory(loc d, PathConfig pcfg, CommandExecutor exec, Ind
       j.file = (j.file == j.parent[extension="md"].file) ? "index.md" : j.file;
 
       targetFile = pcfg.bin 
-        + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, j)[extension="md"].path;
       
@@ -345,7 +345,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
     title = (d == pcfg.currentRoot && d.file in {"src","rascal","api"}) ? "API" : d.file;
 
     targetFile = pcfg.bin 
-      + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+      + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
       + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
       + relativize(pcfg.currentRoot, d).path
       + "index.md"
@@ -361,7 +361,7 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
       '<}>---
       '
       '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal", !(e in pcfg.ignores)) {>
-      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<pcfg.packageName>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
+      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<package(pcfg.packageName)>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
@@ -371,13 +371,13 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
 @synopsis{Translates Rascal source files to docusaurus markdown.} 
 list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, Index ind) {
   loc targetFile = pcfg.bin 
-        + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m)[extension="md"].path;
   errors = [];
 
   if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {
-    str parentSlug = (|path:///| + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+    str parentSlug = (|path:///| + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m).parent.path).path;
 
@@ -420,7 +420,7 @@ list[Message] compileMarkdownFile(loc m, PathConfig pcfg, CommandExecutor exec, 
   m.file = (m.file == m.parent[extension="md"].file) ? "index.md" : m.file;
 
   loc targetFile = pcfg.bin 
-        + (pcfg.isPackageCourse ? "Packages/<pcfg.packageName>" : "")
+        + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m)[extension="md"].path;
 
@@ -752,7 +752,7 @@ list[Output] compileMarkdown([str first:/^\s*#+\s+<title:.*>$/, *str emptySectio
   = [] when !(/\S/ <- emptySection);
 
 @synopsis{this is when we have processed all the input lines}
-list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _, list[str] _) = [];
+list[Output] compileMarkdown([], int _/*line*/, int _/*offset*/, PathConfig _, CommandExecutor _, Index _, list[str] _, int sidebar_position=-1) = [];
 
 @synopsis{all other lines are simply copied to the output stream}
 default list[Output] compileMarkdown([str head, *str tail], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) 
