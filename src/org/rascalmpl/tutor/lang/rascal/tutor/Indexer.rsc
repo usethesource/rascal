@@ -192,7 +192,7 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
 private bool isConceptFile(loc f) = f.extension in {"md"};
 
 private bool(loc) isFreshConceptFile(datetime lM) 
-  = bool (loc f) { return isConceptFile(f);
+  = bool (loc f) { 
       return isConceptFile(f) && lastModified(f) > lM;
     };
 
