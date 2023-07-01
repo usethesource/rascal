@@ -120,7 +120,7 @@ list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, Pat
     [
         out("## function <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         out("```rascal"),
-        *([*[out(defLine) | str defLine <- split("\n", ov)], empty() | ov <- overloads]),
+        *([*[out(defLine) | str defLine <- split("\n", ov)], empty() | ov <- overloads][..-1]),
         out("```"),
         Output::empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)        
