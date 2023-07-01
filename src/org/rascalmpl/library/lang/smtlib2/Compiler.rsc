@@ -34,7 +34,7 @@ str toString(getUnsatCore()) = "(get-unsat-core)";
 str toString(push(nr)) = "(push <nr>)";
 str toString(pop(nr)) = "(pop <nr>)";
 str toString(exit()) = "(exit)";
-default str toString(Command command) = "(unkown command)";
+default str toString(Command command) = "(unknown command)";
 
 // Options
 str toString(interactiveMode(val)) = ":interactive-mode <val>";
