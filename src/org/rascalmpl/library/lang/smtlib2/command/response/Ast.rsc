@@ -22,7 +22,7 @@ data Response
 data CheckSat
 	= sat()
 	| unsat()
-	| unkown()
+	| unknown()
 	;
 	
 data GetUnsatCore = unsatCore(list[str] labels);
