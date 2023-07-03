@@ -9,7 +9,7 @@ module Content
 #### Synopsis
 
 Content wraps the HTTP Request/Response API to support interactive visualization types
-on the terminal <<Rascal.REPL>>.  
+on the terminal ((RascalShell)).  
 
 #### Description
 
@@ -34,7 +34,7 @@ on the commandline.
 
 When you are happy with the interaction, or you want a permanent visualization which is not
 garbage collected after 30 minutes, you can consider wrapping the same callback in
-a webserver using the <<util::Webserver::serve>> function. 
+a webserver using the ((util::Webserver::serve)) function. 
 }
 data Content 
   = content(str id, Response (Request) callback)
