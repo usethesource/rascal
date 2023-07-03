@@ -564,7 +564,7 @@ Here we show a new shell does not even know about the grammar:
 ```
 
 Then in a next run, we load the parser and use it:
-```
+```rascal-shell
 import ParseTree;
 p = loadParsers(|test-temp:///E.parsers|);
 p(type(sort("E"), ()), "e+e", |src:///|);
