@@ -5,11 +5,6 @@ import util::FileSystem;
 import IO;
 import String;
 
-void ad2md() {
-    ad2md();
-    ad2md();
-}
-
 void ad2md(loc root) {
     for (f <- find(root, isSourceFile))
       convertFile(f);
