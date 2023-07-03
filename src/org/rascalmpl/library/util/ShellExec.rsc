@@ -17,7 +17,7 @@ java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] a
 
 @synopsis{Start a new external process.}
 @description{
-The file schemes that are allowed for the `processCommand`` are limited to the `file:///` schemes
+The file schemes that are allowed for the `processCommand` are limited to the `file:///` schemes
 and all logical schemes that directly resolve to `file:///` such as `cwd:///` and `tmp:///`.
 `PATH:///` is also a handy scheme for `processCommand` since it searches for the binary/script
 in the underlying system's search path.
