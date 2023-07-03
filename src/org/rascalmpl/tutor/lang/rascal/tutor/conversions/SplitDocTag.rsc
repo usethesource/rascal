@@ -16,20 +16,31 @@ void rewriteDocTags(loc root) {
     locs = findDocTags(root);
 
     for (l <- locs) {
-        rewriteDocTag(l);
+        new = rewriteDocTag(l);
+        println("--------------------------------------------------------");
+        println("old: <readFile(l)>");
+        println("========================================================");
+        println("new: <new>");
+        println("--------------------------------------------------------");
+
     }
 }
 
-void rewriteDocTag(loc t) {
+str rewriteDocTag(loc t) {
     T = parse(#Tag, trim(readFile(t)));
-
+    
     // drop the { } and the leading and trailing whitespace
     cleanContent = trim("<T.contents>"[1..-1]);
     newContent = "";
 
+    if (/####/ !:= cleanContent) {
+        // this is a synopsis
+        return "@synopsis{<cleanContent>}";
+    }
+
     while (/^#### <heading:[A-Z][a-z]+>\s*<body:.*>\n\s*<rest:####.*>\s*$/m := cleanContent) {
         if (heading == "Synopsis") {
-            newContent = "@synopsis{<trim(body)>}<if (trim(body)[-1] != ".") {>.<}>
+            newContent = "@synopsis{<trim(body)>}<if (trim(rest)[-1] != ".") {>.<}>}
                          '";
         } else {
             newContent += "@<toLowerCase(heading)>{
@@ -54,9 +65,7 @@ void rewriteDocTag(loc t) {
         cleanContent = "";
     }
 
-    println("REPORTING <t>
-            '  NEW : <newContent>
-            '  LEFT: <cleanContent>");
+    return newContent;
 }
 
 public str example = 
