@@ -24,11 +24,11 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     tags = getTagContents(header.tags);
     name = "<header.name.names[-1]>";
     tls = [*extractImport(moduleName, imp) | imp <- header.imports] 
-      + [ *extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
+      + [*extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
 
     synopsis = getSynopsis(tags);
 
-    return moduleInfo(
+    return [moduleInfo(
       moduleName=moduleName, 
       name=name, 
       src=m@\loc, 
@@ -36,7 +36,7 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
       docs=sortedDocTags(tags), 
       demo=(/demo|examples/ := moduleName),
       dependencies=[trim("<d>") | d <- header.imports, !(d is \syntax)]
-    ) + tls;
+    )] + tls;
 }
 
 /********************************************************************/
@@ -88,7 +88,7 @@ str align({Variant "|"}+ variants){
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> ;`) { 
     dtags = getTagContents(tags);
     adtName = "<user.name>";
-    
+
     return [dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters>",
       src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
 }
@@ -96,6 +96,7 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { 
     dtags = getTagContents(tags);
     adtName = "<user.name>";
+   
     infoVariants = [ genVariant(moduleName, variant) | variant <- variants ];
     
     return dataInfo(moduleName=moduleName, name=adtName, signature="data <user> <commonKeywordParameters> <align(variants)>",

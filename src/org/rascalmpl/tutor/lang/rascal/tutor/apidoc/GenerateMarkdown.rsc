@@ -13,6 +13,8 @@ import lang::rascal::tutor::Indexer;
 import lang::rascal::tutor::Compiler;
 import lang::rascal::tutor::repl::TutorCommandExecutor;
 import lang::rascal::tutor::Names;
+import IO;
+import Node;
 
 @synopsis{Generate markdown documentation from the declarations extracted from a Rascal module.}
 @description{
@@ -41,11 +43,10 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
         dtls = sort(dup(["<capitalize(pcfg.currentRoot.file)>:<i.kind>:<i.moduleName>::<i.name>" | DeclarationInfo i <- dinfo, !(i is moduleInfo)]));
 
         // TODO: this overloading collection should happen in ExtractInfo
-        res = [
-        ];
+        res = [];
         int i = 0;
         while (i < size(dinfo)) {
-            j = i + 1;
+            int j = i + 1;
             list[str] overloads = [];
 
             if (dinfo[i] has name) {
@@ -55,10 +56,10 @@ list[Output] generateAPIMarkdown(str parent, loc moduleLoc, PathConfig pcfg, Com
                 // then we do not get to see the other overloads with the current group. Rewrite to use a "group-by" query.
                 // Also this looses any additional documentation tags for anything but the first overloaded declaration
                 
-                while (j < size(dinfo) && dinfo[i].name == dinfo[j].name) {
-                        // this loops eats the other declarations with the same name (if consecutive!)
-                        overloads += ((isDemo && dinfo[j].fullFunction?) ? dinfo[j].fullFunction : dinfo[j].signature);
-                        j += 1;
+                while (j < size(dinfo) && dinfo[i].name == dinfo[j].name && dinfo[j].synopsis=="" && getName(dinfo[i]) == getName(dinfo[j]) /* same kinds */) {
+                    // this loops eats the other declarations with the same name (if consecutive!)
+                    overloads += [((isDemo && dinfo[j].fullFunction?) ? dinfo[j].fullFunction : dinfo[j].signature)];
+                    j += 1;
                 }
             }
 
@@ -173,7 +174,7 @@ list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathCo
         out("## alias <d.name> {<moduleFragment(d.moduleName)>-<d.name>}"),
         empty(),
         out("```rascal"),
-        *[out(removeNewlines(ov)), empty() | ov <- overloads],
+        *[out(removeNewlines(ov)), empty() | ov <- overloads][..-1],
         out("```"),
         empty(),
         *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo)
