@@ -114,8 +114,8 @@ list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathC
         | d.dependencies != []
         ],
         Output::empty(),
-        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo),
-        out("")
+        *tags2Markdown(d.docs, pcfg, exec, ind, dtls, demo, descriptionHeader=((pcfg.sources? && pcfg.packageRoot?) || d.dependencies != [])),
+        Output::empty()
     ];
 
 list[Output] declInfo2Doc(str parent, d:functionInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
@@ -190,11 +190,11 @@ list[Output] declInfo2Doc(str parent, d:aliasInfo(), list[str] overloads, PathCo
 default list[Output] declInfo2Doc(str parent, DeclarationInfo d, list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) 
     = [err(info("No content generated for <d>", d.src))];
 
-list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) 
+list[Output] tags2Markdown(list[DocTag] tags, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool _demo, bool descriptionHeader=false) 
     = [
         // every doc tag has its own header title, except the "doc" tag which may contain them all (backward compatibility)
         // and description starts without a header to improver the ratio between content and structure in the documentation for smaller functions and modules
-        *(l notin {"doc", "description"} ? [out("#### <capitalize(l)>"), empty()] : []),
+        *(l notin {"doc", (!descriptionHeader) ? "description" : ""} ? [out("#### <capitalize(l)>"), empty()] : []),
         
         // here is where we get the origin information into the right place for error reporting:
         *compileMarkdown(split("\n", c), s.begin.line, s.offset, pcfg, exec, ind, dtls),
