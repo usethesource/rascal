@@ -1504,3 +1504,12 @@ default AType removeConditional(AType s) = s;
 //}
 //
 //private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
+
+// Filter potential overloads based on IdRole
+
+public AType filterOverloads(overloadedAType(rel[loc, IdRole, AType] overloads), set[IdRole] roles){
+    reduced = { <l, r, t> | <l, r, t> <- overloads, r in roles };
+    if({<l,r,t>} := reduced) return t;
+    return overloadedAType(reduced);
+}
+public default AType filterOverloads(AType t, set[IdRole] roles) = t;

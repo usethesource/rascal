@@ -65,9 +65,9 @@ TModel current_tmodel = tmodel();                   // TModel for current module
 
 TModel getTModel() = current_tmodel;                // Get the (possibly updated) TModel
 
-private AGrammar grammar = grammar({}, ());         // Grammar for current module
+private AGrammar current_grammar = grammar({}, ()); // Grammar for current module
 
-AGrammar getGrammar() = grammar;                    // Get the grammar
+AGrammar getGrammar() = current_grammar;            // Get the grammar
 
 private set[AType] ADTs = {};                       // ADTs defined in current module
 
@@ -256,8 +256,8 @@ void extractScopes(TModel tm){
     set[loc] modules = {};
     
     if([*AGrammar gs] := tm.store[key_grammar]){
-        grammar = gs[0];
-        //println("extractScopes:"); iprintln(grammar);
+        current_grammar = gs[0];
+        //println("extractScopes:"); iprintln(current_grammar);
     } else {
         iprintln(tm.store[key_grammar]);
         throw "`grammar` has incorrect format in store";
@@ -477,25 +477,26 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         adtType = getStartNonTerminalType(adtType);
         is_start = true;
     }
+    adtType1 = adtType;  // TODO: this is to ensure that adType is a constant inside visit below
     fieldType = fieldType[alabel=fieldName];
-    if(adtType in domain(getBuiltinFieldMap())){
-        res = <"", adtType /*getBuiltinFieldMap()[adtType][fieldName]*/, false>;
+    if(adtType1 in domain(getBuiltinFieldMap())){
+        res = <"", adtType1 /*getBuiltinFieldMap()[adtType1][fieldName]*/, false>;
         return res;
     }
     set[AType] constructors = {};
    
-    adt_arity = size(adtType.parameters ? []);
+    adt_arity = size(adtType1.parameters ? []);
     if(adt_arity == 0){
-        constructors = adt_constructors[adtType] ? {};
+        constructors = adt_constructors[adtType1] ? {};
     } else { // a parameterized ADT, find it and substitute actual parameters (also in fieldType)
         for(adt <- adt_constructors){
-            if(adt.adtName == adtType.adtName && size(adt.parameters) == adt_arity){
+            if(adt.adtName == adtType1.adtName && size(adt.parameters) == adt_arity){
                 pnames = (adt.parameters[i] : i | i <- [0..adt_arity]);
                 constructors = adt_constructors[adt];
                 <constructors, fieldType> = 
                     visit(<constructors, fieldType>) { 
                         case p:aparameter(str _pname, _): { if(pnames[p]?){
-                                                                repl = adtType.parameters[pnames[p]];
+                                                                repl = adtType1.parameters[pnames[p]];
                                                                 if(p.alabel?) repl = repl[alabel=p.alabel];
                                                                 insert repl;
                                                            }
@@ -522,15 +523,15 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     
     // Common kw field of the ADT?
     
-    for(Keyword kw <- adt_common_keyword_fields[adtType] ? []){
+    for(Keyword kw <- adt_common_keyword_fields[adtType1] ? []){
         if("<kw.fieldType.alabel>" == fieldName){
-            return <findDefiningModule(getLoc(kw.defaultExp)), adtType, true>;
+            return <findDefiningModule(getLoc(kw.defaultExp)), adtType1, true>;
         }
     }
     
     // Field of nonterminal?
-    if(grammar.rules[adtType]?){
-        productions = grammar.rules[adtType].alternatives;
+    if(getGrammar().rules[adtType1]?){
+        productions = getGrammar().rules[adtType1].alternatives;
         for(prod(AType _, list[AType] atypes) <- productions){
             for(a <- atypes, a.alabel?, a.alabel == fieldName){
                 return <"", is_start ? \start(a) : a, false>;
@@ -539,20 +540,20 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     }
     
     // Common kw field of concrete type?
-    if(asubtype(adtType, treeType)){
+    if(asubtype(adtType1, treeType)){
         if(fieldName == "src"){         // TODO: remove when @\loc is gone
             return <"ParseTree", aloc(), true>;
         }
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
-                return <findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType) : adtType, true>;
+                return <findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;
             }
         }
     }
     
-    return <"", is_start ? \start(adtType) : adtType, false>;
+    return <"", is_start ? \start(adtType1) : adtType1, false>;
     
-    //throw "getConstructorInfo, no constructor found for <adtType>, <fieldType>, <fieldName>";
+    //throw "getConstructorInfo, no constructor found for <adtType1>, <fieldType>, <fieldName>";
 }
 	
 alias KeywordParamMap = map[str kwName, AType kwType];
@@ -670,7 +671,7 @@ set[AType] getAccessibleADTs(AType root){
 
 map[AType,set[AType]] collectNeededDefs(AType t){
     map[AType, set[AType]] my_definitions = ();
-    my_grammar_rules = grammar.rules;
+    my_grammar_rules = current_grammar.rules;
     list[AType] tparams = [];
     is_start = false;
     syntax_type = false;
@@ -692,8 +693,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     root_scopes = getDefiningScopes(base_t);
     accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
     
-    //my_grammar_rules = (adt : grammar.rules[adt] 
-    //                   | adt <- grammar.rules
+    //my_grammar_rules = (adt : current_grammar.rules[adt] 
+    //                   | adt <- current_grammar.rules
     //                   , getDefiningScopes(adt) <= accessible_scopes
     //                   );
     
@@ -728,7 +729,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
      // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explcitly    
      
         definedLayouts = getLayouts(base_t, allADTs);   
-        //my_grammar_rules[definedLayouts] = grammar.rules[definedLayouts];
+        //my_grammar_rules[definedLayouts] = current_grammar.rules[definedLayouts];
         //my_grammar_rules = visit(my_grammar_rules) { case aadt(_, [], layoutSyntax()) => definedLayouts };  
         //allADTs =  visit(allADTs) { case aadt(_, [], layoutSyntax()) => definedLayouts }; 
         my_definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
@@ -870,17 +871,17 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
     }
     
     if(def.idRole == keywordFormalId()) {
-        return muAssign(muVarKwp(name, getScope(uid), getType(l)), exp);
+        return muAssign(muVarKwp(name, getScope(uid), filterOverloads(getType(l), {keywordFormalId()})), exp);
     }
     if(def.idRole in positionalFormalRoles){
-        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l), def.idRole), exp);   // TODO
+        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), filterOverloads(getType(l), positionalFormalRoles), def.idRole), exp);   // TODO
    }
 
     if(def.idRole in variableRoles){
          pos = def.scope in module_scopes ? -1 : getPositionInScope(name, uid);
         
-        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, getType(l), def.idRole), exp)
-                                : muAssign(muVar(name, getScope(uid), pos, getType(l), def.idRole), exp);
+        return l == def.defined ? muVarInit(muVar(name, getScope(uid), pos, filterOverloads(getType(l), variableRoles), def.idRole), exp)
+                                : muAssign(muVar(name, getScope(uid), pos, filterOverloads(getType(l), variableRoles), def.idRole), exp);
     }
     iprintln(useDef[l]);
     throw "mkAssign fails for <name>, <l>, <exp>, <def>";
@@ -891,7 +892,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 public map[AType,AProduction] getReifiedDefinitions() {
     return (); // TODO
   //    // Collect all symbols
-  //    set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
+  //    set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(current_grammar);
   //    
   //    map[AType,Production] definitions  = (() | collectDefs(symbol, it) | AType symbol <- symbols);
     //
@@ -948,7 +949,10 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
         //println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
       descend_into = {avalue()};
     }
-    tuples = { atuple(symbols) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
+    tuples = { atuple(symbols) | arel(symbols) <- descend_into } + { atuple(symbols) | alrel(symbols) <- descend_into };
+    // TODO: the above replaces the code below due to compiler issue:
+    //tuples = { atuple(symbols) | sym <- descend_into, arel(symbols) := sym || alrel(symbols) := sym };
+    
     descend_into += tuples;
     descend_into = {sym | sym <- descend_into/*, alabel(_,_) !:= sym*/ };
     //println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
@@ -976,7 +980,7 @@ tuple[set[AType], set[AProduction]] getReachableConcreteTypes(AType subjectType,
     
     // Find all concrete types that can lead to a desired type
     for(<AType sym, AType tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
-       alts = grammar.rules[sym];
+       alts = current_grammar.rules[sym];
        for(/AProduction p := alts){
            switch(p){
            case choice(_, choices): descend_into += choices;

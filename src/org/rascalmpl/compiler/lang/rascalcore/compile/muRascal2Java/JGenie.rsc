@@ -59,7 +59,6 @@ data JGenie
         void(str) addImportedLibrary,
         list[str] () getImportedLibraries,
         bool (tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloads) usesLocalFunctions
-        //void (bool on) generatingTests
       )
     ;
     
@@ -112,15 +111,9 @@ JGenie makeJGenie(MuModule m,
     
     sortedImportAndExtendScopes =
         sort(importAndExtendScopes,
-            bool(loc a, loc b) { res = <a, b> in extends;
-                                //res = a != b && (<a, b> in extends || <b, a> notin extends);
-                                //|| (a in extendScopes && b notin extendScopes);
-                                 /*println("<a> \< <b> =\> <res>");*/ return res; });
-    //println("extends:");iprintln(extends);
-    //println("sortedImportAndExtendScopes:");iprintln(sortedImportAndExtendScopes);
+            bool(loc a, loc b) { return <a, b> in extends; });
     
     JGenie thisJGenie;
-    //bool generatingTests = true;
    
     loc findDefiningModuleForDef(loc def){
         for(ms <- sortedImportAndExtendScopes){
@@ -197,9 +190,10 @@ JGenie makeJGenie(MuModule m,
             
         found_defs = {};
         for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
-            //!isConstructorType(t1) || def.defInfo.atype.alabel == t.alabel
-            if((isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.alabel == tlabel) ||
-               (aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtype(ps1, ps2))){
+            // TODO: the following conditions were originally combined with an ||, but the compiler does not like that
+            if(isConstructorType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.alabel == tlabel){
+                found_defs += def;
+            } else if(aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtype(ps1, ps2)){
                 found_defs += def;
             }
         }
@@ -448,8 +442,9 @@ JGenie makeJGenie(MuModule m,
             couter = "$T<ntypes>";
             type2id[ut] = couter;
         }
+        atype1 = atype; // ensure this is a read only variable; TODO: compiler should do this.
         bottom-up visit(atype){
-            case AType t: if(t != atype){
+            case AType t: if(t != atype1){
                 if(AType a: aadt(str adtName, list[AType] parameters, SyntaxRole _) := t){
                     acc = _getATypeAccessor(t);
                     res = prefixADT(getUniqueADTName(a)); 
@@ -630,10 +625,8 @@ JGenie makeJGenie(MuModule m,
             if(idx2constant[i]?){
                 return idx2constant[i] == "_";
             }
-            return false;
-        } else {
-            return false;
-        }
+        }   
+        return false;
     }
     
     void _addExternalRefs(set[MuExp] vars){
@@ -650,7 +643,7 @@ JGenie makeJGenie(MuModule m,
     
     bool _isRef(MuExp var) { 
         var1 = unsetRec(var, "alabel"); 
-        return  /*var1 is muVar && var1.idRole in assignableRoles && */(varIn(var1, function.externalRefs) || varIn(var1, localRefs));
+        return /*var1.fuid != function.uniqueName && */(varIn(var1, function.externalRefs) || varIn(var1, localRefs));
     }
     
     bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.uniqueName;
@@ -678,10 +671,6 @@ JGenie makeJGenie(MuModule m,
     //    if(/<name:[a-z A-Z 0-9 _]+>(<args:.*>)/ := signature){
     //       return <name, [tps[0] | str arg <- split(",", args), tps := split(" ", arg)]>;
     //    }
-    //}
-    
-    //void _generatingTests(bool status){
-    //    generatingTests = status;
     //}
     
     thisJGenie = 
@@ -721,7 +710,6 @@ JGenie makeJGenie(MuModule m,
                 _addImportedLibrary,
                 _getImportedLibraries,
                 _usesLocalFunctions
-               // _generatingTests
             );
      return thisJGenie;
 }

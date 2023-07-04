@@ -67,6 +67,18 @@ str getFail(BTSCOPE btscope) = btscope.\fail;
 str getEnter(Tree t, BTSCOPES btscopes) = btscopes[getLoc(t)].enter;
 str getEnter(loc l, BTSCOPES btscopes)  = btscopes[l].enter;
 
+//str getDirectParentOf(str path, str begin){
+//    parts = split("_", path);
+//    if(size(parts) == 0) throw "Cannot find parent of <path> that begins with <begin>";
+//    for(i <- reverse(index(parts))){
+//        if(startsWith(parts[i], begin)){
+//            return intercalate("_", parts[..i]);
+//        }
+//    }
+//    println("Cannot find parent of <path> that begins with <begin>, returning <path>");
+//    return path;
+//}
+
 str getParent(str path, str parent) {
     int i = findLast(path, parent);
     if(i < 0) throw "Cannot find root <parent> in path <path>";
@@ -88,7 +100,10 @@ str getEnter(Tree t, str parent, BTSCOPES btscopes) = getParent(btscopes[getLoc(
 str getEnter(loc l, str parent, BTSCOPES btscopes)  = getParent(btscopes[l].enter, parent);
 
 str getResume(Tree t, BTSCOPES btscopes) {
+
     try {
+        //println("getResume: <getLoc(t)>");
+        //println("btscopes[getLoc(t)]: < btscopes[getLoc(t)]>");
         return btscopes[getLoc(t)].resume;
     } catch _: {
         println("getResume: <t>, <getLoc(t)>");
@@ -357,15 +372,8 @@ tuple[MuExp var, list[MuExp] exps] extractNamedRegExp((RegExp) `\<<Name name>:<N
 
 BTINFO getBTInfo(t:appl(prod(label("concrete",sort("Pattern")),[label("concrete",lex("Concrete"))], {}),[Tree concrete1]),  BTSCOPE btscope, BTSCOPES btscopes){
     if(appl(prod(Symbol::label("parsed",Symbol::lex("Concrete")), [_],_),[Tree _concrete2]) := concrete1){
-        //println("t: <getLoc(t)>");
-        //println("e: <getLoc(e)>");
-        //println("concrete1: <getLoc(concrete1)>");
-        //println("concrete2: <getLoc(concrete2)>");
-        //res = registerBTScope(concrete2, getBTInfoConcrete(concrete2, btscope, btscopes).btscope, btscopes);
         btinfo = getBTInfoConcrete(concrete1, btscope, btscopes);
-        res = registerBTScope(concrete1, btinfo.btscope, btinfo.btscopes);
-        return res;
-        //return registerBTScope(concrete2, getBTInfoConcrete(concrete2, btinfo.btscope, btinfo.btscopes).btscope, btinfo.btscopes);
+        return registerBTScope(concrete1, btinfo.btscope, btinfo.btscopes);
     }
     throw "getBTInfo: cannot match <concrete1>";
 }
@@ -1706,7 +1714,12 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* _>}`, AType subjectType, MuE
 BTINFO getBTInfo(p:(Pattern) `\<<{Pattern ","}* pats>\>`, BTSCOPE btscope, BTSCOPES btscopes) {
     enterTuple = "<btscope.enter>_TUPLE";
     BTSCOPE btscopeLast =  <enterTuple, /*btscope.resume,*/ enterTuple, btscope.resume>; //<enterTuple, btscope.resume, btscope.resume>;
-    for(pat <- pats){
+    pat_list = [pat | Pattern pat <- pats ];
+    for(int i <- index(pat_list)){
+        pat = pat_list[i];
+        //btscopeLast.enter += "<i>";
+        //btscopeLast.resume += "<i>";
+        //println("i = <i>: <btscopeLast>");
         <btscopeLast, btscopes> = getBTInfo(pat, btscopeLast, btscopes);
     }
     return registerBTScope(p, <enterTuple, btscopeLast.resume, btscope.resume>, btscopes);
@@ -1785,12 +1798,12 @@ BTINFO getBTInfo(p:(Pattern) `[<{Pattern ","}* pats>]`,  BTSCOPE btscope, BTSCOP
 
 str nameSuffix(str s, Name name){
     sname = "<name>";
-    return isWildCard(sname) ? "_<s><nextTmp(sname)>" : "_<s>_<unescapeAndStandardize(sname)>";
+    return isWildCard(sname) ? "_<s><nextTmp(sname)>" : "_<s><unescapeAndStandardize(sname)>";
 }
 
 str nameSuffix(str s, QualifiedName name){
     sname = "<name>";
-    return isWildCard(sname) ? "_<s><nextTmp(sname)>" : "_<s>_<unescapeAndStandardize(sname)>";
+    return isWildCard(sname) ? "_<s><nextTmp(sname)>" : "_<s><unescapeAndStandardize(sname)>";
 }
 
 BTINFO getBTInfoList(p:(Pattern) `<QualifiedName name>`, BTSCOPE btscope, BTSCOPES btscopes){
@@ -2179,7 +2192,7 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, AType subjectType, MuExp s
 	reachable_syms = { avalue() };
 	reachable_prods = {};
     //if(optimizing()){
-	   //tc = getTypesAndConstructors(pattern);
+	   //tc = getTypesAndConstructorNames(pattern);
     //   <reachable_syms, reachable_prods>  = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
     //}
     descriptor = descendantDescriptor(concreteMatch, reachable_syms, reachable_prods, getReifiedDefinitions());
@@ -2228,22 +2241,22 @@ bool concreteTraversalAllowed(Pattern pattern, AType subjectType) =
 	
 // get the types and constructor names from a pattern
 
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<QualifiedName qualifiedName>`) =
+tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<QualifiedName qualifiedName>`) =
 	<{getType(p)}, {}>;
 	
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Type tp> <Name name>`) =
+tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<Type tp> <Name name>`) =
 	<{getType(p)}, {}>;	
 	
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Name name> : <Pattern pattern>`) =
-	getTypesAndConstructors(pattern);	
+tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<Name name> : <Pattern pattern>`) =
+	getTypesAndConstructorNames(pattern);	
 
-tuple[set[AType] types, set[str] constructors]  getTypesAndConstructors(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
-	getTypesAndConstructors(pattern);
+tuple[set[AType] types, set[str] constructors]  getTypesAndConstructorNames(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
+	getTypesAndConstructorNames(pattern);
 		
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructors(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
+tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
 	(expression is qualifiedName) ? <{}, {prettyPrintName("<expression>")}> : <{getType(p)}, {}>;
 
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructors(Pattern p) = <{getType(p)}, {}>;
+tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(Pattern p) = <{getType(p)}, {}>;
 
 // -- anti pattern ---------------------------------------------------
     

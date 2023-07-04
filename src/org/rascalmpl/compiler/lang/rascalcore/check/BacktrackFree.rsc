@@ -54,16 +54,21 @@ bool backtrackFree(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = false; // all(pat 
 bool backtrackFree(p:(Pattern) `<Name name> : <Pattern pattern>`) = backtrackFree(pattern);
 bool backtrackFree(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = backtrackFree(pattern);
 bool backtrackFree(p:(Pattern) `[ <Type tp> ] <Pattern pattern>`) = backtrackFree(pattern);
+bool backtrackFree(p:(Pattern) `<Name name>`) = true;
+bool backtrackFree(p:(Pattern) `<Type tp> <Name name>`) = true;
+bool backtrackFree(p:(Pattern) `<Literal lit>`) = !(lit is regExp);
 
 bool backtrackFree(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`){
     argumentList = [arg | arg <- arguments];
     btf_args = backtrackFree(expression) && (isEmpty(argumentList) || all(arg <- argumentList, backtrackFree(arg)));
-    if(btf_args && (KeywordArguments[Pattern]) `<OptionalComma _> <{KeywordArgument[Pattern] ","}+ kwaList>` := keywordArguments){
-        keywordArgumentList = [kwa | kwa <- kwaList];          
-        return isEmpty(keywordArgumentList) || all(kwa <- keywordArgumentList, backtrackFree(kwa.expression));                       
-    } else {        
-        return false;
+    if(btf_args){
+        if((KeywordArguments[Pattern]) `<OptionalComma _> <{KeywordArgument[Pattern] ","}+ kwaList>` := keywordArguments){
+            keywordArgumentList = [kwa | kwa <- kwaList];          
+            return isEmpty(keywordArgumentList) || all(kwa <- keywordArgumentList, backtrackFree(kwa.expression));                       
+        }
+        return true;
     }
+    return false;
 }
 
 bool backtrackFree((Pattern) `/ <Pattern pattern>`) = false;

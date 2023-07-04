@@ -51,7 +51,7 @@ public str nextTmp(){
 
 public str nextTmp(str name){
     tmpVar += 1;
-    return "$<name>_<tmpVar>";
+    return "$<name><tmpVar>";
 }
 
 public int tmpLabel = -1;						// *** state
@@ -158,7 +158,7 @@ str getLabel(Label label) =
 str getLabel(Label label, str alt) =
   (label is \default) ? "<label.name>" : nextLabel(alt);
   
-str asTmp(str name) = "TMP_<name>";
+str asTmp(str name) = "TMP<name>";
 
 // Keep track of possibly nested "it" variables in reducers
 

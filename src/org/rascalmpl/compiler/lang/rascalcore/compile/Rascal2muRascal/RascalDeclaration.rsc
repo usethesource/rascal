@@ -57,7 +57,7 @@ void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type t
    		//variables_in_module += [];
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, getType(tp), variableId()), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}
@@ -271,7 +271,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement]
       } else if(body_expression == dummy_body_expression){ // statements are present in body
           if(!isEmpty(body)){
                 if(size(body) == 1 && addReturn){
-                    mubody = translateReturn(getType(body[0]), body[0], my_btscopes);
+                    mubody = translateReturn(ftype.ret /*getType(body[0])*/, body[0], my_btscopes);
                  } else {
                     body_code = [ translate(stat, my_btscopes) | stat <- body ];
                     if(isVoidType(ftype.ret)) body_code += muReturn0();
@@ -280,7 +280,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement]
                  }
           }
        } else {
-            mubody = addReturn ? translateReturn(getType(body_expression), body_expression) : translate(body_expression);
+            mubody = addReturn ? translateReturn(ftype.ret, body_expression) : translate(body_expression);
        }
 
       enterSignatureSection();
@@ -366,7 +366,7 @@ private default bool hasParameterName(Pattern p, int i) = false;
  */
 private set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def){
     exps = [c.exp | c <- cases] + def;
-    return { v1 | exp <- exps, /muAssign(v:muVar(str _name, str _scope, int _, AType t, IdRole idRole), MuExp _) := exp, !(/muVarInit(v, _) := exp), t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    return { v1 | exp <- exps, /muAssign(v:muVar(str _name, str _scope, int _, AType t, IdRole idRole), MuExp _) := exp, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 }
 /*
  * Get all assigned variables in all visits that need to be treated as reference variables
