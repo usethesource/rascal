@@ -1021,7 +1021,9 @@ MuExp muAssign(MuExp var1, MuExp var2)
 MuExp muAssign(MuExp var, muBlock([])) = muAssign(var, muNoValue());
 MuExp muAssign(MuExp var1, b: muBreak(_)) = b;
 MuExp muAssign(MuExp var1, c: muContinue(_)) = c;
+MuExp muAssign(MuExp var1, muAssign(var2, MuExp exp)) = muBlock([muAssign(var1, exp), muAssign(var2, var1)]);
 
+MuExp muVarInit(MuExp var1, muVarInit(var2, MuExp exp)) = muBlock([muVarInit(var1, exp), muVarInit(var2, var1)]);
 
 // ----
 
@@ -1194,6 +1196,18 @@ MuExp muIf(muCon(false), MuExp thenPart) = muBlock([]);
 //MuExp muIf(me:muExists(enter, cond), MuExp thenPart)   
 //      = muExists(enter, insertThenPart(cond, thenPart, {enter}));
 
+MuExp muIf(muIfElse(cond, thenPart1, elsePart1), thenPart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), elsePart1);
+    
+MuExp muIf(muIf(cond, thenPart1), thenPart2)
+    = muIf(cond, muBlock([thenPart1, thenPart2]));
+
+MuExp muIf(muIfElse(cond, thenPart1, elsePart1), thenPart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), elsePart1);
+
+MuExp muIf(muIfExp(cond, thenPart1, elsePart1), thenPart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), elsePart1);
+
 // ---- muIfExp ---------------------------------------------------------------
 
 default MuExp muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)
@@ -1351,11 +1365,19 @@ MuExp muIfElse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart
 MuExp muIfElse(muSucceed(str label), MuExp thenPart, MuExp elsePart) = thenPart;
 //MuExp muIfElse(muBlock([*MuExp exps, muSucceed(str label)]), MuExp thenPart, MuExp elsePart) = muBlock([*exps, thenPart]);
 
-//MuExp muIfElse(muIfElse(cond, thenPart1, elsePart1), thenPart2, elsePart2)
-//    = muIfElse(cond, muBlock([thenPart1, thenPart2]), muBlock([elsePart1, elsePart2]));
+MuExp muIfElse(muIfElse(cond, thenPart1, elsePart1), thenPart2, elsePart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), muBlock([elsePart1, elsePart2]));
+
+MuExp muIfElse(muIfExp(cond, thenPart1, elsePart1), thenPart2, elsePart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), muBlock([elsePart1, elsePart2]));
+    
+MuExp muIfExp(muIfElse(cond, thenPart1, elsePart1), thenPart2, elsePart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), muBlock([elsePart1, elsePart2]));
+    
+MuExp muIfElse(muIf(cond, thenPart1), thenPart2, elsePart2)
+    = muIfElse(cond, muBlock([thenPart1, thenPart2]), elsePart2);
 
 MuExp muIfElse(muFail(str label), MuExp thenPart, MuExp elsePart) = elsePart;
-
 
 MuExp muIfElse(MuExp cond, MuExp thenPart, muBlock([])) = muIf(cond, thenPart);
 
@@ -1382,6 +1404,12 @@ MuExp muIfElse(muForRange(str label, MuExp var2, MuExp first, MuExp second, MuEx
     
 MuExp muIfElse(muForRangeInt(str label, MuExp var2, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont), MuExp thenPart, MuExp elsePart)
         = muBlock([muForRangeInt(label, var2, ifirst, istep, last, insertThenPart(body, thenPart, {label}), falseCont), elsePart]);
+
+// ---- muWhileDo --------------------------------------------------------------
+
+MuExp muWhileDo(muExists(btscope, exp), body)
+    = muExists(btscope, muBlock([exp, body]));
+
 
 // ---- muExists ---------------------------------------------------------------
 

@@ -250,17 +250,17 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
 }
 
 str newValueRef(str name, str jtype, str code)
-    = "new ValueRef\<<jtype>\>(\"<name>\", <code>)";
+    = "new ValueRef\<<jtype>\>(\"<asJavaName(name)>\", <code>)";
     
 str newValueRef(str vname, AType atype, v:muVar(str name, str _, int pos, AType _, IdRole idRole), JGenie jg)
     = jg.isRef(v) ? "new ValueRef\<<atype2javatype(atype)>\>(\"<vname>\", <varName(v, jg)>.getValue())" : newValueRef(vname, atype2javatype(atype), varName(v, jg))
     ;
 
 default str newValueRef(str name, AType atype, MuExp exp, JGenie jg)
-    = "new ValueRef\<<atype2javatype(atype)>\>(\"<name>\", <transWithCast(atype,exp,jg)>)";
+    = "new ValueRef\<<atype2javatype(atype)>\>(\"<asJavaName(name)>\", <transWithCast(atype,exp,jg)>)";
     
 set[MuExp] filteredExternalRefs(MuFunction fun)
-    = { ev | ev <- fun.externalRefs /*, ev.fuid != fun.uniqueName*/ } - toSet(fun.extendedFormalVars);
+    = { ev | ev <- fun.externalRefs, ev.fuid != fun.uniqueName } - toSet(fun.extendedFormalVars);
     
 MuFunction addTransitiveRefs(MuFunction fun){
     //if(fun.scopeIn == "") return fun;
@@ -285,7 +285,9 @@ MuFunction addTransitiveRefs(MuFunction fun){
         fun.localRefs += deltaLocalRefs;
         loc2muFunction[fun.src] = fun;
     }
-    
+    //println("<fun.name>: 
+    //        '    localRefs: <fun.localRefs> 
+    //        '    externalRefs:< fun.externalRefs>"); 
     return fun;
 }
 
@@ -497,7 +499,7 @@ str getMemoCache(MuFunction fun)
 JCode trans(MuFunction fun, JGenie jg){
     //println("trans <fun.name>, <fun.ftype>");
     //println("trans: <fun.src>, <jg.getModuleLoc()>");
-    iprintln(fun); // print function
+    //iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return "";
     
@@ -607,7 +609,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
             current_fun = jg.getFunction();
             
             ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? ((jg.isRef(var) || var.idRole notin assignableRoles)  ? vp : newValueRef(var.name, atype2javatype(var.atype), vp))
-                                                                      : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs, vp :=  "<var.name>_<var.pos>"]);
+                                                                      : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs, vp :=  "<asJavaName(var.name)>_<var.pos>"]);
             
             //ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? "<var.name>_<var.pos>" : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs ]);
             //ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? (jg.isLocalRef(var) ? "<var.name>_<var.pos>" : newValueRef(var.name, atype2javatype(var.atype), "<var.name>_<var.pos>"))
@@ -693,7 +695,7 @@ str trans(muConstr(AType ctype), JGenie jg){
     
     funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | _ <- ctype.fields])>\>";
     
-    pos_formals = ["$<i>" | i <- [0..nformals]];
+    pos_formals = ["$P<i>" | i <- [0..nformals]];
     needKwps = hasKeywordParameters(ctype) || jg.hasCommonKeywordFields(ctype);
     if(needKwps) pos_formals += "final java.util.Map\<java.lang.String,IValue\> $kwpActuals";
     all_formals = needKwps ? (pos_formals + "final java.util.Map\<java.lang.String,IValue\> $kwpActuals") :  pos_formals;
@@ -752,15 +754,14 @@ str trans(c:muComposedFun(MuExp left, MuExp right, AType leftType, AType rightTy
 // ---- muVar -----------------------------------------------------------------
 
 str varName(muVar(str name, str _, int pos, AType _, IdRole idRole), JGenie _jg){
-    if (name[0] != "$")
-        return asJavaName(name) + ((pos >= 0 || isWildCard(name)) ? "_<abs(pos)>" : "") ;
-    else 
-        return asJavaName(name);
+    result = asJavaName(name);
+    if (name[0] != "$" && (pos >= 0 || isWildCard(name))){
+        result += "_<abs(pos)>";
+    }
+    return result;
 }
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype, IdRole idRole), JGenie jg){
-    //var = unsetRec(var, "alabel");
-    
     
     return jg.isRef(var) //&& !jg.varHasLocalScope(var)
                                     ? "<varName(var, jg)>.getValue()" 
@@ -822,6 +823,8 @@ JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype, IdRole 
         return jg.isRef(v) ? "ValueRef\<<jtype>\> <varName(v, jg)> = new ValueRef\<<jtype>\>();\n"
                            : "<jtype> <varName(v, jg)> = null;\n";  
     } else {    
+    x = varName(v, jg);
+    y = newValueRef(name, atype, exp, jg);
         return jg.isRef(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = <newValueRef(name, atype, exp, jg)>;\n" //new ValueRef\<<jtype>\>(<transWithCast(atype,exp,jg)>);\n"
                             : "<jtype> <varName(v, jg)> = <transWithCast(atype, exp, jg)>;\n";  
                            //: "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  

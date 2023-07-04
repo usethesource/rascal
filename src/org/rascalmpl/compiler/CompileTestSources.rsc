@@ -1,4 +1,4 @@
-module CheckSources
+module GenerateTestSources
 
 import IO;
 import String;
@@ -6,8 +6,7 @@ import Set;
 import List;
 import Map;
 import util::Reflective;
-//import lang::rascalcore::compile::Compile;
-import lang::rascalcore::check::Checker;
+import lang::rascalcore::compile::Compile;
 import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
@@ -17,25 +16,24 @@ PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-c
                                         generatedSources = |project://rascal-core/target/generated-test-sources2|,
                                         resources = |project://rascal-core/target/generated-test-resources2|
                                        );
+void main(list[str] args) = generateTestSources(manualTestConfig);
 
-//void main(list[str] args) = generateTestSources(manualTestConfig);
-
-void main() = generateTestSources(manualTestConfig);
+void main() = main([]);
 
 void generateTestSources(PathConfig pcfg) {
    testConfig = pathConfig(
      bin=pcfg.bin,
-     generatedSources=|project://rascal-core/target/generated-test-sources2|,
-     resources = |project://rascal-core/target/generated-test-resources2|,
+     generatedSources=|project://rascal-core/target/generated-test-sources|,
+     resources = |project://rascal-core/target/generated-test-resources|,
      srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
-     libs = [ |project://rascal/| ]
+     libs = [ ]
      );
    map[str,int] durations = ();
      
    println("PathConfig for generating test sources:\n");
    iprintln(testConfig);
 
-   //println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
+   println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 
    libraryModules = ["Boolean", 
                      "DateTime", 
@@ -111,7 +109,7 @@ void generateTestSources(PathConfig pcfg) {
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
-   secs = sum(toList(range(durations)))/1000000000;
+   secs = sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
@@ -123,21 +121,15 @@ void testCompile(str \module) {
 }
 
 str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
-    current_module = \module; // TODO: make a copy of \module since that parameter is used in a closure and is not handled properly
-    current_pcfg = pcfg;
-    
-    try {
+   try {
      measure(cpuTimeOf(() {    
-       //compile(\module, pcfg);
-       println("compiling <current_module>");
-       CheckerResult result =  rascalTModelForNames([current_module], current_pcfg, rascalTypePalConfig(classicReifier=true));
-       iprintln(result.tmodels[current_module].messages);
+       compile(\module, pcfg);
      }));
      return "";
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
              '    <exception>"); 
-     return current_module; 
+     return \module; 
    }
 }
