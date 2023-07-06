@@ -32,8 +32,8 @@ void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
 
     for (replace(loc range, str repl) <- reverse(edits)) {
         assert range.top == file.top;
-        content[range.offset .. range.offset + range.length] = repl;
+        content = "<content[..range.offset]><repl><content[range.offset+range.length..]>";
     }
 
-    writeFile(file, content);
+    writeFile(file.top, content);
 }
