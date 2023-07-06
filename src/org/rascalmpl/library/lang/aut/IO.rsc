@@ -22,7 +22,7 @@ readAUT takes an AUT file and generates a value of type `rel[int, str,int]`.
 @javaClass{org.rascalmpl.library.lang.aut.IO}
 public java rel[int, str, int] readAUT(str nameAUTFile);
 
-@doc{write an AUT file}
+@synopsis{write an AUT file}
 @javaClass{org.rascalmpl.library.lang.aut.IO}
 public java void writeAUT(str nameAUTFile, rel[int, str, int] r);
 

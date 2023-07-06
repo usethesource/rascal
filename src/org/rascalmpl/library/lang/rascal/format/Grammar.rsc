@@ -8,10 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc {
-  Convert the Rascal internal grammar representation format (Grammar) to 
-  a syntax definition in Rascal source code.
-}
+@synopsis{Convert the Rascal internal grammar representation format (Grammar) to 
+  a syntax definition in Rascal source code.}
 module lang::rascal::format::Grammar
 
 import ParseTree;

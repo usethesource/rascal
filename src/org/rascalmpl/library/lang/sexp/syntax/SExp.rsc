@@ -1,5 +1,5 @@
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Syntax definition for S-Expressions, based on http://people.csail.mit.edu/rivest/Sexp.txt
 }

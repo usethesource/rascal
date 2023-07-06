@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: Translate the SMTLIBv2 AST to string so that it can be interpreted by a SMTLIBv2 compliant solver 
-}
+@synopsis{Synopsis: Translate the SMTLIBv2 AST to string so that it can be interpreted by a SMTLIBv2 compliant solver}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::Compiler

@@ -1,9 +1,10 @@
-@doc{
-#### Synopsis
+
+@synopsis{
 
 a symbolic representation for abstract syntax trees of programming languages.
 
-#### Description
+}
+@description{
 
 We provide a general set of data types for the syntactic constructs of programming languages: `Expression`, `Statement`, `Declaration` and `Type`.
 Also, very common syntactic constructs are added to this, such as `if`, `while`, etc.
@@ -19,14 +20,16 @@ The concept of _declaration_ is also relevant. A `decl` annotation points from a
 
 Finally, the concept of a _type_ is relevant for ASTs. In particular an `Expression` may have a `typ` annotation, or a variable declaration, etc.
 
-#### Benefits
+}
+@benefits{
 
 *  Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as patterns, comprehensions and visit.
 
-#### Pitfalls
+}
+@pitfalls{
 
 *  Even though different languages may map to the same syntactic construct, this does not mean that the semantics is the same. Downstream
-metrics or other analysis tools should still take semantic differences between programming languages into account. 
+metrics or other analysis tools should still take semantic differences between programming languages into account.
 }
 module analysis::m3::AST
 

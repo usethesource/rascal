@@ -31,8 +31,8 @@ module lang::xml::DOM
 
 import Node;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Datatypes for representing an instance of the DOM.
 }
@@ -72,29 +72,31 @@ public Node toXML(node x)
            [toXML(c) | c <- getChildren(x)] + [attribute(none(),"<key>","<annos[key]>") | annos := getAnnotations(x), key <- annos]);
 public default Node toXML(value x) = charData("<x> ");
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Auxiliary constructor for XML attribute without namespace.
 }
 public Node attribute(str name, str text) = attribute(none(), name, text);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Auxiliary constructor for XML element without namespace.
 }
 public Node element(str name, list[Node] kids) = element(none(), name, kids);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Parse an XML document and return a DOM instance.
 
-#### Description
+}
+@description{
 
-#### Examples
+}
+@examples{
 
 Read the sample note file, parse it, and construct a DOM instance.
 ```rascal-shell
@@ -111,12 +113,13 @@ As expected, the result is of type ((lang::xml::DOM::Node)).
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOM(str src);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Parse an XML document and trim it (remove layout).
 
-#### Examples
+}
+@examples{
 
 Read the sample note file, parse it, and construct a DOM instance (using `parseXMLDOMTrim`).
 ```rascal-shell
@@ -131,12 +134,13 @@ Compare this with the output of ((parseXMLDOM)).
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOMTrim(str src);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a DOM instance to a raw XML string.
 
-#### Examples
+}
+@examples{
 
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
@@ -152,12 +156,13 @@ Apart from an extra XML header, the original source file `F` and the output `S` 
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlRaw(Node x);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a DOM instance to a compact XML string (with minimal white space).
 
-#### Examples
+}
+@examples{
 
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
@@ -173,12 +178,13 @@ The output `S` of `xmlCompact` is a version of the original source file `F` with
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlCompact(Node x);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a DOM instance to a pretty printed XML string.
 
-#### Examples
+}
+@examples{
 
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 
