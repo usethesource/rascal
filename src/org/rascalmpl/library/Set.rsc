@@ -578,9 +578,7 @@ public list[&T] sort(set[&T] s) =
 public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;
 
 
-.Synopsis Produce the smallest `k` elements of a set as sorted by the `less` function
-
-}
+@synopsis{Produce the smallest `k` elements of a set as sorted by the `less` function }
 @description{
 
 This function is fast if `k` is relatively small, say 10 out of a 1000 elements.
