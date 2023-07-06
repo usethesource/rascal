@@ -690,31 +690,25 @@ Finally, source location fields are propagated as keyword fields on constructor 
 To access them, the user is required to explicitly declare a keyword field on all
 ADTs used in implosion. In other words, for every ADT type `T`, add:
 
-```rascal
-data T(loc location=|unknown);
+```rascal-commands
+data T(loc location=|unknown:///|);
 ```
 
 #### Examples
 
 Here are some examples for the above rules.
 
-.Example for rule 5
-
-Given the grammar
+* Example for rule 5. Given the grammar
 ```rascal
 syntax IDTYPE = Id ":" Type;
 syntax Decls = decls: "declare" {IDTYPE ","}* ";";
 ```
-    
 `Decls` will be imploded as:
 ```rascal
 data Decls = decls(list[tuple[str,Type]]);
 ```
 (assuming Id is a lexical non-terminal).   
-
-.Example for rule 6
-
-Given the grammar
+* Example for rule 6. Given the grammar
 ```rascal
 syntax Formal = formal: "VAR"? {Id ","}+ ":" Type;
 ```
@@ -722,10 +716,7 @@ The corresponding ADT could be:
 ```rascal
 data Formal = formal(bool, list[str], Type);
 ```
-
-.Example for rule 8
-
-Given the grammar
+* Example for rule 8. Given the grammar
 ```rascal
 syntax Tag = "[" {Modifier ","}* "]";
 syntax Decl = decl: Tag? Signature Body;
@@ -734,10 +725,7 @@ In this case, a `Decl` is imploded into the following ADT:
 ```rascal
 data Decl = decl(list[Modifier], Signature, Body);  
 ```
-
-.Example for rule 9
-
-Given the grammar
+* Example for rule 9. Given the grammar
 ```rascal
 syntax Exp = left add: Exp "+" Exp;
 ```
