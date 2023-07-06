@@ -20,12 +20,13 @@ public data Exception
   = StaticError(str message, loc location)
   ; 
  
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Evaluate a (list of) Rascal commands and return the value of the last command.
 
-#### Description
+}
+@description{
 
 Evaluate a command or a list of commands and return the value of the last command that is executed.
 
@@ -43,14 +44,14 @@ The notable exclusion are exprssions. An expression is not allowed as a command 
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import util::Eval;
 eval("2 * 3;");
 eval(["X = 2 * 3;", "X + 5;"]);
 ```
-
 }
 // --- eval with default duration (1000 ms)
 
@@ -77,18 +78,20 @@ public java Result[&T] eval(type[&T] typ, list[str] commands, int duration) thro
 public Result[value] eval(list[str] commands, int duration) = eval(#value, commands, duration);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Evaluate a (list of) Rascal commands and return the type of the last command.
 
-#### Description
+}
+@description{
 
 Evaluate a command or a list of commands and return the type of the value of the last command that is executed.
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import util::Eval;

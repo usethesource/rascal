@@ -5,7 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{Tests the potential clashes among value constructors of different adts, plus, the identified clash with: bool eq(value, value);}
+@synopsis{Tests the potential clashes among value constructors of different adts, plus, the identified clash with: bool eq(value, value);}
 module lang::rascal::\syntax::tests::ImplodeTests
 
 import lang::rascal::\syntax::tests::ImplodeTestGrammar;

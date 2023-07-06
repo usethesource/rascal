@@ -12,10 +12,8 @@ module lang::rascal::format::Escape
 
 import String;
 
-@doc{
-  A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) string
-  characters. For instance, ascii((10)) maps to the string "\\n".
-}
+@synopsis{A good old ASCII table in order to convert numbers < 128 to readable (properly escaped) string
+  characters. For instance, ascii((10)) maps to the string "\\n".}
 public list[str] ascii =
 [
 //Decimal   Value   Description
@@ -150,10 +148,8 @@ public list[str] ascii =
 /* 127 */  "\\a7F"  // DEL   (delete)
 ];
 
-@doc{
-  Creates a Rascal-character-classes escaped string character from a given
-  decimal index into the UTF8 table. 
-}
+@synopsis{Creates a Rascal-character-classes escaped string character from a given
+  decimal index into the UTF8 table.}
 public str makeCharClassChar(int ch){
   switch(ch) {
     case 32:	return "\\ ";	// space ( )
@@ -167,9 +163,7 @@ public str makeCharClassChar(int ch){
 
 private list[str] hex = ["<i>" | i <- [0..10]] + ["A","B","C","D","E","F"];
 
-@doc{
-  Creates a Rascal escaped string character from a given decimal index into the UTF8 table.
-} 
+@synopsis{Creates a Rascal escaped string character from a given decimal index into the UTF8 table.} 
 public str makeStringChar(int ch) {
   if(ch < 128)
      return ascii[ch];
@@ -196,26 +190,20 @@ test bool testQuote() = makeStringChar(34) 	== "\\\"";
 test bool testEOF() = makeStringChar(255) == "\\u0377";
 test bool testHex() = makeStringChar(0xABCDEF) == "\\UABCDEF";
 
-@doc{
-  Escapes the characters of the given string using the Rascal escaping conventions.
-}
+@synopsis{Escapes the characters of the given string using the Rascal escaping conventions.}
 public str escape(str s){
   if (s == "") return s;
   return (""| it + makeStringChar(charAt(s, i)) | i <- [0..size(s)]);
 }
 
-@doc{
-  Escapes the characters of the given string using the Rascal escaping conventions.
-  and surround by " quotes.
-}
+@synopsis{Escapes the characters of the given string using the Rascal escaping conventions.
+  and surround by " quotes.}
 public str quote(str s) {
   return "\"<escape(s)>\"";
 }
 
-@doc{
-  Escapes the characters of the given string using the Rascal escaping conventions.
-  and surround by ' quotes.
-}
+@synopsis{Escapes the characters of the given string using the Rascal escaping conventions.
+  and surround by ' quotes.}
 public str ciquote(str s) {
   return "\'<escape(s)>\'";
 }

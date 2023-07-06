@@ -17,15 +17,15 @@ import Set;
 import IO;
 import lang::rascal::types::AbstractType;
 
-@doc{Given the name of a JDBC driver class, register it so it can be used in connections.}
+@synopsis{Given the name of a JDBC driver class, register it so it can be used in connections.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 @reflect{uses information about class loaders from the evaluator context}
 public java void registerJDBCClass(str className);
 
-@doc{The JDBC driver name for MySQL}
+@synopsis{The JDBC driver name for MySQL}
 public str mysqlDriver = "com.mysql.jdbc.Driver";
 
-@doc{Generate a MySQL connect string.}
+@synopsis{Generate a MySQL connect string.}
 public str mysqlConnectString(map[str,str] properties) {
     host = ("host" notin properties) ? "127.0.0.1" : properties["host"];
     if ("database" notin properties) throw "A database must be specified";
@@ -34,28 +34,28 @@ public str mysqlConnectString(map[str,str] properties) {
     return "jdbc:mysql://<host>/<database>?<intercalate("&",["<x>=<properties[x]>"| x <- orderedParams, x in properties, x notin {"host","database"}])>";
 }
 
-@doc{Indicates which drivers are needed for the different database types encoded in URIs}
+@synopsis{Indicates which drivers are needed for the different database types encoded in URIs}
 public map[str,str] drivers = ( "mysql" : mysqlDriver );
 
-@doc{Generates connect strings for different database types}
+@synopsis{Generates connect strings for different database types}
 public map[str,str(map[str,str])] connectStringGenerators = ( "mysql" : mysqlConnectString );
 
-@doc{JDBC Connection type}
+@synopsis{JDBC Connection type}
 data Connection = jdbcConnection(int id);
 
-@doc{Create a connection based on the given connection string.}
+@synopsis{Create a connection based on the given connection string.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java Connection createConnection(str connectString);
 
-@doc{Close the given connection.}
+@synopsis{Close the given connection.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java void closeConnection(Connection connection);
 
-@doc{Get the types of tables available through this connection.}
+@synopsis{Get the types of tables available through this connection.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java list[str] getTableTypes(Connection connection);
 
-@doc{The JDBC types that could be assigned to various columns.}
+@synopsis{The JDBC types that could be assigned to various columns.}
 data JDBCType
     = array()
     | bigInt()
@@ -95,36 +95,36 @@ data JDBCType
     | varChar()
     ;
 
-@doc{A column in a table or view}   
+@synopsis{A column in a table or view}   
 data Column = column(str columnName, JDBCType columnType, bool nullable);
 
-@doc{A table in a database}
+@synopsis{A table in a database}
 data Table = table(str tableName, list[Column] columns);
 
-@doc{Get the tables visible through this connection (just names).}
+@synopsis{Get the tables visible through this connection (just names).}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[str] getTableNames(Connection connection);
 
-@doc{Get the tables visible through this connection (with column info).}
+@synopsis{Get the tables visible through this connection (with column info).}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[Table] getTables(Connection connection);
 
-@doc{Get the tables visible through this connection (with column info).}
+@synopsis{Get the tables visible through this connection (with column info).}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[Table] getViews(Connection connection);
 
-@doc{Get the Table metadata for a named table.}
+@synopsis{Get the Table metadata for a named table.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java Table getTable(Connection connection, str tableName);
 
-@doc{Get the Table metadata for a named view.}
+@synopsis{Get the Table metadata for a named view.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public Table getView(Connection connection, str viewName) = getTable(connection, viewName);
 
-@doc{An exception thrown when we try to translate (or otherwise use) a JDBC type with no Rascal equivalent.}
+@synopsis{An exception thrown when we try to translate (or otherwise use) a JDBC type with no Rascal equivalent.}
 data RuntimeException = unsupportedJDBCType(JDBCType jdbcType);
 
-@doc{Get the Rascal type (as a symbol) for the given JDBC type}
+@synopsis{Get the Rascal type (as a symbol) for the given JDBC type}
 public Symbol jdbc2RascalType(array()) { throw unsupportedJDBCType(array()); } 
 public Symbol jdbc2RascalType(bigInt()) = \int();
 public Symbol jdbc2RascalType(binary()) = \list(\int());
@@ -162,40 +162,38 @@ public Symbol jdbc2RascalType(tinyInt()) = \int();
 public Symbol jdbc2RascalType(varBinary()) = \list(\int());
 public Symbol jdbc2RascalType(varChar()) = \str();
 
-@doc{Represents values which may or may not be null.}
+@synopsis{Represents values which may or may not be null.}
 data Nullable[&T] = null() | notnull(&T item);
 
-@doc{Load the contents of a table. This will turn the contents into a set, which by its nature will remove any
+@synopsis{Load the contents of a table. This will turn the contents into a set, which by its nature will remove any
      duplicates and discard any order. To maintain duplicates, or the order inherent in the table,
      use loadTableOrdered instead.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[&T] loadTable(type[&T] resType, Connection connection, str tableName);
 
-@doc{Load the contents of a table. This will turn the contents into a set, which by its nature will remove any
+@synopsis{Load the contents of a table. This will turn the contents into a set, which by its nature will remove any
      duplicates and discard any order. To maintain duplicates, or the order inherent in the table, use 
      loadTableOrdered instead. This versions uses no type information, meaning that it returns a set of values.} 
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[value] loadTable(Connection connection, str tableName);
 
-@doc{Load the contents of a table. This maintains order and duplicates, but does not provide access to the
+@synopsis{Load the contents of a table. This maintains order and duplicates, but does not provide access to the
      relational operations provided by loadTable.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java list[&T] loadTableOrdered(type[&T] resType, Connection connection, str tableName);
 
-@doc{Load the contents of a table. This maintains order and duplicates, but does not provide access to the
+@synopsis{Load the contents of a table. This maintains order and duplicates, but does not provide access to the
      relational operations provided by loadTable. Also, with no type information, this version returns a list
      of values.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java list[value] loadTableOrdered(Connection connection, str tableName);
 
 @resource{jdbctables}
-@doc{
-  The JDBC tables schema should be given as:
+@synopsis{The JDBC tables schema should be given as:
     jdbctables+connect-string
   where connect-string is the database-specific information needed to connect,
   encoded as a URI, for instance:
-    jdbctables+mysql://localhost/bugs?user=my_user_name&password=my_password
-}
+    jdbctables+mysql://localhost/bugs?user=my_user_name&password=my_password}
 public str allTableSchemas(str moduleName, loc uri) {
     // This indicates which driver we need (MySQL, Oracle, etc)
     driverType = uri.scheme;

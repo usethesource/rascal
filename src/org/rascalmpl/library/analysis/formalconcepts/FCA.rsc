@@ -6,12 +6,13 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Library for Formal Concept Analysis
 
-#### Description
+}
+@description{
 
 Formal Concept Analysis is a somewhat ubiquitous tool in software analysis projects. 
 It can be used to find latent groups of objects that share the same attributes in a dataset. 
@@ -35,8 +36,8 @@ public alias Object2Attributes[&Object, &Attribute] = map[&Object, set[&Attribut
 public alias Attribute2Objects[&Attribute, &Object] = map[&Attribute, set[&Object]];
 
                                                      
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Computes Concept Lattice given the Object Attribute Relation.
 }
@@ -45,8 +46,8 @@ public ConceptLattice[&Object, &Attribute] fca (FormalContext[&Object, &Attribut
     return {<<tau(fc, c1), c1>, <tau(fc, c2), c2>>|<set[&Attribute] c1, set[&Attribute] c2><-lat};
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Computes Dot Graph from Concept Lattice.
 }
@@ -172,8 +173,8 @@ Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], in
      } 
      
    
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Write relation in `.dot` format.
 }    

@@ -7,12 +7,13 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Functions for reading and writing Comma-Separated Values (CSV) files.
 
-#### Description
+}
+@description{
 
 The http://tools.ietf.org/html/rfc4180[CSV format] is used for exchanging
 information between spreadsheets and databases. A CSV file has the following structure:
@@ -24,7 +25,8 @@ The following functions are provided:
 
 (((TOC)))
 
-#### Examples
+}
+@examples{
 
 * CSV file with headers
 ```csv
@@ -41,12 +43,13 @@ import lang::csv::ast::Implode;
 import Map;
 import List;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Read a relation from a CSV (Comma Separated Values) file.
 
-#### Description
+}
+@description{
 
 Read a CSV file and return a value of a required type.
 
@@ -82,7 +85,8 @@ Reading the values in fields is straightforward, except for the case that the te
 *  the text may include line breaks which are represented as `\n` in the resulting string value of the field.
 *  the text may contain escaped double quotes (`""`) which are represented as `\"` in the resulting string value.
 
-#### Examples
+}
+@examples{
 
 Given is the follwing file `ex1.csv`:
 
@@ -121,12 +125,13 @@ public java &T readCSV(type[&T] result, loc location, bool header = true, str se
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Write a relation to a CSV (Comma Separated Values) file.
 
-#### Description
+}
+@description{
 
 Write `relation` to a CSV file at `location`.
 The options influence the way the actrual CSV file is written:
@@ -134,7 +139,8 @@ The options influence the way the actrual CSV file is written:
 *  `header`: add or omit a header (based on the labels of the relation).
 *  `separator`: defines the separator character between fields (default is `,`).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import lang::csv::IO;
