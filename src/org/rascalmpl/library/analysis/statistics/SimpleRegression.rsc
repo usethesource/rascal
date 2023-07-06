@@ -76,7 +76,7 @@ Sum of squared deviations of the predicted y values about their mean.
 #### Description
 
 Returns the sum of squared deviations of the predicted y values about their mean (which equals the mean of y).
-This is usually abbreviated SSR or http://www.xycoon.com/SumOfSquares.htm[SSM].
+This is usually abbreviated SSR or [SSM](http://www.xycoon.com/SumOfSquares.htm).
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.SimpleRegressions}
 public java num regressionSumSquares(list[tuple[num,num]] values) throws IllegalArgument;
