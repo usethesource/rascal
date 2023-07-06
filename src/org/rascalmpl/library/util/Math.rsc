@@ -15,9 +15,6 @@
 Mathematical functions.
 
 }
-@usage{
-
-}
 @description{
 
 The `Math` library provides the following functions:
@@ -558,8 +555,8 @@ public (&T <: num) round(&T <: num r, &T <: num nearest) = round(r / (nearest * 
 
 
 
-.Synopsis push real value into a float using coercion and return the value represented by that float as a real
-
+@synopsis{p
+Push real value into a float using coercion and return the value represented by that float as a real
 }
 @description{
 
@@ -582,8 +579,8 @@ value, this function will throw an ArithmeticException.
 public java real fitFloat(real r) throws ArithmeticException;
 
 
-.Synopsis push real value into a JVM double using coercion and return the value represented by that float as a real
-
+@synopsis{
+Push real value into a JVM double using coercion and return the value represented by that float as a real
 }
 @description{
 
