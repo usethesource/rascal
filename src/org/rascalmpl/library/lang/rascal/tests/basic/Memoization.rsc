@@ -1,6 +1,4 @@
-@doc{
-This module test the memoization feature
-}
+@synopsis{This module test the memoization feature}
 module lang::rascal::tests::basic::Memoization
 
 import util::Memo;

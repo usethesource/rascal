@@ -5,8 +5,8 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-#### Synopsis
+
+@synopsis{
 
 AST model for YAML (loosely based on the serialization model of <http://www.yaml.org/spec/1.2/spec.html>)
 }

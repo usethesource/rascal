@@ -5,12 +5,13 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Correlation between data values.
 
-#### Description
+}
+@description{
 
 Compute the [correlation](http://en.wikipedia.org/wiki/Correlation) between pairs of data values.
 Correlation measures the statistical relationship between two sets of data.
@@ -20,68 +21,73 @@ The following functions are provided:
 }
 module analysis::statistics::Correlation
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Pearson product-moment correlation coefficient.
 
-#### Description
+}
+@description{
 
 Compute the [Pearson product-moment correlation coefficient](http://en.wikipedia.org/wiki/Pearson_product-moment_correlation_coefficient).
 It is a measure of the strength of the linear dependence between two variables.
 
-#### Pitfalls
+}
+@pitfalls{
 
 Use ((SpearmansCorrelation)) when there is a *monotonous dependence* between the two variables.
-
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num PearsonsCorrelation(lrel[num x,num y] values);
 
-@doc{
-#### Synopsis
 
-Standard errors associated with Pearson correlation. 
+@synopsis{
+
+Standard errors associated with Pearson correlation.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java list[real] PearsonsCorrelationStandardErrors(lrel[num x,num y] values);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 P-values (significance) associated with Pearson correlation.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java list[real] PearsonsCorrelationPValues(lrel[num x,num y] values);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Spearman's rank correlation coefficient.
 
-#### Description
+}
+@description{
 
 Compute [Spearman's rank correlation coefficient](http://en.wikipedia.org/wiki/Spearman's_rank_correlation_coefficient).
 The correlation between the data values is computed by first performing a rank transformation
 on the data values using a natural ranking and then computing ((PearsonsCorrelation)).
 
-#### Pitfalls
+}
+@pitfalls{
 
 Use ((PearsonsCorrelation)) when there is a *linear dependence* between the variables.
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Correlations}
 public java num SpearmansCorrelation(lrel[num x,num y] values);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Covariance of data values.
 
-#### Description
+}
+@description{
 
 Computes the [covariance](http://en.wikipedia.org/wiki/Covariance) between the `x` and `y` values.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import analysis::statistics::Correlation;

@@ -13,7 +13,7 @@ import ParseTree;
 import ValueIO;
 import util::Maybe;
 
-@doc{adds an attribute to all productions it can find}
+@synopsis{adds an attribute to all productions it can find}
 Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
 set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) := mod2attr(m)};

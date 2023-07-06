@@ -7,24 +7,26 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Library functions for nodes.
 
-#### Description
+}
+@description{
 
 The following library functions are defined for nodes:
 (((TOC)))
 }
 module Node
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Determine the number of children of a node.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -35,12 +37,13 @@ arity("f"(10, "abc", false));
 @javaClass{org.rascalmpl.library.Prelude}
 public java int arity(node T);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Get the children of a node.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -50,12 +53,13 @@ getChildren("f"(10, "abc"));
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[value] getChildren(node T);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Get the keyword parameters of a node.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -68,12 +72,13 @@ public java map[str,value] getKeywordParameters(node T);
 @Deprecated{Use getKeywordParameters(T)}
 public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Set the keyword parameters of a node.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -87,12 +92,13 @@ public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keyword
 public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
   = setKeywordParameters(x, keywordParameters);
   
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Determine the name of a node.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -102,12 +108,13 @@ getName("f"(10, "abc"));
 @javaClass{org.rascalmpl.library.Prelude}
 public java str getName(node T);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Create a node given its function name and arguments.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -117,8 +124,8 @@ makeNode("f", [10, "abc"]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Reset a specific keyword parameter back to their default on a node.
 }
@@ -128,8 +135,8 @@ public java &T <: node unset(&T <: node x, str keywordParameter);
 @Deprecated{Use unset(x, kw)}
 public &T <: node delAnnotation(&T <:  node x, str keywordParameter) = unset(x, keywordParameter); 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Reset a set of keyword parameters back to their default on a node.
 }
@@ -141,8 +148,8 @@ public &T <: node unset(&T <: node x, set[str] keywordParameters){
 }
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Reset all keyword parameters back to their default.
 }
@@ -152,8 +159,8 @@ public java &T <: node unset(&T <: node x);
 @Deprecated{Use `unset(x)`}
 public &T <: node delAnnotations(&T <: node x) = unset(x);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Recursively reset all keyword parameters of the node and its children back to their default.
 }
@@ -163,8 +170,8 @@ public java &T unsetRec(&T x);
 @Deprecated{Use `unsetRec(x)`}
 public &T delAnnotationsRec(&T x) = unsetRec(x);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Recursively reset a specific keyword parameter of the node and its children back to its default.
 }
@@ -172,8 +179,8 @@ public &T unsetRec(&T x, str keywordParameter) = visit(x) {
   case node n => unset(n, keywordParameter)
 };
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Recursively reset a selected set of keyword parameters of the node and its children back to their default.
 }
@@ -186,12 +193,13 @@ public &T <: node unsetRec(&T <: node x, set[str] keywordParameters) = visit(x) 
 public java node arbNode();
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a node to a string.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;
@@ -203,12 +211,13 @@ toString(F);
 public java str toString(node T);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a node to an indented string.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import Node;

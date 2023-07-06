@@ -12,8 +12,7 @@ import String;
 import IO;
 import util::Math;
 
-@doc{
-  .Synopsis
+@synopsis{.Synopsis
   This progressbar can be used in terminal applications to show the progress of some process in the terminal.
   
   .Description
@@ -40,9 +39,7 @@ import util::Math;
     pb.report(" : <i+1> of <total>");
   }
   pb.finished();  
-  ```
-
-}
+  ```}
 tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Progress:", int length = 50, int limit = total, str fill = "\u2588", str unfill = "-", str printEnd = "\r") {
     limit = limit > total ? total : limit;
     
@@ -60,8 +57,7 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
     }, void () { println(); }>;
 }
 
-@doc {
-  .Synopsis
+@synopsis{.Synopsis
   Simple spinner to display progress for some terminal process for which the total number of steps is not known.
       
   .Description
@@ -78,8 +74,7 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
   while (n := arbInt(100), n != 1) {
     sp("<n>");
   }
-  ```  
-}
+  ```}
 void (str) spinner(str prefix = " ", str printEnd = "\r") {
   int stat = 0;
   

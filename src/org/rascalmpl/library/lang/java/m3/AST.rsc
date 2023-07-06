@@ -194,13 +194,13 @@ set[loc] findRoots(set[loc] folders) {
   return result;
 }
       
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Creates AST from a file
 
-#### Description
-
+}
+@description{
 }
 public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
@@ -218,7 +218,7 @@ public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBind
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
-@doc{Creates a set ASTs for all Java source files in a project using Eclipse's JDT compiler}
+@synopsis{Creates a set ASTs for all Java source files in a project using Eclipse's JDT compiler}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
@@ -229,7 +229,7 @@ public set[Declaration] createAstsFromDirectory(loc project, bool collectBinding
     return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);
 }
 
-@doc{Creates a set ASTs for all Java source files in a Maven project using Eclipse's JDT compiler}
+@synopsis{Creates a set ASTs for all Java source files in a Maven project using Eclipse's JDT compiler}
 @description{
 This function uses ((util::Reflective-getProjectPathConfig)), which inspects a `pom.xml` to 
 compute the dependencies and concrete locations of jar files that a Maven project depends on.
