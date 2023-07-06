@@ -12,10 +12,8 @@ import String;
 import IO;
 import util::Math;
 
-@synopsis{.Synopsis
-  This progressbar can be used in terminal applications to show the progress of some process in the terminal.
-  
-  .Description
+@synopsis{ This progressbar can be used in terminal applications to show the progress of some process in the terminal.}
+@description{
   The total number of steps is the only required parameter to be passed in. All other parameters are optional.
    - `prefix` is the string that is displayed in front of the progress bar (default "").
    - `length` is the length (number of characters) of the displayed bar (default 50).
@@ -29,8 +27,8 @@ import util::Math;
   - `finished()` can be called at the end of the iteration to add a new line to the terminal  
 
   It is inspired on the progressbar described here: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
-
-  .Examples
+}
+@examples{
   ```rascal-shell
   import util::Progress;
   int total = 10; 
@@ -39,7 +37,8 @@ import util::Math;
     pb.report(" : <i+1> of <total>");
   }
   pb.finished();  
-  ```}
+  ```
+}
 tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Progress:", int length = 50, int limit = total, str fill = "\u2588", str unfill = "-", str printEnd = "\r") {
     limit = limit > total ? total : limit;
     
@@ -57,16 +56,14 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
     }, void () { println(); }>;
 }
 
-@synopsis{.Synopsis
-  Simple spinner to display progress for some terminal process for which the total number of steps is not known.
-      
-  .Description
+@synopsis{Simple spinner to display progress for some terminal process for which the total number of steps is not known.}
+@description{
   `prefix` - Contains the string displayed in front the spinner (default " ").
      
    It returns a function that can be called to make the spinner spin one rotation.
    This function takes a `suffix` string parameter that will be displayed behind the spinner  
-  
-  .Examples  
+} 
+@examples{
   ```rascal-shell
   import util::Progress;
   import util::Math;
