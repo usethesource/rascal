@@ -28,7 +28,9 @@ test bool concat6() = concat([[1,2],[3],[4,5],[]]) == [1,2,3,4,5];
 test bool delete1() = delete([0,1,2], 0) == [1,2];
 test bool delete2() = delete([0,1,2], 1) == [0,2];
 test bool delete3() = delete([0,1,2], 2) == [0,1];
-@expected{IndexOutOfBounds} test bool delete4() { delete([0,1,2], 3); return false; } 
+@expected{
+IndexOutOfBounds
+} test bool delete4() { delete([0,1,2], 3); return false; } 
   		
 // distribution
 test bool distribution1()  = distribution([]) == ();
@@ -55,19 +57,33 @@ test bool dup5()  = dup([1,1,2])   == [1,2];
 test bool dup6()  = dup([1,1,2,2]) == [1,2];
 
 // elementAt - deprecated!
-@ignoreCompiler{Remove-after-transtion-to-compiler: Other exception} @expected{NoSuchElement} test bool elementAt1() {[][0]; return false;}
-@ignoreInterpreter{Other exception} @expected{IndexOutOfBounds} test bool elementAt1() {[][0]; return false;}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Other exception
+} @expected{
+NoSuchElement
+} test bool elementAt1() {[][0]; return false;}
+@ignoreInterpreter{
+Other exception
+} @expected{
+IndexOutOfBounds
+} test bool elementAt1() {[][0]; return false;}
 test bool elementAt2()  = [1,2,3][0] == 1;
 test bool elementAt3()  = [1,2,3][1] == 2;
 test bool elementAt4()  = [1,2,3][2] == 3;
-@expected{IndexOutOfBounds} test bool elementAt5() {[1,2,3][3]; return false;}
+@expected{
+IndexOutOfBounds
+} test bool elementAt5() {[1,2,3][3]; return false;}
 test bool elementAt6()  = [1,2,3][-1] == 3;
 test bool elementAt7()  = [1,2,3][-2] == 2;
 test bool elementAt8()  = [1,2,3][-3] == 1;
-@expected{IndexOutOfBounds} test bool elementAt9() {[1,2,3][-4]; return false;}
+@expected{
+IndexOutOfBounds
+} test bool elementAt9() {[1,2,3][-4]; return false;}
 
 // getOneFrom
-@expected{EmptyList} test bool getOneFrom1() {getOneFrom([]); return false;} 
+@expected{
+EmptyList
+} test bool getOneFrom1() {getOneFrom([]); return false;} 
 test bool getOneFrom2() {int N = getOneFrom([1]); return N == 1;}
 test bool getOneFrom3() {int N = getOneFrom([1,2]); return  (N == 1) || (N == 2);}
 test bool getOneFrom4() {int N = getOneFrom([1,2,3]); return  (N == 1) || (N == 2) || (N == 3);}
@@ -75,7 +91,9 @@ test bool getOneFrom5() {real D = getOneFrom([1.0,2.0]); return  (D == 1.0) || (
 test bool getOneFrom6() {str S = getOneFrom(["abc","def"]); return  (S == "abc") || (S == "def");}
   
 // head/1
-@expected{EmptyList} test bool head1a() {head([]);return false;}
+@expected{
+EmptyList
+} test bool head1a() {head([]);return false;}
 test bool head2a() = head([1]) == 1;
 test bool head3a() = head([1, 2]) == 1;
 
@@ -85,10 +103,18 @@ test bool head2b() = head([1, 2, 3, 4], 1) == [1];
 test bool head3b() = head([1, 2, 3, 4], 2) == [1,2];
 test bool head4b() = head([1, 2, 3, 4], 3) == [1,2,3];
 test bool head5b() = head([1, 2, 3, 4], 4) == [1,2,3,4];
-@expected{IndexOutOfBounds} test bool head6b() {head([],1);return false;}
-@expected{IndexOutOfBounds} test bool head7b() {head([],3);return false;}
-@expected{IndexOutOfBounds} test bool head8b() {head([1,2],3);return false;}
-@expected{IndexOutOfBounds} test bool head9b() {head([],-1);return false;}
+@expected{
+IndexOutOfBounds
+} test bool head6b() {head([],1);return false;}
+@expected{
+IndexOutOfBounds
+} test bool head7b() {head([],3);return false;}
+@expected{
+IndexOutOfBounds
+} test bool head8b() {head([1,2],3);return false;}
+@expected{
+IndexOutOfBounds
+} test bool head9b() {head([],-1);return false;}
 
 // headTail - see pop
 
@@ -107,7 +133,9 @@ test bool indexOf5() = indexOf([1,2,1],1) == 0;
 
 // insertAt  
 test bool insertAt1() = insertAt([], 0, 1) == [1];
-@expected{IndexOutOfBounds} test bool insertAt2() {insertAt([], 1, 1) == [1]; return false;}
+@expected{
+IndexOutOfBounds
+} test bool insertAt2() {insertAt([], 1, 1) == [1]; return false;}
 test bool insertAt3() = insertAt([2,3], 0, 1) == [1, 2, 3];
 test bool insertAt4() = insertAt([2,3], 1, 1) == [2, 1, 3];
 test bool insertAt5() = insertAt([2,3], 2, 1) == [2, 3, 1];
@@ -128,7 +156,9 @@ test bool isEmpty2()  = !isEmpty([0]);
 test bool isEmpty3()  = !isEmpty([1,2]);
 
 // last
-@expected{EmptyList} test bool last1() {last([]);return false;}
+@expected{
+EmptyList
+} test bool last1() {last([]);return false;}
 test bool last2() = last([1]) == 1;
 test bool last3() = last([1, 2]) == 2;
 
@@ -145,7 +175,9 @@ test bool mapper2() = mapper([1,2], int (int n) {return n;}) == [1,2];
 test bool mapper3() = mapper([1,2,3], int (int n) {return n+1;}) == [2,3,4];
   
 // max
-@expected{EmptyList} test bool max1() {max([]); return false;}
+@expected{
+EmptyList
+} test bool max1() {max([]); return false;}
 test bool max2() = max([1, 1, 1]) == 1;
 test bool max3() = max([1, 2, 3, 2, 1]) == 3;
 test bool max4() = max([-1, -2, -3]) == -1;
@@ -159,7 +191,9 @@ test bool merge5() = merge([2],[2]) == [2,2];
 test bool merge6() = merge([3],[2]) == [2,3];
   	
 // min
-@expected{EmptyList} test bool min1() {min([]); return false;}
+@expected{
+EmptyList
+} test bool min1() {min([]); return false;}
 test bool min2() = min([1, 1, 1]) == 1;
 test bool min3() = min([1, 2, 3, 2, 1]) == 1;
 test bool min4() = min([-1, -2, -3]) == -3;
@@ -182,7 +216,9 @@ test bool permutations5()  = permutations([1,1]) == {[1,1]};
 test bool permutations6()  = permutations([1,1,1]) == {[1,1,1]};
 
 // pop
-@expected{EmptyList} test bool pop1() {pop([]);return false;}
+@expected{
+EmptyList
+} test bool pop1() {pop([]);return false;}
 test bool pop2() = pop([1]) == <1,[]>;
 test bool pop3() = pop([1,2]) == <1,[2]>;
 test bool pop4() = pop([1,2,3]) == <1,[2,3]>;
@@ -251,8 +287,12 @@ test bool sort2a() = sort([1,2,3], bool(int a, int b){return a < b;}) == [1,2,3]
 test bool sort2b() = sort([1,3,2], bool(int a, int b){return a < b;}) == [1,2,3];
 test bool sort2c() = sort([1,3,2], bool(int a, int b){return a > b;}) == [3,2,1];
 test bool sort2d() = sort([3,2,1], bool(int a, int b){return a > b;}) == [3,2,1];
-@expected{IllegalArgument} test bool sort2e() {sort([1,2,3], bool(int a, int b){return a <= b;}); return false;}
-@expected{IllegalArgument} test bool sort2f() {sort([1,2,3], bool(int a, int b){return a >= b;}); return false;}
+@expected{
+IllegalArgument
+} test bool sort2e() {sort([1,2,3], bool(int a, int b){return a <= b;}); return false;}
+@expected{
+IllegalArgument
+} test bool sort2f() {sort([1,2,3], bool(int a, int b){return a >= b;}); return false;}
 
 bool less(int a, int b) = a < b;
 bool lesseq(int a, int b) = a <= b;
@@ -263,8 +303,12 @@ test bool sort2g() = sort([1,2,3], less) == [1,2,3];
 test bool sort2h() = sort([1,3,2], less) == [1,2,3];
 test bool sort2i() = sort([1,3,2], greater) == [3,2,1];
 test bool sort2j() = sort([3,2,1], greater) == [3,2,1];
-@expected{IllegalArgument} test bool sort2k() {sort([1,2,3], lesseq); return false;}
-@expected{IllegalArgument} test bool sort2l() {sort([1,2,3], greatereq); return false;}
+@expected{
+IllegalArgument
+} test bool sort2k() {sort([1,2,3], lesseq); return false;}
+@expected{
+IllegalArgument
+} test bool sort2l() {sort([1,2,3], greatereq); return false;}
 
 
 test bool shuffleFirstIndex(list[value] v) = v == [] || ({ shuffle(v)[0] | _ <- [0..50 * size(v)]} == {*v});
@@ -283,10 +327,14 @@ test bool sum1() = sum([0]) == 0;
 test bool sum2() = sum([1]) == 1;
 test bool sum3() = sum([1,2]) == 3;
 test bool sum4() = sum([1,2,3]) == 6;
-@expected{EmptyList} test bool sum5() {sum([]); return false;}
+@expected{
+EmptyList
+} test bool sum5() {sum([]); return false;}
 
 // tail/1
-@expected{EmptyList} test bool tail1a() {tail([]);return false;}
+@expected{
+EmptyList
+} test bool tail1a() {tail([]);return false;}
 test bool tail2a() = tail([1]) == [];
 test bool tail3a() = tail([1, 2]) == [2];
 test bool tail4a() = tail(tail([1, 2])) == [];
@@ -297,15 +345,25 @@ test bool tail2b() = tail([1, 2, 3, 4], 1) == [4];
 test bool tail3b() = tail([1, 2, 3, 4], 2) == [3,4];
 test bool tail4b() = tail([1, 2, 3, 4], 3) == [2,3,4];
 test bool tail5b() = tail([1, 2, 3, 4], 4) == [1,2,3,4];
-@expected{IndexOutOfBounds} test bool tail6b() {tail([],1);return false;}
-@expected{IndexOutOfBounds} test bool tail7b() {tail([],3);return false;}
-@expected{IndexOutOfBounds} test bool tail8b() {tail([1,2],3);return false;}
-@expected{IndexOutOfBounds} test bool tail9b() {tail([],-1);return false;}
+@expected{
+IndexOutOfBounds
+} test bool tail6b() {tail([],1);return false;}
+@expected{
+IndexOutOfBounds
+} test bool tail7b() {tail([],3);return false;}
+@expected{
+IndexOutOfBounds
+} test bool tail8b() {tail([1,2],3);return false;}
+@expected{
+IndexOutOfBounds
+} test bool tail9b() {tail([],-1);return false;}
   	
 // takeOneFrom
 test bool takeOneFrom1() {<E, L> = takeOneFrom([1]); return (E == 1) && (L == []);}
 test bool takeOneFrom2() {<E, L> = takeOneFrom([1,2]); return ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]));}
-@expected{EmptyList} test bool takeOneFrom3() {takeOneFrom([]); return false;}
+@expected{
+EmptyList
+} test bool takeOneFrom3() {takeOneFrom([]); return false;}
 
 // takeWhile
 test bool takeWhile1() = takeWhile([],bool(int x){ return x mod 2 == 0;}) == [];
@@ -324,7 +382,9 @@ test bool toMap3() = toMap([<1,10>, <2,20>, <1,30>]) == (1:[10,30], 2:[20]);
 // toMapUnique
 test bool toMapUnique1() = toMapUnique([]) == ();
 test bool toMapUnique2() = toMapUnique([<1,10>, <2,20>]) == (1:10, 2:20);
-@expected{MultipleKey} test bool toMapUnique3() {toMapUnique([<1,10>, <1,20>]); return false;}
+@expected{
+MultipleKey
+} test bool toMapUnique3() {toMapUnique([<1,10>, <1,20>]); return false;}
 
 // top - see head
 

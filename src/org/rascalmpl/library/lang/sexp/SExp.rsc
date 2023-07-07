@@ -1,8 +1,5 @@
 
-@synopsis{
-
-AST model for S-Expressions.
-}
+@synopsis{AST model for S-Expressions.}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::sexp::SExp
 

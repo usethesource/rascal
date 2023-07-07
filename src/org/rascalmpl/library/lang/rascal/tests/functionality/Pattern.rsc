@@ -62,15 +62,21 @@ test bool matchNode1() ="f"(1)                := "f"(1);
 test bool matchNode2() ="f"(1, "g"("abc"), true) := "f"(1, "g"("abc"), true);
 test bool matchNode3() = "g"(1)               !:= "f"(1);
 
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool matchNode4() = !"g"(1)              := "f"(1);
 test bool matchNode5() = "f"(1, 2)            !:= "f"(1);
 
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool matchNode6() = !"f"(1, 2)           := "f"(1);
 test bool matchNode7() = "f"(1, 2)            !:= "f"(1, 2, 3);
 
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool matchNode8() = !"f"(1, 2)           := "f"(1, 2, 3);
 
 test bool matchNode9() = "f"(_)                := "f"(1);
@@ -122,7 +128,9 @@ test bool matchVariableBecomes1() = N : 3 := 3 && N == 3;
   
 // variableBecomesEquality
 
-@IgnoreCompiler{TODO: fails, assignment to N is not undone}        
+@IgnoreCompiler{
+TODO: fails, assignment to N is not undone
+}        
 test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
 
 test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
@@ -145,10 +153,14 @@ test bool antiPattern9() = ![1,2,3] !:= [1,2,3];
 test bool antiPattern10() = !(![1,2,3] := [1,2,3]);
 
 test bool antiPattern11() = ![1,2] := [1,2,3];
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool antiPattern12() = ![1,2,3] := [1,2];
 
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool antiPattern13() = !{1,2,3} := {1,2,4};
 
 test bool antiPattern14() = !{1,2,3} !:= {1,2,3};
@@ -156,16 +168,22 @@ test bool antiPattern15() = !(!{1,2,3} := {1,2,3});
 
 test bool antiPattern16() = !{1,2} := {1,2,4};
 
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool antiPattern17() = !{1,2,3} := {1,2};
 
 test bool antiPattern18() = !<1,2,3> := <1,2,4>;
 test bool antiPattern19() = !<1,2,3> !:= <1,2,3>;
 test bool antiPattern20() = !(!<1,2,3> := <1,2,3>);
 
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool antiPattern21() = !<1,2> := <1,2,4>;
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool antiPattern22() = !<1,2,3> := <1,2>;
   	
 // Match in loops

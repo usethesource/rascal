@@ -12,7 +12,6 @@ module lang::aut::IO
 
 @synopsis{Read relations from an AUT file.}
 @description{
-
 An AUT file contains tuples of ternary relation as lines with the following format:
 * `(<int>,<str>,<int>)`
 *  each field is separated by a comma 

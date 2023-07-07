@@ -12,7 +12,6 @@
 
 @synopsis{Functions for reading and writing XML files to and from a "DOM" representation.}
 @description{
-
 [XML](http://en.wikipedia.org/wiki/XML) is a widely used markup language for encoding and exchanging documents.
 
 The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent way of representing and manipulating HTML, XHTML and XML documents. In this module we represent the DOM as a Rascal data types using keyword parameters for the optional attributes.
@@ -32,10 +31,7 @@ module lang::xml::DOM
 import Node;
 
 
-@synopsis{
-
-Datatypes for representing an instance of the DOM.
-}
+@synopsis{Datatypes for representing an instance of the DOM.}
 
 data Node(map[str key, str val] attrs = ()) 
     = document(Node root)
@@ -73,31 +69,20 @@ public Node toXML(node x)
 public default Node toXML(value x) = charData("<x> ");
 
 
-@synopsis{
-
-Auxiliary constructor for XML attribute without namespace.
-}
+@synopsis{Auxiliary constructor for XML attribute without namespace.}
 public Node attribute(str name, str text) = attribute(none(), name, text);
 
 
-@synopsis{
-
-Auxiliary constructor for XML element without namespace.
-}
+@synopsis{Auxiliary constructor for XML element without namespace.}
 public Node element(str name, list[Node] kids) = element(none(), name, kids);
 
 
 
-@synopsis{
-
-Parse an XML document and return a DOM instance.
-
-}
+@synopsis{Parse an XML document and return a DOM instance.}
 @description{
 
 }
 @examples{
-
 Read the sample note file, parse it, and construct a DOM instance.
 ```rascal-shell
 import IO;
@@ -114,13 +99,8 @@ As expected, the result is of type ((lang::xml::DOM::Node)).
 public java Node parseXMLDOM(str src);
 
 
-@synopsis{
-
-Parse an XML document and trim it (remove layout).
-
-}
+@synopsis{Parse an XML document and trim it (remove layout).}
 @examples{
-
 Read the sample note file, parse it, and construct a DOM instance (using `parseXMLDOMTrim`).
 ```rascal-shell
 import IO;
@@ -135,13 +115,8 @@ Compare this with the output of ((parseXMLDOM)).
 public java Node parseXMLDOMTrim(str src);
 
 
-@synopsis{
-
-Convert a DOM instance to a raw XML string.
-
-}
+@synopsis{Convert a DOM instance to a raw XML string.}
 @examples{
-
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
 import IO;
@@ -157,13 +132,8 @@ Apart from an extra XML header, the original source file `F` and the output `S` 
 public java str xmlRaw(Node x);
 
 
-@synopsis{
-
-Convert a DOM instance to a compact XML string (with minimal white space).
-
-}
+@synopsis{Convert a DOM instance to a compact XML string (with minimal white space).}
 @examples{
-
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
 import IO;
@@ -179,13 +149,8 @@ The output `S` of `xmlCompact` is a version of the original source file `F` with
 public java str xmlCompact(Node x);
 
 
-@synopsis{
-
-Convert a DOM instance to a pretty printed XML string.
-
-}
+@synopsis{Convert a DOM instance to a pretty printed XML string.}
 @examples{
-
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 
 ```rascal-shell

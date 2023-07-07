@@ -624,14 +624,18 @@ test bool matchListDynamicNoMatch5() = [str _, int _] !:= ["a", true];
 test bool matchListDynamicNoMatch6() = [*str _, int _] !:= ["a", true];
 test bool matchListDynamicNoMatch7() = [str _, *int _] !:= ["a", true];
   		
-@ignore{investigate} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
+@ignore{
+investigate
+} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
   		
 test bool matchListFalse1() {list[value] l = [1,2,3]; return [1, str _, 2] !:= l; }
 
 test bool matchListModuleVar1() = [ModVar42] := [42];
 test bool matchListModuleVar2() = [*ModVarList_41_42_43] := ModVarList_41_42_43;
 test bool matchListModuleVar3() = [ModVar42, *ModVarList_41_42_43] := [ModVar42, *ModVarList_41_42_43];
-@ignoreInterpreter{Seems to be a bug in the interpreter}
+@ignoreInterpreter{
+Seems to be a bug in the interpreter
+}
 test bool matchListModuleVar4() = [ModVar42, ModVarList_41_42_43] := [ModVar42, ModVarList_41_42_43];
 
 //	matchNestedList

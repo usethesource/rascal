@@ -59,7 +59,9 @@ test bool checkAnnoExistsAsKeywordField(){
    return example.pos?;
 }
 
-@ignoreInterpreter{TODO: JV this still fails}
+@ignoreInterpreter{
+TODO: JV this still fails
+}
 test bool KeywordFieldUpdateVisibleAsAnno(){
     F example = f();
    // keyword updates are visible to anno projection

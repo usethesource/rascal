@@ -15,15 +15,21 @@
 module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use writeJSON}
+@deprecated{
+use writeJSON
+}
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use asJSON}
+@deprecated{
+use asJSON
+}
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use readJSON}
+@deprecated{
+use readJSON
+}
 public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}

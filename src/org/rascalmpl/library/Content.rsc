@@ -1,19 +1,11 @@
 
-@synopsis{
-
-Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.
-}
+@synopsis{Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.}
 module Content
 
 
-@synopsis{
-
-Content wraps the HTTP Request/Response API to support interactive visualization types
-on the terminal ((RascalShell)).  
-
-}
+@synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
+on the terminal ((RascalShell)).}
 @description{
-
 Values wrapped in a `Content` wrapper will be displayed by interactive
 Rascal applications such as the IDE, the REPL terminal and the documentation pages. 
 
@@ -43,43 +35,27 @@ data Content
   ;
 
 
-@synopsis{
-
-Directly serve a static html page
-}
+@synopsis{Directly serve a static html page}
 Content html(str html) = content(response(html));
 
 
-@synopsis{
-
-Directly serve the contents of a file
-}
+@synopsis{Directly serve the contents of a file}
 Content file(loc src) = content(response(src));
 
 
-@synopsis{
-
-Directly serve the contents of a string as plain text
-}
+@synopsis{Directly serve the contents of a string as plain text}
 Content plainText(str text) = content(plain(text));
 
 alias Body = value (type[value] expected);
 
 
-@synopsis{
-
-Request values represent what a browser is asking for, most importantly the URL path.
-
-}
+@synopsis{Request values represent what a browser is asking for, most importantly the URL path.}
 @description{
-
 A request value also contains the full HTTP headers, the URL parameters as a `map[str,str]`
 and possibly uploaded content, also coded as a map[str,str]. From the constructor type,
-`put` or `get` you can see what kind of HTTP request it was. 
-
+`put` or `get` you can see what kind of HTTP request it was.
 }
 @pitfalls{
-
 * Note that `put` and `post` have not been implemented yet in the REPL server.
 }
 data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
@@ -91,13 +67,8 @@ data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str
   ;
 
 
-@synopsis{
-
-A response encodes what is send back from the server to the browser client.
-
-}
+@synopsis{A response encodes what is send back from the server to the browser client.}
 @description{
-
 The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
 which involves a handy, automatic, encoding of Rascal values into json values.
@@ -109,46 +80,28 @@ data Response
   ;
   
 
-@synopsis{
-
-Utility to quickly render a string as HTML content
-}  
+@synopsis{Utility to quickly render a string as HTML content}  
 Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, content);
 
 
-@synopsis{
-
-Utility to quickly report an HTTP error with a user-defined message
-}
+@synopsis{Utility to quickly report an HTTP error with a user-defined message}
 Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
 
 
-@synopsis{
-
-Utility to quickly make a plaintext response.
-}
+@synopsis{Utility to quickly make a plaintext response.}
 Response plain(str text) = response(ok(), "text/plain", (), text);
 
 
-@synopsis{
-
-Utility to serve a file from any source location.
-}
+@synopsis{Utility to serve a file from any source location.}
 Response response(loc f, map[str,str] header = ()) = fileResponse(f, mimeTypes[f.extension]?"text/plain", header);
 
 
-@synopsis{
-
-Utility to quickly serve any rascal value as a json text. This comes in handy for
-asynchronous HTTP requests from Javascript.
-}
+@synopsis{Utility to quickly serve any rascal value as a json text. This comes in handy for
+asynchronous HTTP requests from Javascript.}
 default  Response response(value val, map[str,str] header = ())             = jsonResponse(ok(), header, val);
   
 
-@synopsis{
-
-Encoding of HTTP status
-}  
+@synopsis{Encoding of HTTP status}  
 data Status 
   = ok() 
   | created() 
@@ -166,10 +119,7 @@ data Status
   ; 
 
 
-@synopsis{
-
-A static map with default MIME interpretations for particular file extensions.
-}  
+@synopsis{A static map with default MIME interpretations for particular file extensions.}  
 public map[str extension, str mimeType] mimeTypes = (
         "json" :"application/json",
         "css" : "text/css",

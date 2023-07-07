@@ -204,7 +204,9 @@ test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 451;
 
 test bool cntSet1()         {cnt = 0; visit(Rascal){ case {*value _}: cnt += 1; }; return cnt == 766; }
 test bool cntSet2()         = size([x | /x:{*value _} := Rascal]) == 766;
-@ignoreInterpreter{gives wrong answer 1186}
+@ignoreInterpreter{
+gives wrong answer 1186
+}
 test bool cntStr1()         {cnt = 0; visit(Rascal){ case str _: cnt += 1; }; return cnt == 3967; }
 test bool cntStr2()         = size([x | /x:str _ := Rascal]) == 3967;
 

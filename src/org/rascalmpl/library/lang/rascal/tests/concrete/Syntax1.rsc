@@ -34,9 +34,13 @@ test bool tX7b() ="<([X7] "").x7>" == "";
 
 test bool parseD1() = (D)`d` := parse(#D, "d");
 
-@expected{ParseError}
+@expected{
+ParseError
+}
 test bool parseD2() = (D)`d` := parse(#D, " d");
-@expected{ParseError}
+@expected{
+ParseError
+}
 test bool parseD3() = (D)`d` := parse(#D, "d ");
 
 test bool parseD4() = (start[D])`d` := parse(#start[D], " d ");
