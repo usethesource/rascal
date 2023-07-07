@@ -6,21 +6,18 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Rodrigo Bonifacio - rbonifacio@unb.br - CIC/UnB}
-
+@synopsis{Java 8 grammar}
+@description{
 This Java grammar is based on the following references:
 
 * https://docs.oracle.com/javase/specs/jls/se8/html/jls-19.html
 * https://github.com/antlr/grammars-v4/blob/master/java8/Java8.g4
 * Rascal Java15 grammar
-
 }
 @benefits{
-
 * the grammar is well-annotated with the source information
-
 }
 @pitfalls{
-
 * the grammar contains too many non-terminals for the expression sub-language (priorities and associativities
 are still encoded with non-terminals)
 * same for the Statements; too many non-terminals for handy use with concrete-syntax patterns

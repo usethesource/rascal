@@ -186,7 +186,9 @@ test bool lessequal2(int f, int t){
     return l1 <= l2;    // path is lexicographically less, other attributes are equal
 }
 
-@ignoreCompiler{FIXME}
+@ignoreCompiler{
+FIXME
+}
 test  bool greater1(int f1, int t1, int f2, int t2){
     l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
     return l1.offset <  l2.offset && l1.offset + l1.length >= l2.offset + l2.length ||
@@ -200,7 +202,9 @@ test bool greater2(int f, int t){
     return !(l1 > l2);
 }
 
-@ignoreCompiler{FIXME}
+@ignoreCompiler{
+FIXME
+}
 test  bool greaterequal1(int f1, int t1, int f2, int t2){
     l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
     return l1 == l2 ||
@@ -352,7 +356,9 @@ test bool isContainedIn2(int f, int len){
 
 // beginsBefore
 
-@ignore{unknown}
+@ignore{
+unknown
+}
 test bool beginsBefore1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsBefore(l1, l2));
@@ -376,20 +382,26 @@ test bool isBefore2(int _){
 }
 
 // isImmediatelyBefore
-@ignore{Fails intermittently}
+@ignore{
+Fails intermittently
+}
 test bool isImmediatelyBefore1(int _){
     <l1, l2> = makeLocsWithGap(0);
     return report(l1, l2, isImmediatelyBefore(l1, l2));
 }
 
-@ignore{Fails intermittently}
+@ignore{
+Fails intermittently
+}
 test bool isImmediatelyBefore2(int _){
     <l1, l2> = makeLocsWithGap(0);
     return report(l1, l2, !isImmediatelyBefore(l2, l1));
 }
 
 // beginsAfter
-@ignore{Until #1693 has been solved}
+@ignore{
+Until #1693 has been solved
+}
 test bool beginsAfter1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsAfter(l2, l1));
@@ -403,7 +415,9 @@ test bool isAfter1(int _){
 }
 
 // isImmediatelyAfter
-@ignore{Fails intermittently}
+@ignore{
+Fails intermittently
+}
 test bool isImmediatelyAfter1(int _){
     <l1, l2> = makeLocsWithGap(0);
     return report(l1, l2, isImmediatelyAfter(l2, l1));

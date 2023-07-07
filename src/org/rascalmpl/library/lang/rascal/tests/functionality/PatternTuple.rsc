@@ -24,7 +24,9 @@ data D = d1() | d2();
 test bool matchTupleADT1a() = <d1()> := <d1()>;
 test bool matchTupleADT1b() = <d1()> !:= <d2()>;
 test bool matchTupleADT1c() = !(<d1()> := <d2()>);
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool matchTupleADT1d() = !<d1()> := <d2()>;
 
 test bool matchTupleList1a() = <[]> := <[]>;
@@ -42,7 +44,9 @@ test bool matchTupleSet1a() = <{}> := <{}>;
 test bool matchTupleSet1b() = <{1}> := <{1}>;
 test bool matchTupleSet1c() = <{1}> !:= <{2}>;
 test bool matchTupleSet1d() = !(<{1}> := <{2}>);
-@ignoreInterpreter{to be determined}
+@ignoreInterpreter{
+to be determined
+}
 test bool matchTupleSet1e() = !<{1}> := <{2}>;
 
 test bool matchTupleSet2a() = <{1, int _, 3}> := <{1,2,3}>;

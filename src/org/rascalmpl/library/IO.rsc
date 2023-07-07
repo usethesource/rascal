@@ -85,7 +85,9 @@ Append a textual representation of some values to an existing or a newly created
 
 Files are encoded using the charset provided.
 }
-@deprecated{Use `appendToFile(file, V, charset=DEFAULT_CHARSET)` instead.}
+@deprecated{
+Use `appendToFile(file, V, charset=DEFAULT_CHARSET)` instead.
+}
 public void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
   = appendToFile(file, V, charset=charset, inferCharset=false);
 
@@ -115,9 +117,10 @@ public bool bprintln(value arg)
 }
 
 @synopsis{Check whether a given location exists.}
-@description{Check whether a certain location exists, i.e., whether an actual file is associated with it.}
+@description{
+Check whether a certain location exists, i.e., whether an actual file is associated with it.
+}
 @examples{
-
 ```rascal-shell
 import IO;
 ```
@@ -189,18 +192,11 @@ public java void iprintToFile(loc file, value arg, str charset=DEFAULT_CHARSET);
 public java str iprintToString(value arg);
 
 
-@synopsis{
-
-Print an indented representation of a value and returns the value as result.
-
-}
+@synopsis{Print an indented representation of a value and returns the value as result.}
 @description{
-
 See ((IO-iprintlnExp)) for a version that adds a newline.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 iprintExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -212,18 +208,11 @@ public &T iprintExp(&T v) {
 }
 
 
-@synopsis{
-
-Print an indented representation of a value followed by a newline and returns the value as result.
-
-}
+@synopsis{Print an indented representation of a value followed by a newline and returns the value as result.}
 @description{
-
 See ((IO-iprintExp)) for a version that does not add a newline.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 iprintlnExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -236,22 +225,15 @@ public &T iprintlnExp(&T v) {
 
 
 
-@synopsis{
-
-Print a indented representation of a value and add a newline at the end.
-
-}
+@synopsis{Print a indented representation of a value and add a newline at the end.}
 @description{
-
 See ((IO-iprintlnExp)) for a version that returns its argument as result
 and ((IO-iprint)) for a version that does not add a newline.
 
 By default we only print the first 1000 lines, if you want to print larger values, either 
 use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -262,13 +244,8 @@ iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
 public java void iprintln(value arg, int lineLimit = 1000); 
 
 
-@synopsis{
-
-Check whether a given location is actually a file (and not a directory).
-
-}
+@synopsis{Check whether a given location is actually a file (and not a directory).}
 @description{
-
 Check whether location `file` is actually a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -276,18 +253,11 @@ public java bool isFile(loc file);
 
 
 
-@synopsis{
-
-Last modification date of a location.
-
-}
+@synopsis{Last modification date of a location.}
 @description{
-
 Returns last modification time of the file at location `file`.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 ```
@@ -300,18 +270,11 @@ lastModified(|std:///IO.rsc|);
 public java datetime lastModified(loc file);
 
 
-@synopsis{
-
-Creation datetime of a location.
-
-}
+@synopsis{Creation datetime of a location.}
 @description{
-
 Returns the creation time of the file at location `file`.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 ```
@@ -325,34 +288,21 @@ public java datetime created(loc file);
 
 
 
-@synopsis{
-
-Set the modification date of a file to `now` or create the file if it did not exist yet
-}
+@synopsis{Set the modification date of a file to `now` or create the file if it did not exist yet}
 @javaClass{org.rascalmpl.library.Prelude}
 java void touch(loc file);
 
 
-@synopsis{
-
-Set the modification date of a file to the timestamp
-}
+@synopsis{Set the modification date of a file to the timestamp}
 @javaClass{org.rascalmpl.library.Prelude}
 java void setLastModified(loc file, datetime timestamp);
 
 
-@synopsis{
-
-List the entries in a directory.
-
-}
+@synopsis{List the entries in a directory.}
 @description{
-
 List the entries in directory `file`.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 ```
@@ -366,13 +316,8 @@ public java list[str] listEntries(loc file);
 
 
 
-@synopsis{
-
-Create a new directory.
-
-}
+@synopsis{Create a new directory.}
 @description{
-
 Create a directory at location `file`.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -380,21 +325,13 @@ public java void mkDirectory(loc file)
 throws PathNotFound, IO;
 
 
-@synopsis{
-
-Print a value without subsequent newline.
-
-}
+@synopsis{Print a value without subsequent newline.}
 @description{
-
 Print a value on the output stream.
 See ((IO-println)) for a version that adds a newline
 and ((IO-printExp)) for a version that returns its argument as value.
-
-
 }
 @examples{
-
 Note that the only difference with ((IO-println)) is that no newline is added after the value is printed
 ```rascal-shell
 import IO;
@@ -409,13 +346,8 @@ glued to the output of `print`.
 public java void print(value arg);
 
 
-@synopsis{
-
-Print a value and return it as result.
-
-}
+@synopsis{Print a value and return it as result.}
 @examples{
-
 ```rascal-shell
 import IO;
 printExp(3.14);
@@ -433,20 +365,13 @@ public &T printExp(str msg, &T v) {
 }
 
 
-@synopsis{
-
-Print a value to the output stream and add a newline.
-
-}
+@synopsis{Print a value to the output stream and add a newline.}
 @description{
-
 Print a value on the output stream followed by a newline.
 See ((IO-print)) for a version that does not add a newline
 and ((IO-printlnExp)) for a version that returns its argument as value.
-
 }
 @examples{
-
 ```rascal-shell
 import IO;
 println("Hello World");
@@ -477,13 +402,8 @@ public java void println(value arg);
 public java void println();
 
 
-@synopsis{
-
-Print a value followed by a newline and return it as result.
-
-}
+@synopsis{Print a value followed by a newline and return it as result.}
 @examples{
-
 ```rascal-shell
 import IO;
 printlnExp(3.14);
@@ -503,17 +423,11 @@ public &T printlnExp(str msg, &T v) {
 }
 
 
-@synopsis{
-
-Raw print of a value.
-
-}
+@synopsis{Raw print of a value.}
 @description{
-
 
 }
 @pitfalls{
-
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -521,35 +435,23 @@ public java void rprint(value arg);
 
     
 
-@synopsis{
-
-Raw print of a value followed by newline.
-
-}
+@synopsis{Raw print of a value followed by newline.}
 @description{
 
 }
 @pitfalls{
-
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void rprintln(value arg);
 
 
-@synopsis{
-
-Read the contents of a location and return it as string value.
-
-}
+@synopsis{Read the contents of a location and return it as string value.}
 @description{
-
 Return the contents of a file location as a single string.
 Also see ((readFileLines)).
-
 }
 @encoding{
-
 A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
 If you know the encoding of the file, please use the ((readFileEnc)) and ((readFileLinesEnc)) overloads.
 If you do not know, we try to detect this. This detection is explained below:
@@ -565,10 +467,8 @@ If you do not know, we try to detect this. This detection is explained below:
 
 *To summarize*, we use UTF-8 by default, except if the text that the location points to has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
-
 }
 @pitfalls{
-
 *  In case encoding is not known, we try to estimate as best as we can.
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters.
@@ -582,7 +482,9 @@ throws PathNotFound, IO;
 Return the contents (decoded using the Character set supplied) of a file location as a single string.
 Also see ((readFileLinesEnc)).
 }
-@deprecated{Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.}
+@deprecated{
+Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
+}
 public str readFileEnc(loc file, str charset) throws PathNotFound, IO
   = readFile(file, inferCharset=false, charset=charset);
 
@@ -590,45 +492,37 @@ public str readFileEnc(loc file, str charset) throws PathNotFound, IO
 public java str readBase64(loc file)
 throws PathNotFound, IO;
 
-@deprecated{Use readBase64 instead. Uuencode was a misnomer.}
+@deprecated{
+Use readBase64 instead. Uuencode was a misnomer.
+}
 public str uuencode(loc file) = readBase64(file);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
-@deprecated{Use writeBase65 instead. Uudecode was a misnomer.}
+@deprecated{
+Use writeBase65 instead. Uudecode was a misnomer.
+}
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
 
-@synopsis{
-
-Read the contents of a file and return it as a list of bytes.
-}
+@synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[int] readFileBytes(loc file)
 throws PathNotFound, IO;
 
 
 
-@synopsis{
-
-Read the contents of a file location and return it as a list of strings.
-
-}
+@synopsis{Read the contents of a file location and return it as a list of strings.}
 @description{
-
 Return the contents of a file location as a list of lines.
 Also see ((readFile)).
-
 }
 @encoding{
-
 Look at ((readFile)) to understand how this function chooses the character set. If you know the character set used, please use ((readFileLinesEnc)).
-
 }
 @pitfalls{
-
 *  In case encoding is not known, we try to estimate as best as we can (see [readFile]).
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters (see ((readFile))).
@@ -639,10 +533,10 @@ throws PathNotFound, IO;
 
 @synopsis{Writes a list of strings to a file, where each separate string is ended with a newline}
 @benefits{
-  * mirrors ((readFileLines)) in its functionality
+* mirrors ((readFileLines)) in its functionality
 }
 @pitfalls{
-  * if the individual elements of the list also contain newlines, the output may have more lines than list elements
+* if the individual elements of the list also contain newlines, the output may have more lines than list elements
 }
 public void writeFileLines(loc file, list[str] lines, str charset=DEFAULT_CHARSET) {
   writeFile(file, "<for (str line <- lines) {><line>
@@ -655,7 +549,9 @@ public void writeFileLines(loc file, list[str] lines, str charset=DEFAULT_CHARSE
 Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
 Also see ((readFileLines)).
 }
-@deprecated{Use `readFileLines(file, charset=DEFAULT_CHARSET)` instead.}
+@deprecated{
+Use `readFileLines(file, charset=DEFAULT_CHARSET)` instead.
+}
 public list[str] readFileLinesEnc(loc file, str charset)
 throws PathNotFound, IO
   = readFileLines(file, charset=charset);
@@ -665,13 +561,8 @@ throws PathNotFound, IO
 public java void remove(loc file, bool recursive=true) throws IO;
 
 
-@synopsis{
-
-Write values to a file.
-
-}
+@synopsis{Write values to a file.}
 @description{
-
 Write a textual representation of some values to a file:
 
 *  If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -691,13 +582,8 @@ public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound, IO;
 
 
-@synopsis{
-
-Write values to a file.
-
-}
+@synopsis{Write values to a file.}
 @description{
-
 Write a textual representation of some values to a file:
 
 *  If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -707,18 +593,15 @@ Write a textual representation of some values to a file:
 
 Files are encoded using the charset provided.
 }
-@deprecated{Use `writeFile(file, charset=...)` instead.}
+@deprecated{
+Use `writeFile(file, charset=...)` instead.
+}
 public void writeFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
   = writeFile(file, V, charset=charset);
 
 
-@synopsis{
-
-Read the contents of a location and return its MD5 hash.
-
-}
+@synopsis{Read the contents of a location and return its MD5 hash.}
 @description{
-
 MD5 hash the contents of a file location.
 }
 
@@ -740,12 +623,16 @@ throws PathNotFound, IO;
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
-@deprecated{use the `copy` function instead}
+@deprecated{
+use the `copy` function instead
+}
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
-@deprecated{use the `copy` function instead}
+@deprecated{
+use the `copy` function instead
+}
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);
 }

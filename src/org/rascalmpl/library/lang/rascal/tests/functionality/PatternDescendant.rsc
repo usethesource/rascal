@@ -25,9 +25,13 @@ test bool descendant6j() = !(/!4 !:= 3);
 
 test bool descendant7a() = !/4 := [1,2,3,2];
 test bool descendant7b() = /!4 := [1,2,3,2];
-@ignoreInterpreter{TBD}
+@ignoreInterpreter{
+TBD
+}
 test bool descendant7c() = /!4 !:= [1,2,3,4];
-@ignoreInterpreter{TBD}
+@ignoreInterpreter{
+TBD
+}
 test bool descendant7d() = !/!4 := [1,2,3,4];
 
 test bool descendant10() = /int N := (1 : 10) && (N == 1 || N == 10);
@@ -57,9 +61,13 @@ test bool descendant24() = {n | /int n <- {1,2,3}} == {1,2,3};
 test bool descendant25() = {n | /int n <- {<1,2,3>}} == {1,2,3};
 test bool descendant26() = {v | /value v <- {<1,"b",true>}} == {1,"b",true, <1,"b",true>}; 
 
-@ignoreInterpreter{Not implemented}
+@ignoreInterpreter{
+Not implemented
+}
 test bool descendant27() = {n | /int n := [1, "f"(2, kw1=3, kw2=4), 5]}  == {1,2,3,4,5};
-@ignoreInterpreter{Not implemented} 
+@ignoreInterpreter{
+Not implemented
+} 
 test bool descendant28() = {s | /str s := [1, rect(10,20), 5, rect(30,40,color="red")]}  == {"red"};
     
 
@@ -69,7 +77,9 @@ test bool descendant30() = /g(2) := f(g(1),f(g(2),g(3)));
 test bool descendant31() = [1, /g(2), 3] := [1, f(g(1),f(g(2),g(3))), 3];
 test bool descendant32() = [1, !/g(5), 3] := [1, f(g(1),f(g(2),g(3))), 3];
 
-@ignoreCompiler{FIXME: Typechecker: missing constraints}	
+@ignoreCompiler{
+FIXME: Typechecker: missing constraints
+}	
 test bool descendant33() = [1, [F] /f(/g(2), F _), 3] := [1, f(g(1),f(g(2),g(3))), 3];
 test bool descendant34() = [1, /f(/g(2),/g(3)), 3] := [1, f(g(1),f(g(2),g(3))), 3];
   		

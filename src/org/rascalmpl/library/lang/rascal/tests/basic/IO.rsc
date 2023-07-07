@@ -13,7 +13,9 @@ test bool writeReadFile(str content) {
   return readFile(aFile) == content;
 }
 
-@ignore{not all values can be read in back (such as constructors that turn into nodes)}
+@ignore{
+not all values can be read in back (such as constructors that turn into nodes)
+}
 test bool writeReadValue(value x) {
   writeTextValueFile(aFile, x);
   y = readTextValueFile(aFile);

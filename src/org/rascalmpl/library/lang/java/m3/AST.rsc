@@ -195,12 +195,9 @@ set[loc] findRoots(set[loc] folders) {
 }
       
 
-@synopsis{
-
-Creates AST from a file
-
-}
+@synopsis{Creates AST from a file}
 @description{
+
 }
 public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);

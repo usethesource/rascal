@@ -8,26 +8,16 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 
-@synopsis{
-
-Library functions for nodes.
-
-}
+@synopsis{Library functions for nodes.}
 @description{
-
 The following library functions are defined for nodes:
 (((TOC)))
 }
 module Node
 
 
-@synopsis{
-
-Determine the number of children of a node.
-
-}
+@synopsis{Determine the number of children of a node.}
 @examples{
-
 ```rascal-shell
 import Node;
 arity("f"(10, "abc"));
@@ -38,13 +28,8 @@ arity("f"(10, "abc", false));
 public java int arity(node T);
 
 
-@synopsis{
-
-Get the children of a node.
-
-}
+@synopsis{Get the children of a node.}
 @examples{
-
 ```rascal-shell
 import Node;
 getChildren("f"(10, "abc"));
@@ -54,13 +39,8 @@ getChildren("f"(10, "abc"));
 public java list[value] getChildren(node T);
 
 
-@synopsis{
-
-Get the keyword parameters of a node.
-
-}
+@synopsis{Get the keyword parameters of a node.}
 @examples{
-
 ```rascal-shell
 import Node;
 getKeywordParameters("f"(10, "abc", height=0));
@@ -69,17 +49,14 @@ getKeywordParameters("f"(10, "abc", height=0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getKeywordParameters(node T);
 
-@Deprecated{Use getKeywordParameters(T)}
+@Deprecated{
+Use getKeywordParameters(T)
+}
 public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
 
 
-@synopsis{
-
-Set the keyword parameters of a node.
-
-}
+@synopsis{Set the keyword parameters of a node.}
 @examples{
-
 ```rascal-shell
 import Node;
 setKeywordParameters("f"(10, "abc"), ("height":0));
@@ -88,18 +65,15 @@ setKeywordParameters("f"(10, "abc"), ("height":0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
 
-@Deprecated{Use setKeywordParameters(x, keywordParameters)}
+@Deprecated{
+Use setKeywordParameters(x, keywordParameters)
+}
 public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
   = setKeywordParameters(x, keywordParameters);
   
 
-@synopsis{
-
-Determine the name of a node.
-
-}
+@synopsis{Determine the name of a node.}
 @examples{
-
 ```rascal-shell
 import Node;
 getName("f"(10, "abc"));
@@ -109,13 +83,8 @@ getName("f"(10, "abc"));
 public java str getName(node T);
 
 
-@synopsis{
-
-Create a node given its function name and arguments.
-
-}
+@synopsis{Create a node given its function name and arguments.}
 @examples{
-
 ```rascal-shell
 import Node;
 makeNode("f", [10, "abc"]);
@@ -125,21 +94,17 @@ makeNode("f", [10, "abc"]);
 public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
 
-@synopsis{
-
-Reset a specific keyword parameter back to their default on a node.
-}
+@synopsis{Reset a specific keyword parameter back to their default on a node.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x, str keywordParameter);
 
-@Deprecated{Use unset(x, kw)}
+@Deprecated{
+Use unset(x, kw)
+}
 public &T <: node delAnnotation(&T <:  node x, str keywordParameter) = unset(x, keywordParameter); 
 
 
-@synopsis{
-
-Reset a set of keyword parameters back to their default on a node.
-}
+@synopsis{Reset a set of keyword parameters back to their default on a node.}
 public &T <: node unset(&T <: node x, set[str] keywordParameters){
     for(keywordParameter <- keywordParameters){
         x = unset(x, keywordParameter);
@@ -149,41 +114,33 @@ public &T <: node unset(&T <: node x, set[str] keywordParameters){
 
 
 
-@synopsis{
-
-Reset all keyword parameters back to their default.
-}
+@synopsis{Reset all keyword parameters back to their default.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x);
 
-@Deprecated{Use `unset(x)`}
+@Deprecated{
+Use `unset(x)`
+}
 public &T <: node delAnnotations(&T <: node x) = unset(x);
 
 
-@synopsis{
-
-Recursively reset all keyword parameters of the node and its children back to their default.
-}
+@synopsis{Recursively reset all keyword parameters of the node and its children back to their default.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T unsetRec(&T x);
 
-@Deprecated{Use `unsetRec(x)`}
+@Deprecated{
+Use `unsetRec(x)`
+}
 public &T delAnnotationsRec(&T x) = unsetRec(x);
 
 
-@synopsis{
-
-Recursively reset a specific keyword parameter of the node and its children back to its default.
-}
+@synopsis{Recursively reset a specific keyword parameter of the node and its children back to its default.}
 public &T unsetRec(&T x, str keywordParameter) = visit(x) { 
   case node n => unset(n, keywordParameter)
 };
 
 
-@synopsis{
-
-Recursively reset a selected set of keyword parameters of the node and its children back to their default.
-}
+@synopsis{Recursively reset a selected set of keyword parameters of the node and its children back to their default.}
 public &T <: node unsetRec(&T <: node x, set[str] keywordParameters) = visit(x) { 
   case node n: { for(keywordParameter <- keywordParameters) n = unset(n, keywordParameter); insert n; }
 };
@@ -194,13 +151,8 @@ public java node arbNode();
 
 
 
-@synopsis{
-
-Convert a node to a string.
-
-}
+@synopsis{Convert a node to a string.}
 @examples{
-
 ```rascal-shell
 import Node;
 F = "f"(10, "abc", color="red", size="large");
@@ -212,13 +164,8 @@ public java str toString(node T);
 
 
 
-@synopsis{
-
-Convert a node to an indented string.
-
-}
+@synopsis{Convert a node to an indented string.}
 @examples{
-
 ```rascal-shell
 import Node;
 F = "f"(10, "abc", color="red", size="large");
