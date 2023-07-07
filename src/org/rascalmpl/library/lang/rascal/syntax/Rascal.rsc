@@ -731,6 +731,15 @@ syntax Type
 	| selector: DataTypeSelector selector 
 	| variable: TypeVar typeVar 
 	| symbol: Sym!nonterminal!labeled!parametrized!parameter symbol
+	| modifier: SyntaxRoleModifier modifier
+	;
+
+syntax SyntaxRoleModifier
+	= \syntax: "syntax" "[" TypeArg arg "]"
+	| \lexical: "lexical" "[" TypeArg arg "]"
+	| \layout: "layout" "[" TypeArg arg "]"
+	| \keyword: "keyword" "[" TypeArg arg "]"
+	| \data: "data" "[" TypeArg arg "]"
 	;
 
 syntax Declaration
