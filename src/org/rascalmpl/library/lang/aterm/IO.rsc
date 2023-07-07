@@ -21,10 +21,7 @@ public value readTextATermFile(loc location) {
 }
 
 
-@synopsis{
-
-Read an ATerm from a named file.
-}
+@synopsis{Read an ATerm from a named file.}
 
 @javaClass{org.rascalmpl.library.lang.aterm.IO}
 public java value readATermFromFile(str fileName);

@@ -19,7 +19,9 @@ import lang::rascal::types::AbstractType;
 
 @synopsis{Given the name of a JDBC driver class, register it so it can be used in connections.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
-@reflect{uses information about class loaders from the evaluator context}
+@reflect{
+uses information about class loaders from the evaluator context
+}
 public java void registerJDBCClass(str className);
 
 @synopsis{The JDBC driver name for MySQL}
@@ -188,7 +190,9 @@ public java list[&T] loadTableOrdered(type[&T] resType, Connection connection, s
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java list[value] loadTableOrdered(Connection connection, str tableName);
 
-@resource{jdbctables}
+@resource{
+jdbctables
+}
 @synopsis{The JDBC tables schema should be given as:
     jdbctables+connect-string
   where connect-string is the database-specific information needed to connect,
@@ -256,7 +260,9 @@ public str allTableSchemas(str moduleName, loc uri) {
     return mbody;
 }
 
-@resource{jdbctable}
+@resource{
+jdbctable
+}
 public str tableSchema(str moduleName, loc uri) {
     // This indicates which driver we need (MySQL, Oracle, etc)
     driverType = uri.scheme;

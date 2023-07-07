@@ -147,14 +147,18 @@ test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[Nest
 
 loc parsetree1 = |test-temp:///parsetree1-<"<uuidi()>">.test|;
 
-@Ignore{FOR NOW}
+@Ignore{
+FOR NOW
+}
 test bool writingParseTreeWorks() {
 	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t);
 	return readBinaryValueFile(parsetree1) == t;
 }
 
-@Ignore{FOR NOW}
+@Ignore{
+FOR NOW
+}
 test bool writingParseTreeWorksWithoutCompression() {
 	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t, compression=false);

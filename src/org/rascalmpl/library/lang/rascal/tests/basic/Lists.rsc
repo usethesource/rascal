@@ -268,26 +268,56 @@ test bool assignStep11() { L = [0,1,2,3,4,5,6,7,8,9]; L[8,6..3] = [10]; return L
 test bool assignStep12() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-2..] = [10,20,30,40,50]; return L == [50,40,30,20,10,50,40,30,20,10];}
 test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,50]; return L == [0,50,2,40,4,30,6,20,8,10];}
 
-@ignoreInterpreter{} test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
-@ignoreInterpreter{} test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
-@ignoreInterpreter{} test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
-@ignoreInterpreter{} test bool assignAdd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+@ignoreInterpreter{
 
-@ignoreInterpreter{} test bool assignSub1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] -= [10]; return L == [-10,1-10,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
-@ignoreInterpreter{} test bool assignSub2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
-@ignoreInterpreter{} test bool assignSub3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6,7,8,9];}
-@ignoreInterpreter{} test bool assignSub4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] -= [10]; return L == [0,1,2,3,4-10,5-10,6-10,7-10,8-10,9];}
+} test bool assignAdd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] += [10]; return L == [10,11,12,13,14,15,16,17,18,19]; }
+@ignoreInterpreter{
 
-@ignoreInterpreter{} test bool assignProd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] *= [10]; return L == [0,10,20,30,40,50,60,70,80,90]; }
-@ignoreInterpreter{} test bool assignProd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] *= [10]; return L == [0,1,20,30,40,50,60,70,80,90]; }
-@ignoreInterpreter{} test bool assignProd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] *= [10]; return L == [0,1,20,30,40,50,6,7,8,9];}
-@ignoreInterpreter{} test bool assignProd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] *= [10]; return L == [0,1,2,3,40,50,60,70,80,9];}
+} test bool assignAdd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] += [10]; return L == [0,1,12,13,14,15,16,17,18,19]; }
+@ignoreInterpreter{
+
+} test bool assignAdd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] += [10]; return L == [0,1,12,13,14,15,6,7,8,9];}
+@ignoreInterpreter{
+
+} test bool assignAdd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] += [10]; return L == [0,1,2,3,14,15,16,17,18,9];}
+
+@ignoreInterpreter{
+
+} test bool assignSub1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] -= [10]; return L == [-10,1-10,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
+@ignoreInterpreter{
+
+} test bool assignSub2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6-10,7-10,8-10,9-10]; }
+@ignoreInterpreter{
+
+} test bool assignSub3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] -= [10]; return L == [0,1,2-10,3-10,4-10,5-10,6,7,8,9];}
+@ignoreInterpreter{
+
+} test bool assignSub4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] -= [10]; return L == [0,1,2,3,4-10,5-10,6-10,7-10,8-10,9];}
+
+@ignoreInterpreter{
+
+} test bool assignProd1() { L = [0,1,2,3,4,5,6,7,8,9]; L[..] *= [10]; return L == [0,10,20,30,40,50,60,70,80,90]; }
+@ignoreInterpreter{
+
+} test bool assignProd2() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..] *= [10]; return L == [0,1,20,30,40,50,60,70,80,90]; }
+@ignoreInterpreter{
+
+} test bool assignProd3() { L = [0,1,2,3,4,5,6,7,8,9]; L[2..6] *= [10]; return L == [0,1,20,30,40,50,6,7,8,9];}
+@ignoreInterpreter{
+
+} test bool assignProd4() { L = [0,1,2,3,4,5,6,7,8,9]; L[8..3] *= [10]; return L == [0,1,2,3,40,50,60,70,80,9];}
 
 // TODO: add tests for /= and &= 
 
-@ignoreInterpreter{} test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
-@ignoreInterpreter{} test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
-@ignoreInterpreter{} test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
+@ignoreInterpreter{
+
+} test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
+@ignoreInterpreter{
+
+} test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
+@ignoreInterpreter{
+
+} test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
 
 // Library functions
 
@@ -351,7 +381,9 @@ test bool tstInsertAt(list[&T] L, &T e){
   return insertAt(L, n, e) == L[..n] + [e] + L[n..];
 }
 
-@ignoreCompiler{FIXME: breaks on the negative match}
+@ignoreCompiler{
+FIXME: breaks on the negative match
+}
 test bool simplerIntercalateWithNegativeMatch() {
   str ic(str sep:!"", list[value] l) = "<for (e <- l) {><e><sep><}>"[..-size(sep)];
   
@@ -470,7 +502,9 @@ test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,i), ele
 
 test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 
-@ignore{not all values can be read-back after writing to string}
+@ignore{
+not all values can be read-back after writing to string
+}
 test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 

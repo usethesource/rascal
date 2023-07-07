@@ -6,13 +6,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 
-@synopsis{
-
-Frequency distributions.
-
-}
+@synopsis{Frequency distributions.}
 @description{
-
 Counting the frequency of events is usually the first step in statistical analysis of raw data.
 It involves choosing what are the events to count, how to group them in certain
 categories and then quickly counting the frequency of each occurring event. 
@@ -26,13 +21,8 @@ module analysis::statistics::Frequency
 import util::Math;
 
 
-@synopsis{
-
-Compute a distribution: count how many times events are mapped to which bucket.
-
-}
+@synopsis{Compute a distribution: count how many times events are mapped to which bucket.}
 @examples{
-
 ```rascal-shell
 import analysis::statistics::Frequency;
 distribution({<"chicken","animal">,<"bear","animal">,<"oak","plant">,<"tulip","plant">});
@@ -74,19 +64,12 @@ public map[&T <: num, int] distribution(map[&U event, &T <: num bucket] input, &
 }
 
 
-@synopsis{
-
-Cumulative frequency of values less than or equal to a given value.
-
-}
+@synopsis{Cumulative frequency of values less than or equal to a given value.}
 @description{
-
 Returns the cumulative frequency of values less than or equal to a given numeric or string value.
 Returns 0 if the value is not comparable to the values set.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];
@@ -102,13 +85,8 @@ public java int cumFreq(list[value] values, num n);
 public java int cumFreq(list[value] values, str s);
 
 
-@synopsis{
-
-Cumulative percentage of values less than or equal to a given value.
-
-}
+@synopsis{Cumulative percentage of values less than or equal to a given value.}
 @description{
-
 Returns the cumulative percentage of values less than or equal to v (as a proportion between 0 and 1).
 
 ```rascal-shell
@@ -126,17 +104,11 @@ public java num cumPct(list[value] values, num n);
 public java num cumPct(list[value] values, str s);
 
 
-@synopsis{
-
-Percentage of values that are equal to a given value.
-
-}
+@synopsis{Percentage of values that are equal to a given value.}
 @description{
-
 Returns the percentage of values that are equal to v (as a proportion between 0 and 1).
 }
 @examples{
-
 ```rascal-shell
 import analysis::statistics::Frequency;
 D = [1, 2, 1, 1, 3, 5];

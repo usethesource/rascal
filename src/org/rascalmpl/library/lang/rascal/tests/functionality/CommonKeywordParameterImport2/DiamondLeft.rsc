@@ -16,7 +16,9 @@ test bool Left_x_left1() = x() has left;
 test bool Left_x_left2() = !x().left?;
 test bool Left_x_left3() = x().left == 10;
 test bool Left_x_left4() = x(left = 20).left == 20;
-@ignoreCompiler{INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation}
+@ignoreCompiler{
+INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation
+}
 test bool Left_x_left5() = x(left = 20)?;
 test bool Left_x_left6() = x(left = 20).left == 20;
 

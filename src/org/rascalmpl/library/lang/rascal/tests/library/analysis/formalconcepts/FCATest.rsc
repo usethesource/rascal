@@ -1,4 +1,6 @@
-@ignoreCompiler{Fix failing tests}
+@ignoreCompiler{
+Fix failing tests
+}
 module lang::rascal::tests::library::analysis::formalconcepts::FCATest
 
 import util::Math;
@@ -56,7 +58,9 @@ bool checkNoMadeUpAttributes(rel[&TObject, &TAttribute] input) {
 	return true;
 }
 
-@ignore{TODO: Fails for unknown reason}
+@ignore{
+TODO: Fails for unknown reason
+}
 test bool testNoUnRelatedConcepts(set[&TObject] objects, set[&TAttribute] attributes, int combine)
 	= checkNoUnRelatedConcepts(createRel(objects, attributes, combine));
 
