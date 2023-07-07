@@ -1,9 +1,10 @@
-@doc{
-#### Synopsis
+
+@synopsis{
 
 M3 common source code model represent facts extracted from source code for use in downstream metrics or other analyses.
 
-#### Description
+}
+@description{
 
 The M3 ((Library:analysis::m3::Core)) defines basic concepts such as:
 
@@ -15,14 +16,16 @@ The M3 ((Library:analysis::m3::Core)) defines basic concepts such as:
 
 From this ((Library:analysis::m3::Core)) is supposed to be extended with features specific for a programming language. See for example [Java M3]((lang::java::m3::Core)).
 
-#### Benefits
+}
+@benefits{
 
 *  Qualified names in the shape of a location are a uniform and generic way of identifying source code artifacts, that can be extended across languages, projects, and versions.
 *  M3 helps standardizing the shape of facts we extract from source code for all different languages, limiting the element of surprise.
 *  When we use M3 for many languages, common IDE features are made reusable (such as clicking from an extracted fact to the code that generated it).
 *  Some downstream analyses may be reusable between different languages if they all map to M3.
 
-#### Pitfalls
+}
+@pitfalls{
 
 *  Even though different languages may map to the same M3 model, this does not mean that the semantics is the same. Downstream
 metrics or other analysis tools should still take semantic differences between programming languages into account.
@@ -42,12 +45,13 @@ extend analysis::m3::TypeSymbol;
  
 data Modifier;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 m3 model constructor
 
-#### Description
+}
+@description{
 
 This constructor holds all information to an m3 model. It is identified by the _id_ field,
 which should be a unique name for the project or file that the m3 model was constructor for.
@@ -72,15 +76,11 @@ public data Language(str version = "")
   = generic()
   ;
 
-@doc{
-	Create an empty m3 term with empty annotations
-}
+@synopsis{Create an empty m3 term with empty annotations}
 //TODO: Deprecated method, replace any calls to this method with default constructor
 public M3 emptyM3(loc id) = m3(id);
 
-@doc{
-	Generic function to compose the annotations of a set of M3s.
-}
+@synopsis{Generic function to compose the annotations of a set of M3s.}
 @memo
 M3 composeM3(loc id, set[M3] models) {
 	M3 comp = m3(id);
@@ -98,9 +98,7 @@ M3 composeM3(loc id, set[M3] models) {
 	return comp;
 }
 
-@doc{
-	Generic function to apply a difference over the annotations of a list of M3s.
-}
+@synopsis{Generic function to apply a difference over the annotations of a list of M3s.}
 @memo
 M3 diffM3(loc id, list[M3] models) {
 	assert size(models) >= 2;
@@ -149,13 +147,13 @@ M3 modifyM3(loc id, list[M3] models, value (&T,&T) fun) {
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 constructs a recursive FileSystem from a binary [Location] relation.
 
-#### Description
-
+}
+@description{
 }
 @memo set[FileSystem] relToFileSystem(rel[loc parent, loc child] r) {
   FileSystem rec(loc l, set[loc] args) = (args == {}) ? file(l) : directory(l, {rec(c, r[c]) | c <- args});
@@ -179,22 +177,25 @@ set[loc] files(M3 model) {
  return done;
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 transform the containment relation to a recursive tree model
 
-#### Description
+}
+@description{
 
-#### Benefits
+}
+@benefits{
 
 *  Transforming the containment relation to a tree model allows further analysis using operators
 such as `visit` and descendant matching  (`/`)which is sometimes more convenient.
 
-#### Pitfalls
+}
+@pitfalls{
 
 *  Do not forget that the relational operators such as [TransitiveClosure], [Comprehension] and [Composition] may be just
-as effective and perhaps more efficient, as applied directly on the containment relation. 
+as effective and perhaps more efficient, as applied directly on the containment relation.
 }
 set[FileSystem] containmentToFileSystem(M3 model) = relToFileSystem(model.containment);
 

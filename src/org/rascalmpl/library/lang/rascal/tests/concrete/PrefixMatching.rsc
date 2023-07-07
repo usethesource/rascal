@@ -1,4 +1,4 @@
-@doc{tests regression of issue #1594}
+@synopsis{tests regression of issue #1594}
 module lang::rascal::tests::concrete::PrefixMatching
 
 import ParseTree;

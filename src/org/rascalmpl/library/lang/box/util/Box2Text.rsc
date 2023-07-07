@@ -7,12 +7,10 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-@doc{
-This is an implementation of "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand and Eelco Visser (June 30, 1994)
+@synopsis{This is an implementation of "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand and Eelco Visser (June 30, 1994)
 
 The main function `format` maps a box tree (which describes 2-dimensional layout constraints for a linear text) to a string
-which satisfies these constraints.
-}
+which satisfies these constraints.}
 module lang::box::util::Box2Text
 
 import List;
@@ -26,17 +24,17 @@ int hv2h_crit = 70;
 alias options = map [str, int];
 options  oDefault = ("h":1,"v":0, "i":2, "t":10);
 
-@doc{Print boxes}    
+@synopsis{Print boxes}    
 public void fprint(Box b) {
   print(format(b));
 }
 
-@doc{Print boxes followed by newline}
+@synopsis{Print boxes followed by newline}
 public void fprintln(Box b) {
   println(format(b));
 }
 
-@doc{Converts boxes into a string} 
+@synopsis{Converts boxes into a string} 
 public str format(Box b) {
   box2textmap=();
   text t = box2text(b);
@@ -44,7 +42,7 @@ public str format(Box b) {
 }
 
 
-@doc{Converts boxes into latex}       
+@synopsis{Converts boxes into latex}       
 public text box2latex(Box b) {
     // println("Start box2latex");
     text q = [];
@@ -58,7 +56,7 @@ public text box2latex(Box b) {
     return t;
     }
 
-@doc{Converts boxes into html}       
+@synopsis{Converts boxes into html}       
 public text box2html(Box b) {
     //println("Start box2html");
     text q = [];
@@ -72,7 +70,7 @@ public text box2html(Box b) {
     return t;
     }
 
-@doc{Converts boxes into list of lines (ASCII)}      
+@synopsis{Converts boxes into list of lines (ASCII)}      
  public text box2text(Box b) {
     text q = [];
     if (box2textmap[b]?) q = box2textmap[b];

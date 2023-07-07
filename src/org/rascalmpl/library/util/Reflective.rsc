@@ -18,17 +18,17 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
-@doc{Returns the system-dependent line separator string}
+@synopsis{Returns the system-dependent line separator string}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str getLineSeparator();
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
 
-@doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+@synopsis{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 public lang::rascal::\syntax::Rascal::Module parseModule(loc location) = parseModuleWithSpaces(location).top;
 
-@doc{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
+@synopsis{Parse a module (including surounding spaces) at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading)}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java start[Module] parseModuleWithSpaces(loc location);
 
@@ -74,11 +74,9 @@ data JavaBundleManifest
           
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
-@doc{
-  Converts a PathConfig and replaces all references to roots of projects or bundles
+@synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
   by the folders which are nested under these roots as configured in their respective
-  META-INF/RASCAL.MF files.
-}
+  META-INF/RASCAL.MF files.}
 PathConfig applyManifests(PathConfig cfg) {
    mf = (l:readManifest(#RascalManifest, metafile(l)) | l <- cfg.srcs + cfg.libs + [cfg.bin], exists(metafile(l)));
 
@@ -170,12 +168,13 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
-@doc{   
-#### Synopsis
+
+@synopsis{
 
 Derive a location from a given module name for reading
 
-#### Description
+}
+@description{
 
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
@@ -185,7 +184,8 @@ then the pair <true, F> is returned. Otherwise <false, some error location> is r
 
 For a source extension (typically "rsc" or "mu" but this can be configured) srcs is searched, otherwise binPath + libs.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import util::Reflective;
@@ -194,7 +194,8 @@ getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
 ```
 
-#### Benefits
+}
+@benefits{
 
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
 from locations in different, configurable, directories.
@@ -226,12 +227,13 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     return <false, |error:///|>;
 }
 
-@doc{   
-#### Synopsis
+
+@synopsis{
 
 Derive a location from a given module name for writing
 
-#### Description
+}
+@description{
 
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
@@ -239,7 +241,8 @@ a path name is constructed from the module name + extension.
 For source modules, a writable location cannot be derived.
 For other modules, a location for this path in bin will be returned.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import util::Reflective;
@@ -251,7 +254,8 @@ getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
 ```
 
-#### Benefits
+}
+@benefits{
 
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
@@ -272,15 +276,15 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java PathConfig getProjectPathConfig(loc projectRoot, RascalConfigMode mode = compiler());
 
-@doc{Is the current Rascal code executed by the compiler or the interpreter?}
+@synopsis{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java bool inCompiledMode();
 
-@doc{Give a textual diff between two values.}
+@synopsis{Give a textual diff between two values.}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java str diff(value old, value new);
 
-@doc{Watch value val: 
+@synopsis{Watch value val: 
 - running in interpreted mode: write val to a file, 
 - running in compiled mode: compare val with previously written value}
 @javaClass{org.rascalmpl.library.util.Reflective}
@@ -289,29 +293,29 @@ public java &T watch(type[&T] tp, &T val, str name);
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java &T watch(type[&T] tp, &T val, str name, value suffix);
 
-@doc{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
+@synopsis{Compute a fingerprint of a value for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprint(value val, bool concretePatterns);
 
-@doc{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
+@synopsis{Compute a fingerprint of a value and arity modifier for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprint(value val, int arity, bool concretePatterns);
 
-@doc{Compute a fingerprint of a complete node for the benefit of the compiler and the compiler runtime}
+@synopsis{Compute a fingerprint of a complete node for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprintNode(node nd);
 
-@doc{Throw a raw Java NullPointerException, to help simulate an unexpected exception in test scenarios}
+@synopsis{Throw a raw Java NullPointerException, to help simulate an unexpected exception in test scenarios}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java void throwNullPointerException();
 
-@doc{Return a list of all Rascal reserved identifiers (a.k.a. keywords)}
+@synopsis{Return a list of all Rascal reserved identifiers (a.k.a. keywords)}
 set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.definitions[keywords("RascalKeywords")]};
     
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalVersion();   
 
-@doc{Create a folder structure for an empty Rascal project with Maven support}
+@synopsis{Create a folder structure for an empty Rascal project with Maven support}
 void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
     if (exists(folder)) {
         throw "<folder> exists already. Please provide an non-existing and empty folder name";

@@ -280,7 +280,7 @@ test bool listOrLrel6() = {LIST[tuple[int,int]] LT = [<3,4>]; LT + <1,2> == [<3,
 test bool listOrLrel7() = {LIST[tuple[int,int]] LT = [<3,4>]; lrel[int,int] LR = LT + <1,2>; LR == [<3,4>, <1,2>];};
 test bool listOrLrel8() = {LIST[tuple[int,int]] LT = [<3,4>]; lrel[int,int] LR = <1,2> + LT; LR == [<1,2>, <3,4>];};
 
-@doc{this triggered issue #1595}
+@synopsis{this triggered issue #1595}
 test bool enumerableAlias() {
   SET[int] tmp = {1,2,3};
   
@@ -291,14 +291,14 @@ test bool enumerableAlias() {
 
 alias T[&T] = tuple[&T, &T];
 
-@doc{this triggered #1811}
+@synopsis{this triggered #1811}
 test bool assignableTupleAlias() {
   T[int] x = <0,1>;
   <a,b> = x; // this would throw an exception
   return a == 0 && b == 1;
 }
 
-@doc{this tests if the solution for #1811 still checks the arity of the tuple}
+@synopsis{this tests if the solution for #1811 still checks the arity of the tuple}
 @expected{UnexpectedType}
 test bool assignableTupleAliasError() {
   T[int] x = <0,1>;

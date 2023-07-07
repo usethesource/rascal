@@ -39,7 +39,7 @@ test bool overloading2(){
 
 data D = d(str s) | d(int n) | d();
 
-@doc{triggers issue #1234}
+@synopsis{triggers issue #1234}
 test bool constructorDynamicMatch() {
   value x = 1;
   

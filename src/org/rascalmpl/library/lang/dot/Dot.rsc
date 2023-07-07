@@ -14,7 +14,7 @@ import Map;
 
 public alias Id = str;
 
-@doc{Abstract Data Type of Dot language}
+@synopsis{Abstract Data Type of Dot language}
 
 public data DotGraph =  graph(Id id, Stms stmts) | digraph(Id id, Stms stmts);
 
@@ -68,7 +68,7 @@ public alias Outline = map[int key, list[str] args];
 public alias Dotline = tuple[DotGraph graph, Outline outline];
 
 
-@doc{Dummy function call needed to tag initialized global variables of type DotGraph.
+@synopsis{Dummy function call needed to tag initialized global variables of type DotGraph.
 It is possible to select that variable on the outline menu of the Rascal Editor.
 An application is for example to display dotgraphs.}  
  
@@ -86,7 +86,7 @@ public void setCurrentOutline(Dotline current) {
    currentOutline = current.outline;
 }
 
-@doc{Translates DotGraph to String input for dot}
+@synopsis{Translates DotGraph to String input for dot}
 str toString(digraph(Id id,Stms stms)) 
   = "digraph <id> {<for (x<-stms) {>
     '<oStm(x)>;<}>

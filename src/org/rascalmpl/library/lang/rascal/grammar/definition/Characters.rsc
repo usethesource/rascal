@@ -7,11 +7,9 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc{
-  In this module character classes are normalized.
+@synopsis{In this module character classes are normalized.
   
-  It also provides a number of convenience functions on character classes.
-}
+  It also provides a number of convenience functions on character classes.}
 module lang::rascal::grammar::definition::Characters
 
 import lang::rascal::\syntax::Rascal;

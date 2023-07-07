@@ -160,7 +160,7 @@ public Production choice(Symbol s, set[Production] choices) {
 //  = choice(s, a+b);
   
 
-@doc{Functions with variable argument lists are normalized to normal functions}
+@synopsis{Functions with variable argument lists are normalized to normal functions}
 // TODO: What is this? Not sure why this is here...
 //public Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel) =
 //       \func(ret, name, parameters + [<\list(varArg), varLabel>]);

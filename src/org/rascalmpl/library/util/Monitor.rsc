@@ -6,20 +6,21 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Monitor the progress of a task/job.
 }
 @bootstrapParser
 module util::Monitor
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Log the __start__ of a job.
 
-#### Description
+}
+@description{
 
 jobStart registers a new current job on the job stack with an amount of
 steps todo and how much work it contributes (when it ends) to its parent job (if any).
@@ -27,10 +28,8 @@ steps todo and how much work it contributes (when it ends) to its parent job (if
 @javaClass{org.rascalmpl.library.util.Monitor}
 public java void jobStart(str label, int work=1, int totalWork=100);
 
-@doc{
-  Log to the user that a certain event has happened under
-  the currently registered Job.
-}
+@synopsis{Log to the user that a certain event has happened under
+  the currently registered Job.}
 @javaClass{org.rascalmpl.library.util.Monitor}
 public java void jobStep(str label, str message, int work = 1);
 
