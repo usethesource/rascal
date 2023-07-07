@@ -7,7 +7,5 @@ test bool id1() = Id _ := [Id] "a";
 test bool id2() = Id _ := [Id] "A";
 test bool id3() = Id _ := [Id] "aA1";
 
-@expected{
-ParseError
-}
+@expected{ParseError}
 test bool id4() = Id _ := [Id] "1aA";

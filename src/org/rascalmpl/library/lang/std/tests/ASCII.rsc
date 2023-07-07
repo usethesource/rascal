@@ -42,14 +42,10 @@ test bool hexnumber4() = HexNumber _ := [HexNumber] "f";
 test bool hexnumber5() = HexNumber _ := [HexNumber] "0";
 test bool hexnumber6() = HexNumber _ := [HexNumber] "9";
 
-@expected{
-ParseError
-}
+@expected{ParseError}
 test bool hexnumber7() = HexNumber _ := [HexNumber] "G";
 
-@expected{
-ParseError
-}
+@expected{ParseError}
 test bool hexnumber8() = HexNumber _ := [HexNumber] "g";
 
 //lexical Print = [\ ~-!];

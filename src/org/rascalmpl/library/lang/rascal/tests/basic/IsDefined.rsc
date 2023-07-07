@@ -144,9 +144,7 @@ test bool isDefinedTuple3(){
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]
 }
-@expected{
-UndeclaredField
-}
+@expected{UndeclaredField}
 test bool isDefinedTuple4(){
     tuple[int n, str s] tup = <0, "a">;
     return !tup.x?;
@@ -171,9 +169,7 @@ test bool isDefinedRel1(){
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Already detected by type checker
 }
-@expected{
-UnsupportedSubscriptArity
-}
+@expected{UnsupportedSubscriptArity}
 test bool isDefinedRel2(){
     return !({<1, "a">, <2, "b">}[1,2,3])?;
 }
@@ -197,9 +193,7 @@ test bool isDefinedLRel1(){
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Already detected by type checker
 }
-@expected{
-UnsupportedSubscriptArity
-}
+@expected{UnsupportedSubscriptArity}
 test bool isDefinedLRel2(){
     return !([<1, "a">, <2, "b">][1,2,3])?;
 }
@@ -318,21 +312,15 @@ test bool isDefined13() {
 
 data D = d1() | d2(int n) | d3(int n, str s = "abc");
 
-@expected{
-NoSuchField
-}
+@expected{NoSuchField}
 test bool getADTField1() = d1().n == 0;
 
-@expected{
-NoSuchField
-}
+@expected{NoSuchField}
 test bool getADTField2() = d1().s == "abc";
 
 test bool getADTField3() = d2(10).n == 10;
 
-@expected{
-NoSuchField
-}
+@expected{NoSuchField}
 test bool getADTField4() = d2(10).s == "abc";
 
 test bool getADTField5() = d3(20).n == 20;

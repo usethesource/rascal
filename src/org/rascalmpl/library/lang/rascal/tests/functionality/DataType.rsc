@@ -549,9 +549,7 @@ Not implemented
 test bool testList49() = [2, 3] << 4 == [2, 3, 4];
 
     
-	@expected{
-IndexOutOfBounds
-}
+	@expected{IndexOutOfBounds}
 test bool  SubscriptError11() { 		[1,2][5];return false;  	}
     	
 //	 listSplicing

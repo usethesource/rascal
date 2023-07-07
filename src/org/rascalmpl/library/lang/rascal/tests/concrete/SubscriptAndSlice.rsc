@@ -46,16 +46,12 @@ test bool lexSubscript6() = eqNoSrc(([XStar] "xyz").xs[-3], [X] "x");
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool lexSubscript7() = eqNoSrc(([XStar] "xyz").xs[3], [X] "x");
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool lexSubscript8() = eqNoSrc(([XStar] "xyz").xs[-4], [X] "x");
 
 @ignoreInterpreter{
@@ -87,16 +83,12 @@ test bool lexSubscriptSep6() = eqNoSrc(([XComma] "x,y,z").xcommas[-3], [X] "x");
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool lexSubscriptSep7() = eqNoSrc(([XComma] "x,y,z").xcommas[3], [X] "x");
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool lexSubscriptSep8() = eqNoSrc(([XComma] "x,y,z").xcommas[-4], [X] "x");
 
 @ignoreInterpreter{
@@ -205,9 +197,7 @@ test bool lexSliceSepNegStep1() = eqNoSrc(([XComma] "x,y,z,X,Y,Z,x,y,z").xcommas
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool lexIllegalSlice() { ([XPlus] "xyz").xs1[0 .. 0]; return false; }
 
 @ignoreInterpreter{
@@ -239,16 +229,12 @@ test bool cfgSubscript6() = eqNoSrc(([AStar] "abc").as [-3], [A] "a");
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool cfgSubscript7() = eqNoSrc(([AStar] "abc").as [3], [A] "a"); 
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool cfgSubscript8() = eqNoSrc(([AStar] "abc").as [-4], [A] "a"); 
 
 @ignoreInterpreter{
@@ -280,16 +266,12 @@ test bool cfgSubscriptSep6() = eqNoSrc(([AComma] "a,b,c").acommas [-3], [A] "a")
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool cfgSubscriptSep7() = eqNoSrc(([AComma] "a,b,c").acommas [3], [A] "c");
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool cfgSubscriptSep8() = eqNoSrc(([AComma] "a,b,c").acommas [-4], [A] "c");
 
 @ignoreInterpreter{
@@ -389,15 +371,11 @@ test bool cfgSliceSepNegStep1() = eqNoSrc(([AComma] "a,b,c,A,B,C,a,b,c").acommas
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool cfgIllegalSlice() { ([APlus] "abc").as1[0 .. 0]; return false; }
 
 @ignoreInterpreter{
 Incorrect/not implemented
 }
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool cfgIllegalSliceSep() { ([ACommaPlus] "a,b,c").acommas[0 .. 0]; return false; }

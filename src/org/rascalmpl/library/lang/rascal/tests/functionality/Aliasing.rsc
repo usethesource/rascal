@@ -315,9 +315,7 @@ test bool assignableTupleAlias() {
 }
 
 @synopsis{this tests if the solution for #1811 still checks the arity of the tuple}
-@expected{
-UnexpectedType
-}
+@expected{UnexpectedType}
 test bool assignableTupleAliasError() {
   T[int] x = <0,1>;
   <a,b,c> = x; // this should throw an exception
