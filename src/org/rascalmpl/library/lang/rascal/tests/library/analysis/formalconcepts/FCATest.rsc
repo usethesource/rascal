@@ -58,9 +58,7 @@ bool checkNoMadeUpAttributes(rel[&TObject, &TAttribute] input) {
 	return true;
 }
 
-@ignore{
-TODO: Fails for unknown reason
-}
+@ignore{TODO: Fails for unknown reason}
 test bool testNoUnRelatedConcepts(set[&TObject] objects, set[&TAttribute] attributes, int combine)
 	= checkNoUnRelatedConcepts(createRel(objects, attributes, combine));
 
