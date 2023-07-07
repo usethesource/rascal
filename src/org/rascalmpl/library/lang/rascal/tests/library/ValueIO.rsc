@@ -137,9 +137,7 @@ data NestedValue
 
 loc compression_shared = |test-temp:///compression-shared-<"<uuidi()>">.test|;
 
-@maxDepth{
-20
-}
+@maxDepth{20}
 test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
 	lab = [a,b];
 	joined = <a,b,inAList(lab), inASet({a,c}), inAList([lab, d])>;
