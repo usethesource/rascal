@@ -21,13 +21,8 @@ public data Exception
   ; 
  
 
-@synopsis{
-
-Evaluate a (list of) Rascal commands and return the value of the last command.
-
-}
+@synopsis{Evaluate a (list of) Rascal commands and return the value of the last command.}
 @description{
-
 Evaluate a command or a list of commands and return the value of the last command that is executed.
 
 Note that a command can be one of:
@@ -43,10 +38,8 @@ The notable exclusion are exprssions. An expression is not allowed as a command 
  
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
-
 }
 @examples{
-
 ```rascal-shell
 import util::Eval;
 eval("2 * 3;");
@@ -79,20 +72,13 @@ public Result[value] eval(list[str] commands, int duration) = eval(#value, comma
 
 
 
-@synopsis{
-
-Evaluate a (list of) Rascal commands and return the type of the last command.
-
-}
+@synopsis{Evaluate a (list of) Rascal commands and return the type of the last command.}
 @description{
-
 Evaluate a command or a list of commands and return the type of the value of the last command that is executed.
 An optional `duration` argument may be present to limit the time
 (in milliseconds) the execution may take. By default, the duration is set to 1000 ms.
-
 }
 @examples{
-
 ```rascal-shell
 import util::Eval;
 evalType("2 * 3;");

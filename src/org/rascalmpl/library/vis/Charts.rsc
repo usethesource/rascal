@@ -174,7 +174,9 @@ Content doughnutChart(list[str] labels, rel[str label, num val] values..., str t
 Content doughnutChart(list[str] labels, lrel[str label, num val] values..., str title="Doughnut Chart", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(labels, values), \type=\doughnut(), title=title, colorMode=colorMode));       
 
-@synopsys{converts plain data sources into chart.js datasets}
+@synopsys{
+converts plain data sources into chart.js datasets
+}
 ChartDataSet chartDataSet(str label, rel[num x, num y] r)
     = chartDataSet([point(x,y) | <x,y> <- r],
         label=label
@@ -195,7 +197,9 @@ ChartDataSet chartDataSet(str label, lrel[num x, num y, num r] r)
         label=label
     );    
 
-@synopsys{converts plain data sources into the chart.js data representation}
+@synopsys{
+converts plain data sources into the chart.js data representation
+}
 ChartData chartData(rel[str label, num val] v)
     = chartData(
         labels=[l | <l,_> <- v],

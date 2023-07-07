@@ -8,7 +8,7 @@ providing the interfaces for the analysis extension points of Lucene via Rascal 
 * It is a work in progress. Some configurability of Lucene is not yet exposed, for example
 programmable weights for fields and the definition of similarity functions per document field. Also Query expressions are not yet exposed.
 * This wrapper provides full abstraction over source locations. Both the directory of the index
-as well as the locations of input documents are expressed using any existing rascal `loc`. 
+as well as the locations of input documents are expressed using any existing rascal `loc`.
 }
 module analysis::text::search::Lucene
 
@@ -31,7 +31,7 @@ data Analyzer
 @description{
 The `src` parameter of `fieldsAnalyzer` aligns with the `src` parameter of a Document: this analyzer is used
 to analyze the `src` field. Any other keyword fields, of type `Analyzer` are applied to the contents of a
-`Document` keyword field of type `loc` or `str` with the same name. 
+`Document` keyword field of type `loc` or `str` with the same name.
 }
 data Analyzer  
   = fieldsAnalyzer(Analyzer src) 

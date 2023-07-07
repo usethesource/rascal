@@ -136,14 +136,18 @@ test bool testKwParams2() {
   return X.kw1 == 2;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Exception differs
+}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment1() {
   map[int,int] m = ();
   m[0] += 1;
 }
 
-@ignoreInterpreter{Exception differs}
+@ignoreInterpreter{
+Exception differs
+}
 @expected{NoSuchKey}
 test bool testUnInitAssignment2() {
   map[int,int] m = ();
@@ -157,7 +161,9 @@ test bool testInitAssignment3() {
   return m[0] == 1;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Exception differs
+}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment4() {
   map[int,int] m = ();
@@ -165,7 +171,9 @@ test bool testUnInitAssignment4() {
   return false;
 }
 
-@ignoreInterpreter{Exception differs}
+@ignoreInterpreter{
+Exception differs
+}
 @expected{NoSuchKey}
 test bool testUnInitAssignment5() {
   map[int,int] m = ();
@@ -173,7 +181,9 @@ test bool testUnInitAssignment5() {
   return false;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Exception differs
+}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment6() {
   map[int,int] m = ();
@@ -181,7 +191,9 @@ test bool testUnInitAssignment6() {
   return false;
 }
 
-@ignoreInterpreter{Exception differs}
+@ignoreInterpreter{
+Exception differs
+}
 @expected{NoSuchKey}
 test bool testUnInitAssignment7() {
   map[int,int] m = ();
@@ -189,7 +201,9 @@ test bool testUnInitAssignment7() {
   return false;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Exception differs
+}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment8() {
   map[int,int]m = ();
@@ -197,7 +211,9 @@ test bool testUnInitAssignment8() {
   return false;
 }
 
-@ignoreInterpreter{Exception differs}
+@ignoreInterpreter{
+Exception differs
+}
 @expected{NoSuchKey}
 test bool testUnInitAssignment9() {
   map[int,int]m = ();

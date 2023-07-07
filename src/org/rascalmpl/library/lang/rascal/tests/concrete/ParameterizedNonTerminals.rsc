@@ -45,13 +45,19 @@ test bool PA7() = "<(P[A]) `{a}`>" == "<(PA) `{a}`>";
 
 test bool PA8() = "<(P[A]) `{a}`>" == "<[PA] "{a}">";
 
-@ignoreInterpreter{Gives: Undeclared type: P}
+@ignoreInterpreter{
+Gives: Undeclared type: P
+}
 test bool PA9() = "<(P[A]) `{a}`>" == "<[P[A]] "{a}">";
 
-@ignoreInterpreter{Gives: Syntax error: concrete syntax fragment}
+@ignoreInterpreter{
+Gives: Syntax error: concrete syntax fragment
+}
 test bool PB1() = "<(P[B]) `{b}`>" == "{b}";
 
-@ignoreInterpreter{Gives: Syntax error: concrete syntax fragment}
+@ignoreInterpreter{
+Gives: Syntax error: concrete syntax fragment
+}
 test bool PB2() = "<[P[B]] "{b}">" == "{b}";
 
 test bool QA1() = "<(QA) `[{a}]`>" == "[{a}]";

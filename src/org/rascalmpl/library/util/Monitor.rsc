@@ -7,21 +7,13 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 
-@synopsis{
-
-Monitor the progress of a task/job.
-}
+@synopsis{Monitor the progress of a task/job.}
 @bootstrapParser
 module util::Monitor
 
 
-@synopsis{
-
-Log the __start__ of a job.
-
-}
+@synopsis{Log the __start__ of a job.}
 @description{
-
 jobStart registers a new current job on the job stack with an amount of
 steps todo and how much work it contributes (when it ends) to its parent job (if any).
 }

@@ -24,7 +24,9 @@ private Completion noSuggestions(str _, int _) = <0, []>;
 alias Terminal = tuple[void() run, void(str) send];
 
 @javaClass{org.rascalmpl.library.util.TermREPL}
-@reflect{Makes closures}
+@reflect{
+Makes closures
+}
 java Terminal newREPL(REPL repl, 
   
   // filling in defaults from the repl constructor, for use in the Java code:

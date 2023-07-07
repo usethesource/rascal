@@ -12,9 +12,9 @@ import String;
 import IO;
 import util::Math;
 
-@synopsis{ This progressbar can be used in terminal applications to show the progress of some process in the terminal.}
+@synopsis{This progressbar can be used in terminal applications to show the progress of some process in the terminal.}
 @description{
-  The total number of steps is the only required parameter to be passed in. All other parameters are optional.
+The total number of steps is the only required parameter to be passed in. All other parameters are optional.
    - `prefix` is the string that is displayed in front of the progress bar (default "").
    - `length` is the length (number of characters) of the displayed bar (default 50).
    - `limit` allows for the throtteling of the number of times the progress bar is printed. For instance if the total is 1000 and the limit is set to 100 then the progress bar will be updated every 10 iterations. 
@@ -29,7 +29,7 @@ import util::Math;
   It is inspired on the progressbar described here: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
 }
 @examples{
-  ```rascal-shell
+```rascal-shell
   import util::Progress;
   int total = 10; 
   pb = progressBar(total, length = 15, limit = 100);
@@ -58,20 +58,21 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
 
 @synopsis{Simple spinner to display progress for some terminal process for which the total number of steps is not known.}
 @description{
-  `prefix` - Contains the string displayed in front the spinner (default " ").
+`prefix` - Contains the string displayed in front the spinner (default " ").
      
    It returns a function that can be called to make the spinner spin one rotation.
-   This function takes a `suffix` string parameter that will be displayed behind the spinner  
+   This function takes a `suffix` string parameter that will be displayed behind the spinner
 } 
 @examples{
-  ```rascal-shell
+```rascal-shell
   import util::Progress;
   import util::Math;
   sp = spinner();
   while (n := arbInt(100), n != 1) {
     sp("<n>");
   }
-  ```}
+  ```
+}
 void (str) spinner(str prefix = " ", str printEnd = "\r") {
   int stat = 0;
   

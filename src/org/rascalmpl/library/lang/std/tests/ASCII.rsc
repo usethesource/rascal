@@ -25,7 +25,9 @@ test bool blank2() = Blank _ := [Blank] "\t";
 test bool ctrl1() = Ctrl _ := [Ctrl] "\a00";
 test bool ctrl2() = Ctrl _ := [Ctrl] "\a1f";
 
-@ignore{}
+@ignore{
+
+}
 test bool ctrl3() = Ctrl c := [Ctrl] "\a7f";
 
 test bool digit1() = Digit _ := [Digit] "0";

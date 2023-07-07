@@ -22,7 +22,9 @@ test bool localTypeInferenceNestedScope() {
 	return { x = 1; x == 1; }
 }
 	
-@ignoreCompiler{INCOMPATIBILITY: Inference works differently}
+@ignoreCompiler{
+INCOMPATIBILITY: Inference works differently
+}
 test bool localTypeInferenceNoEscape() {
 	{ x = 1; x == 1; }
 	x = "1"; return x == "1";
