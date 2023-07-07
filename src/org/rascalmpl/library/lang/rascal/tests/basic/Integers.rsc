@@ -2,7 +2,9 @@ module lang::rascal::tests::basic::Integers
 
 import Exception;
 
-@expected{ArithmeticException}
+@expected{
+ArithmeticException
+}
 test bool divByZero(num x) = x / 0 == 0;
 
 test bool commAdd(int i, int j) = i + j == j + i;

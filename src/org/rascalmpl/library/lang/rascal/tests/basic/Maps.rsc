@@ -134,8 +134,12 @@ test bool submap3(map[&K,&V] M) = isEmpty(M) || delete(M,getOneFrom(M)) <= M;
 test bool submap4(map[&K,&V] M1, map[&K,&V] M2) = M1 < M2 ==> M1 <= M2;
 
 // subscription
-@expected{NoSuchKey} test bool subscription1(&K k) {map[&K,bool] M = (); return M[k];}
-@expected{NoSuchKey} test bool subscription2() = (1:false)[2];
+@expected{
+NoSuchKey
+} test bool subscription1(&K k) {map[&K,bool] M = (); return M[k];}
+@expected{
+NoSuchKey
+} test bool subscription2() = (1:false)[2];
 test bool subscription3() = (1:10)[1] == 10;
 test bool subscription4() = (1:10,2:20)[1] == 10;
 

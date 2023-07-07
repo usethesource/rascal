@@ -11,7 +11,9 @@
 module util::ShellExec
 
 @synopsis{Start a new external process.}
-@deprecrated{Use the createProcess function that takes `loc` for processCommand for better portability behavior between operating systems.}
+@deprecrated{
+Use the createProcess function that takes `loc` for processCommand for better portability behavior between operating systems.
+}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
 
@@ -32,7 +34,9 @@ For environment variables in `envVars` the same treatment is given to convert va
 java PID createProcess(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] envVars = ());
 
 @synopsis{start, run and kill an external process returning its output as a string.}
-@deprecrated{Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.}
+@deprecrated{
+Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.
+}
 str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
@@ -48,7 +52,9 @@ str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], ma
    return result;
 }
 
-@deprecrated{Use the `execWithCode` function that takes `loc` for processCommand for better portability behavior between operating systems.}
+@deprecrated{
+Use the `execWithCode` function that takes `loc` for processCommand for better portability behavior between operating systems.
+}
 tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);

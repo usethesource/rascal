@@ -9,22 +9,14 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
 @contributor{Vadim Zaytsev - Vadim.Zaytsev@cwi.nl - CWI}
 
-@synopsis{
-
-A simple but effective internal format for the representation of context-free grammars.
-}
+@synopsis{A simple but effective internal format for the representation of context-free grammars.}
 module Grammar
 
 extend ParseTree;
 
 
-@synopsis{
-
-The Grammar datatype
-
-}
+@synopsis{The Grammar datatype}
 @description{
-
 Grammar is the internal representation (AST) of syntax definitions used in Rascal.
 A grammar is a set of productions and set of start symbols. The productions are 
 stored in a map for efficient access.
@@ -68,20 +60,12 @@ Grammar grammar(type[&T <: Tree] sym)
 
   
 
-@synopsis{
-
-An item is an index into the symbol list of a production rule.
-}  
+@synopsis{An item is an index into the symbol list of a production rule.}  
 data Item = item(Production production, int index);
 
 
-@synopsis{
-
-Compose two grammars.
-
-}
+@synopsis{Compose two grammars.}
 @description{
-
 Compose two grammars by adding the rules of g2 to the rules of g1.
 The start symbols of g1 will be the start symbols of the resulting grammar.
 }

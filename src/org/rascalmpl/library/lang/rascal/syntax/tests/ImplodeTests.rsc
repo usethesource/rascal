@@ -43,22 +43,30 @@ public Expr implodeExprLit2() = implode(#Expr, exprLit2());
 
 test bool test11() { try return Exp::id(_) := implodeExp("a"); catch ImplodeError(_): return false;}
 
-@IgnoreCompiler{TODO}
+@IgnoreCompiler{
+TODO
+}
 test bool test12() { try return Exp::number(Num::\int("01")) := implodeExp("0"); catch ImplodeError(_): return false;}
 
 test bool test13() { try return Exp::eq(Exp::id(_),Exp::id(_)) := implodeExp("a == b"); catch ImplodeError(_): return false;}
 
-@IgnoreCompiler{TODO}
+@IgnoreCompiler{
+TODO
+}
 test bool test14() { try return Exp::eq(Exp::number(Num::\int("01")), Exp::number(Num::\int("1"))) := implodeExp("0 == 1"); catch ImplodeError(_): return false;}
 
 test bool test15() { try return  Expr::id(_) := implodeExpr("a"); catch ImplodeError(_): return false;}
 
-@IgnoreCompiler{TODO}
+@IgnoreCompiler{
+TODO
+}
 test bool test16() { try return Expr::number(Number::\int("02")) := implodeExpr("0"); catch ImplodeError(_): return false;}
 
 test bool test17() { try return Expr::eq(Expr::id(_),Expr::id(_)) := implodeExpr("a == b"); catch ImplodeError(_): return false;}
 
-@IgnoreCompiler{TODO}
+@IgnoreCompiler{
+TODO
+}
 test bool test18() { try return Expr::eq(Expr::number(Number::\int("02")), Expr::number(Number::\int("1"))) := implodeExpr("0 == 1"); catch ImplodeError(_): return false;}
 
 // ---- test2 ----

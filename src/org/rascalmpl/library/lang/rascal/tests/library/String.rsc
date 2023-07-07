@@ -40,7 +40,9 @@ test bool charAt2() = String::charAt("abc", 1) == 98;
 test bool charAt3() = String::charAt("abc", 2) == 99;
 test bool charAt4() = charAt("abc", 0) == 97;
   	
-@expected{IndexOutOfBounds}
+@expected{
+IndexOutOfBounds
+}
 test bool charAtError1() = String::charAt("abc", 3) == 99;
   		
 // contains
@@ -189,10 +191,14 @@ test bool substring4() = substring("abc", 3) == "";
 test bool substring5() = substring("abc", 1, 2) == "b";
 test bool substring6() = substring("abc", 1, 3) == "bc";
   	
-		@expected{IndexOutOfBounds}
+		@expected{
+IndexOutOfBounds
+}
 test bool substringWrongIndex1() = substring("abc", 4) == "abc";
   	
-		@expected{IndexOutOfBounds}
+		@expected{
+IndexOutOfBounds
+}
 test bool substringWrongIndex2() = substring("abc", 1, 4) == "abc";
   		
 // toInt
@@ -203,7 +209,9 @@ test bool toInt3() = toInt("0001") == 1;
 test bool toInt4() = toInt("-1") == -1;
 test bool toInt5() = toInt("12345") == 12345;
  
-		@expected{IllegalArgument}
+		@expected{
+IllegalArgument
+}
 test bool toIntError1() = toInt("abc") == 0;
   
 // toLowerCase
@@ -221,7 +229,9 @@ test bool toReal3() = toReal("0001.0") == 1.0;
 test bool toReal4() = toReal("-1.0") == -1.0;
 test bool toReal5() = toReal("1.2345") == 1.2345;
   	
-@expected{IllegalArgument}
+@expected{
+IllegalArgument
+}
 test bool toRealError1() = toReal("abc") == 0;
   
 // toUpperCase

@@ -137,7 +137,9 @@ data NestedValue
 
 loc compression_shared = |test-temp:///compression-shared-<"<uuidi()>">.test|;
 
-@maxDepth{20}
+@maxDepth{
+20
+}
 test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
 	lab = [a,b];
 	joined = <a,b,inAList(lab), inASet({a,c}), inAList([lab, d])>;
@@ -147,14 +149,18 @@ test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[Nest
 
 loc parsetree1 = |test-temp:///parsetree1-<"<uuidi()>">.test|;
 
-@Ignore{FOR NOW}
+@Ignore{
+FOR NOW
+}
 test bool writingParseTreeWorks() {
 	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t);
 	return readBinaryValueFile(parsetree1) == t;
 }
 
-@Ignore{FOR NOW}
+@Ignore{
+FOR NOW
+}
 test bool writingParseTreeWorksWithoutCompression() {
 	t = parseNamedModuleWithSpaces(|project://rascal/src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc|);
 	writeBinaryValueFile(parsetree1, t, compression=false);

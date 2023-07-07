@@ -228,9 +228,11 @@ test bool higherOrderFunctionCompatibility2() {
    return true;
 }
 
-@ignore{this fails also in the interpreter because the algorithm
+@ignore{
+this fails also in the interpreter because the algorithm
 for binding type parameter uses `match` in two directions which 
-implements comparability rather than intersectability}
+implements comparability rather than intersectability
+}
 test bool higherOrderFunctionCompatibility3() {
    // the parameter function is specific for tuple[int, value]
    int parameter(tuple[int, value] _) { return 0; }

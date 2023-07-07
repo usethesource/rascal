@@ -6,10 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 
-@synopsis{
-
-AST model for YAML (loosely based on the serialization model of <http://www.yaml.org/spec/1.2/spec.html>)
-}
+@synopsis{AST model for YAML (loosely based on the serialization model of <http://www.yaml.org/spec/1.2/spec.html>)}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl (CWI)}
 module lang::yaml::Model
 

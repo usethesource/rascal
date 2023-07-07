@@ -27,13 +27,8 @@ import util::Math;
 alias Graph[&T] = rel[&T from, &T to];
 
 
-@synopsis{
-
-Compute topological order of the nodes in a graph.
-
-}
+@synopsis{Compute topological order of the nodes in a graph.}
 @examples{
-
 ```rascal-shell
 import  analysis::graphs::Graph;
 order({<3,4>, <1,2>, <2,4>, <1,3>});
@@ -45,13 +40,8 @@ list[&T] order(Graph[&T] g){
 }
 
 
-@synopsis{
-
-Compute strongly connected components in a graph.
-
-}
+@synopsis{Compute strongly connected components in a graph.}
 @examples{
-
 ```rascal-shell
 import  analysis::graphs::Graph;
 stronglyConnectedComponents({<1, 2>, <2, 3>, <3, 2>, <2, 4>, <4, 2>, <3, 5>, <5, 3>, <4, 5>, <5, 3>});
@@ -126,18 +116,11 @@ tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g
 }
 
 
-@synopsis{
-
-Determine the bottom nodes (leaves) of a graph.
-
-}
+@synopsis{Determine the bottom nodes (leaves) of a graph.}
 @description{
-
 Returns the bottom nodes of Graph `G`, i.e., the leaf nodes that don't have any descendants.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 bottom({<1,2>, <1,3>, <2,4>, <3,4>});
@@ -149,18 +132,11 @@ public set[&T] bottom(Graph[&T] G)
 }
 
 
-@synopsis{
-
-Determine the direct predecessors of a graph node.
-
-}
+@synopsis{Determine the direct predecessors of a graph node.}
 @description{
-
 Returns the direct predecessors of node `From` in Graph `G`.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4);
@@ -173,13 +149,8 @@ public set[&T] predecessors(Graph[&T] G, &T From)
 }
 
 
-@synopsis{
-
-Determine the graph nodes reachable from a set of nodes.
-
-}
+@synopsis{Determine the graph nodes reachable from a set of nodes.}
 @description{
-
 Returns the set of nodes in Graph `G` that are reachable from any of the nodes
 in the set `Start`.
 }
@@ -197,19 +168,12 @@ public set[&T] reach(Graph[&T] G, set[&T] Start)
 }
 
 
-@synopsis{
-
-Determine the graph nodes reachable from a set of nodes using a restricted set of intermediate nodes.
-
-}
+@synopsis{Determine the graph nodes reachable from a set of nodes using a restricted set of intermediate nodes.}
 @description{
-
 Returns the set of nodes in Graph `G` that are reachable from any of the nodes
 in set `Start` using path that only use nodes in the set `Restr`.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 reachR({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {1, 2, 3});
@@ -221,19 +185,12 @@ public set[&T] reachR(Graph[&T] G, set[&T] Start, set[&T] Restr)
 }
 
 
-@synopsis{
-
-Determine the graph nodes reachable from a set of nodes excluding certain intermediate nodes.
-
-}
+@synopsis{Determine the graph nodes reachable from a set of nodes excluding certain intermediate nodes.}
 @description{
-
 Returns set of nodes in Graph `G` that are reachable from any of the nodes
 in `Start` via path that exclude nodes in `Excl`.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 reachX({<1,2>, <1,3>, <2,4>, <3,4>}, {1}, {2});
@@ -245,31 +202,19 @@ public set[&T] reachX(Graph[&T] G, set[&T] Start, set[&T] Excl)
 }
 
 
-@synopsis{
-
-Determine the shortest path between two graph nodes.
-
-}
+@synopsis{Determine the shortest path between two graph nodes.}
 @description{
-
 Returns the shortest path between nodes `From` and `To` in Graph `G`.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[&T] shortestPathPair(Graph[&T] G, &T From, &T To);
 
 
-@synopsis{
-
-Determine the direct successors of a graph node.
-
-}
+@synopsis{Determine the direct successors of a graph node.}
 @description{
-
 Returns the direct successors of node `From` in Graph `G`.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1);
@@ -281,18 +226,11 @@ public set[&T] successors(Graph[&T] G, &T From)
 }
 
 
-@synopsis{
-
-Determine the set of top nodes (roots) of a graph.
-
-}
+@synopsis{Determine the set of top nodes (roots) of a graph.}
 @description{
-
 Returns the top nodes of Graph `G`, i.e., the root nodes that do not have any predecessors.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 top({<1,2>, <1,3>, <2,4>, <3,4>});
@@ -304,18 +242,11 @@ public set[&T] top(Graph[&T] G)
 }
 
 
-@synopsis{
-
-Determine the connected components of a graph.
-
-}
+@synopsis{Determine the connected components of a graph.}
 @description{
-
 Returns the [connected components](http://en.wikipedia.org/wiki/Connected_component_(graph_theory) of Graph `G`, as sets of nodes. All nodes within one component are all reachable from one another, there are no paths between two nodes from different components. The graph is assumed to be undirected.
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::graphs::Graph;
 connectedComponents({<1,2>, <1,3>, <4,5>, <5,6>});
