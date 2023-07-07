@@ -139,9 +139,7 @@ test bool testKwParams2() {
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Exception differs
 }
-@expected{
-UninitializedVariable
-}
+@expected{UninitializedVariable}
 test bool testUnInitAssignment1() {
   map[int,int] m = ();
   m[0] += 1;
@@ -150,9 +148,7 @@ test bool testUnInitAssignment1() {
 @ignoreInterpreter{
 Exception differs
 }
-@expected{
-NoSuchKey
-}
+@expected{NoSuchKey}
 test bool testUnInitAssignment2() {
   map[int,int] m = ();
   m[0] += 1;
@@ -168,9 +164,7 @@ test bool testInitAssignment3() {
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Exception differs
 }
-@expected{
-UninitializedVariable
-}
+@expected{UninitializedVariable}
 test bool testUnInitAssignment4() {
   map[int,int] m = ();
   m[0] -= 1;
@@ -180,9 +174,7 @@ test bool testUnInitAssignment4() {
 @ignoreInterpreter{
 Exception differs
 }
-@expected{
-NoSuchKey
-}
+@expected{NoSuchKey}
 test bool testUnInitAssignment5() {
   map[int,int] m = ();
   m[0] -= 1;
@@ -192,9 +184,7 @@ test bool testUnInitAssignment5() {
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Exception differs
 }
-@expected{
-UninitializedVariable
-}
+@expected{UninitializedVariable}
 test bool testUnInitAssignment6() {
   map[int,int] m = ();
   m[0] *= 1;
@@ -204,9 +194,7 @@ test bool testUnInitAssignment6() {
 @ignoreInterpreter{
 Exception differs
 }
-@expected{
-NoSuchKey
-}
+@expected{NoSuchKey}
 test bool testUnInitAssignment7() {
   map[int,int] m = ();
   m[0] *= 1;
@@ -216,9 +204,7 @@ test bool testUnInitAssignment7() {
 @ignoreCompiler{
 Remove-after-transtion-to-compiler: Exception differs
 }
-@expected{
-UninitializedVariable
-}
+@expected{UninitializedVariable}
 test bool testUnInitAssignment8() {
   map[int,int]m = ();
   m[0] /= 1;
@@ -228,18 +214,14 @@ test bool testUnInitAssignment8() {
 @ignoreInterpreter{
 Exception differs
 }
-@expected{
-NoSuchKey
-}
+@expected{NoSuchKey}
 test bool testUnInitAssignment9() {
   map[int,int]m = ();
   m[0] /= 1;
   return false;
 }
 
-@expected{
-IndexOutOfBounds
-}
+@expected{IndexOutOfBounds}
 test bool testUnInitAssignment10() {
   list[int] m = [];
   m[0] += 1;

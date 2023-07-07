@@ -113,42 +113,26 @@ test bool caret28() = satisfiesVersion("0.0.0", "^0.x");
 test bool caret29() = satisfiesVersion("0.5.3", "^0.x");
 test bool caret30() = !satisfiesVersion("1.0.0", "^0.x");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid1() = lessVersion("a.1.2", "b.1.2");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid2() = lessVersion("1;1.2", "1;1.2");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid3() = satisfiesVersion("0.5.3", "^0.y");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid4() = satisfiesVersion("0.5.3", "@0.y");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid5() = satisfiesVersion("0.5.3", "0.1 - 0.z");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid6() = satisfiesVersion("0.1", "0.1 z 0.2");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid7() = satisfiesVersion("0.5.3", "\> =0.1");
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool invalid8() = satisfiesVersion("0.5.3", "\>= 0.1");
