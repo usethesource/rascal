@@ -6,7 +6,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Rodrigo Bonifacio - rbonifacio@unb.br - CIC/UnB}
-
+@synopsis{Java 8 grammar}
+@description{
 This Java grammar is based on the following references:
 
 * https://docs.oracle.com/javase/specs/jls/se8/html/jls-19.html
