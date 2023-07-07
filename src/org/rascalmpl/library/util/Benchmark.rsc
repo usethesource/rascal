@@ -10,12 +10,13 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Functions for time measurement and benchmarking.
 
-#### Description
+}
+@description{
 
 The `Benchmark` library provides the following functions:
 (((TOC)))

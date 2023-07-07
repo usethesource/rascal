@@ -1,5 +1,5 @@
-@doc{
-#### Synopsis
+
+@synopsis{
 
 AST model for S-Expressions.
 }

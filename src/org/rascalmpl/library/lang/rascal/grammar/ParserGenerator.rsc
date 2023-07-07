@@ -282,7 +282,7 @@ Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
 default Symbol getType(Symbol s) = unsetRec(s);
 
 
-@doc{This function generates Java code to allocate a new item for each position in the grammar.
+@synopsis{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
 map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
@@ -350,7 +350,7 @@ str split(str x) {
   }
 }
 
-@doc{this function selects all symbols for which a parse method should be generated}
+@synopsis{this function selects all symbols for which a parse method should be generated}
 bool isNonterminal(Symbol s) {
   switch (s) {
     case Symbol::\label(_,x) : return isNonterminal(x);
