@@ -95,7 +95,6 @@ data Symbol // <4>
 
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
-
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
 
 * `cons`: a constructor for an abstract data type.
@@ -263,7 +262,6 @@ public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
 
 @synopsis{Strict structural equality between values.}
 @description{
-
 The difference between `eq` and `==` is that no implicit coercions are done between values of incomparable types
 at the top-level. 
 
@@ -271,7 +269,6 @@ The `==` operator, for convience, equates `1.0` with `1` but not `[1] with [1.0]
 when writing consistent specifications. The new number system that is coming up will not have these issues.
 }
 @examples{
-
 ```rascal-shell
 import Type;
 1 == 1.0
@@ -283,7 +280,7 @@ public java bool eq(value x, value y);
 
 @synopsis{The least-upperbound (lub) of two types is the common ancestor in the type lattice that is lowest.}
 @description{
-This function documents and implements the lub operation in Rascal's type system. 
+This function documents and implements the lub operation in Rascal's type system.
 }
 public Symbol lub(Symbol s, s) = s;
 public default Symbol lub(Symbol s, Symbol t) = \value();
@@ -394,7 +391,7 @@ private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw
 
 @synopsis{The greatest lower bound (glb) between two types, i.e. a common descendant of two types in the lattice which is largest.}
 @description{
-This function documents and implements the glb operation in Rascal's type system. 
+This function documents and implements the glb operation in Rascal's type system.
 }
 public Symbol glb(Symbol s, s) = s;
 public default Symbol glb(Symbol s, Symbol t) = \void();
@@ -505,12 +502,10 @@ public java &T make(type[&T] typ, str name, list[value] args, map[str,value] key
  
 @synopsis{Returns the dynamic type of a value as a ((Type-Symbol)).}
 @description{
-
 As opposed to the # operator, which produces the type of a value statically, this
 function produces the dynamic type of a value, represented by a symbol.
 }
 @examples{
-
 ```rascal-shell
 import Type;
 value x = 1;

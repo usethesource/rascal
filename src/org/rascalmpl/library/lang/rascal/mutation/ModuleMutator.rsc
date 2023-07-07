@@ -12,14 +12,9 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 }
 @bootstrapParser
 
-@synopsis{
-
-Mutant Generator for Rascal modules
-
-}
+@synopsis{Mutant Generator for Rascal modules}
 @description{
-
-  Rascal module. The use case is to test how good the tests are for such a module. The tests
+Rascal module. The use case is to test how good the tests are for such a module. The tests
   should be able to find the bugs we introduce using the mutators.
   
 Examples

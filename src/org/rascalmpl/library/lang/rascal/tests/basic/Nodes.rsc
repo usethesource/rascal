@@ -187,12 +187,16 @@ node n1 = d(3);
 test bool testPositionalFieldOnNode() = n0.i == 1; //generate warning in static checker: "field access on node type may fail at run-time"
 test bool testKeywordParameterOnNode() = n0.j == 2;
 
-@expected{NoSuchField}
+@expected{
+NoSuchField
+}
 test bool testUnsetKeywordParameterOnNode() {
   n1.j;
   fail;
 }
-@expected{NoSuchField}
+@expected{
+NoSuchField
+}
 test bool testNonExistingFieldOnNode() {
   n0.k;
   fail;

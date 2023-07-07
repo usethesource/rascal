@@ -1,11 +1,6 @@
 
-@synopsis{
-
-mapping all of Java to the object flow language
-
-}
+@synopsis{mapping all of Java to the object flow language}
 @description{
-
 More information can be found in ((analysis::flow::ObjectFlow)).
 }
 module lang::java::flow::JavaToObjectFlow

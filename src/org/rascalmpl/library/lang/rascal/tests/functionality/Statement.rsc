@@ -17,10 +17,14 @@ import Exception;
 test bool testAssert1() {return assert 3 > 2;}
 test bool testAssert2() {return assert 3 > 2: "Yes assert succeeds";}
   	   
-@expected{AssertionFailed}
+@expected{
+AssertionFailed
+}
 test bool assertError1() {assert 1 == 2;return false;}
 
-@expected{AssertionFailed}
+@expected{
+AssertionFailed
+}
 test bool assertError2() {assert 1 == 2: "1 really differs from 2"; return false;}
   
 // assignment
@@ -143,7 +147,9 @@ test bool testWhileWithBacktracking6(){
     return res ==  [[12],[12],[12]];
 }
 
-@ignoreInterpreter{Infinite loop}
+@ignoreInterpreter{
+Infinite loop
+}
 test bool labelledWhileContinue(){
   res = "";
   next_fun:
@@ -158,7 +164,9 @@ test bool labelledWhileContinue(){
    return res == "NONO";
 }
 
-@ignoreCompiler{FIXME: pre and post should be reset to undefined on loop entry}
+@ignoreCompiler{
+FIXME: pre and post should be reset to undefined on loop entry
+}
 test bool testWhileWithPatternVariables(){
     syms = [10,9,1,3,5];
     while([*pre, x, y, *post] := syms, x > y){
@@ -289,7 +297,9 @@ test bool solve2() {
   		  return j == 1000;
 }	
         
-@expected{IndexOutOfBounds}
+@expected{
+IndexOutOfBounds
+}
 test bool solveIndexOutOfBounds1() {
   			  rel[int,int] T =    R1;
   		  solve (T; -1)  T = T + (T o R1);

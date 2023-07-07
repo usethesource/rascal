@@ -71,7 +71,9 @@ test bool  transitiveAliasAcrossTuples() {
     return aBlock == {<"a", "b", "c">};
 }	
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias1() = 
   #partition == 
   type(
@@ -82,7 +84,9 @@ test bool reifiedAlias1() =
         ]))),
   ());
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias2() =
   #P[partition] ==
    type(
@@ -121,17 +125,23 @@ test bool reifiedAlias2() =
           
 alias LIST[&T] = list[&T];
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias3() =
    #LIST[LIST[int]].symbol == \list(\list(\int()));
 
-@ignoreCompiler{Representation differs}   
+@ignoreCompiler{
+Representation differs
+}   
 test bool reifiedAlias4() =
    #LIST[LIST[LIST[int]]].symbol == \list(\list(\list(\int())));
 
 alias TUPLELIST[&T] = tuple[LIST[&T], LIST[&T]];
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias5() =
     #TUPLELIST[int].symbol == \tuple([\list(\int()), \list(\int())]);
 
@@ -139,7 +149,9 @@ alias STRING = str;
 
 data DATA1 = d1(STRING s);
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias6() = #DATA1 ==
 type(
   adt(
@@ -166,7 +178,9 @@ type(
 
 data DATA2 = d2(DATA1(STRING) fun);
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias7() = #DATA2 ==
 type(
   adt(
@@ -213,7 +227,9 @@ type(
           {})})
   ));
 
-@ignoreCompiler{Representation differs}
+@ignoreCompiler{
+Representation differs
+}
 test bool reifiedAlias8() = #DATA2 ==
 type(
   adt(
@@ -299,7 +315,9 @@ test bool assignableTupleAlias() {
 }
 
 @synopsis{this tests if the solution for #1811 still checks the arity of the tuple}
-@expected{UnexpectedType}
+@expected{
+UnexpectedType
+}
 test bool assignableTupleAliasError() {
   T[int] x = <0,1>;
   <a,b,c> = x; // this should throw an exception

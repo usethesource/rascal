@@ -72,7 +72,9 @@ test bool domainX3(map[&K,&V] M)
 }
 
 // getOneFrom
-@expected{EmptyMap} 
+@expected{
+EmptyMap
+} 
 test bool getOneFrom1() { v = getOneFrom(()); return true; }
 test bool getOneFrom2() = getOneFrom((1:10)) == 1;
 test bool getOneFrom3() = getOneFrom((1:10, 2:20)) in {1,2};
@@ -91,7 +93,9 @@ test bool invertUnique1() = invertUnique(()) == ();
 test bool invertUnique2() = invertUnique((1:10)) == (10:1);
 test bool invertUnique3() = invertUnique((1:10, 2:20)) == (10:1, 20:2);
 test bool invertUnique4() = invertUnique(([[]]:0,[[2]]:2,[[1,2],[2,1]]:1,[[1]]:3)) == (0:[[]],2:[[2]],1:[[1,2],[2,1]],3:[[1]]);
-@expected{MultipleKey} test bool invertUnique5() { invertUnique((1:10, 2:10)); return true; }
+@expected{
+MultipleKey
+} test bool invertUnique5() { invertUnique((1:10, 2:10)); return true; }
 
 test bool invertUnique6(map[&K,&V] M) {
 	try	{ 
@@ -179,7 +183,9 @@ test bool toList4(map[&K,&V] M) = size(M) == List::size(toList(M));
 test bool toList5(map[&K,&V] M) = isEmpty(M) || all(k <- M, <k, M[k]> in toList(M));
 
 // toRel (on plain maps)
-@ignoreCompiler{FIX: Typechecker says: Multiple functions found which could be applied} 
+@ignoreCompiler{
+FIX: Typechecker says: Multiple functions found which could be applied
+} 
 test bool toRel_g1() = toRel(()) == {};
 test bool toRel_g2() = toRel((1:10)) == {<1,10>};
 test bool toRel_g3() = toRel((1:10, 2:20)) == {<1,10>,<2,20>};

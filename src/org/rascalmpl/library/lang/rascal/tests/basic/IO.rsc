@@ -13,7 +13,9 @@ test bool writeReadFile(str content) {
   return readFile(aFile) == content;
 }
 
-@ignore{not all values can be read in back (such as constructors that turn into nodes)}
+@ignore{
+not all values can be read in back (such as constructors that turn into nodes)
+}
 test bool writeReadValue(value x) {
   writeTextValueFile(aFile, x);
   y = readTextValueFile(aFile);
@@ -113,7 +115,9 @@ map[Compression, str] comprExtension
 		//lzma() : "lzma"	
 	);
 
-@tries{100}
+@tries{
+100
+}
 test bool compressionWorks(str a, Compression comp) {
 	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
 	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
@@ -121,7 +125,9 @@ test bool compressionWorks(str a, Compression comp) {
 	return readFile(targetFile) == a;
 }
 
-@tries{100}
+@tries{
+100
+}
 test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
 	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
@@ -129,14 +135,18 @@ test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	return readFileEnc(targetFile, encodingNames[enc]) == a;
 }
 
-@expected{PathNotFound}
+@expected{
+PathNotFound
+}
 test bool writeFileOffsetNonExistingFile() {
 	writeFile(aFile[file=aFile.file + "invald"][offset=0][length=10], "Foobar");
 	return false;
 }
 
 
-@expected{PathNotFound}
+@expected{
+PathNotFound
+}
 test bool writeFileOffsetNonExistingFile2() {
 	writeFile(aFile[file=aFile.file + "invald"][offset=200][length=10], "Foobar");
 	return false;

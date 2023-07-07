@@ -27,7 +27,9 @@ public java map[str, type[value]] getRSFTypes(loc location);
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 public java &T readRSFRelation(type[&T] result, str name, loc location);
 
-@resource{rsf}
+@resource{
+rsf
+}
 @synopsis{The RSF schema should be given as:
     rsf+rascal-file-uri
   where rascal-file-uri is a standard Rascal URI, for instance:

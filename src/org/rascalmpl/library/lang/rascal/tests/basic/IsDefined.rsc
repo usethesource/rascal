@@ -141,8 +141,12 @@ test bool isDefinedTuple3(){
     return tup.n?;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
-@expected{UndeclaredField}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]
+}
+@expected{
+UndeclaredField
+}
 test bool isDefinedTuple4(){
     tuple[int n, str s] tup = <0, "a">;
     return !tup.x?;
@@ -164,8 +168,12 @@ test bool isDefinedRel1(){
     return ({<1, "a">, <2, "b">}[0])?;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker}
-@expected{UnsupportedSubscriptArity}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Already detected by type checker
+}
+@expected{
+UnsupportedSubscriptArity
+}
 test bool isDefinedRel2(){
     return !({<1, "a">, <2, "b">}[1,2,3])?;
 }
@@ -186,8 +194,12 @@ test bool isDefinedLRel1(){
     return ([<1, "a">, <2, "b">][0])?;
 }
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker}
-@expected{UnsupportedSubscriptArity}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Already detected by type checker
+}
+@expected{
+UnsupportedSubscriptArity
+}
 test bool isDefinedLRel2(){
     return !([<1, "a">, <2, "b">][1,2,3])?;
 }
@@ -234,7 +246,9 @@ test bool hasNode2() = !("aap"(boot=1) has noot);
 
 test bool hasNode3() = !("aap"() has noot);
 
-@ignoreCompiler{INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables}
+@ignoreCompiler{
+INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables
+}
 test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 
 // The status of unitialized variables is in transit
@@ -304,15 +318,21 @@ test bool isDefined13() {
 
 data D = d1() | d2(int n) | d3(int n, str s = "abc");
 
-@expected{NoSuchField}
+@expected{
+NoSuchField
+}
 test bool getADTField1() = d1().n == 0;
 
-@expected{NoSuchField}
+@expected{
+NoSuchField
+}
 test bool getADTField2() = d1().s == "abc";
 
 test bool getADTField3() = d2(10).n == 10;
 
-@expected{NoSuchField}
+@expected{
+NoSuchField
+}
 test bool getADTField4() = d2(10).s == "abc";
 
 test bool getADTField5() = d3(20).n == 20;
@@ -355,10 +375,14 @@ test bool ifDefADTFieldOtherwise8() = "def" == (d3(20, s = "def").s ? "xyz");
 test bool ifDefADTFieldOtherwise9() = 20 == (d3(20, s = "abc").n ? 13);
 test bool ifDefADTFieldOtherwise10() = "abc" == (d3(20, s = "abc").s ? "xyz");
 
-@ignoreCompiler{INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables}
+@ignoreCompiler{
+INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables
+}
 test bool undefinedVariable() = !undefined?;
 
-@ignoreCompiler{INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables}
+@ignoreCompiler{
+INCOMPATIBILITY: ? has been restricted and works no longer on undefined variables
+}
 test bool definedVariable() {
   int defined = 42;
   return defined?;

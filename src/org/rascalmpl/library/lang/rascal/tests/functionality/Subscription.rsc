@@ -29,10 +29,14 @@ test bool listTest6() {list[int] L = [0,1,2,3]; L[1] = 11; return L == [0,11,2,3
 test bool listTest7() {list[int] L = [0,1,2,3]; L[2] = 22; return L == [0,1,22,3];}
 test bool listTest8() {list[int] L = [0,1,2,3]; L[3] = 33; return L == [0,1,2,33];}
 	
-@expected{IndexOutOfBounds}
+@expected{
+IndexOutOfBounds
+}
 test bool listError1() = [0,1,2,3][4] == 3;
 	
-@expected{IndexOutOfBounds}
+@expected{
+IndexOutOfBounds
+}
 test bool listError2(){ list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44]; return false; 	}
 	
 //	 map
@@ -41,7 +45,9 @@ test bool mapTest1() = (1:10, 2:20, 3:30)[1] == 10;
 test bool mapTest2() = (1:10, 2:20, 3:30)[2] == 20;
 test bool mapTest3() = (1:10, 2:20, 3:30)[3] == 30;
 
-@expected{NoSuchKey}
+@expected{
+NoSuchKey
+}
 test bool mapTest4() = (1:10, 2:20, 3:30)[4] == 30;
 
 test bool mapTest5() {map[int,int] M = (1:10, 2:20, 3:30); M[1] = 100; return M == (1:100, 2:20, 3:30);}
@@ -85,7 +91,9 @@ test bool nodeTest3() = f(0, "a", 3.5)[2] == 3.5;
 /* structure assignment no longer allowed; */
 //test bool nodeTest4() {NODE T = f(0, "a", 3.5); T[0] = 10; return  T == f(10, "a", 3.5);}
 	
-@expected{IndexOutOfBounds}
+@expected{
+IndexOutOfBounds
+}
 test bool nodeBoundsError() = f(0, "a", 3.5)[3] == 3.5;
 	
 	

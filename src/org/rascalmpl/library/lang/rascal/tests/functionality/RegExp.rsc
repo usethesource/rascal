@@ -152,12 +152,20 @@ assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := "abc") && (x == "abc");
 }
 */
 
-@ignoreCompiler{Remove-after-transtion-to-compiler: Different exception}
-@expected{SyntaxError}
+@ignoreCompiler{
+Remove-after-transtion-to-compiler: Different exception
+}
+@expected{
+SyntaxError
+}
 test bool RegExpSyntaxError1() = /[a-/ := "abc";
 	
-@ignoreInterpreter{Different exception}
-@expected{RegExpSyntaxError}
+@ignoreInterpreter{
+Different exception
+}
+@expected{
+RegExpSyntaxError
+}
 test bool RegExpSyntaxError1() = /[a-/ := "abc";
 
 // modifiers

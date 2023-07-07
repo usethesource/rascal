@@ -13,6 +13,8 @@ default bool subtype(SYM s, SYM t) = false;
 test bool TPcomparable1() = comparable(A(), B());
 test bool TPcomparable2() = comparable(B(), A());
 
-@ignoreInterpreter{This failing test seems to be an error in the interpreter}
+@ignoreInterpreter{
+This failing test seems to be an error in the interpreter
+}
 test bool TPsubtype1() = !subtype(Z(), A());
 

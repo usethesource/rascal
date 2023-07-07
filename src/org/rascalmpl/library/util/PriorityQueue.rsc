@@ -9,24 +9,16 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 
-@synopsis{
-
-A `PriorityQueue` datatype and associated functions.
-
-}
+@synopsis{A `PriorityQueue` datatype and associated functions.}
 @usage{
-
 `import util::PriorityQueue;`
-
 }
 @description{
-
 Priority queues maintain (priority, value) pairs in sorted order. They are implemented using a
 [Binomial heap](http://en.wikipedia.org/wiki/Binomial_heap) Priority queue are, for instance, used to implement shortest path algorithms.
 
 Provides the following functions:
 (((TOC)))
-
 }
 @examples{
 
@@ -35,7 +27,6 @@ Provides the following functions:
 
 }
 @pitfalls{
-
 Currently, both priority and associated value ("payload") have to be integers. This will be generalized.
 }
 module util::PriorityQueue

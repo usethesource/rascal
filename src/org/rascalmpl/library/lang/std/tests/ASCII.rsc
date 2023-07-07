@@ -25,7 +25,9 @@ test bool blank2() = Blank _ := [Blank] "\t";
 test bool ctrl1() = Ctrl _ := [Ctrl] "\a00";
 test bool ctrl2() = Ctrl _ := [Ctrl] "\a1f";
 
-@ignore{}
+@ignore{
+
+}
 test bool ctrl3() = Ctrl c := [Ctrl] "\a7f";
 
 test bool digit1() = Digit _ := [Digit] "0";
@@ -40,10 +42,14 @@ test bool hexnumber4() = HexNumber _ := [HexNumber] "f";
 test bool hexnumber5() = HexNumber _ := [HexNumber] "0";
 test bool hexnumber6() = HexNumber _ := [HexNumber] "9";
 
-@expected{ParseError}
+@expected{
+ParseError
+}
 test bool hexnumber7() = HexNumber _ := [HexNumber] "G";
 
-@expected{ParseError}
+@expected{
+ParseError
+}
 test bool hexnumber8() = HexNumber _ := [HexNumber] "g";
 
 //lexical Print = [\ ~-!];
