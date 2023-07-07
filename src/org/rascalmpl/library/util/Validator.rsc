@@ -15,7 +15,7 @@ data RuntimeException = invalid(str \type, value v, list[value] path=[]);
    
 private data RuntimeException = none();
 
-@doc{The general and simple validation case is when a value's run-time type already matches the expected static type}
+@synopsis{The general and simple validation case is when a value's run-time type already matches the expected static type}
 @memo
 &T validate(type[&T] expected, value v, list[value] path=[], bool relaxed=false) {
     if (&T x := v) {
@@ -26,7 +26,7 @@ private data RuntimeException = none();
   	}
 }
 
-@doc{To validate nodes we can try whether or not it can be matched to a constructor of a defined data type with the same name and (resp. validating) children.}
+@synopsis{To validate nodes we can try whether or not it can be matched to a constructor of a defined data type with the same name and (resp. validating) children.}
 @memo
 &T validate(type[&T] expected, node v, list[value] path = [], bool relaxed=false) {
     if (expected.symbol == \node()) {
@@ -85,7 +85,7 @@ private data RuntimeException = none();
     fail validate;
 }
  
-@doc{if a (sub)value can not be validated we report the expected type, the not-matching value and the path that led us there} 
+@synopsis{if a (sub)value can not be validated we report the expected type, the not-matching value and the path that led us there} 
 default &T validate(type[&T] expected, value v, list[value] path=[], bool relaxed=false) {
 	throw invalid("<expected>", v, path=path);
 } 

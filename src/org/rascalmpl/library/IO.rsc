@@ -45,7 +45,7 @@ may expect problems. The registry is not automatically invalidated.
 @javaClass{org.rascalmpl.library.Prelude}
 java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
 
-@doc{Undo the effect of ((registerLocations))}
+@synopsis{Undo the effect of ((registerLocations))}
 @description{
 For debugging or for memory management you may wish to remove a lookup table.
 }
@@ -188,16 +188,18 @@ public java void iprintToFile(loc file, value arg, str charset=DEFAULT_CHARSET);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str iprintToString(value arg);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print an indented representation of a value and returns the value as result.
 
-#### Description
+}
+@description{
 
 See ((IO-iprintlnExp)) for a version that adds a newline.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -209,16 +211,18 @@ public &T iprintExp(&T v) {
 	return v;
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print an indented representation of a value followed by a newline and returns the value as result.
 
-#### Description
+}
+@description{
 
 See ((IO-iprintExp)) for a version that does not add a newline.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -231,12 +235,13 @@ public &T iprintlnExp(&T v) {
 }
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print a indented representation of a value and add a newline at the end.
 
-#### Description
+}
+@description{
 
 See ((IO-iprintlnExp)) for a version that returns its argument as result
 and ((IO-iprint)) for a version that does not add a newline.
@@ -244,7 +249,8 @@ and ((IO-iprint)) for a version that does not add a newline.
 By default we only print the first 1000 lines, if you want to print larger values, either 
 use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -255,12 +261,13 @@ iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintln(value arg, int lineLimit = 1000); 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Check whether a given location is actually a file (and not a directory).
 
-#### Description
+}
+@description{
 
 Check whether location `file` is actually a file.
 }
@@ -268,16 +275,18 @@ Check whether location `file` is actually a file.
 public java bool isFile(loc file);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Last modification date of a location.
 
-#### Description
+}
+@description{
 
 Returns last modification time of the file at location `file`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -290,16 +299,18 @@ lastModified(|std:///IO.rsc|);
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime lastModified(loc file);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Creation datetime of a location.
 
-#### Description
+}
+@description{
 
 Returns the creation time of the file at location `file`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -313,32 +324,34 @@ created(|std:///IO.rsc|);
 public java datetime created(loc file);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Set the modification date of a file to `now` or create the file if it did not exist yet
- }
+}
 @javaClass{org.rascalmpl.library.Prelude}
 java void touch(loc file);
 
-@doc{ 
-#### Synopsis
+
+@synopsis{
 
 Set the modification date of a file to the timestamp
- }
+}
 @javaClass{org.rascalmpl.library.Prelude}
 java void setLastModified(loc file, datetime timestamp);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 List the entries in a directory.
 
-#### Description
+}
+@description{
 
 List the entries in directory `file`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -352,12 +365,13 @@ listEntries(|std:///|);
 public java list[str] listEntries(loc file);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Create a new directory.
 
-#### Description
+}
+@description{
 
 Create a directory at location `file`.
 }
@@ -365,19 +379,21 @@ Create a directory at location `file`.
 public java void mkDirectory(loc file)
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print a value without subsequent newline.
 
-#### Description
+}
+@description{
 
 Print a value on the output stream.
 See ((IO-println)) for a version that adds a newline
 and ((IO-printExp)) for a version that returns its argument as value.
 
 
-#### Examples
+}
+@examples{
 
 Note that the only difference with ((IO-println)) is that no newline is added after the value is printed
 ```rascal-shell
@@ -392,12 +408,13 @@ glued to the output of `print`.
 @javaClass{org.rascalmpl.library.Prelude}
 public java void print(value arg);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print a value and return it as result.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -415,18 +432,20 @@ public &T printExp(str msg, &T v) {
 	return v;
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print a value to the output stream and add a newline.
 
-#### Description
+}
+@description{
 
 Print a value on the output stream followed by a newline.
 See ((IO-print)) for a version that does not add a newline
 and ((IO-printlnExp)) for a version that returns its argument as value.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -457,12 +476,13 @@ public java void println(value arg);
 @javaClass{org.rascalmpl.library.Prelude}
 public java void println();
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Print a value followed by a newline and return it as result.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import IO;
@@ -482,15 +502,17 @@ public &T printlnExp(str msg, &T v) {
 	return v;
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Raw print of a value.
 
-#### Description
+}
+@description{
 
 
-#### Pitfalls
+}
+@pitfalls{
 
 This function is only available for internal use in the Rascal development team.
 }
@@ -498,31 +520,35 @@ This function is only available for internal use in the Rascal development team.
 public java void rprint(value arg);
 
     
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Raw print of a value followed by newline.
 
-#### Description
+}
+@description{
 
-#### Pitfalls
+}
+@pitfalls{
 
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void rprintln(value arg);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Read the contents of a location and return it as string value.
 
-#### Description
+}
+@description{
 
 Return the contents of a file location as a single string.
 Also see ((readFileLines)).
 
-#### Encoding
+}
+@encoding{
 
 A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
 If you know the encoding of the file, please use the ((readFileEnc)) and ((readFileLinesEnc)) overloads.
@@ -540,12 +566,12 @@ If you do not know, we try to detect this. This detection is explained below:
 *To summarize*, we use UTF-8 by default, except if the text that the location points to has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
 
-#### Pitfalls
+}
+@pitfalls{
 
 *  In case encoding is not known, we try to estimate as best as we can.
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters.
-
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str readFile(loc file, str charset=DEFAULT_CHARSET, bool inferCharset=!(charset?))
@@ -574,8 +600,8 @@ throws PathNotFound, IO;
 @deprecated{Use writeBase65 instead. Uudecode was a misnomer.}
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Read the contents of a file and return it as a list of bytes.
 }
@@ -584,21 +610,24 @@ public java list[int] readFileBytes(loc file)
 throws PathNotFound, IO;
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Read the contents of a file location and return it as a list of strings.
 
-#### Description
+}
+@description{
 
 Return the contents of a file location as a list of lines.
 Also see ((readFile)).
 
-#### Encoding
+}
+@encoding{
 
 Look at ((readFile)) to understand how this function chooses the character set. If you know the character set used, please use ((readFileLinesEnc)).
 
-#### Pitfalls
+}
+@pitfalls{
 
 *  In case encoding is not known, we try to estimate as best as we can (see [readFile]).
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
@@ -635,12 +664,13 @@ throws PathNotFound, IO
 @javaClass{org.rascalmpl.library.Prelude}
 public java void remove(loc file, bool recursive=true) throws IO;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Write values to a file.
 
-#### Description
+}
+@description{
 
 Write a textual representation of some values to a file:
 
@@ -660,12 +690,13 @@ throws PathNotFound, IO;
 public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Write values to a file.
 
-#### Description
+}
+@description{
 
 Write a textual representation of some values to a file:
 
@@ -680,12 +711,13 @@ Files are encoded using the charset provided.
 public void writeFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
   = writeFile(file, V, charset=charset);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Read the contents of a location and return its MD5 hash.
 
-#### Description
+}
+@description{
 
 MD5 hash the contents of a file location.
 }

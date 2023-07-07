@@ -1,10 +1,8 @@
-@doc{
-A saner grammar for JavaScript
+@synopsis{A saner grammar for JavaScript
 
 It assumes:
 - semicolons are present
-- there is no comma expression
-}
+- there is no comma expression}
 
 @contributor{
 Tijs van der Storm - CWI (storm@cwi.nl)

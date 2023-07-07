@@ -10,12 +10,13 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Vadim Zaytsev - vadim@grammarware.net - SWAT, CWI}
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Library functions for strings.
 
-#### Description
+}
+@description{
 
 The following library functions are defined for strings:
 (((TOC)))
@@ -25,17 +26,19 @@ module String
 extend Exception;
 import List;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Center a string in given space.
 
-#### Description
+}
+@description{
 
 *  Center string `s` in string of length `n` using spaces.
 *  Center string `s` in string of length `n` using `pad` as padding character.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -54,17 +57,19 @@ public str center(str s, int n, str pad)
   return format(s, "center", n, pad);
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Return character in a string by its index position.
 
-#### Description
+}
+@description{
 
 Return the character at position `i` in string `s` as integer character code.
 Also see ((String-stringChar)) that converts character codes back to string.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -75,16 +80,18 @@ stringChar(charAt("abc", 0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java int charAt(str s, int i) throws IndexOutOfBounds;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Return characters of a string.
-#### Description
+}
+@description{
 
 Return a list of the characters of `s` as integer character codes.
 Also see ((String-stringChars)) that converts character codes back to string.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -94,16 +101,18 @@ stringChars(chars("abc")) == "abc";
 }
 public list[int] chars(str s) = [ charAt(s,i) | i <- [0..size(s)]];
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Check that a string contains another string.
 
-#### Description
+}
+@description{
 
 Check whether the string `find` occurs as substring in the string `subject`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -114,8 +123,8 @@ contains("abracadabra", "e");
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool contains(str input, str find);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Replace escaped characters by the escaped character itself (using Rascal escape conventions).
 }
@@ -131,16 +140,18 @@ str deescape(str s)  {
     return res;
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Check whether a string ends with a given substring.
 
-#### Description
+}
+@description{
 
 Yields `true` if string `subject` ends with the string `suffix`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -150,17 +161,19 @@ endsWith("Hello.rsc", ".rsc");
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool endsWith(str subject, str suffix);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Replace single characters in a string.
 
-#### Description
+}
+@description{
 
 Return a copy of `subject` in which each single character key in replacements
 has been replaced by its associated value.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -174,19 +187,21 @@ println(L);
 public java str escape(str subject, map[str,str] mapping);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Find all occurrences of a string in another string.
 
-#### Description
+}
+@description{
 
 Find all occurrences of string `find` in string `subject`.
 The result is a (possible empty) list of positions where `find` matches.
 
 See also ((findFirst)) and ((findLast)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -198,19 +213,21 @@ findAll("abracadabra", "e");
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[int] findAll(str subject, str find);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Find the first occurrence of a string in another string.
 
-#### Description
+}
+@description{
 
 Find the first occurrence of string `find` in string `subject`.
 The result is either a position in `subject` or `-1` when `find` is not found.
 
 Also see ((findAll)) and ((findLast)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -222,19 +239,21 @@ findFirst("abracadabra", "e");
 @javaClass{org.rascalmpl.library.Prelude}
 public java int findFirst(str subject, str find);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Find the last occurrence of a string in another string.
 
-#### Description
+}
+@description{
 
 Find the last occurrence of string `find` in string `subject`.
 The result is either a position in `subject` or `-1` when `find` is not found.
 
 Also see ((findAll)) and ((findFirst)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -246,16 +265,18 @@ findLast("abracadabra", "e");
 @javaClass{org.rascalmpl.library.Prelude}
 public java int findLast(str subject, str find);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Check whether a string is empty.
 
-#### Description
+}
+@description{
 
 Returns `true` if string `s` is empty.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -266,16 +287,18 @@ isEmpty("abc");
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(str s);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Generate a arbitrary string.
 
-#### Description
+}
+@description{
 
 Returns a string of maximum `n` length, with arbitrary characters.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -286,17 +309,19 @@ arbString(10);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str arbString(int n);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Left alignment of string in given space.
 
-#### Description
+}
+@description{
 
 *  Left align string `s` in string of length `n` using spaces.
 *  Left align string `s` in string of length `n` using `pad` as pad character.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -314,17 +339,19 @@ public str left(str s, int n, str pad)
   return format(s, "left", n, pad);
 }
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Replace all occurrences of a string in another string.
 
-#### Description
+}
+@description{
 
 Return a copy of `subject` in which all occurrences of `find` (if any) have been replaced by `replacement`.
 Also see ((replaceFirst)) and ((replaceLast)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -333,25 +360,27 @@ replaceAll("abracadabra", "ra", "RARA");
 replaceAll("abracadabra", "cra", "CRA");
 ```
 
-#### Pitfalls
+}
+@pitfalls{
 
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
-
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str replaceAll(str subject, str find, str replacement);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Replace the first occurrence of a string in another string.
 
-#### Description
+}
+@description{
 
 Return a copy of `subject` in which the first occurrence of `find` (if it exists) has been replaced by `replacement`.
 Also see ((replaceAll)) and ((replaceLast)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -360,24 +389,27 @@ replaceFirst("abracadabra", "ra", "RARA");
 replaceFirst("abracadabra", "cra", "CRA");
 ```
 
-#### Pitfalls
+}
+@pitfalls{
 
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str replaceFirst(str subject, str find, str replacement);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Replace the last occurrence of a string in another string.
 
-#### Description
+}
+@description{
 
 Return a copy of `subject` in which the last occurrence of `find` (if it exists) has been replaced by `replacement`.
 Also see ((replaceFirst)) and ((replaceLast)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -386,23 +418,26 @@ replaceLast("abracadabra", "ra", "RARA");
 replaceLast("abracadabra", "cra", "CRA");
 ```
 
-#### Pitfalls
+}
+@pitfalls{
 
 Note that `find` is a string (as opposed to, for instance, a regular expression in Java).
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str replaceLast(str subject, str find, str replacement);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Return a string with all characters in reverse order.
 
-#### Description
+}
+@description{
 
 Returns string with all characters of string `s` in reverse order.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -413,12 +448,13 @@ reverse("abc");
 public java str reverse(str s);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Right align s in string of length n using space.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -426,17 +462,19 @@ right("abc", 10);
 right("abc", 10, "x");
 ```
 }
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Right alignment of a string value in a given space.
 
-#### Description
+}
+@description{
 
 *  Right align string `s` in string of length `n` using spaces.
 *  Right align string `s` in string of length `n` using `pad` as pad character.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -455,16 +493,18 @@ public str right(str s, int n, str pad)
 }
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Determine length of a string value.
 
-#### Description
+}
+@description{
 
 Returns the length (number of characters) in string `s`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -475,16 +515,18 @@ size("");
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(str s);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Check whether a string starts with a given prefix.
 
-#### Description
+}
+@description{
 
 Yields `true` if string `subject` starts with the string `prefix`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -495,41 +537,43 @@ startsWith("Hello.rsc", "Hell");
 public java bool startsWith(str subject, str prefix);
 
 
-@doc{
-#### Synopsis
 
-Convert a character code into a string. 
+@synopsis{
+
+Convert a character code into a string.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str stringChar(int char) throws IllegalArgument;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a list of character codes into a string.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str stringChars(list[int] chars) throws IllegalArgument;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Check that a given integer value is a valid Unicode code point.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isValidCharacter(int ch);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Extract a substring from a string value.
 
-#### Description
+}
+@description{
 
 *  Yields substring of string `s` from index `begin` to the end of the string.
 *  Yields substring of string `s` from index `begin` to (but not including) index `end`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -544,12 +588,13 @@ public java str substring(str s, int begin);
 public java str substring(str s, int begin, int end);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a string value to integer.
 
-#### Description
+}
+@description{
 
 *  Converts string `s` to integer. 
 *  Convert string `s` to integer using radix `r`.
@@ -557,7 +602,8 @@ Convert a string value to integer.
 
 Throws `IllegalArgument` when `s` cannot be converted.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -575,16 +621,18 @@ public java int toInt(str s) throws IllegalArgument;
 @javaClass{org.rascalmpl.library.Prelude}
 public java int toInt(str s, int r) throws IllegalArgument;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert the characters in a string value to lower case.
 
-#### Description
+}
+@description{
 
 Convert all characters in string `s` to lowercase. Also see ((toUpperCase)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -595,16 +643,18 @@ toLowerCase("AaBbCc123");
 public java str toLowerCase(str s);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a string value to real.
 
-#### Description
+}
+@description{
 
 Converts string `s` to a real. Throws `IllegalArgument` when `s` cannot be converted.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell,error
 import String;
@@ -616,18 +666,20 @@ toReal("abc");
 @javaClass{org.rascalmpl.library.Prelude}
 public java real toReal(str s);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert the characters in a string value to upper case.
 
-#### Description
+}
+@description{
 
 Converts all characters in string `s` to upper case.
 
 Also see ((toLowerCase)).
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -637,12 +689,13 @@ toUpperCase("AaBbCc123");
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toUpperCase(str s);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Returns string with leading and trailing whitespace removed.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -653,17 +706,19 @@ beans  ");
 @javaClass{org.rascalmpl.library.Prelude}
 public java str trim(str s);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Squeeze repeated occurrences of characters.
-#### Description
+}
+@description{
 
 Squeeze repeated occurrences in `src` of characters in `charSet` removed.
 See http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html[Apache]
 for the allowed syntax in `charSet`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -674,8 +729,8 @@ squeeze("hello", "el");
 public java str squeeze(str src, str charSet);
 
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Split a string into a list of strings based on a literal separator.
 }
@@ -694,14 +749,15 @@ public java str toBase64(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str fromBase64(str src);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Word wrap a string to fit in a certain width.
 
-#### Description
+}
+@description{
 
-Inserts newlines in a string in order to fit the string in a certain width. It only breaks on spaces (' '). 
+Inserts newlines in a string in order to fit the string in a certain width. It only breaks on spaces (' ').
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str wrap(str src, int wrapLength);
@@ -714,8 +770,8 @@ public java str wrap(str src, int wrapLength);
 @javaClass{org.rascalmpl.library.Prelude}
 private java str format(str s, str dir, int n, str pad);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Determine if a string matches the given (Java-syntax) regular expression.
 }
@@ -723,17 +779,19 @@ Determine if a string matches the given (Java-syntax) regular expression.
 @deprecated{use `/re/ := s` instead}
 public java bool rexpMatch(str s, str re);
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Convert a string value to a (source code) location.
 
-#### Description
+}
+@description{
 
 *  Converts string `s` to a location.
 *  If the scheme is not provided, it is assumed to be `cwd`.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;
@@ -743,12 +801,13 @@ toLocation("document.xml");
 }
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Substitute substrings in a string based on a substitution map from location to string.
 
-#### Examples
+}
+@examples{
 
 ```rascal-shell
 import String;

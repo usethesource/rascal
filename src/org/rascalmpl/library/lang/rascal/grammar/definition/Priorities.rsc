@@ -25,13 +25,14 @@ data Associativity = prio();
 public alias Extracted = rel[Production father, Associativity rule, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
-@doc{
-#### Synopsis
+
+@synopsis{
 
 Extract which productions are not to be nested under which other productions, at given 
 recursive positions in the parents' defining symbols list.
 
-#### Description
+}
+@description{
 
 This DoNotNest relation is generated from the grammar using the > priority definitions,
 the associativity groups and the ! restriction operator. 
@@ -174,11 +175,9 @@ Extracted extract(Production high, Production p:priority(Symbol _, list[Producti
   + {*extract(high, low) | low <- alts};   
 
     
-@doc{
-This one-liner searches a given production for "except restrictions". 
+@synopsis{This one-liner searches a given production for "except restrictions". 
 For every position in the production that is restricted, and for every restriction it finds 
-at this position, it adds a 'do-not-nest' tuple to the result.
-}
+at this position, it adds a 'do-not-nest' tuple to the result.}
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
   = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s)
                  , except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
