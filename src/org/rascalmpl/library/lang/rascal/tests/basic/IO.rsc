@@ -115,9 +115,7 @@ map[Compression, str] comprExtension
 		//lzma() : "lzma"	
 	);
 
-@tries{
-100
-}
+@tries{100}
 test bool compressionWorks(str a, Compression comp) {
 	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
 	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
@@ -125,9 +123,7 @@ test bool compressionWorks(str a, Compression comp) {
 	return readFile(targetFile) == a;
 }
 
-@tries{
-100
-}
+@tries{100}
 test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	targetFile = aFile[extension = aFile.extension + "." + comprExtension[comp]];
 	targetFile = targetFile[scheme = "compressed+" + targetFile.scheme];
