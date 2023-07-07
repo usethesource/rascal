@@ -25,9 +25,7 @@ str createValidScheme(str s) {
 	return ("a" | it + stringChar(validSchemeChars[c % size(validSchemeChars)]) | c <- chars(s));
 }
 
-@expected{
-MalFormedURI
-}
+@expected{MalFormedURI}
 test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);

@@ -135,18 +135,14 @@ test bool compressionWorksWithEncoding(str a, Compression comp, Encoding enc) {
 	return readFileEnc(targetFile, encodingNames[enc]) == a;
 }
 
-@expected{
-PathNotFound
-}
+@expected{PathNotFound}
 test bool writeFileOffsetNonExistingFile() {
 	writeFile(aFile[file=aFile.file + "invald"][offset=0][length=10], "Foobar");
 	return false;
 }
 
 
-@expected{
-PathNotFound
-}
+@expected{PathNotFound}
 test bool writeFileOffsetNonExistingFile2() {
 	writeFile(aFile[file=aFile.file + "invald"][offset=200][length=10], "Foobar");
 	return false;

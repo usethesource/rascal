@@ -41,9 +41,7 @@ test bool tstArbBool() { b = arbBool() ; return b == true || b == false; }
 
 test bool fromString1() = fromString("true") == true && fromString("false") == false;
 
-@expected{
-IllegalArgument
-}
+@expected{IllegalArgument}
 test bool fromString2(str s) = fromString(s); // will fail in the rare situation that "true" or "false" are passed as argument.
 
 test bool tstToInt() = toInt(false) == 0 && toInt(true) == 1;

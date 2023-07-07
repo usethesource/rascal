@@ -25,14 +25,10 @@ test bool getOneFrom5() {int N = Set::getOneFrom({1, 2, 3}); return  (N == 1) ||
 test bool getOneFrom6() {real D = Set::getOneFrom({1.0,2.0}); return  (D == 1.0) || (D == 2.0);}
 test bool getOneFrom7() {str S = Set::getOneFrom({"abc","def"}); return  (S == "abc") || (S == "def");}
   		
-@expected{
-EmptySet
-}
+@expected{EmptySet}
 test bool getOneFrom8() {Set::getOneFrom({});return false;}
   	
-@expected{
-EmptySet
-}
+@expected{EmptySet}
 test bool getOneFromError1() {
 	getOneFrom({});return false;
 }
@@ -92,9 +88,7 @@ test bool sum4()  = sum({1,2,3}) == 6;
 test bool takeOneFrom1() {<E1, SI> = Set::takeOneFrom({1}); return (E1 == 1) && (SI == {}) ;}
 test bool takeOneFrom2() {<E1, SI> = Set::takeOneFrom({1,2}); return ((E1 == 1) && (SI == {2})) || ((E1 == 2) && (SI == {1}));}
           
-@expected{
-EmptySet
-}
+@expected{EmptySet}
 test bool takeOneFromError1() {
 	getOneFrom({});return false;
 }  
@@ -120,9 +114,7 @@ test bool toMapUnique2() = toMapUnique({}) == ();
 test bool toMapUnique3() = Set::toMapUnique({<1, "a">}) == (1 : "a");
 test bool toMapUnique4() = Set::toMapUnique({<1, "a">, <2, "b">}) == (1 : "a", 2 : "b");
   		
-@expected{
-MultipleKey
-}
+@expected{MultipleKey}
 test bool toMapUniqueError1() = toMapUnique({<1,10>,<1,20>}) == (1:20);		
   	
 // testToString 
