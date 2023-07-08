@@ -10,9 +10,9 @@ Values wrapped in a `Content` wrapper will be displayed by interactive
 Rascal applications such as the IDE, the REPL terminal and the documentation pages. 
 
 For example, a piece of html can be displayed directly like such:
-[source,rascal-shell]
+```rascal-shell
 html("\<a href=\"http://www.rascal-mpl.org\"\>Rascal homepage\</a\>")
-----
+```
 
 In its most general form, `Content` is an HTTP(s) webserver callback, such that you might deliver
 any kind of content, based on any kind of request. If you produce a `Content` value
