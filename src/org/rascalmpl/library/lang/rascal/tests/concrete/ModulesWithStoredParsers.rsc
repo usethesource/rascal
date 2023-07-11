@@ -1,10 +1,22 @@
-module lang::rascal::tests::concrete::StoredParsers
+module lang::rascal::tests::concrete::ModulesWithStoredParsers
 
 import util::Reflective;
 import IO;
+import ParseTree;
 import util::Math;
 import lang::rascal::grammar::storage::ModuleParserStorage;
 
+lexical W = [\ ];
+layout L = W*;
+lexical A = [A];
+syntax As = A+;
+
+test bool storeParserNonModule() {
+  storeParsers(#As, |test-temp:///parsersA.jar|);
+  p = loadParsers(|test-temp:///parsersA.jar|);
+
+  return p(type(sort("As"), ()), "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
+}
 
 loc constructExampleProject() {
     root = |test-temp:///example-prj-<"<arbInt()>">|;
@@ -16,7 +28,7 @@ loc constructExampleProject() {
 PathConfig getTestPathConfig(loc root) 
     = getProjectPathConfig(root)[bin = root + "target/classes"];
 
-test bool storeParsersWorkedSimpleGrammar() {
+test bool storeModuleParsersWorkedSimpleGrammar() {
     root = constructExampleProject();
     writeFile(root + "src/main/rascal/A.rsc", "module A
         'lexical A = [A];
@@ -27,7 +39,7 @@ test bool storeParsersWorkedSimpleGrammar() {
     return exists(root + "target/classes/A.parsers");
 }
 
-test bool storeParsersWorked() {
+test bool storeModuleParsersWorkedForBiggerGrammar() {
     root = constructExampleProject();
     writeFile(root + "src/main/rascal/A.rsc", "module A
         'lexical W = [\\ ];
@@ -40,3 +52,4 @@ test bool storeParsersWorked() {
     
     return exists(root + "target/classes/A.parsers");
 }
+
