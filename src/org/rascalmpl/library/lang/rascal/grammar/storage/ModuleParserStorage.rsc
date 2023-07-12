@@ -118,17 +118,17 @@ void storeParsersForModules(set[Module] modules, PathConfig pcfg) {
 }
 
 void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pcfg) {
+    // this has to be done from scratch due to different ways combining layout definitions
+    // with import and extend. Each main module has a different grammar because of this.
+    def = modules2definition(main, modules);
+
+    // here the layout semantics comes really into action
+    gr = fuse(def);
+
+    // find a file in the target folder to write to
+    target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
+
     try {
-        // this has to be done from scratch due to different ways combining layout definitions
-        // with import and extend. Each main module has a different grammar because of this.
-        def = modules2definition(main, modules);
-
-        // here the layout semantics comes really into action
-        gr = fuse(def);
-
-        // find a file in the target folder to write to
-        target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
-
         println("Generating parser for <main> at <target>");
         if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
             storeParsers(rt, target);
