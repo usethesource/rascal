@@ -43,10 +43,12 @@ import lang::rascal::grammar::definition::Modules;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import util::FileSystem;
+import util::Monitor;
 import Location;
 import ParseTree;
 import Grammar;
 import IO;
+import Exception;
 
 @synopsis{For all modules in pcfg.srcs this will produce a `.parsers` stored parser capable of parsing concrete syntax fragment in said module.}
 @description{
@@ -116,18 +118,27 @@ void storeParsersForModules(set[Module] modules, PathConfig pcfg) {
 }
 
 void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pcfg) {
-    // this has to be done from scratch due to different ways combining layout definitions
-    // with import and extend. Each main module has a different grammar because of this.
-    def = modules2definition(main, modules);
+    try {
+        // this has to be done from scratch due to different ways combining layout definitions
+        // with import and extend. Each main module has a different grammar because of this.
+        def = modules2definition(main, modules);
 
-    // here the layout semantics comes really into action
-    gr = fuse(def);
+        // here the layout semantics comes really into action
+        gr = fuse(def);
 
-    // find a file in the target folder to write to
-    target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
+        // find a file in the target folder to write to
+        target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
 
-    println("Generating parser for <main> at <target>");
-    if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
-        storeParsers(rt, target);
+        println("Generating parser for <main> at <target>");
+        if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
+            storeParsers(rt, target);
+        }
+    }
+    catch e:Java("JavaCompilation", str message, RuntimeException cause): {
+        jobWarning("Generated parser could not be compiled:
+                   '  grammar: <iprintToString(gr.rules)>
+                   '  error  : <message>
+                   '  cause  : <cause>");
+        throw e;
     }
 }
