@@ -208,8 +208,12 @@ public class JavaCompiler<T> {
     */
    public synchronized Map<String, Class<T>> compile(
          final Map<String, CharSequence> classes,
-         final DiagnosticCollector<JavaFileObject> diagnostics)
+         DiagnosticCollector<JavaFileObject> diagnostics)
          throws JavaCompilerException {
+      if (diagnostics == null) {
+         diagnostics = new DiagnosticCollector<>();
+      }
+
       List<JavaFileObject> sources = new ArrayList<JavaFileObject>();
       for (Entry<String, CharSequence> entry : classes.entrySet()) {
          String qualifiedClassName = entry.getKey();
