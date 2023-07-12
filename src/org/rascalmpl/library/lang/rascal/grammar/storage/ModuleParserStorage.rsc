@@ -138,7 +138,7 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
         jobWarning("Generated parser could not be compiled:
                    '  grammar: <iprintToString(gr.rules)>
                    '  error  : <message>
-                   '  cause  : <cause>");
+                   '  cause  : <cause>", file);
         throw e;
     }
 }
