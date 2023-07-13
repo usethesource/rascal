@@ -55,12 +55,8 @@ test bool dup5()  = dup([1,1,2])   == [1,2];
 test bool dup6()  = dup([1,1,2,2]) == [1,2];
 
 // elementAt - deprecated!
-@ignoreCompiler{
-Remove-after-transtion-to-compiler: Other exception
-} @expected{NoSuchElement} test bool elementAt1() {[][0]; return false;}
-@ignoreInterpreter{
-Other exception
-} @expected{IndexOutOfBounds} test bool elementAt1() {[][0]; return false;}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Other exception} @expected{NoSuchElement} test bool elementAt1() {[][0]; return false;}
+@ignoreInterpreter{Other exception} @expected{IndexOutOfBounds} test bool elementAt1() {[][0]; return false;}
 test bool elementAt2()  = [1,2,3][0] == 1;
 test bool elementAt3()  = [1,2,3][1] == 2;
 test bool elementAt4()  = [1,2,3][2] == 3;

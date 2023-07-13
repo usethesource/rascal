@@ -60,9 +60,7 @@ test bool overloading3a(){
     return <x,y,k,z> == <d3(-1), d3("-1"), d3(1), d3("1")>;
 }
 
-@ignoreCompiler{
-INCOMPATIBILITY: This test is deprecated for compiler -- No more overloading across scopes
-}
+@ignoreCompiler{INCOMPATIBILITY: This test is deprecated for compiler -- No more overloading across scopes}
 test bool overloading3b(){
 
 	public D d(0) = d(-1);
@@ -103,9 +101,7 @@ test bool overloadingMatcha(){
     return n == -1;
 }
 
-@ignoreCompiler{
-INCOMPATIBILITY: This test is deprecated for compiler -- No more overloading across scopes
-}
+@ignoreCompiler{INCOMPATIBILITY: This test is deprecated for compiler -- No more overloading across scopes}
 test bool overloadingMatchb(){
 	default D d(str s) = d();
 
@@ -161,9 +157,7 @@ test bool overloadingPlusPolymorphism2(){
 	return group({1,2,3}, similar) == {{1}, {2}, {3}};
 }	
 
-@ignoreCompiler{
-FIXME: Not yet supported by compiler
-}
+@ignoreCompiler{FIXME: Not yet supported by compiler}
 test bool overloadingPlusVarArgs(){
 
 	str f(500) = "500";

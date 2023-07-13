@@ -8,17 +8,13 @@ test bool Test91() {
 	return f(3) == 3;
 }
 
-@ignoreCompiler{
-INCOMPATIBILITY: Overloading of functions across scopes no longer supported
-}
+@ignoreCompiler{INCOMPATIBILITY: Overloading of functions across scopes no longer supported}
 test bool Test92() { 
 	int f(3) = 30;
 	return f(1) == 1 && f(3) == 30;
 }
 
-@ignoreCompiler{
-INCOMPATIBILITY: Overloading of functions across scopes no longer supported
-}
+@ignoreCompiler{INCOMPATIBILITY: Overloading of functions across scopes no longer supported}
 test bool Test93() { 
 	int f(3) = 300;
 	return f(5) == 50 && f(3) == 300;
@@ -30,9 +26,7 @@ test bool Test94() {
 	return f(5) == 100;
 }
 
-@ignoreCompiler{
-INCOMPATIBILITY: Overloading of functions across scopes no longer supported
-}
+@ignoreCompiler{INCOMPATIBILITY: Overloading of functions across scopes no longer supported}
 test bool Test95() { 
 	int f(3) = 3;
 	default int f(int n) = 20 * n;

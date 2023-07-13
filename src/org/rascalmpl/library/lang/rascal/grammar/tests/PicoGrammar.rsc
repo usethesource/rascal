@@ -85,9 +85,7 @@ test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 20;
 
 test bool cntSet1()         {cnt = 0; visit(Pico){ case {*value _}: cnt += 1; }; return cnt == 45; }
 test bool cntSet2()         = size([x | /x:{*value _} := Pico]) == 45;
-@ignoreInterpreter{
-gives wrong answer 1186
-}
+@ignoreInterpreter{gives wrong answer 1186}
 test bool cntStr1()         {cnt = 0; visit(Pico){ case str _: cnt += 1; }; return cnt == 187; }
 test bool cntStr2()         = size([x | /x:str _ := Pico]) == 187;
 

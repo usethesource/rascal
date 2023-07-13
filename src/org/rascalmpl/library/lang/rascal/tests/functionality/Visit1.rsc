@@ -307,12 +307,8 @@ test bool visit18() {
 
 data LIST = lst(list[int] elems);
 
-@ignoreInterpreter{
-Interpreter crashes on this test
-}
-@ignoreCompiler{
-Gives [lst(["666"])] which the most likely answer
-}
+@ignoreInterpreter{Interpreter crashes on this test}
+@ignoreCompiler{Gives [lst(["666"])] which the most likely answer}
 test bool visit19() {
 	return [ visit(lst([1])) {
 				// list[str] <: list[value]; typeOf(subject) <: list[value] 
@@ -325,12 +321,8 @@ test bool visit19() {
 		      [lst([999,666])];
 }
 
-@ignoreInterpreter{
-Interpreter crashes on this test
-}
-@ignoreCompiler{
-Gives incorrect answer [lst([999])]
-}
+@ignoreInterpreter{Interpreter crashes on this test}
+@ignoreCompiler{Gives incorrect answer [lst([999])]}
 test bool visit20() {
 	return 
 		   [ visit(lst([1])) {
@@ -346,9 +338,7 @@ test bool visit20() {
 
 data X = weird1(list[void] x);
 
-@ignoreInterpreter{
-Interpreter crashes on this test
-}
+@ignoreInterpreter{Interpreter crashes on this test}
 test bool visit21() = visit (weird1([])) { case list[int] _ => [1] } == weird1([]);
 
 data Y = weird2(list[int] y);
@@ -376,9 +366,7 @@ data Z = z(int n);
 
 test bool visit23() = visit (z(2)) { case node _ => z(3) } == z(3);
 
-@ignoreInterpreter{
-Interpreter crashes on this test
-}
+@ignoreInterpreter{Interpreter crashes on this test}
 test bool visit24() = visit([]) { case _ => [1] } == [];
 
 

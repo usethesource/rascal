@@ -538,14 +538,10 @@ test bool testList46() = 3 notin [2, 4, 6];
     		
 test bool testList47() = (2 > 3 ? [1,2] : [1,2,3]) == [1,2,3];
 
-@ignoreInterpreter{
-Not implemented
-}
+@ignoreInterpreter{Not implemented}
 test bool testList48() = 1 >> [2, 3] == [1, 2, 3];
 
-@ignoreInterpreter{
-Not implemented
-}
+@ignoreInterpreter{Not implemented}
 test bool testList49() = [2, 3] << 4 == [2, 3, 4];
 
     
@@ -554,25 +550,15 @@ test bool  SubscriptError11() { 		[1,2][5];return false;  	}
     	
 //	 listSplicing
 
-@ignoreCompiler{
-INCOMPATIBILITY: Splicing no longer allowed on arbitrary types
-}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing1() =  [1,2,3] == [1,2,3];
-@ignoreCompiler{
-INCOMPATIBILITY: Splicing no longer allowed on arbitrary types
-}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing2() = [*1,2,3] == [1,2,3];
-@ignoreCompiler{
-INCOMPATIBILITY: Splicing no longer allowed on arbitrary types
-}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing3() = [1,*2,3] == [1,2,3];
-@ignoreCompiler{
-INCOMPATIBILITY: Splicing no longer allowed on arbitrary types
-}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing4() = [1,2,*3] == [1,2,3];
-@ignoreCompiler{
-INCOMPATIBILITY: Splicing no longer allowed on arbitrary types
-}
+@ignoreCompiler{INCOMPATIBILITY: Splicing no longer allowed on arbitrary types}
 test bool testListSplicing5() = [*1,*2,3] == [1,2,3];
     		
 test bool testListSplicing6() {list[int] L1 = [1,2]; return [L1] == [[1,2]];}

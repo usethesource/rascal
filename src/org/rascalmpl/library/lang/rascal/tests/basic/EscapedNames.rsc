@@ -124,14 +124,10 @@ test bool escapedPatternName9b() = {*int \a-x} := {3, 4} && \a-x == {3, 4};
 test bool escapedPatternName10a() = <\x> := <3> && x == 3;
 test bool escapedPatternName10b() = <\a-x> := <3> && \a-x == 3;
 
-@ignoreInterpreter{
-TBD
-}
+@ignoreInterpreter{TBD}
 test bool escapedPatternName11a() = /a<\z:[b]>c/ := "abc" && z == "b";
 
-@ignoreInterpreter{
-TBD
-}
+@ignoreInterpreter{TBD}
 test bool escapedPatternName11b() = /a<\a-z:[b]>c/ := "abc" && \a-z == "b";
 
 test bool escapedWhileLabel() {

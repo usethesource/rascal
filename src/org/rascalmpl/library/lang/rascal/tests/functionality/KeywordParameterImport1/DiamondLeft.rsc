@@ -8,9 +8,7 @@ test bool Left_ly_left1() = ly() has left;
 test bool Left_ly_left2() = !ly().left?;
 test bool Left_ly_left3() = ly().left == 10;
 test bool Left_ly_left4() = ly(left = 20).left == 20;
-@ignoreCompiler{
-INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation
-}
+@ignoreCompiler{INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation}
 test bool Left_ly_left5() = ly(left = 20)?;
 test bool Left_ly_left6() = ly(left = 20).left == 20;
 

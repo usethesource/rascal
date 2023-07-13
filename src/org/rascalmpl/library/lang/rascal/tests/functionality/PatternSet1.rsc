@@ -590,9 +590,7 @@ test bool matchSetDynamicNoMatch7() = {str _, *int _} !:= {"a", true};
 test bool matchSetModuleVar1() = {ModVar42} := {42};
 test bool matchSetModuleVar2() = {*ModVarSet_41_42_43} := ModVarSet_41_42_43;
 test bool matchSetModuleVar3() = {ModVar44, *ModVarSet_41_42_43} := {ModVar44, *ModVarSet_41_42_43};
-@ignoreInterpreter{
-Seems to be a bug in the interpreter
-}
+@ignoreInterpreter{Seems to be a bug in the interpreter}
 test bool matchSetModuleVar4() = {ModVar44, ModVarSet_41_42_43} := {ModVar44, ModVarSet_41_42_43};
 
 

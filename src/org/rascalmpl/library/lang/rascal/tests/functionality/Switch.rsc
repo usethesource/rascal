@@ -126,58 +126,32 @@ int sw6(value v){
     return n;
 }
 
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6a() = sw6(true)        == 1;
 
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6b() = sw6(2)           == 2;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6c() = sw6(3.0)         == 3;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6d() = sw6(4r3)         == 4;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6e() = sw6(|home:///|)  == 5;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6f() = sw6($2015-02-11T20:09:01.317+00:00$)     
                                             == 6;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6g() = sw6("abc")       == 7;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6h() = sw6([1,2,3])     == 8;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6i() = sw6([<1,2,3>])   == 9;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6j() = sw6({1,2,3})     == 10;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6k() = sw6({<1,2,3>})   == 11;
-@ignore{
-map pattern not supported
-}
+@ignore{map pattern not supported}
 test bool testSwitch6l() = sw6(("a" : 1))   == 12;
-@ignoreInterpreter{
-Location, datetime and map pattern not supported
-}
+@ignoreInterpreter{Location, datetime and map pattern not supported}
 test bool testSwitch6m() = sw6(13)          == 13;
 
