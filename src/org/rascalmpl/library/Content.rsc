@@ -9,8 +9,12 @@ on the terminal ((RascalShell)).}
 Values wrapped in a `Content` wrapper will be displayed by interactive
 Rascal applications such as the IDE, the REPL terminal and the documentation pages. 
 
+```rascal-prepare
+import Content;
+```
+
 For example, a piece of html can be displayed directly like such:
-```rascal-shell
+```rascal-shell,continue
 html("\<a href=\"http://www.rascal-mpl.org\"\>Rascal homepage\</a\>")
 ```
 
