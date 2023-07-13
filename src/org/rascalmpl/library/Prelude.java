@@ -71,9 +71,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.utils.JavaCompilerException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -2339,6 +2341,9 @@ public class Prelude {
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
 		try {
 			rascalValues.storeParsers(start, saveLocation);
+		}
+		catch (JavaCompilation e) {
+			throw RuntimeExceptionFactory.javaCompilerException(e);
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
