@@ -162,6 +162,28 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>tutor</goal>
+                        </goals>
+                        <configuration>
+                            <isPackageCourse>false</isPackageCourse>
+                            <enableStandardLibrary>false</enableStandardLibrary>
+                            <errorsAsWarnings>false</errorsAsWarnings>
+                            <bin>${project.build.outputDirectory}</bin>
+                            <license>${project.basedir}/LICENSE</license>
+                            <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
+                            <issues>|http://github.com/usethesource/rascal/issues|</issues>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <ignores>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
+                            </ignores>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
