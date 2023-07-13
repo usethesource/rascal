@@ -15,6 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,6 +56,7 @@ import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.RascalType;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.util.ListClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -123,15 +125,15 @@ public class JavaBridge {
 			return result;
 		} 
 		catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), e);
+			throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
 		} 
 		catch (JavaCompilerException e) {
 		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", e);
+		        throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, config.getRascalJavaClassPathProperty(), e);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), e);
+		        throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
 		    }
 		}
 	}
@@ -150,15 +152,32 @@ public class JavaBridge {
 			javaCompiler.compile(classBytes, className, source, null);
 		} 
 		catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), e);
+			throw new JavaCompilation(
+				e.getMessage(), 
+				1, 0,
+				source, 
+				config.getRascalJavaClassPathProperty(),
+				e
+			);
 		} 
 		catch (JavaCompilerException e) {
 		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", e);
+		        throw new JavaCompilation(
+					msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), 
+					source, 
+					config.getRascalJavaClassPathProperty(),
+					e
+				);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), e);
+		        throw new JavaCompilation(
+					e.getMessage(), 
+					1,  0,
+					source, 
+					config.getRascalJavaClassPathProperty(),
+					e
+				);
 		    }
 		}
 	}
