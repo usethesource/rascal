@@ -143,9 +143,7 @@ test bool testWhileWithBacktracking6(){
     return res ==  [[12],[12],[12]];
 }
 
-@ignoreInterpreter{
-Infinite loop
-}
+@ignoreInterpreter{Infinite loop}
 test bool labelledWhileContinue(){
   res = "";
   next_fun:
@@ -160,9 +158,7 @@ test bool labelledWhileContinue(){
    return res == "NONO";
 }
 
-@ignoreCompiler{
-FIXME: pre and post should be reset to undefined on loop entry
-}
+@ignoreCompiler{FIXME: pre and post should be reset to undefined on loop entry}
 test bool testWhileWithPatternVariables(){
     syms = [10,9,1,3,5];
     while([*pre, x, y, *post] := syms, x > y){

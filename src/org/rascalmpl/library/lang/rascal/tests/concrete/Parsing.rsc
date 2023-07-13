@@ -32,9 +32,7 @@ test bool disallowAmb2() {
     return true;
 }
 
-@ignoreCompiler{
-FIX: TC does not yet allow [A] loc
-}
+@ignoreCompiler{FIX: TC does not yet allow [A] loc}
 test bool locExpr() {
   writeFile(|test-temp:///locExpr.txt|,"a");
   return [A] |test-temp:///locExpr.txt| == parse(#A, |test-temp:///locExpr.txt|);

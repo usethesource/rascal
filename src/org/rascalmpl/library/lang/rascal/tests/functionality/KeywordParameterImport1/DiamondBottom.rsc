@@ -8,9 +8,7 @@ test bool Bottom_ly_left1() = ly() has left;
 test bool Bottom_ly_left2() = !ly().left?;
 test bool Bottom_ly_left3() = ly().left == 10;
 test bool Bottom_ly_left4() = ly(left = 20).left == 20;
-@ignoreCompiler{
-INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation
-}
+@ignoreCompiler{INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation}
 test bool Bottom_ly_left5() = ly(left = 20)?;
 test bool Bottom_ly_left6() = ly(left = 20).left == 20;
 
@@ -30,9 +28,7 @@ test bool Bottom_ry_right1() = ry() has right;
 test bool Bottom_ry_right2() = !ry().right?;
 test bool Bottom_ry_right3() = ry().right == 10;
 test bool Bottom_ry_right4() = ry(right = 20).right == 20;
-@ignoreCompiler{
-INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation
-}
+@ignoreCompiler{INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation}
 test bool Bottom_ry_right5() = ry(right = 20)?;
 test bool Bottom_ry_right6() = ry(right = 20).right == 20;
 

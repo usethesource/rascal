@@ -1,6 +1,4 @@
-@ignoreCompiler{
-Test fail; Waiting for Eclipse integration
-}
+@ignoreCompiler{Test fail; Waiting for Eclipse integration}
 module lang::rascal::tests::library::lang::java::m3::BasicM3Tests
 
 import util::Reflective;
@@ -80,15 +78,11 @@ private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) 
         builder(unpackExampleProject(projectName, sourceZip)) 
    );
 
-@ignoreCompiler{
-M3 not yet supported
-}
+@ignoreCompiler{M3 not yet supported}
 public test bool junitM3RemainedTheSame() 
     = compareM3s(|testdata:///m3/junit4-m3s.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitM3); 
 
-@ignoreCompiler{
-M3 not yet supported
-}
+@ignoreCompiler{M3 not yet supported}
 public test bool snakesM3RemainedTheSame() 
     = compareM3s(|testdata:///m3/snakes-and-ladders-m3s.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesM3); 
  
@@ -99,15 +93,11 @@ private bool compareASTs(loc reference, str projectName, loc sourceZip, set[Decl
         builder(unpackExampleProject(projectName, sourceZip)) 
     );
  
-@ignoreCompiler{
-M3 not yet supported
-}
+@ignoreCompiler{M3 not yet supported}
 public test bool junitASTsRemainedTheSame() 
     = compareASTs(|testdata:///m3/junit4-asts.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitASTs);
         
-@ignoreCompiler{
-M3 not yet supported
-}
+@ignoreCompiler{M3 not yet supported}
 public test bool snakesASTsRemainedTheSame() 
     = compareASTs(|testdata:///m3/snakes-and-ladders-asts.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesASTs);    
 
