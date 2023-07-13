@@ -134,10 +134,11 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
             storeParsers(rt, target);
         }
     }
-    catch e:JavaCompilation(str message, str source, list[loc] classpath): {
+    catch e:JavaCompilation(str message, int line, int column, str source, list[loc] classpath): {
         println("Generated parser could not be compiled:
                 '  grammar: <iprintToString(gr.rules)>
-                '  error  : <message> 
+                '  error  : <message>
+                '  pos    : line: <line>, column: <column>
                 '  path   : <iprintToString(classpath)>
                 '  source : \"<source>\"");
         throw e;

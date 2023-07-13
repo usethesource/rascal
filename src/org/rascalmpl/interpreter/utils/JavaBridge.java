@@ -125,15 +125,15 @@ public class JavaBridge {
 			return result;
 		} 
 		catch (ClassCastException e) {
-			throw new JavaCompilation(e.getMessage(), source, config.getRascalJavaClassPathProperty(), e);
+			throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
 		} 
 		catch (JavaCompilerException e) {
 		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber(), source, config.getRascalJavaClassPathProperty(), e);
+		        throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, config.getRascalJavaClassPathProperty(), e);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), source, config.getRascalJavaClassPathProperty(), e);
+		        throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
 		    }
 		}
 	}
@@ -154,6 +154,7 @@ public class JavaBridge {
 		catch (ClassCastException e) {
 			throw new JavaCompilation(
 				e.getMessage(), 
+				1, 0,
 				source, 
 				config.getRascalJavaClassPathProperty(),
 				e
@@ -163,7 +164,7 @@ public class JavaBridge {
 		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
 		        throw new JavaCompilation(
-					msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber(), 
+					msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), 
 					source, 
 					config.getRascalJavaClassPathProperty(),
 					e
@@ -172,6 +173,7 @@ public class JavaBridge {
 		    else {
 		        throw new JavaCompilation(
 					e.getMessage(), 
+					1,  0,
 					source, 
 					config.getRascalJavaClassPathProperty(),
 					e
