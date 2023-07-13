@@ -15,11 +15,15 @@ public class JavaCompilation extends RuntimeException {
 	private static final long serialVersionUID = 3200356264732532487L;
 	private final String source;
 	private final String classpath;
+	private final long line;
+	private final long column;
 
-	public JavaCompilation(String message, String source, String classpath, Exception cause) {
+	public JavaCompilation(String message, long line, long column, String source, String classpath, Exception cause) {
 		super("Java compilation failed due to " + message, cause);
 		this.classpath = classpath;
 		this.source = source;
+		this.line = line;
+		this.column = column;
 	}
 
 	public String getSource() {
@@ -28,5 +32,13 @@ public class JavaCompilation extends RuntimeException {
 
 	public String getClasspath() {
 		return classpath;
+	}
+
+	public long getLine() {
+		return line;
+	}
+
+	public long getColumn() {
+		return column;
 	}
 }

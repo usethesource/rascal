@@ -82,7 +82,7 @@ public class RuntimeExceptionFactory {
     public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
     public static final Type IO = TF.constructor(TS,Exception,"IO",TF.stringType(), "message");
     public static final Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message");
-	public static final Type JavaCompilation = TF.constructor(TS, Exception, "JavaCompilation", TF.stringType(), "message", TF.stringType(), "source", TF.listType(TF.sourceLocationType()), "classpath");
+	public static final Type JavaCompilation = TF.constructor(TS, Exception, "JavaCompilation", TF.stringType(), "message", TF.integerType(), "line", TF.integerType(), "column", TF.stringType(), "source", TF.listType(TF.sourceLocationType()), "classpath");
     public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
     public static final Type MalFormedURI = TF.constructor(TS, Exception, "MalFormedURI", TF.stringType(), "malFormedUri");
 	public static final Type ModuleNotFound = TF.constructor(TS, Exception, "ModuleNotFound", TF.stringType(), "name");
@@ -470,7 +470,7 @@ public class RuntimeExceptionFactory {
 			})
 			.collect(VF.listWriter());
 			
-		return new Throw(VF.constructor(JavaCompilation, VF.string(e.getMessage()), VF.string(e.getSource()), cp), ast != null ? ast.getLocation() : null, trace);
+		return new Throw(VF.constructor(JavaCompilation, VF.string(e.getMessage()),  VF.integer(e.getLine()), VF.integer(e.getColumn()), VF.string(e.getSource()), cp), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	public static Throw javaException(Throwable targetException, AbstractAST ast, StackTrace rascalTrace) throws ImplementationError {
