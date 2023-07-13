@@ -66,7 +66,7 @@ list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags>
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType user> = <Type base> ;`) {
      dtags = getTagContents(tags);
-     return [ aliasInfo(moduleName=moduleName, name="<user>", signature="<base>", src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
+     return [ aliasInfo(moduleName=moduleName, name="<user.name>", signature="<base>", src=d@\loc, synopsis=getSynopsis(dtags), docs=sortedDocTags(dtags))];
 }
 
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  
