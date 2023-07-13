@@ -43,7 +43,6 @@ import lang::rascal::grammar::definition::Modules;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import util::FileSystem;
-import util::Monitor;
 import Location;
 import ParseTree;
 import Grammar;
@@ -134,11 +133,12 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
             storeParsers(rt, target);
         }
     }
-    catch e:Java("JavaCompilation", str message, RuntimeException cause): {
-        jobWarning("Generated parser could not be compiled:
-                   '  grammar: <iprintToString(gr.rules)>
-                   '  error  : <message>
-                   '  cause  : <cause>", file);
+    catch e:JavaCompilation(str message, str source, list[loc] classpath): {
+        println("Generated parser could not be compiled:
+                '  grammar: <iprintToString(gr.rules)>
+                '  error  : <message> 
+                '  path   : <iprintToString(classpath)>
+                '  source : <source>");
         throw e;
     }
 }
