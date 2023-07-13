@@ -32,6 +32,8 @@ start[Module] rewriteDocTags(start[Module] m) = visit(m) {
      => [Tag] "@ignoreCompiler{<trim("<"<c>"[1..-1]>")>}"
     case jc:(Tag) `@ignore<TagString c>` 
      => [Tag] "@ignore{<trim("<"<c>"[1..-1]>")>}"
+     case jc:(Tag) `@tries<TagString c>` 
+     => [Tag] "@tries{<trim("<"<c>"[1..-1]>")>}"
     case jc:(Tag) `@ignoreInterpreter<TagString c>` 
      => [Tag] "@ignoreInterpreter{<trim("<"<c>"[1..-1]>")>}"
     case (Tag) `@<Name n> <TagString c>`
