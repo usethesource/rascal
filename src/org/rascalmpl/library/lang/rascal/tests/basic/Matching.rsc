@@ -3,9 +3,7 @@ module lang::rascal::tests::basic::Matching
 data T1 = \int() | \void() | string(str s);
 data T2 = \int() | \void() | string(str s);
 
-@ignoreCompiler{
-FIXME
-}
+@ignoreCompiler{FIXME}
 test bool incomparableTypesButNonEmptyIntersectionCanMatch() {
    tuple[int, num] a = <1,1>;
    return tuple[num, int] _ := a;
@@ -113,32 +111,20 @@ test bool ignoreKeywordParameter6() = <ig(),_> := <ig(x=1),2>;
 test bool ignoreKeywordParameter7() = [ig(),_] := [ig(x=1),2];
 test bool ignoreKeywordParameter8() = "fiets"(ig()) := "fiets"(ig(x=1));
 
-@ignore{
-Not yet operational
-}
+@ignore{Not yet operational}
 test bool ignoreKeywordParameter9() { A = ig(x = 1); return A := ig(); }
 
-@ignore{
-Not yet operational
-}
+@ignore{Not yet operational}
 test bool ignoreKeywordParameter10() { L = [ ig(x = 1) ]; return L := [ ig() ]; }
 
-@ignore{
-Not yet operational
-}
+@ignore{Not yet operational}
 test bool ignoreKeywordParameter11() { S = { ig(x = 1) }; return S := { ig() }; }
 
-@ignore{
-Not yet operational
-}
+@ignore{Not yet operational}
 test bool ignoreKeywordParameter12() { M = (ig(x = 1): ig(x = 1)); return M := (ig(): ig()); }
 
-@ignore{
-Not yet operational
-}
+@ignore{Not yet operational}
 test bool ignoreKeywordParameter13() { M = ([ig(x = 1)]: ig(x = 1)); return M := ([ig()]: ig()); }
 
-@ignore{
-Not yet operational
-}
+@ignore{Not yet operational}
 test bool ignoreKeywordParameter14() { T = <ig(x = 1), ig(x = 1)>; return T := <ig(), ig()>; }

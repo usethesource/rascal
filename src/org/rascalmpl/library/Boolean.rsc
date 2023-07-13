@@ -8,13 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
-@synopsis{
-
-Library functions for Booleans.
-
-}
+@synopsis{Library functions for Booleans.}
 @description{
-
 The following library functions are defined for Booleans:
 (((TOC)))
 }
@@ -22,33 +17,23 @@ module Boolean
 
 import Exception;
 
-@synopsis{
-
-Return an arbitrary Boolean value.
-
-}
+@synopsis{Return an arbitrary Boolean value.}
 @examples{
-
 ```rascal-shell
 import Boolean;
 arbBool();
 arbBool();
 arbBool();
 ```
-
 }
 @benefits{
-
-`arbInt` is a convenient generator for arbitrary binary choices.
+* `arbInt` is a convenient generator for arbitrary binary choices.
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool arbBool();
 
-@synopsis{
-
-Convert the strings "true" or "false" to a bool.
-}
+@synopsis{Convert the strings "true" or "false" to a bool.}
 public bool fromString(str s)
 { 
   if (s == "true") {
@@ -60,18 +45,11 @@ public bool fromString(str s)
   throw IllegalArgument(s, "not \"true\" or \"false\"");
 }
 
-@synopsis{
-
-Convert a Boolean value to integer.
-
-}
+@synopsis{Convert a Boolean value to integer.}
 @description{
-
 Maps `true` to `1` and `false` to `0`.
-
 }
 @examples{
-
 ```rascal-shell
 import Boolean;
 toInt(true);
@@ -83,18 +61,11 @@ public int toInt(bool b)
   return b ? 1 : 0;
 }
 
-@synopsis{
-
-Convert Boolean value to real.
-
-}
+@synopsis{Convert Boolean value to real.}
 @description{
-
 Maps `true` to `1.0` and `false` to `0.0`.
-
 }
 @examples{
-
 ```rascal-shell
 import Boolean;
 toReal(true);
@@ -106,18 +77,11 @@ public real toReal(bool b)
   return b ? 1.0 : 0.0;
 }
 
-@synopsis{
-
-Convert Boolean value to string.
-
-}
+@synopsis{Convert Boolean value to string.}
 @description{
-
 Maps `true` to `"true"` and `false` to `"false"`.
-
 }
 @examples{
-
 ```rascal-shell
 import Boolean;
 toString(true);

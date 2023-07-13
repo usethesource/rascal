@@ -179,9 +179,7 @@ test bool toList4(map[&K,&V] M) = size(M) == List::size(toList(M));
 test bool toList5(map[&K,&V] M) = isEmpty(M) || all(k <- M, <k, M[k]> in toList(M));
 
 // toRel (on plain maps)
-@ignoreCompiler{
-FIX: Typechecker says: Multiple functions found which could be applied
-} 
+@ignoreCompiler{FIX: Typechecker says: Multiple functions found which could be applied} 
 test bool toRel_g1() = toRel(()) == {};
 test bool toRel_g2() = toRel((1:10)) == {<1,10>};
 test bool toRel_g3() = toRel((1:10, 2:20)) == {<1,10>,<2,20>};

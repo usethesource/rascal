@@ -21,9 +21,7 @@ test bool Bottom_x_left1() = x() has left;
 test bool Bottom_x_left2() = !x().left?;
 test bool Bottom_x_left3() = x().left == 10;
 test bool Bottom_x_left4() = x(left = 20).left == 20;
-@ignoreCompiler{
-INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation
-}
+@ignoreCompiler{INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation}
 test bool Bottom_x_left5() = x(left = 20)?;
 test bool Bottom_x_left6() = x(left = 20).left == 20;
 
@@ -37,9 +35,7 @@ test bool Bottom_x_right1() = x() has right;
 test bool Bottom_x_right2() = !x().right?;
 test bool Bottom_x_right3() = x().right == 10;
 test bool Bottom_x_right4() = x(right = 20).right == 20;
-@ignoreCompiler{
-INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation
-}
+@ignoreCompiler{INCOMPATIBILITY: Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation}
 test bool Bottom_x_right5() = x(right = 20)?;
 test bool Bottom_x_right6() = x(right = 20).right == 20;
 

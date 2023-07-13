@@ -52,9 +52,7 @@ test bool testFieldSelectC2(){
     return c(A _, As as) := pt && pt.as == as;
 }
 
-@ignoreInterpreter{
-Feature is not implemented
-}
+@ignoreInterpreter{Feature is not implemented}
 test bool testConcreteListC1(){
     pt = parse(#C, "axaaa");
     return c(A _, As as) := pt && unsetRec(as.alist[0]) == unsetRec([A]"a"); // unset src keywords
@@ -65,9 +63,7 @@ test bool testConcreteListC2(){
     return c(A _, As as) := pt && size([x | x <- as.alist]) == 3;
 }
 
-@ignoreInterpreter{
-Feature is not implemented
-}
+@ignoreInterpreter{Feature is not implemented}
 test bool testConcreteListD1(){
     pt = parse(#Ds, "d,d");
     return Ds ds := pt && (unsetRec(ds.dlist[0]) == unsetRec([D]"d"));  // unset src keywords
