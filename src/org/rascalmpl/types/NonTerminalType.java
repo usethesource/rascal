@@ -541,15 +541,18 @@ public class NonTerminalType extends RascalType {
 
 	@Override
 	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
-		matched.isSubtypeOf(this);
-		return isSubtypeOf(matched);
-		// if (matched instanceof NonTerminalType) {
-		// 	return SymbolAdapter.match(symbol, ((NonTerminalType) matched).symbol, bindings);
-		// }
-		// else {
-		// 	IRascalValueFactory vf = IRascalValueFactory.getInstance();
+		// return matched.isSubtypeOf(this);
+		if (matched.isSubtypeOf(TypeFactory.getInstance().voidType())) {
+			return true;
+
+		}
+		else if (matched instanceof NonTerminalType) {
+			return SymbolAdapter.match(symbol, ((NonTerminalType) matched).symbol, bindings);
+		}
+		else {
+			IRascalValueFactory vf = IRascalValueFactory.getInstance();
 			
-		// 	return SymbolAdapter.match(symbol, matched.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>()), bindings);
-		// }
+			return SymbolAdapter.match(symbol, matched.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>()), bindings);
+		}
 	}
 }
