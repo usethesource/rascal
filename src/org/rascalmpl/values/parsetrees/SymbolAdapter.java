@@ -1193,7 +1193,7 @@ public class SymbolAdapter {
 		if (isVoid(symbol)) {
 			return true;
 		}
-		
+
 		// fast path equality is fine, but no more binding can be learned from that either
 		// this happens a lot because types are not accidentally constructed from each other.
 		if (isEqual(symbol, subject)) {
@@ -1244,6 +1244,23 @@ public class SymbolAdapter {
 			return getName(symbol).equals(getName(subject));
 		}
 
+		if (isParameter(symbol)) {
+			String name = getName(symbol);
+			Type parameterType = TypeFactory.getInstance().parameterType(name);
+			Type resolved = bindings.get(parameterType);
+
+			// if it is already bound, lub with that, otherwise lub with void
+			if (resolved == null) {
+				resolved = TypeFactory.getInstance().voidType();
+			}
+
+			resolved = resolved.lub(RascalTypeFactory.getInstance().nonTerminalType(subject));
+
+			bindings.put(parameterType, resolved);
+
+			return true;
+		}
+		
 		// after this we can assume we are looking at similar structures
 		if (symbol.getConstructorType() != subject.getConstructorType()) {
 			return false;
@@ -1301,22 +1318,6 @@ public class SymbolAdapter {
 			return match(getStart(symbol), getStart(subject), bindings);
 		}
 
-		if (isParameter(symbol)) {
-			String name = getName(symbol);
-			Type parameterType = TypeFactory.getInstance().parameterType(name);
-			Type resolved = bindings.get(parameterType);
-
-			// if it is already bound, lub with that, otherwise lub with void
-			if (resolved == null) {
-				resolved = TypeFactory.getInstance().voidType();
-			}
-
-			resolved = resolved.lub(RascalTypeFactory.getInstance().nonTerminalType(subject));
-
-			bindings.put(parameterType, resolved);
-
-			return true;
-		}
 		
 		if (isMap(symbol)) {
 			return match((IConstructor) symbol.get("from"), (IConstructor) subject.get("from"), bindings)
@@ -1360,4 +1361,77 @@ public class SymbolAdapter {
 
 		return isEqual(symbol, subject);
     }
+
+	public static boolean isOpen(IConstructor symbol) {
+		// This could also be written in Rascal. After a nice bootstrap, it would be so much 
+		// shorter 
+		if (isLabel(symbol) || isOpt(symbol) || isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol) || isConditional(symbol)) {
+			return isOpen(getSymbol(symbol));
+		}
+		
+		if (isIterPlusSeps(symbol) || isIterStarSeps(symbol)) {
+			IList seps = getSeparators(symbol);
+			IConstructor elem = getSymbol(symbol);
+			
+			return isOpen(elem)
+			   	   || seps.stream().map(s -> isOpen((IConstructor) s)).reduce(false, (a,b) -> a || b);
+		}
+		
+		if (isIterPlus(symbol) || isIterStar(symbol)) {
+			IConstructor elem = getSymbol(symbol);
+			
+			return isOpen(elem);
+		}
+		
+		if (isSeq(symbol) || isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
+			IList symbols = getSymbols(symbol);
+
+
+			return symbols.stream().map(s -> isOpen((IConstructor) s)).reduce(false, (a,b) -> a || b);
+		}
+
+		if (isAlt(symbol)) {
+		  ISet alts = getAlternatives(symbol);
+
+		  return alts.stream().map(s -> isOpen((IConstructor) s)).reduce(false, (a,b) -> a || b);
+		}
+
+		if (isParameterizedSort(symbol) || isParameterizedLex(symbol) || isADT(symbol) || isAlias(symbol)) {
+			IList params = (IList) symbol.get("parameters");
+			
+			return params.stream().map(s -> isOpen((IConstructor) s)).reduce(false, (a,b) -> a || b);
+		}
+
+		if (isStartSort(symbol)) {
+			return isOpen(getStart(symbol));
+		}
+
+		if (isParameter(symbol)) {
+			return true;
+		}
+		
+		if (isMap(symbol)) {
+			return 
+				isOpen((IConstructor) symbol.get("from"))
+				|| isOpen((IConstructor) symbol.get("to"));
+		}
+		
+		if (isFunc(symbol)) {
+			IList parameters = (IList) symbol.get("parameters");
+			return isOpen((IConstructor) symbol.get("ret"))
+				|| parameters.stream().map(s -> isOpen((IConstructor) s)).reduce(false, (a,b) -> a || b);
+		}
+		
+		if (isCons(symbol)) {
+			IList parameters = (IList) symbol.get("parameters");
+			
+			return isOpen((IConstructor) symbol.get("ret"))
+				|| parameters.stream().map(s -> isOpen((IConstructor) s)).reduce(false, (a,b) -> a || b);
+		}
+
+		// all the other symbols are not composed of other symbols
+		// sort, lex, keyword, empty, char-class, layout, literal, ci-lit, int, str, real, node, value, num, datetime and loc
+
+		return false;
+	}
 }
