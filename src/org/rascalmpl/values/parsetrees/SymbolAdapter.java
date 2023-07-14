@@ -62,7 +62,11 @@ import static org.rascalmpl.values.RascalValueFactory.Symbol_Tuple;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Value;
 import static org.rascalmpl.values.RascalValueFactory.Symbol_Void;
 
+import java.util.Map;
+
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -73,6 +77,9 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class SymbolAdapter {
   private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -1084,4 +1091,281 @@ public class SymbolAdapter {
 	public static boolean isParametrizableType(IConstructor sort) {
 		return SymbolAdapter.isADT(sort) || SymbolAdapter.isParameterizedSort(sort) || SymbolAdapter.isParameterizedLex(sort);
 	}
+
+    public static IConstructor instantiate(IConstructor symbol, Map<Type, Type> bindings) {
+		// This could also be written in Rascal. After a nice bootstrap, it would be so much 
+		// shorter 
+		if (isLabel(symbol) || isOpt(symbol) || isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol) || isConditional(symbol)) {
+			return symbol.set("symbol", instantiate(getSymbol(symbol), bindings));
+		}
+		
+		if (isIterPlusSeps(symbol) || isIterStarSeps(symbol)) {
+			IList seps = getSeparators(symbol);
+			IConstructor elem = getSymbol(symbol);
+			
+			return symbol
+				.set("symbol", instantiate(elem, bindings))
+				.set("separators", seps.stream().map(s -> instantiate((IConstructor) s, bindings)).collect(VF.listWriter()));
+		}
+		
+		if (isIterPlus(symbol) || isIterStar(symbol)) {
+			IConstructor elem = getSymbol(symbol);
+			
+			return symbol.set("symbol", instantiate(elem, bindings));
+		}
+		
+		if (isSeq(symbol) || isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
+			IList symbols = getSymbols(symbol);
+
+			return symbol.set("symbols", symbols.stream().map(s -> instantiate((IConstructor) s, bindings)).collect(VF.listWriter()));
+		}
+
+		if (isAlt(symbol)) {
+		  ISet alts = getAlternatives(symbol);
+
+		  return symbol.set("alternatives", alts.stream().map(a -> instantiate((IConstructor) a, bindings)).collect(VF.setWriter()));
+		}
+
+		if (isParameterizedSort(symbol) || isParameterizedLex(symbol) || isADT(symbol) || isAlias(symbol)) {
+			IList params = (IList) symbol.get("parameters");
+			
+			return symbol.set("parameters", params.stream().map(s -> instantiate((IConstructor) s, bindings)).collect(VF.listWriter()));
+		}
+
+		if (isStartSort(symbol)) {
+			return symbol.set("symbol", instantiate(getStart(symbol), bindings));
+		}
+
+		if (isParameter(symbol)) {
+			String name = getName(symbol);
+			Type parameterType = TypeFactory.getInstance().parameterType(name);
+			Type resolved = bindings.get(parameterType);
+
+			if (resolved != null) {
+				if (resolved instanceof NonTerminalType) {
+					return ((NonTerminalType) resolved).getSymbol();
+				}
+				else {
+					return TypeFactory.getInstance().asSymbol(resolved, VF, new TypeStore(), VF.setWriter());
+				}
+			}
+
+			// if we can not find it, it remains open.
+			return symbol;
+		}
+		
+		if (isMap(symbol)) {
+			return symbol
+				.set("from", instantiate((IConstructor) symbol.get("from"), bindings))
+				.set("to", instantiate((IConstructor) symbol.get("to"), bindings));
+		}
+		
+		if (isFunc(symbol)) {
+			IList parameters = (IList) symbol.get("parameters");
+			return symbol
+				.set("ret", instantiate((IConstructor) symbol.get("ret"), bindings))
+				.set("parameters", parameters.stream().map(s -> instantiate((IConstructor) s, bindings)).collect(VF.listWriter()));
+		}
+		
+		if (isCons(symbol)) {
+			IList parameters = (IList) symbol.get("parameters");
+			
+			return symbol
+				.set("ret", instantiate((IConstructor) symbol.get("ret"), bindings))
+				.set("parameters", parameters.stream().map(s -> instantiate((IConstructor) s, bindings)).collect(VF.listWriter()));
+		}
+
+		// all the other symbols are not composed of other symbols
+		// sort, lex, keyword, empty, char-class, layout, literal, ci-lit, int, str, real, node, value, num, datetime and loc
+
+		return symbol;
+    }
+
+	/*
+	 * This implements a type-match algorithm similar to {@see Type.match()}. It binds type parameters
+	 * as a side-effect when the pattern matches and returns true iff the pattern and the subject
+	 * are the same kind of type.
+	 */
+    public static boolean match(IConstructor symbol, IConstructor subject, Map<Type, Type> bindings) {
+		symbol = stripLabelsAndConditions(symbol);
+		subject = stripLabelsAndConditions(subject);
+		
+		// fast path equality is fine, but no more binding can be learned from that either
+		// this happens a lot because types are not accidentally constructed from each other.
+		if (isEqual(symbol, subject)) {
+			return true;
+		}
+
+		if (isLayouts(symbol) && isLayouts(subject)) {
+			return true;
+		}
+
+		if (isIterPlusSeps(symbol) || isIterStarSeps(symbol)) {
+			if (isIterPlusSeps(subject) || isIterStarSeps(subject)) {
+				// both are separated
+				IList seps1 = getSeparators(symbol);
+				IList seps2 = getSeparators(subject);
+				IConstructor elem1 = getSymbol(symbol);
+				IConstructor elem2 = getSymbol(subject);
+				
+				// here we deal with the presence/absence of layout in the pattern and the subject
+				IConstructor sep1 = (IConstructor) (seps1.size() == 3 ? seps1.get(1) : seps1.get(0));
+				IConstructor sep2 = (IConstructor) (seps2.size() == 3 ? seps2.get(1) : seps2.get(0));
+				
+				return match(elem1, elem2, bindings)
+					&& match(sep1, sep2, bindings);
+			}
+			else if (isIterPlus(subject) || isIterStar(subject)) {
+				// the subject is not separated yet, probably the other one only by layout?
+				// TODO: check the layout separator
+				IConstructor elem1 = getSymbol(symbol);
+				IConstructor elem2 = getSymbol(subject);
+				return match(elem1, elem2, bindings);
+			}
+			else {
+				return false;
+			}
+		}
+		
+		if (isIterPlus(symbol) || isIterStar(symbol)) {
+			if (isIterPlusSeps(subject) || isIterStarSeps(subject)) {
+				// the subject is separated but the patter not (yet)
+				// TODO check if the subject only has layout
+				IConstructor elem1 = getSymbol(symbol);
+				IConstructor elem2 = getSymbol(subject);
+				
+				return match(elem1, elem2, bindings);
+			}
+			else if (isIterPlus(subject) || isIterStar(subject)) {
+				// both are not separated
+				IConstructor elem1 = getSymbol(symbol);
+				IConstructor elem2 = getSymbol(subject);
+				return match(elem1, elem2, bindings);
+			}
+			else {
+				return false;
+			}
+		}
+
+		// this happens when we match against abstract patterns with concrete trees
+		if (isADT(symbol) && (isSort(subject) || isLex(subject))) {
+			return getName(symbol).equals(getName(subject));
+		}
+
+		// after this we can assume we are looking at similar structures
+		if (symbol.getConstructorType() != subject.getConstructorType()) {
+			return false;
+		}
+
+		if (isOpt(symbol) || isSet(symbol) || isList(symbol) || isBag(symbol) || isReifiedType(symbol) || isConditional(symbol)) {
+			return match(getSymbol(symbol), getSymbol(subject), bindings);
+		}
+		
+		
+		
+		if (isSeq(symbol) || isRel(symbol) || isListRel(symbol) || isTuple(symbol)) {
+			IList symbols1 = getSymbols(symbol);
+			IList symbols2 = getSymbols(subject);
+
+			if (symbols1.size() != symbols2.size()) {
+				return false;
+			}
+
+			var is2 = symbols2.iterator();
+
+			return symbols1.stream()
+				.map(s1 -> match((IConstructor) s1, (IConstructor) is2.next(), bindings))
+				.reduce(true, (a,b) -> a && b);
+		}
+
+		if (isAlt(symbol)) {
+		  ISet alts1 = getAlternatives(symbol);
+		  ISet alts2 = getAlternatives(subject);
+
+		  var is2 = alts2.iterator();
+
+		  // TODO: this does not backtrack for different orders if the match fails
+		  return alts1.stream()
+				.map(s1 -> match((IConstructor) s1, (IConstructor) is2.next(), bindings))
+				.reduce(true, (a,b) -> a && b);
+		}
+
+		if (isParameterizedSort(symbol) || isParameterizedLex(symbol) || isADT(symbol) || isAlias(symbol)) {
+			IList params1 = (IList) symbol.get("parameters");
+			IList params2 = (IList) symbol.get("parameters");
+
+			if (params1.size() != params2.size()) {
+				return false;
+			}
+
+			var is2 = params2.iterator();
+			
+			return params1.stream()
+				.map(s1 -> match((IConstructor) s1, (IConstructor) is2.next(), bindings))
+				.reduce(true, (a,b) -> a && b);
+		}
+
+		if (isStartSort(symbol)) {
+			return match(getStart(symbol), getStart(subject), bindings);
+		}
+
+		if (isParameter(symbol)) {
+			String name = getName(symbol);
+			Type parameterType = TypeFactory.getInstance().parameterType(name);
+			Type resolved = bindings.get(parameterType);
+
+			// if it is already bound, lub with that, otherwise lub with void
+			if (resolved == null) {
+				resolved = TypeFactory.getInstance().voidType();
+			}
+
+			resolved = resolved.lub(RascalTypeFactory.getInstance().nonTerminalType(subject));
+
+			bindings.put(parameterType, resolved);
+
+			return true;
+		}
+		
+		if (isMap(symbol)) {
+			return match((IConstructor) symbol.get("from"), (IConstructor) subject.get("from"), bindings)
+			   &&  match((IConstructor) symbol.get("to"), (IConstructor) subject.get("to"), bindings);
+		}
+		
+		if (isFunc(symbol)) {
+			IList parameters1 = (IList) symbol.get("parameters");
+			IList parameters2 = (IList) subject.get("parameters");
+			
+			if (parameters1.size() != parameters2.size()) {
+				return false;
+			}
+
+			var is2 = parameters2.iterator();
+
+			return match((IConstructor) symbol.get("ret"), (IConstructor) subject.get("ret"), bindings)
+			    && parameters1.stream()
+						.map(s1 -> match((IConstructor) s1, (IConstructor) is2.next(), bindings))
+						.reduce(true, (a,b) -> a && b);
+		}
+		
+		if (isCons(symbol)) {
+			IList parameters1 = (IList) symbol.get("parameters");
+			IList parameters2 = (IList) subject.get("parameters");
+			
+			if (parameters1.size() != parameters2.size()) {
+				return false;
+			}
+
+			var is2 = parameters2.iterator();
+
+			return match((IConstructor) symbol.get("ret"), (IConstructor) subject.get("ret"), bindings)
+			    && parameters1.stream()
+						.map(s1 -> match((IConstructor) s1, (IConstructor) is2.next(), bindings))
+						.reduce(true, (a,b) -> a && b);
+		}
+
+		// all the other symbols are not composed of other symbols
+		// sort, lex, keyword, empty, char-class, layout, literal, ci-lit, int, str, real, node, value, num, datetime and loc
+
+		return symbol.equals(subject);        
+    }
 }

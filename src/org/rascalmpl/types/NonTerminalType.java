@@ -39,6 +39,7 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
@@ -315,7 +316,6 @@ public class NonTerminalType extends RascalType {
 	protected Type glbWithConstructor(Type type) {
 	  return TF.voidType();
 	}
-
 	
 	@Override
 	protected boolean isSupertypeOf(Type type) {
@@ -325,6 +325,7 @@ public class NonTerminalType extends RascalType {
 	  
 	  return super.isSupertypeOf(type);
 	}
+
 	
 	@Override
 	protected boolean isSupertypeOf(RascalType type) {
@@ -531,5 +532,24 @@ public class NonTerminalType extends RascalType {
 	    
 	    // TODO: this generates an on-the-fly nullable production and returns a tree for that rule
 	    return rvf.appl(vf.constructor(RascalValueFactory.Production_Default, symbol, vf.list(), vf.set()), vf.list());
+	}
+
+	@Override
+	public Type instantiate(Map<Type, Type> bindings) {
+		return RTF.nonTerminalType(SymbolAdapter.instantiate(symbol, bindings));
+	}
+
+	@Override
+	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+		matched.isSubtypeOf(this);
+		return isSubtypeOf(matched);
+		// if (matched instanceof NonTerminalType) {
+		// 	return SymbolAdapter.match(symbol, ((NonTerminalType) matched).symbol, bindings);
+		// }
+		// else {
+		// 	IRascalValueFactory vf = IRascalValueFactory.getInstance();
+			
+		// 	return SymbolAdapter.match(symbol, matched.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>()), bindings);
+		// }
 	}
 }
