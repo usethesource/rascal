@@ -543,16 +543,27 @@ public class NonTerminalType extends RascalType {
 	public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
 		// return matched.isSubtypeOf(this);
 		if (matched.isSubtypeOf(TypeFactory.getInstance().voidType())) {
+			// this is a common fast path otherwise handled by the else case down here
 			return true;
 
 		}
 		else if (matched instanceof NonTerminalType) {
+			// we have to implement this on the symbol level since we do not have separate types
+			// for every different kind of non-terminal (regular symbols, literals, etc)
 			return SymbolAdapter.match(symbol, ((NonTerminalType) matched).symbol, bindings);
 		}
 		else {
 			IRascalValueFactory vf = IRascalValueFactory.getInstance();
+			// here we lift the other types to symbols, such that they can be compared.
+			// this is mainly necessary for the different kinds of parametrized sorts and
+			// how they match against the ADT names and parameters.
 			
 			return SymbolAdapter.match(symbol, matched.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>()), bindings);
 		}
+	}
+
+	@Override
+	public boolean isOpen() {
+		return SymbolAdapter.isOpen(symbol);
 	}
 }
