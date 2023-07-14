@@ -1190,6 +1190,10 @@ public class SymbolAdapter {
 		symbol = stripLabelsAndConditions(symbol);
 		subject = stripLabelsAndConditions(subject);
 		
+		if (isVoid(symbol)) {
+			return true;
+		}
+		
 		// fast path equality is fine, but no more binding can be learned from that either
 		// this happens a lot because types are not accidentally constructed from each other.
 		if (isEqual(symbol, subject)) {
@@ -1228,23 +1232,11 @@ public class SymbolAdapter {
 		}
 		
 		if (isIterPlus(symbol) || isIterStar(symbol)) {
-			if (isIterPlusSeps(subject) || isIterStarSeps(subject)) {
-				// the subject is separated but the patter not (yet)
-				// TODO check if the subject only has layout
-				IConstructor elem1 = getSymbol(symbol);
-				IConstructor elem2 = getSymbol(subject);
+			// don't care if the other has separators or not.
+			IConstructor elem1 = getSymbol(symbol);
+			IConstructor elem2 = getSymbol(subject);
 				
-				return match(elem1, elem2, bindings);
-			}
-			else if (isIterPlus(subject) || isIterStar(subject)) {
-				// both are not separated
-				IConstructor elem1 = getSymbol(symbol);
-				IConstructor elem2 = getSymbol(subject);
-				return match(elem1, elem2, bindings);
-			}
-			else {
-				return false;
-			}
+			return match(elem1, elem2, bindings);
 		}
 
 		// this happens when we match against abstract patterns with concrete trees
@@ -1366,6 +1358,6 @@ public class SymbolAdapter {
 		// all the other symbols are not composed of other symbols
 		// sort, lex, keyword, empty, char-class, layout, literal, ci-lit, int, str, real, node, value, num, datetime and loc
 
-		return symbol.equals(subject);        
+		return isEqual(symbol, subject);
     }
 }
