@@ -1716,6 +1716,16 @@ public class Prelude {
 	   throw RuntimeExceptionFactory.emptyList();
 	}
 
+	public IValue last(IList lst)
+	// @doc{head -- get the last element of a list}
+	{
+	   if(lst.length() > 0){
+	      return lst.get(lst.length() - 1);
+	   }
+	   
+	   throw RuntimeExceptionFactory.emptyList();
+	}
+
 	public IValue head(IList lst, IInteger n)
 	  throws IndexOutOfBoundsException
 	// @doc{head -- get the first n elements of a list}
