@@ -33,7 +33,7 @@ concat([[1],[],[2,3]]);
 concat([[1,2],[3],[4,5],[]]);
 ```
 }
-public list[&T] concat(list[list[&T]] xxs) 
+list[&T] concat(list[list[&T]] xxs) 
   = [*xs | list[&T] xs <- xxs];
 
 
@@ -50,7 +50,7 @@ delete(["zebra", "elephant", "snake", "owl"], 2);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] delete(list[&T] lst, int n);
+java list[&T] delete(list[&T] lst, int n);
 
 
 @synopsis{Get the distribution of the elements of the list. That
@@ -61,7 +61,7 @@ import List;
 distribution([4,4,4,3,1,2,1,1,3,4]);
 ```
 }
-public map[&T element, int occurs] distribution(list[&T] lst) {
+map[&T element, int occurs] distribution(list[&T] lst) {
      map[&T element, int occurs] res = ();
      for (e <- lst) {
         res[e] ? 0 += 1;
@@ -85,7 +85,7 @@ drop(2, ["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] drop(int n, list[&T] lst) ;
+java list[&T] drop(int n, list[&T] lst) ;
 
 @synopsis{Remove multiple occurrences of elements in a list. The first occurrence remains.}
 @examples{
@@ -94,14 +94,14 @@ import List;
 dup([3, 1, 5, 3, 1, 7, 1, 2]);
 ```
 }
-public list[&T] dup(list[&T] lst) 
+list[&T] dup(list[&T] lst) 
   = ([] | (ix in it) ? it : it + [ix] | &T ix <- lst);
 
 @deprecated{
 use the indexing instead
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &T elementAt(list[&T] lst, int index); 
+java &T elementAt(list[&T] lst, int index); 
 
 
 @synopsis{Pick a random element from a list.}
@@ -117,15 +117,15 @@ getOneFrom(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &T getOneFrom(list[&T] lst);
+java &T getOneFrom(list[&T] lst);
 
 
 @synopsis{Pick first element from a list.}
 @description{
 Get the first element from a list. As opposed to ((List-getOneFrom)) this function always returns the same (first) list element.
 }
-public &T getFirstFrom([&T f, *&T _]) = f;
-public &T getFirstFrom(list[&T] _ :[]) { throw EmptyList(); }
+&T getFirstFrom([&T f, *&T _]) = f;
+&T getFirstFrom(list[&T] _ :[]) { throw EmptyList(); }
 
 
 @synopsis{Get the first element(s) from a list.}
@@ -158,12 +158,12 @@ An exception is thrown when the second argument exceeds the length of the list:
 head([1, 2, 3, 5], 5);
 ```
 }
-public &T head([&T h, *&T _]) = h; 
-public &T head(list[&T] _:[]) { throw EmptyList(); }
+&T head([&T h, *&T _]) = h; 
+&T head(list[&T] _:[]) { throw EmptyList(); }
 
 // Get the first n elements of a list
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
+java list[&T] head(list[&T] lst, int n) throws IndexOutOfBounds;
 
 
 
@@ -179,8 +179,8 @@ pop([3, 1, 4, 5]);
 headTail(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public tuple[&T, list[&T]] headTail([&T h, *&T t]) = <h, t>; 
-public tuple[&T, list[&T]] headTail(list[&T] _:[]) { throw EmptyList(); }
+tuple[&T, list[&T]] headTail([&T h, *&T t]) = <h, t>; 
+tuple[&T, list[&T]] headTail(list[&T] _:[]) { throw EmptyList(); }
 
 
 @synopsis{A list of legal index values of a list.}
@@ -197,7 +197,7 @@ index(["zebra", "elephant", "snake", "owl"]);
 @benefits{
 This function is useful in for loops over lists.
 }
-public list[int] index(list[&T] lst) = upTill(size(lst));
+list[int] index(list[&T] lst) = upTill(size(lst));
 
 
 
@@ -215,7 +215,7 @@ indexOf(["zebra", "elephant", "snake", "owl"], "snake");
 indexOf(["zebra", "elephant", "snake", "owl"], "eagle");
 ```
 }
-public int indexOf(list[&T] lst, &T elt) {
+int indexOf(list[&T] lst, &T elt) {
 	for(int i <- [0..size(lst)]) {
 		if(lst[i] == elt) return i;
 	}
@@ -239,7 +239,7 @@ insertAt([1,2,3], 10, 5);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
+java list[&T] insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBounds;
 
 
 @synopsis{Join a list of values into a string separated by a separator.}
@@ -252,7 +252,7 @@ intercalate(", ", [3, 1, 4, 5]);
 intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public str intercalate(str sep, list[value] l) = 
+str intercalate(str sep, list[value] l) = 
 	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
 
 
@@ -266,7 +266,7 @@ intersperse(1, []);
 intersperse([], [1]);
 ```
 }
-public list[&T] intersperse(&T sep, list[&T] xs) = 
+list[&T] intersperse(&T sep, list[&T] xs) = 
   (isEmpty(xs))? [] : ([head(xs)] | it + [sep,x] | x <- tail(xs));
 
 
@@ -282,7 +282,7 @@ isEmpty([1, 2, 3]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java bool isEmpty(list[&T] lst);
+java bool isEmpty(list[&T] lst);
 
 
 @synopsis{Return the last element of a list, if any.}
@@ -298,9 +298,8 @@ last(["zebra", "elephant", "snake", "owl"]);
 tail([3, 1, 4, 5]);
 ```
 }
-public &T last([*&T _, &T l]) = l;
-public &T last(list[&T] _:[]) { throw EmptyList(); }
-
+@javaClass{org.rascalmpl.library.Prelude}
+java &T last(list[&T] lst) throws EmptyList;
 
 @synopsis{Return index of last occurrence of elt in lst, or -1 if elt is not found.}
 @description{
@@ -314,7 +313,7 @@ lastIndexOf([3, 1, 4, 5, 4], 7);
 lastIndexOf(["zebra", "owl", "elephant", "snake", "owl"], "owl");
 ```
 }
-public int lastIndexOf(list[&T] lst, &T elt) {
+int lastIndexOf(list[&T] lst, &T elt) {
 	for(i <- reverse(index(lst))) {
 		if(lst[i] == elt) return i;
 	}
@@ -333,7 +332,7 @@ int incr(int x) { return x + 1; }
 mapper([1, 2, 3, 4], incr);
 ```
 }
-public list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
+list[&U] mapper(list[&T] lst, &U (&T) fn) =  [fn(elm) | &T elm <- lst];
 
 
 @synopsis{Determine the largest element in a list.}
@@ -344,8 +343,8 @@ max([1, 3, 5, 2, 4]);
 max(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public &T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t);
-public &T max(list[&T] _:[]) { throw EmptyList(); }
+&T max([&T h, *&T t]) = (h | e > it ? e : it | e <- t);
+&T max(list[&T] _:[]) { throw EmptyList(); }
 	
 
 @synopsis{Merge the elements of two sorted lists into one list.}
@@ -365,7 +364,7 @@ import String;
 merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
 ```
 }
-public list[&T] merge(list[&T] left, list[&T] right){
+list[&T] merge(list[&T] left, list[&T] right){
   res = while(!isEmpty(left) && !isEmpty(right)) {
     if(head(left) <= head(right)) {
       append head(left);
@@ -378,7 +377,7 @@ public list[&T] merge(list[&T] left, list[&T] right){
   return res + left + right;
 }
 
-public list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessOrEqual){
+list[&T] merge(list[&T] left, list[&T] right, bool (&T a, &T b) lessOrEqual){
   res = while(!isEmpty(left) && !isEmpty(right)) {
     if(lessOrEqual(head(left),head(right))) {
       append head(left);
@@ -400,8 +399,8 @@ min([1, 3, 5, 2, 4]);
 min(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public &T min([&T h, *&T t]) = (h | e < it ? e : it | e <- t);
-public &T min(list[&T] _: []) { throw EmptyList(); }
+&T min([&T h, *&T t]) = (h | e < it ? e : it | e <- t);
+&T min(list[&T] _: []) { throw EmptyList(); }
 
 
 @synopsis{Mix the elements of two lists.}
@@ -418,7 +417,7 @@ mix([3, 1, 7], [15, 25, 35, 45, 55]);
 mix([3, 1, 7], ["elephant", "snake"]);
 ```
 }
-public list[&T] mix(list[&T] l, list[&T] r){
+list[&T] mix(list[&T] l, list[&T] r){
 	sizeL = size(l);
 	sizeR = size(r);
 	minSize = sizeL < sizeR ? sizeL : sizeR;
@@ -453,7 +452,7 @@ headTail([3, 1, 4, 5]);
 pop(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public tuple[&T, list[&T]] pop(list[&T] lst) = headTail(lst);
+tuple[&T, list[&T]] pop(list[&T] lst) = headTail(lst);
 
 
 @synopsis{Return all but the last element of a list.}
@@ -466,7 +465,7 @@ prefix(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] prefix(list[&T] lst) ;
+java list[&T] prefix(list[&T] lst) ;
 
 
 @synopsis{Push an element in front of a list.}
@@ -480,7 +479,7 @@ push(7, [3, 1, 4, 5]);
 push("eagle", ["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
+list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
 
 
 @synopsis{Apply a function to successive elements of list and combine the results (__deprecated__).}
@@ -502,7 +501,7 @@ reducer([10, 20, 30, 40], add, 0);
 This function is *deprecated*, use a reducer expression instead. E.g. `(init | f(it, e) | e <- lst)`.
 :::
 }
-public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
+&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 {
   &T result = unit;
   for(&T elm <- lst){
@@ -511,7 +510,7 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
   return result;
 }
 
-public list[&T] remove(list[&T] lst, int indexToDelete) =
+list[&T] remove(list[&T] lst, int indexToDelete) =
 	[ lst[i] | i <- index(lst), i != indexToDelete ];
 
 private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) =
@@ -533,7 +532,7 @@ reverse(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] reverse(list[&T] lst);
+java list[&T] reverse(list[&T] lst);
 
 
 @synopsis{Determine the number of elements in a list.}
@@ -545,7 +544,7 @@ size(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java int size(list[&T] lst);
+java int size(list[&T] lst);
 
 
 @synopsis{Compute a sublist of a list.}
@@ -571,7 +570,7 @@ Here are the equivalent expressions using the slice notation:
 WARNING: In the slice notation the upper bound is exclusive.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] slice(list[&T] lst, int begin, int len);
+java list[&T] slice(list[&T] lst, int begin, int len);
 
 
 @synopsis{Sort the elements of a list.}
@@ -591,11 +590,11 @@ sort(fruits);
 sort(fruits, bool(str a, str b){ return size(a) > size(b); });
 ```
 }
-public list[&T] sort(list[&T] lst) =
+list[&T] sort(list[&T] lst) =
 	sort(lst, bool (&T a, &T b) { return a < b; } );
 	
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
+java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
 
 
 @synopsis{Check whether a list is sorted or not.}
@@ -605,7 +604,7 @@ The empty list is defined to be "sorted" and what sorted means is defined the
 higher-order parameter "less" which should implement a partial-order relation
 between the two parameters.
 }
-public bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a < b; })
+bool isSorted(list[&T] l, bool (&T a, &T b) less = bool (&T a, &T b) { return a < b; })
  = !any([*_, &T a, &T b, *_] := l, less(b, a));
 
 
@@ -621,7 +620,7 @@ shuffle(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] shuffle(list[&T] l);
+java list[&T] shuffle(list[&T] l);
 
 
 @synopsis{Shuffle a list with a seed.}
@@ -638,7 +637,7 @@ shuffle([1,2,3,4], 1);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] shuffle(list[&T] l, int seed);
+java list[&T] shuffle(list[&T] l, int seed);
 
 
 @synopsis{Split a list into two halves.}
@@ -649,7 +648,7 @@ split([3, 1, 4, 5, 7]);
 split(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public tuple[list[&T],list[&T]] split(list[&T] l) {
+tuple[list[&T],list[&T]] split(list[&T] l) {
 	half = size(l)/2;
 	return <take(half,l), drop(half,l)>;
 }
@@ -663,8 +662,8 @@ sum([3, 1, 4, 5]);
 sum([3, 1.5, 4, 5]);
 ```
 }
-public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
-public (&T <:num) sum(list[&T] _: []) { throw EmptyList(); }
+(&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
+(&T <:num) sum(list[&T] _: []) { throw EmptyList(); }
 
 
 @synopsis{Get the tail element(s) from a list.}
@@ -691,11 +690,11 @@ Try an error case:
 tail([10, 20, 30, 40, 50, 60], 10);
 ```
 }
-public list[&T] tail([&T _, *&T t]) = t;
-public list[&T] tail(list[&T] _:[]) { throw EmptyList(); }
+list[&T] tail([&T _, *&T t]) = t;
+list[&T] tail(list[&T] _:[]) { throw EmptyList(); }
  
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
+java list[&T] tail(list[&T] lst, int len) throws IndexOutOfBounds;
 
 
 @synopsis{Get number of elements from the head of a list.}
@@ -712,7 +711,7 @@ take(2, ["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[&T] take(int n, list[&T] lst);
+java list[&T] take(int n, list[&T] lst);
 
 
 @synopsis{Remove an arbitrary element from a list, returns the element and the modified list.}
@@ -737,7 +736,7 @@ takeOneFrom(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
+java tuple[&T, list[&T]] takeOneFrom(list[&T] lst);
 
 
 @synopsis{Take elements from the front of the list as long as a predicate is true.}
@@ -748,7 +747,7 @@ bool isEven(int a) = a mod 2 == 0;
 takeWhile([2,4,6,8,1,2,3,4,5],isEven);
 ```
 }
-public list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
+list[&T] takeWhile(list[&T] lst, bool (&T a) take) {
 	i = 0;
 	return while(i < size(lst) && take(lst[i])) {
 		append lst[i];
@@ -774,7 +773,7 @@ Contrast this with `toMapUnique` that associates each first tuple value with the
 but imposes the constraint that those keys are unique.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java map[&A,list[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
+java map[&A,list[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 
 @synopsis{Convert a list of tuples to a map; result must be a map.}
@@ -796,7 +795,7 @@ The keys in a map are unique by definition.
 `toMapUnique` throws a `MultipleKey` exception when the list contains more than one tuple with the same first value.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
+java map[&A,&B] toMapUnique(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 
 @synopsis{Take the top element of a list.}
@@ -811,7 +810,7 @@ top([3, 1, 4, 5]);
 top(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public &T top([&T t, *&T _]) = t;
+&T top([&T t, *&T _]) = t;
 
 
 @synopsis{Convert a list to a relation.}
@@ -826,7 +825,7 @@ toRel([3, 1, 4, 5]);
 toRel(["zebra", "elephant", "snake", "owl"]);
 ```
 }
-public rel[&T,&T] toRel(list[&T] lst) {
+rel[&T,&T] toRel(list[&T] lst) {
   return { <from,to> | [*_, from, to, *_] := lst };
 }
 
@@ -851,7 +850,7 @@ s = {*l};
 Please use {*myList} instead.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java set[&T] toSet(list[&T] lst);
+java set[&T] toSet(list[&T] lst);
 
 
 @synopsis{Convert a list to a string.}
@@ -866,7 +865,7 @@ toString(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toString(list[&T] lst);
+java str toString(list[&T] lst);
 
 
 
@@ -882,7 +881,7 @@ itoString(["zebra", "elephant", "snake", "owl"]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str itoString(list[&T] lst);
+java str itoString(list[&T] lst);
 
 
 
@@ -897,11 +896,11 @@ unzip2([<3,"thirty">, <1,"ten">, <4,"forty">]);
 unzip3([<3,"thirty",300>, <1,"ten",100>, <4,"forty",400>]);
 ```
 }
-public tuple[list[&T],list[&U]] unzip2(list[tuple[&T,&U]] lst) =
+tuple[list[&T],list[&U]] unzip2(list[tuple[&T,&U]] lst) =
 	<[t | <t,_> <- lst], [u | <_,u> <- lst]>;
 
 // Make a triple of lists from a list of triples.
-public tuple[list[&T],list[&U],list[&V]] unzip3(list[tuple[&T,&U,&V]] lst) =
+tuple[list[&T],list[&U],list[&V]] unzip3(list[tuple[&T,&U,&V]] lst) =
 	<[t | <t,_,_> <- lst], [u | <_,u,_> <- lst], [w | <_,_,w> <- lst]>;
 
 
@@ -916,7 +915,7 @@ upTill(10);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java list[int] upTill(int n);
+java list[int] upTill(int n);
 
 
 @synopsis{Make a list of pairs from two (three) lists of the same length.}
@@ -930,13 +929,13 @@ zip2([3, 1, 4], ["thirty", "ten", "forty"]);
 zip3([3, 1, 4], ["thirty", "ten", "forty"], [300, 100, 400]);
 ```
 }
-public list[tuple[&T first, &U second]] zip2(list[&T] a, list[&U] b) {
+list[tuple[&T first, &U second]] zip2(list[&T] a, list[&U] b) {
 	if(size(a) != size(b))
 		throw IllegalArgument(<size(a),size(b)>, "List size mismatch");
 	return [<elementAt(a,i), elementAt(b,i)> | i <- index(a)];
 }
 
-public list[tuple[&T first, &U second, &V third]] zip3(list[&T] a, list[&U] b, list[&V] c) {
+list[tuple[&T first, &U second, &V third]] zip3(list[&T] a, list[&U] b, list[&V] c) {
 	if(size(a) != size(b) || size(a) != size(c))
 		throw IllegalArgument(<size(a),size(b),size(c)>, "List size mismatch");
 	return [<elementAt(a,i), elementAt(b,i), elementAt(c,i)> | i <- index(a)];
