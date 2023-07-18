@@ -601,9 +601,7 @@ syntax Statement
 	| @breakable \visit: Label label Visit visit 
 	| @breakable \while: Label label "while" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration body 
 	| @breakable doWhile: Label label "do" Statement body "while" "(" Expression condition ")" ";" 
-	| @breakable @breakable{
-generators
-} \for: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
+	| @breakable @breakable{generators} \for: Label label "for" "(" {Expression ","}+ generators ")" Statement body 
 	| @breakable ifThen: Label label "if" "(" {Expression ","}+ conditions ")" Statement!variableDeclaration!functionDeclaration thenStatement () !>> "else" 
 	| @breakable ifThenElse: Label label "if" "(" {Expression ","}+ conditions ")" Statement thenStatement "else" Statement!variableDeclaration!functionDeclaration elseStatement 
 	| @breakable \switch: Label label "switch" "(" Expression expression ")" "{" Case+ cases "}" 
@@ -760,27 +758,17 @@ syntax FunctionModifiers
 	= \modifierlist: FunctionModifier* modifiers ;
 
 syntax Comprehension
-	= @breakable{
-results,generators
-} \set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
-	| @breakable{
-from,to,generators
-} \map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
-	| @breakable{
-results,generators
-} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
+	= @breakable{results,generators} \set: "{" {Expression ","}+ results "|" {Expression ","}+ generators "}" 
+	| @breakable{from,to,generators} \map: "(" Expression from ":" Expression to "|" {Expression ","}+ generators ")" 
+	| @breakable{results,generators} \list: "[" {Expression ","}+ results "|" {Expression ","}+ generators "]" ;
 
 syntax Variant
 	= nAryConstructor: Name name "(" {TypeArg ","}* arguments  KeywordFormals keywordArguments ")" ;
 
 syntax FunctionDeclaration
 	= abstract: Tags tags Visibility visibility Signature signature ";" 
-	| @Foldable @breakable{
-expression
-} expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
-	| @Foldable @breakable{
-expression,conditions
-} conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
+	| @Foldable @breakable{expression} expression: Tags tags Visibility visibility Signature signature "=" Expression expression ";"
+	| @Foldable @breakable{expression,conditions} conditional: Tags tags Visibility visibility Signature signature "=" Expression expression "when" {Expression ","}+ conditions ";"
 	| @Foldable \default: Tags tags Visibility visibility Signature signature FunctionBody body ;
 
 lexical PreProtocolChars
