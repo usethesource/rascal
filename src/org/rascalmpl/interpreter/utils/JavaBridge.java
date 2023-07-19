@@ -25,8 +25,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -56,6 +58,7 @@ import org.rascalmpl.interpreter.staticErrors.NonAbstractJavaFunction;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredJavaMethod;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.RascalType;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.util.ListClassLoader;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -446,6 +449,24 @@ public class JavaBridge {
 							else {
 								throw new IllegalArgumentException("no IDE services are available in this environment");
 							}
+						}
+						else if (formals[i].isAssignableFrom(IResourceLocationProvider.class)) {
+							args[i] = new IResourceLocationProvider() {
+								@Override
+								public Set<ISourceLocation> findResources(String fileName) {
+									Set<ISourceLocation> result = new HashSet<>();
+									URIResolverRegistry reg = URIResolverRegistry.getInstance();
+									
+									for (ISourceLocation dir : ctx.getEvaluator().getRascalResolver().collect()) {
+										ISourceLocation full = URIUtil.getChildLocation(dir, fileName);
+										if (reg.exists(full)) {
+											result.add(full);
+										}
+									}
+										
+									return result;
+								}
+							};
 						}
 					    else {
 					        throw new IllegalArgumentException(constructor + " has unknown kinds of arguments.");
