@@ -75,6 +75,7 @@ import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.interpreter.utils.JavaCompilerException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
@@ -143,8 +144,9 @@ public class Prelude {
     private final PrintWriter out;
 	private final TypeStore store;
 	private final IRascalMonitor monitor;
+	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
@@ -153,6 +155,8 @@ public class Prelude {
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
+		this.resourceProvider = resourceProvider;
+
 		random = new Random();
 	}
 
@@ -3563,6 +3567,10 @@ public class Prelude {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
+	}
+
+	public ISet findResources(IString fileName) {
+		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
 	}
 
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
