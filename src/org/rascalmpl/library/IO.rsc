@@ -55,6 +55,15 @@ java void unregisterLocations(str scheme, str authority);
 @javaClass{org.rascalmpl.library.Prelude}
 java loc resolveLocation(loc l);
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Finds files in the deployment locations of the configuration of the current runtime}
+@description{
+For the interpreter this looks at the source path and finds any file in there.
+For the compiler this looks at the classpath and finds resources in there.  
+}
+java set[loc] findResources(str fileName);
+set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
+
 @synopsis{Append a value to a file.}
 @description{
 Append a textual representation of some values to an existing or a newly created file:
