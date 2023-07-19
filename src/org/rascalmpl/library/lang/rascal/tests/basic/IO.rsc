@@ -53,7 +53,14 @@ test bool appendWorksCorrectly(Encoding enc, str a, str b) {
 	b = removeZeroIAmbBOM(enc, b);
 	  writeFileEnc(aFile, encodingNames[enc], a);
 	  appendToFileEnc(aFile, encodingNames[enc], b);
-	  return readFile(aFile) == a + b;
+	r = readFile(aFile);
+	if (r != a + b) {
+		println("a: <a>");
+		println("b: <b>");
+		println("e: <a+b>");
+		println("r: <r>");
+	}
+	return r == (a + b);
 }
 
 test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
@@ -222,4 +229,8 @@ test bool md5FileTest() {
 	writeFile(aFile, "test");
 	return md5HashFile(aFile) == "098f6bcd4621d373cade4e832627b4f6"; // test as md5sum
 }
+
+test bool findResourcesWorks() = findResources("IO.rsc") != {};
+
+test bool findResourcesFindNothingForRandomFiles(int a, int b) = findResources("Foo<a>_<b>.rsc") == {};
 
