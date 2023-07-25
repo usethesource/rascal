@@ -459,7 +459,7 @@ private static boolean isDeprecated(Module preModule){
         if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
             RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
-            ISourceLocation parserCacheFile = URIUtil.changeExtension(env.getLocation(), "parsers");
+            ISourceLocation parserCacheFile = URIUtil.changeExtension(location, "parsers");
 
             IFunction parsers = null;
             
