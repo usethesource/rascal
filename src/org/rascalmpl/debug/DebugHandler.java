@@ -244,30 +244,30 @@ public final class DebugHandler implements IDebugHandler {
 	      break;
 
 	    case RESUME:
-		  setSuspended(false);
+	      setSuspended(false);
 
-		  switch (message.getDetail()) {
-		    case STEP_INTO:
-			  setStepMode(DebugStepMode.STEP_INTO);
-			  getEventTrigger().fireResumeByStepIntoEvent();
-			  break;
+	      switch (message.getDetail()) {
+	      case STEP_INTO:
+	        setStepMode(DebugStepMode.STEP_INTO);
+	        getEventTrigger().fireResumeByStepIntoEvent();
+	        break;
 
-		    case STEP_OVER:
-			  setStepMode(DebugStepMode.STEP_OVER);
-			  getEventTrigger().fireResumeByStepOverEvent();
-			  break;
+	      case STEP_OVER:
+	        setStepMode(DebugStepMode.STEP_OVER);
+	        getEventTrigger().fireResumeByStepOverEvent();
+	        break;
 
-		    case STEP_OUT:
-			  setStepMode(DebugStepMode.STEP_OUT);
-			  getEventTrigger().fireResumeByStepOutEvent();
-			  break;
+	      case STEP_OUT:
+	        setStepMode(DebugStepMode.STEP_OUT);
+			getEventTrigger().fireResumeByStepOutEvent();
+	        break;
 
-		    case CLIENT_REQUEST:
-			  setStepMode(DebugStepMode.NO_STEP);
-			  getEventTrigger().fireResumeByClientRequestEvent();
-			  break;
-		  }
-		  break;
+	      case CLIENT_REQUEST:
+	        setStepMode(DebugStepMode.NO_STEP);
+	        getEventTrigger().fireResumeByClientRequestEvent();
+	        break;
+	      }
+	      break;
 
 	    case TERMINATE:
 	      if (terminateAction != null) {
