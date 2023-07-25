@@ -41,7 +41,7 @@ public final class DebugHandler implements IDebugHandler {
 	private boolean suspended;
 	
 	private enum DebugStepMode {
-		NO_STEP, STEP_INTO, STEP_OVER 
+		NO_STEP, STEP_INTO, STEP_OVER, STEP_OUT
 	}
 	
 	private DebugStepMode stepMode = DebugStepMode.NO_STEP;
@@ -86,7 +86,7 @@ public final class DebugHandler implements IDebugHandler {
 		setReferenceAST(null);
 		setReferenceEnvironmentStackSize(null);
 		setSuspended(false);
-	}	
+	}
 	
 	protected void updateSuspensionState(int callStackSize, ISourceLocation currentAST) {
 		setReferenceAST(currentAST);
@@ -159,6 +159,16 @@ public final class DebugHandler implements IDebugHandler {
 	                        "Requires compareTo() to return exactly either -1, 0, or +1.");
 	            }
 	            break;
+
+			case STEP_OUT:
+				Integer currentEnvStackSize = getCallStackSize.getAsInt();
+
+				if(currentEnvStackSize.compareTo(getReferenceEnvironmentStackSize()) < 0) {
+					updateSuspensionState(currentEnvStackSize, currentAST);
+					getEventTrigger().fireSuspendByStepEndEvent();
+				}
+
+				break;
 
 	        case NO_STEP:
 	            if (hasBreakpoint(location)) {
@@ -234,25 +244,30 @@ public final class DebugHandler implements IDebugHandler {
 	      break;
 
 	    case RESUME:
-	      setSuspended(false);
+			setSuspended(false);
 
-	      switch (message.getDetail()) {
-	      case STEP_INTO:
-	        setStepMode(DebugStepMode.STEP_INTO);
-	        getEventTrigger().fireResumeByStepIntoEvent();
-	        break;
+			switch (message.getDetail()) {
+				case STEP_INTO:
+					setStepMode(DebugStepMode.STEP_INTO);
+					getEventTrigger().fireResumeByStepIntoEvent();
+					break;
 
-	      case STEP_OVER:
-	        setStepMode(DebugStepMode.STEP_OVER);
-	        getEventTrigger().fireResumeByStepOverEvent();
-	        break;
+				case STEP_OVER:
+					setStepMode(DebugStepMode.STEP_OVER);
+					getEventTrigger().fireResumeByStepOverEvent();
+					break;
 
-	      case CLIENT_REQUEST:
-	        setStepMode(DebugStepMode.NO_STEP);
-	        getEventTrigger().fireResumeByClientRequestEvent();
-	        break;
-	      }
-	      break;
+				case STEP_OUT:
+					setStepMode(DebugStepMode.STEP_OUT);
+					getEventTrigger().fireResumeByStepOutEvent();
+					break;
+
+				case CLIENT_REQUEST:
+					setStepMode(DebugStepMode.NO_STEP);
+					getEventTrigger().fireResumeByClientRequestEvent();
+					break;
+			}
+			break;
 
 	    case TERMINATE:
 	      if (terminateAction != null) {
