@@ -40,6 +40,7 @@ test bool overloading2(){
 data D = d(str s) | d(int n) | d();
 
 @synopsis{triggers issue #1234}
+@ignoreCompiler{d(x) is now flagged as type error}
 test bool constructorDynamicMatch() {
   value x = 1;
   
