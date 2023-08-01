@@ -252,6 +252,4 @@ test bool matchAppl2(){
         case appl(_,[Tree _]): return false;
     }
     return true;
-}   
- 
- 								
+}
