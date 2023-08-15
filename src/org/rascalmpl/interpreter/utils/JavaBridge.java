@@ -15,7 +15,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +33,6 @@ import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
 
-import org.checkerframework.checker.units.qual.t;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
 import org.rascalmpl.ast.KeywordFormal;
