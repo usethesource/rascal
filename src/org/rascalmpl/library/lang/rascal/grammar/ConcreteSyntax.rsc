@@ -56,12 +56,12 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2symb
   The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
   so we remove this here to create a canonical 'source-level' type.}
 private Symbol denormalize(Symbol s) = visit (s) { 
-  case \lex(n) => \sort(n)
-  case \iter-seps(u,[layouts(_),t,layouts(_)]) => \iter-seps(u,[t])
+  case \lex(n)                                      => \sort(n)
+  case \iter-seps(u,[layouts(_),t,layouts(_)])      => \iter-seps(u,[t])
   case \iter-star-seps(u,[layouts(_),t,layouts(_)]) => \iter-star-seps(u,[t])
-  case \iter-seps(u,[layouts(_)]) => \iter(u)
-  case \iter-star-seps(u,[layouts(_)]) => \iter-star(u)
-  // TODO: add rule for seq
+  case \iter-seps(u,[layouts(_)])                   => \iter(u)
+  case \iter-star-seps(u,[layouts(_)])              => \iter-star(u)
+  case \seq(ss)                                     => seq([t | t <- ss, !(t is layouts)])
 };
 
 @synopsis{This is needed such that list variables can be repeatedly used as elements of the same list}
