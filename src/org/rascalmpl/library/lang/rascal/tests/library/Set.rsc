@@ -14,6 +14,23 @@
   *******************************************************************************/
 import Exception;
 import Set;
+
+// getFirstFrom
+  
+test bool getFirstFrom1() {int N = Set::getFirstFrom({1}); return N == 1;}
+test bool getFirstFrom2() {int N = getFirstFrom({1}); return  N == 1;}
+test bool getFirstFrom3() {int N = Set::getFirstFrom({1, 2}); return  (N == 1) || (N == 2);}
+test bool getFirstFrom4() {int N = Set::getFirstFrom({1, 2, 3}); return  (N == 1) || (N == 2) || (N == 3);}
+test bool getFirstFrom5() {real D = Set::getFirstFrom({1.0,2.0}); return  (D == 1.0) || (D == 2.0);}
+test bool getFirstFrom6() {str S = Set::getFirstFrom({"abc","def"}); return  (S == "abc") || (S == "def");}
+test bool getFirstFrom7(set[&T] S) = isEmpty(S) || Set::getFirstFrom(S) == Set::getFirstFrom(S);
+test bool getFirstFrom8(set[&T] S) = isEmpty(S) || Set::getFirstFrom(S) in S;
+
+@expected{EmptySet}
+test bool getFirstFromError1() { Set::getFirstFrom({});return false; }
+    
+@expected{EmptySet}
+test bool getFirstFromError2() { getFirstFrom({});return false; }
   
 // getOneFrom
   
@@ -26,12 +43,10 @@ test bool getOneFrom6() {real D = Set::getOneFrom({1.0,2.0}); return  (D == 1.0)
 test bool getOneFrom7() {str S = Set::getOneFrom({"abc","def"}); return  (S == "abc") || (S == "def");}
   		
 @expected{EmptySet}
-test bool getOneFrom8() {Set::getOneFrom({});return false;}
+test bool getOneFromError1() { Set::getOneFrom({});return false; }
   	
 @expected{EmptySet}
-test bool getOneFromError1() {
-	getOneFrom({});return false;
-}
+test bool getOneFromError2() {  getOneFrom({});return false; }
   	
 // isEmpty
   
@@ -71,9 +86,9 @@ test bool reducer1() {
 // size	
 
 test bool size1() = Set::size({}) == 0;
-test bool size2()  = size({}) == 0;
-test bool size3()  = Set::size({1}) == 1;
-test bool size4()  = Set::size({1,2,3}) == 3;
+test bool size2() = size({}) == 0;
+test bool size3() = Set::size({1}) == 1;
+test bool size4() = Set::size({1,2,3}) == 3;
   
 // sum	
   
