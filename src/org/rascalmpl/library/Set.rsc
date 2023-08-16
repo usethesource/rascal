@@ -300,8 +300,12 @@ Applying `getFirstFrom` on the same set will always returns the same element.
 @benefits{
 This function helps to make set-based code more deterministic, for instance, for testing purposes.
 }
-public &T getFirstFrom({&T f, *&T _}) = f;
-public &T getFirstFrom(set[&T] _:{}) { throw EmptySet(); }
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T getFirstFrom(set[&T] st);
+
+// TODO temporary? replacement due to unexplained behaviour of compiler
+//public &T getFirstFrom({&T f, *&T _}) = f;
+//public &T getFirstFrom(set[&T] _:{}) { throw EmptySet(); }
 
 
 @synopsis{Remove an arbitrary element from a set, returns the element and a set without that element.}

@@ -2812,6 +2812,23 @@ public class Prelude {
 		
 		throw RuntimeExceptionFactory.emptySet();
 	}
+	
+	public IValue getFirstFrom(ISet st)
+    // @doc{getOneFrom -- pick the "first" element from a set}
+    {
+        int sz = st.size();
+
+        if (sz == 0) {
+            throw RuntimeExceptionFactory.emptySet();
+        }
+
+        for (IValue v : st) {
+                return v;
+        }
+        
+        throw RuntimeExceptionFactory.emptySet();
+    }
+
 
 	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
