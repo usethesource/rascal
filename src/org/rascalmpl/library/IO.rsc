@@ -94,7 +94,8 @@ large search paths. It makes sense to keep this in a constant module variable th
 * Name clashes are bound to happen. Prepare to, at least, throw a meaningful error message in the case of name clashes. E.g. `findResources("index.html")`
 is _very_ likely to produce more than one result. Either choose more unique names, or filter the result in a meaningful manner,
 or throw an exception that explains the situation to the user of your code. Specifically library project maintainers have to consider
-this happenstance. The recommendation is to nest resources next to qualified module names, like so: if `lang/x/myLanguage/Syntax.rsc` is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an example resource location.
+this happenstance. The recommendation is to nest resources next to qualified module names, like so: if `lang/x/myLanguage/Syntax.rsc` 
+is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an example resource location.
 }
 java set[loc] findResources(str fileName);
 set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
