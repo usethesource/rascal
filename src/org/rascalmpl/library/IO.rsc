@@ -58,8 +58,43 @@ java loc resolveLocation(loc l);
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Finds files in the deployment locations of the configuration of the current runtime}
 @description{
-For the interpreter this looks at the source path and finds any file in there.
-For the compiler this looks at the classpath and finds resources in there.  
+* For the interpreter this looks at the source path and finds any file in there.
+* For the compiler this looks at the classpath and finds resources in there.  
+
+The goal of `findResources` is to access additional files that are distributed
+with a Rascal program. For example, the `index.html` file that comes with a server implemented
+using ((util::Webserver)) would be located using this function. Such an additional file is
+essential to the functioning of the given Rascal code.
+
+There is a difference between Rascal programs under development and Rascal programs deployed
+(in a jar file). The idea is that calls to this function _behave the same_ regardless of this 
+mode. To make this true, the implementation of `findResources` makes the following
+assumptions:
+* In interpreter mode, the additional files are stored relative to the source roots of the current project. 
+This means that all source roots are searched as configured for the current interpreter. It is possible
+that multiple files match the query, hence the result set. Because jar files and target folders are typically
+added to the source roots by the configuration code for Rascal's IDEs, this works out smoothly also for deployed projects.
+* In compiled mode, the additional files are stored relative to the roots of the classpath. This 
+means they are jar files and target folders of active projects. Your Maven project configuration should
+take care to _copy_ all relevant resources from source folders to target folders and to package those
+relative to the root of the jar for this to work in development mode. For deployment mode, the setup 
+works through the resources API of the JVM that uses the Java ClassLoader API.
+}
+@benefits{
+By satisfying the above two assumptions it is possible to write Rascal code that uses `findResources` that
+is portable between interpreter and compiled mode, _and_ does not change between development
+and deployed mode either.
+}
+@pitfalls{
+* Avoid nesting resources in sub-folders in jar files (see Maven resources plugin) since nested files will not be found.
+* Inside jar files the root for module names should be the same as for resources
+* Inside source folders, the names of resources should be relative to the same root as the Rascal module names
+* `findResources` searches exhaustively for all files with the given name; which may come at an expensive for projects with
+large search paths. It makes sense to keep this in a constant module variable that is initialized only once.
+* Name clashes are bound to happen. Prepare to, at least, throw a meaningful error message in the case of name clashes. E.g. `findResources("index.html")`
+is _very_ likely to produce more than one result. Either choose more unique names, or filter the result in a meaningful manner,
+or throw an exception that explains the situation to the user of your code. Specifically library project maintainers have to consider
+this happenstance. The recommendation is to nest resources next to qualified module names, like so: if `lang/x/myLanguage/Syntax.rsc` is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an example resource location.
 }
 java set[loc] findResources(str fileName);
 set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
