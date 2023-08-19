@@ -94,15 +94,16 @@ private Symbol getTargetSymbol(Symbol sym) {
 
 @synopsis{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(Symbol x) { 
-    return 
-        !(\lit(_) := x 
-          || \empty() := x
-          || \cilit(_) := x 
-          || \char-class(_) := x 
-          || \layouts(_) := x
-          || \keywords(_) := x
-          || \start(_) := x
-          || \parameterized-sort(_,[\parameter(_,_),*_]) := x
-          || \parameterized-lex(_,[\parameter(_,_),*_]) := x
-         );
+    switch(x){ 
+        case \lit(_): return false;
+        case \empty(): return false;
+        case \cilit(_): return false;
+        case \char-class(_): return false;
+        case \layouts(_): return false;
+        case \keywords(_): return false;
+        case \start(_): return false;
+        case \parameterized-sort(_,[\parameter(_,_),*_]): return false;
+        case \parameterized-lex(_,[\parameter(_,_),*_]): return false;
+        default: return true;
+     };
 }
