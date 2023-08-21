@@ -157,7 +157,7 @@ public class ConstructorFunction extends NamedFunction {
 	            } 
 	            else {
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
-	                kwResult = def.interpret(eval);
+	                kwResult = ResultFactory.makeResult(kwType, def.interpret(eval).value, ctx);
 	            }
 	            
 	            if (kwparam.equals(label)) {
