@@ -1840,9 +1840,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void browse(URI uri) {
+        public void browse(URI uri, String title, int viewColumn) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).browse(uri);
+                ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
             else {
                 return;

@@ -145,6 +145,7 @@ public class REPLContentServer extends NanoHTTPD {
 
             JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
 
+            
             writer.write(out, data);
             out.flush();
             out.close();
