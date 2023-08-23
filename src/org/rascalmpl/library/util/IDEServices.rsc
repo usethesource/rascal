@@ -7,7 +7,7 @@ extend Message;
 
 @synopsis{Open a browser for a given location.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
-java void browse(loc uri);
+java void browse(loc uri, str title = "<uri>", int viewColumn=1);
 
 
 @synopsis{Open an editor for file at a given location.}
@@ -32,7 +32,7 @@ public java void applyDocumentsEdits(list[DocumentEdit] edits);
 
 @synopsis{Asks the IDE to show a "browser window" with the given interactive Content.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
-public java void showInteractiveContent(Content content);
+public java void showInteractiveContent(Content content, str title=content.id?"", int viewColumn=1);
 
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 public java void showMessage(Message message);

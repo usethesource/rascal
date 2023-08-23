@@ -46,14 +46,15 @@ public class BasicIDEServices implements IDEServices {
     return stderr;
   }
   
-  public void browse(ISourceLocation loc){
-      browse(loc.getURI());
+  public void browse(ISourceLocation loc, String title, int viewColumn){
+      browse(loc.getURI(), title, viewColumn);
   }
 
   /* (non-Javadoc)
    * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#browse(java.net.URI)
    */
-  public void browse(URI uri){
+  @Override
+  public void browse(URI uri, String _title, int _viewColumn) {
     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
       try {
@@ -132,4 +133,6 @@ public class BasicIDEServices implements IDEServices {
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
   }
+
+  
 }
