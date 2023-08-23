@@ -32,7 +32,7 @@ public java void applyDocumentsEdits(list[DocumentEdit] edits);
 
 @synopsis{Asks the IDE to show a "browser window" with the given interactive Content.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
-public java void showInteractiveContent(Content content, str title="", int viewColumn=1);
+public java void showInteractiveContent(Content content, str title=content.id?"", int viewColumn=1);
 
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 public java void showMessage(Message message);
