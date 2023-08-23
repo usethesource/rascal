@@ -45,7 +45,7 @@ public class TutorIDEServices implements IDEServices {
     }
 
     @Override
-    public void browse(URI uri) {
+    public void browse(URI uri, String title, int column) {
         
     }
 
