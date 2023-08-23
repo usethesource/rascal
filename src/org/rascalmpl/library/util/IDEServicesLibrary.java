@@ -19,9 +19,11 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.repl.REPLContentServerManager;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -35,8 +37,8 @@ public class IDEServicesLibrary {
         this.services = services;
     }
 
-    public void browse(ISourceLocation uri) {
-        services.browse(uri.getURI());
+    public void browse(ISourceLocation uri, IString title, IInteger viewColumn) {
+        services.browse(uri.getURI(), title.getValue(), viewColumn.intValue());
     }
 
     public void edit(ISourceLocation path) {
@@ -55,7 +57,7 @@ public class IDEServicesLibrary {
         services.applyDocumentsEdits(edits);
     }
 
-	public void showInteractiveContent(IConstructor provider) {
+	public void showInteractiveContent(IConstructor provider, IString title, IInteger viewColumn) {
         try {
             String id;
             Function<IValue, IValue> target;
@@ -71,7 +73,10 @@ public class IDEServicesLibrary {
             // this installs the provider such that subsequent requests are handled.
             REPLContentServer contentServer = contentManager.addServer(id, target);
 
-            browse(URIUtil.correctLocation("http", "localhost:" + contentServer.getListeningPort(), "/"));
+            browse(
+                URIUtil.correctLocation("http", "localhost:" + contentServer.getListeningPort(), "/"),
+                title.length() == 0? IRascalValueFactory.getInstance().string(id) : title,
+                viewColumn);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
