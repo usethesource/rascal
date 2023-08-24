@@ -90,7 +90,7 @@ public class RuntimeExceptionFactory {
     // NoMainFunction
 	public static final Type NoSuchAnnotation = TF.constructor(TS, Exception, "NoSuchAnnotation", TF.stringType(), "label");
     public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
-	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
+	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "name");
     public static final Type NoSuchKey = TF.constructor(TS, Exception, "NoSuchKey", TF.valueType(), "key");
 
     // NotImplemented
