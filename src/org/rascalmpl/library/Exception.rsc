@@ -91,7 +91,7 @@ data RuntimeException =
      | NotImplemented(str message)
      | ParseError(loc location)
      // add versions of ParseError
-     | PathNotFound(loc l)          
+     | PathNotFound(loc location)          
      | PathNotFound(set[loc] locs)
      | PermissionDenied()
      | PermissionDenied(str message)
