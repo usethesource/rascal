@@ -36,8 +36,10 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
@@ -208,7 +210,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         // now we need some HTML to show
         String URL = "http://localhost:" + server.getListeningPort() + "/";
         
+        IWithKeywordParameters<? extends IConstructor> kp = provider.asWithKeywordParameters();
+
         metadata.put("url", URL);
+        metadata.put("title", kp.hasParameter("title") ? ((IString) kp.getParameter("title")).getValue() : id);
+        metadata.put("viewColumn", kp.hasParameter("viewColumn") ? kp.getParameter("title").toString() : "1");
 
         output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|\n"));
         output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>"));
