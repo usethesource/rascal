@@ -34,8 +34,8 @@ garbage collected after 30 minutes, you can consider wrapping the same callback 
 a webserver using the ((util::Webserver::serve)) function.
 }
 data Content 
-  = content(str id, Response (Request) callback)
-  | content(Response response)
+  = content(str id, Response (Request) callback, str title=id, int viewColumn=1)
+  | content(Response response, str title="*static content*", int viewColumn=1)
   ;
 
 
