@@ -345,6 +345,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     public IConstructor sym2symbol(ITree parsedSym) {
+        if ("nonterminal".equals(TreeAdapter.getConstructorName(parsedSym))) {
+            String nonterminalName = TreeAdapter.yield(parsedSym);
+            return constructor(Symbol_Sort, string(nonterminalName));
+        }
+        
         return getParserGenerator().symbolTreeToSymbol(parsedSym);
     }
       
