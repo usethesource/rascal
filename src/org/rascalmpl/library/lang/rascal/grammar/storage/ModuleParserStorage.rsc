@@ -41,6 +41,7 @@ module lang::rascal::grammar::storage::ModuleParserStorage
 
 import lang::rascal::grammar::definition::Modules;
 import lang::rascal::grammar::definition::Names;
+import lang::rascal::grammar::definition::Layout;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import util::FileSystem;
