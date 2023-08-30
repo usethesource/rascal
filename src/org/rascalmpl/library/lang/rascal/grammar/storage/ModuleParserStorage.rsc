@@ -123,7 +123,7 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
     def = modules2definition(main, modules);
 
     // here the layout semantics comes really into action
-    gr = resolve(fuse(def));
+    gr = resolve(fuse(layouts(def)));
 
     // find a file in the target folder to write to
     target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
