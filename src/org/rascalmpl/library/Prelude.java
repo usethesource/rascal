@@ -76,7 +76,6 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
-import org.rascalmpl.interpreter.utils.JavaCompilerException;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -2367,6 +2366,15 @@ public class Prelude {
 	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
 		try {
 			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+		try {
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());

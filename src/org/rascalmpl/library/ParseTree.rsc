@@ -516,6 +516,9 @@ this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avo
 }
 java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={});
 
+@synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
+@javaClass{org.rascalmpl.library.Prelude}
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={});
 
 @synopsis{Yield the string of characters that form the leafs of the given parse tree.}
 @description{

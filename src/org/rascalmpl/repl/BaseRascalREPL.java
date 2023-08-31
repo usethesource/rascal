@@ -36,7 +36,6 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
