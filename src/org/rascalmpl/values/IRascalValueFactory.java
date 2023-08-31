@@ -127,4 +127,13 @@ public interface IRascalValueFactory extends IValueFactory {
 	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
 		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
 	}
+
+	/**
+	 * Reverse of storeParsers and with the same effect as the {@see parsers} method.
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	default IFunction loadParser(IValue reifiedType, ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
+	}
 }

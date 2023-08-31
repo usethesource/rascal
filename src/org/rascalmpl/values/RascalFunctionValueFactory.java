@@ -286,7 +286,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     @Override
-    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects,IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
@@ -313,6 +313,34 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             parser, 
             allowAmbiguity, hasSideEffects, firstAmbiguity, filters)
         );
+    }
+
+    @Override
+    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+      
+
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+          
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                
+        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+
+        checkPreconditions(startSort, reifiedGrammar.getType());
+        
+        String name = getParserMethodName(startSort);
+        if (name == null) {
+            name = generator.getParserMethodName(startSort);
+        }
+
+        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
 
     /**
