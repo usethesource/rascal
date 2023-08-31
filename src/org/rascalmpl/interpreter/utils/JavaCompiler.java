@@ -16,7 +16,6 @@ package org.rascalmpl.interpreter.utils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -49,7 +48,6 @@ import javax.tools.ToolProvider;
 
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.jar.JarInputStreamFileTree;
 
 /**
  * Compile a String or other {@link CharSequence}, returning a Java
