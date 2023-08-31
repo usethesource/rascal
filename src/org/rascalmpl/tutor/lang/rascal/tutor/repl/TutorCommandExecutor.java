@@ -234,10 +234,6 @@ public class TutorCommandExecutor {
             .addArguments("--user-data-dir=/tmp/rascal-config/google-chrome")
             .setLogLevel(ChromeDriverLogLevel.OFF)
             ;
-
-        // ?ChromeProfile profile = options.getProfile();
-        // profile.setPreference("layout.css.devPixelsPerPx", "3");
-        // options = options.setProfile(profile);
         
         RemoteWebDriver driver = new RemoteWebDriver(service.getUrl(), options);
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(3));
