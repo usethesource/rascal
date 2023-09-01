@@ -216,15 +216,8 @@ public class TutorCommandExecutor {
                     wait.until(webDriver -> "complete".equals(((JavascriptExecutor) webDriver)
                         .executeScript("return document.readyState")));
 
-                    // crop to the body
-                    WebElement body = driver.findElement(By.tagName("body"));
-                    driver.manage().window().setSize(body.getSize());
-
-                    // calm down again
-                    wait.until(webDriver -> "complete".equals(((JavascriptExecutor) webDriver)
-                        .executeScript("return document.readyState")));
-
                     // take the screenshot
+                    WebElement body = driver.findElement(By.tagName("body"));
                     String screenshot = body.getScreenshotAs(OutputType.BASE64);
 
                     // store the screenshot as an output
