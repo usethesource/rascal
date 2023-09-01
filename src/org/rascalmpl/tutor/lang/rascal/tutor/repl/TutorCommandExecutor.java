@@ -13,17 +13,23 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriverLogLevel;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -201,14 +207,27 @@ public class TutorCommandExecutor {
             
             if (metadata.get("url") != null && driver != null) {
                 try {
+                    // load the page
                     driver.get(metadata.get("url"));
                     driver.manage().window().maximize();
-                    // waiting for a better solution 
-                    Thread.sleep(1000);    
+                    
+                    // wait for page to render completely
+                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+                    wait.until(webDriver -> "complete".equals(((JavascriptExecutor) webDriver)
+                        .executeScript("return document.readyState")));
 
-                    String screenshot = driver.findElement(By.tagName("body"))
-                        .getScreenshotAs(OutputType.BASE64);
+                    // crop to the body
+                    WebElement body = driver.findElement(By.tagName("body"));
+                    driver.manage().window().setSize(body.getSize());
 
+                    // calm down again
+                    wait.until(webDriver -> "complete".equals(((JavascriptExecutor) webDriver)
+                        .executeScript("return document.readyState")));
+
+                    // take the screenshot
+                    String screenshot = body.getScreenshotAs(OutputType.BASE64);
+
+                    // store the screenshot as an output
                     result.put("application/rascal+screenshot", screenshot);
                 }
                 catch (Throwable e) {
@@ -231,14 +250,15 @@ public class TutorCommandExecutor {
         ChromeOptions options = new ChromeOptions()
             .setHeadless(true)
             .setBinary(BROWSER_BINARY)
+            .addArguments("--headless", "--disable-gpu", "--window-size=1920,1200","--ignore-certificate-errors","--disable-extensions","--no-sandbox","--disable-dev-shm-usage")
             .addArguments("--user-data-dir=/tmp/rascal-config/google-chrome")
             .setLogLevel(ChromeDriverLogLevel.OFF)
             ;
         
         RemoteWebDriver driver = new RemoteWebDriver(service.getUrl(), options);
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(3));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
-        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(5));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(60));
         driver.manage().window().maximize();
         
         return driver;
