@@ -857,6 +857,8 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
     stderr = output["application/rascal+stderr"]?"";
     stdout = output["application/rascal+stdout"]?"";
     html   = output["text/html"]?"";
+    str shot   = output["application/rascal+screenshot"]?"";
+    str png    = output["image/png"]?"";
 
     if (filterErrors(stderr) != "" && /cancelled/ !:= stderr) {
       for (errLine <- split("\n", stderr)) {
@@ -874,6 +876,14 @@ list[Output] compileRascalShellPrepare(list[str] block, bool isContinued, int li
                              '    <stderr>", pcfg.currentFile(offset, 1, <lineOffset + lineOffsetHere, 0>, <lineOffset + lineOffsetHere, 1>), cause=stderr)); 
     }
      
+    if (shot != "") {
+      loc targetFile = pcfg.bin + "assets" + capitalize(pcfg.currentRoot.file) + relativize(pcfg.currentRoot, pcfg.currentFile)[extension=""].path;
+      targetFile.file = targetFile.file + "_screenshot_<lineOffsetHere+lineOffset>.png";
+      println("screenshot <targetFile>");
+      writeBase64(targetFile, shot);
+      append OUT: out("![image](<relativize(pcfg.bin, targetFile).path>)");
+    } 
+
     lineOffsetHere +=1;
   }
 }
