@@ -23,6 +23,11 @@ list[DeclarationInfo] extractModule(m: (Module) `<Header header> <Body body>`) {
     moduleName = "<header.name>";
     tags = getTagContents(header.tags);
     name = "<header.name.names[-1]>";
+
+    if (name == "Index") {
+      name = "module_Index";
+    }
+
     tls = [*extractImport(moduleName, imp) | imp <- header.imports] 
       + [*extractTopLevel(moduleName, tl) |  tl <- body.toplevels ];
 

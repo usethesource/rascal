@@ -360,8 +360,9 @@ list[Message] generateIndexFile(loc d, PathConfig pcfg, int sidebar_position=-1)
       '<if (sidebar_position != -1) {>sidebar_position: <sidebar_position>
       '<}>---
       '
-      '<for (e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal", !(e in pcfg.ignores)) {>
-      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<package(pcfg.packageName)>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>");
+      '<for (loc e <- d.ls, isDirectory(e) || e.extension in {"rsc", "md"}, e.file != "internal", !(e in pcfg.ignores), !(e.file in {"index.rsc", "Index.rsc"})) {>
+      '* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<package(pcfg.packageName)>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e)[extension=isDirectory(e)?"":"md"].path>)<}>
+      '<if (loc e <- d.ls, e.file in {"index.rsc", "Index.rsc"}) {>* [<e[extension=""].file>](<p2r>/<if (pcfg.isPackageCourse) {>Packages/<package(pcfg.packageName)>/<}><if (pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) {>API<} else {><capitalize(pcfg.currentRoot.file)><}><relativize(pcfg.currentRoot, e).parent.path>/module_Index.md)<}>");
     return [];
   } catch IO(msg): {
     return [error(msg, d)];
@@ -374,6 +375,13 @@ list[Message] compileRascalFile(loc m, PathConfig pcfg, CommandExecutor exec, In
         + (pcfg.isPackageCourse ? "Packages/<package(pcfg.packageName)>" : "")
         + ((pcfg.isPackageCourse && pcfg.currentRoot.file in {"src","rascal","api"}) ? "API" : capitalize(pcfg.currentRoot.file))
         + relativize(pcfg.currentRoot, m)[extension="md"].path;
+
+  if (targetFile.file in {"index.md", "Index.md"}) {
+    // that would overwrite the actual index. Some modules can be named "Index.rsc or index.rsc"
+    // this underscore prefix is also reflected in the index builder of course!
+    targetFile.file = "module_Index.md";
+  }
+ 
   errors = [];
 
   if (!exists(targetFile) || lastModified(targetFile) < lastModified(m)) {

@@ -30,8 +30,9 @@ str fragment(loc root, loc concept) = fragment(root, concept + "index.md")
 str fragment(loc root, loc concept) = fragment(root, concept.parent + "index.md")
   when concept.parent?, concept.parent.file == concept[extension=""].file;
 
-str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
-str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
+str modulePath(/^<prefix:.*>::Index$/) = modulePath("<prefix>::module_Index");
+default str modulePath(str moduleName) = "<replaceAll(moduleName, "::", "/")>";
+default str moduleFragment(str moduleName) = "#<replaceAll(moduleName, "::", "-")>";
  
 @synopsis{capitalizes and removes hyphens}
 default str package(str input) = input;
