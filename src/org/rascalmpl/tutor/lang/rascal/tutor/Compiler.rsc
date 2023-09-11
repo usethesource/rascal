@@ -122,7 +122,7 @@ void generatePackageIndex(PathConfig pcfg) {
   if (pcfg.license?) {
     writeFile(targetFile.parent + "License.md", 
       "---
-      'title: <pcfg.packageName> open-source license
+      'title: License
       '---
       '
       '<readFile(pcfg.license)>");
@@ -131,7 +131,7 @@ void generatePackageIndex(PathConfig pcfg) {
   if (pcfg.funding?) {
     writeFile(targetFile.parent + "Funding.md", 
       "---
-      'title: Funding sources of <pcfg.packageName> 
+      'title: Funding 
       '---
       '
       ':::info
@@ -147,7 +147,7 @@ void generatePackageIndex(PathConfig pcfg) {
   if (pcfg.citation?) {
     writeFile(targetFile.parent + "Citation.md", 
       "---
-      'title: Citing <pcfg.packageName> 
+      'title: Citation 
       '---
       '
       ':::info
@@ -166,7 +166,7 @@ void generatePackageIndex(PathConfig pcfg) {
   if (dependencies != []) {
     writeFile(targetFile.parent + "Dependencies.md",
       "---
-      'title: <pcfg.packageName> dependencies
+      'title: Dependencies
       '---
       '
       'These are compile-time and run-time dependencies of <pcfg.packageName>:
