@@ -67,4 +67,7 @@ java void writeJSON(loc target, value val, bool unpackedLocations=false, str dat
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{Serializes a value as a JSON string and stores it as a string}
+@description{
+This function uses `writeJSON` and stores the result in a string.
+}
 java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, bool explicitConstructorNames=false, bool explicitDataTypes=false);
