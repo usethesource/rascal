@@ -100,7 +100,7 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IBool explicitConstructorNames, IBool explicitDataTypes) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
@@ -108,6 +108,8 @@ public class IO {
 		in.setLenient(lenient.getValue());
         return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
             .setCalendarFormat(dateTimeFormat.getValue())
+			.setExplicitConstructorNames(explicitConstructorNames.getValue())
+			.setExplicitDataTypes(explicitDataTypes.getValue())
             .read(in, start);
       }
       catch (IOException e) {
@@ -119,7 +121,7 @@ public class IO {
       }
     }
 	
-	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins) {
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IBool explicitConstructorNames, IBool explicitDataTypes) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 	      
@@ -127,6 +129,8 @@ public class IO {
 			in.setLenient(lenient.getValue());
 	        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
 	            .setCalendarFormat(dateTimeFormat.getValue())
+				.setExplicitConstructorNames(explicitConstructorNames.getValue())
+				.setExplicitDataTypes(explicitDataTypes.getValue())
 	            .read(in, start);
 	      }
 	      catch (IOException e) {
