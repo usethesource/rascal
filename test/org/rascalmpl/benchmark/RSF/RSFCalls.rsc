@@ -13,7 +13,7 @@ module RSF::RSFCalls
 import Relation;
 import util::Math;
 import Set;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import lang::rsf::IO;
 import IO;
 import util::Benchmark;
@@ -29,11 +29,10 @@ public bool measureOne(){
 }
 
 public bool measure(list[str] names){
-
-	loc p = |benchmarks:///RSF/|;
+	loc p = {loc x} := findResources("RSF") ? x : |not-found:///|;
 	
 	for(str name <- names){
-		map[str, rel[str,str]] values = readRSF(p[path= p.path + name]);
+		map[str, rel[str,str]] values = readRSF(p + name);
 		rel[str,str] CALL = values["CALL"];
 		n = size(CALL);
 		println("<name>: CALL contains <n> tuples");
