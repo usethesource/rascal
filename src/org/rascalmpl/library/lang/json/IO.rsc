@@ -39,12 +39,12 @@ In general the translation behaves as follows:
  * If num, int, real or rat are expected both strings and number values are mapped
  * If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
    a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}}
-java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
+java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{parses JSON values from a string
 In general the translation behaves as the same as for ((readJSON)).}
-java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
+java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{Serializes a value as a JSON string and stream it}
