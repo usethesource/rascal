@@ -242,7 +242,7 @@ public class JsonValueWriter {
 
         out.beginObject();
 
-        if (explicitConstructorNames) {
+        if (explicitConstructorNames || explicitDataTypes) {
           out.name("_constructor");
           out.value(o.getName());
         }
