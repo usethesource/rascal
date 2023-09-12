@@ -15,25 +15,20 @@
 module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{
-use writeJSON
-}
+@deprecated{use writeJSON}
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{
-use asJSON
-}
+@deprecated{use asJSON}
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{
-use readJSON
-}
+@deprecated{use readJSON}
 public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{reads JSON values from a stream
+@synopsis{reads JSON values from a stream}
+@description{
 In general the translation behaves as follows:
  * Objects translate to map[str,value] by default, unless a node is expected (properties are then translated to keyword fields)
  * Arrays translate to lists by default, or to a set if that is expected or a tuple if that is expected. Arrays may also be interpreted as constructors or nodes (see below)
@@ -52,7 +47,24 @@ In general the translation behaves as the same as for ((readJSON)).}
 java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true);
+@synopsis{Serializes a value as a JSON string and stream it}
+@description{
+This function tries to map Rascal values to JSON values in a natural way.
+In particular it tries to create a value that has the same number of recursive levels,
+such that one constructor maps to one object. The serialization is typically _lossy_ since
+JSON values by default do not explicitly encode the class or constructor while Rascal data types do.
+
+If you need the names of constructors or data-types in your result, then use the parameters:
+* `explicitConstructorNames=true` will store the name of every constructor in a field `_constructor`
+* `explicitDataTypes=true` will store the name of the ADT in a field called `_type`
+
+The `dateTimeFormat` parameter dictates how `datetime` values will be printed.
+
+The `unpackedLocations` parameter will produce an object with many fields for every property of a `loc` value, but
+if set to false a `loc` will be printed as a string.
+}
+java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true);
+@synopsis{Serializes a value as a JSON string and stores it as a string}
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, bool explicitConstructorNames=false, bool explicitDataTypes=false);
