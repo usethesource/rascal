@@ -64,10 +64,9 @@ public class StandardLibraryContributor implements
 		}
 		
 		try {
-			l.add(vf.sourceLocation("cwd","",""));
 			l.add(vf.sourceLocation("std","",""));
 			l.add(vf.sourceLocation("testdata","",""));
-		    l.add(vf.sourceLocation("test-modules","",""));
+                        l.add(vf.sourceLocation("test-modules","",""));
 			l.add(vf.sourceLocation("benchmarks","",""));
 		}
 		catch (URISyntaxException e) {
@@ -77,7 +76,7 @@ public class StandardLibraryContributor implements
 
 	@Override
 	public String toString() {
-		return "[current wd and stdlib]";
+		return "[std://, testdata://, test-modules://, benchmarks://]";
 	}
 	
 	@Override
