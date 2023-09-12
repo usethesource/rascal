@@ -1,5 +1,5 @@
 Project-Name: rascal
-Source: src/org/rascalmpl/library
+Source: src/org/rascalmpl/library,test/org/rascalmpl/benchmark
 Courses: src/org/rascalmpl/courses
 
 

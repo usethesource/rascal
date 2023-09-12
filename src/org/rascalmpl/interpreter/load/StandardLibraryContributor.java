@@ -66,8 +66,7 @@ public class StandardLibraryContributor implements
 		try {
 			l.add(vf.sourceLocation("std","",""));
 			l.add(vf.sourceLocation("testdata","",""));
-                        l.add(vf.sourceLocation("test-modules","",""));
-			l.add(vf.sourceLocation("benchmarks","",""));
+			l.add(vf.sourceLocation("test-modules","",""));
 		}
 		catch (URISyntaxException e) {
 			assert false;
@@ -76,7 +75,7 @@ public class StandardLibraryContributor implements
 
 	@Override
 	public String toString() {
-		return "[std://, testdata://, test-modules://, benchmarks://]";
+		return "[std://, testdata://, test-modules://]";
 	}
 	
 	@Override
