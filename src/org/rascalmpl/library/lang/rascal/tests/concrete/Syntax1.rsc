@@ -2,6 +2,7 @@ module lang::rascal::tests::concrete::Syntax1
 
 import Exception;
 import ParseTree;
+import IO;
 
 layout Whitespace = [\ \t\n]*;
 
@@ -44,7 +45,10 @@ test bool parseD5() = (D)`d` := parse(#start[D], " d ").top;
 
 test bool parseDS() = (DS)`d d d` := parse(#DS, "d d d") ;
 
-test bool parseDSfromFile() =  (DS)`d d d` := parse(#DS, |testdata:///DS.trm|);
+test bool parseDSfromFile() {
+    writeFile(|tmp:///DS.trm|, "d d d");
+    return (DS)`d d d` := parse(#DS, |tmp:///DS.trm|);
+}  
 
 test bool singleA() = (A) `a` := (A) `a`;
 
