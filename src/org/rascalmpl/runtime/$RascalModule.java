@@ -14,10 +14,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,6 +28,8 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Trave
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
@@ -177,6 +182,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
                     args[i] = $MONITOR;
                 }
                 else if (formals[i].isAssignableFrom(ClassLoader.class)) {
+					// TODO: the classloaders have to become configurable later
                     args[i] = getClass().getClassLoader();
                 }
                 else if (formals[i].isAssignableFrom(IRascalValueFactory.class)) {
@@ -185,6 +191,42 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
                 else if (formals[i].isAssignableFrom($RascalModule.class)) {
                     args[i] = this;
                 }
+				else if (formals[i].isAssignableFrom(IDEServices.class)) {
+					if ($MONITOR instanceof IDEServices) {
+						args[i] = (IDEServices) $MONITOR;
+					}
+					else {
+						throw new IllegalArgumentException("No IDE services are available in this environment");
+					}
+				}
+				else if (formals[i].isAssignableFrom(IResourceLocationProvider.class)) {
+					// We provide resources directly from the run-time classpath of the current module.
+					// This means that test-resources must be copied to the test target or the target folder 
+					// before we run this code.
+					args[i] = new IResourceLocationProvider() {
+						@Override
+						public Set<ISourceLocation> findResources(String fileName) {
+							Set<ISourceLocation> result = new HashSet<>();
+							URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
+							try {
+								for (URL found : Collections.list(getClass().getClassLoader().getResources(fileName))) {
+									try {
+										result.add($VF.sourceLocation(found.toURI()));
+									} catch (URISyntaxException e) {
+										$MONITOR.warning("WARNING: skipping " + found + " due to URI syntax exception", URIUtil.rootLocation("module-init"));
+									}
+								}
+							}
+							catch (IOException e) {
+								// then we don't have anything. it could happens if the folder or jar of the currently running code has 
+								// dissappeared while running the code in it.
+							}
+								
+							return result;
+						}
+					};
+				}
                 else {
                     throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore, ClassLoader, PrintWriter, OutputStream, InputStream, &T extends $RascalModule, IRascalValueFactory and TypeFactory are supported");
                 }
