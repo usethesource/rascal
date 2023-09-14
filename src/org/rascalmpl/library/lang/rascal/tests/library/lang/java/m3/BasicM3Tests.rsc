@@ -14,9 +14,6 @@ import lang::java::m3::AST;
 
 private loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
 
-@javaClass{org.rascalmpl.library.lang.rascal.tests.library.lang.java.m3.SnakesAndLadders}
-public java loc getSnakesAndLaddersPath(); 
-
 public loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
     sourceRoot = projectZip[scheme = "jar+<projectZip.scheme>"][path = projectZip.path + "!/"];
