@@ -55,13 +55,6 @@
                     <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
             </resource>
-            <resource>
-                <directory>test</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>org/rascalmpl/test/data/**/*</include>
-                </includes>
-            </resource>
         </resources>
         <testSourceDirectory>test</testSourceDirectory>
         <testResources>
