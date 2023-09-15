@@ -492,7 +492,7 @@ First we store a parser:
 ```rascal-shell
 import ParseTree;
 syntax E = E "+" E | "e";
-storeParsers(#E, |test-temp:///E.parsers|)
+storeParsers(#E, |memory://test-tmp/E.parsers|)
 ```
 
 Here we show a new shell does not even know about the grammar:
@@ -503,7 +503,7 @@ Here we show a new shell does not even know about the grammar:
 Then in a next run, we load the parser and use it:
 ```rascal-shell
 import ParseTree;
-p = loadParsers(|test-temp:///E.parsers|);
+p = loadParsers(|memory://test-tmp/E.parsers|);
 p(type(sort("E"), ()), "e+e", |src:///|);
 ```
 }

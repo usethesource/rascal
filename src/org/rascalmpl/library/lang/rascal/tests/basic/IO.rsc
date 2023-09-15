@@ -5,7 +5,7 @@ import String;
 import IO;
 import util::UUID;
 
-private loc aFile = |test-temp:///basic-io-<"<uuidi()>">.txt|;
+private loc aFile = |memory://test-tmp/basic-io-<"<uuidi()>">.txt|;
 
 test bool writeReadFile(str content) {
   if (size(content) == 0 || any(c <- [0..size(content)], content[c] == "\a00")) return true;
@@ -97,8 +97,8 @@ test bool readOffsetMiddle(str a, str b, str c) {
 }
 
 test bool md5Hash(){
-	writeFileEnc(|test-temp:///basic-io-md5.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
-	return md5HashFile(|test-temp:///basic-io-md5.txt|) == "931210fcfae2c4979e5d51a264648b82";
+	writeFileEnc(|memory://test-tmp/basic-io-md5.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
+	return md5HashFile(|memory://test-tmp/basic-io-md5.txt|) == "931210fcfae2c4979e5d51a264648b82";
 }
 
 data Compression 

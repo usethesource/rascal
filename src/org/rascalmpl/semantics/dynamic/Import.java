@@ -86,7 +86,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class Import {
 	

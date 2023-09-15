@@ -619,31 +619,6 @@ public class PathConfig {
         }
     }
 
-    private static void addJarToSearchPath(ISourceLocation jar, Set<String> libNames, IListWriter srcs) {
-        ISourceLocation prefix = RascalManifest.jarify(jar);
-        
-        RascalManifest mf = new RascalManifest();
-        List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
-        String projectName = mf.getManifestProjectName(mf.manifest(jar));
-
-        if (roots != null && projectName != null && libNames.contains(projectName)) {
-            for (String root : roots) {
-                srcs.append(URIUtil.getChildLocation(prefix, root));
-            }
-        }
-    }
-
-    private static void addJarToLibraryPath(ISourceLocation jar, Set<String> libNames, IListWriter libs) {
-        ISourceLocation prefix = RascalManifest.jarify(jar);
-        
-        RascalManifest mf = new RascalManifest();
-        String projectName = mf.getManifestProjectName(mf.manifest(jar));
-
-        if (projectName != null && libNames.contains(projectName)) {
-            libs.append(prefix);
-        }
-    }
-
     private static ISourceLocation setTargetScheme(ISourceLocation projectLoc) {
         try {
             return URIUtil.changeScheme(projectLoc, "target");

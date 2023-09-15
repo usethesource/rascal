@@ -34,8 +34,8 @@ test bool disallowAmb2() {
 
 @ignoreCompiler{FIX: TC does not yet allow [A] loc}
 test bool locExpr() {
-  writeFile(|test-temp:///locExpr.txt|,"a");
-  return [A] |test-temp:///locExpr.txt| == parse(#A, |test-temp:///locExpr.txt|);
+  writeFile(|memory://test-tmp/locExpr.txt|,"a");
+  return [A] |memory://test-tmp/locExpr.txt| == parse(#A, |memory://test-tmp/locExpr.txt|);
 }
 
 test bool parsingWithADynamicGrammar() =
@@ -63,8 +63,8 @@ test bool parsingWithAManualGrammar()
   && "<t>" == "hello";
   
 test bool saveAndRestoreParser() {
-  storeParsers(#start[A], |test-temp:///parsers.jar|);
-  p = loadParsers(|test-temp:///parsers.jar|);
+  storeParsers(#start[A], |memory://test-tmp/parsers.jar|);
+  p = loadParsers(|memory://test-tmp/parsers.jar|);
 
   return p(type(\start(sort("A")), ()), "a", |origin:///|) == parse(#start[A], "a", |origin:///|);
 }
