@@ -13,16 +13,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.load;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.List;
 
-import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class StandardLibraryContributor implements
@@ -44,37 +39,12 @@ public class StandardLibraryContributor implements
 	}
 	
 	public void contributePaths(List<ISourceLocation> l) {
-		String property = java.lang.System.getProperty("rascal.path");
-		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-				
-		if (property != null) {
-			for (String path : property.split(":")) {
-				try {
-					if (path.endsWith(".jar")) {
-						for (String root: new RascalManifest().getSourceRoots(new File(path))) {
-							l.add(vf.sourceLocation("jar","", path + "!" + root));
-						}
-					}
-					else {
-						l.add(URIUtil.createFileLocation(path));
-					}
-				} catch (URISyntaxException e) {
-				}
-			}
-		}
-		
-		try {
-			l.add(vf.sourceLocation("std","",""));
-			l.add(vf.sourceLocation("test-modules","",""));
-		}
-		catch (URISyntaxException e) {
-			assert false;
-		}
+		l.add(URIUtil.rootLocation("std"));
 	}
 
 	@Override
 	public String toString() {
-		return "[std:///, test-modules:///]";
+		return "|std:///|";
 	}
 	
 	@Override
