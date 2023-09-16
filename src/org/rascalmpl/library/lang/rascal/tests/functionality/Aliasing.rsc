@@ -12,6 +12,7 @@
 module lang::rascal::tests::functionality::Aliasing
 
 import Type;
+import Exception;
 
 alias INTEGER0 = int;
 		
@@ -299,6 +300,7 @@ test bool assignableTupleAlias() {
 }
 
 @synopsis{this tests if the solution for #1811 still checks the arity of the tuple}
+@ignoreCompiler{The assignment is flagged as a type error}
 @expected{UnexpectedType}
 test bool assignableTupleAliasError() {
   T[int] x = <0,1>;
