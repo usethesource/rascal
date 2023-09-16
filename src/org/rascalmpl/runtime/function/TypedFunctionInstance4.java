@@ -32,13 +32,14 @@ public class TypedFunctionInstance4<R,A,B,C,D> extends TypedFunctionInstance {
 	}
 	
 	public R typedCall(A a, B b, C c, D d) {
-		if(((IValue) a).getType().comparable(type_arg_0) &&
-		   ((IValue) b).getType().comparable(type_arg_1) &&
-		   ((IValue) c).getType().comparable(type_arg_2) &&
-		   ((IValue) d).getType().comparable(type_arg_3)){
-			return function.typedCall(a, b, c, d);
+		if(validating &&
+		   !(((IValue) a).getType().comparable(type_arg_0) &&
+		     ((IValue) b).getType().comparable(type_arg_1) &&
+		     ((IValue) c).getType().comparable(type_arg_2) &&
+		     ((IValue) d).getType().comparable(type_arg_3))){
+			throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a, (IValue)b, (IValue)c, (IValue)d));
 	    }
-		throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a, (IValue)b, (IValue)c, (IValue)d));
+		return function.typedCall(a, b, c, d);
 	}
 	
 	@SuppressWarnings("unchecked")

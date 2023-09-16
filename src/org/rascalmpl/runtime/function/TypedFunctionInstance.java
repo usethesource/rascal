@@ -13,6 +13,7 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 public abstract class TypedFunctionInstance implements IFunction {
 	protected final TypeFactory $TF = TypeFactory.getInstance();
     protected final Type type;
+    protected final boolean validating = false; // type checks are not needed bur are usefull during debugging
 	
 	public TypedFunctionInstance(Type type) {
 	    this.type = type;
