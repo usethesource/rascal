@@ -10,6 +10,7 @@ import DateTime;
 import Exception;
 import IO;
 import List;
+import ListRelation;
 import Location;
 import Map;
 import Set;
@@ -20,7 +21,8 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-bool traceTPL = true;
+bool traceTPL = false;
+bool traceCaches = false;
 
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){    
     parts = split("::", qualifiedModuleName);
@@ -43,14 +45,9 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
 }
 
 tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
-    //fileName = makeFileName(qualifiedModuleName, extension="tpl");
     fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
     tplLoc = getDerivedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
-    //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-    //tplLoc = classesDir + "<asBaseClassName(qualifiedModuleName)>.tpl";
-    //if(traceTPL) println("getTPLWriteLoc: <qualifiedModuleName> =\> \<<exists(tplLoc)>, <tplLoc>\>");
-    //return <exists(tplLoc), tplLoc>;
 }
 
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
@@ -71,36 +68,138 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
     }
 }
 
-data ModuleStructure = moduleStructure(
-                              rel[str, PathRole, str] strPaths, 
-                              rel[loc, PathRole, loc] paths, 
-                              map[str,TModel] tmodels, 
-                              map[str,loc] moduleLocs, 
-                              map[str,datetime] moduleLastModified,
-                              map[str,Module] modules,
-                              set[str] valid,
-                              set[str] invalid,
-                              map[str, list[Message]] messages,
-                              set[str] visited
-                              );
-void printModuleStructure(ModuleStructure ms){
-    println("strPaths:"); iprintln(ms.strPaths);
-    println("paths:"); iprintln(ms.paths);
-    println("tmodels for: <domain(ms.tmodels)>");
-    println("moduleLocs for: <domain(ms.moduleLocs)>");
-    println("modules for: <domain(ms.modules)>");
-    println("valid: <ms.valid>");
-    println("visited: <ms.visited>");
+int parseTreeCacheSize = 10;
+
+tuple[Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+    if(ms.parseTrees[qualifiedModuleName]?){
+        if(traceCaches) println("*** using cached parse tree for <qualifiedModuleName>");
+        return <ms.parseTrees[qualifiedModuleName], ms>;
+    } else {
+        if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
+            ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
+            if(traceCaches) println("*** deleting parse tree <ms.parseTreeLIFO[-1]>");
+            ms.parseTreeLIFO = ms.parseTreeLIFO[..-1];
+        }
+        ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
+        mloc = getModuleLocation(qualifiedModuleName, pcfg);                    
+        if(traceCaches) println("*** parsing <qualifiedModuleName> from <mloc>");
+        pt = parseModuleWithSpaces(mloc).top;
+        ms.parseTrees[qualifiedModuleName] = pt;
+        ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
+        ms.status[qualifiedModuleName] += parsed();
+        return <pt, ms>;
+   }
 }
 
-ModuleStructure newModuleStructure() = moduleStructure({}, {}, (), (), (), (), {}, {}, (), {});
+set[str] hardwired = {};
+
+int maxHardwired = 10;
+
+int tmodelCacheSize = 15;
+
+void analyzeTModels(ModuleStatus ms){
+    freq = ();
+    total = 0;
+    for(<_, _, m2> <- ms.strPaths){
+        freq[m2] ? 0 += 1;
+        total += 1;
+    }
+    sorted_freq = sort(toList(freq), bool(tuple[str s,int n] a, tuple[str s, int n] b){ return a.n > b.n; });
+    nmodules = size(freq);
+    cutoff = 2 * total/(nmodules + 1);
+    hardwire = [tp | tuple[str s, int n] tp <- sorted_freq , tp.n > cutoff][0..maxHardwired];
+    if(traceCaches){
+        println("analyzeTModels: <nmodules> modules, importd/extends: <total>, cutoff: <cutoff>");
+      iprintln(hardwire);
+    }
+    hardwired = toSet(domain(hardwire));
+}
+
+ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
+    ms.tmodels[qualifiedModuleName] = tm;
+    if(qualifiedModuleName notin hardwired){
+        if(qualifiedModuleName notin ms.tmodelLIFO){
+            ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
+        }
+        while(size(ms.tmodels) >= tmodelCacheSize){
+            ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
+            if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
+            ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+        }
+    }
+    return ms;
+}
+
+tuple[bool, TModel, ModuleStatus] getTmodelForModule(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+    if(ms.tmodels[qualifiedModuleName]?){
+        return <true, ms.tmodels[qualifiedModuleName], ms>;
+    }
+    while(size(ms.tmodels) >= tmodelCacheSize){
+        ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
+        if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
+        ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+    }
+    if(qualifiedModuleName notin hardwired){
+        ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
+    }
+    
+    <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
+    if(found){
+        if(traceTPL) println("*** reading tmodel <tplLoc>");
+        try {
+            tpl = readBinaryValueFile(#TModel, tplLoc);
+            ms.tmodels[qualifiedModuleName] = tpl;
+            return <true, tpl, ms>;
+        } catch e:
+            throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
+    }
+    if(qualifiedModuleName notin hardwired){
+        ms.tmodelLIFO = ms.tmodelLIFO[1..];
+    }
+    return <false, tmodel(), ms>;
+   // throw IO("Cannot read tpl for <qualifiedModuleName>");
+}
+
+data MStatus =
+      parsed()
+    | module_dependencies_extracted()
+    | checked()
+    | code_generated()
+    | tpl_exists()
+    | tpl_invalid()
+    | tpl_valid()
+    ;
+
+data ModuleStatus = 
+    moduleStatus(
+      rel[str, PathRole, str] strPaths, 
+      rel[loc, PathRole, loc] paths, 
+      map[str, Module] parseTrees,
+      list[str] parseTreeLIFO,
+      map[str, TModel] tmodels,
+      list[str] tmodelLIFO,
+      map[str,loc] moduleLocs, 
+      map[str,datetime] moduleLastModified,
+      map[str, list[Message]] messages,
+      map[str, set[MStatus]] status
+   );
+                              
+void printModuleStatus(ModuleStatus ms){
+    println("strPaths:"); iprintln(ms.strPaths);
+    println("paths:"); iprintln(ms.paths);
+    println("parseTrees: <domain(ms.parseTrees)>");
+    println("moduleLocs for: <domain(ms.moduleLocs)>");
+    println("status:"); iprintln(ms.status);
+}
+
+ModuleStatus newModuleStatus() = moduleStatus({}, {}, (), [], (), [], (), (), (), ());
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
 }
 
-// Complete a ModuleStructure by adding a contains relation that adds transitive edges for extend
-ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
+// Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
+ModuleStatus complete(ModuleStatus ms, PathConfig pcfg){
     moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
     extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
@@ -108,20 +207,6 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     paths += { <from, extendPath(), to> | <from, to> <- extendPlus };
     
     pathsPlus = {<from, to> | <from, _, to> <- paths}+;
-    
-    //cyclicExtend = {mloc1, mloc2 | <mloc1, mloc2> <- extendPlus, mloc1 != mloc2,
-    //                                  <mloc2, extendPath(), mloc1> in paths
-    //                               || <mloc1, extendPath(), mloc2> in paths };
-    //if(cyclicExtend <= carrier(extendPlus)){
-    //    for(mloc <- cyclicExtend){
-    //        mname = getModuleName(mloc, moduleStrs, pcfg);
-    //        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- extendPlus, mloc1 == mloc, mloc2 in cyclicExtend } +
-    //                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- extendPlus, mloc2 == mloc , mloc1 in cyclicExtend };
-    //        if(size(cycle) > 1){
-    //            ms.messages[mname] =  (ms.messages[mname] ? []) + error("Extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
-    //        }
-    //    }
-    //}
     
     cyclicMixed = {mloc1, mloc2 | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
                              <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
@@ -139,54 +224,68 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
     ms.paths = paths;
    
-    ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};  
+    ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};
+    analyzeTModels(ms);  
     return ms;
 }
 
-ModuleStructure getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg, bool logImports){
-    return complete((newModuleStructure() | getImportAndExtendGraph(qualifiedModuleName, pcfg, it, logImports) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
+ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg, bool logImports){
+    return complete((newModuleStatus() | getImportAndExtendGraph(qualifiedModuleName, pcfg, it, logImports) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool logImports){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, newModuleStructure(), logImports), pcfg);
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool logImports){
+    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, newModuleStatus(), logImports), pcfg);
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, ModuleStructure ms, bool logImports){
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, ModuleStatus ms, bool logImports){
     qualifiedModuleName = unescape(qualifiedModuleName);
+    
+    if(!ms.status[qualifiedModuleName]?){
+        ms.status[qualifiedModuleName] = {};
+    }
    
-    //println("getImportAndExtendGraph: <qualifiedModuleName>, <domain(ms.modules)>, <domain(ms.tmodels)>, <ms.visited>");
-    if(ms.modules[qualifiedModuleName]? || ms.tmodels[qualifiedModuleName]?){
+    if(module_dependencies_extracted() in ms.status[qualifiedModuleName]){ 
         return ms;
     }
-    <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
+    ms.status[qualifiedModuleName] += module_dependencies_extracted();
+    
+    <found, tm, ms> = getTmodelForModule(qualifiedModuleName, ms, pcfg);
     if(found){
         try {
             allImportsAndExtendsValid = true;
             rel[str, PathRole] localImportsAndExtends = {};
-            tm = readBinaryValueFile(#TModel, tplLoc);
+            
+            if(!ms.moduleLastModified[qualifiedModuleName]?){
+                ms.moduleLastModified[qualifiedModuleName] = getLastModified(qualifiedModuleName, ms.moduleLastModified, pcfg);
+            }
+            ms.status[qualifiedModuleName] += tpl_exists();
+            
             if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
                //println("BOM:"); iprintln(bom);
                for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
+                   if(!ms.status[m]?){
+                        ms.status[m] = {};
+                   }
                    if(m != qualifiedModuleName){
                         localImportsAndExtends += <m, pathRole>;
                    }
                    lm = getLastModified(m, ms.moduleLastModified, pcfg);
+                   if(!ms.moduleLastModified[m]?){
+                        ms.moduleLastModified[m] = lm;
+                   }
                    //TODO: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
-                   current = decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 1000);
-                   //println("lm = <lm>");
-                   //println("<current> \> <timestampInBom> =\> <current > timestampInBom>");
                    if(decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 1000) > timestampInBom) {
                         allImportsAndExtendsValid = false;
-                        //println("m notin ms.invalid =\> <m notin ms.invalid>");
-                        if(m notin ms.invalid){
+                        if(tpl_invalid() notin ms.status[m] ){
                             println("--- using <getLastModified(m, ms.moduleLastModified, pcfg)> (most recent) version of <m>, 
                                     '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
-                            ms.invalid = ms.invalid + {m};
+                            ms.status[m] += tpl_invalid();
                         }
                    }
                }
+             
             } else {
-                throw "No bill-of-materials found in <tplLoc>";
+                throw "No bill-of-materials found for <qualifiedModuleName>";
             }
             if(!allImportsAndExtendsValid){
                 try {
@@ -197,52 +296,44 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                 }
             }
             if(allImportsAndExtendsValid){
-                if(logImports) println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
-          
-                ms.valid += {qualifiedModuleName};
-                ms.tmodels[qualifiedModuleName] = tm;
+                if(logImports) println("*** importing <qualifiedModuleName>");
+                ms.status[qualifiedModuleName] += {tpl_valid(), checked(), code_generated()}; //TODO: check java files
+       
                 ms.moduleLocs += tm.moduleLocs;
                 ms.paths += tm.paths;
                 ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
-                ms.visited += {qualifiedModuleName};
-                for(imp <- localImportsAndExtends<0>, imp notin ms.visited){
+                ms.status[qualifiedModuleName] += module_dependencies_extracted();
+                for(imp <- localImportsAndExtends<0>, module_dependencies_extracted() notin ms.status[imp]  ){
                     ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
                 }
                 return ms;
              }
+
         } catch IO(str msg): {
-            ms.tmodels[qualifiedModuleName] = tmodel()[messages = [ error("During import of module `<qualifiedModuleName>`: IO error <msg>", getModuleLocation(qualifiedModuleName, pcfg)) ]];
+            ms.messages[qualifiedModuleName] = [ error("During import of module `<qualifiedModuleName>`: IO error <msg>", getModuleLocation(qualifiedModuleName, pcfg)) ];
         }
     }
+    
     try {
-        Module pt; // = [Module] "module xxx";
-        if(ms.modules[qualifiedModuleName]?){
-            pt = ms.modules[qualifiedModuleName];
-        } else {
-            mloc = getModuleLocation(qualifiedModuleName, pcfg);                    
-            if(logImports) println("*** parsing <qualifiedModuleName> from <mloc>");
-            pt = parseModuleWithSpaces(mloc).top;
-            ms.modules[qualifiedModuleName] = pt;
-            ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
-        }
+        <pt, ms> = getModuleParseTree(qualifiedModuleName, ms, pcfg);
         imports_and_extends = getModulePathsAsStr(pt);
         ms.strPaths += imports_and_extends;
-        ms.visited += {qualifiedModuleName};
+       
         for(imp <- imports_and_extends<2>){
             ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
-      }
+        }
+        //ms.parseTrees = delete(ms.parseTrees, qualifiedModuleName);
     } catch value _: {
-        ms.tmodels[qualifiedModuleName] = tmodel()[messages = [ error("Parse error in module `<qualifiedModuleName>`", getModuleLocation(qualifiedModuleName, pcfg)) ]];
+        ms.messages[qualifiedModuleName] = [ error("Parse error in module `<qualifiedModuleName>`", getModuleLocation(qualifiedModuleName, pcfg)) ];
     }
     return ms;
 }
 
-ModuleStructure getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
-    ms = newModuleStructure();
+ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
+    ms = newModuleStatus();
     visit(pt){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
-            ms.modules[qualifiedModuleName] = m;
             ms.moduleLocs[qualifiedModuleName] = getLoc(m);
             imports_and_extends = getModulePathsAsStr(m);
             ms.strPaths += imports_and_extends;
@@ -276,12 +367,18 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-ModuleStructure saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStructure ms, map[str,loc] moduleScopes, PathConfig pcfg){
+tuple[TModel, ModuleStatus] saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
+    tmodels = ();
+    for(m <- imports + extends, tpl_valid() in ms.status[m]){
+        <found, tpl, ms> = getTmodelForModule(m, ms, pcfg);
+        ms = addTModel(m, tpl, ms);
+    }
+    //tmodels = ( m : getTmodelForModule(m, ms, pcfg) | m <- imports + extends, tpl_valid() in ms.status[m] );
+    ms = addTModel(qualifiedModuleName, tm, ms);
     tm = addGrammar(qualifiedModuleName, imports, extends, ms.tmodels);
-    ms.tmodels[qualifiedModuleName] = tm;
-    ms.messages[qualifiedModuleName] = tm.messages;
-    ms.tmodels[qualifiedModuleName] = saveModule(qualifiedModuleName, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
-    return ms;
+    ms.messages [qualifiedModuleName] = tm.messages;
+    tm = saveModule(qualifiedModuleName, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
+    return <tm, ms>;
 }
 
 private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
@@ -289,21 +386,10 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
         <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
-        //classesDir = getDerivedClassesDir(qualifiedModuleName, pcfg);
-        //tplLoc = classesDir + "<asBaseClassName(qualifiedModuleName)>.tpl";
-        //println("saveModule(<qualifiedModuleName>) =\> <tplLoc>");
-        //tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
         bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
             + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
             + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
-            
-        //bom = (m : getLastModified(m, pcfg) | m <- imports + extends);
-        //bom[qualifiedModuleName] = getLastModified(qualifiedModuleName, pcfg);
-        
-        //println("=== BOM <qualifiedModuleName>"); 
-        //for(m <- bom) println("<bom[m]>: <m>");
-        //println("=== BOM END"); 
         
         extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends};
         extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
@@ -323,7 +409,6 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
         
-        
         m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
@@ -342,9 +427,6 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
             = tm.store[key_common_keyword_fields] ? [];
         
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
-        //m1.paths = tm.paths; //{ tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope };
-        //iprintln(m1.paths);
-        
         
         //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
         m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in saveModuleRoles || isContainedIn(u, mscope) };
@@ -368,16 +450,10 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
                   }
                };
         
-        //if(tm.config.logImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
         
-        //calcs = (key : tm.calculators[key] | loc key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
-        //
-        //reqs  = {r | r <- tm.openReqs, r@\loc.path == mscope.path, bprintln(r)};
-        //
-        //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         try {
             if(!isEmpty(m1.messages)){
                 iprintln(m1.messages);
@@ -397,6 +473,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
              for(e <- errors){
                 iprintln(e);
              }
+      
         }
         return m1;
     } catch value e: {
