@@ -11,7 +11,9 @@ public class TypedFunctionInstance0<R extends IValue> extends TypedFunctionInsta
 
 	public TypedFunctionInstance0(TypedFunction0<R> function, Type ftype){
 		super(ftype);
-		assert ftype.isFunction() ? ftype.getArity() == 0 : true;
+		if(validating) {
+			assert ftype.isFunction() ? ftype.getArity() == 0 : true;
+		}
 		this.function = function;
 	}
 

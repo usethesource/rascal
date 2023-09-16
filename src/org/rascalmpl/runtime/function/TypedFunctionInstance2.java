@@ -28,11 +28,12 @@ public class TypedFunctionInstance2<R extends IValue,A,B> extends TypedFunctionI
 	}
 	
 	public R typedCall(A a, B b) {
-		if(((IValue) a).getType().comparable(type_arg_0) &&
-		   ((IValue) b).getType().comparable(type_arg_1)){
-			return function.typedCall(a, b);
+		if(validating && 
+		    !(((IValue) a).getType().comparable(type_arg_0) &&
+		      ((IValue) b).getType().comparable(type_arg_1))){
+			throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a, (IValue)b));
 		}
-		throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a, (IValue)b));
+		return function.typedCall(a, b);
 	}
 	
 	@SuppressWarnings("unchecked")

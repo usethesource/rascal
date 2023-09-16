@@ -22,10 +22,13 @@ public class TypedFunctionInstance1<R extends IValue,A> extends TypedFunctionIns
 	}
 	
 	public R typedCall(A a) {
-		if(((IValue) a).getType().comparable(type_arg_0)){
-			return function.typedCall(a);
+		if(validating) {
+			if(!((IValue) a).getType().comparable(type_arg_0)){
+				throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a));
+			}
 		}
-		throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a));
+		return function.typedCall(a);
+		
 	}
 	
 	@SuppressWarnings("unchecked")
