@@ -27,7 +27,7 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
   if (syms == []) 
     return syms;
     
-  syms = [ isLayoutType(sym) ? sym : regulars(sym, l, others) | sym <- syms ];
+  syms = [ isLayoutAType(sym) ? sym : regulars(sym, l, others) | sym <- syms ];
   others += {l};
   
   // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and

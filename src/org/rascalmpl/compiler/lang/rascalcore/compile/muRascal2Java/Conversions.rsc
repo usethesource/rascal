@@ -46,7 +46,7 @@ str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals
 str atype2javatype(anode(list[AType fieldType] fields)) 
                                             = "INode";
 str atype2javatype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
-                                            = "IConstructor";
+                                            = (adtName == "Tree" || isConcreteSyntaxRole(syntaxRole)) ? "ITree" : "IConstructor";
 
 str atype2javatype(t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
                                             = "IConstructor";
@@ -736,7 +736,7 @@ str doValue2IValue(acons(AType adt,
 
 str doValue2IValue(t:avoid(), map[value, int] constants) { throw "value2IValue: cannot handle <t>"; }
 str doValue2IValue(t:areified(AType atype), map[value, int] constants) { throw "value2IValue: cannot handle <t>"; }
-default str doValue2IValue(value v, map[value, int] constants) { throw "value2IValue: cannot handle <v>"; }
+//default str doValue2IValue(value v, map[value, int] constants) { throw "value2IValue: cannot handle <v>"; }
 
 /*****************************************************************************/
 /*  Convert a Rascal value to Java equivalent of its outer type              */
@@ -748,11 +748,13 @@ str value2outertype(real _) = "IReal";
 str value2outertype(rat _) = "IRational";
 str value2outertype(str _) = "IString";
 
-str value2outertype(Tree _) = "IConstructor";
-str value2outertype(Symbol _) = "IConstructor";
-str value2outertype(Production _) = "IConstructor";
-str value2outertype(Grammar _) = "IConstructor";
-default str value2outertype(node _) = "INode";
+str value2outertype(node n) = node2outertype(n);
+
+str node2outertype(Tree _) = "ITree";
+str node2outertype(Symbol _) = "IConstructor";
+str node2outertype(Production _) = "IConstructor";
+str node2outertype(Grammar _) = "IConstructor";
+default str node2outertype(node _) = "INode";
 
 str value2outertype(loc _) = "ISourceLocation";
 str value2outertype(datetime _) = "IDateTime";
@@ -775,7 +777,7 @@ str value2outertype(amap(AType _, AType _)) = "IMap";
 str value2outertype(arel(AType _)) = "IRelation\<ISet\>";
 str value2outertype(alrel(AType_)) = "IRelation\<IList\>";
 
-str value2outertype(aadt(str adtName, list[AType] _, SyntaxRole _)) = adtName;
+str value2outertype(aadt(str adtName, list[AType] _, SyntaxRole _)) = (adtName == "Tree") ? "ITree" : "IConstructor"; //asADTName(adtName);
 
 str value2outertype(acons(AType adt,
                 list[AType fieldType] fields,
@@ -837,7 +839,8 @@ str atype2vtype(f:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)
 }
 
 str atype2vtype(overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads), JGenie jg, bool inTest=false){
-    res = atype2vtype(lubList(toList(overloads.atype)), jg);
+    lb = lubList(toList(overloads.atype));
+    res = atype2vtype(lb, jg);
     return res;
 }
 

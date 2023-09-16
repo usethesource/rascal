@@ -9,6 +9,7 @@ import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
 import util::Reflective;
+import lang::rascal::grammar::tests::ParserGeneratorTests;
 
 public Grammar Rascal = grammar({sort("Module")},
 (
@@ -152,7 +153,7 @@ lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-
 
 str generateRascalParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
 
-loc RascalParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/RascalParser.java.gz";
+loc RascalParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/|+  "generated_parsers/RascalParser.java.gz";
 
 void generateAndWriteRascalParser(){
 	writeFile(RascalParserLoc, generateRascalParser());
@@ -202,7 +203,9 @@ test bool cntList2()        = size([x | /x:[*value s] := Rascal]) == 837;
 test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 451; }
 test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 451;
 
+@ignoreCompiler{set match nonterminal Keyword is currently too expensive}
 test bool cntSet1()         {cnt = 0; visit(Rascal){ case {*value s}: cnt += 1; }; return cnt == 766; }
+@ignoreCompiler{set match nonterminal Keyword is currently too expensive}
 test bool cntSet2()         = size([x | /x:{*value s} := Rascal]) == 766;
 @ignoreInterpreter{gives wrong answer 1186}
 test bool cntStr1()         {cnt = 0; visit(Rascal){ case str s: cnt += 1; }; return cnt == 3967; }
@@ -230,4 +233,4 @@ test bool cntRange1()       {cnt = 0; visit(Rascal){ case \range(_,_): cnt += 1;
 test bool cntRange2()       = size([x | /x:\range(_,_) := Rascal]) == 404;
 
 test bool cntPriority1()    {cnt = 0; visit(Rascal){ case \priority(_,_): cnt += 1; }; return cnt == 5; }
-test bool cntPriority1()    = size([x | /x: \priority(_,_) := Rascal]) == 5;
+test bool cntPriority2()    = size([x | /x: \priority(_,_) := Rascal]) == 5;

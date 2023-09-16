@@ -77,10 +77,10 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
         
     // For sets and relations, check to see if the "contents" are
     // able to be matched to one another
-    if ( isSetType(r) && isSetType(s) ) {
-        if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
+    if ( isSetAType(r) && isSetAType(s) ) {
+        if ( isRelAType(r) && isVoidAType(getSetElementType(s)) ) {
             return matchRascalTypeParams0(getSetElementType(r), atuple(atypeList([avoid() | _ <- index(getRelFields(r))])), b);
-        } else if ( isVoidType(getSetElementType(s)) ) {
+        } else if ( isVoidAType(getSetElementType(s)) ) {
             return b;
         } else {    
             return matchRascalTypeParams0(getSetElementType(r), getSetElementType(s), b);
@@ -89,10 +89,10 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
         
     // For lists and list relations, check to see if the "contents" are
     // able to be matched to one another
-    if ( isListType(r) && isListType(s) ) {
-        if ( isListRelType(r) && isVoidType(getListElementType(s)) ) {
+    if ( isListAType(r) && isListAType(s) ) {
+        if ( isListRelAType(r) && isVoidAType(getListElementType(s)) ) {
             return matchRascalTypeParams0(getListElementType(r), atuple(atypeList([avoid() | _ <- index(getListRelFields(r))])), b);
-        } else if ( isVoidType(getListElementType(s)) ) {
+        } else if ( isVoidAType(getListElementType(s)) ) {
             return b;
         } else {
             return matchRascalTypeParams0(getListElementType(r), getListElementType(s), b);
@@ -100,15 +100,15 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     }
         
     // For maps, match the domains and ranges
-    if ( isMapType(r) && isMapType(s) )
+    if ( isMapAType(r) && isMapAType(s) )
         return matchRascalTypeParams0(getMapFieldsAsTuple(r), getMapFieldsAsTuple(s), b);
     
     // For reified types, match the type being reified
-    if ( isReifiedType(r) && isReifiedType(s) )
+    if ( isReifiedAType(r) && isReifiedAType(s) )
         return matchRascalTypeParams0(getReifiedType(r), getReifiedType(s), b);
 
     // For ADTs, try to match parameters when the ADTs are the same
-    if ( isADTType(r) && isADTType(s) && getADTName(r) == getADTName(s) && size(getADTTypeParameters(r)) == size(getADTTypeParameters(s))) {
+    if ( isADTAType(r) && isADTAType(s) && getADTName(r) == getADTName(s) && size(getADTTypeParameters(r)) == size(getADTTypeParameters(s))) {
         rparams = getADTTypeParameters(r);
         sparams = getADTTypeParameters(s);
         for (idx <- index(rparams)) b = matchRascalTypeParams0(rparams[idx], sparams[idx], b);
@@ -116,27 +116,27 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     }
             
     // For constructors, match when the constructor name, ADT name, and arity are the same, then we can check params
-    if ( isConstructorType(r) && isConstructorType(s) && getADTName(r) == getADTName(s)) {
+    if ( isConstructorAType(r) && isConstructorAType(s) && getADTName(r) == getADTName(s)) {
         b = matchRascalTypeParams0(getConstructorArgumentTypesAsTuple(r), getConstructorArgumentTypesAsTuple(s), b);
         return matchRascalTypeParams0(getConstructorResultType(r), getConstructorResultType(s), b);
     }
     
-    if ( isConstructorType(r) && isADTType(s) ) {
+    if ( isConstructorAType(r) && isADTAType(s) ) {
         return matchRascalTypeParams0(getConstructorResultType(r), s, b);
     }
     
     // For functions, match the return types and the parameter types
-    if ( isFunctionType(r) && isFunctionType(s) ) {
+    if ( isFunctionAType(r) && isFunctionAType(s) ) {
         b = matchRascalTypeParams0(getFunctionArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b);
         return matchRascalTypeParams0(getFunctionReturnType(r), getFunctionReturnType(s), b);
     }
     
     // For tuples, check the arity then match the item types
-    if ( isTupleType(r) && isTupleType(s) && getTupleFieldCount(r) == getTupleFieldCount(s) ) {
+    if ( isTupleAType(r) && isTupleAType(s) && getTupleFieldCount(r) == getTupleFieldCount(s) ) {
         rfields = getTupleFieldTypes(r);
         sfields = getTupleFieldTypes(s);
         for (idx <- index(rfields)) {
-            if (!isVoidType(sfields[idx])) {
+            if (!isVoidAType(sfields[idx])) {
                 b = matchRascalTypeParams0(rfields[idx], sfields[idx], b);
             }
         }
@@ -209,18 +209,15 @@ AType instantiateRascalTypeParams(\opt(AType s), Bindings bindings) = \opt(insta
 AType instantiateRascalTypeParams(\conditional(AType s, set[ACondition] conds), Bindings bindings) = \conditional(instantiateRascalTypeParams(s,bindings),conds);
 //AType instantiateRascalTypeParams(\prod(AType def, list[AType] asymbols, set[AAttr] attributes=attrs, set[SyntaxKind] syntaxKind=sk, loc src=src), Bindings bindings)
 //    = \prod(instantiateRascalTypeParams(def, bindings), asymbols, attributes=attrs, syntaxKind = sk, src=src);
-default AType instantiateRascalTypeParams(AType t, Bindings bindings) {
-    return t;
+default AType instantiateRascalTypeParams(value v, Bindings bindings) {
+    if(AType t := v) return t;
+    //println("instantiateRascalTypeParams undefined for: <v>");
+    throw "instantiateRascalTypeParams undefined for: <v>";
 }
 
 AType instantiateRascalTypeParams(atypeList(list[AType] l), Bindings bindings)
     = atypeList([instantiateRascalTypeParams(t, bindings) | t <- l]);
     
-default AType instantiateRascalTypeParams(value t, Bindings bindings){
-    //println("instantiateRascalTypeParams undefined for: <t>");
-    throw "instantiateRascalTypeParams undefined for: <t>";
-}
-
 AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings, Solver s){
     if(isEmpty(bindings))
         return t;

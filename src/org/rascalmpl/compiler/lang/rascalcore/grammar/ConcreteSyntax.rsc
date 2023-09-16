@@ -66,14 +66,16 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2ATyp
   so we remove this here to create a canonical 'source-level' type.
 }
 private str denormalize(AType s) = prettyAType(visit (s) { 
-  case a: aadt(_, _, lexicalSyntax()) => a[syntaxRole=contextFreeSyntax()]
-  case a: aadt(_, _, layoutSyntax()) => a[syntaxRole=contextFreeSyntax()]
-  case AType::\iter-seps(u, [l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
-  case AType::\iter-star-seps(u,[l1,t,l2]) => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
-  case AType::\iter-seps(u, [l]) => \iter(u) when isLayoutSyntax(l)
-  case AType::\iter-seps(u, []) => \iter(u)
+  case a: aadt(_, _, lexicalSyntax())       => a[syntaxRole=contextFreeSyntax()]
+  case a: aadt(_, _, layoutSyntax())        => a[syntaxRole=contextFreeSyntax()]
+  case AType::\iter-seps(u, [l1, t, l2])    => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
+  case AType::\iter-star-seps(u,[l1,t,l2])  => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
+  case AType::\iter-seps(u, [l])            => \iter(u) when isLayoutSyntax(l)
+  case AType::\iter-seps(u, [])             => \iter(u)
   case AType::\iter-star-seps(AType u, [l]) => \iter-star(u) when isLayoutSyntax(l)
-  case AType::\iter-star-seps(AType u, []) => \iter-star(u)
+  case AType::\iter-star-seps(AType u, [])  => \iter-star(u)
+  case AType\seq(ss)                        => seq([t | t <- ss, !(t is layouts)])
+  
   // TODO: add rule for seq
 });
 

@@ -61,7 +61,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 
 set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), patternVariableId()};
 
-@memo{expireAfter(minutes=15)}
+@memo{expireAfter(minutes=5),maximumSize(1000)}
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
  
@@ -158,22 +158,6 @@ AType rascalInstantiateTypeParameters(Tree selector,
 
 default AType rascalInstantiateTypeParameters(Tree selector, AType formalType, AType actualType, AType toBeInstantiated, Solver s)
     = toBeInstantiated;
-    
-    
-//AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings, Solver s){
-//    if(isEmpty(bindings))
-//        return t;
-//    else
-//        return visit(t) { case param:aparameter(str pname, AType bound):
-//                                if(asubtype(bindings[pname], bound)){
-//                                    insert param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname];
-//                               }
-//                                else 
-//                                    s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
-//                        };
-//}
-
-default AType rascalInstantiateTypeParameters(Tree selector, AType def, AType ins, AType act, Solver s) = act;
 
 tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aprod(AProduction p)){
     return <[getADTName(p.def), "Tree"], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
@@ -315,37 +299,56 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
     for(id <- funIds){
-        defs = funDefs[id];
+        set[Define] defs = funDefs[id];
         if(size(defs) > 1){
             for(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
                    t1 := facts[d1.defined]?afunc(avoid(),[],[]),
                    t2 := facts[d2.defined]?afunc(avoid(),[],[]),
                    d1.scope in moduleScopes, d2.scope in moduleScopes, size(t1.formals) == size(t2.formals)
                    ){
+                if(isEmpty(t1.formals)){
+                   msgs = [ error("Nullary function `<id>` may not be overloaded", d1.defined),
+                            error("Nullary function `<id>` may not be overloaded", d2.defined)
+                          ];
+                   s.addMessages(msgs);
+                }
                 if(t1.ret == avoid() && t2.ret != avoid()){
-                    msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
+                   msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
+                   s.addMessages(msgs);
+                }
+                if(comparableList(t1.formals, t2.formals)){
+                    if(!comparable(t1.ret, t2.ret)){
+                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(t2.ret)>` of other declaration with comparable arguments", d1.defined) ];
+                        s.addMessages(msgs);
+                    }
+            
+                    if(comparableList(t1.formals, t2.formals)) {  
+                         if(t1.kwFormals<0> != t2.kwFormals<0>){     
+                            diffkws = t2.kwFormals<0> - t1.kwFormals<0>;  
+                            plural = size(diffkws) > 1 ? "s" : "";
+                            msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameter<plural> <intercalate(",", [ "`<k.alabel>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
+                            s.addMessages(msgs);
+                          }
+                     }
+                 }
+                 
+                 if((t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest)){
+                    msgs = [ error("Test name `<id>` should not be overloaded", d.defined) | d <- defs ];
                     s.addMessages(msgs);
                 }
             }
-            for(d1 <- defs, d2 <- defs, d1 != d2, 
-                   t1 := facts[d1.defined]?afunc(avoid(),[],[]), 
-                   t2 := facts[d2.defined]?afunc(avoid(),[],[]), 
-                   (d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.formals, t2.formals))) {  
-                 if(t1.kwFormals<0> != t2.kwFormals<0>){     
-                    diffkws = t2.kwFormals<0> - t1.kwFormals<0>;  
-                    plural = size(diffkws) > 1 ? "s" : "";
-                    msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameter<plural> <intercalate(",", [ "`<k.alabel>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
-                    s.addMessages(msgs);
-                  }
-            }
-            if(any(d1 <- defs, d2 <- defs, d1 != d2, 
-                   t1 := facts[d1.defined]?afunc(avoid(),[],[]), 
-                   t2 := facts[d2.defined]?afunc(avoid(),[],[]), 
-                   d1.scope == d2.scope, 
-                   (t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest))){
-                msgs = [ error("Test name `<id>` should not be overloaded", d.defined) | d <- defs ];
+            
+            defaults = { d | d <- defs, t := facts[d.defined]?afunc(avoid(),[],[]), t.isDefault };
+            if(size(defaults) > 1){
+                msgs = [ warning("Multiple defaults defined for function `<id>`, refactor or manually check non-overlap", d.defined) | d <- defaults ];
                 s.addMessages(msgs);
-            }    
+            }
+        } else if({Define d} := defs){
+            ft = facts[d.defined]?afunc(avoid(),[],[]); 
+            if(ft.deprecationMessage? && s.getConfig().warnDeprecated){
+                msgs = [ error("Deprecated function<isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage>", d.defined) ];
+                s.addMessages(msgs);
+            }
         }    
     }
     
@@ -356,7 +359,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
                                 t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
                                 t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-                                d1.scope in moduleScopes && d2.scope in moduleScopes && comparable(t1.fields, t2.fields),
+                                d1.scope in moduleScopes && d2.scope in moduleScopes && comparableList(t1.fields, t2.fields),
                                 ! (isSyntaxType(t1) && isSyntaxType(t2))
                                 )){
             msgs = [ info("Constructor `<id>` overlaps with other declaration with comparable fields, on use add a qualifier", d.defined) | d <- defs ];

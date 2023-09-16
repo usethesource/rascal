@@ -34,40 +34,42 @@ void collect(current: (Type) `( <Type tp> )`, Collector c){
 
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
 
+void collect(BasicType bt, Collector c) { collectBasicType(bt, c); }
+
 // ---- bool
-void collect(current: (BasicType)`bool`, Collector c){ c.fact(current, abool()); }
+void collectBasicType(current: (BasicType)`bool`, Collector c){ c.fact(current, abool()); }
 
 // ---- int
-void collect(current: (BasicType)`int`, Collector c){ c.fact(current, aint()); }
+void collectBasicType(current: (BasicType)`int`, Collector c){ c.fact(current, aint()); }
 
 // ---- rat
-void collect(current: (BasicType)`rat`, Collector c){ c.fact(current, arat()); }
+void collectBasicType(current: (BasicType)`rat`, Collector c){ c.fact(current, arat()); }
 
 // ---- real
-void collect(current: (BasicType)`real`, Collector c){ c.fact(current, areal()); }
+void collectBasicType(current: (BasicType)`real`, Collector c){ c.fact(current, areal()); }
 
 // ---- num
-void collect(current: (BasicType)`num`, Collector c){ c.fact(current, anum()); }
+void collectBasicType(current: (BasicType)`num`, Collector c){ c.fact(current, anum()); }
 
 // ---- str
-void collect(current: (BasicType)`str`, Collector c){ c.fact(current, astr()); }
+void collectBasicType(current: (BasicType)`str`, Collector c){ c.fact(current, astr()); }
 
 // ---- value
-void collect(current: (BasicType)`value`, Collector c){ c.fact(current, avalue()); }
+void collectBasicType(current: (BasicType)`value`, Collector c){ c.fact(current, avalue()); }
 
 // ---- node
-void collect(current: (BasicType)`node`, Collector c){ c.fact(current, anode([])); }
+void collectBasicType(current: (BasicType)`node`, Collector c){ c.fact(current, anode([])); }
 
 // ---- void
-void collect(current: (BasicType)`void`, Collector c){ c.fact(current, avoid()); }
+void collectBasicType(current: (BasicType)`void`, Collector c){ c.fact(current, avoid()); }
 
 // ---- loc
-void collect(current: (BasicType)`loc`, Collector c){ c.fact(current, aloc()); }
+void collectBasicType(current: (BasicType)`loc`, Collector c){ c.fact(current, aloc()); }
 
 // ---- datetime
-void collect(current: (BasicType)`datetime`, Collector c){ c.fact(current, adatetime()); }
+void collectBasicType(current: (BasicType)`datetime`, Collector c){ c.fact(current, adatetime()); }
 
-default void collect(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
+default void collectBasicType(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
 
 // ---- TypeArgs -------------------------------------------------------------
 
@@ -267,7 +269,7 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
     distinctLabels = toSet(nonEmptyLabels);
     msgs = [];
     for(int i <- index(fieldTypes)){
-        if(isVoidType(fieldTypes[i])){
+        if(isVoidAType(fieldTypes[i])){
             msgs += error(tas, "Non-well-formed tuple type, field #%v should not be `void`", i);
         }
     }
@@ -468,7 +470,7 @@ void collect(current:(Sym) `<Nonterminal n>`, Collector c){
     c.require("non-parameterized <n>", current, [n],
         void(Solver s){
             base = getSyntaxType(n, s);
-            s.requireTrue(isNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
+            s.requireTrue(isNonTerminalAType(base), error(current, "Expected a non-terminal type, found %t", base));
             nexpected = size(getADTTypeParameters(base));
             s.requireTrue(nexpected == 0, error(current, "Expected %v type parameter(s) for %q, found 0", nexpected, getADTName(base)));
         });
@@ -500,7 +502,7 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
     c.calculate("start <n>", current, [n],
         AType(Solver s){
             adtType = getSyntaxType(n, s);
-            s.requireTrue(isNonTerminalType(adtType), error(current, "Expected a non-terminal type, found %t", adtType));
+            s.requireTrue(isNonTerminalAType(adtType), error(current, "Expected a non-terminal type, found %t", adtType));
             return \start(adtType);
         });
     collect(n, c);
@@ -602,13 +604,13 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
 }
 
 void validateSeparators(Tree current, list[AType] separators, Solver s){
-    if(all(sep <- separators, isLayoutType(sep)))
+    if(all(sep <- separators, isLayoutAType(sep)))
         s.report(warning(current, "At least one element of separators should be non-layout")); // TODO make error
     forbidConsecutiveLayout(current, separators, s);
 }
 
 void forbidConsecutiveLayout(Tree current, list[AType] symbols, Solver s){
-    if([*_,t1, t2,*_] := symbols, isLayoutType(t1), isLayoutType(t2)){
+    if([*_,t1, t2,*_] := symbols, isLayoutAType(t1), isLayoutAType(t2)){
        s.report(error(current, "Consecutive layout types %t and %t not allowed", t1, t2));
     }
 }

@@ -209,13 +209,13 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<prettyAsClassic(p)>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
-           '	<for (AType s <- (newItems<0>), isNonTerminalType(s)) {
+           '	<for (AType s <- (newItems<0>), isNonTerminalAType(s)) {
                s = unset(s, "alabel");
 	           items = newItems[s];
 	          
 	           map[AProduction prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
-		         AProduction prod = unsetRec(item.production, {"alabel", "src"});
+		         AProduction prod = unsetRec(item.aproduction, {"alabel", "src"});
 		    
 		         if (prod in alts) {
 			       alts[prod] = alts[prod] + item;
@@ -246,7 +246,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '  }<}>
            '	
            '  // Parse methods    
-           '  <for (AType nont <- (gr.rules.sort), isNonTerminalType(nont)) { >
+           '  <for (AType nont <- (gr.rules.sort), isNonTerminalAType(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
    endJob(true);

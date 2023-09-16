@@ -57,7 +57,7 @@ data AType (str alabel = "")
      | avalue()
      ;
      
-@memo{expireAfter(minutes=15)}
+@memo{expireAfter(minutes=5).maximumSize(1000)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
     if(all(<loc _, IdRole _, AType t> <- overloads, aadt(_, _, _) := t)){
       str adtName = "";
@@ -134,6 +134,8 @@ data ATree
      ;
      
 public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
+
+public bool isTreeType(AType t) = treeType := t;
 
 //@doc{
 //.Synopsis
@@ -276,8 +278,7 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 }
 
 // For convenience in transition period
-
-
+//AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
 AType \layouts(str sname)   = aadt(sname, [], layoutSyntax());
 AType \parameterized-sort(str sname, list[AType] parameters) 
                             = aadt(sname, parameters, contextFreeSyntax());
@@ -410,7 +411,7 @@ public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
 .Synopsis
 An item is an index into the symbol list of a production rule.
 }  
-data Item = item(AProduction production, int index);
+data Item = item(AProduction aproduction, int index);
 
 @doc{
 .Synopsis

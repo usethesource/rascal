@@ -9,6 +9,7 @@ import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
 import util::Reflective;
+import lang::rascal::grammar::tests::ParserGeneratorTests;
 
 public Grammar Pico = grammar({sort("Program")},
 
@@ -32,7 +33,7 @@ sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declara
 );
 
 
-loc PicoParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/PicoParser.java.gz";
+loc PicoParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/| + "generated_parsers/PicoParser.java.gz";
 
 str generatePicoParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
 
@@ -46,7 +47,8 @@ int generateAndTimePicoParser() {
 	return (cpuTime() - t)/1000000;
 }	
 
-value main() = generateAndTimePicoParser();
+//value main() = generateAndTimePicoParser();
+value main() {cnt = 0; visit(Pico){ case {*value s}: cnt += 1; }; return cnt; }
 
 test bool tstgeneratePicoParser() = sameLines(generatePicoParser(), readFile(PicoParserLoc));
 

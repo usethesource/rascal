@@ -353,8 +353,8 @@ void extractScopes(TModel tm){
         dummies = dummyVars(ftype);
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
         //println("vars_per_scope:"); iprintln(vars_per_scope);
-        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionType(getType(sc))) ? sc == fun : true};
-        //locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
+        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionAType(getType(sc))) ? sc == fun : true};
+        //locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionAType(getType(sc)) ==> sc == fun : true};
         locally_defined = {v | v <- locally_defined, v.defInfo.atype notin dummies };
         
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
@@ -412,6 +412,7 @@ private AType getType0(loc l) {
     throw "getType0 cannot find type for <l>";
 }	
 AType getType(loc l) {
+    //println("getType: <l>");
     tp = getType0(l);
     tp = visit(tp) { case tvar(u): { insert u != l ? getType(u) : avalue();} };
     //if(tvar(u) := tp, u != l) return getType(u);
@@ -470,7 +471,7 @@ map[AType, list[Keyword]] getCommonKeywordFieldsMap()
 
 tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType, str fieldName){
     //println("getConstructorInfo: <adtType>, <fieldType>, <fieldName>");
-    assert isADTType(adtType) : "getConstructorInfo: <adtType>";
+    assert isADTAType(adtType) : "getConstructorInfo: <adtType>";
     adtType = unsetRec(adtType);
     is_start = false;
     if(isStartNonTerminalType(adtType)){
@@ -542,7 +543,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     // Common kw field of concrete type?
     if(asubtype(adtType1, treeType)){
         if(fieldName == "src"){         // TODO: remove when @\loc is gone
-            return <"ParseTree", aloc(), true>;
+            return <"ParseTree", adtType1, true>;
         }
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
@@ -652,7 +653,7 @@ AType getLayouts(AType root, set[AType] adts){
     accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
     
     for(adt <- adts){
-        if(isLayoutType(adt)) {
+        if(isLayoutAType(adt)) {
             layout_scopes = getDefiningScopes(adt);
             if(layout_scopes <= accessible_scopes) return layouts(getADTName(adt));
         }
@@ -681,11 +682,11 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         base_t = t2;
     }
     
-    if(isReifiedType(t)){
+    if(isReifiedAType(t)){
         base_t = getReifiedType(t);
     }
     
-    if(isADTType(base_t)){
+    if(isADTAType(base_t)){
         tparams = getADTTypeParameters(base_t);
         syntax_type = base_t.syntaxRole != dataSyntax();
     }
@@ -693,15 +694,10 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     root_scopes = getDefiningScopes(base_t);
     accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
     
-    //my_grammar_rules = (adt : current_grammar.rules[adt] 
-    //                   | adt <- current_grammar.rules
-    //                   , getDefiningScopes(adt) <= accessible_scopes
-    //                   );
-    
     allADTs = { unsetRec(adt) | adt <- ADTs };
     if(syntax_type){
-        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax(), /*adt.syntaxRole != layoutSyntax(),*/ getDefiningScopes(adt) <= accessible_scopes};
-        allADTs += { unsetRec(adt) |  /adt:aadt(str _, list[AType] _, SyntaxRole _) := my_grammar_rules/*, getDefiningScopes(adt) <= accessible_scopes*/ };
+        allADTs = { adt | adt <- allADTs, adt.syntaxRole != dataSyntax(), getDefiningScopes(adt) <= accessible_scopes};
+        allADTs += { unsetRec(adt) |  /adt:aadt(str _, list[AType] _, SyntaxRole _) := my_grammar_rules };
     }
   
     instantiatedADTs = { adt | adt <- allADTs, params := getADTTypeParameters(adt), !isEmpty(params), all(p <- params, !isTypeParameter(p)) };
@@ -726,21 +722,27 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                   );             
     
     if(syntax_type){
-     // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explcitly    
+     // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explicitly    
      
         definedLayouts = getLayouts(base_t, allADTs);   
-        //my_grammar_rules[definedLayouts] = current_grammar.rules[definedLayouts];
-        //my_grammar_rules = visit(my_grammar_rules) { case aadt(_, [], layoutSyntax()) => definedLayouts };  
-        //allADTs =  visit(allADTs) { case aadt(_, [], layoutSyntax()) => definedLayouts }; 
         my_definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
                
-        //my_definitions[definedLayouts] = { aprod(my_grammar_rules[definedLayouts]) };
         if(is_start){
             my_definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
+        }
+        if(!isEmpty(parameterized_uninstantiated_ADTs)){ // add generic parameter type Tree
+            my_definitions += (treeType : {});
         }
     }
    
     solve(my_definitions){
+        //for(/adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions){
+        //    adt1 = uninstantiate(unsetRec(adt));
+        //    if((syntax_type ? syntaxRole != dataSyntax() : true) && !my_definitions[adt1]? && !my_grammar_rules[adt1]?){
+        //        my_definitions += ( adt1 : syntax_type ? {/*aprod(my_grammar_rules[adt1])*/} : (adt_constructors[adt1] ? {/*aprod(my_grammar_rules[adt1])*/})) ;
+        //     }
+        // }
+
         my_definitions = my_definitions + ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])} : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
                                     | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
                                       adt1 := uninstantiate(unsetRec(adt)),
@@ -750,10 +752,6 @@ map[AType,set[AType]] collectNeededDefs(AType t){
                                 );
     }
     
-    ///*syn*/// Ensure that the each production is unlabelled
-    //my_definitions = visit(my_definitions){
-    //    case p:prod(AType def, list[AType] atypes)  => unset(p,"alabel")
-    //}
     return my_definitions;
 }
 
@@ -915,7 +913,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     desiredSubjectTypes = { unset(s, "alabel") | /AType s := subjectType};
     desiredTypes = desiredSubjectTypes + desiredPatternTypes;
     
-    if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalType(t) ||*/ asubtype(t, aadt("Tree",[], dataSyntax())))){
+    if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalType(t) ||*/ asubtype(t, treeType))){
       // We just give up when abstract and concrete symbols occur together
       //println("descend_into (abstract) [1]: {value()}");
        return <{avalue()}, {}>;

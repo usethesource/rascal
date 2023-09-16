@@ -1,4 +1,4 @@
-module GenerateTestSources
+module CompileTestSources
 
 import IO;
 import String;
@@ -16,19 +16,20 @@ PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-c
                                         generatedSources = |project://rascal-core/target/generated-test-sources2|,
                                         resources = |project://rascal-core/target/generated-test-resources2|
                                        );
-void main(list[str] args) = generateTestSources(manualTestConfig);
+//void main(list[str] args) = compileTestSources(manualTestConfig);
 
-void main() = main([]);
+void main() = compileTestSources(manualTestConfig);
 
-void generateTestSources(PathConfig pcfg) {
+void compileTestSources(PathConfig pcfg) {
    testConfig = pathConfig(
      bin=pcfg.bin,
-     generatedSources=|project://rascal-core/target/generated-test-sources|,
-     resources = |project://rascal-core/target/generated-test-resources|,
+     generatedSources=|project://rascal-core/target/generated-test-sources2|,
+     resources = |project://rascal-core/target/generated-test-resources2|,
      srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
      libs = [ ]
      );
    map[str,int] durations = ();
+   total = 0;
      
    println("PathConfig for generating test sources:\n");
    iprintln(testConfig);
@@ -83,7 +84,8 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::TypeSymbol"];  
 
    for (m <- libraryModules) {
-     safeCompile(m, testConfig, (int d) { durations[m] = d; });
+     <e, d> = safeCompile(m, testConfig);
+      total += d;
    }
      
    testFolder = |std:///lang/rascal/tests|;
@@ -93,6 +95,13 @@ void generateTestSources(PathConfig pcfg) {
                  ];  
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3"
+              //"lang::rascal::tests::concrete::Syntax4",
+              //"lang::rascal::tests::concrete::Syntax5",
+              //"lang::rascal::tests::concrete::FieldProjectionBug",
+              //"lang::rascal::tests::functionality::Range",
+              //"lang::rascal::tests::concrete::ParameterizedNonTerminals",
+              //"lang::rascal::tests::functionality::Interpolation", // check on muCon arg
+              //"lang::rascal::tests::library::String"
              ];           
    testModules -= ignored;    
    
@@ -101,7 +110,8 @@ void generateTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      e = safeCompile(m, testConfig, (int d) { durations[m] = d; });
+      <e, d> = safeCompile(m, testConfig);
+      total += d;
       if(!isEmpty(e)){
         exceptions += e;
       }
@@ -109,27 +119,21 @@ void generateTestSources(PathConfig pcfg) {
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
-   secs = sum(range(durations))/1000000000;
-   println("Time: <secs/60> minutes");
+   secs = total/1000000000;
+   println("Time: <secs> seconds");
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
-void testCompile(str \module) {
-  int duration = 0;
-  safeCompile(\module, manualTestConfig, (int d) { duration = d; return; });
-  println("compile of <\module> lasted <duration / (1000*1000*1000.0)> seconds");
-}
-
-str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
+tuple[str, int] safeCompile(str \module, PathConfig pcfg) {
+   start_time = cpuTime();
    try {
-     measure(cpuTimeOf(() {    
+       println("compiling <\module>");   
        compile(\module, pcfg);
-     }));
-     return "";
+       return <"",cpuTime()-start_time>;
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
              '    <exception>"); 
-     return \module; 
+     return <\module, 0>;
    }
 }

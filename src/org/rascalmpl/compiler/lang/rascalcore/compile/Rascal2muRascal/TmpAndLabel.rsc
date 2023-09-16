@@ -263,7 +263,7 @@ void enterVisit(AType subjectType) {
 }
 
 bool inStringVisit(){
-    return !isEmpty(visits) && isStrType(top(visits));
+    return !isEmpty(visits) && isStrAType(top(visits));
 }
 
 void leaveVisit() {

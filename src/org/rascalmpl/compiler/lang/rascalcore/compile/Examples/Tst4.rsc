@@ -1,8 +1,15 @@
 @bootstrapParser
 module lang::rascalcore::compile::Examples::Tst4
 
-import lang::rascalcore::compile::Examples::Tst3;
+import ParseTree;
+//import Grammar;
 
-data D = d4();
+extend lang::rascalcore::check::CheckerCommon;
 
-value main() = d3();
+import lang::rascal::\syntax::Rascal;
+//import lang::rascalcore::compile::muRascal2Java::JGenie;
+//import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
+
+value attr2IValue1(\tag(value v)) 
+    = v;
+   // = "tag(<value2IValue(v)>)";

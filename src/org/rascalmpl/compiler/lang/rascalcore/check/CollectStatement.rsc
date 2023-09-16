@@ -781,7 +781,7 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
        AType(Solver s){ 
            receiverType = computeReceiverType(current, receiver, scope, s);
            res = computeSubscriptAssignableType(current, receiverType,  subscript, operator, s.getType(rhs), s);
-           asgType = isMapType(res) ? getMapRangeType(res) : getElementType(res);
+           asgType = isMapAType(res) ? getMapRangeType(res) : getElementType(res);
            s.fact(asg, asgType);
            //s.fact(asg, s.getType(rhs));
            return res;
@@ -811,16 +811,16 @@ private AType computeSubscriptAssignableType(Statement current, AType receiverTy
     
     subscriptType = s.getType(subscript); // TODO: overloaded?
     
-    if (isListType(receiverType)) { 
-        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
+    if (isListAType(receiverType)) { 
+        if (!isIntAType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
         return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, rhs, s));
-    } else if (isNodeType(receiverType)) {
-        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
+    } else if (isNodeAType(receiverType)) {
+        if (!isIntAType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
         computeAssignmentRhsType(current, avalue(), operator, rhs, s);
         return anode([]);
-    } else if (isTupleType(receiverType)) {
+    } else if (isTupleAType(receiverType)) {
         tupleFields = getTupleFields(receiverType);
-        if (!isIntType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
+        if (!isIntAType(subscriptType)) s.report(error(current, "Expected subscript of type `int`, found %t", subscriptType));
         if ((Expression)`<DecimalIntegerLiteral dil>` := subscript) {
             tupleIndex = toInt("<dil>");
             if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(receiverType))) {
@@ -836,11 +836,11 @@ private AType computeSubscriptAssignableType(Statement current, AType receiverTy
             // on the lub of the existing field type and the subject type.
             return atuple(atypeList([ computeAssignmentRhsType(current, tupleFields[idx], operator, rhs, s) | idx <- index(tupleFields) ]));
         }
-    } else if (isMapType(receiverType)) {
+    } else if (isMapAType(receiverType)) {
         if (!comparable(subscriptType, getMapDomainType(receiverType)))
             s.report(error(current, "Expected subscript of type %t, found %t", getMapDomainType(receiverType), subscriptType));
          return amap(alub(subscriptType, getMapDomainType(receiverType)), computeAssignmentRhsType(current, getMapRangeType(receiverType), operator, rhs, s));
-    } else if (isRelType(receiverType)) {
+    } else if (isRelAType(receiverType)) {
         relFields = getRelFields(receiverType);
         if (!comparable(subscriptType, relFields[0]))
             s.report(error(current, "Expected subscript of type %t, found %t", relFields[0], subscriptType));
@@ -898,24 +898,24 @@ private AType computeSliceAssignableType(Statement current, AType receiverType, 
     checkNonVoid(current, rhs, s, "Righthand side of slice assignment");
 
     failures = [];
-    if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
-    if(!isIntType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
-    if(!isIntType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
+    if(!isIntAType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
+    if(!isIntAType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
+    if(!isIntAType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
     
     if(!isEmpty(failures)) throw s.reports(failures);
-    if (isListType(receiverType)){
-        if(isListType(rhs)){
+    if (isListAType(receiverType)){
+        if(isListAType(rhs)){
            return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, getListElementType(rhs), s));
         } else {
            //if(!subtype(rhs, receiverType)) reportError(current, "Expected <fmt(receiverType)> in slice assignment, found <fmt(rhs)>");
            return receiverType;
         }  
-    } else if(isStrType(receiverType)){ 
+    } else if(isStrAType(receiverType)){ 
         s.requireSubType(rhs, astr(), error(current, "Expected `str` in slice assignment, found %t", rhs));
         return receiverType;
     } else if(isIterType(receiverType)) {
         throw rascalCheckerInternalError(getLoc(current), "Not yet implemented"); // TODO
-    } else if (isNodeType(receiverType)) {
+    } else if (isNodeAType(receiverType)) {
         return makeListType(avalue());
     }
     s.report(error(current, "Cannot assign value of type %t to assignable of type %t", rhs, receiverType));
@@ -939,7 +939,7 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
 
 private AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
     fieldName = unescape("<field>");
-    if(isNonTerminalType(receiverType) && fieldName == "top"){
+    if(isNonTerminalAType(receiverType) && fieldName == "top"){
         return isStartNonTerminalType(receiverType) ? getStartNonTerminalType(receiverType) : receiverType;
     }
     fieldType = s.getTypeInType(receiverType, field, {fieldId(), keywordFieldId()}, scope);
@@ -985,7 +985,7 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
             //println("checkTupleElemAssignment: <current>");
             rhsType = s.getType(rhs);
             //println("checkTupleElemAssignment: rhsType: <rhsType>");
-            if(!isTupleType(rhsType)) s.report(error(current, "Tuple type required, found %t", rhsType));
+            if(!isTupleAType(rhsType)) s.report(error(current, "Tuple type required, found %t", rhsType));
             rhsFields = getTupleFields(rhsType);
             //println("checkTupleElemAssignment: rhsFields <rhsFields>");
             //println("#name: <size(names)>, #rhsFields: <size(rhsFields)>");
@@ -1085,7 +1085,7 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
 //    annoNameType = s.getTypeInScope(annoName, scope, {annoId()});
 //    //println("annoNameType: <annoNameType>");
 //    
-//    if (isNodeType(receiverType) || isADTType(receiverType) || isNonTerminalType(receiverType)) {
+//    if (isNodeAType(receiverType) || isADTAType(receiverType) || isNonTerminalAType(receiverType)) {
 //        if(overloadedAType(rel[loc, IdRole, AType] overloads) := annoNameType){
 //            anno_overloads = {};
 //            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, tp2) := tp1, asubtype(receiverType, onType)){

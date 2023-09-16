@@ -1,760 +1,692 @@
 module lang::rascalcore::compile::Examples::Tst0
 
+//module IO
 
-import List;
+import Exception;
 
-@doc{
-#### Synopsis
+@synopsis{All functions in this module that have a charset parameter use this as default.}
+private str DEFAULT_CHARSET = "UTF-8";
 
-Get the current datetime.
+@synopsis{Register a logical file scheme including the resolution method via a table.}
+@description{
+Logical source location schemes, such as `|java+interface://JRE/java/util/List|` are used for
+precise qualified names of artifacts while abstracting from their physical location in a specific part
+of a file on disk or from some webserver or source repository location.
 
-#### Examples
+Using this function you can create your own schemes. The authority field is used for scoping the 
+names you wish to resolve to certain projects. This way one name can resolve to different locations 
+in different projects.
+}
+@benefits{
+*  Logical source locations are supported by IDE features such as hyperlinks
+*  Logical source locations are supported by all IO functions as well
+}
+@pitfalls{
+* Repeated calls to registerLocations for the same `scheme` and `authority` will overwrite the `m` map.
+* The registry is an intentional memory leak; so make sure you use it wisely. See also ((unregisterLocations)).
+* When the files references by the physical locations are being written to (edited, removed), then you
+may expect problems. The registry is not automatically invalidated.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
 
+@synopsis{Undo the effect of ((registerLocations))}
+@description{
+For debugging or for memory management you may wish to remove a lookup table.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java void unregisterLocations(str scheme, str authority);
+
+@javaClass{org.rascalmpl.library.Prelude}
+java loc resolveLocation(loc l);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Finds files in the deployment locations of the configuration of the current runtime}
+@description{
+* For the interpreter this looks at the source path and finds any file in there.
+* For the compiler this looks at the classpath and finds resources in there.  
+
+The goal of `findResources` is to access additional files that are distributed
+with a Rascal program. For example, the `index.html` file that comes with a server implemented
+using ((util::Webserver)) would be located using this function. Such an additional file is
+essential to the functioning of the given Rascal code.
+
+There is a difference between Rascal programs under development and Rascal programs deployed
+(in a jar file). The idea is that calls to this function _behave the same_ regardless of this 
+mode. To make this true, the implementation of `findResources` makes the following
+assumptions:
+* In interpreter mode, the additional files are stored relative to the source roots of the current project. 
+This means that all source roots are searched as configured for the current interpreter. It is possible
+that multiple files match the query, hence the result set. Because jar files and target folders are typically
+added to the source roots by the configuration code for Rascal's IDEs, this works out smoothly also for deployed projects.
+* In compiled mode, the additional files are stored relative to the roots of the classpath. This 
+means they are jar files and target folders of active projects. Your Maven project configuration should
+take care to _copy_ all relevant resources from source folders to target folders and to package those
+relative to the root of the jar for this to work in development mode. For deployment mode, the setup 
+works through the resources API of the JVM that uses the Java ClassLoader API.
+}
+@benefits{
+By satisfying the above two assumptions it is possible to write Rascal code that uses `findResources` that
+is portable between interpreter and compiled mode, _and_ does not change between development
+and deployed mode either.
+}
+@pitfalls{
+* Avoid nesting resources in sub-folders in jar files (see Maven resources plugin) since nested files will not be found.
+* Inside jar files the root for module names should be the same as for resources
+* Inside source folders, the names of resources should be relative to the same root as the Rascal module names
+* `findResources` searches exhaustively for all files with the given name; which may come at an expensive for projects with
+large search paths. It makes sense to keep this in a constant module variable that is initialized only once.
+* Name clashes are bound to happen. Prepare to, at least, throw a meaningful error message in the case of name clashes. E.g. `findResources("index.html")`
+is _very_ likely to produce more than one result. Either choose more unique names, or filter the result in a meaningful manner,
+or throw an exception that explains the situation to the user of your code. Specifically library project maintainers have to consider
+this happenstance. The recommendation is to nest resources next to qualified module names, like so: if `lang/x/myLanguage/Syntax.rsc` 
+is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an example resource location.
+}
+java set[loc] findResources(str fileName);
+set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
+
+@synopsis{Append a value to a file.}
+@description{
+Append a textual representation of some values to an existing or a newly created file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+The existing file can be stored using any character set possible, if you know the character set, please use ((appendToFileEnc)).
+Else the same method of deciding the character set is used as in ((readFile)).
+}
+@pitfalls{
+*  The same encoding pitfalls as the ((readFile)) function.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void appendToFile(loc file, value V..., str charset=DEFAULT_CHARSET, bool inferCharset=!(charset?))
+throws PathNotFound, IO;
+
+@synopsis{Append a value to a file.}
+@description{
+Append a textual representation of some values to an existing or a newly created file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+Files are encoded using the charset provided.
+}
+@deprecated{
+Use `appendToFile(file, V, charset=DEFAULT_CHARSET)` instead.
+}
+public void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
+  = appendToFile(file, V, charset=charset, inferCharset=false);
+
+@synopsis{Returns all available character sets.}
+@javaClass{org.rascalmpl.library.Prelude}
+public java set[str] charsets();
+
+@synopsis{Returns whether this charset can be used for encoding (use with ((writeFile)))}
+@javaClass{org.rascalmpl.library.Prelude}
+public java set[str] canEncode(str charset);
+
+@synopsis{Print a value and return true.}
+@description{
+Print a value and return `true`. This is useful for debugging complex Boolean expressions or comprehensions.
+The only difference between this function and ((IO-println)) is that its return type is `bool` rather than `void`.
+}
+@examples{
 ```rascal-shell
-import DateTime;
-now();
+import IO;
+bprintln("Hello World");
+```
+}
+public bool bprintln(value arg) 
+{
+  println(arg);
+  return true;
+}
+
+@synopsis{Check whether a given location exists.}
+@description{
+Check whether a certain location exists, i.e., whether an actual file is associated with it.
+}
+@examples{
+```rascal-shell
+import IO;
+```
+
+Does the library file `IO.rsc` exist?
+```rascal-shell,continue
+exists(|std:///IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime now();
+public java bool exists(loc file);
 
-@doc{
-#### Synopsis
 
-Create a new date.
-
-#### Examples
-
+@synopsis{Find a named file in a list of locations.}
+@examples{
 ```rascal-shell
-import DateTime;
-createDate(2012,1,1);
+import IO;
+```
+Find the file `IO.rsc` in the standard library:
+```rascal-shell,continue
+find("IO.rsc", [|std:///|]);
+```
+}
+public loc find(str name, list[loc] path) throws PathNotFound {
+  if (dir <- path, f := dir + "/<name>", exists(f)) { 
+    return f;
+  }
+  throw PathNotFound({dir + "/<name>" | dir <- path});
+}
+
+@synopsis{Check whether a given location is a directory.}
+@description{
+Check whether the location `file` is a directory.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isDirectory(loc file);
+
+@synopsis{Print an indented representation of a value.}
+@description{
+See ((IO-iprintExp)) for a version that returns its argument as result
+and ((IO-iprintln)) for a version that adds a newline
+and ((IO-iprintToFile)) for a version that prints to a file.
+}
+@examples{
+```rascal-shell
+import IO;
+iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime createDate(int year, int month, int day);
+public java void iprint(value arg, int lineLimit = 1000); 
 
-
-
-@doc{
-#### Synopsis
-
-Create a new time (with optional timezone offset).
-
-#### Examples
-
+@synopsis{Print an indented representation of a value to the specified location.}
+@description{
+See ((IO-iprint)) for a version that displays the result on the console
+and ((IO-iprintExp)) for a version that returns its argument as result
+and ((IO-iprintln)) for a version that adds a newline.
+}
+@examples{
 ```rascal-shell
-import DateTime;
-createTime(8,15,30,55);
-createTime(8,15,30,55,2,0);
+import IO;
+iprintToFile(|file:///tmp/fruits.txt|, ["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime createTime(int hour, int minute, int second, int millisecond);
+public java void iprintToFile(loc file, value arg, str charset=DEFAULT_CHARSET); 
 
-// Create a new time with the given numeric timezone offset.
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime createTime(int hour, int minute, int second, int millisecond, 
-                                int timezoneHourOffset, int timezoneMinuteOffset);
-                                
-@doc{
-#### Synopsis
+public java str iprintToString(value arg);
 
-Create a new datetime (with optional timezone offset).
 
-#### Examples
-
+@synopsis{Print an indented representation of a value and returns the value as result.}
+@description{
+See ((IO-iprintlnExp)) for a version that adds a newline.
+}
+@examples{
 ```rascal-shell
-import DateTime;
-createDateTime(2012,1,1,8,15,30,55);
-createDateTime(2012,1,1,8,15,30,55,2,0);
+import IO;
+iprintExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 ```
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime createDateTime(int year, int month, int day, int hour, int minute, 
-                                    int second, int millisecond);
+public &T iprintExp(&T v) {
+    iprint(v);
+    return v;
+}
 
-// Create a new datetime with the given numeric timezone offset.
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime createDateTime(int year, int month, int day, int hour, int minute, 
-                                    int second, int millisecond, int timezoneHourOffset, 
-                                    int timezoneMinuteOffset);
 
-@doc{
-#### Synopsis
-
-Create a new datetime by combining a date and a time.
-
-#### Examples
-
+@synopsis{Print an indented representation of a value followed by a newline and returns the value as result.}
+@description{
+See ((IO-iprintExp)) for a version that does not add a newline.
+}
+@examples{
 ```rascal-shell
-import DateTime;
-D = createDate(2012, 1, 1);
-T = createTime(8, 15, 45, 30);
-joinDateAndTime(D, T);
+import IO;
+iprintlnExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 ```
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime joinDateAndTime(datetime date, datetime time);
+public &T iprintlnExp(&T v) {
+    iprintln(v);
+    return v;
+}
 
-@doc{
 
-#### Synopsis
 
-Split an existing datetime into a tuple with the date and the time.
+@synopsis{Print a indented representation of a value and add a newline at the end.}
+@description{
+See ((IO-iprintlnExp)) for a version that returns its argument as result
+and ((IO-iprint)) for a version that does not add a newline.
 
-#### Examples
-
+By default we only print the first 1000 lines, if you want to print larger values, either 
+use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
+}
+@examples{
 ```rascal-shell
-import DateTime;
-N = now();
-splitDateTime(N);
+import IO;
+iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
+iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java tuple[datetime date, datetime time] splitDateTime(datetime dt);
+public java void iprintln(value arg, int lineLimit = 1000); 
 
 
-@doc{
-#### Synopsis
+@synopsis{Check whether a given location is actually a file (and not a directory).}
+@description{
+Check whether location `file` is actually a file.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool isFile(loc file);
 
-Increment the years by given amount or by 1.
 
-#### Examples
 
+@synopsis{Last modification date of a location.}
+@description{
+Returns last modification time of the file at location `file`.
+}
+@examples{
 ```rascal-shell
-import DateTime;
-N = now();
-incrementYears(N);
-incrementYears(N, 5);
+import IO;
+```
+Determine the last modification date of the Rascal standard library:
+```rascal-shell,continue
+lastModified(|std:///IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementYears(datetime dt, int n);
+public java datetime lastModified(loc file);
 
-// Increment the years by 1.
 
-public datetime incrementYears(datetime dt) {
-  return incrementYears(dt,1);
+@synopsis{Creation datetime of a location.}
+@description{
+Returns the creation time of the file at location `file`.
 }
-
-@doc{
-#### Synopsis
-
-Increment the months by a given amount or by 1.
-#### Function
-
-#### Examples
-
+@examples{
 ```rascal-shell
-import DateTime;
-N = now();
-incrementMonths(N);
-incrementMonths(N, 5);
+import IO;
+```
+Determine the last modification date of the Rascal standard library:
+```rascal-shell,continue
+created(|std:///IO.rsc|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementMonths(datetime dt, int n);
+public java datetime created(loc file);
 
-// Increment the months by 1.
-public datetime incrementMonths(datetime dt) {
-  return incrementMonths(dt,1);
+
+
+@synopsis{Set the modification date of a file to `now` or create the file if it did not exist yet}
+@javaClass{org.rascalmpl.library.Prelude}
+java void touch(loc file);
+
+
+@synopsis{Set the modification date of a file to the timestamp}
+@javaClass{org.rascalmpl.library.Prelude}
+java void setLastModified(loc file, datetime timestamp);
+
+
+@synopsis{List the entries in a directory.}
+@description{
+List the entries in directory `file`.
 }
-
-@doc{
-#### Synopsis
-
-Increment the days by given amount or by 1.
-
-#### Examples
-
+@examples{
 ```rascal-shell
-import DateTime;
-N = now();
-incrementDays(N);
-incrementDays(N, 5);
+import IO;
+```
+List all entries in the standard library:
+```rascal-shell,continue
+listEntries(|std:///|);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementDays(datetime dt, int n);
+public java list[str] listEntries(loc file);
 
-// Increment the days by 1.
-public datetime incrementDays(datetime dt) {
-  return incrementDays(dt,1);
+
+
+@synopsis{Create a new directory.}
+@description{
+Create a directory at location `file`.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void mkDirectory(loc file)
+throws PathNotFound, IO;
+
+
+@synopsis{Print a value without subsequent newline.}
+@description{
+Print a value on the output stream.
+See ((IO-println)) for a version that adds a newline
+and ((IO-printExp)) for a version that returns its argument as value.
+}
+@examples{
+Note that the only difference with ((IO-println)) is that no newline is added after the value is printed
+```rascal-shell
+import IO;
+print("Hello World");
+```
+
+NOTE: Since `print` does not add a newline, the prompt `ok` appears at a weird place, i.e., 
+glued to the output of `print`.
 }
 
-@doc{
-#### Synopsis
+@javaClass{org.rascalmpl.library.Prelude}
+public java void print(value arg);
 
-Increment the hours by a given amount or by 1.`
 
-#### Examples
-
+@synopsis{Print a value and return it as result.}
+@examples{
 ```rascal-shell
-import DateTime;
-N = now();
-incrementHours(N);
-incrementHours(N, 5);
+import IO;
+printExp(3.14);
+printExp("The value of PI is approximately ", 3.14);
+```
+}
+public &T printExp(&T v) {
+    print("<v>");
+    return v;
+}
+
+public &T printExp(str msg, &T v) {
+    print("<msg><v>");
+    return v;
+}
+
+
+@synopsis{Print a value to the output stream and add a newline.}
+@description{
+Print a value on the output stream followed by a newline.
+See ((IO-print)) for a version that does not add a newline
+and ((IO-printlnExp)) for a version that returns its argument as value.
+}
+@examples{
+```rascal-shell
+import IO;
+println("Hello World");
+```
+Introduce variable S and print it:
+```rascal-shell,continue
+S = "Hello World";
+println(S);
+```
+Introduce variable L and print it:
+```rascal-shell,continue
+L = ["a", "b", "c"];
+println(L);
+```
+Use a string template to print several values:
+```rascal-shell,continue
+println("<S>: <L>");
+```
+Just print a newline
+```rascal-shell,continue
+println();
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementHours(datetime dt, int n);
-
-//  Increment the hours by 1.
-
-public datetime incrementHours(datetime dt) {
-  return incrementHours(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Increment the minutes by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-incrementMinutes(N);
-incrementMinutes(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementMinutes(datetime dt, int n);
-
-// Increment the minutes by 1.
-
-public datetime incrementMinutes(datetime dt) {
-  return incrementMinutes(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Increment the seconds by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-incrementSeconds(N);
-incrementSeconds(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementSeconds(datetime dt, int n);
-
-// Increment the seconds by 1.
-
-public datetime incrementSeconds(datetime dt) {
-  return incrementSeconds(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Increment the milliseconds by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-incrementMilliseconds(N);
-incrementMilliseconds(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime incrementMilliseconds(datetime dt, int n);
-
-// Increment the milliseconds by 1.
-
-public datetime incrementMilliseconds(datetime dt) {
-  return incrementMilliseconds(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Decrement the years by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementYears(N);
-decrementYears(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementYears(datetime dt, int n);
-
-// Decrement the years by 1.
-public datetime decrementYears(datetime dt) {
-  return decrementYears(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Decrement the months by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementMonths(N);
-decrementMonths(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementMonths(datetime dt, int n);
-
-// Decrement the months by 1.
-
-public datetime decrementMonths(datetime dt) {
-  return decrementMonths(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Decrement the days by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementDays(N);
-decrementDays(N, 3);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementDays(datetime dt, int n);
-
-// Decrement the days by 1.
-public datetime decrementDays(datetime dt) {
-  return decrementDays(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Decrement the hours by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementHours(N);
-decrementHours(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementHours(datetime dt, int n);
-
-// Decrement the hours by 1.
-public datetime decrementHours(datetime dt) {
-  return decrementHours(dt,1);
-}  
-
-@doc{
-#### Synopsis
-
-Decrement the minutes by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementMinutes(N);
-decrementMinutes(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementMinutes(datetime dt, int n);
-
-
-// Decrement the minutes by 1.
-public datetime decrementMinutes(datetime dt) {
-  return decrementMinutes(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Decrement the seconds by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementSeconds(N);
-decrementSeconds(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementSeconds(datetime dt, int n);
-
-
-// Decrement the seconds by 1.
-public datetime decrementSeconds(datetime dt) {
-  return decrementSeconds(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-Decrement the milliseconds by a given amount or by 1.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-decrementMilliseconds(N);
-decrementMilliseconds(N, 5);
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime decrementMilliseconds(datetime dt, int n);
-
-// Decrement the milliseconds by 1.
-public datetime decrementMilliseconds(datetime dt) {
-  return decrementMilliseconds(dt,1);
-}
-
-@doc{
-#### Synopsis
-
-A closed interval on the time axis.
-}
-data interval = Interval(datetime begin, datetime end);
-
-@doc{
-#### Synopsis
-
-Given two datetime values, create an interval.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-B = now();
-E = incrementDays(B, 2);
-createInterval(B, E);
-```
-}
-// TODO: Question, should we throw here if begin > end?
-public interval createInterval(datetime begin, datetime end) {
-    return Interval(begin,end);
-}
-
-@doc{
-#### Synopsis
-
-A duration of time, measured in individual years, months, etc.
-}
-data Duration = duration(int years, int months, int days, int hours, int minutes, int seconds, int milliseconds);
+public java void println(value arg);
 
 @javaClass{org.rascalmpl.library.Prelude}
-private java tuple[int,int,int,int,int,int,int] createDurationInternal(datetime begin, datetime end);
+public java void println();
 
-// TODO: Add an exception for the non-matching case
-@doc{
-#### Synopsis
 
-Create a new duration representing the duration between the begin and end dates.
-
-#### Examples
-
+@synopsis{Print a value followed by a newline and return it as result.}
+@examples{
 ```rascal-shell
-import DateTime;
-B = now();
-E1 = incrementHours(B);
-createDuration(B, E1);
-E2 = incrementMinutes(B);
-createDuration(B, E2);
+import IO;
+printlnExp(3.14);
+printlnExp("The value of PI is approximately ", 3.14);
 ```
+NOTE: Since `printExp` does no produce a newline after its output, the result prompt `real: 3.14` is glued to the
+output of `printExp`.
 }
-public Duration createDuration(datetime begin, datetime end) {  
-    switch(createDurationInternal(begin,end)) {
-      case <int y,int m,int d,int h,int min,int s,int ms>:
-        return duration(y,m,d,h,min,s,ms);
-    }
-    return duration(0,0,0,0,0,0,0);
-}
-
-
-// Given an interval, create a new duration representing the duration between the interval begin and end.
-public Duration createDuration(interval i) {
-    return createDuration(i.begin,i.end);   
-}                         
-
-@doc{
-#### Synopsis
-
-Return the number of days in an interval, including the begin and end days.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-B = now();
-E = incrementDays(B, 2);
-I = createInterval(B, E);
-daysInInterval(I);
-```
-}
-public int daysInInterval(interval i) {
-    return daysDiff(i.begin,i.end);
+public &T printlnExp(&T v) {
+    println("<v>");
+    return v;
 }
 
-@doc{
-#### Synopsis
+public &T printlnExp(str msg, &T v) {
+    println("<msg><v>");
+    return v;
+}
 
-Return the difference between two dates and/or datetimes in days.
 
-#### Examples
+@synopsis{Raw print of a value.}
+@description{
 
-```rascal-shell
-import DateTime;
-B = now();
-E = incrementDays(B, 2);
-daysDiff(B, E);
-```
+}
+@pitfalls{
+This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java int daysDiff(datetime begin, datetime end);
+public java void rprint(value arg);
 
-@doc{
-#### Synopsis
-
-Given an interval, return a list of days.
-
-#### Description
-
-Given an interval `i`, return a list of days `[i.begin, ..., i.end]`.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-B = now();
-E = incrementDays(B, 2);
-I = createInterval(B, E);
-dateRangeByDay(I);
-```
-}
-public list[datetime] dateRangeByDay(interval i) {
-    list[datetime] l = [];
-    datetime loopDate = i.end.justDate;
-    datetime beginDate = i.begin.justDate;
     
-    while (loopDate >= beginDate) {
-        l = insertAt(l,0,loopDate);
-        loopDate = decrementDays(loopDate);
-    }
-    
-    return l;
+
+@synopsis{Raw print of a value followed by newline.}
+@description{
+
 }
-
-@doc{
-#### Synopsis
-
-Parse an input date given as a string using the given format string.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-parseDate("2011-12-23", "yyyy-MM-dd");
-parseDate("20111223", "yyyyMMdd");
-```
+@pitfalls{
+This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime parseDate(str inputDate, str formatString);
+public java void rprintln(value arg);
 
-@doc{
-#### Synopsis
 
-Parse an input date given as a string using a specific locale and format string.
+@synopsis{Read the contents of a location and return it as string value.}
+@description{
+Return the contents of a file location as a single string.
+Also see ((readFileLines)).
+}
+@encoding{
+A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
+If you know the encoding of the file, please use the ((readFileEnc)) and ((readFileLinesEnc)) overloads.
+If you do not know, we try to detect this. This detection is explained below:
+
+*  If the implementation of the used scheme in the location
+   (e.g.,`|project:///|`) defines the charset of the file then this is used.
+*  Otherwise if the file contains a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark),
+   then this is used.
+*  As a last resort the IO library uses heuristics to determine if UTF-8 or UTF-32 could work:
+   **  Are the first 32 bytes valid UTF-8? Then use UTF-8.
+   **  Are the first 32 bytes valid UTF-32? Then use UTF-32.
+*  Finally, we fall back to the system default (as given by the Java Runtime Environment).
+
+*To summarize*, we use UTF-8 by default, except if the text that the location points to has available meta-data, the file contains a BOM, or
+the first 32 bytes of the file are not valid UTF-8.
+}
+@pitfalls{
+*  In case encoding is not known, we try to estimate as best as we can.
+*  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error or just strange looking characters.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime parseDateInLocale(str inputDate, str formatString, str locale);
+public java str readFile(loc file, str charset=DEFAULT_CHARSET, bool inferCharset=!(charset?))
+throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
+@synopsis{Read the contents of a location and return it as string value.}
+@description{
+Return the contents (decoded using the Character set supplied) of a file location as a single string.
+Also see ((readFileLinesEnc)).
+}
+@deprecated{
+Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
+}
+public str readFileEnc(loc file, str charset) throws PathNotFound, IO
+  = readFile(file, inferCharset=false, charset=charset);
 
-Parse an input time given as a string using the given format string.
+@javaClass{org.rascalmpl.library.Prelude}
+public java str readBase64(loc file)
+throws PathNotFound, IO;
 
-#### Examples
+@deprecated{
+Use readBase64 instead. Uuencode was a misnomer.
+}
+public str uuencode(loc file) = readBase64(file);
 
-```rascal-shell
-import DateTime;
-parseTime("11/21/19", "HH/mm/ss");
-```
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBase64(loc file, str content)
+throws PathNotFound, IO;
+
+@deprecated{
+Use writeBase65 instead. Uudecode was a misnomer.
+}
+public void uudecode(loc file, str content) = writeBase64(file, content);
+
+
+@synopsis{Read the contents of a file and return it as a list of bytes.}
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[int] readFileBytes(loc file)
+throws PathNotFound, IO;
+
+
+
+@synopsis{Read the contents of a file location and return it as a list of strings.}
+@description{
+Return the contents of a file location as a list of lines.
+Also see ((readFile)).
+}
+@encoding{
+Look at ((readFile)) to understand how this function chooses the character set. If you know the character set used, please use ((readFileLinesEnc)).
+}
+@pitfalls{
+*  In case encoding is not known, we try to estimate as best as we can (see [readFile]).
+*  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
+  you might get an decoding error or just strange looking characters (see ((readFile))).
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime parseTime(str inputTime, str formatString);
+public java list[str] readFileLines(loc file, str charset=DEFAULT_CHARSET)
+throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
+@synopsis{Writes a list of strings to a file, where each separate string is ended with a newline}
+@benefits{
+* mirrors ((readFileLines)) in its functionality
+}
+@pitfalls{
+* if the individual elements of the list also contain newlines, the output may have more lines than list elements
+}
+public void writeFileLines(loc file, list[str] lines, str charset=DEFAULT_CHARSET) {
+  writeFile(file, "<for (str line <- lines) {><line>
+                  '<}>",
+                  charset=charset);
+}
 
-Parse an input time given as a string using a specific locale and format string.
+@synopsis{Read the contents of a file location and return it as a list of strings.}
+@description{
+Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
+Also see ((readFileLines)).
+}
+@deprecated{
+Use `readFileLines(file, charset=DEFAULT_CHARSET)` instead.
+}
+public list[str] readFileLinesEnc(loc file, str charset)
+throws PathNotFound, IO
+  = readFileLines(file, charset=charset);
+
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java void remove(loc file, bool recursive=true) throws IO;
+
+
+@synopsis{Write values to a file.}
+@description{
+Write a textual representation of some values to a file:
+
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+Files are encoded in UTF-8, in case this is not desired, use ((writeFileEnc)).
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java datetime parseTimeInLocale(str inputTime, str formatString, str locale);
+public java void writeFile(loc file, value V..., str charset=DEFAULT_CHARSET)
+throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
+@synopsis{Write a list of bytes to a file.}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeFileBytes(loc file, list[int] bytes)
+throws PathNotFound, IO;
 
-Parse an input datetime given as a string using the given format string.
 
-#### Examples
+@synopsis{Write values to a file.}
+@description{
+Write a textual representation of some values to a file:
 
-```rascal-shell
-import DateTime;
-parseDateTime("2011/12/23/11/19/54", "YYYY/MM/dd/HH/mm/ss");
-```
+*  If a value is a simple string, the quotes are removed and the contents are de-escaped.
+*  If a value has a non-terminal type, the parse tree is unparsed to produce a value.
+*  All other values are printed as-is.
+*  Each value is terminated by a newline character.
+
+Files are encoded using the charset provided.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime parseDateTime(str inputDateTime, str formatString);
-
-@doc{
-#### Synopsis
-
-Parse an input datetime given as a string using a specific locale and format string.
+@deprecated{
+Use `writeFile(file, charset=...)` instead.
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime parseDateTimeInLocale(str inputDateTime, str formatString, str locale);
+public void writeFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
+  = writeFile(file, V, charset=charset);
 
-@doc{
-#### Synopsis
 
-Print an input date using the given format string.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-printDate(now());
-printDate(now(), "YYYYMMdd");
-```
+@synopsis{Read the contents of a location and return its MD5 hash.}
+@description{
+MD5 hash the contents of a file location.
 }
+
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printDate(datetime inputDate, str formatString);
+public java str md5HashFile(loc file)
+throws PathNotFound, IO;
 
-// Print an input date using a default format string
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printDate(datetime inputDate);
+public java str md5Hash(value v);
 
-@doc{
-#### Synopsis
+@javaClass{org.rascalmpl.library.Prelude}
+public java str createLink(str title, str target);
 
-Print an input date using a specific locale and format string.
 
-#### Examples
+@javaClass{org.rascalmpl.library.Prelude}
+public java str toBase64(loc file)
+throws PathNotFound, IO;
 
-```rascal-shell
-import DateTime;
-printDateInLocale(now(), "Europe/Netherlands");
-printDateInLocale(now(), "French");
-```
+@javaClass{org.rascalmpl.library.Prelude}
+java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
+
+@deprecated{
+use the `copy` function instead
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java str printDateInLocale(datetime inputDate, str formatString, str locale);
-
-// Print an input date using a specific locale and a default format string
-@javaClass{org.rascalmpl.library.Prelude}
-public java str printDateInLocale(datetime inputDate, str locale);
-
-@doc{
-#### Synopsis
-
-Print an input time using the given format string.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-printTime(N);
-printTime(N, "HH/mm/ss");
-```
+void copyFile(loc source, loc target) {
+  copy(source, target, recursive=false, overwrite=true);
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java str printTime(datetime inputTime, str formatString);
 
-// Print an input time using a default format string
-@javaClass{org.rascalmpl.library.Prelude}
-public java str printTime(datetime inputTime);
-
-@doc{
-#### Synopsis
-
-Print an input time using a specific locale and format string.
+@deprecated{
+use the `copy` function instead
 }
-@javaClass{org.rascalmpl.library.Prelude}
-public java str printTimeInLocale(datetime inputTime, str formatString, str locale);
-
-// Print an input time using a specific locale and a default format string
-@javaClass{org.rascalmpl.library.Prelude}
-public java str printTimeInLocale(datetime inputTime, str locale);
-
-@doc{
-#### Synopsis
-
-Print an input datetime using the given format string.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-N = now();
-printDateTime(N);
-printDateTime(N, "yyyy-MM-dd\'T\'HH:mm:ss.SSSZZ");
-printDateTime(N, "YYYY/MM/dd/HH/mm/ss");
-```
+void copyDirectory(loc source, loc target) {
+  copy(source, target, recursive=true, overwrite=true);
 }
+
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printDateTime(datetime inputDateTime, str formatString);
+java void move(loc source, loc target, bool overwrite=true) throws IO;
 
-// Print an input datetime using a default format string
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printDateTime(datetime inputDateTime);
+java loc arbLoc();
 
-@doc{
-#### Synopsis
+data LocationChangeEvent
+    = changeEvent(loc src, LocationChangeType changeType, LocationType \type);
 
-Print an input datetime using a specific locale and format string.
-}
+data LocationChangeType
+    = created() 
+    | deleted() 
+    | modified();
+
+data LocationType
+    = file() 
+    | directory();
+
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printDateTimeInLocale(datetime inputDateTime, str formatString, str locale);
+java void watch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
 
-// Print an input datetime using a specific locale and a default format string
 @javaClass{org.rascalmpl.library.Prelude}
-public java str printDateTimeInLocale(datetime inputDateTime, str locale);
-
-@doc{
-#### Synopsis
-
-Create a new arbitrary datetime.
-
-#### Examples
-
-```rascal-shell
-import DateTime;
-arbDateTime();
-```
-}
-@javaClass{org.rascalmpl.library.Prelude}
-public java datetime arbDateTime();
-
+java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watcher);

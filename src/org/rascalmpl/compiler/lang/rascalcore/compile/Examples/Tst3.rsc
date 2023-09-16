@@ -1,73 +1,129 @@
 module lang::rascalcore::compile::Examples::Tst3
-//import IO;
-//import List;
-//void main(){ //void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
-//    pcfgVal = [1];
-//    if([int pcfg] := pcfgVal){ 
-//      println(pcfg);
-//    } else if(isEmpty(pcfgVal)){
-//        return;
-//    } else {
-//        throw "Inconsistent value for \"pathconfig\"";
-//    }
-//}  
 
-value main(){ //test bool matchListTuples8() {
-    if([<1, int n, 3>] := [<1, 2, 3>], n == -2){
-        return false;
-    } else {
-        return true;
-    }
-}
+import lang::rascalcore::check::ATypeBase;
+import Set;
+import IO;
 
-//void main(){
-//    pcfgVal = [1];
-//    if([int pcfg] := pcfgVal){ 
-//        try {   
-//            x =10;
-//        } catch _: {
-//            throw "abc";
-//        }
-//    } else if(pcfgVal == []){
-//        return;
-//    } else {
-//        throw "inconsistent";
-//    }
-//}
-//int main(){ //test bool matchListTuples8() {
-//    if([int n] := [2]){
-//        return 0;
-//    } else {
-//        return 1;
-//    }
-//}
+set[AType] D =
+{
+    afunc(abool(), [anode([]), anode([])], []),
+  aint(),
+  abool(),
+  aadt(
+    "LocationType",
+    [],
+    dataSyntax()),
+  aloc(alabel="physical"),
+  anum(),
+  alist(aloc()),
+  acons(
+    aadt(
+      "LocationChangeEvent",
+      [],
+      dataSyntax()),
+    [
+      aloc(alabel="src"),
+      aadt(
+        "LocationChangeType",
+        [],
+        dataSyntax(),
+        alabel="changeType"),
+      aadt(
+        "LocationType",
+        [],
+        dataSyntax(),
+        alabel="type")
+    ],
+    [],
+    alabel="changeEvent"),
+  adatetime(),
+  acons(
+    aadt(
+      "LocationChangeType",
+      [],
+      dataSyntax()),
+    [],
+    [],
+    alabel="created"),
+  astr(),
+  avalue(),
+  acons(
+    aadt(
+      "LocationChangeType",
+      [],
+      dataSyntax()),
+    [],
+    [],
+    alabel="deleted"),
+  aloc(alabel="src"),
+  aadt(
+    "RuntimeException",
+    [],
+    dataSyntax()),
+  afunc(
+    avoid(),
+    [aadt(
+        "LocationChangeEvent",
+        [],
+        dataSyntax())],
+    []),
+  aloc(),
+  anode([]),
+  acons(
+    aadt(
+      "LocationType",
+      [],
+      dataSyntax()),
+    [],
+    [],
+    alabel="file"),
+  aadt(
+    "LocationChangeEvent",
+    [],
+    dataSyntax()),
+  aloc(alabel="logical"),
+  aadt(
+    "LocationChangeType",
+    [],
+    dataSyntax()),
+  aadt(
+    "Tree",
+    [],
+    dataSyntax()),
+  acons(
+    aadt(
+      "LocationChangeType",
+      [],
+      dataSyntax()),
+    [],
+    [],
+    alabel="modified"),
+  amap(
+    aloc(alabel="logical"),
+    aloc(alabel="physical")),
+  avoid(),
+  alist(astr()),
+  acons(
+    aadt(
+      "LocationType",
+      [],
+      dataSyntax()),
+    [],
+    [],
+    alabel="directory"),
+  alist(avalue()),
+  afunc(
+    avoid(),
+    [aadt(
+        "LocationChangeEvent",
+        [],
+        dataSyntax(),
+        alabel="event")],
+    []),
+  aparameter(
+    "T",
+    avalue()),
+  alist(aint())
+};
 
-//test bool matchSetLists8() {
-//    if({[1, int n, 3]} := {[1, 2, 3]} && n == -2){
-//        return false;
-//    } else {
-//        return true;
-//    }
-//}
-
-// Same as interpreted
-//data D = d(str s) | d(int n) | d();
-//
-//@doc{triggers issue #1234}
-//test bool constructorDynamicMatch() {
-//  value x = 1;
-//  
-//  // Due to issue #1234, `d(x)` would throw a MatchFailed() here */
-//  return d(int i) := d(x) && i == 1;
-//}
-
-
-//data D = d(int n) | d(str s) | dl(list[D] ds);
-//
-//bool containsNoDstr(D t)
-//    =  !(/d(str _) := t);
-//    
-////bool containsNoDstr(D t)
-////    =  (/d(str _) := t) ? false : true;
-//
-//value main() = containsNoDstr(dl([d(1), d("a")]));
+value main() = sort(D, bool(AType a, AType b){ return /a := b && a !:= b;;});

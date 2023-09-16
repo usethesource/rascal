@@ -408,7 +408,7 @@ void collect(current: (Expression)`any ( <{Expression ","}+ generators> )`, Coll
     
     beginPatternScope("any", c);
         c.require("any", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+            void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
         collectGenerators([], gens, c);
     endPatternScope(c);
@@ -422,7 +422,7 @@ void collect(current: (Expression)`all ( <{Expression ","}+ generators> )`, Coll
     
     beginPatternScope("all", c);
         c.require("all", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+            void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
         collectGenerators([], gens, c);
     endPatternScope(c);
@@ -455,7 +455,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
     beginPatternScope("set-comprehension", c);
         c.require("set comprehension", current, gens,
             void (Solver s) { 
-                for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
+                for(g <- gens) if(!isBoolAType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
                 for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to set comprehension");
             });
         c.calculate("set comprehension results", current, res,
@@ -487,7 +487,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
           }
         c.require("list comprehension", current, gens,
             void (Solver s) { 
-                for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
+                for(g <- gens) if(!isBoolAType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
                 for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to list comprehension");
             });
         
@@ -505,7 +505,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
     c.enterScope(current);
     beginPatternScope("map-comprehension", c);
         c.require("map comprehension", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+            void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
         c.calculate("list comprehension results", current, [from, to],
             AType(Solver s){
@@ -531,7 +531,7 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
             void (Solver s) { 
                 checkNonVoid(init, s, "Initialization expression of reducer");
                 checkNonVoid(result, s, "Result expession of reducer");
-                for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+                for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
         
         c.fact(current, result);
@@ -549,7 +549,7 @@ void collect(current: (Expression) `it`, Collector c){
 // ---- set
 
 void checkNonVoidOrSplice(Expression e, Solver s, str msg){
-    if(isVoidType(s.getType(e)) && !e is splice){
+    if(isVoidAType(s.getType(e)) && !e is splice){
         s.report(error(e, msg + " should not have type `void`"));
     }
 }
@@ -600,10 +600,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
             
             texp = s.getType(expression);
-            if(isStrType(texp)){
+            if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
             } 
-            if(isLocType(texp)){
+            if(isLocAType(texp)){
                 nactuals = size(actuals);
                 if(!(nactuals == 2 || nactuals == 4)) s.report(error(current, "Source locations requires 2 or 4 arguments, found %v", nactuals));
                 s.requireEqual(actuals[0], aint(), error(actuals[0], "Offset should be of type `int`, found %t", actuals[0]));
@@ -615,7 +615,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 }
                 return aloc();
             }
-            if(isConstructorType(texp) && getConstructorResultType(texp).adtName == "Tree" && "<expression>" == "char"){
+            if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && "<expression>" == "char"){
                 nactuals = size(actuals);
                 if(nactuals != 1){
                     s.report(error(current, "`char` requires 1 argument, found %v", nactuals));
@@ -645,9 +645,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             if(ft.deprecationMessage? && c.getConfig().warnDeprecated){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
-                            if(size(formals) == 0){
-                                s.report(error(expression, "Nullary function may not be overloaded"));
-                            }
+                            //if(size(formals) == 0){
+                            //    s.report(error(expression, "Nullary function may not be overloaded"));
+                            //}
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
@@ -723,11 +723,11 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
 void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRole, AType atype] overloads, rel[loc def, IdRole idRole, AType atype] validOverloads, list[Expression] actuals, Solver s){
     for(int i <- index(actuals)){
         actual_type = s.getType(actuals[i]);
-        if(isNonTerminalType(actual_type)){
+        if(isNonTerminalAType(actual_type)){
             if(!isEmpty(validOverloads) && all(ovl <- validOverloads, 
                                                arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype),       
-                                               size(arg_types) == size(actuals), isADTType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){                
-                nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalType(arg_types[i]) ];
+                                               size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){                
+                nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
                 if(!isEmpty(nont)){
                     s.report(warning(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
                 }
@@ -737,12 +737,16 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
 }
 
 private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){  
-    coverloads = [  ovl  | ovl <- overloads, isConstructorType(ovl.atype) ];
+    coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
     if(size(coverloads) > 1){
         ovl1 = coverloads[0];
-        s.report(error(current, "Constructor %q is overloaded, maybe you can use %v as qualifier to resolve it", 
+        adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
+        qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
+        argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
+        s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v", 
                              ovl1.atype.alabel, 
-                             intercalateOr(sort([ "<getResult(ovl.atype).adtName>" | ovl <- coverloads ]))));
+                             qualifyHint,
+                             argHint));
                              }
 }
 
@@ -797,7 +801,7 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
     if(isVarArgs){
        if(nactuals < nformals - 1) s.report(error(current, "Expected at least %v argument(s) found %v", nformals-1, nactuals));
        varArgsType = (avoid() | s.lub(it, s.getType(actuals[i])) | int i <- [nformals-1 .. nactuals]);
-       actualTypes = [s.getType(actuals[i]) | int i <- [0 .. nformals-1]] + (isListType(varArgsType) ? varArgsType : alist(varArgsType));
+       actualTypes = [s.getType(actuals[i]) | int i <- [0 .. nformals-1]] + (isListAType(varArgsType) ? varArgsType : alist(varArgsType));
     } else {
         if(nactuals != nformals) s.report(error(current, "Expected %v argument(s), found %v", nformals, nactuals));
         actualTypes = [s.getType(a) | a <- actuals];
@@ -1120,13 +1124,13 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
     // Get back the fields as a tuple, if this is one of the allowed subscripting types.
     AType rt = avoid();
 
-    if (isRelType(base)) {
+    if (isRelAType(base)) {
         rt = getRelElementType(base);
-    } else if (isListRelType(base)) {
+    } else if (isListRelAType(base)) {
         rt = getListRelElementType(base);
-    } else if (isMapType(base)) {
+    } else if (isMapAType(base)) {
         rt = getMapFieldsAsTuple(base);
-    } else if (isTupleType(base)) {
+    } else if (isTupleAType(base)) {
         rt = base;
     } else {
         s.report(error(current, "Type %t does not allow fields", base));
@@ -1167,16 +1171,16 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
         subscripts = [ unset(tp, "alabel") | tp <- subscripts ];
     }
     
-    if (isRelType(base)) {
+    if (isRelAType(base)) {
         if (size(subscripts) > 1) return arel(atypeList(subscripts));
         return makeSetType(head(subscripts));
-    } else if (isListRelType(base)) {
+    } else if (isListRelAType(base)) {
         if (size(subscripts) > 1) return alrel(atypeList(subscripts));
         return makeListType(head(subscripts));
-    } else if (isMapType(base)) {
+    } else if (isMapAType(base)) {
         if (size(subscripts) > 1) return arel(atypeList(subscripts));
         return makeSetType(head(subscripts));
-    } else if (isTupleType(base)) {
+    } else if (isTupleAType(base)) {
         if (size(subscripts) > 1) return atuple(atypeList(subscripts));
         return head(subscripts);
     } 

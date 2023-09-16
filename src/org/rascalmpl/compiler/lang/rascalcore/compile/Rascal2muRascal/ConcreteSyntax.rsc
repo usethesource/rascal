@@ -74,8 +74,10 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    // now parse the input to get a Tree (or a ParseError is thrown)
    Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
    //println("doParseFragment: <input>");
-   //iprintln(tree);
-   return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
+  
+   res = isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
+   //iprintln(res, lineLimit=10000);
+   return res;
 }
 
 // TODO: this is a copy of denormalize in lang::rascal::grammar::ConcreteSyntax
@@ -85,12 +87,12 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
   so we remove this here to create a canonical 'source-level' type.
 }
 private Symbol denormalize(Symbol s) = visit (s) { 
-  case \lex(n) => \sort(n)
-  case Symbol::\iter-seps(u,[Symbol::layouts(_),t,Symbol::layouts(_)]) => \iter-seps(u,[t])
+  case Symbol::\lex(n)                                                      => Symbol::\sort(n)
+  case Symbol::\iter-seps(u,[Symbol::layouts(_),t,Symbol::layouts(_)])      => \iter-seps(u,[t])
   case Symbol::\iter-star-seps(u,[Symbol::layouts(_),t,Symbol::layouts(_)]) => \iter-star-seps(u,[t])
-  case Symbol::\iter-seps(u,[Symbol::layouts(_)]) => \iter(u)
-  case Symbol::\iter-star-seps(u,[Symbol::layouts(_)]) => \iter-star(u)
-  // TODO: add rule for seq
+  case Symbol::\iter-seps(u,[Symbol::layouts(_)])                           => \iter(u)
+  case Symbol::\iter-star-seps(u,[Symbol::layouts(_)])                      => \iter-star(u)
+  case Symbol::\seq(ss)                                                     => seq([t | t <- ss, !(t is layouts)])
 };
 
 @doc{restores the parse trees for the typed holes and also recovers all location information}
@@ -101,16 +103,13 @@ Tree restoreHoles(Tree t, map[int, Tree] holes, loc begin) {
 
 alias RestoreState = tuple[Tree tree, int offset, int line, int column];
 
-RestoreState restoreHoles(t:char(10) /*nl*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+1, line+1, 0>;
-
-// in the original source text of the concrete pattern these chars would have been escaped and thus they take
-// 2 character positions instead of 1:
-RestoreState restoreHoles(t:char(96) /*`*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
-RestoreState restoreHoles(t:char(60) /*<*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
-RestoreState restoreHoles(t:char(62) /*>*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
-RestoreState restoreHoles(t:char(92) /*/*/, map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+2, line, column+2>;
-
-default RestoreState restoreHoles(t:char(int _), map[int, Tree] _, loc _, int offset, int line, int column) = <t, offset+1, line, column+1>;
+RestoreState restoreHoles(t:char(int c), map[int, Tree] _, loc _, int offset, int line, int column) {
+    if(c == 10 /*nl*/) return <t, offset+1, line+1, 0>;
+    // in the original source text of the concrete pattern these chars would have been escaped and thus they take
+    // 2 character positions instead of 1:
+    if(c in {96 /*`*/, 60 /*<*/, 62 /*>*/, 92 /*/*/}) return <t, offset+2, line, column+2>;
+    return <t, offset+1, line, column+1>;
+}
 
 // discover an artificial hole and find the original parse tree to replace it
 RestoreState restoreHoles(Tree v:appl(prod(Symbol::label("$MetaHole", Symbol varType), _, {\tag("holeType"(Symbol ht))}), [char(0),_,_,Tree i,char(0)]),
