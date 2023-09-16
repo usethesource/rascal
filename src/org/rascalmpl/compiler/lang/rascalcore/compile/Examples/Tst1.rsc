@@ -12,8 +12,11 @@ void main() {
                     bin=pcfg.bin,
                     generatedSources=|project://rascal-core/target/generated-test-sources2|,
                     resources = |project://rascal-core/target/generated-test-resources2|,
-                    srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|,  |project://rascal-core/src/org/rascalmpl/library| ],
-                    libs = [ |project://rascal/| ]
+                    srcs=[ |project://rascal/src/org/rascalmpl/library|, 
+                           |std:///|,  
+                           |project://rascal-core/src/org/rascalmpl/core/library|,
+                           |project://typepal/src|],
+                    libs = [|lib:///| ]
                 );
     CheckerResult result =  rascalTModelForNames([input_module], testConfig, 
                                                  rascalTypePalConfig(

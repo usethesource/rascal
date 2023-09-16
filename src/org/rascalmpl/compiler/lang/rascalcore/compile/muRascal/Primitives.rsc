@@ -85,4 +85,3 @@ MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v
 //    = isEmpty(kwpActuals) ? muCon(makeNode(name, [a | muCon(a) <- args])) 
 //                          : muCon(makeNode(name, [a | muCon(a) <- args], (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
 //      when allConstant(args), allConstant(kwpActuals<1>);
-    

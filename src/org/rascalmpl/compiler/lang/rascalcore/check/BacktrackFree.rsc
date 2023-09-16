@@ -21,7 +21,7 @@ bool backtrackFree(Expression e){
     case (Expression) `( <Expression _> | <Expression _> | <{Expression ","}+ _> )`:
         return true; 
     case (Expression) `<Pattern _> \<- <Expression _>`: 
-        return false;
+        return false;   //TODO: return backtrackFree(pat);
     case (Expression) `<Pattern pat> := <Expression _>`:
         return backtrackFree(pat);
     case (Expression) `<Pattern pat> !:= <Expression _>`:
@@ -48,9 +48,17 @@ bool backtrackFree(Expression e){
 
 // TODO: Make this more precise and complete
 
-bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false; // p == (Pattern) `[]` || all(pat <- pats, backtrackFree(pat));
-bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false; //p == (Pattern) `{}` || all(pat <- pats, backtrackFree(pat));
-bool backtrackFree(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = false; // all(pat <- pats, backtrackFree(pat));
+bool backtrackFree(p:(Pattern) `[<{Pattern ","}* pats>]`) = false;
+                                                            //((Pattern) `[]` := p) || 
+                                                            //((Pattern) `[Pattern pat]` := p && isMultiVar(pat)) ||
+                                                            //all(pat <- pats, backtrackFree(pat));
+bool backtrackFree(p:(Pattern) `{<{Pattern ","}* pats>}`) = false;
+                                                            //((Pattern) `{}` := p) || 
+                                                            //((Pattern) `{Pattern pat}` := p && isMultiVar(pat)) ||
+                                                            //all(pat <- pats, backtrackFree(pat));
+bool backtrackFree(p:(Pattern) `\<<{Pattern ","}* pats>\>`) = false; 
+                                                            //((Pattern) `[]` := p) || 
+                                                            //all(pat <- pats, backtrackFree(pat));
 bool backtrackFree(p:(Pattern) `<Name name> : <Pattern pattern>`) = backtrackFree(pattern);
 bool backtrackFree(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) = backtrackFree(pattern);
 bool backtrackFree(p:(Pattern) `[ <Type tp> ] <Pattern pattern>`) = backtrackFree(pattern);

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -105,6 +106,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	public final IBool Rascal_TRUE;
 	public final IBool Rascal_FALSE;
+
+	protected final FailReturnFromVoidException $failReturnFromVoidException;
     
     public $RascalModule(RascalExecutionContext rex){
     	this.rex = rex;
@@ -124,6 +127,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     	
     	Rascal_TRUE =  $VF.bool(true);
     	Rascal_FALSE =  $VF.bool(false);
+    	$failReturnFromVoidException = new FailReturnFromVoidException();
     }
     
     public final IConstructor $reifiedAType(IConstructor t, IMap definitions) {
@@ -228,7 +232,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					};
 				}
                 else {
-                    throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore, ClassLoader, PrintWriter, OutputStream, InputStream, &T extends $RascalModule, IRascalValueFactory and TypeFactory are supported");
+                    throw new IllegalArgumentException(constructor + " has unknown arguments. Only IValueFactory, TypeStore, ClassLoader, PrintWriter, OutputStream, InputStream, &T extends $RascalModule, IRascalValueFactory, TypeFactory and IResourceLocationProvider are supported");
                 }
             }
 
@@ -667,8 +671,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		return res;
 	}
 	
-	public boolean $isTreeProductionEqual(IConstructor tree, IConstructor production) {
-	    return ((org.rascalmpl.values.parsetrees.ITree) tree).isAppl() && (production).equals(((org.rascalmpl.values.parsetrees.ITree) tree).getProduction());
+	public boolean $isTreeProductionEqual(IValue tree, IConstructor production) {
+	    return (tree instanceof ITree) && ((org.rascalmpl.values.parsetrees.ITree) tree).isAppl() && (production).equals(((org.rascalmpl.values.parsetrees.ITree) tree).getProduction());
 	}
 	
 	public boolean $isNonTerminal(Type treeType, IConstructor expected) {
@@ -688,8 +692,9 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		//		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
 	}
 	
-	 public IList readBinaryConstantsFile(Class<?> c, String path) {
-    	Type start = $TF.listType($TF.valueType());
+	 public IList readBinaryConstantsFile(Class<?> c, String path, int expected_length, String expected_md5Hash) {
+		// The constants file has the structure: <int nconstants, str md5Hash, list[value] constants>
+    	Type constantsFileType = $TF.tupleType($TF.integerType(), $TF.stringType(), $TF.listType($TF.valueType()));
     	
 		ISourceLocation loc = null; 
 		try {
@@ -703,11 +708,21 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		}
 
     	try (IValueInputStream in = constructValueReader(loc)) {
-    		IValue val = in.read();;
-    		if(val.getType().isSubtypeOf(start)){
-    			return (IList) val;
+    		IValue constantsFile = in.read();;
+    		if(constantsFile.getType().isSubtypeOf(constantsFileType)){
+    			ITuple tup = (ITuple)constantsFile;
+    			int found_length = ((IInteger)tup.get(0)).intValue();
+    			if(found_length != expected_length) {
+    				throw RuntimeExceptionFactory.io($VF.string("Expected " + expected_length + " constants, but only " + found_length + " found in " + path));
+    			}
+    			String found_hash = ((IString)tup.get(1)).getValue();
+    			if(!found_hash.equals(expected_md5Hash)) {
+    				throw RuntimeExceptionFactory.io($VF.string("Expected md5Hash " + expected_md5Hash + ", but got " + found_hash + " for " + path));
+    			}
+    			
+    			return (IList) tup.get(2);
     		} else {
-    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + start + ", but found " + val.getType()));
+    			throw RuntimeExceptionFactory.io($VF.string("Requested type " + constantsFileType + ", but found " + constantsFile.getType()));
     		}
     	}
 		catch (IOException e) {
@@ -2257,27 +2272,68 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	// ---- has_name_and_arity
 	
-	public final boolean $nonterminal_has_name_and_arity(final ITree tree, final String name, final int arity) {
-		// Count the non-literal symbols in the argument list
-		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
-		int prod_arity = 0;
-		for(IValue varg : args) {
-			if(org.rascalmpl.values.parsetrees.TreeAdapter.isLexical((ITree)varg) ||
-			    org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
-			   org.rascalmpl.values.parsetrees.TreeAdapter.isList((ITree)varg)
-			) {
-				prod_arity++;
+	public final boolean $nonterminal_has_name_and_arity(final IValue v, final String name, final int arity) {
+		if(v instanceof IConstructor &&TreeAdapter.isTree((IConstructor)v)) {
+			ITree tree = (ITree) v;
+			// Count the non-literal symbols in the argument list
+			IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
+			int prod_arity = 0;
+			for(IValue varg : args) {
+				if(org.rascalmpl.values.parsetrees.TreeAdapter.isLexical((ITree)varg) ||
+						org.rascalmpl.values.parsetrees.TreeAdapter.isSort((ITree)varg) ||
+						org.rascalmpl.values.parsetrees.TreeAdapter.isList((ITree)varg)
+						) {
+					prod_arity++;
+				}
+			}
+			if(prod_arity != arity)
+				return false;
+			IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction(tree);
+			IValue def = prod.get("def");
+			if(def == null) return false;
+			if(((IConstructor)def).has("name")) {
+				return ((IString)((IConstructor)def).get("name")).getValue().equals(name);
 			}
 		}
-		if(prod_arity != arity)
-				return false;
-        IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction(tree);
-        IValue def = prod.get("def");
-        if(def == null) return false;
-        if(((IConstructor)def).has("name")) {
-        	return ((IString)((IConstructor)def).get("name")).getValue().equals(name);
-        }
-        return false;
+		return false;
+	}
+	
+	public final boolean $has_type_and_arity(final IValue v, final Type type, final int arity) {
+//		System.err.println("$has_type_and_arity:: " + type + " MATCHES? " + v);
+		
+		if(v instanceof IConstructor) {
+			Type consType = ((IConstructor)v).getConstructorType();
+			Map<Type,Type> m = new HashMap<>();
+			if(consType.match(type, m)) {
+				if(TreeAdapter.isTree((IConstructor)v)) {
+					ITree tree = (ITree) v;
+
+					if(TreeAdapter.isChar(tree)) return arity == 1;
+					if(TreeAdapter.isAmb(tree)) return arity == 1;
+
+					IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
+					if(args == null && arity != 0) return false;
+
+					if(TreeAdapter.isLiteral(tree)) {
+						IConstructor p = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction(tree);
+						IList symbols = ProductionAdapter.getSymbols(p);
+						boolean res = args.size() == symbols.size();
+//						System.err.println(res);
+						return res;
+					}
+					if(!TreeAdapter.isAppl(tree)) return false;
+					boolean res = arity == 2;
+//					System.err.println(res + " 2");
+					return res;
+				}
+//				if(consType.getArity() == arity) {
+//					System.err.println(true + " 3");
+					return true;
+//				}
+			}
+		}
+//		System.err.println(false + " 4");
+		return false;
 	}
 	
 	public final IValue $nonterminal_get_arg(final ITree tree, final int idx) {
@@ -3742,9 +3798,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	public final IValue $amap_subscript(String name, final IMap map, final IValue idx) {
 		IValue v = map.get(idx);
-//		System.err.println("$amap_subscript on " + name + ":\nmap:"); for(IValue k : map) System.err.println("\t" + k + " => " + map.get(k));
-//		System.err.println("result: " + idx + " => " + v);
-		if(v == null) {
+		if(v == null) {				
 			throw RuntimeExceptionFactory.noSuchKey(idx);
 		}
 		return v;
@@ -3752,8 +3806,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	
 	public final IValue $amap_subscript(final IMap map, final IValue idx) {
 		IValue v = map.get(idx);
-//		System.err.println("$amap_subscript:\nmap:"); for(IValue k : map) System.err.println("\t" + k + " => " + map.get(k));
-//		System.err.println("result: " + idx + " => " + v);
 		if(v == null) {
 			throw RuntimeExceptionFactory.noSuchKey(idx);
 		}
@@ -4118,19 +4170,24 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		}
 	}
 
-	public final IValue $subject_subscript(final IList lst, final int idx) {
+	public final IValue $iter_subscript(final ITree subject, final int idx) {
+		IList lst = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject);
 		return lst.get(idx);
 	}
 	
-	public final IValue $subject_subscript(final ITuple tup, final int idx) {
+	public final IValue $subscript_int(final ITuple tup, final int idx) {
 		return tup.get(idx);
 	}
 	
-	public final IString $subject_subscript(final IString str, final int idx) {
+	public final IValue $subscript_int(final INode nd, final int idx) {
+		return nd.get(idx);
+	}
+	
+	public final IString $subscript_int(final IString str, final int idx) {
 		return str.substring(idx, 1);
 	}
 	
-	public final IValue $subject_subscript(final IValue subject, final int idx) {
+	public final IValue $subscript_int(final IValue subject, final int idx) {
 		Type subjectType = subject.getType();
 		if(subjectType.isList()) {
 			return ((IList) subject).get(idx);
@@ -4142,34 +4199,34 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			return ((IString) subject).substring(idx, 1);
 		}
 		if(subjectType.isAbstractData()) {
-			if(subject instanceof ITree){
-				if(org.rascalmpl.values.parsetrees.TreeAdapter.isChar((ITree)subject)) {
-					return $VF.integer(org.rascalmpl.values.parsetrees.TreeAdapter.getCharacter((ITree)subject));
-				}
-				if(org.rascalmpl.values.parsetrees.TreeAdapter.isAppl((ITree)subject)) {
-					IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction((ITree)subject);
-					if(ProductionAdapter.isList(prod) || ProductionAdapter.isOpt(prod)) {
-						IList args = ((ITree)subject).getArgs();
-					    return args.get(idx);
-					}
-					if(idx == 0) {
-						return prod;
-					} else if(idx == 1){
-						return org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject);
-					} else
-						throw new RuntimeException("Valid index on appl node is 0 or 1, found " + idx + " on " + subject);
-				}
-				return org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject).get(idx);
-			}
+//			if(subject instanceof ITree){
+//				if(org.rascalmpl.values.parsetrees.TreeAdapter.isChar((ITree)subject)) {
+//					return $VF.integer(org.rascalmpl.values.parsetrees.TreeAdapter.getCharacter((ITree)subject));
+//				}
+//				if(org.rascalmpl.values.parsetrees.TreeAdapter.isAppl((ITree)subject)) {
+//					IConstructor prod = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction((ITree)subject);
+//					if(ProductionAdapter.isList(prod) || ProductionAdapter.isOpt(prod)) {
+//						IList args = ((ITree)subject).getArgs();
+//					    return args.get(idx);
+//					}
+//					if(idx == 0) {
+//						return prod;
+//					} else if(idx == 1){
+//						return org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject);
+//					} else
+//						throw new RuntimeException("Valid index on appl node is 0 or 1, found " + idx + " on " + subject);
+//				}
+//				return org.rascalmpl.values.parsetrees.TreeAdapter.getArgs((ITree)subject).get(idx);
+//			}
 			return ((IConstructor) subject).get(idx);
 		}
 		if(subjectType.isNode()) {
 			return ((INode) subject).get(idx);
 		}
-		throw new RuntimeException("Unsupported subject of type " + subject.getType());
+		throw new RuntimeException("Unsupported subscript of type " + subject.getType());
 	}
 	
-	// lexcial subscript
+	// lexical subscript
 	
 	public final IValue $lexical_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
@@ -4196,6 +4253,16 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		
 		try {
 			return args.get((idx >= 0) ? 2 * idx : (args.length() + 1 + 2 * idx));
+		} catch(IndexOutOfBoundsException e) {
+			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
+		}
+	}
+	
+	public final IValue $concrete_physical_subscript(final org.rascalmpl.values.parsetrees.ITree subject, final int idx) {
+		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(subject);
+		
+		try {
+			return args.get(idx);
 		} catch(IndexOutOfBoundsException e) {
 			throw RuntimeExceptionFactory.indexOutOfBounds($VF.integer(idx));
 		}

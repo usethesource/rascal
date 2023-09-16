@@ -28,7 +28,7 @@ private AType _computeIsType(Tree current, AType t1, Solver s){               //
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
         }
-    } else if(isNodeType(t1) || isADTType(t1) || isSyntaxType(t1)) return abool();
+    } else if(isNodeAType(t1) || isADTAType(t1) || isSyntaxType(t1)) return abool();
     s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
     return avalue();
 }
@@ -47,7 +47,7 @@ private AType _computeHasType(Tree current, AType t1, Solver s){
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
         }
-    } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isSyntaxType(t1) || isNodeType(t1)) return abool();
+    } else if (isRelAType(t1) || isListRelAType(t1) || isTupleAType(t1) || isADTAType(t1) || isSyntaxType(t1) || isNodeAType(t1)) return abool();
     
     s.report(error(current, "Invalid type: expected relation, tuple, node or ADT types, found %t", t1));
     return avalue();
@@ -64,14 +64,14 @@ void collect(current: (Expression) `<Expression arg> +`, Collector c){
 
 private AType _computeTransClosureType(Tree current, AType t1, Solver s){
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
-    if (isListType(t1) && isVoidType(getListElementType(t1)))
+    if (isListAType(t1) && isVoidAType(getListElementType(t1)))
         return makeListRelType([makeVoidType(),makeVoidType()]);
-    if (isSetType(t1) && isVoidType(getSetElementType(t1)))
+    if (isSetAType(t1) && isVoidAType(getSetElementType(t1)))
         return makeRelType([makeVoidType(),makeVoidType()]);
         
     // Normal case: we have an actual list or relation
-    if (isRelType(t1) || isListRelType(t1)) {
-        list[AType] flds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
+    if (isRelAType(t1) || isListRelAType(t1)) {
+        list[AType] flds = isRelAType(t1) ? getRelFields(t1) : getListRelFields(t1);
         if (size(flds) == 0) {
             return t1;
         } else if (size(flds) == 2 && equivalent(flds[0],flds[1])) {    
@@ -137,7 +137,7 @@ void collect(current: (Expression) `! <Expression arg>`, Collector c){
 }
 
 AType computeNegation(Tree current, AType t1, Solver s){    
-    if(!isBoolType(t1)){
+    if(!isBoolAType(t1)){
         s.report(error(current, "Negation not defined on %t", t1));
     }
     return abool();
@@ -166,11 +166,11 @@ void collect(current: (Expression) `* <Expression arg>`, Collector c){
 }
 
 private AType _computeSpliceType(Tree current, AType t1, Solver s){    
-    if (isListType(t1)) return getListElementType(t1);
-    if (isSetType(t1)) return getSetElementType(t1);
-    if (isBagType(t1)) return getBagElementType(t1);
-    if (isRelType(t1)) return getRelElementType(t1);
-    if (isListRelType(t1)) return getListRelElementType(t1);
+    if (isListAType(t1)) return getListElementType(t1);
+    if (isSetAType(t1)) return getSetElementType(t1);
+    if (isBagAType(t1)) return getBagElementType(t1);
+    if (isRelAType(t1)) return getRelElementType(t1);
+    if (isListRelAType(t1)) return getListRelElementType(t1);
     s.report(error(current, "Splice not defined on expression of type %t", t1));
     return avalue();
 }
@@ -207,12 +207,12 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
-    if (isListType(t1) && isVoidType(getListElementType(t1))) t1 = makeListRelType(makeVoidType(),makeVoidType());
-    if (isListType(t2) && isVoidType(getListElementType(t2))) t2 = makeListRelType(makeVoidType(),makeVoidType());
-    if (isSetType(t1) && isVoidType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
-    if (isSetType(t2) && isVoidType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
+    if (isListAType(t1) && isVoidAType(getListElementType(t1))) t1 = makeListRelType(makeVoidType(),makeVoidType());
+    if (isListAType(t2) && isVoidAType(getListElementType(t2))) t2 = makeListRelType(makeVoidType(),makeVoidType());
+    if (isSetAType(t1) && isVoidAType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
+    if (isSetAType(t2) && isVoidAType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
     
-    if (isMapType(t1) && isMapType(t2)) {
+    if (isMapAType(t1) && isMapAType(t2)) {
         if (asubtype(getMapRangeType(t1),getMapDomainType(t2))) {
             return makeMapType(getMapDomainType(t1),getMapRangeType(t2));
         } else {
@@ -220,7 +220,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         }
     }
     
-    if (isRelType(t1) && isRelType(t2)) {
+    if (isRelAType(t1) && isRelAType(t2)) {
         list[AType] lflds = getRelFields(t1);
         list[AType] rflds = getRelFields(t2);
         failures = [];
@@ -240,7 +240,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
          }
     }
 
-    if (isListRelType(t1) && isListRelType(t2)) {
+    if (isListRelAType(t1) && isListRelAType(t2)) {
         list[AType] lflds = getListRelFields(t1);
         list[AType] rflds = getListRelFields(t2);
         list[FailMessage] failures = [];
@@ -260,7 +260,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         }
     }
     
-    if ((isFunctionType(t1) || isOverloadedAType(t1)) && (isFunctionType(t2) || isOverloadedAType(t2))) {
+    if ((isFunctionAType(t1) || isOverloadedAType(t1)) && (isFunctionAType(t2) || isOverloadedAType(t2))) {
         compositeArgs = getFunctionOrConstructorArgumentTypes(t2);
         compositeRet = getFunctionReturnType(t1);
         linkingArgs = getFunctionOrConstructorArgumentTypes(t1);
@@ -301,8 +301,8 @@ void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, Col
 }
 
 private AType _computeJoinType(Tree current, AType t1, AType t2, Solver s){ 
-    if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
-       bool isRel = isRelType(t1);
+    if ((isRelAType(t1) && isRelAType(t2)) || (isListRelAType(t1) && isListRelAType(t2))) {
+       bool isRel = isRelAType(t1);
         list[AType] lflds = isRel ? getRelFields(t1) : getListRelFields(t1);
         list[AType] rflds = isRel ? getRelFields(t2) : getListRelFields(t2);
        
@@ -322,22 +322,22 @@ private AType _computeJoinType(Tree current, AType t1, AType t2, Solver s){
         }
     }
 
-    if (isRelType(t1) && isSetType(t2))
+    if (isRelAType(t1) && isSetAType(t2))
         return arel( atypeList(getRelFields(t1) + getSetElementType(t2)) );
     
-    if (isSetType(t1) && isRelType(t2))
+    if (isSetAType(t1) && isRelAType(t2))
         return arel( atypeList(getSetElementType(t1) + getRelFields(t2)) );
     
-    if (isListRelType(t1) && isListType(t2))
+    if (isListRelAType(t1) && isListAType(t2))
         return alrel( atypeList(getListRelFields(t1) + getListElementType(t2)) );
     
-    if (isListType(t1) && isListRelType(t2))
+    if (isListAType(t1) && isListRelAType(t2))
         return alrel( atypeList(getListElementType(t1) + getListRelFields(t2)) );
     
-    if (isListType(t1) && isListType(t2))
+    if (isListAType(t1) && isListAType(t2))
         return alrel( atypeList([getListElementType(t1), getListElementType(t2)])) ;
     
-    if (isSetType(t1) && isSetType(t2))
+    if (isSetAType(t1) && isSetAType(t2))
         return arel( atypeList([getSetElementType(t1), getSetElementType(t2)]) );
     
     s.report(error(current, "Join not defined on %t and %t", t1, t2));
@@ -350,14 +350,14 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, Collec
     c.calculate("remainder", current, [lhs, rhs],
         AType(Solver s){ return binaryOp("remainder", _computeRemainderType, current, s.getType(lhs), s.getType(rhs), s);
                 //t1 = getType(lhs); t2 = getType(rhs);
-                // if(isIntType(t1) && isIntType(t2)) return lub(t1, t2);
+                // if(isIntAType(t1) && isIntAType(t2)) return lub(t1, t2);
                 // report(error(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
         });
     collect(lhs, rhs, c); 
 }
 
 private AType _computeRemainderType(Tree current, AType t1, AType t2, Solver s){
-    if(!(isIntType(t1) && isIntType(t2))){
+    if(!(isIntAType(t1) && isIntAType(t2))){
         s.report(error(current, "Remainder not defined on %t and %t", t1, t2));
     }
     return aint();
@@ -404,7 +404,7 @@ void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, Col
 }
 
 private AType _computeAppendAfterType(Tree current, AType t1, AType t2, Solver s) { 
-    if (isListType(t1)) {
+    if (isListAType(t1)) {
        return makeListType(s.lub(getListElementType(t1),t2));
     }
     s.report(error(current, "Append after not defined on %t and %t", t1, t2));
@@ -420,7 +420,7 @@ void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, Col
 }
 
 private AType _computeInsertBeforeType(Tree current, AType t1, AType t2, Solver s) { 
-    if (isListType(t2)) {
+    if (isListAType(t2)) {
         return makeListType(s.lub(getListElementType(t2),t1));
     }
     s.report(error(current, "Insert before not defined on %t and %t", t1, t2));
@@ -436,7 +436,7 @@ void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, Coll
 }
 
 private AType _computeModuloType(Tree current, AType t1, AType t2, Solver s) { 
-    if(!(isIntType(t1) && isIntType(t2)) ){
+    if(!(isIntAType(t1) && isIntAType(t2)) ){
         s.report(error(current, "Modulo not defined on %t and %t", t1, t2));
     }
     return aint();
@@ -451,23 +451,23 @@ void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, Co
 }
 
 private AType _computeInType(Tree current, AType t1, AType t2, Solver s){
-    if (isRelType(t2)) {
+    if (isRelAType(t2)) {
         et = getRelElementType(t2);
         s.requireComparable(t1, et, error(current, "Cannot compare %t with element type of %t", t1, t2));
         return abool();
-    } else if (isSetType(t2)) {
+    } else if (isSetAType(t2)) {
         et = getSetElementType(t2);
         s.requireComparable(t1, et, error(current, "Cannot compare %t with element type of %t", t1, t2));
         return abool();
-    } else if (isMapType(t2)) {
+    } else if (isMapAType(t2)) {
         et = getMapDomainType(t2);
         s.requireComparable(t1, et, error(current, "Cannot compare %t with domain type of %t", t1, t2));
         return abool();
-    } else if (isListRelType(t2)) {
+    } else if (isListRelAType(t2)) {
         et = getListRelElementType(t2);
         s.requireComparable(t1, et, error(current, "Cannot compare %t with element type of %t", t1, t2));
         return abool();
-    } else if (isListType(t2)) {
+    } else if (isListAType(t2)) {
         et = getListElementType(t2);
         s.requireComparable(t1, et, error(current, "Cannot compare %t with element type of %t", t1, t2));
         return abool();
@@ -521,20 +521,20 @@ private AType _computeComparisonType(Tree current, AType t1, AType t2, Solver s)
     if(t1 == avoid() || t2 == avoid())
        s.report(error(current, "Comparison not defined on %t and %t", t1, t2));
         
-    if (isListRelType(t1) && isListRelType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
+    if (isListRelAType(t1) && isListRelAType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
         return abool();
-    if (isListType(t1) && isListType(t2) && comparableOrNum(getListElementType(t1),getListElementType(t2)))
+    if (isListAType(t1) && isListAType(t2) && comparableOrNum(getListElementType(t1),getListElementType(t2)))
         return abool();
-    if (isMapType(t1) && isMapType(t2) && comparableOrNum(getMapDomainType(t1),getMapDomainType(t2)) && comparableOrNum(getMapRangeType(t1),getMapRangeType(t2)))
+    if (isMapAType(t1) && isMapAType(t2) && comparableOrNum(getMapDomainType(t1),getMapDomainType(t2)) && comparableOrNum(getMapRangeType(t1),getMapRangeType(t2)))
         return abool();
-    if (isRelType(t1) && isRelType(t2) && comparableOrNum(getRelElementType(t1),getRelElementType(t2)))
+    if (isRelAType(t1) && isRelAType(t2) && comparableOrNum(getRelElementType(t1),getRelElementType(t2)))
         return abool();
-    if (isSetType(t1) && isSetType(t2) && comparableOrNum(getSetElementType(t1),getSetElementType(t2)))
+    if (isSetAType(t1) && isSetAType(t2) && comparableOrNum(getSetElementType(t1),getSetElementType(t2)))
         return abool();
-    if (isTupleType(t1) && isTupleType(t2))
+    if (isTupleAType(t1) && isTupleAType(t2))
         return abool();
         
-    if (isValueType(t1) || isValueType(t2))
+    if (isValueAType(t1) || isValueAType(t2))
         return abool();
     
     s.report(error(current, "Comparison not defined on %t and %t", t1, t2));
@@ -606,13 +606,13 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
         try {
             exprType = c.getType(expression);
             patType = avalue();
-            if (isSetType(exprType)) {
+            if (isSetAType(exprType)) {
              patType = getSetElementType(exprType);
-            } else if (isListType(exprType)) {
+            } else if (isListAType(exprType)) {
                 patType = getListElementType(exprType);
-            } else if (isMapType(exprType)) {
+            } else if (isMapAType(exprType)) {
                 patType = getMapDomainType(exprType);
-            } else if (isADTType(exprType) || isTupleType(exprType) || isNodeType(exprType)) {
+            } else if (isADTAType(exprType) || isTupleAType(exprType) || isNodeAType(exprType)) {
                 patType = avalue();
             } else if (isIterType(exprType)) {
                   patType = getIterElementType(exprType);
@@ -684,13 +684,13 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
         s.report(error(current, "Type %t is not enumerable", etype));
       }
     
-    if (isSetType(etype)) {
+    if (isSetAType(etype)) {
         return getSetElementType(etype);
-    } else if (isListType(etype)) {
+    } else if (isListAType(etype)) {
         return getListElementType(etype);
-    } else if (isMapType(etype)) {
+    } else if (isMapAType(etype)) {
         return getMapDomainType(etype);
-    } else if (isADTType(etype) || isTupleType(etype) || isNodeType(etype)) {
+    } else if (isADTAType(etype) || isTupleAType(etype) || isNodeAType(etype)) {
         return avalue();
     } else if (isIterType(etype)) {
         return getIterElementType(etype);

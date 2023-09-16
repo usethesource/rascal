@@ -37,26 +37,26 @@ bool isListLikeType(AType t) = getName(t) in listTypes;
 
 bool isSetOrListLikeType(AType t) = getName(t) in setOrListTypes;
 
-bool isTupleType(AType t) = getName(t) == "atuple";
-bool isMapType(AType t) = getName(t) == "amap";
-bool isNodeType(AType t) = getName(t) == "anode";
-bool isADTType(AType t) = getName(t) == "acons";
+//bool isTupleType(AType t) = getName(t) == "atuple";
+//bool isMapType(AType t) = getName(t) == "amap";
+//bool isNodeType(AType t) = getName(t) == "anode";
+//bool isADTType(AType t) = getName(t) == "acons";
 
 
 // ---- add -------------------------------------------------------------------
 
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)             = "$<getOuter(a)>_add_<getOuter(b)>(<x>,<y>)"  
                                                                                              when isArithType(a) && isArithType(b) || 
-                                                                                                  isStrType(a) && isStrType(b) ||
-                                                                                                  isLocType(a) && isStrType(b) ||
-                                                                                                  isDateTimeType(a) && isDateTimeType(b) ||
-                                                                                                  isTupleType(a) && isTupleType(b) ||
+                                                                                                  isStrAType(a) && isStrAType(b) ||
+                                                                                                  isLocAType(a) && isStrAType(b) ||
+                                                                                                  isDateTimeAType(a) && isDateTimeAType(b) ||
+                                                                                                  isTupleAType(a) && isTupleAType(b) ||
                                                                                                   isListLikeType(a) && isListLikeType(b) ||
                                                                                                   isSetLikeType(a) && isSetLikeType(b) ||
-                                                                                                  isMapType(a) && isMapType(b);
+                                                                                                  isMapAType(a) && isMapAType(b);
                                                                                                   
 JCode transPrim("add", AType r, [AType a, AType b, AType c], [str x, str y, str z], JGenie jg)          
-                                                                                         = "$astr_add_astr(<x>,$astr_add_astr(<y>,<z>))"  when isStrType(a), isStrType(b), isStrType(c);
+                                                                                         = "$astr_add_astr(<x>,$astr_add_astr(<y>,<z>))"  when isStrAType(a), isStrAType(b), isStrAType(c);
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "$alist_add_elm(<x>,<y>)"      when isListLikeType(a), !isListLikeType(b);
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "$elm_add_alist(<x>,<y>)"      when !isListLikeType(a), isListLikeType(b);
 
@@ -93,7 +93,7 @@ JCode transPrim("close_string_writer", AType r, [_], [str w], JGenie jg)        
 JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<x>.asRelation().compose(<y>.asRelation())"
                                                                                            when isSetOrListLikeType(a), isSetOrListLikeType(b);
 JCode transPrim("compose", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<x>.compose(<y>)"
-                                                                                           when isMapType(a), isMapType(b);
+                                                                                           when isMapAType(a), isMapAType(b);
 
 // ---- create_... ------------------------------------------------------------
 
@@ -150,9 +150,9 @@ JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)
 // ---- field_project ---------------------------------------------------------
 
 JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$atuple_field_project((ITuple)<x>, <intercalate(", ", args)>)"
-                                                                                           when isTupleType(a);
+                                                                                           when isTupleAType(a);
 JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$amap_field_project((IMap)<x>, <intercalate(", ", args)>)"
-                                                                                           when isMapType(a);
+                                                                                           when isMapAType(a);
 JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$arel_field_project((ISet)<x>, <intercalate(", ", args)>)"
                                                                                            when isRelOnlyType(a);
 JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$alrel_field_project((IList)<x>, <intercalate(", ", args)>)"
@@ -164,9 +164,9 @@ JCode transPrim("get_anode_name", astr(), [anode(_)], [str x], JGenie jg)       
 // ---- guarded_field_project -------------------------------------------------
 
 JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$guarded_atuple_field_project(<x>, <intercalate(", ", args)>)"
-                                                                                                   when isTupleType(a);
+                                                                                                   when isTupleAType(a);
 JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$guarded_amap_field_project(<x>, <intercalate(", ", args)>)"
-                                                                                                    when isMapType(a);
+                                                                                                    when isMapAType(a);
 JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$guarded_arel_field_project(<x>, <intercalate(", ", args)>)"
                                                                                                     when isRelOnlyType(a);
 JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "$guarded_alrel_field_project(<x>, <intercalate(", ", args)>)"
@@ -180,12 +180,12 @@ JCode transPrim("greater", abool(), [astr(), astr()], [str x, str y], JGenie jg)
 JCode transPrim("greater", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                         = "$adatetime_lessequal_adatetime(<x>,<y>).not()"; 
 JCode transPrim("greater", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)        = "$aloc_lessequal_aloc(<x>,<y>).not()"; 
-JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$atuple_lessequal_atuple(<x>,<y>).not()"      when isTupleType(a), isTupleType(b);
-JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$anode_lessequal_anode(<x>,<y>).not()"        when isNodeType(a), isNodeType(b);
+JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$atuple_lessequal_atuple(<x>,<y>).not()"      when isTupleAType(a), isTupleAType(b);
+JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$anode_lessequal_anode(<x>,<y>).not()"        when isNodeAType(a), isNodeAType(b);
 JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$alist_lessequal_alist(<x>,<y>).not()"        when isListLikeType(a), isListLikeType(b);
 JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$aset_lessequal_aset(<x>,<y>).not()"          when isSetLikeType(a), isSetLikeType(b);
-JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$amap_lessequal_amap(<x>,<y>).not()"          when isMapType(a), isMapType(b);
-JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$lessequal(<x>,<y>).not()"                    when isValueType(a), isValueType(b);
+JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$amap_lessequal_amap(<x>,<y>).not()"          when isMapAType(a), isMapAType(b);
+JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "$lessequal(<x>,<y>).not()"                    when isValueAType(a), isValueAType(b);
 
 
 // ---- greaterequal ----------------------------------------------------------
@@ -197,25 +197,25 @@ JCode transPrim("greaterequal", abool(), [astr(), astr()], [str x, str y], JGeni
 JCode transPrim("greaterequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                          = "$adatetime_less_adatetime(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)    = "$aloc_less_aloc(<x>,<y>).not()"; 
-JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$atuple_less_atuple(<x>,<y>).not()"          when isTupleType(a), isTupleType(b); 
-JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$anode_less_anode(<x>,<y>).not()"            when isNodeType(a), isNodeType(b); 
+JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$atuple_less_atuple(<x>,<y>).not()"          when isTupleAType(a), isTupleAType(b); 
+JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$anode_less_anode(<x>,<y>).not()"            when isNodeAType(a), isNodeAType(b); 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$alist_less_alist(<x>,<y>).not()"            when isListLikeType(a), isListLikeType(b); 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$aset_less_aset(<x>,<y>).not()"              when isSetLikeType(a), isSetLikeType(b); 
-JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$amap_less_amap(<x>,<y>).not()"              when isMapType(a), isMapType(b);  
-JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$less(<x>,<y>).not()"                        when isValueType(a), isValueType(b);  
+JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$amap_less_amap(<x>,<y>).not()"              when isMapAType(a), isMapAType(b);  
+JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$less(<x>,<y>).not()"                        when isValueAType(a), isValueAType(b);  
 
 // has
 // has_field
 // ---- in --------------------------------------------------------------------
 
 JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$VF.bool(<y>.contains(<x>))"                when isSetOrListLikeType(b);
-JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$VF.bool(<y>.containsKey(<x>))"             when isMapType(b);
+JCode transPrim("in", abool(), [AType a, AType b],  [str x, str y], JGenie jg)           = "$VF.bool(<y>.containsKey(<x>))"             when isMapAType(b);
 
 // ---- intersect -------------------------------------------------------------
 
 JCode transPrim("intersect", AType r, [AType a, AType b], [ str x, str y], JGenie jg)    = "<x>.intersect(<y>)"                         when isListLikeType(a), isListLikeType(b);
 JCode transPrim("intersect", AType r, [AType a, AType b], [ str x, str y], JGenie jg)    = "<x>.intersect(<y>)"                         when isSetLikeType(a), isSetLikeType(b);
-JCode transPrim("intersect", AType r, [AType a, AType b], [ str x, str y], JGenie jg)    = "<x>.common(<y>)"                            when isMapType(a), isMapType(b);
+JCode transPrim("intersect", AType r, [AType a, AType b], [ str x, str y], JGenie jg)    = "<x>.common(<y>)"                            when isMapAType(a), isMapAType(b);
 
 // ---- is --------------------------------------------------------------------
 
@@ -225,16 +225,16 @@ JCode transPrim("is", abool(), [AType a], [str x, str y], JGenie jg)            
 
 list[str] transPrimArgs("guarded_subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                                 = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
-                                                                                                  when isListOnlyType(a) || (a == astr()) || isTupleType(a) || 
-                                                                                                       isNodeType(a) || isADTType(a); 
+                                                                                                  when isListOnlyType(a) || (a == astr()) || isTupleAType(a) || 
+                                                                                                       isNodeAType(a) || isADTAType(a); 
                                                                                        
 JCode transPrim("guarded_subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)      = "$guarded_astr_subscript_int(<x>,<y>)";
-JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "$guarded_atuple_subscript_int(<x>,<y>)" when isTupleType(a);
-JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "$guarded_anode_subscript_int(<x>,<y>)" when isNodeType(a);
-JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "$guarded_aadt_subscript_int(<x>,<y>)" when isADTType(a);
+JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "$guarded_atuple_subscript_int(<x>,<y>)" when isTupleAType(a);
+JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "$guarded_anode_subscript_int(<x>,<y>)" when isNodeAType(a);
+JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "$guarded_aadt_subscript_int(<x>,<y>)" when isADTAType(a);
 JCode transPrim("guarded_subscript", AType r, [AType a, AType b], [ str x, str y], JGenie jg)   
                                                                                                 = "$guarded_list_subscript(<x>,<y>)" when isListOnlyType(a);
-JCode transPrim("guarded_subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)    = "$guarded_map_subscript(<x>,<y>)" when isMapType(a);
+JCode transPrim("guarded_subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)    = "$guarded_map_subscript(<x>,<y>)" when isMapAType(a);
 
 JCode transPrim("guarded_subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){
@@ -278,12 +278,12 @@ JCode transPrim("less", AType r, [AType a, AType b], [str x, str y], JGenie jg) 
 JCode transPrim("less", abool(), [astr(), astr()], [str x, str y], JGenie jg)            = "$astr_less_astr(<x>,<y>)";  
 JCode transPrim("less", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  = "$adatetime_less_adatetime(<x>,<y>)"; 
 JCode transPrim("less", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)            = "$aloc_less_aloc(<x>,<y>)"; 
-JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$atuple_less_atuple(<x>,<y>)"  when isTupleType(a), isTupleType(b); 
-JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$anode_less_anode(<x>,<y>)" when isNodeType(a), isNodeType(b); 
+JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$atuple_less_atuple(<x>,<y>)"  when isTupleAType(a), isTupleAType(b); 
+JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$anode_less_anode(<x>,<y>)" when isNodeAType(a), isNodeAType(b); 
 JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$alist_less_alist(<x>,<y>)"  when isListLikeType(a), isListLikeType(b);    
 JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$aset_less_aset(<x>,<y>)" when isSetLikeType(a), isSetLikeType(b);  
-JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$amap_less_amap(<x>,<y>)" when isMapType(a), isMapType(b); 
-JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$less(<x>,<y>)" when isValueType(a), isValueType(b); 
+JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$amap_less_amap(<x>,<y>)" when isMapAType(a), isMapAType(b); 
+JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "$less(<x>,<y>)" when isValueAType(a), isValueAType(b); 
 
 // adt
 
@@ -295,12 +295,12 @@ JCode transPrim("lessequal", abool(), [astr(), astr()], [str x, str y], JGenie j
 JCode transPrim("lessequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  
                                                                                          = "$adatetime_lessequal_adatetime(<x>,<y>)"; 
 JCode transPrim("lessequal", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)       = "$aloc_lessequal_aloc(<x>,<y>)"; 
-JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$atuple_lessequal_atuple(<x>,<y>)" when isTupleType(a), isTupleType(b); 
-JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$anode_lessequal_anode(<x>,<y>)"  when isNodeType(a), isNodeType(b); 
+JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$atuple_lessequal_atuple(<x>,<y>)" when isTupleAType(a), isTupleAType(b); 
+JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$anode_lessequal_anode(<x>,<y>)"  when isNodeAType(a), isNodeAType(b); 
 JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$alist_lessequal_alist(<x>,<y>)"  when isListLikeType(a), isListLikeType(b);     
 JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$aset_lessequal_aset(<x>,<y>)" when isSetLikeType(a), isSetLikeType(b); 
-JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_lessequal_amap(<x>,<y>)"  when isMapType(a), isMapType(b);   
-JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$lessequal(<x>,<y>)" when isValueType(a), isValueType(b);
+JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_lessequal_amap(<x>,<y>)"  when isMapAType(a), isMapAType(b);   
+JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "$lessequal(<x>,<y>)" when isValueAType(a), isValueAType(b);
 
 // ---- modulo ----------------------------------------------------------------
 JCode transPrim("mod", aint(), [aint(), aint()], [str x, str y], JGenie jg)              = "<x>.mod(<y>)";
@@ -328,7 +328,7 @@ JCode transPrim("notequal", abool(), [AType a, AType b], [str x, str y], JGenie 
 // ---- notin -----------------------------------------------------------------
 
 JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).contains(<x>))"       when isSetOrListLikeType(b);
-JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).containsKey(<x>))"    when isMapType(b);
+JCode transPrim("notin", abool(), [AType a, AType b],  [str x, str y], JGenie jg)        = "$VF.bool(!(<y>).containsKey(<x>))"    when isMapAType(b);
                                                                                                             
 // ---- open_..._writer -------------------------------------------------------
 
@@ -363,7 +363,7 @@ list[str] transPrimArgs("slice", AType r, [AType a], [MuExp x, MuExp first, MuEx
 
 JCode transPrim("slice", AType r, [astr()], [str x, str first, str second, str end], JGenie jg)   = "$astr_slice(<castArg(astr(), x)>, <first>, <second>, <end>)";
 JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$alist_slice(<castArg(a, x)>, <first>, <second>, <end>)" when isListLikeType(a);
-JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$anode_slice(<castArg(a, x)>, <first>, <second>, <end>)" when isNodeType(a);
+JCode transPrim("slice", AType r, [AType a], [str x, str first, str second, str end], JGenie jg)  = "$anode_slice(<castArg(a, x)>, <first>, <second>, <end>)" when isNodeAType(a);
 JCode transPrim("slice", AType r, [\iter(aadt(_,[], lexicalSyntax()))], [str x, str first, str second, str end], JGenie jg)  
                                                                                          = "$lexical_slice(<x>,<first>, <second>, <end>)";
 JCode transPrim("slice", AType r, [\iter(aadt(_,[], contextFreeSyntax()))], [str x,  str first, str second, str end], JGenie jg)  
@@ -458,31 +458,33 @@ JCode transPrim("str_escape_for_regexp", astr(), [AType a], [str x], JGenie jg) 
     
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                 = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
-                                                                                  when isListOnlyType(a) || isStrType(a) || isTupleType(a) || 
-                                                                                       isNodeType(a) || isADTType(a) || isSyntaxType(a);
+                                                                                  when isListOnlyType(a) || isStrAType(a) || isTupleAType(a) || 
+                                                                                       isNodeAType(a) || isADTAType(a) || isSyntaxType(a) || isValueAType(a);
 //list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg) 
 //                                                                                = [ transWithCast(a,x,jg), trans2NativeInt(y,jg) ] 
 //                                                                                  when isSyntaxType(a);
 
-JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
-JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$atuple_subscript_int(<x>,<y>)" when isTupleType(a);
-JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$anode_subscript_int(<x>,<y>)" when isNodeType(a);
-JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$aadt_subscript_int(<x>,<y>)" when isADTType(a);
 
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$alist_subscript_int(<x>,<y>)" when isListOnlyType(a);
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_subscript(<x>,<y>)" when isMapType(a);
 
 JCode transPrim("subscript", AType r, [\iter(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$lexical_subscript(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter(\achar-class(_)), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript(<x>,<y>)";
+                                                                                         
 JCode transPrim("subscript", AType r, [\iter(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$concrete_subscript(<x>,<y>)";
 
 JCode transPrim("subscript", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$lexical_subscript_seps(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter-seps(\achar-class(_), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript_seps(<x>,<y>)";
+
 JCode transPrim("subscript", AType r, [\iter-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$concrete_subscript_seps(<x>,<y>)";
                                                                                                                                                                                                                                                                            
 JCode transPrim("subscript", AType r, [\iter-star(aadt(_,[], lexicalSyntax())), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter-star(\achar-class(_)), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$lexical_subscript(<x>,<y>)";
 
 JCode transPrim("subscript", AType r, [\iter-star(aadt(_,[], contextFreeSyntax())), aint()], [str x, str y], JGenie jg)  
@@ -490,9 +492,23 @@ JCode transPrim("subscript", AType r, [\iter-star(aadt(_,[], contextFreeSyntax()
                                                                                          
 JCode transPrim("subscript", AType r, [\iter-star-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$lexical_subscript_seps(<x>,<y>)";
+JCode transPrim("subscript", AType r, [\iter-star-seps(\achar-class(_), list[AType] separators), aint()], [str x, str y], JGenie jg)  
+                                                                                         = "$lexical_subscript_seps(<x>,<y>)";
+
 JCode transPrim("subscript", AType r, [\iter-star-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators), aint()], [str x, str y], JGenie jg)  
                                                                                          = "$concrete_subscript_seps(<x>,<y>)";
-                                                                                         
+
+
+JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$subscript_int(<x>,<y>)" when isValueAType(a) || isNonTerminalAType(a) ;
+JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "$astr_subscript_int(<x>,<y>)";
+JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$atuple_subscript_int(<x>,<y>)" when isTupleAType(a);
+
+JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$aadt_subscript_int(<x>,<y>)" when isADTAType(a);
+
+JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "$anode_subscript_int(<x>,<y>)" when isNodeAType(a);
+
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$alist_subscript_int(<x>,<y>)" when isListOnlyType(a);
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$amap_subscript(<x>,<y>)" when isMapAType(a);
 
 default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){
@@ -512,9 +528,12 @@ default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *
         } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
             return "$alrel_subscript1_noset(<x>,<args[0]>)";
         }
-        return "$alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>)";    
-    } else
+        return "$alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>)";  
+    } else if(isOverloadedAType(a)){
+        return "$subscript_int(<x>,<args[0]>)";
+    } else {
         fail;
+    }
 }      
 
 JCode makeIndex(list[str] idx)
@@ -531,7 +550,7 @@ JCode makeIndexDescr(list[AType] types, list[str] idx, JGenie jg)
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>) <x>.subtract(<y>))" when isArithType(a), isArithType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b), !equivalent(getElementType(a), b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapType(a), isMapType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapAType(a), isMapAType(b);
 
 // ---- delete ----------------------------------------------------------------
 JCode transPrim("delete", AType r, [AType a, AType b], [str x, str y], JGenie jg)        = "<x>.delete(<y>)";
@@ -558,14 +577,14 @@ JCode transPrim("transitive_reflexive_closure", AType r, [AType a], [str x], JGe
 
 list[str] transPrimArgs("update", AType r, [AType a], [MuExp x, MuExp y, MuExp z], JGenie jg)  
                                                                                          = [ trans(x,jg), trans2NativeInt(y,jg), trans(z, jg) ] 
-                                                                                           when isListLikeType(a) || (a == astr()) || isTupleType(a) || isNodeType(a) || isLocType(a);
+                                                                                           when isListLikeType(a) || (a == astr()) || isTupleAType(a) || isNodeAType(a) || isLocAType(a);
 list[str] transPrimArgs("update", AType r, [AType a], [MuExp x, MuExp y, MuExp z], JGenie jg)  
                                                                                          = [ trans(x,jg), trans2NativeStr(y,jg), trans(z, jg) ]
-                                                                                           when isADTType(a);
+                                                                                           when isADTAType(a);
                                                                                 
 JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$alist_update(<y>,<z>,<castArg(a,x)>)"    /* order */
                                                                                           when isListLikeType(a);
 JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$amap_update(<y>,<z>, <castArg(a,x)>)"    /* order */
-                                                                                          when isMapType(a);
+                                                                                          when isMapAType(a);
 JCode transPrim("update", AType r, [AType a], [str x, str y, str z], JGenie jg)         = "$atuple_update(<y>,<z>,<castArg(a,x)>)"  /* order */
-                                                                                          when isTupleType(a);
+                                                                                          when isTupleAType(a);

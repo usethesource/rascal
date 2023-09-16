@@ -31,19 +31,19 @@ void requireFullyInstantiated(Solver s, AType ts...){
 }
 
 void checkNonVoid(Tree e, Collector c, str msg){
-    if(isVoidType(c.getType(e))) c.report(error(e, msg + " should not have type `void`"));
+    if(isVoidAType(c.getType(e))) c.report(error(e, msg + " should not have type `void`"));
 }
 
 void checkNonVoid(Tree e, AType t, Collector c, str msg){
-    if(isVoidType(t)) c.report(error(e, msg + " should not have type `void`"));
+    if(isVoidAType(t)) c.report(error(e, msg + " should not have type `void`"));
 }
 
 void checkNonVoid(Tree e, Solver s, str msg){
-    if(isVoidType(s.getType(e))) s.report(error(e, msg + " should not have type `void`"));
+    if(isVoidAType(s.getType(e))) s.report(error(e, msg + " should not have type `void`"));
 }
 
 void checkNonVoid(Tree e, AType t, Solver s, str msg){
-    if(isVoidType(t)) s.report(error(e, msg + " should not have type `void`"));
+    if(isVoidAType(t)) s.report(error(e, msg + " should not have type `void`"));
 }
 
 AType(Solver) makeGetSyntaxType(Type varType)
@@ -88,7 +88,7 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t", op, t1));
         return overloadedAType(bin_overloads);
     }
-    if(!maybeVoid && isVoidType(t1)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
+    if(!maybeVoid && isVoidAType(t1)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, s);
 }
 
@@ -121,7 +121,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
     }
-    if(isVoidType(t1) || isVoidType(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
+    if(isVoidAType(t1) || isVoidAType(t2)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, s);
 }
 
@@ -167,7 +167,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
     }
-    if(isVoidType(t1) || isVoidType(t2) || isVoidType(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
+    if(isVoidAType(t1) || isVoidAType(t2) || isVoidAType(t3)) s.report(error(current, "%q cannot be applied to argument of type `void`", op));
     return computeType(current, t1, t2, t3, s);
 }
 
@@ -266,7 +266,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
        params = {};
        for(<_, _, tp> <- overloads){  
-        if(isADTType(tp)) params += toSet(getADTTypeParameters(tp));
+        if(isADTAType(tp)) params += toSet(getADTTypeParameters(tp));
        }
        parameters = toList(params);
     } else {
@@ -373,7 +373,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     containerType = unwrapType(containerType);
     requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
-    if(isNonTerminalType(containerType) && fieldName == "top"){
+    if(isNonTerminalAType(containerType) && fieldName == "top"){
         return isStartNonTerminalType(containerType) ? getStartNonTerminalType(containerType) : containerType;
     }
     return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId(), annoId()}, scope); // DURING TRANSITION: allow annoIds
@@ -387,7 +387,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
     if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");
     
-   if (isReifiedType(containerType)) {
+   if (isReifiedAType(containerType)) {
         if(s.getConfig().classicReifier){
             if (fieldName == "symbol") {
                 return s.getTypeInScopeFromName("Symbol", scope, {dataId()});
@@ -432,13 +432,13 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                     return tp;
                 }
             }
-        } else if(isNonTerminalType(containerType)){
+        } else if(isNonTerminalAType(containerType)){
            return computeFieldTypeWithADT(containerType, field, scope, s);
         }
         return computeFieldTypeWithADT(treeType, field, scope, s);
      } else if(asubtype(containerType, treeType)){
             return computeFieldTypeWithADT(treeType, field, scope, s);
-    } else if (isTupleType(containerType)) {
+    } else if (isTupleAType(containerType)) {
         if(tupleHasFieldNames(containerType)){
             idx = indexOf(getTupleFieldNames(containerType), fieldName);
             if(idx >= 0)
@@ -448,31 +448,31 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         } else {
             s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
         }
-    } else if (isLocType(containerType)) {
+    } else if (isLocAType(containerType)) {
         if (fieldName in getBuiltinFieldMap()[aloc()])
             return getBuiltinFieldMap()[aloc()][fieldName];
         else
             s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
-    } else if (isDateTimeType(containerType)) {
+    } else if (isDateTimeAType(containerType)) {
         if (fieldName in getBuiltinFieldMap()[adatetime()])
             return getBuiltinFieldMap()[adatetime()][fieldName];
         else
            s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
-    } else if (isRelType(containerType)) {
+    } else if (isRelAType(containerType)) {
         idx = indexOf(getRelFieldNames(containerType), fieldName);
         if(idx >= 0){
             return makeSetType(getRelFields(containerType)[idx]); 
         }
         else
            s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
-    } else if (isListRelType(containerType)) {
+    } else if (isListRelAType(containerType)) {
         idx = indexOf(getListRelFieldNames(containerType), fieldName);
         if(idx >= 0){
             return makeListType(getListRelFields(containerType)[idx]); 
         }
         else
            s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
-    } else if (isMapType(containerType)) {
+    } else if (isMapAType(containerType)) {
            idx = indexOf(getMapFieldNames(containerType), fieldName);
         if(idx >= 0){
             return idx == 0 ? makeSetType(getMapDomainType(containerType)) : makeSetType(getMapRangeType(containerType));
@@ -480,7 +480,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         else
             s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     
-    } else if (isNodeType(containerType)) {
+    } else if (isNodeAType(containerType)) {
         return avalue();
     } 
     s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
@@ -506,17 +506,17 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         //println("computeSubscriptionType: <current>, <t1>, <tl> ==\> <overloadedAType(subscript_overloads)>");
         if(isEmpty(subscript_overloads)) s.report(error(current, "Expressions of type %t cannot be subscripted", t1));
         return overloadedAType(subscript_overloads);
-    } else if (isListType(t1) && (!isListRelType(t1) || (isListRelType(t1) && size(tl) == 1 && isIntType(tl[0])))) {
+    } else if (isListAType(t1) && (!isListRelAType(t1) || (isListRelAType(t1) && size(tl) == 1 && isIntAType(tl[0])))) {
         // TODO: At some point we should have separate notation for this, but this final condition treats list
         // relations indexed by one int value as lists, making this an index versus a projection
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a list expression, found %v", size(tl)));
-        else if (!isIntType(tl[0]))
+        else if (!isIntAType(tl[0]))
             s.report(error(current, "Expected subscript of type int, found %t", tl[0]));
         else
             return getListElementType(t1);
             //return makeListType(getListElementType(t1));
-    } else if (isRelType(t1)) {
+    } else if (isRelAType(t1)) {
         if (size(tl) >= size(getRelFields(t1)))
             s.report(error(current, "For a relation with arity %v you can have at most %v subscripts", size(getRelFields(t1)), size(getRelFields(t1))-1));
         else {
@@ -534,7 +534,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
                 return arel(atypeList(tail(relFields,size(relFields)-size(tl))));
             }
         }
-    } else if (isListRelType(t1)) {
+    } else if (isListRelAType(t1)) {
         if (size(tl) >= size(getListRelFields(t1)))
             s.report(error(current, "For a list relation with arity %v you can have at most %v subscripts", size(getListRelFields(t1)), size(getListRelFields(t1))-1));
         else {
@@ -552,24 +552,24 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
                 return alrel(atypeList(tail(relFields,size(relFields)-size(tl))));
             }
         }
-    } else if (isMapType(t1)) {
+    } else if (isMapAType(t1)) {
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a map expression, found %v", size(tl)));
         else if (!comparable(tl[0],getMapDomainType(t1)))
             s.report(error(current, "Expected subscript of type %t, found %t", getMapDomainType(t1),tl[0]));
         else
             return getMapRangeType(t1);
-    } else if (isNodeType(t1)) {
+    } else if (isNodeAType(t1)) {
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a node expression, found %v", size(tl)));
-        else if (!isIntType(tl[0]))
+        else if (!isIntAType(tl[0]))
             s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else
             return avalue();
-    } else if (isTupleType(t1)) {
+    } else if (isTupleAType(t1)) {
         if (size(tl) != 1) {
             s.report(error(current, "Expected only 1 subscript for a tuple expression, found %v", size(tl)));
-        } else if (!isIntType(tl[0])) {
+        } else if (!isIntAType(tl[0])) {
             s.report(error(current, "Expected subscript of type `int`, found %v", tl[0]));
         } else if ((Expression)`<DecimalIntegerLiteral dil>` := head(indexList)) {
             tupleIndex = toInt("<dil>");
@@ -581,17 +581,17 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         } else {
             return lubList(getTupleFields(t1));
         }
-    } else if (isStrType(t1)) {
+    } else if (isStrAType(t1)) {
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a string expression, not %v", size(tl)));
-        else if (!isIntType(tl[0]))
+        else if (!isIntAType(tl[0]))
             s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else
             return astr();
     } else if (isSyntaxType(t1)) {
         if (size(tl) != 1)
             s.report(error(current, "Expected only 1 subscript for a nonterminal subscript expression, not %v", size(tl)));
-        else if (!isIntType(tl[0]))
+        else if (!isIntAType(tl[0]))
             s.report(error(current, "Expected subscript of type `int`, found %t", tl[0]));
         else if (isIterType(t1))
             return getIterElementType(t1);
@@ -620,15 +620,15 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
     }
     
     failures = [];
-    if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
-    if(!isIntType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
-    if(!isIntType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
+    if(!isIntAType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
+    if(!isIntAType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
+    if(!isIntAType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
     
     if(!isEmpty(failures)) throw s.reports(failures);
     
-    if (isListType(base) || isStrType(base) || isIterType(base)) {
+    if (isListAType(base) || isStrAType(base) || isIterType(base)) {
         return base;
-    } else if (isNodeType(base)) {
+    } else if (isNodeAType(base)) {
         return makeListType(avalue());
     }
     
@@ -638,25 +638,25 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
 
 @doc{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
-    if (isIntType(l) && isIntType(r)) return aint();
-    if (isIntType(l) && isRatType(r)) return arat();
-    if (isIntType(l) && isRealType(r)) return areal();
-    if (isIntType(l) && isNumType(r)) return anum();
+    if (isIntAType(l) && isIntAType(r)) return aint();
+    if (isIntAType(l) && isRatAType(r)) return arat();
+    if (isIntAType(l) && isRealAType(r)) return areal();
+    if (isIntAType(l) && isNumAType(r)) return anum();
 
-    if (isRatType(l) && isIntType(r)) return arat();
-    if (isRatType(l) && isRatType(r)) return arat();
-    if (isRatType(l) && isRealType(r)) return areal();
-    if (isRatType(l) && isNumType(r)) return anum();
+    if (isRatAType(l) && isIntAType(r)) return arat();
+    if (isRatAType(l) && isRatAType(r)) return arat();
+    if (isRatAType(l) && isRealAType(r)) return areal();
+    if (isRatAType(l) && isNumAType(r)) return anum();
 
-    if (isRealType(l) && isIntType(r)) return areal();
-    if (isRealType(l) && isRatType(r)) return areal();
-    if (isRealType(l) && isRealType(r)) return areal();
-    if (isRealType(l) && isNumType(r)) return anum();
+    if (isRealAType(l) && isIntAType(r)) return areal();
+    if (isRealAType(l) && isRatAType(r)) return areal();
+    if (isRealAType(l) && isRealAType(r)) return areal();
+    if (isRealAType(l) && isNumAType(r)) return anum();
 
-    if (isNumType(l) && isIntType(r)) return anum();
-    if (isNumType(l) && isRatType(r)) return anum();
-    if (isNumType(l) && isRealType(r)) return anum();
-    if (isNumType(l) && isNumType(r)) return anum();
+    if (isNumAType(l) && isIntAType(r)) return anum();
+    if (isNumAType(l) && isRatAType(r)) return anum();
+    if (isNumAType(l) && isRealAType(r)) return anum();
+    if (isNumAType(l) && isNumAType(r)) return anum();
 
     throw rascalCheckerInternalError("Only callable for numeric types, given <l> and <r>");
 }
@@ -668,19 +668,19 @@ AType computeAdditionType(Tree current, AType t1, AType t2, Solver s)
 private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
-    if (isStrType(t1) && isStrType(t2))
+    if (isStrAType(t1) && isStrAType(t2))
         return astr();
-    if (isBoolType(t1) && isBoolType(t2))
+    if (isBoolAType(t1) && isBoolAType(t2))
         return abool();
-    if (isLocType(t1) && isLocType(t2))
+    if (isLocAType(t1) && isLocAType(t2))
         return aloc();
-    if (isLocType(t1) && isStrType(t2))
+    if (isLocAType(t1) && isStrAType(t2))
         return aloc();
         
-    if(isDateTimeType(t1) && isDateTimeType(t2))
+    if(isDateTimeAType(t1) && isDateTimeAType(t2))
         return adatetime();
         
-     if (isTupleType(t1) && isTupleType(t2)) {
+     if (isTupleAType(t1) && isTupleAType(t2)) {
          if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
             tflds1 = getTupleFields(t1);
             tflds2 = getTupleFields(t2);
@@ -697,45 +697,45 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
          }
      } 
        
-    if (isListType(t1) && isListType(t2))
+    if (isListAType(t1) && isListAType(t2))
         return s.lub(t1,t2);
-    if (isSetType(t1) && isSetType(t2))
+    if (isSetAType(t1) && isSetAType(t2))
         return s.lub(t1,t2);
-    if (isMapType(t1) && isMapType(t2))
+    if (isMapAType(t1) && isMapAType(t2))
         return s.lub(t1,t2);
         
-    if (isListType(t1) && !isContainerType(t2))
+    if (isListAType(t1) && !isContainerType(t2))
         return makeListType(s.lub(getListElementType(t1),t2));
-    if (isSetType(t1) && !isContainerType(t2)) // Covers relations too
+    if (isSetAType(t1) && !isContainerType(t2)) // Covers relations too
         return makeSetType(s.lub(getSetElementType(t1),t2));
-    if (isBagType(t1) && !isContainerType(t2))
+    if (isBagAType(t1) && !isContainerType(t2))
         return abag(s.lub(getBagElementType(t1),t2));
         
-    if (isListType(t2) && !isContainerType(t1))
+    if (isListAType(t2) && !isContainerType(t1))
         return makeListType(s.lub(t1,getListElementType(t2)));
-    if (isSetType(t2) && !isContainerType(t1)) // Covers relations too
+    if (isSetAType(t2) && !isContainerType(t1)) // Covers relations too
         return makeSetType(s.lub(t1,getSetElementType(t2)));
-    if (isBagType(t2) && !isContainerType(t1))
+    if (isBagAType(t2) && !isContainerType(t1))
         return abag(s.lub(t1,getBagElementType(t2)));
         
-    if (isListType(t1))
+    if (isListAType(t1))
         return makeListType(s.lub(getListElementType(t1),t2));
-    if (isSetType(t1)) // Covers relations too
+    if (isSetAType(t1)) // Covers relations too
         return makeSetType(s.lub(getSetElementType(t1),t2));
-    if (isBagType(t1))
+    if (isBagAType(t1))
         return abag(s.lub(getBagElementType(t1),t2));
     
     // TODO: Can we also add together constructor types?
     // TODO: cloc is arbitrary, can we do better?
     cloc = getLoc(current);
-    if (isFunctionType(t1)){
-        if(isFunctionType(t2))
+    if (isFunctionAType(t1)){
+        if(isFunctionAType(t2))
             return overloadedAType({<cloc, functionId(), t1>, <cloc, functionId(), t2>});
         else if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
             return overloadedAType(overloads + <cloc, functionId(), t1>);
         }
     } else if(overloadedAType(rel[loc, IdRole, AType] overloads1)  := t1){
-        if(isFunctionType(t2))
+        if(isFunctionAType(t2))
            return overloadedAType(overloads1 + <cloc, functionId(), t2>);
         else if(overloadedAType(rel[loc, IdRole, AType] overloads2) := t2){
             return overloadedAType(overloads1 + overloads2);
@@ -753,29 +753,29 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
     }
-    if(isDateTimeType(t1) && isDateTimeType(t2)){
+    if(isDateTimeAType(t1) && isDateTimeAType(t2)){
         return adatetime();
     }
-    if(isListType(t1) && isListType(t2)){
+    if(isListAType(t1) && isListAType(t2)){
         s.requireComparable(getListElementType(t1), getListElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", 
-                                                                                    isListRelType(t1) ? "List Relation" : "List", t1, isListRelType(t2) ? "List Relation" : "List", t2));
+                                                                                    isListRelAType(t1) ? "List Relation" : "List", t1, isListRelAType(t2) ? "List Relation" : "List", t2));
        return t1;
     }
     
-    if(isListType(t1)){
-        s.requireComparable(getListElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isListRelType(t1) ? "List Relation" : "List", t1, t2));
+    if(isListAType(t1)){
+        s.requireComparable(getListElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isListRelAType(t1) ? "List Relation" : "List", t1, t2));
         return t1;
     }
-    if(isSetType(t1) && isSetType(t2)){
-        s.requireComparable(getSetElementType(t1), getSetElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", isRelType(t1) ? "Relation" : "Set", t1,isListRelType(t2) ? "Relation" : "Set", t2));
+    if(isSetAType(t1) && isSetAType(t2)){
+        s.requireComparable(getSetElementType(t1), getSetElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", isRelAType(t1) ? "Relation" : "Set", t1,isListRelAType(t2) ? "Relation" : "Set", t2));
         return t1;
     }
-    if(isSetType(t1)){
-        s.requireComparable(getSetElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isRelType(t1) ? "Relation" : "Set", t1, t2));
+    if(isSetAType(t1)){
+        s.requireComparable(getSetElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isRelAType(t1) ? "Relation" : "Set", t1, t2));
         return t1;
     }
 
-    if(isMapType(t1)){
+    if(isMapAType(t1)){
         s.requireComparable(t1, t2, error(current, "Map of type %t could never contain a sub-map of type %t", t1, t2));
         return t1;
     }
@@ -790,13 +790,13 @@ AType computeProductType(Tree current, AType t1, AType t2, Solver s)
 private AType _computeProductType(Tree current, AType t1, AType t2, Solver s){ 
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
-    if (isListType(t1) && isListType(t2))
+    if (isListAType(t1) && isListAType(t2))
         return makeListType(atuple(atypeList([getListElementType(t1),getListElementType(t2)])));
-    if (isRelType(t1) && isRelType(t2))
+    if (isRelAType(t1) && isRelAType(t2))
         return arel(atypeList([getRelElementType(t1),getRelElementType(t2)]));
-    if (isListRelType(t1) && isListRelType(t2))
+    if (isListRelAType(t1) && isListRelAType(t2))
         return alrel(atypeList([getListRelElementType(t1),getListRelElementType(t2)]));
-    if (isSetType(t1) && isSetType(t2))
+    if (isSetAType(t1) && isSetAType(t2))
         return arel(atypeList([getSetElementType(t1),getSetElementType(t2)]));
     
     s.report(error(current, "Product not defined on %t and %t", t1, t2));
@@ -817,11 +817,11 @@ AType computeIntersectionType(Tree current, AType t1, AType t2, Solver s)
     = binaryOp("intersection", _computeIntersectionType, current, t1, t2, s);
     
 private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver s){  
-    if ( ( isListRelType(t1) && isListRelType(t2) ) || 
-         ( isListType(t1) && isListType(t2) ) || 
-         ( isRelType(t1) && isRelType(t2) ) || 
-         ( isSetType(t1) && isSetType(t2) ) || 
-         ( isMapType(t1) && isMapType(t2) ) )
+    if ( ( isListRelAType(t1) && isListRelAType(t2) ) || 
+         ( isListAType(t1) && isListAType(t2) ) || 
+         ( isRelAType(t1) && isRelAType(t2) ) || 
+         ( isSetAType(t1) && isSetAType(t2) ) || 
+         ( isMapAType(t1) && isMapAType(t2) ) )
     {
         if (!comparable(t1,t2))
             s.report(error(current, "Types %t and %t are not comparable", t1, t2));
@@ -832,11 +832,11 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
         if (asubtype(t1, t2))
             return t1;
             
-        if (isListRelType(t1)) return makeListRelType(makeVoidType(),makeVoidType());
-        if (isListType(t1)) return makeListType(makeVoidType());
-        if (isRelType(t1)) return makeRelType(makeVoidType(), makeVoidType());
-        if (isSetType(t1)) return makeSetType(makeVoidType());
-        if (isMapType(t1)) return makeMapType(makeVoidType(),makeVoidType());
+        if (isListRelAType(t1)) return makeListRelType(makeVoidType(),makeVoidType());
+        if (isListAType(t1)) return makeListType(makeVoidType());
+        if (isRelAType(t1)) return makeRelType(makeVoidType(), makeVoidType());
+        if (isSetAType(t1)) return makeSetType(makeVoidType());
+        if (isMapAType(t1)) return makeMapType(makeVoidType(),makeVoidType());
     }
     s.report(error(current, "Intersection not defined on %t and %t", t1, t2));
     return avalue();
@@ -846,7 +846,7 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
 
 AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
     requireFullyInstantiated(s, subjectType);
-    if(isConstructorType(subjectType)){
+    if(isConstructorAType(subjectType)){
         subjectType = getConstructorResultType(subjectType);
     }
     tp = getPatternType0(p, subjectType, scope, s);
@@ -869,7 +869,7 @@ private default AType getPatternType0(Pattern p, AType subjectType, loc scope, S
 // ---- set pattern
 
 private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
-    elmType = isSetType(subjectType) ? getSetElementType(subjectType) : avalue();
+    elmType = isSetAType(subjectType) ? getSetElementType(subjectType) : avalue();
     setType = aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
     s.fact(current, setType);
     return setType;
@@ -878,7 +878,7 @@ private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }
 // ---- list pattern
 
 private AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
-    elmType = isListType(subjectType) ? getListElementType(subjectType) : avalue();
+    elmType = isListAType(subjectType) ? getListElementType(subjectType) : avalue();
     res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
     s.fact(current, res);
     return res;
@@ -931,12 +931,12 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
        } else {
           inameType = s.getType(argument.name);
           s.fact(argument, inameType);
-          if(isListType(inameType)) {
+          if(isListAType(inameType)) {
                 elmType = getListElementType(inameType);
                 s.fact(current, elmType);
                 return elmType;
           }
-          if(isSetType(inameType)){
+          if(isSetAType(inameType)){
                 elmType =  getSetElementType(inameType);
                 s.fact(current, elmType);
                 return elmType;
@@ -953,9 +953,9 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
            elmType = subjectType;
            inameType = s.getType(argName);
            elmType = avoid();
-           if(isListType(inameType)){
+           if(isListAType(inameType)){
                 elmType = getListElementType(inameType);
-           } else if(isSetType(inameType)){
+           } else if(isSetAType(inameType)){
                 elmType = getSetElementType(inameType);
            } else {
             s.report(error(argument, "List or set type expected, found %t", inameType));
@@ -986,7 +986,7 @@ private AType getPatternType0(current: (Pattern) `+<Pattern argument>`, AType su
 
 private AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> \>`, AType subjectType, loc scope, Solver s){
     pats = [ p | Pattern p <- elements1 ];
-    if(isTupleType(subjectType)){
+    if(isTupleAType(subjectType)){
         elmTypes = getTupleFieldTypes(subjectType);
         if(size(pats) == size(elmTypes)){
            if(tupleHasFieldNames(subjectType)){
@@ -1021,7 +1021,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
         subjectType = getStartNonTerminalType(subjectType);
     }
     
-    if(isStrType(texp)){
+    if(isStrAType(texp)){
         return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
     }       
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
@@ -1113,7 +1113,7 @@ AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (Ke
        return anode([]);
     } else if(anode(list[AType] fields) := subjectType){
         return computePatternNodeTypeWithKwArgs(current, keywordArgumentsPat, fields, scope, s);
-    } else if(isValueType(subjectType)){
+    } else if(isValueAType(subjectType)){
         return anode([]);
     }
     s.report(error(current, "Node pattern does not match %t", subjectType));

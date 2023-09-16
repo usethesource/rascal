@@ -5,7 +5,6 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
-//import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
   
 import lang::rascal::\syntax::Rascal;
 
@@ -241,7 +240,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         g = grammar(allStarts, syntaxDefinitions);
         g = layouts(g, definedLayout, allManualLayouts);
-        g = expandKeywords(g);
+        //g = expandKeywords(g);
         g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);
         tm.store[key_grammar] = [g];
@@ -301,7 +300,7 @@ TModel checkKeywords(rel[AType, AProduction] allProductions, TModel tm){
             }
             for(sym <- asymbols){
                 if(alit(_) := sym || acilit(_) := sym) continue;
-                if(!isADTType(sym) || isADTType(sym) && sym notin allLiteral){
+                if(!isADTAType(sym) || isADTAType(sym) && sym notin allLiteral){
                     tm.messages += [warning(interpolate("Only literals allowed in keyword declaration, found %t", AType(Tree t) { return tm.facts[getLoc(t)]; }, [sym]), p.src) ];
                 }
             }

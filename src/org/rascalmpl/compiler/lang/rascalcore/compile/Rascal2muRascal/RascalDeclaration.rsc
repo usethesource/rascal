@@ -84,7 +84,7 @@ private MuExp promoteVarsToFieldReferences(MuExp exp, AType consType, MuExp cons
      };
     
 public void translateDecl(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) {
-    translateDecl(functionDeclaration);
+    translateFunctionDeclaration(functionDeclaration);
 }
 
 
@@ -99,13 +99,7 @@ public void generateAllFieldGetters(loc module_scope){
 
 private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
 
-    //adtName = adtType.adtName;
-    //adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
-    adtName = getUniqueADTName(adtType);
-    //adtName = "<asJavaName(adtType.adtName)>";
-    //if(!isEmpty(adtType.parameters)){
-    //    adtName += "_<all(p <- adtType.parameters, isTypeParameter(p)) ? size(adtType.parameters) : intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
-    //}  
+    adtName = getUniqueADTName(adtType); 
     /*
      * Create getters for common keyword fields of this data type
      */
@@ -132,6 +126,8 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      */
     
     lrel[str, AType, AType] kwfield2cons = [];
+    
+    set[str] generated_getters = {};
        
     for(consType <- constructors){
        /*
@@ -145,12 +141,16 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             //str fuid = getGetterNameForKwpField(consType, kwFieldName);
             str getterName = unescapeAndStandardize("$getkw_<adtName>_<consName>_<kwFieldName>");
             
-            getterType = afunc(kwType, [consType], []);
-            consVar = muVar(consName, getterName, 0, consType, constructorId());
-            
-            defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
-            body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
-            addFunctionToModule(muFunction(getterName, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+            if(getterName notin generated_getters){
+                generated_getters += getterName;
+                
+                getterType = afunc(kwType, [consType], []);
+                consVar = muVar(consName, getterName, 0, consType, constructorId());
+                
+                defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
+                body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
+                addFunctionToModule(muFunction(getterName, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body)); 
+            }              
        }
     }
     
@@ -180,27 +180,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      */
  }
 
-
 // -- function declaration ------------------------------------------
-
-Expression dummy_body_expression = (Expression) `"dummy"`;
-
-public void translateDecl(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
-  translateFunctionDeclaration(fd, [], dummy_body_expression, []);
-}
-
-public void translateDecl(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-  translateFunctionDeclaration(fd, [], expression, [], addReturn=true);
-}
-
-public void translateDecl(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
-  translateFunctionDeclaration(fd, [], expression, [exp | exp <- conditions], addReturn=true); 
-}
-
-public void translateDecl(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  Expression exp = (Expression) `"dummy"`;
-  translateFunctionDeclaration(fd, [stat | stat <- body.statements], dummy_body_expression, []);
-}
 
 private set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
     trees = {};
@@ -219,9 +199,8 @@ private set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
     return res;
 }
 
-public void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, Expression body_expression, list[Expression] when_conditions, bool addReturn = false){
+public void translateFunctionDeclaration(FunctionDeclaration fd){
   //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd.src>)");
-  
   inScope = topFunctionScope();
   funsrc = fd.src;
   useTypeParams = getTypeVarsinFunction(fd);
@@ -268,26 +247,20 @@ public void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement]
       if(ttags["javaClass"]?){
          params = [ muVar(ftype.formals[i].alabel, fuid, i, ftype.formals[i], formalId()) | i <- [ 0 .. nformals] ];
          mubody = muReturn1(resultType, muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, params, fuid));
-      } else if(body_expression == dummy_body_expression){ // statements are present in body
-          if(!isEmpty(body)){
-                if(size(body) == 1 && addReturn){
-                    mubody = translateReturn(ftype.ret /*getType(body[0])*/, body[0], my_btscopes);
-                 } else {
-                    body_code = [ translate(stat, my_btscopes) | stat <- body ];
-                    if(isVoidType(ftype.ret)) body_code += muReturn0();
-                    mubody = muBlock(body_code);
-                    
-                 }
-          }
-       } else {
-            mubody = addReturn ? translateReturn(ftype.ret, body_expression) : translate(body_expression);
+      } else if(fd is \default){ // function declaration with statements
+                body_code = [ translate(stat, my_btscopes) | stat <- fd.body.statements ];
+                if(isVoidAType(ftype.ret)) body_code += muReturn0();
+                mubody = muBlock(body_code);
+       } else if(fd is \expression || fd is \conditional){
+            mubody = translateReturn(ftype.ret, fd.expression);
        }
 
       enterSignatureSection();
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
-      <formalVars, tbody> = translateFunction(fname, fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
+      conditions = (fd is \conditional) ? [exp | exp <- fd.conditions] : [];
+      <formalVars, tbody> = translateFunction(fname, fd.signature.parameters.formals.formals, ftype, mubody, isMemo, conditions);
       
       typeVarsInParams = getFunctionTypeParameters(ftype);
       
@@ -481,13 +454,13 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
                         
-     funCode = functionBody(isVoidType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
+     funCode = functionBody(isVoidAType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
      funCode = visit(funCode) { case muFail(fname) => muFailReturn(ftype) };
      
      funCode = removeDeadCode(funCode);
      //iprintln(funCode);
     
-     alwaysReturns = ftype.returnsViaAllPath || isVoidType(getResult(ftype));
+     alwaysReturns = ftype.returnsViaAllPath || isVoidAType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
         funCode = muBlock([muExists(fname, funCode), muFailReturn(ftype)]);

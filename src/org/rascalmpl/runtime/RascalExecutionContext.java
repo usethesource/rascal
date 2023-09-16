@@ -6,10 +6,15 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
+import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -42,6 +47,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final TypeFactory $TF;
 	private final RascalTypeFactory $RTF;
 	private IValueFactory $VF;
+	private RascalSearchPath rascalSearchPath;
 
 	public RascalExecutionContext(
 			InputStream instream,
@@ -69,6 +75,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		$TRAVERSE = new Traverse($RVF);
 		mstore = new ModuleStore();
 		tstore = new TypeStore();
+		rascalSearchPath = new RascalSearchPath();
 		
 		ISourceLocation projectRoot = inferProjectRoot(clazz);
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -90,6 +97,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
 							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
 							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
+							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $VF.list(entryRoot)));
 							//System.err.print(entryName + " ");
 						}
 					}
@@ -138,6 +146,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public RascalTypeFactory getRascalTypeFactory() { return $RTF; }
 	
 	public IValueFactory getIValueFactory() { return $VF; }
+	
+	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
 	
 	@Override
 	public int jobEnd(String name, boolean succeeded) {

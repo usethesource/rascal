@@ -59,15 +59,15 @@ public class JavaBridge {
             return result;
         } 
         catch (ClassCastException e) {
-            throw new JavaCompilation(e.getMessage(), e);
+            throw new JavaCompilation(e.getMessage(), 0, 0, className, className, e);
         } 
         catch (JavaCompilerException e) {
             if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
                 Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-                throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + javaCompilerPath + "]", e);
+                throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), className, javaCompilerPath, e);
             }
             else {
-                throw new JavaCompilation(e.getMessage(), e);
+                throw new JavaCompilation(e.getMessage(), 0, 0,  className, javaCompilerPath, e);
             }
         }
     }

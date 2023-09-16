@@ -52,7 +52,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
             def.idRole == functionId() ,//|| def.idRole == constructorId(),
             def.scope == escope, //isContainedIn(def.defined, escope),
             !(tp has isTest && tp.isTest),
-            !isNonTerminalType(tp), !isLexicalType(tp),
+            !isNonTerminalAType(tp), !isLexicalType(tp),
             !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
             
             signatures += <def.id, getArity(tp), tp>;
@@ -90,6 +90,6 @@ str generateInterfaceMethod(str fname, AType ftype){
     
     ret = getResult(ftype);
     
-    return "<isVoidType(ret) ? "void" : "IValue"> <method_name>(<method_formals>);";     
+    return "<isVoidAType(ret) ? "void" : "IValue"> <method_name>(<method_formals>);";     
     //return "<atype2javatype(ret)> <method_name>(<method_formals>);";         
 }

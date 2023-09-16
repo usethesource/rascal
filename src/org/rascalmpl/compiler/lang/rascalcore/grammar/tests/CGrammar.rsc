@@ -8,6 +8,7 @@ import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
 import util::Reflective;
+import lang::rascal::grammar::tests::ParserGeneratorTests;
 
 public Grammar C = grammar({sort("TranslationUnit")},
 
@@ -61,7 +62,7 @@ sort("StructDeclarator"): choice(sort("StructDeclarator"),{prod(sort("StructDecl
 )
 );
 
-loc CParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/CParser.java.gz";
+loc CParserLoc = |project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/| + "generated_parsers/CParser.java.gz";
 
 str generateCParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "CParser", C);
 
@@ -76,6 +77,7 @@ int generateAndTimeCParser() {
 	return (cpuTime() - t)/1000000;
 }	
 
-value main() { return generateAndTimeCParser(); }
+//value main() { return generateAndTimeCParser(); }
+value main() {cnt = 0; visit(C){ case {*value s}: cnt += 1; }; return cnt; }
 
 test bool tstGenerateCParser() = sameLines(generateCParser(), readFile(CParserLoc));

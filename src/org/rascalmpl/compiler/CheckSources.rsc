@@ -28,9 +28,9 @@ void generateTestSources(PathConfig pcfg) {
      generatedSources=|project://rascal-core/target/generated-test-sources2|,
      resources = |project://rascal-core/target/generated-test-resources2|,
      srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
-     libs = [ |project://rascal/| ]
+     libs = [ ]
      );
-   map[str,int] durations = ();
+   //map[str,int] durations = ();
      
    println("PathConfig for generating test sources:\n");
    iprintln(testConfig);
@@ -85,7 +85,7 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::TypeSymbol"];  
 
    for (m <- libraryModules) {
-     safeCompile(m, testConfig, (int d) { durations[m] = d; });
+     safeCompile(m, testConfig, (int d) { /*durations[m] = d;*/ });
    }
      
    testFolder = |std:///lang/rascal/tests|;
@@ -103,7 +103,7 @@ void generateTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      e = safeCompile(m, testConfig, (int d) { durations[m] = d; });
+      e = safeCompile(m, testConfig, (int d) { /*durations[m] = d;*/ });
       if(!isEmpty(e)){
         exceptions += e;
       }
@@ -111,9 +111,9 @@ void generateTestSources(PathConfig pcfg) {
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
-   secs = sum(toList(range(durations)))/1000000000;
-   println("Time: <secs/60> minutes");
-   //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
+   //secs = sum(toList(range(durations)))/1000000000;
+   //println("Time: <secs/60> minutes");
+   ////iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
 void testCompile(str \module) {
@@ -127,12 +127,12 @@ str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
     current_pcfg = pcfg;
     
     try {
-     measure(cpuTimeOf(() {    
+     //measure(cpuTimeOf(() {    
        //compile(\module, pcfg);
        println("compiling <current_module>");
        CheckerResult result =  rascalTModelForNames([current_module], current_pcfg, rascalTypePalConfig(classicReifier=true));
        iprintln(result.tmodels[current_module].messages);
-     }));
+     //}));
      return "";
    }
    catch value exception: {

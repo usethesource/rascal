@@ -15,6 +15,7 @@ import lang::rascalcore::check::ATypeUtils;
 /*
  *  Translate selected calls with constant arguments at compile time
  *  See lang::rascalcore::compile::muRascal::Primitives for constant folding of muPrimitives
+ * TODO: size, isEmpty are overloaded, but that is not handled well by the compiler, see rascalPattern, call or tree pattern
  */
 
 MuExp translateConstantCall(str name, list[MuExp] args) {
@@ -22,21 +23,49 @@ MuExp translateConstantCall(str name, list[MuExp] args) {
 }
 
 // String
-private MuExp tcc("size", [muCon(str s)]) = muCon(size(s));
+//private MuExp tcc("size", [muCon(str s)]) = muCon(size(s));
+
+private MuExp tcc("size", [muCon(value v)]){
+    switch(v){
+        case str s: return muCon(size(s));
+        case list[value] lst: return muCon(size(lst));
+        case set[value] st: return muCon(size(st));
+        case map[value,value] m: return(muCon(size(m)));     
+    };
+     throw "NotConstant";
+}
+
+private MuExp tcc("isEmpty", [muCon(value v)]){
+    switch(v){
+        case str s: return muCon(isEmpty(s));
+        case list[value] lst: return muCon(isEmpty(lst));
+        case set[value] st: return muCon(isEmpty(st));
+        case map[value,value] m: return(muCon(isEmpty(m)));
+    }
+    throw "NotConstant";
+}
+
+private MuExp tcc("reverse", [muCon(value v)]){
+    switch(v){
+        case str s: return muCon(reverse(s));
+        case list[value] lst: return muCon(reverse(lst));
+    }
+    throw "NotConstant";
+}
 
 // List
-private MuExp tcc("size", [muCon(list[value] lst)]) = muCon(size(lst));
+//private MuExp tcc("size", [muCon(list[value] lst)]) = muCon(size(lst));
 private  MuExp tcc("index", [muCon(list[value] lst)]) = muCon(index(lst));
-private MuExp tcc("isEmpty", [muCon(list[value] lst)]) = muCon(isEmpty(lst));
-private  MuExp tcc("reverse", [muCon(list[value] lst)]) = muCon(reverse(lst));
+//private MuExp tcc("isEmpty", [muCon(list[value] lst)]) = muCon(isEmpty(lst));
+//private  MuExp tcc("reverse", [muCon(list[value] lst)]) = muCon(reverse(lst));
  
 // Set 
-private MuExp tcc("size", [muCon(set[value] st)]) = muCon(size(st));
-private MuExp tcc("isEmpty", [muCon(set[value] st)]) = muCon(isEmpty(st));
+//private MuExp tcc("size", [muCon(set[value] st)]) = muCon(size(st));
+//private MuExp tcc("isEmpty", [muCon(set[value] st)]) = muCon(isEmpty(st));
 
 // Map
-private MuExp tcc("size", [muCon(map[value,value] mp)]) = muCon(size(mp));
-private MuExp tcc("isEmpty", [muCon(map[value,value] mp)]) = muCon(isEmpty(mp));
+//private MuExp tcc("size", [muCon(map[value,value] mp)]) = muCon(size(mp));
+//private MuExp tcc("isEmpty", [muCon(map[value,value] mp)]) = muCon(isEmpty(mp));
 
 // Node
 private MuExp tcc("getName", [muCon(node nd)]) = muCon(getName(nd));
@@ -51,8 +80,8 @@ private MuExp tcc("lub", [muCon(AType lhs), muCon(AType rhs)]) = muCon(alub(lhs,
 
 private MuExp tcc("appl", [muCon(Production prod), muCon(list[Tree] args)]) = muCon(ParseTree::appl(prod, args));
 private MuExp tcc("cycle", [muCon(Symbol symbol), muCon(int cycleLength)]) = muCon(ParseTree::cycle(symbol, cycleLength));
-private MuExp tcc("achar", [muCon(int character)]) = muCon(ParseTree::char(character));
-private MuExp tcc("aamb",  [muCon(set[Tree] alternatives)]) = muCon(ParseTree::amb(alternatives));
+private MuExp tcc("char", [muCon(int character)]) = muCon(ParseTree::char(character));
+private MuExp tcc("amb",  [muCon(set[Tree] alternatives)]) = muCon(ParseTree::amb(alternatives));
 
 // Production
 
@@ -64,17 +93,17 @@ private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(Par
 private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = muCon(Type::\choice(def, alternatives));
 
 // Attr
-private MuExp tcc("atag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
-private MuExp tcc("abracket", []) = muCon(ParseTree::\bracket());
-private MuExp tcc("aassoc", [muCon(ParseTree::Associativity \asssoc)]) = muCon(ParseTree::\assoc(\asssoc));
+private MuExp tcc("tag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
+private MuExp tcc("bracket", []) = muCon(ParseTree::\bracket());
+private MuExp tcc("assoc", [muCon(ParseTree::Associativity \assoc)]) = muCon(ParseTree::\assoc(\assoc));
 
 
 // Associativity
 
-private MuExp tcc("aleft", []) = muCon(ParseTree::\left());
-private MuExp tcc("aright", []) = muCon(ParseTree::\right());
-private MuExp tcc("aassoc", []) = muCon(ParseTree::\assoc());
-private MuExp tcc("a-non-assoc", []) = muCon(ParseTree::\non-assoc());
+private MuExp tcc("left", []) = muCon(ParseTree::\left());
+private MuExp tcc("right", []) = muCon(ParseTree::\right());
+private MuExp tcc("assoc", []) = muCon(ParseTree::\assoc());
+private MuExp tcc("non-assoc", []) = muCon(ParseTree::\non-assoc());
 
 // CharRange
 private MuExp tcc("range", [muCon(begin), muCon(end)]) = muCon(ParseTree::range(begin, end));
@@ -113,17 +142,25 @@ private MuExp tcc("func", [muCon(Symbol ret), muCon(list[Symbol] parameters), li
 private MuExp tcc("parameter", [muCon(str name), muCon(Symbol bound)]) = muCon(\parameter(name, bound));
 
 private MuExp tcc("start", [muCon(Symbol symbol)]) = muCon(ParseTree::\start(symbol));
-private MuExp tcc("sort", [muCon(str name)]) = muCon(sort(name));
+//private MuExp tcc("sort", [muCon(str name)]) = muCon(sort(name));
+
+private MuExp tcc("sort", [muCon(value v)]){
+    switch(v){
+        case list[value] lst : return muCon(sort(lst));
+    }
+    throw "NotConstant"; 
+}
+
 private MuExp tcc("lex", [muCon(str name)]) = muCon(lex(name));
 private MuExp tcc("layouts", [muCon(str name)]) = muCon(ParseTree::layouts(name));
 private MuExp tcc("keywords", [muCon(str name)]) = muCon(ParseTree::keywords(name));
 private MuExp tcc("parameterized-sort", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 private MuExp tcc("parameterized-lex", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\parameterized-sort(name, parameters));
 
-private MuExp tcc("alit", [muCon(str string)]) = muCon(Symbol::lit(string));
-private MuExp tcc("acilit", [muCon(str string)]) = muCon(Symbol::cilit(string));
-private MuExp tcc("achar-class", [muCon(list[CharRange] ranges)]) = muCon(Symbol::\char-class(ranges));
-private MuExp tcc("aempty", []) = muCon(ParseTree::empty());
+private MuExp tcc("lit", [muCon(str string)]) = muCon(Symbol::lit(string));
+private MuExp tcc("cilit", [muCon(str string)]) = muCon(Symbol::cilit(string));
+private MuExp tcc("char-class", [muCon(list[CharRange] ranges)]) = muCon(Symbol::\char-class(ranges));
+private MuExp tcc("empty", []) = muCon(ParseTree::empty());
 private MuExp tcc("opt", [muCon(Symbol symbol)]) = muCon(Symbol::opt(symbol));
 
 private MuExp tcc("iter", [muCon(Symbol symbol)]) = muCon(Symbol::iter(symbol));
@@ -142,10 +179,10 @@ private MuExp tcc("not-follow", [muCon(Symbol symbol)]) = muCon(ParseTree::\not-
 private MuExp tcc("precede", [muCon(Symbol symbol)]) = muCon(ParseTree::precede(symbol));
 private MuExp tcc("not-precede", [muCon(Symbol symbol)]) = muCon(ParseTree::\not-precede(symbol));
 private MuExp tcc("delete", [muCon(Symbol symbol)]) = muCon(ParseTree::delete(symbol));
-private MuExp tcc("a-at-column", [muCon(int column)]) = muCon(ParseTree::\at-column(column));
-private MuExp tcc("a-begin-of-line", []) = muCon(ParseTree::\begin-of-line());
-private MuExp tcc("a-end-of-line", []) = muCon(ParseTree::\end-of-line());
-private MuExp tcc("a-except", [muCon(str label)]) = muCon(ParseTree::except(label));
+private MuExp tcc("at-column", [muCon(int column)]) = muCon(ParseTree::\at-column(column));
+private MuExp tcc("begin-of-line", []) = muCon(ParseTree::\begin-of-line());
+private MuExp tcc("end-of-line", []) = muCon(ParseTree::\end-of-line());
+private MuExp tcc("except", [muCon(str label)]) = muCon(ParseTree::except(label));
 
 // Grammar
 

@@ -168,7 +168,6 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 
 			tr.setMatchedAndChanged(hasMatched, hasChanged);
 			args[1] = w.done();
-			System.err.println(args[1]);
 		} else {
 			args[1] = list;
 		}

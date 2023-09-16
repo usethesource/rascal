@@ -36,7 +36,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
      
-    if(isADTType(nonterminalType)){
+    if(isADTAType(nonterminalType)){
         adtName = nonterminalType.adtName;
        
         typeParameters = getTypeParameters(defined);
@@ -80,7 +80,7 @@ void collect(current: (Prod) `: <Name referenced>`, Collector c){
 }
 
 void requireNonLayout(Tree current, AType u, str msg, Solver s){
-    if(isLayoutType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
+    if(isLayoutAType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
 }
 
 AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
@@ -112,7 +112,7 @@ private bool isTerminalSym((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = isTerm
 private bool isTerminalSym((Sym) `()`) = true;
 private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal || s is caseInsensitiveLiteral;
 
-private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when isNonTerminalType(adt2);
+private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when isNonTerminalAType(adt2);
 private default AType removeChainRule(AType t) = t;
 
 //private Sym removeConditions((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = removeConditions(symbol);
@@ -146,6 +146,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                  }
             });
         //qualName = unescape("<name>"); // 
+        if(!(SyntaxDefinition _ := adt)){
+            println("*** Collect: <adt> is not a SyntaxDefinition ***");
+        }
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
         
          // Define the constructor (using a location annotated with "cons" to differentiate from the above)
@@ -157,8 +160,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ getSyntaxType(removeChainRule(tsym), s) | sym <- symbols,  !isTerminalSym(sym), tsym := s.getType(sym), isNonTerminalType(tsym)];                                                
-                    //fields = [ removeChainRule(t) | sym <- symbols, ssym := removeConditions(sym), !isTerminalSym(ssym), tsym := s.getType(ssym), t := removeConditional(tsym), isNonTerminalType(t)];                                                
+                    fields = [ getSyntaxType(removeChainRule(tsym), s) | sym <- symbols,  !isTerminalSym(sym), tsym := s.getType(sym), isNonTerminalAType(tsym)];                                                
+                    //fields = [ removeChainRule(t) | sym <- symbols, ssym := removeConditions(sym), !isTerminalSym(ssym), tsym := s.getType(ssym), t := removeConditional(tsym), isNonTerminalAType(t)];                                                
                           
                     def = \start(sdef) := def ? sdef : def;
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
@@ -251,6 +254,6 @@ void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
     }
 }
 
-default void collect(Prod current, Collector c){
-    throw "collect Prod, missed case <current>";
-}
+//default void collect(Prod current, Collector c){
+//    throw "collect Prod, missed case <current>";
+//}

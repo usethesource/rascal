@@ -101,8 +101,8 @@ str prettyAType(\aempty()) = "()";
 str prettyAType(\opt(AType symbol)) = "<prettyAType(symbol)>?";
 str prettyAType(\iter(AType symbol)) = "<prettyAType(symbol)>+";
 str prettyAType(\iter-star(AType symbol)) = "<prettyAType(symbol)>*";
-str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutType(sep) ])>}+";
-str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutType(sep) ])>}*";
+str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutAType(sep) ])>}+";
+str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ "\"<prettyAType(sep)>\"" | sep <- separators, !isLayoutAType(sep) ])>}*";
 str prettyAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyAType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
 str prettyAType(\seq(list[AType] sequence)) = "( <intercalate(" ", [ prettyAType(a) | a <- sequence ])> )" when size(sequence) > 1;
 str prettyAType(\conditional(AType symbol, set[ACondition] conditions)) = "<prettyAType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
@@ -112,7 +112,7 @@ private str prettyPrintCond(ACondition::\follow(AType symbol)) = "\>\> <prettyAT
 private str prettyPrintCond(ACondition::\not-follow(AType symbol)) = "!\>\> <prettyAType(symbol)>";
 private str prettyPrintCond(ACondition::\precede(AType symbol)) = "<prettyAType(symbol)> \<\<";
 private str prettyPrintCond(ACondition::\not-precede(AType symbol)) = "<prettyAType(symbol)> !\<\<";
-private str prettyPrintCond(ACondition::\delete(AType symbol)) = "???";
+private str prettyPrintCond(ACondition::\delete(AType symbol)) = " \\ <prettyAType(symbol)>";
 private str prettyPrintCond("a-at-column"(int column)) = "@<column>";
 private str prettyPrintCond("a-begin-of-line"()) = "^";
 private str prettyPrintCond("a-end-of-line"()) = "$";
@@ -214,7 +214,7 @@ Symbol atype2symbol1(aprod(p:prod(AType def, list[AType] atypes))) {
 //    return res;
 ////    res = Production::prod(atype2symbol(def), [ atype2symbol(t) | t <- atypes, bprintln(t) ]);   //atype2symbol(def);
 }
-Production atype2symbol1(regular(AType def)) = \regular(atype2symbol(def));
+Production aproduction2production(regular(AType def)) = \regular(atype2symbol(def));
 
 //Symbol atype2symbol1(regular(AType def)) = atype2symbol(def);
 default Symbol atype2symbol1(AType s)  { throw "could not convert <s> to Symbol"; }
@@ -298,31 +298,31 @@ AType symbol2atype(Symbol symbol){
     return symbol2atype1(symbol);
 }
 
-AType symbol2atype1(\int()) = aint();
-AType symbol2atype1(\bool()) = abool();
-AType symbol2atype1(\real()) = areal();
-AType symbol2atype1(\rat()) = arat();
-AType symbol2atype1(\str()) = astr();
-AType symbol2atype1(\num()) = anum();
-AType symbol2atype1(\node()) = anode([]);
-AType symbol2atype1(\void()) = avoid();
-AType symbol2atype1(\value()) = avalue();
-AType symbol2atype1(\loc()) = aloc();
-AType symbol2atype1(\datetime()) = adatetime();
+AType symbol2atype1(Symbol::\int()) = aint();
+AType symbol2atype1(Symbol::\bool()) = abool();
+AType symbol2atype1(Symbol::\real()) = areal();
+AType symbol2atype1(Symbol::\rat()) = arat();
+AType symbol2atype1(Symbol::\str()) = astr();
+AType symbol2atype1(Symbol::\num()) = anum();
+AType symbol2atype1(Symbol::\node()) = anode([]);
+AType symbol2atype1(Symbol::\void()) = avoid();
+AType symbol2atype1(Symbol::\value()) = avalue();
+AType symbol2atype1(Symbol::\loc()) = aloc();
+AType symbol2atype1(Symbol::\datetime()) = adatetime();
 
 AType symbol2atype1(Symbol::label(str label, symbol)){
     return symbol2atype(symbol)[alabel=label];
 }
 
-AType symbol2atype1(\set(Symbol symbol)) = aset(symbol2atype(symbol));
-AType symbol2atype1(\rel(list[Symbol] symbols)) = arel(atypeList(symbol2atype(symbols)));
-AType symbol2atype1(\lrel(list[Symbol] symbols)) = alrel(atypeList(symbol2atype(symbols)));
-AType symbol2atype1(\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
-AType symbol2atype1(\list(Symbol symbol)) = alist(symbol2atype(symbol));
-AType symbol2atype1(\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
-AType symbol2atype1(\bag(Symbol symbol)) = abag(symbol2atype(symbol));
-AType symbol2atype1(\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
-AType symbol2atype1(\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[alabel=name];
+AType symbol2atype1(Symbol::\set(Symbol symbol)) = aset(symbol2atype(symbol));
+AType symbol2atype1(Symbol::\rel(list[Symbol] symbols)) = arel(atypeList(symbol2atype(symbols)));
+AType symbol2atype1(Symbol::\lrel(list[Symbol] symbols)) = alrel(atypeList(symbol2atype(symbols)));
+AType symbol2atype1(Symbol::\tuple(list[Symbol] symbols)) = atuple(atypeList(symbol2atype(symbols)));  
+AType symbol2atype1(Symbol::\list(Symbol symbol)) = alist(symbol2atype(symbol));
+AType symbol2atype1(Symbol::\map(Symbol from, Symbol to)) = amap(symbol2atype(from), symbol2atype(to));
+AType symbol2atype1(Symbol::\bag(Symbol symbol)) = abag(symbol2atype(symbol));
+AType symbol2atype1(Symbol::\adt(str name, list[Symbol] parameters)) = aadt(name, symbol2atype(parameters), dataSyntax());
+AType symbol2atype1(Symbol::\cons(Symbol \adt, str name, list[Symbol] parameters)) = acons(symbol2atype(\adt), symbol2atype(parameters), [])[alabel=name];
 
      //| \alias(str name, list[Symbol] parameters, Symbol aliased)
      //| \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
@@ -387,7 +387,7 @@ AType symbol2atype1(Symbol::\parameterized-lex(str name, list[Symbol] parameters
 //    return base + kwds + ")";
 //}
 
-AProduction symbol2atype1(Production::regular(Symbol def))
+AProduction production2aproduction(Production::regular(Symbol def))
     = regular(symbol2atype(def));
 
 //str symbol2atype1(error(AProduction prod, int dot), map[AType, set[AType]] defs)
@@ -511,7 +511,7 @@ default AType unwrapType(AType t) = t;
 
 bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.alabel)]);
 
-bool isArithType(AType t) = isIntType(t) || isRealType(t) || isRatType(t) || isNumType(t);
+bool isArithType(AType t) = isIntAType(t) || isRealAType(t) || isRatAType(t) || isNumAType(t);
 
 // ---- int
 
@@ -519,9 +519,9 @@ bool isArithType(AType t) = isIntType(t) || isRealType(t) || isRatType(t) || isN
 .Synopsis
 Determine if the given type is an int.
 }
-bool isIntType(aparameter(_,AType tvb)) = isIntType(tvb);
-bool isIntType(aint()) = true;
-default bool isIntType(AType _) = false;
+bool isIntAType(aparameter(_,AType tvb)) = isIntAType(tvb);
+bool isIntAType(aint()) = true;
+default bool isIntAType(AType _) = false;
 
 @doc{Create a new int type.}
 AType makeIntType() = aint();
@@ -531,9 +531,9 @@ AType makeIntType() = aint();
 .Synopsis
 Determine if the given type is a bool.
 }
-bool isBoolType(aparameter(_,AType tvb)) = isBoolType(tvb);
-bool isBoolType(abool()) = true;
-default bool isBoolType(AType _) = false;
+bool isBoolAType(aparameter(_,AType tvb)) = isBoolAType(tvb);
+bool isBoolAType(abool()) = true;
+default bool isBoolAType(AType _) = false;
 
 @doc{Create a new bool type.}
 AType makeBoolType() = abool();
@@ -544,9 +544,9 @@ AType makeBoolType() = abool();
 .Synopsis
 Determine if the given type is a real.
 }
-bool isRealType(aparameter(_,AType tvb)) = isRealType(tvb);
-bool isRealType(areal()) = true;
-default bool isRealType(AType _) = false;
+bool isRealAType(aparameter(_,AType tvb)) = isRealAType(tvb);
+bool isRealAType(areal()) = true;
+default bool isRealAType(AType _) = false;
 
 @doc{Create a new real type.}
 AType makeRealType() = areal();
@@ -557,9 +557,9 @@ AType makeRealType() = areal();
 .Synopsis
 Determine if the given type is a rational.
 }
-bool isRatType(aparameter(_,AType tvb)) = isRatType(tvb);
-bool isRatType(arat()) = true;
-default bool isRatType(AType _) = false;
+bool isRatAType(aparameter(_,AType tvb)) = isRatAType(tvb);
+bool isRatAType(arat()) = true;
+default bool isRatAType(AType _) = false;
 
 @doc{Create a new rat type.}
 AType makeRatType() = arat();
@@ -570,9 +570,9 @@ AType makeRatType() = arat();
 .Synopsis
 Determine if the given type is a string.
 }
-bool isStrType(aparameter(_,AType tvb)) = isStrType(tvb);
-bool isStrType(astr()) = true;
-default bool isStrType(AType _) = false;
+bool isStrAType(aparameter(_,AType tvb)) = isStrAType(tvb);
+bool isStrAType(astr()) = true;
+default bool isStrAType(AType _) = false;
 
 @doc{Create a new str type.}
 AType makeStrType() = astr();
@@ -583,11 +583,11 @@ AType makeStrType() = astr();
 .Synopsis
 Determine if the given type is a num.
 }
-bool isNumType(aparameter(_,AType tvb)) = isNumType(tvb);
-bool isNumType(anum()) = true;
-default bool isNumType(AType _) = false;
+bool isNumAType(aparameter(_,AType tvb)) = isNumAType(tvb);
+bool isNumAType(anum()) = true;
+default bool isNumAType(AType _) = false;
 
-bool isNumericType(AType t) = isIntType(t) || isRealType(t) || isRatType(t) || isNumType(t);
+bool isNumericType(AType t) = isIntAType(t) || isRealAType(t) || isRatAType(t) || isNumAType(t);
 
 @doc{Create a new num type.}
 AType makeNumType() = anum();
@@ -598,10 +598,10 @@ AType makeNumType() = anum();
 .Synopsis
 Determine if the given type is a node.
 }
-bool isNodeType(aparameter(_,AType tvb)) = isNodeType(tvb);
-bool isNodeType(anode(_)) = true;
-bool isNodeType(aadt(_,_,_)) = true;
-default bool isNodeType(AType _) = false;
+bool isNodeAType(aparameter(_,AType tvb)) = isNodeAType(tvb);
+bool isNodeAType(anode(_)) = true;
+bool isNodeAType(aadt(_,_,_)) = true;
+default bool isNodeAType(AType _) = false;
 
 @doc{Create a new node type.}
 AType makeNodeType() = anode([]);
@@ -632,9 +632,9 @@ default bool hasKeywordParameters(AType t) = false;
 .Synopsis
 Determine if the given type is a void.
 }
-bool isVoidType(aparameter(_,AType tvb)) = isVoidType(tvb);
-bool isVoidType(avoid()) = true;
-default bool isVoidType(AType _) = false;
+bool isVoidAType(aparameter(_,AType tvb)) = isVoidAType(tvb);
+bool isVoidAType(avoid()) = true;
+default bool isVoidAType(AType _) = false;
 
 @doc{Create a new void type.}
 AType makeVoidType() = avoid();
@@ -645,9 +645,9 @@ AType makeVoidType() = avoid();
 .Synopsis
 Determine if the given type is a value.
 }
-bool isValueType(aparameter(_,AType tvb)) = isValueType(tvb);
-bool isValueType(avalue()) = true;
-default bool isValueType(AType _) = false;
+bool isValueAType(aparameter(_,AType tvb)) = isValueAType(tvb);
+bool isValueAType(avalue()) = true;
+default bool isValueAType(AType _) = false;
 
 @doc{Create a new value type.}
 AType makeValueType() = avalue();
@@ -658,9 +658,9 @@ AType makeValueType() = avalue();
 .Synopsis
 Determine if the given type is a loc.
 }
-bool isLocType(aparameter(_,AType tvb)) = isLocType(tvb);
-bool isLocType(aloc()) = true;
-default bool isLocType(AType _) = false;
+bool isLocAType(aparameter(_,AType tvb)) = isLocAType(tvb);
+bool isLocAType(aloc()) = true;
+default bool isLocAType(AType _) = false;
 
 @doc{Create a new loc type.}
 AType makeLocType() = aloc();
@@ -671,9 +671,9 @@ AType makeLocType() = aloc();
 .Synopsis
 Determine if the given type is a `datetime`.
 }
-bool isDateTimeType(aparameter(_,AType tvb)) = isDateTimeType(tvb);
-bool isDateTimeType(adatetime()) = true;
-default bool isDateTimeType(AType _) = false;
+bool isDateTimeAType(aparameter(_,AType tvb)) = isDateTimeAType(tvb);
+bool isDateTimeAType(adatetime()) = true;
+default bool isDateTimeAType(AType _) = false;
 
 @doc{Create a new datetime type.}
 AType makeDateTimeType() = adatetime();
@@ -684,14 +684,14 @@ AType makeDateTimeType() = adatetime();
 .Synopsis
 Determine if the given type is a set.
 }
-bool isSetType(aparameter(_,AType tvb)) = isSetType(tvb);
-bool isSetType(aset(_)) = true;
-bool isSetType(arel(_)) = true;
-default bool isSetType(AType _) = false;
+bool isSetAType(aparameter(_,AType tvb)) = isSetAType(tvb);
+bool isSetAType(aset(_)) = true;
+bool isSetAType(arel(_)) = true;
+default bool isSetAType(AType _) = false;
 
 @doc{Create a new set type, given the element type of the set.}
 AType makeSetType(AType elementType) {
-    return isTupleType(elementType) ? makeRelTypeFromTuple(elementType) : aset(elementType);
+    return isTupleAType(elementType) ? makeRelTypeFromTuple(elementType) : aset(elementType);
 }
 
 @doc{Get the element type of a set.}
@@ -706,7 +706,7 @@ AType getElementType(alist(AType et)) = et;
 AType getElementType(aset(AType et)) = et;
 AType getElementType(amap(AType kt, AType vt)) = kt;
 AType getElementType(abag(AType et)) = et;
-default AType getElementType(AType t) = avalue();
+default AType getElementType(AType t) = isIterType(t) ? getIterElementType(t) : avalue();
 
 // ---- rel
 
@@ -714,13 +714,13 @@ default AType getElementType(AType t) = avalue();
 .Synopsis
 Determine if the given type is a relation.
 }
-bool isRelType(aparameter(_,AType tvb)) = isRelType(tvb);
-bool isRelType(arel(_)) = true;
-bool isRelType(aset(AType tp)) = true when isTupleType(tp);
-default bool isRelType(AType _) = false;
+bool isRelAType(aparameter(_,AType tvb)) = isRelAType(tvb);
+bool isRelAType(arel(_)) = true;
+bool isRelAType(aset(AType tp)) = true when isTupleAType(tp);
+default bool isRelAType(AType _) = false;
 
 @doc{Ensure that sets of tuples are treated as relations.}
-AType aset(AType t) = arel(atypeList(getTupleFields(t))) when isTupleType(t);
+AType aset(AType t) = arel(atypeList(getTupleFields(t))) when isTupleAType(t);
 
 @doc{Create a new rel type, given the element types of the fields. Check any given alabels for consistency.}
 AType makeRelType(AType elementTypes...) {
@@ -779,13 +779,13 @@ list[AType] getRelFields(AType t) {
 .Synopsis
 Determine if the given type is a list relation.
 }
-bool isListRelType(aparameter(_,AType tvb)) = isListRelType(tvb);
-bool isListRelType(alrel(_)) = true;
-bool isListRelType(alist(AType tp)) = true when isTupleType(tp);
-default bool isListRelType(AType _) = false;
+bool isListRelAType(aparameter(_,AType tvb)) = isListRelAType(tvb);
+bool isListRelAType(alrel(_)) = true;
+bool isListRelAType(alist(AType tp)) = true when isTupleAType(tp);
+default bool isListRelAType(AType _) = false;
 
 @doc{Ensure that lists of tuples are treated as list relations.}
-AType alist(AType t) = alrel(atypeList(getTupleFields(t))) when isTupleType(t);
+AType alist(AType t) = alrel(atypeList(getTupleFields(t))) when isTupleAType(t);
 
 @doc{Create a new list rel type, given the element types of the fields. Check any given labels for consistency.}
 AType makeListRelType(AType elementTypes...) {
@@ -827,9 +827,9 @@ list[AType] getListRelFields(AType t) {
 .Synopsis
 Determine if the given type is a tuple.
 }
-bool isTupleType(aparameter(_,AType tvb)) = isTupleType(tvb);
-bool isTupleType(atuple(_)) = true;
-default bool isTupleType(AType _) = false;
+bool isTupleAType(aparameter(_,AType tvb)) = isTupleAType(tvb);
+bool isTupleAType(atuple(_)) = true;
+default bool isTupleAType(AType _) = false;
 
 @doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
 AType makeTupleType(AType elementTypes...) {
@@ -919,14 +919,14 @@ str getTupleFieldName(AType t, int idx) {
 .Synopsis
 Determine if the given type is a list.
 }
-bool isListType(aparameter(_,AType tvb)) = isListType(tvb);
-bool isListType(alist(_)) = true;
-bool isListType(alrel(_)) = true;
-default bool isListType(AType _) = false;
+bool isListAType(aparameter(_,AType tvb)) = isListAType(tvb);
+bool isListAType(alist(_)) = true;
+bool isListAType(alrel(_)) = true;
+default bool isListAType(AType _) = false;
 
 @doc{Create a new list type, given the element type of the list.}
 AType makeListType(AType elementType) {
-    return isTupleType(elementType) ? makeListRelTypeFromTuple(elementType) : alist(elementType);
+    return isTupleAType(elementType) ? makeListRelTypeFromTuple(elementType) : alist(elementType);
 } 
 
 @doc{Get the element type of a list.}
@@ -943,9 +943,9 @@ AType getListElementType(AType t) {
 .Synopsis
 Determine if the given type is a map.
 }
-bool isMapType(x:aparameter(_,AType tvb)) = isMapType(tvb);
-bool isMapType(x:amap(_,_)) = true;
-default bool isMapType(AType x) = false;
+bool isMapAType(x:aparameter(_,AType tvb)) = isMapAType(tvb);
+bool isMapAType(x:amap(_,_)) = true;
+default bool isMapAType(AType x) = false;
 
 @doc{Create a new map type, given the types of the domain and range. Check to make sure field names are used consistently.}
 AType makeMapType(AType domain, AType range) {
@@ -1005,9 +1005,9 @@ AType getMapRangeType(AType t) = unwrapType(getMapFields(t)[1]);
 .Synopsis
 Determine if the given type is a bag (bags are not yet implemented).
 }
-bool isBagType(aparameter(_,AType tvb)) = isBagType(tvb);
-bool isBagType(abag(_)) = true;
-default bool isBagType(AType _) = false;
+bool isBagAType(aparameter(_,AType tvb)) = isBagAType(tvb);
+bool isBagAType(abag(_)) = true;
+default bool isBagAType(AType _) = false;
 
 @doc{Create a new bag type, given the element type of the bag.}
 AType makeBagType(AType elementType) = abag(elementType);
@@ -1023,11 +1023,11 @@ AType getBagElementType(AType t) {
 .Synopsis
 Determine if the given type is an Abstract Data Type (ADT).
 }
-bool isADTType(aparameter(_,AType tvb)) = isADTType(tvb);
-bool isADTType(aadt(_,_,_)) = true;
-bool isADTType(areified(_)) = true;
-bool isADTType(\start(AType s)) = isADTType(s);
-default bool isADTType(AType _) = false;
+bool isADTAType(aparameter(_,AType tvb)) = isADTAType(tvb);
+bool isADTAType(aadt(_,_,_)) = true;
+bool isADTAType(areified(_)) = true;
+bool isADTAType(\start(AType s)) = isADTAType(s);
+default bool isADTAType(AType _) = false;
 
 @doc{Create a new parameterized ADT type with the given type parameters}
 AType makeParameterizedADTType(str n, AType p...) = aadt(n,p, dataSyntax());
@@ -1062,15 +1062,15 @@ default bool isTypeParameter(AType t) = false;
 bool adtHasTypeParameters(AType t) = size(getADTTypeParameters(t)) > 0;
 
 bool isOverloadedAType(overloadedAType(rel[loc, IdRole, AType] overloads)) = true;
-default bool isOverloadedType(AType _) = false;
+//default bool isOverloadedAType(AType _) = false; Reuse default from typepal::AType
 
 @doc{
 .Synopsis
 Determine if the given type is a constructor.
 }
-bool isConstructorType(aparameter(_,AType tvb)) = isConstructorType(tvb);
-bool isConstructorType(acons(AType _, /*str _,*/ _, _)) = true;
-default bool isConstructorType(AType _) = false;
+bool isConstructorAType(aparameter(_,AType tvb)) = isConstructorAType(tvb);
+bool isConstructorAType(acons(AType _, /*str _,*/ _, _)) = true;
+default bool isConstructorAType(AType _) = false;
 
 @doc{Get the ADT type of the constructor.}
 AType getConstructorResultType(AType ct) {
@@ -1093,9 +1093,9 @@ AType getConstructorArgumentTypesAsTuple(AType ct) {
 .Synopsis
 Determine if the given type is a function.
 }
-bool isFunctionType(aparameter(_,AType tvb)) = isFunctionType(tvb);
-bool isFunctionType(afunc(_,_,_)) = true;
-default bool isFunctionType(AType _) = false;
+bool isFunctionAType(aparameter(_,AType tvb)) = isFunctionAType(tvb);
+bool isFunctionAType(afunc(_,_,_)) = true;
+default bool isFunctionAType(AType _) = false;
 
 @doc{Get a list of arguments for the function.}
 list[AType] getFunctionArgumentTypes(AType ft) {
@@ -1171,7 +1171,7 @@ default int getArity(AType t) {
 
 list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = formals;
 list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
-list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [t | t <- atypes, isADTType(t)];
+list[AType] getFormals(aprod(prod(AType def, list[AType] atypes))) = [t | t <- atypes, isADTAType(t)];
 list[AType] getFormals(aprod(\associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives))) = getFormals(aprod(getFirstFrom(alternatives)));
 list[AType] getFormals(overloadedAType(rel[loc, IdRole, AType] overloads)) = (getFormals(getFirstFrom(overloads<2>)) | alubList(it, getFormals(tp) )| tp <- overloads<2>);
 default list[AType] getFormals(AType t){
@@ -1193,9 +1193,9 @@ default AType getResult(AType t){
 .Synopsis
 Determine if the given type is a reified type.
 }
-bool isReifiedType(aparameter(_,AType tvb)) = isReifiedType(tvb);
-bool isReifiedType(areified(_)) = true;
-default bool isReifiedType(AType _) = false;
+bool isReifiedAType(aparameter(_,AType tvb)) = isReifiedAType(tvb);
+bool isReifiedAType(areified(_)) = true;
+default bool isReifiedAType(AType _) = false;
 
 @doc{Create a type representing the reified form of the given type.}
 AType makeReifiedType(AType mainType) = areified(mainType);
@@ -1266,23 +1266,23 @@ set[str] typeParamNames(AType t) {
 
 @doc{Is this type a non-container type?}
 bool isElementType(AType t) = 
-    isIntType(t) || isBoolType(t) || isRealType(t) || isRatType(t) || isStrType(t) || 
-    isNumType(t) || isNodeType(t) || isVoidType(t) || isValueType(t) || isLocType(t) || 
-    isDateTimeType(t) || isTupleType(t) || isADTType(t) || isConstructorType(t) ||
-    isFunctionType(t) || isReifiedType(t) || isNonTerminalType(t);
+    isIntAType(t) || isBoolAType(t) || isRealAType(t) || isRatAType(t) || isStrAType(t) || 
+    isNumAType(t) || isNodeAType(t) || isVoidAType(t) || isValueAType(t) || isLocAType(t) || 
+    isDateTimeAType(t) || isTupleAType(t) || isADTAType(t) || isConstructorAType(t) ||
+    isFunctionAType(t) || isReifiedAType(t) || isNonTerminalAType(t);
 
 @doc{Is this type a container type?}
 bool isContainerType(AType t) =
-    isSetType(t) || isListType(t) || isMapType(t) || isBagType(t);
+    isSetAType(t) || isListAType(t) || isMapAType(t) || isBagAType(t);
     
 bool isEnumeratorType(AType t) =
-    isSetType(t) || isListType(t) || isMapType(t) || isADTType(t) || isTupleType(t) || isNodeType(t) ||
+    isSetAType(t) || isListAType(t) || isMapAType(t) || isADTAType(t) || isTupleAType(t) || isNodeAType(t) ||
     isIterType(t) || isOptType(t);
     
-AType getEnumeratorElementType(AType t) = getListElementType(t) when isListType(t);
-AType getEnumeratorElementType(AType t) = getSetElementType(t) when isSetType(t);
-AType getEnumeratorElementType(AType t) = getMapDomainType(t) when isMapType(t);
-AType getEnumeratorElementType(AType t) = avalue() when isADTType(t) || isTupleType(t) || isNodeType(t);
+AType getEnumeratorElementType(AType t) = getListElementType(t) when isListAType(t);
+AType getEnumeratorElementType(AType t) = getSetElementType(t) when isSetAType(t);
+AType getEnumeratorElementType(AType t) = getMapDomainType(t) when isMapAType(t);
+AType getEnumeratorElementType(AType t) = avalue() when isADTAType(t) || isTupleAType(t) || isNodeAType(t);
 AType getEnumeratorElementType(AType t) = getIterElementType(t) when isIterType(t);
 AType getEnumeratorElementType(AType t) = getOptType(t) when isOptType(t);
 default AType getEnumeratorElementType(AType t) = avalue();
@@ -1293,26 +1293,26 @@ default AType getEnumeratorElementType(AType t) = avalue();
 // ---- named nonterminals
 
 @doc{Synopsis: Determine if the given type is a nonterminal.}
-bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
-bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
-bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr);// || adtName == "Tree";
-bool isNonTerminalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isNonTerminalType(adt);
-bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
-bool isNonTerminalType(AType::aprod(AProduction p)) = isNonTerminalType(p.def);
+bool isNonTerminalAType(aparameter(_,AType tvb)) = isNonTerminalAType(tvb);
+bool isNonTerminalAType(AType::\conditional(AType ss,_)) = isNonTerminalAType(ss);
+bool isNonTerminalAType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr);
+bool isNonTerminalAType(acons(AType adt, list[AType] _, list[Keyword] _)) = isNonTerminalAType(adt);
+bool isNonTerminalAType(AType::\start(AType ss)) = isNonTerminalAType(ss);
+bool isNonTerminalAType(AType::aprod(AProduction p)) = isNonTerminalAType(p.def);
 
-bool isNonTerminalType(AType::\iter(AType t)) = isNonTerminalType(t);
-bool isNonTerminalType(AType::\iter-star(AType t)) = isNonTerminalType(t);
-bool isNonTerminalType(AType::\iter-seps(AType t,_)) = isNonTerminalType(t);
-bool isNonTerminalType(AType::\iter-star-seps(AType t,_)) = isNonTerminalType(t);
-bool isNonTerminalType(AType::\aempty()) = false;
-bool isNonTerminalType(AType::\opt(AType t)) = isNonTerminalType(t);
-bool isNonTerminalType(AType::\alt(set[AType] alternatives)) = any(a <- alternatives, isNonTerminalType(a));
-bool isNonTerminalType(AType::\seq(list[AType] atypes)) = any(t <- atypes, isNonTerminalType(t));
-default bool isNonTerminalType(AType t) = false;   
+bool isNonTerminalAType(AType::\iter(AType t)) = isNonTerminalAType(t);
+bool isNonTerminalAType(AType::\iter-star(AType t)) = isNonTerminalAType(t);
+bool isNonTerminalAType(AType::\iter-seps(AType t,_)) = isNonTerminalAType(t);
+bool isNonTerminalAType(AType::\iter-star-seps(AType t,_)) = isNonTerminalAType(t);
+bool isNonTerminalAType(AType::\aempty()) = false;
+bool isNonTerminalAType(AType::\opt(AType t)) = isNonTerminalAType(t);
+bool isNonTerminalAType(AType::\alt(set[AType] alternatives)) = any(a <- alternatives, isNonTerminalAType(a));
+bool isNonTerminalAType(AType::\seq(list[AType] atypes)) = any(t <- atypes, isNonTerminalAType(t));
+default bool isNonTerminalAType(AType t) = false;   
 
-bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
+bool isParameterizedNonTerminalType(AType t) = isNonTerminalAType(t) && t has parameters;
 
-bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && (t has parameters ==> isEmpty(t.parameters));
+bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalAType(t) && (t has parameters ==> isEmpty(t.parameters));
 
 // start
 bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
@@ -1329,7 +1329,7 @@ default AType getStartNonTerminalType(AType s) {
 
 bool isLexicalType(aparameter(_,AType tvb)) = isLexicalType(tvb);
 bool isLexicalType(AType::\conditional(AType ss,_)) = isLexicalType(ss);
-bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax(); // || adtName == "Tree";
+bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax();
 bool isLexicalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalType(adt);
 bool isLexicalType(AType::\start(AType ss)) = isLexicalType(ss);
 
@@ -1365,31 +1365,31 @@ default bool isAnyCharType(AType t) = t == anyCharType;
 
 // ---- layout
 @doc{Synopsis: Determine if the given type is a layout type.}
-bool isLayoutType(aparameter(_,AType tvb)) = isLayoutType(tvb);
+bool isLayoutAType(aparameter(_,AType tvb)) = isLayoutAType(tvb);
 
-bool isLayoutType(AType::\conditional(AType ss,_)) = isLayoutType(ss);
-bool isLayoutType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
-bool isLayoutType(AType::\start(AType ss)) = isLayoutType(ss);
-bool isLayoutType(AType::\iter(AType s)) = isLayoutType(s);
-bool isLayoutType(AType::\iter-star(AType s)) = isLayoutType(s);
-bool isLayoutType(AType::\iter-seps(AType s,_)) = isLayoutType(s);
-bool isLayoutType(AType::\iter-star-seps(AType s,_)) = isLayoutType(s);
+bool isLayoutAType(AType::\conditional(AType ss,_)) = isLayoutAType(ss);
+bool isLayoutAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
+bool isLayoutAType(AType::\start(AType ss)) = isLayoutAType(ss);
+bool isLayoutAType(AType::\iter(AType s)) = isLayoutAType(s);
+bool isLayoutAType(AType::\iter-star(AType s)) = isLayoutAType(s);
+bool isLayoutAType(AType::\iter-seps(AType s,_)) = isLayoutAType(s);
+bool isLayoutAType(AType::\iter-star-seps(AType s,_)) = isLayoutAType(s);
 
-bool isLayoutType(AType::\opt(AType s)) = isLayoutType(s);
-bool isLayoutType(AType::\alt(set[AType] alts)) = any(a <- alts, isLayoutType(a));
-bool isLayoutType(AType::\seq(list[AType] symbols)) = all(s <- symbols, isLayoutType(s));
-default bool isLayoutType(AType _) = false;
+bool isLayoutAType(AType::\opt(AType s)) = isLayoutAType(s);
+bool isLayoutAType(AType::\alt(set[AType] alts)) = any(a <- alts, isLayoutAType(a));
+bool isLayoutAType(AType::\seq(list[AType] symbols)) = all(s <- symbols, isLayoutAType(s));
+default bool isLayoutAType(AType _) = false;  // TODO: multiple defaults, see AType
 
 // ---- isConcretePattern
 
 bool isConcretePattern(Pattern p, AType tp) {
-    return isNonTerminalType(tp) && !(p is callOrTree) /*&& Symbol::sort(_) := tp*/;
+    return isNonTerminalAType(tp) && !(p is callOrTree) /*&& Symbol::sort(_) := tp*/;
 } 
 
 // -- isSyntaxType
 
 bool isSyntaxType(AType tp) {
-    res = isTerminalType(tp) || isNonTerminalType(tp) || isRegExpType(tp);
+    res = isTerminalType(tp) || isNonTerminalAType(tp) || isRegExpType(tp);
     return res;
 }
 
@@ -1421,13 +1421,13 @@ int getIterOrOptDelta(AType::\iter(AType i, isLexical=b)) = b ? 1 : 2;
 int getIterOrOptDelta(AType::\iter-star(AType i, isLexical=b)) = b ? 1 : 2;
 int getIterOrOptDelta(AType::\iter-seps(AType i, list[AType] seps, isLexical=b)) {
     nseps = size(seps);
-    return b ? nseps : 1 + nseps;
-    //return 1 + nseps;
+    //return b ? nseps : 1 + nseps;
+    return 1 + nseps;
 }
 int getIterOrOptDelta(AType::\iter-star-seps(AType i, list[AType] seps, isLexical=b)) {
     nseps = size(seps);
-    return b ? nseps : 1 + nseps;
-    //return 1 + nseps;
+    //return b ? nseps : 1 + nseps;
+    return 1 + nseps;
 }
 int getIterOrOptDelta(AType::\opt(AType i)) = 1;
 
@@ -1509,7 +1509,7 @@ default AType removeConditional(AType s) = s;
 
 public AType filterOverloads(overloadedAType(rel[loc, IdRole, AType] overloads), set[IdRole] roles){
     reduced = { <l, r, t> | <l, r, t> <- overloads, r in roles };
-    if({<l,r,t>} := reduced) return t;
+    if({<_,_,t>} := reduced) return t;
     return overloadedAType(reduced);
 }
 public default AType filterOverloads(AType t, set[IdRole] roles) = t;
