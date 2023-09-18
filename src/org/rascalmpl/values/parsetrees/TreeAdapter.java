@@ -439,9 +439,13 @@ public class TreeAdapter {
 			throw new ImplementationError("This is not a context-free production: " + tree);
 		}
 
-		return getArgs(tree).stream()
+		IList children = getArgs(tree);
+
+		return IntStream.range(0, children.size())
+			.filter(i -> i % 2 == 0)
+			.mapToObj(children::get)
 			.map(t -> (ITree) t)
-			.filter(t -> !isLiteral(t) && !isCILiteral(t) && !isLayout(t))
+			.filter(t -> !isLiteral(t) && !isCILiteral(t))
 			;
 	}
 
