@@ -99,7 +99,6 @@ public class RascalJUnitTestRunner extends Runner {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
             
             for (IValue path : pcfg.getSrcs()) {
-                System.err.println("Adding evaluator search path: " + path);
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
@@ -158,6 +157,7 @@ public class RascalJUnitTestRunner extends Runner {
 
     public static List<String> getRecursiveModuleList(ISourceLocation root, List<String> result) throws IOException {
         Queue<ISourceLocation> todo = new LinkedList<>();
+        
         todo.add(root);
         while (!todo.isEmpty()) {
             ISourceLocation currentDir = todo.poll();
