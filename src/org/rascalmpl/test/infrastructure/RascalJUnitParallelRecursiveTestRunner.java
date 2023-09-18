@@ -159,6 +159,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                 for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
                     RascalJUnitTestRunner.getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), result);
                 }
+                
                 result.stream().map(m -> prefix + "::" + m).forEach(n -> modules.add(n));
             }
             catch (IOException e) {
@@ -304,6 +305,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
+
+            RascalJUnitTestRunner.configureProjectEvaluator(evaluator, projectRoot);
         }
 
     }

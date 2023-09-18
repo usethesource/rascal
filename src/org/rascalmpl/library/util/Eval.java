@@ -77,8 +77,6 @@ public class Eval {
         
         // TODO: this is to fix the course Question compiler with a workaround.
         // it would be better to parameterize eval with a PathConfig.
-        
-        this.eval.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
         this.eval.addRascalSearchPath(URIUtil.rootLocation("std"));
         //          this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 	}
