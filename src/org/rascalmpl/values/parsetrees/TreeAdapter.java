@@ -18,11 +18,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
@@ -372,21 +368,6 @@ public class TreeAdapter {
 		}
 		return writer.done();
 	}
-	
-	public static Stream<ITree> streamListASTArgs(ITree tree) {
-		if (!isList(tree)) {
-			throw new ImplementationError("This is not a context-free list production: " + tree);
-		}
-
-		IList children = getArgs(tree);
-		int jump = isSeparatedList(tree) ? getSeparatorCount(tree) - 1 : 2;
-		
-		return IntStream.range(0, children.size())
-			.filter(i -> i % jump == 0)
-			.mapToObj(children::get)
-			.map(t -> (ITree) t)
-			;
-	}
 
 	public static int getSeparatorCount(ITree tree) {
 		IConstructor nt = ProductionAdapter.getType(getProduction(tree));
@@ -428,25 +409,6 @@ public class TreeAdapter {
 			}
 		}
 		return writer.done();
-	}
-
-	public static Stream<ITree> streamASTArgs(ITree tree) {
-		if (SymbolAdapter.isStartSort(TreeAdapter.getType(tree))) {
-			return Stream.of((ITree) getArgs(tree).get(1));
-		}
-
-		if (isLexical(tree)) {
-			throw new ImplementationError("This is not a context-free production: " + tree);
-		}
-
-		IList children = getArgs(tree);
-
-		return IntStream.range(0, children.size())
-			.filter(i -> i % 2 == 0)
-			.mapToObj(children::get)
-			.map(t -> (ITree) t)
-			.filter(t -> !isLiteral(t) && !isCILiteral(t))
-			;
 	}
 
 	public static boolean isCILiteral(ITree tree) {
@@ -1072,6 +1034,11 @@ public class TreeAdapter {
 			}
 		}
 		return w.done();
+	}
+
+	public static int getListLength(ITree in) {
+		// [1,s1,s2,s3,2,s1,s2,s3,3]  9 / 3 
+		return (in.getArgs().length() / getSeparatorCount(in) + 1);
 	}
 
 }
