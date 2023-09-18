@@ -538,12 +538,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
            IListWriter w = vf.listWriter();
            IList args = TreeAdapter.getArgs(tree);
            for (IValue arg : args) {
-            if (TreeAdapter.isContextFree(tree)) {
-              w.append(arg.accept(this));
-            }
-            else {
-              w.append(arg);
-            }
+             if (!TreeAdapter.isLayout(tree) && !TreeAdapter.isLexical(tree)) {
+               w.append(arg.accept(this));
+             }
+             else {
+               w.append(arg);
+             }
            }
            args = w.done();
            

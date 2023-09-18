@@ -40,6 +40,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -179,11 +180,20 @@ public class ASTBuilder {
 	}
 
 	private List<AbstractAST> buildList(org.rascalmpl.values.parsetrees.ITree in)  {
-		IList args = TreeAdapter.getListASTArgs(in);
-		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
-		for (IValue arg: args) {
+		List<AbstractAST> result = new ArrayList<AbstractAST>(TreeAdapter.getListLength(in));
+		
+		IList args = in.getArgs();
+		int seps = TreeAdapter.getSeparatorCount(in);
+
+		for (int i = 0; i < args.length(); i++) {
+			ITree arg = (ITree) args.get(i);
 			result.add(buildValue(arg));
+			i += seps;
 		}
+		// TreeAdapter.streamListASTArgs(in).forEach(arg -> {
+		// 	result.add(buildValue(arg));
+		// });
+			
 		return result;
 	}
 
@@ -368,7 +378,7 @@ public class ASTBuilder {
 		IList children = TreeAdapter.getArgs(tree);
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 		
-                for (int i = 0; i < children.length(); i++) {
+		for (int i = 0; i < children.length(); i++) {
 			org.rascalmpl.values.parsetrees.ITree kid = (org.rascalmpl.values.parsetrees.ITree) children.get(i);
 			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !TreeAdapter.isEmpty(kid)) {
 				writer.append(kid);	
