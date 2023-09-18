@@ -194,6 +194,7 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isParameterizedSort(IConstructor tree) {
+		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_ParameterizedSort;
 	}
 	

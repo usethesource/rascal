@@ -84,7 +84,8 @@ public class ProductionAdapter {
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
-		return SymbolAdapter.isSort(getType(tree));
+		IConstructor t = getType(tree);
+		return SymbolAdapter.isSort(t) || SymbolAdapter.isParameterizedSort(t);
 	}
 	
 	public static boolean isLayout(IConstructor tree) {
