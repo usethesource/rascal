@@ -538,7 +538,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
            IListWriter w = vf.listWriter();
            IList args = TreeAdapter.getArgs(tree);
            for (IValue arg : args) {
-             w.append(arg.accept(this));
+            if (TreeAdapter.isContextFree(tree)) {
+              w.append(arg.accept(this));
+            }
+            else {
+              w.append(arg);
+            }
            }
            args = w.done();
            
@@ -686,7 +691,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     	IListWriter w = vf.listWriter();
       IList args = TreeAdapter.getArgs(tree);
       for (IValue arg : args) {
-        w.append(arg.accept(this));
+        if (!TreeAdapter.isLayout((ITree) arg)) {
+          w.append(arg.accept(this));
+        }
+        else {
+          w.append(arg);
+        }
       }
       args = w.done();
       
@@ -772,7 +782,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
             IListWriter w = vf.listWriter();
             IList args = TreeAdapter.getArgs(tree);
             for (IValue elem : args) {
-              w.append(elem.accept(this));
+              if (!TreeAdapter.isLayout((ITree) elem)) {
+                w.append(elem.accept(this));
+              }
+              else {
+                w.append(elem);
+              }
             }
             args = w.done();
             
