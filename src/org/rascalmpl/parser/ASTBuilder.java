@@ -19,6 +19,7 @@ package org.rascalmpl.parser;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -192,9 +193,6 @@ public class ASTBuilder {
 			result.add(buildValue(arg));
 			i += seps;
 		}
-		// TreeAdapter.streamListASTArgs(in).forEach(arg -> {
-		// 	result.add(buildValue(arg));
-		// });
 			
 		return result;
 	}
@@ -222,26 +220,33 @@ public class ASTBuilder {
 			sort = "KeywordArguments_Expression"; break;
 		}
 
-		IList args = getASTArgs(tree);
-		int arity = args.length();
-		Object actuals[] = new Object[arity+2];
-		actuals[0] = TreeAdapter.getLocation(tree);
-		actuals[1] = tree;
+		// Here we see how precisely the constructors of the generated AST hierarchy
+		// are connected to the shape of the grammar rules for the Rascal syntax.
+		// The hierarchy is generated from the same grammar that these parse trees
+		// come from, and that's why this works.
+		Constructor<?> constructor = getConstructor(sort, cons);
+		int parameterCount = constructor.getParameterCount();
+		Object[] actuals = new Object[parameterCount]; 
+		int i = 0;
+		actuals[i++] = TreeAdapter.getLocation(tree);
+		actuals[i++] = tree;
 
-		int i = 2;
-		for (IValue arg : args) {
-			org.rascalmpl.values.parsetrees.ITree argTree = (org.rascalmpl.values.parsetrees.ITree) arg;
+		IList args = tree.getArgs();
 
-			if (TreeAdapter.isList(argTree)) {
-				actuals[i] = buildList((org.rascalmpl.values.parsetrees.ITree) arg);
+		for (int j = 0; j < args.length(); j += 2 /* skipping layout */) {
+			ITree argTree = (ITree) args.get(j);
+			
+			if (!TreeAdapter.isLiteral(argTree) && !TreeAdapter.isCILiteral(argTree) && !TreeAdapter.isEmpty(argTree)) {
+				if (TreeAdapter.isList(argTree)) {
+					actuals[i++] = buildList((org.rascalmpl.values.parsetrees.ITree) argTree);
+				}
+				else {
+					actuals[i++] = buildValue(argTree);
+				}
 			}
-			else {
-				actuals[i] = buildValue(arg);
-			}
-			i++;
 		}
 
-		return callMakerMethod(sort, cons, actuals, null);
+		return callMakerMethod(constructor, actuals, null);
 	}
 
 	private AbstractAST buildLexicalNode(org.rascalmpl.values.parsetrees.ITree tree) {
@@ -376,22 +381,6 @@ public class ASTBuilder {
 		return null;
 	}
 
-	private IList getASTArgs(org.rascalmpl.values.parsetrees.ITree tree) {
-		IList children = TreeAdapter.getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-		
-		for (int i = 0; i < children.length(); i++) {
-			org.rascalmpl.values.parsetrees.ITree kid = (org.rascalmpl.values.parsetrees.ITree) children.get(i);
-			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !TreeAdapter.isEmpty(kid)) {
-				writer.append(kid);	
-			} 
-			// skip layout
-			i++;
-		}
-
-		return writer.done();
-	}
-
 	private String sortName(org.rascalmpl.values.parsetrees.ITree tree) {
 		if (TreeAdapter.isAppl(tree)) { 
 			return TreeAdapter.getSortName(tree);
@@ -434,10 +423,7 @@ public class ASTBuilder {
 	}
 
 	private boolean isLexical(org.rascalmpl.values.parsetrees.ITree tree) {
-		if (TreeAdapter.isRascalLexical(tree)) {
-			return true;
-		}
-		return false;
+		return TreeAdapter.isRascalLexical(tree);
 	}
 
 	private AbstractAST newLift(org.rascalmpl.values.parsetrees.ITree tree, boolean match) {
@@ -464,7 +450,7 @@ public class ASTBuilder {
 		return result;
 	}
 
-	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
+	private static Constructor<?> getConstructor(String sort, String cons) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
@@ -477,7 +463,19 @@ public class ASTBuilder {
 				astConstructors.put(name, constructor);
 			}
 			
-			return (AbstractAST) constructor.newInstance(actuals);
+			return constructor;
+		} catch (SecurityException e) {
+			throw unexpectedError(e);
+		} catch (IllegalArgumentException e) {
+			throw unexpectedError(e);
+		} catch (ClassNotFoundException e) {
+			throw unexpectedError(e);
+		}
+	}
+
+	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
+		try {
+			return (AbstractAST) getConstructor(sort, cons).newInstance(actuals);
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (IllegalArgumentException e) {
@@ -486,7 +484,21 @@ public class ASTBuilder {
 			throw unexpectedError(e);
 		} catch (InvocationTargetException e) {
 			throw unexpectedError(e);
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException e) {
+			throw unexpectedError(e);
+		}
+	}
+
+	private static AbstractAST callMakerMethod(Constructor<?> constructor, Object actuals[], Object keywordActuals[]) {
+		try {
+			return (AbstractAST) constructor.newInstance(actuals);
+		} catch (SecurityException e) {
+			throw unexpectedError(e);
+		} catch (IllegalArgumentException e) {
+			throw unexpectedError(e);
+		} catch (IllegalAccessException e) {
+			throw unexpectedError(e);
+		} catch (InvocationTargetException e) {
 			throw unexpectedError(e);
 		} catch (InstantiationException e) {
 			throw unexpectedError(e);

@@ -324,11 +324,7 @@ public class TreeAdapter {
 	}
 
 	public static IList getArgs(ITree tree) {
-		if (isAppl(tree)) {
-			return (IList) tree.get("args");
-		}
-
-		throw new ImplementationError(NO_ARGS_EXCEPTION_MESSAGE + tree.getName());
+		return tree.getArgs();
 	}
 
 	public static ITree setArgs(ITree tree, IList args) {
