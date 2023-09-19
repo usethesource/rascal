@@ -119,8 +119,15 @@ private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
         builder(jar) 
    );
 
+private loc getAndCopyToTemp(str jar) {
+	loc source = get(jar);
+	loc target = |tmp:///| + jar;
+	copy(source, target);
+	return target;
+}
+
 public test bool hamcrestJarM3RemainedTheSame()
-	= compareJarM3s(get("m3/hamcrest-library-1.3-m3.bin"), get("m3/hamcrest-library-1.3.jar"), getHamcrestM3);
+	= compareJarM3s(get("m3/hamcrest-library-1.3-m3.bin"), getAndCopyToTemp("m3/hamcrest-library-1.3.jar"), getHamcrestM3);
 	
 // TODO: think if this can be replaced by the generic diff function.
 public bool compareM3s(M3 a, M3 b) {
