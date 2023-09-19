@@ -37,6 +37,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.file.TempURIResolver;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
