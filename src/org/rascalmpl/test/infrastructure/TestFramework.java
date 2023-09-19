@@ -61,9 +61,6 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
 		
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-
 		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
 		
 		try {

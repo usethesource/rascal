@@ -99,7 +99,7 @@ public class RascalJUnitTestRunner extends Runner {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
             
             for (IValue path : pcfg.getSrcs()) {
-                System.err.println("Adding evaluator search path: " + path);
+
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
@@ -158,9 +158,17 @@ public class RascalJUnitTestRunner extends Runner {
 
     public static List<String> getRecursiveModuleList(ISourceLocation root, List<String> result) throws IOException {
         Queue<ISourceLocation> todo = new LinkedList<>();
+        
         todo.add(root);
+
         while (!todo.isEmpty()) {
             ISourceLocation currentDir = todo.poll();
+
+            if (!URIResolverRegistry.getInstance().exists(currentDir)) {
+                 System.err.println("[INFO] skipping " + currentDir + ", does not exist.");
+                 continue;
+            }
+
             String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
             for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
                 if (ent.getPath().endsWith(".rsc")) {
@@ -217,10 +225,10 @@ public class RascalJUnitTestRunner extends Runner {
                     }
                 }
                 catch (Throwable e) {
-                    System.err.println("[ERROR] " + e);
+                    
                     desc.addChild(modDesc);
 
-                    Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
+                    Description testDesc = Description.createTestDescription(clazz, name + " compilation failed", new CompilationFailed() {
                         @Override
                         public Class<? extends Annotation> annotationType() {
                             return getClass();
@@ -233,8 +241,18 @@ public class RascalJUnitTestRunner extends Runner {
 
             return desc;
         } catch (IOException e) {
+            Description testDesc = Description.createTestDescription(clazz, prefix + " compilation failed: " + e.getMessage(), new CompilationFailed() {
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return getClass();
+                        }
+                    });
+
+            desc.addChild(testDesc);
+
             System.err.println("[ERROR] Could not create tests suite: " + e);
-            throw new RuntimeException("could not create test suite", e);
+            
+            return desc;
         } 
     }
 
