@@ -159,11 +159,6 @@ public class RascalJUnitTestRunner extends Runner {
     public static List<String> getRecursiveModuleList(ISourceLocation root, List<String> result) throws IOException {
         Queue<ISourceLocation> todo = new LinkedList<>();
         
-        // if (URIResolverRegistry.getInstance().exists(root)) {
-        //     System.err.println("[INFO] skipping " + root + ", does not exist.");
-        //     return result;
-        // }
-
         todo.add(root);
 
         while (!todo.isEmpty()) {
@@ -233,7 +228,7 @@ public class RascalJUnitTestRunner extends Runner {
                     
                     desc.addChild(modDesc);
 
-                    Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
+                    Description testDesc = Description.createTestDescription(clazz, name + " compilation failed", new CompilationFailed() {
                         @Override
                         public Class<? extends Annotation> annotationType() {
                             return getClass();
@@ -246,9 +241,18 @@ public class RascalJUnitTestRunner extends Runner {
 
             return desc;
         } catch (IOException e) {
+            Description testDesc = Description.createTestDescription(clazz, prefix + " compilation failed: " + e.getMessage(), new CompilationFailed() {
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return getClass();
+                        }
+                    });
+
+            desc.addChild(testDesc);
+
             System.err.println("[ERROR] Could not create tests suite: " + e);
-            e.printStackTrace();
-            throw new RuntimeException("could not create test suite", e);
+            
+            return desc;
         } 
     }
 
