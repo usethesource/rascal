@@ -99,6 +99,7 @@ public class RascalJUnitTestRunner extends Runner {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
             
             for (IValue path : pcfg.getSrcs()) {
+
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
@@ -158,9 +159,21 @@ public class RascalJUnitTestRunner extends Runner {
     public static List<String> getRecursiveModuleList(ISourceLocation root, List<String> result) throws IOException {
         Queue<ISourceLocation> todo = new LinkedList<>();
         
+        // if (URIResolverRegistry.getInstance().exists(root)) {
+        //     System.err.println("[INFO] skipping " + root + ", does not exist.");
+        //     return result;
+        // }
+
         todo.add(root);
+
         while (!todo.isEmpty()) {
             ISourceLocation currentDir = todo.poll();
+
+            if (!URIResolverRegistry.getInstance().exists(currentDir)) {
+                 System.err.println("[INFO] skipping " + currentDir + ", does not exist.");
+                 continue;
+            }
+
             String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
             for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
                 if (ent.getPath().endsWith(".rsc")) {
@@ -217,7 +230,7 @@ public class RascalJUnitTestRunner extends Runner {
                     }
                 }
                 catch (Throwable e) {
-                    System.err.println("[ERROR] " + e);
+                    
                     desc.addChild(modDesc);
 
                     Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
@@ -234,6 +247,7 @@ public class RascalJUnitTestRunner extends Runner {
             return desc;
         } catch (IOException e) {
             System.err.println("[ERROR] Could not create tests suite: " + e);
+            e.printStackTrace();
             throw new RuntimeException("could not create test suite", e);
         } 
     }
