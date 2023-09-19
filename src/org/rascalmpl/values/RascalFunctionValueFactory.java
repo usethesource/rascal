@@ -378,10 +378,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
         IString result =  ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
 
-        System.err.println("New hole: " + result);
         return result;
-        // we replaced this:
-        // return getParserGenerator().createHole(part, index);
     }
 
     public IConstructor sym2symbol(ITree parsedSym) {

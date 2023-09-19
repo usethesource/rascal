@@ -54,8 +54,9 @@ public class ASTBuilder {
 	private static final String MODULE_SORT = "Module";
 
 	private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
-
 	private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();
+	private final static HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
+	
 	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
 
 	public static <T extends AbstractAST> T make(String sort, ISourceLocation src, Object... args) {
@@ -445,24 +446,31 @@ public class ASTBuilder {
 		return liftRec(fragment, false,  getPatternLayout(tree));
 	}
 
+	private static Class<?> loadClass(String name) throws ClassNotFoundException {
+		if (astClasses.containsKey(name)) {
+			return astClasses.get(name);
+		}
+
+		Class<?> result = null;
+
+		try {
+			result = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
+		}
+		catch (ClassNotFoundException e) {
+			result = classLoader.loadClass("org.rascalmpl.ast." + name);
+		}
+
+		astClasses.put(name, result);
+		return result;
+	}
+
 	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
 
 			if (constructor == null) {
-				Class<?> clazz = null;
-
-				try {
-					clazz = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
-				}
-				catch (ClassNotFoundException e) {
-					// it happens
-				}
-
-				if (clazz == null) {
-					clazz = classLoader.loadClass("org.rascalmpl.ast." + name);
-				}
+				Class<?> clazz = loadClass(name);
 
 				constructor = clazz.getConstructors()[0];
 				constructor.setAccessible(true);
