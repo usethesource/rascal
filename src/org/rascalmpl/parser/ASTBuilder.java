@@ -28,6 +28,7 @@ import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
@@ -109,7 +110,7 @@ public class ASTBuilder {
 		return buildSort(parseTree, "Command");
 	}
 
-	public Command buildSym(org.rascalmpl.values.parsetrees.ITree parseTree) {
+	public Sym buildSym(org.rascalmpl.values.parsetrees.ITree parseTree) {
 		return buildSort(parseTree, "Sym");
 	}
 

@@ -24,6 +24,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -39,6 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -58,6 +60,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -369,7 +372,15 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     public IString createHole(ITree part, IInteger index) {
-        return getParserGenerator().createHole(part, index);
+        ASTBuilder builder = new ASTBuilder();
+        ITree hole = TreeAdapter.getArg(part, "hole");
+        ITree sym = TreeAdapter.getArg(hole, "symbol");
+        IConstructor symbol = SymbolFactory.typeToSymbol((Sym) builder.buildValue(sym) , false, "*default*");
+
+        return ctx.getValueFactory().string("\u0000" + symbol.toString() + index + ":\u0000");
+
+        // we replaced this:
+        // return getParserGenerator().createHole(part, index);
     }
 
     public IConstructor sym2symbol(ITree parsedSym) {
