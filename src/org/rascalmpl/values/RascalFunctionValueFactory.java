@@ -372,13 +372,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     public IString createHole(ITree part, IInteger index) {
-        ASTBuilder builder = new ASTBuilder();
         ITree hole = TreeAdapter.getArg(part, "hole");
         ITree sym = TreeAdapter.getArg(hole, "symbol");
-        IConstructor symbol = SymbolFactory.typeToSymbol((Sym) builder.buildValue(sym) , false, "*default*");
+        IConstructor symbol = SymbolFactory.typeToSymbol(sym , false, null);
 
-        return ctx.getValueFactory().string("\u0000" + symbol.toString() + index + ":\u0000");
+        IString result =  ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
 
+        System.err.println("New hole: " + result);
+        return result;
         // we replaced this:
         // return getParserGenerator().createHole(part, index);
     }
