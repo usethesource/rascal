@@ -364,7 +364,7 @@
         <dependency>
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
