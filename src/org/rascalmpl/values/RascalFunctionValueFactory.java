@@ -58,6 +58,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -369,7 +370,13 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     public IString createHole(ITree part, IInteger index) {
-        return getParserGenerator().createHole(part, index);
+        ITree hole = TreeAdapter.getArg(part, "hole");
+        ITree sym = TreeAdapter.getArg(hole, "symbol");
+        IConstructor symbol = SymbolFactory.typeToSymbol(sym , false, null);
+
+        IString result =  ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
+
+        return result;
     }
 
     public IConstructor sym2symbol(ITree parsedSym) {
