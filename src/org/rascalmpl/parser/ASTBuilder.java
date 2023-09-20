@@ -28,18 +28,18 @@ import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.Sym;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -52,8 +52,9 @@ public class ASTBuilder {
 	private static final String MODULE_SORT = "Module";
 
 	private final PointerKeyedHashMap<IValue, Expression> constructorCache = new PointerKeyedHashMap<IValue, Expression>();
-
 	private final static HashMap<String, Constructor<?>> astConstructors = new HashMap<String,Constructor<?>>();
+	private final static HashMap<String, Class<?>> astClasses = new HashMap<String,Class<?>>();
+	
 	private final static ClassLoader classLoader = ASTBuilder.class.getClassLoader();
 
 	public static <T extends AbstractAST> T make(String sort, ISourceLocation src, Object... args) {
@@ -108,7 +109,7 @@ public class ASTBuilder {
 		return buildSort(parseTree, "Command");
 	}
 
-	public Command buildSym(org.rascalmpl.values.parsetrees.ITree parseTree) {
+	public Sym buildSym(org.rascalmpl.values.parsetrees.ITree parseTree) {
 		return buildSort(parseTree, "Sym");
 	}
 
@@ -179,11 +180,17 @@ public class ASTBuilder {
 	}
 
 	private List<AbstractAST> buildList(org.rascalmpl.values.parsetrees.ITree in)  {
-		IList args = TreeAdapter.getListASTArgs(in);
-		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
-		for (IValue arg: args) {
+		List<AbstractAST> result = new ArrayList<AbstractAST>(TreeAdapter.getListLength(in));
+		
+		IList args = in.getArgs();
+		int seps = TreeAdapter.getSeparatorCount(in);
+
+		for (int i = 0; i < args.length(); i++) {
+			ITree arg = (ITree) args.get(i);
 			result.add(buildValue(arg));
+			i += seps;
 		}
+			
 		return result;
 	}
 
@@ -210,26 +217,33 @@ public class ASTBuilder {
 			sort = "KeywordArguments_Expression"; break;
 		}
 
-		IList args = getASTArgs(tree);
-		int arity = args.length();
-		Object actuals[] = new Object[arity+2];
-		actuals[0] = TreeAdapter.getLocation(tree);
-		actuals[1] = tree;
+		// Here we see how precisely the constructors of the generated AST hierarchy
+		// are connected to the shape of the grammar rules for the Rascal syntax.
+		// The hierarchy is generated from the same grammar that these parse trees
+		// come from, and that's why this works.
+		Constructor<?> constructor = getConstructor(sort, cons);
+		int parameterCount = constructor.getParameterCount();
+		Object[] actuals = new Object[parameterCount]; 
+		int i = 0;
+		actuals[i++] = TreeAdapter.getLocation(tree);
+		actuals[i++] = tree;
 
-		int i = 2;
-		for (IValue arg : args) {
-			org.rascalmpl.values.parsetrees.ITree argTree = (org.rascalmpl.values.parsetrees.ITree) arg;
+		IList args = tree.getArgs();
 
-			if (TreeAdapter.isList(argTree)) {
-				actuals[i] = buildList((org.rascalmpl.values.parsetrees.ITree) arg);
+		for (int j = 0; j < args.length(); j += 2 /* skipping layout */) {
+			ITree argTree = (ITree) args.get(j);
+			
+			if (!TreeAdapter.isLiteral(argTree) && !TreeAdapter.isCILiteral(argTree) && !TreeAdapter.isEmpty(argTree)) {
+				if (TreeAdapter.isList(argTree)) {
+					actuals[i++] = buildList((org.rascalmpl.values.parsetrees.ITree) argTree);
+				}
+				else {
+					actuals[i++] = buildValue(argTree);
+				}
 			}
-			else {
-				actuals[i] = buildValue(arg);
-			}
-			i++;
 		}
 
-		return callMakerMethod(sort, cons, actuals, null);
+		return callMakerMethod(constructor, actuals, null);
 	}
 
 	private AbstractAST buildLexicalNode(org.rascalmpl.values.parsetrees.ITree tree) {
@@ -364,22 +378,6 @@ public class ASTBuilder {
 		return null;
 	}
 
-	private IList getASTArgs(org.rascalmpl.values.parsetrees.ITree tree) {
-		IList children = TreeAdapter.getArgs(tree);
-		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-		
-                for (int i = 0; i < children.length(); i++) {
-			org.rascalmpl.values.parsetrees.ITree kid = (org.rascalmpl.values.parsetrees.ITree) children.get(i);
-			if (!TreeAdapter.isLiteral(kid) && !TreeAdapter.isCILiteral(kid) && !TreeAdapter.isEmpty(kid)) {
-				writer.append(kid);	
-			} 
-			// skip layout
-			i++;
-		}
-
-		return writer.done();
-	}
-
 	private String sortName(org.rascalmpl.values.parsetrees.ITree tree) {
 		if (TreeAdapter.isAppl(tree)) { 
 			return TreeAdapter.getSortName(tree);
@@ -422,10 +420,7 @@ public class ASTBuilder {
 	}
 
 	private boolean isLexical(org.rascalmpl.values.parsetrees.ITree tree) {
-		if (TreeAdapter.isRascalLexical(tree)) {
-			return true;
-		}
-		return false;
+		return TreeAdapter.isRascalLexical(tree);
 	}
 
 	private AbstractAST newLift(org.rascalmpl.values.parsetrees.ITree tree, boolean match) {
@@ -434,31 +429,50 @@ public class ASTBuilder {
 		return liftRec(fragment, false,  getPatternLayout(tree));
 	}
 
-	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
+	private static Class<?> loadClass(String name) throws ClassNotFoundException {
+		if (astClasses.containsKey(name)) {
+			return astClasses.get(name);
+		}
+
+		Class<?> result = null;
+
+		try {
+			result = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
+		}
+		catch (ClassNotFoundException e) {
+			result = classLoader.loadClass("org.rascalmpl.ast." + name);
+		}
+
+		astClasses.put(name, result);
+		return result;
+	}
+
+	private static Constructor<?> getConstructor(String sort, String cons) {
 		try {
 			String name = sort + '$' + cons;
 			Constructor<?> constructor = astConstructors.get(name);
 
 			if (constructor == null) {
-				Class<?> clazz = null;
-
-				try {
-					clazz = classLoader.loadClass("org.rascalmpl.semantics.dynamic." + name);
-				}
-				catch (ClassNotFoundException e) {
-					// it happens
-				}
-
-				if (clazz == null) {
-					clazz = classLoader.loadClass("org.rascalmpl.ast." + name);
-				}
+				Class<?> clazz = loadClass(name);
 
 				constructor = clazz.getConstructors()[0];
 				constructor.setAccessible(true);
 				astConstructors.put(name, constructor);
 			}
 			
-			return (AbstractAST) constructor.newInstance(actuals);
+			return constructor;
+		} catch (SecurityException e) {
+			throw unexpectedError(e);
+		} catch (IllegalArgumentException e) {
+			throw unexpectedError(e);
+		} catch (ClassNotFoundException e) {
+			throw unexpectedError(e);
+		}
+	}
+
+	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
+		try {
+			return (AbstractAST) getConstructor(sort, cons).newInstance(actuals);
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (IllegalArgumentException e) {
@@ -467,7 +481,21 @@ public class ASTBuilder {
 			throw unexpectedError(e);
 		} catch (InvocationTargetException e) {
 			throw unexpectedError(e);
-		} catch (ClassNotFoundException e) {
+		} catch (InstantiationException e) {
+			throw unexpectedError(e);
+		}
+	}
+
+	private static AbstractAST callMakerMethod(Constructor<?> constructor, Object actuals[], Object keywordActuals[]) {
+		try {
+			return (AbstractAST) constructor.newInstance(actuals);
+		} catch (SecurityException e) {
+			throw unexpectedError(e);
+		} catch (IllegalArgumentException e) {
+			throw unexpectedError(e);
+		} catch (IllegalAccessException e) {
+			throw unexpectedError(e);
+		} catch (InvocationTargetException e) {
 			throw unexpectedError(e);
 		} catch (InstantiationException e) {
 			throw unexpectedError(e);
