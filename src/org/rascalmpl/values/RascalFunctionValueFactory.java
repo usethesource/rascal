@@ -24,7 +24,6 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.Sym;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -40,7 +39,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
-import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
