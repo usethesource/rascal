@@ -88,7 +88,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 
 public abstract class Import {
-	
+	private static final ThreadLocal<ASTBuilder> builder = ThreadLocal.withInitial(() -> new ASTBuilder());
 	static public class External extends org.rascalmpl.ast.Import.External {
 
 		public External(ISourceLocation src, IConstructor node, QualifiedName name,
@@ -381,7 +381,7 @@ private static boolean isDeprecated(Module preModule){
   }
   
   private static ASTBuilder getBuilder() {
-    return new ASTBuilder();
+    return builder.get();
   }
 
   private static void addImportToCurrentModule(ISourceLocation src, String name, IEvaluator<Result<IValue>> eval) {
@@ -490,7 +490,7 @@ private static boolean isDeprecated(Module preModule){
   } 
   
   private static void declareTypesWhichDoNotNeedImportedModulesAlready(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree top) {
-      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top);
+      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top, getBuilder());
 
       eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), true);
   }
