@@ -51,16 +51,16 @@ public class ProductionAdapter {
 	}
 	
 	public static IConstructor getDefined(IConstructor tree) {
-		return (IConstructor) tree.get("def");
+		return (IConstructor) tree.get(0);
 	}
 	
 	public static IConstructor setDefined(IConstructor tree, IConstructor sym) {
-    return (IConstructor) tree.set("def", sym);
+    return (IConstructor) tree.set(0 /*def */, sym);
   }
 	
 	public static IList getSymbols(IConstructor tree) {
 		if (isDefault(tree)) {
-			return (IList) tree.get("symbols");
+			return (IList) tree.get(1 /*symbols */);
 		}
 		return null;
 	}
@@ -108,7 +108,7 @@ public class ProductionAdapter {
 	
 	public static ISet getAttributes(IConstructor tree) {
 		if (isDefault(tree)) {
-			return (ISet) tree.get("attributes");
+			return (ISet) tree.get(2 /* "attributes" */);
 		}
 		
 		return ValueFactoryFactory.getValueFactory().set();
