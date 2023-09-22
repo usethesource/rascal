@@ -88,7 +88,7 @@ private map[str,str] escapes = ("\\": "\\\\", "\"": "\\\"");
 list[Output] declInfo2Doc(str parent, d:moduleInfo(), list[str] overloads, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, bool demo) =
     [
         out("---"),
-        out("title: \"module <d.moduleName>\""),
+        out("title: \"module <"<[d.moduleName]>"[2..-2]>\""), // we make sure to escape backslashes here (e.g. lang::pico::\syntax::Main)
         out("id: <d.name>"),
         out("slug: <parent>/<d.name>"),
         out("---"),
