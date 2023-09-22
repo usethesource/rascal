@@ -196,7 +196,7 @@ str removeComments(Intro? intro){
 }
 
 public str compileQuestions(loc qloc, PathConfig pcfg) {
-    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin);
+    pcfg = pathConfig(srcs=[|memory://test-modules/|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin);
     return process(qloc, pcfg);
 }
 
@@ -479,7 +479,7 @@ loc makeQuestion(int questionId, PathConfig pcfg){
            remove(f);
         }
     }
-    mloc = |test-modules:///| + "Question<questionId>.rsc";
+    mloc = |memory://test-modules/| + "Question<questionId>.rsc";
     return mloc;
 }
 

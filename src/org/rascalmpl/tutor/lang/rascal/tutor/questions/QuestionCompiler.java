@@ -37,7 +37,6 @@ public class QuestionCompiler {
         final ModuleEnvironment top = new ModuleEnvironment("***question compiler***", heap);
         eval = new Evaluator(vf, System.in, System.err, System.out, top, heap);
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));
-        eval.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
         eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
         
     }
