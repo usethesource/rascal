@@ -162,7 +162,7 @@ public class ConstructorFunction extends NamedFunction {
 					if (!res.getType().isSubtypeOf(kwType)) {
 						throw new UnexpectedKeywordArgumentType(kwparam, kwType, res.getType(), ctx.getCurrentAST());
 					}
-	                kwResult = ResultFactory.makeResult(kwType, value, ctx);
+	                kwResult = ResultFactory.makeResult(kwType, res, ctx);
 	            }
 	            
 	            if (kwparam.equals(label)) {
