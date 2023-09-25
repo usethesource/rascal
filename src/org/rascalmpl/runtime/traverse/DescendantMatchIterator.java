@@ -29,11 +29,11 @@ public class DescendantMatchIterator implements Iterator<IValue>, Iterable<IValu
 	final Stack<Object> spine = new Stack<Object>();
 
 	private final boolean debug = false;
-	private final DescendantDescriptor descriptor;
+	private final IDescendantDescriptor descriptor;
 
 	private final boolean concreteMatch; // true when matching concrete patterns
 	
-	public DescendantMatchIterator(IValue val, DescendantDescriptor descriptor){
+	public DescendantMatchIterator(IValue val, IDescendantDescriptor descriptor){
 		if (debug) {
 			System.err.println("DescendantReader: " + val);
 		}
