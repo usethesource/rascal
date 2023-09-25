@@ -10,81 +10,69 @@ import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * Create a descendant descriptor given
- * 1: symbolset, ISet of symbols
- * 2: prodset, ISet of productions
+ * 1: symbolset, array of symbols to be visited
+ * 2: prodset, array of productions to be visited
  * 3: concreteMatch, indicates a concrete or abstract match
- * 
- * [ IString id, ISet symbolset, ISet prodset, IBool concreteMatch] => descendant_descriptor
  */
 
-public class DescendantDescriptor {
-	private /*final*/ HashSet<Object> mSymbolSet;
-	private /*final*/ boolean concreteMatch;
-	private /*final*/ boolean containsNodeOrValueType;
+public class DescendantDescriptor implements IDescendantDescriptor {
+	private final HashSet<Object> mSymbolSet;
+	private final boolean concreteMatch;
 	
 	public DescendantDescriptor(Type[] symbolset, IConstructor[] prodset, IBool concreteMatch){
 		mSymbolSet = new HashSet<Object>(symbolset.length + prodset.length);
 		this.concreteMatch = concreteMatch.getValue();
-		boolean nodeOrValue = true;
 		
 		for(Type tp : symbolset){
 			mSymbolSet.add(tp);								// Add as TYPE to the set
-//			if(tp == TF.AType_anode || tp == TF.AType_avalue){
-//				nodeOrValue = true;
-//			}
 		}
 		
 		for(IConstructor cons: prodset){
 			mSymbolSet.add(cons);							// Add the production itself to the set
 		}
-
-		containsNodeOrValueType = nodeOrValue;
 	}
 	
+	@Override
 	public boolean isConcreteMatch(){
 		return concreteMatch;
 	}
 	
+	@Override
 	public boolean isAllwaysTrue(){
-		return containsNodeOrValueType;
+		return false;
 	}
 	
+	@Override
 	public IBool shouldDescentInAbstractValue(final IValue subject) {
 		//assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
 		//System.out.println("shouldDescentInAbstractValue: " + ++counter + ", " + subject.toString());
-		if (containsNodeOrValueType) {
-			return IRascalValueFactory.getInstance().bool(true);
-		}
+		
 		Type type = subject instanceof IConstructor 
-				    ? ((IConstructor) subject).getConstructorType() 
+				    ? ((IConstructor) subject).getConstructorType().getAbstractDataType()
 				    : subject.getType();
-		return mSymbolSet.contains(type) ? IRascalValueFactory.getInstance().bool(true) : IRascalValueFactory.getInstance().bool(false);
+		IBool res = mSymbolSet.contains(type) ? TRUE : FALSE;
+		//System.err.println("shouldDescentInAbstractValue(" + res + "): " + subject);
+		return res;
 	}
 	
+	@Override
 	public IBool shouldDescentInConcreteValue(final ITree subject) {
 		//assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
 		if (subject.isAppl()) {
-			if (containsNodeOrValueType) {
-				return IRascalValueFactory.getInstance().bool(true);
-			}
 			IConstructor prod = (IConstructor) subject.getProduction();
-			return mSymbolSet.contains(prod) ? IRascalValueFactory.getInstance().bool(true) : IRascalValueFactory.getInstance().bool(false);
+			IBool res =  mSymbolSet.contains(prod) ? TRUE : FALSE;
+			//System.err.println("shouldDescentInConcreteValue(" + res + "): " + subject);
+			return res;
 		}
 		if (subject.isAmb()) {
-			return IRascalValueFactory.getInstance().bool(true);
+			//System.err.println("shouldDescentInConcreteValue(" + true + "): " + subject);
+			return TRUE;
 		}
-		return IRascalValueFactory.getInstance().bool(false);
+		//System.err.println("shouldDescentInConcreteValue(" + false + "): " + subject);
+		return FALSE;
 	}
-	
-//	public IBool shouldDescentInType(Type type) {
-//		assert !concreteMatch : "shouldDescentInType: abstract traversal required";
-//		if (containsNodeOrValueType) {
-//			return IRascalValueFactory.getInstance().bool(true);
-//		}
-//		return mSymbolSet.contains(type) ? IRascalValueFactory.getInstance().bool(true) : IRascalValueFactory.getInstance().bool(false);
-//	}
-	
 }
