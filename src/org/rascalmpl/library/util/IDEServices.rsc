@@ -5,29 +5,18 @@ extend Content;
 extend Message;
 
 
-@synopsis{
-
-Open a browser for a given location.
-}
+@synopsis{Open a browser for a given location.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
-java void browse(loc uri);
+java void browse(loc uri, str title = "<uri>", int viewColumn=1);
 
 
-@synopsis{
-
-Open an editor for file at a given location.
-}
+@synopsis{Open an editor for file at a given location.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
 java void edit(loc uri);
 
 
-@synopsis{
-
-Let the IDE apply a list of document edits.
-
-}
+@synopsis{Let the IDE apply a list of document edits.}
 @description{
-
 Asks the IDE to apply document edits as defined in the standard library module
 analysis::diff::edits::TextEdits, according to the semantics defined in
 analysis::diff::edits::ExecuteTextEdits. However, the IDE can take care of these
@@ -41,12 +30,9 @@ of refactoring and quick-fix features of the language service protocol.
 public java void applyDocumentsEdits(list[DocumentEdit] edits);
 
 
-@synopsis{
-
-Asks the IDE to show a "browser window" with the given interactive Content.
-}
+@synopsis{Asks the IDE to show a "browser window" with the given interactive Content.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
-public java void showInteractiveContent(Content content);
+public java void showInteractiveContent(Content content, str title=content.title, int viewColumn=content.viewColumn);
 
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 public java void showMessage(Message message);

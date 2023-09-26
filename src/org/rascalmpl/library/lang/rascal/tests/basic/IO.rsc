@@ -5,7 +5,7 @@ import String;
 import IO;
 import util::UUID;
 
-private loc aFile = |test-temp:///basic-io-<"<uuidi()>">.txt|;
+private loc aFile = |memory://test-tmp/basic-io-<"<uuidi()>">.txt|;
 
 test bool writeReadFile(str content) {
   if (size(content) == 0 || any(c <- [0..size(content)], content[c] == "\a00")) return true;
@@ -53,7 +53,14 @@ test bool appendWorksCorrectly(Encoding enc, str a, str b) {
 	b = removeZeroIAmbBOM(enc, b);
 	  writeFileEnc(aFile, encodingNames[enc], a);
 	  appendToFileEnc(aFile, encodingNames[enc], b);
-	  return readFile(aFile) == a + b;
+	r = readFile(aFile);
+	if (r != a + b) {
+		println("a: <a>");
+		println("b: <b>");
+		println("e: <a+b>");
+		println("r: <r>");
+	}
+	return r == (a + b);
 }
 
 test bool appendWorksCorrectlyImplicit(Encoding enc, str a, str b) {
@@ -90,8 +97,8 @@ test bool readOffsetMiddle(str a, str b, str c) {
 }
 
 test bool md5Hash(){
-	writeFileEnc(|test-temp:///basic-io-md5.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
-	return md5HashFile(|test-temp:///basic-io-md5.txt|) == "931210fcfae2c4979e5d51a264648b82";
+	writeFileEnc(|memory://test-tmp/basic-io-md5.txt|, encodingNames[utf8()], "abc\n123\n!@#$%\n");
+	return md5HashFile(|memory://test-tmp/basic-io-md5.txt|) == "931210fcfae2c4979e5d51a264648b82";
 }
 
 data Compression 
@@ -222,4 +229,8 @@ test bool md5FileTest() {
 	writeFile(aFile, "test");
 	return md5HashFile(aFile) == "098f6bcd4621d373cade4e832627b4f6"; // test as md5sum
 }
+
+test bool findResourcesWorks() = findResources("IO.rsc") != {};
+
+test bool findResourcesFindNothingForRandomFiles(int a, int b) = findResources("Foo<a>_<b>.rsc") == {};
 

@@ -99,25 +99,40 @@ test bool any8()  = any(int X <- [1,2,3], X > 2 && X < 10);
 test bool any9()  = !(any(int X <- {1,2,3}, X > 10));
 test bool any10()  = !(any(int X <- [1,2,3], X > 10));
   		
-test bool any11()  = any(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X > Y);
-test bool any12()  = any(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X > Y);
-  		
-test bool any13()  = !(any(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X > 100*Y));
-test bool any14()  = !(any(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X > 100*Y));
-  		
-test bool any15()  = !(any(_ <- []));
-test bool any16()  = !(any(_ <- {}));
-test bool any17()  = !(any(_ <- ()));
+test bool any11() = any(int X <- [1,2,3], int Y <- [10,20,30], X > 0, Y > 0, X < Y);
+test bool any12() = !any(int X <- [1,2,3], int Y <- [10,20,30], X > 0, Y < 0, X < Y);
 
-test bool any18()  = any(int X <- [10,10,10], 10 := X);
-test bool any19()  = any(int X <- [10,20,30], 20 := X);
-test bool any20()  = !any(int X <- [10,20,30], 25 := X);
+test bool any13()  = any(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X > Y);
+test bool any14()  = any(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X > Y);
+  		
+test bool any15()  = !(any(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X > 100*Y));
+test bool any16()  = !(any(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X > 100*Y));
 
-test bool any21()  = any(int X <- [10,10,10], 10 := X) || 13 == 14;
-test bool any22()  = any(int X <- [10,10,10], 11 := X) || 13 == 13;
-test bool any23()  = any(int X <- [10,10,10], 10 := X) && 13 == 13;
-test bool any24()  = 13 == 14 || any(int X <- [10,10,10], 10 := X);
-test bool any25()  = 13 == 13 && any(int X <- [10,10,10], 10 := X);
+test bool any17()  = any([int X, int Y] <- {[1,10],[30,3],[2,20]}, X > Y);
+test bool any18()  = any([int X, int Y] <- [[1,10],[30,3],[2,20]], X > Y);
+        
+test bool any19()  = !(any([int X, int Y] <- {[1,10],[30,3],[2,20]}, X > 100*Y));
+test bool any20()  = !(any([int X, int Y] <- [[1,10],[30,3],[2,20]], X > 100*Y));
+  		
+test bool any21()  = !(any(_ <- []));
+test bool any22()  = !(any(_ <- {}));
+test bool any23()  = !(any(_ <- ()));
+
+test bool any24()  = any(int X <- [10,10,10], 10 := X);
+test bool any25()  = any(int X <- [10,20,30], 20 := X);
+test bool any26()  = !any(int X <- [10,20,30], 25 := X);
+
+test bool any27()  = any(int X <- [10,10,10], 10 := X) || 13 == 14;
+test bool any28()  = any(int X <- [10,10,10], 11 := X) || 13 == 13;
+test bool any29()  = any(int X <- [10,10,10], 10 := X) && 13 == 13;
+test bool any30()  = 13 == 14 || any(int X <- [10,10,10], 10 := X);
+test bool any31()  = 13 == 13 && any(int X <- [10,10,10], 10 := X);
+
+test bool any32()  = all(int X <- [10,10,10], 10 := X) || 13 == 14;
+test bool any33()  = all(int X <- [10,10,10], 11 := X) || 13 == 13;
+test bool any34()  = all(int X <- [10,10,10], 10 := X) && 13 == 13;
+test bool any35()  = 13 == 14 || all(int X <- [10,10,10], 10 := X);
+test bool any36()  = 13 == 13 && all(int X <- [10,10,10], 10 := X);
   	
 // all
   		
@@ -134,44 +149,58 @@ test bool all9()  = !(all(int X <- {1,2,3}, X >= 2 && X <=2));
 test bool all10()  = !(all(int X <- [1,2,3], X >= 2));
 test bool all11()  = !(all(int X <- [1,2,3], X >= 2, X <= 2));
 test bool all12()  = !(all(int X <- [1,2,3], X >= 2 && X <= 2));
+
+test bool all13() = all(int X <- [1,2,3], int Y <- [10,20,30], X > 0, Y > 0, X < Y);
+test bool all14() = !all(int X <- [1,2,3], int Y <- [10,20,30], X > 0, Y < 0, X < Y);
+
   		
-test bool all13()  = all(<int X, int Y> <- {<1,10>,<3,30>,<2,20>}, X < Y);
-test bool all14()  = all(<int X, int Y> <- [<1,10>,<3,30>,<2,20>], X < Y);
+test bool all15()  = all(<int X, int Y> <- {<1,10>,<3,30>,<2,20>}, X < Y);
   		
-test bool all15()  = !(all(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X < Y));
-test bool all16()  = !(all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y));
+test bool all16()  = !(all(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X < Y));
+
+@ignoreInterpreter{Unexplained failure}
+test bool all17()  = all([int X, int Y] <- {[1,10],[3,30],[2,20]}, X < Y);
+        
+test bool all18()  = !(all([int X, int Y] <- {[1,10],[30,3],[2,20]}, X < Y));
+test bool all19()  = !(all([int X, int Y] <- [[1,10],[30,3],[2,20]], X < Y));
   		
-test bool all17()  = all(int i <- [0, 1] && [0, 1][i] == i);
+test bool all20()  = all(int i <- [0, 1] && [0, 1][i] == i);
  
 //TODO: Settle this 		
 //@ignore{Changed semantics}
-//test bool all18a()  = all(_ <- []) == true;
+//test bool all20a()  = all(_ <- []) == true;
 @ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
-test bool all18b()  = all(_ <- []) == false;
+test bool all20b()  = all(_ <- []) == false;
 
 //@ignore{Changed semantics}
-//test bool all19a()  = all(_ <- {}) == true;
+//test bool all21a()  = all(_ <- {}) == true;
 @ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
-test bool all19b()  = all(_ <- {}) == false;
+test bool all21b()  = all(_ <- {}) == false;
 
 //@ignore{Changed semantics}
-//test bool all20a()  = all(_ <- ()) == true;
+//test bool all22a()  = all(_ <- ()) == true;
 @ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
-test bool all20b()  = all(_ <- ()) == false;
+test bool all22b()  = all(_ <- ()) == false;
 
 @ignoreInterpreter{Gives wrong answer}
-test bool all21()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1));
+test bool all23()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1));
 
-test bool all22()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1) ? true : false);
+test bool all24()  = all(k <- [1,2,3], (k % 2 == 0 || k % 2 == 1) ? true : false);
 
-test bool all23()  = all(k <- [10,10,10], 10 := k);
-test bool all24()  = !all(k <- [10,20,30], 20 := k);
+test bool all25()  = all(k <- [10,10,10], 10 := k);
+test bool all26()  = !all(k <- [10,20,30], 20 := k);
 
-test bool any26()  = all(int X <- [10,10,10], 10 := X) || 13 == 14;
-test bool any27()  = all(int X <- [10,10,10], 11 := X) || 13 == 13;
-test bool any28()  = all(int X <- [10,10,10], 10 := X) && 13 == 13;
-test bool any29()  = 13 == 14 || all(int X <- [10,10,10], 10 := X);
-test bool any30()  = 13 == 13 && all(int X <- [10,10,10], 10 := X);
+test bool all27(){
+    x = [1,2];
+    y = [2,1];
+    return all(e <- x, e in y);
+}
+
+test bool all28(){
+    x = [1,2];
+    y = [1,3];
+    return !all(e <- x, e in y);
+}
   
 // setComprehension
   		
@@ -189,7 +218,6 @@ test bool setComprehension51()  = {X | int X <- [1,2,3], X - 1 < 3} == {1,2,3};
   		
 test bool setComprehension52()  = {X * 2 | int X <- {1,2,3}} == {2,4,6};
 test bool setComprehension53()  = {X * 2 | int X <- [1,2,3]} == {2,4,6};
-  		
   		
 test bool setComprehension54()  = {*[X * 2] | int X <- {1,2,3}} == {2,4,6};
 test bool setComprehension55()  = {*[X * 2, X * 2 + 1] | int X <- {1,2,3}} == {2,3,4,5,6,7};

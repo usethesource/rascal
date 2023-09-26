@@ -2,20 +2,13 @@ module util::UUID
 
 @javaClass{org.rascalmpl.library.Prelude}
 
-@synopsis{
-
-generates a unique identifier shaped as a `loc`
-
-}
+@synopsis{generates a unique identifier shaped as a `loc`}
 @description{
-
 This function generates a UUID, see <http://en.wikipedia.org/wiki/Universally_unique_identifier>.
 Since UUIDs are useful to assign an opaque and unique identity to data, the function returns
 a location (which is the preferred representation for encoding **identities** in Rascal)
-
 }
 @examples{
-
 ```rascal-shell
 import util::UUID;
 ```
@@ -36,16 +29,12 @@ Note how uuid() should always generate a fresh value:
 ```rascal-shell,continue
 assert uuid() != uuid(); 
 ```
-
 }
 @benefits{
-
 * Locations are used for identifying program elements or model elements in Rascal. The uuid() function provides
 an quick-and-easy way of acquiring such an identity without having to design a naming scheme.
-
 }
 @pitfalls{
-
 *  UUIDs are a quick and dirty way of identifying data which may lead to hard to debug code. A naming scheme for locations is better because it generates human readable
 locations which carry meaning. For example consider the difference in readability between these two values:
 `|uuid://47fdcd64-4fd0-41a1-8aa3-61c5b272c3fc|` and `|java+class:///java/lang/Object|`. Both may lead to the same 
@@ -56,13 +45,8 @@ java loc uuid();
 
 @javaClass{org.rascalmpl.library.Prelude}
 
-@synopsis{
-
-see [uuid], this function does the same except return the UUID as an int.
-
-}
+@synopsis{see [uuid], this function does the same except return the UUID as an int.}
 @pitfalls{
-
 *  beware that this integer is almost guaranteed to use 128 bits, so communicating it outside of
 Rascal should not be done via a Java 32-bit integer.
 }

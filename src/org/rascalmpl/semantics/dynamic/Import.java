@@ -86,10 +86,9 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class Import {
-	
+	private static final ThreadLocal<ASTBuilder> builder = ThreadLocal.withInitial(() -> new ASTBuilder());
 	static public class External extends org.rascalmpl.ast.Import.External {
 
 		public External(ISourceLocation src, IConstructor node, QualifiedName name,
@@ -382,7 +381,7 @@ private static boolean isDeprecated(Module preModule){
   }
   
   private static ASTBuilder getBuilder() {
-    return new ASTBuilder();
+    return builder.get();
   }
 
   private static void addImportToCurrentModule(ISourceLocation src, String name, IEvaluator<Result<IValue>> eval) {
@@ -459,7 +458,7 @@ private static boolean isDeprecated(Module preModule){
         if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
             RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
-            ISourceLocation parserCacheFile = URIUtil.changeExtension(env.getLocation(), "parsers");
+            ISourceLocation parserCacheFile = URIUtil.changeExtension(location, "parsers");
 
             IFunction parsers = null;
             
@@ -491,7 +490,7 @@ private static boolean isDeprecated(Module preModule){
   } 
   
   private static void declareTypesWhichDoNotNeedImportedModulesAlready(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree top) {
-      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top);
+      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top, getBuilder());
 
       eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), true);
   }
@@ -539,7 +538,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
            IListWriter w = vf.listWriter();
            IList args = TreeAdapter.getArgs(tree);
            for (IValue arg : args) {
-             w.append(arg.accept(this));
+             if (!TreeAdapter.isLayout(tree) && !TreeAdapter.isLexical(tree)) {
+               w.append(arg.accept(this));
+             }
+             else {
+               w.append(arg);
+             }
            }
            args = w.done();
            
@@ -687,7 +691,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     	IListWriter w = vf.listWriter();
       IList args = TreeAdapter.getArgs(tree);
       for (IValue arg : args) {
-        w.append(arg.accept(this));
+        if (!TreeAdapter.isLayout((ITree) arg)) {
+          w.append(arg.accept(this));
+        }
+        else {
+          w.append(arg);
+        }
       }
       args = w.done();
       
@@ -773,7 +782,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
             IListWriter w = vf.listWriter();
             IList args = TreeAdapter.getArgs(tree);
             for (IValue elem : args) {
-              w.append(elem.accept(this));
+              if (!TreeAdapter.isLayout((ITree) elem)) {
+                w.append(elem.accept(this));
+              }
+              else {
+                w.append(elem);
+              }
             }
             args = w.done();
             

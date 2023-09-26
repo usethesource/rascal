@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.33.2-SNAPSHOT</version>
+    <version>0.34.0-RC2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.19.9</rascal-maven.version>
+        <rascal-maven.version>0.21.0</rascal-maven.version>
     </properties>
 
 
@@ -53,13 +53,6 @@
                     <include>plugin.xml</include>
                     <include>META-INF/RASCAL.MF</include>
                     <include>rascal-DEPENDENCIES.txt</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>test</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>org/rascalmpl/test/data/**/*</include>
                 </includes>
             </resource>
         </resources>
@@ -162,6 +155,28 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
+                    <!--<execution> somehow this breaks if you add new builtins 
+                        <id>default-cli</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>tutor</goal>
+                        </goals>
+                        <configuration>
+                            <isPackageCourse>false</isPackageCourse>
+                            <enableStandardLibrary>false</enableStandardLibrary>
+                            <errorsAsWarnings>false</errorsAsWarnings>
+                            <bin>${project.build.outputDirectory}</bin>
+                            <license>${project.basedir}/LICENSE</license>
+                            <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
+                            <issues>|http://github.com/usethesource/rascal/issues|</issues>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <ignores>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
+                            </ignores>
+                        </configuration>
+                    </execution> -->
                 </executions>
             </plugin>
             <plugin>
@@ -349,7 +364,7 @@
         <dependency>
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>0.15.0</version>
+            <version>0.15.1</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>

@@ -71,9 +71,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -141,8 +143,9 @@ public class Prelude {
     private final PrintWriter out;
 	private final TypeStore store;
 	private final IRascalMonitor monitor;
+	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
@@ -151,6 +154,8 @@ public class Prelude {
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
+		this.resourceProvider = resourceProvider;
+
 		random = new Random();
 	}
 
@@ -1714,6 +1719,16 @@ public class Prelude {
 	   throw RuntimeExceptionFactory.emptyList();
 	}
 
+	public IValue last(IList lst)
+	// @doc{head -- get the last element of a list}
+	{
+	   if(lst.length() > 0){
+	      return lst.get(lst.length() - 1);
+	   }
+	   
+	   throw RuntimeExceptionFactory.emptyList();
+	}
+
 	public IValue head(IList lst, IInteger n)
 	  throws IndexOutOfBoundsException
 	// @doc{head -- get the first n elements of a list}
@@ -2340,6 +2355,9 @@ public class Prelude {
 		try {
 			rascalValues.storeParsers(start, saveLocation);
 		}
+		catch (JavaCompilation e) {
+			throw RuntimeExceptionFactory.javaCompilerException(e);
+		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
@@ -2348,6 +2366,15 @@ public class Prelude {
 	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
 		try {
 			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+		try {
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
@@ -2793,6 +2820,23 @@ public class Prelude {
 		
 		throw RuntimeExceptionFactory.emptySet();
 	}
+	
+	public IValue getFirstFrom(ISet st)
+    // @doc{getOneFrom -- pick the "first" element from a set}
+    {
+        int sz = st.size();
+
+        if (sz == 0) {
+            throw RuntimeExceptionFactory.emptySet();
+        }
+
+        for (IValue v : st) {
+                return v;
+        }
+        
+        throw RuntimeExceptionFactory.emptySet();
+    }
+
 
 	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
@@ -3548,6 +3592,10 @@ public class Prelude {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
+	}
+
+	public ISet findResources(IString fileName) {
+		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
 	}
 
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {

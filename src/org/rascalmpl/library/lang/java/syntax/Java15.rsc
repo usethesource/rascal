@@ -10,10 +10,8 @@
 @description{
 The grammar was based on the SDF2 definition in the  Java-frontend project for Stratego/XT 
 See https://github.com/metaborg/java-front
-
 }
 @pitfalls{
-
 * The grammar has been changed to use Rascal's disambiguation constructs rather than SDF2's constructs,
 but this has not been well tested.
 } 

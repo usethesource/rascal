@@ -51,9 +51,9 @@ Symbol activeLayout(str name, set[str] deps, GrammarDefinition def) {
     return l;
   else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
     return l;  
-  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
+  else if (i <- deps, def.modules[i]?, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
     return l;
-   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
+   else if (i <- deps,  def.modules[i]?, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
     return l;  
   else 
     return layouts("$default$"); 

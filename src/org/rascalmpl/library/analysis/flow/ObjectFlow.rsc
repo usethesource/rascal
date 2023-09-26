@@ -1,11 +1,6 @@
 
-@synopsis{
-
-Intermediate Language and Basic Algorithms for object flow analysis
-  
-}
+@synopsis{Intermediate Language and Basic Algorithms for object flow analysis}
 @description{
-  
 The object flow language from the Tonella and Potrich book 
 "Reverse Engineering Object Oriented Code" is an intermediate
 representation for object flow. We may translate for example
@@ -22,7 +17,7 @@ The implementation in this file is intended to work with ((data:analysis::m3::Co
  isbn = {0387402950},
  publisher = {Springer-Verlag New York, Inc.},
  address = {Secaucus, NJ, USA},
-} 
+}
 }
 module analysis::flow::ObjectFlow
 

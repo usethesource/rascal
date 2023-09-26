@@ -16,10 +16,13 @@
 *******************************************************************************/
 package org.rascalmpl.exceptions;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -79,6 +82,7 @@ public class RuntimeExceptionFactory {
     public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
     public static final Type IO = TF.constructor(TS,Exception,"IO",TF.stringType(), "message");
     public static final Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message");
+	public static final Type JavaCompilation = TF.constructor(TS, Exception, "JavaCompilation", TF.stringType(), "message", TF.integerType(), "line", TF.integerType(), "column", TF.stringType(), "source", TF.listType(TF.sourceLocationType()), "classpath");
     public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
     public static final Type MalFormedURI = TF.constructor(TS, Exception, "MalFormedURI", TF.stringType(), "malFormedUri");
 	public static final Type ModuleNotFound = TF.constructor(TS, Exception, "ModuleNotFound", TF.stringType(), "name");
@@ -86,7 +90,7 @@ public class RuntimeExceptionFactory {
     // NoMainFunction
 	public static final Type NoSuchAnnotation = TF.constructor(TS, Exception, "NoSuchAnnotation", TF.stringType(), "label");
     public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
-	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
+	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "name");
     public static final Type NoSuchKey = TF.constructor(TS, Exception, "NoSuchKey", TF.valueType(), "key");
 
     // NotImplemented
@@ -450,6 +454,25 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(Java, VF.string(clazz), VF.string(message)), ast != null ? ast.getLocation() : null, trace);
 	}
 	
+	public static Throw javaCompilerException(JavaCompilation e) {
+		return javaCompilerException(e, null, null);
+	}
+
+	public static Throw javaCompilerException(JavaCompilation e, AbstractAST ast, StackTrace trace) {
+		IList cp = Arrays.stream(e.getClasspath().split(File.pathSeparator))
+			.map(j -> {
+				try {
+					return URIUtil.createFileLocation(j);
+				}
+				catch (URISyntaxException e1) {
+					return URIUtil.rootLocation("failedToParseLocation");
+				}
+			})
+			.collect(VF.listWriter());
+			
+		return new Throw(VF.constructor(JavaCompilation, VF.string(e.getMessage()),  VF.integer(e.getLine()), VF.integer(e.getColumn()), VF.string(e.getSource()), cp), ast != null ? ast.getLocation() : null, trace);
+	}
+
 	public static Throw javaException(Throwable targetException, AbstractAST ast, StackTrace rascalTrace) throws ImplementationError {
 		try {
 			String clazz = targetException.getClass().getSimpleName();

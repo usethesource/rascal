@@ -61,9 +61,8 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
 		
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
 		
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");

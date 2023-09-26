@@ -12,8 +12,7 @@ import String;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 
-@javaClass{org.rascalmpl.library.lang.rascal.tests.library.lang.java.m3.SnakesAndLadders}
-public java loc getSnakesAndLaddersPath(); 
+private loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
 
 public loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
@@ -70,7 +69,7 @@ private M3 buildM3(loc projectName, loc root, list[loc] classPath, list[loc] sou
     = composeJavaM3(projectName, createM3sFromFiles(find(root, "java"),sourcePath = sourcePath, classPath = classPath, javaVersion ="1.7"));
 
 
-// unpackExampleProject("snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|);
+// unpackExampleProject("snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"));
 
 private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) builder)
     = compareM3s(
@@ -80,11 +79,11 @@ private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) 
 
 @ignoreCompiler{M3 not yet supported}
 public test bool junitM3RemainedTheSame() 
-    = compareM3s(|testdata:///m3/junit4-m3s.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitM3); 
+    = compareM3s(get("m3/junit4-m3s.bin"), "junit4", get("m3/junit4-project-source.zip"), getJunitM3); 
 
 @ignoreCompiler{M3 not yet supported}
 public test bool snakesM3RemainedTheSame() 
-    = compareM3s(|testdata:///m3/snakes-and-ladders-m3s.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesM3); 
+    = compareM3s(get("m3/snakes-and-ladders-m3s.bin"), "snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"), getSnakesM3); 
  
  
 private bool compareASTs(loc reference, str projectName, loc sourceZip, set[Declaration] (loc) builder) 
@@ -95,11 +94,11 @@ private bool compareASTs(loc reference, str projectName, loc sourceZip, set[Decl
  
 @ignoreCompiler{M3 not yet supported}
 public test bool junitASTsRemainedTheSame() 
-    = compareASTs(|testdata:///m3/junit4-asts.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitASTs);
+    = compareASTs(get("m3/junit4-asts.bin"), "junit4", get("m3/junit4-project-source.zip"), getJunitASTs);
         
 @ignoreCompiler{M3 not yet supported}
 public test bool snakesASTsRemainedTheSame() 
-    = compareASTs(|testdata:///m3/snakes-and-ladders-asts.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesASTs);    
+    = compareASTs(get("m3/snakes-and-ladders-asts.bin"), "snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"), getSnakesASTs);    
 
 	 
 private bool compareASTs(set[Declaration] a, set[Declaration] b) = a == b;
@@ -120,8 +119,15 @@ private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
         builder(jar) 
    );
 
+private loc getAndCopyToTemp(str jar) {
+	loc source = get(jar);
+	loc target = |tmp:///| + jar;
+	copy(source, target);
+	return target;
+}
+
 public test bool hamcrestJarM3RemainedTheSame()
-	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
+	= compareJarM3s(get("m3/hamcrest-library-1.3-m3.bin"), getAndCopyToTemp("m3/hamcrest-library-1.3.jar"), getHamcrestM3);
 	
 // TODO: think if this can be replaced by the generic diff function.
 public bool compareM3s(M3 a, M3 b) {

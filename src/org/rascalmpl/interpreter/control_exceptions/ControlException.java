@@ -35,7 +35,7 @@ public class ControlException extends RuntimeException {
 	
 	@Override
 	public Throwable fillInStackTrace(){
-		return null;
+		return this;
 	}
 	
 	protected Throwable reallyFillInStackTrace() {

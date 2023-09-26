@@ -169,13 +169,8 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
 }
 
 
-@synopsis{
-
-Derive a location from a given module name for reading
-
-}
+@synopsis{Derive a location from a given module name for reading}
 @description{
-
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
@@ -183,20 +178,16 @@ If a file F with this path exists in one of the directories in the PathConfig,
 then the pair <true, F> is returned. Otherwise <false, some error location> is returned.
 
 For a source extension (typically "rsc" or "mu" but this can be configured) srcs is searched, otherwise binPath + libs.
-
 }
 @examples{
-
 ```rascal-shell
 import util::Reflective;
 getDerivedReadLoc("List", "rsc", pathConfig());
 getDerivedReadLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 getDerivedReadLoc("experiments::Compiler::muRascal2RVM::Library", "mu", pathConfig());
 ```
-
 }
 @benefits{
-
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be read
 from locations in different, configurable, directories.
 }
@@ -228,22 +219,15 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
 }
 
 
-@synopsis{
-
-Derive a location from a given module name for writing
-
-}
+@synopsis{Derive a location from a given module name for writing}
 @description{
-
 Given a module name, a file name extension, and a PathConfig,
 a path name is constructed from the module name + extension.
 
 For source modules, a writable location cannot be derived.
 For other modules, a location for this path in bin will be returned.
-
 }
 @examples{
-
 ```rascal-shell
 import util::Reflective;
 getDerivedWriteLoc("List", "rvm", pathConfig());
@@ -253,10 +237,8 @@ getDerivedWriteLoc("experiments::Compiler::Compile", "rvm", pathConfig());
 ```rascal-shell,error
 getDerivedWriteLoc("experiments::Compiler::muRascal2RVM::Library", "rsc", pathConfig());
 ```
-
 }
 @benefits{
-
 This function is useful for type checking and compilation tasks, when derived information related to source modules has to be written
 to locations in separate, configurable, directories.
 }
