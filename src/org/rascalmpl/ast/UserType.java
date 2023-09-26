@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class UserType extends AbstractAST {
   public UserType(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -97,7 +98,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 809 + 109 * name.hashCode() ; 
+      return 59 + 823 * name.hashCode() ; 
     } 
   
     
@@ -183,7 +184,7 @@ public abstract class UserType extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 449 * name.hashCode() + 571 * parameters.hashCode() ; 
+      return 139 + 293 * name.hashCode() + 773 * parameters.hashCode() ; 
     } 
   
     

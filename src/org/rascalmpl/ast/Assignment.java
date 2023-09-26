@@ -59,6 +59,7 @@ public abstract class Assignment extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
       
     }
   

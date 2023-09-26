@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Toplevel extends AbstractAST {
   public Toplevel(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -90,7 +91,7 @@ public abstract class Toplevel extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 661 + 499 * declaration.hashCode() ; 
+      return 67 + 19 * declaration.hashCode() ; 
     } 
   
     
