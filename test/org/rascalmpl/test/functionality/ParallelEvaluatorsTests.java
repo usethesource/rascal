@@ -16,7 +16,6 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -34,10 +33,7 @@ public class ParallelEvaluatorsTests {
         var root = heap.addModule(new ModuleEnvironment("___test___", heap));
         
         var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-        evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-        evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
-
+        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());        
         evaluator.setTestResultListener(new ITestResultListener() {
             @Override
             public void start(String context, int count) { }

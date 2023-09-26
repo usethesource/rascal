@@ -6,20 +6,13 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 
-@synopsis{
-
-Descriptive Statistics.
-
-}
+@synopsis{Descriptive Statistics.}
 @description{
-
 Provides the following univariate (single variable) statistics functions:
 
 (((TOC)))
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::statistics::Descriptive;
 D = [67, 88, 55, 92.5, 102, 51];
@@ -44,13 +37,8 @@ import util::Math;
 import List;
 
 
-@synopsis{
-
-Geometric mean of data values.
-
-}
+@synopsis{Geometric mean of data values.}
 @description{
-
 Computes the [geometric mean](http://en.wikipedia.org/wiki/Geometric_mean) of the given data values.
 }
 real geometricMean([num hd, *num tl]) {
@@ -68,13 +56,8 @@ real geometricMean([num hd, *num tl]) {
 }
 
 
-@synopsis{
-
-Kurtosis of data values.
-
-}
+@synopsis{Kurtosis of data values.}
 @description{
-
 Computes the [kurtosis](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
 Kurtosis is a measure of the "peakedness" of a distribution.
 }
@@ -89,52 +72,32 @@ real kurtosis(list[num] values:[_, *_]) {
 }
 
 
-@synopsis{
-
-Kurtosis excess of data values.
-
-}
+@synopsis{Kurtosis excess of data values.}
 @description{
-
 Computes the [kurtosis excess](http://en.wikipedia.org/wiki/Kurtosis) of the given data values.
 Kurtosis excess is a measure of the "peakedness" of a distribution corrected such that a normal distribution will be 0.
 }
 real kurtosisExcess(list[num] values) = kurtosis(values) - 3;
 
 
-@synopsis{
-
-Largest data value.
-}
+@synopsis{Largest data value.}
 (&T <: num) max([(&T <: num) h, *(&T <: num) t]) = (h | it < n ? n : it | n <- t);
 
 
-@synopsis{
-
-Arithmetic mean of data values.
-
-}
+@synopsis{Arithmetic mean of data values.}
 @description{
-
 Computes the [arithmetic mean](http://en.wikipedia.org/wiki/Arithmetic_mean) of the data values.
 }
 real mean(list[num] nums:[_, *_]) = toReal(sum(nums)) / size(nums);
 
 
 
-@synopsis{
-
-Median of data values.
-
-}
+@synopsis{Median of data values.}
 @description{
-
 Returns the [median](http://en.wikipedia.org/wiki/Median) of the available values.
 This is the same as the 50th ((percentile)).
-
 }
 @examples{
-
 ```rascal-shell
 import analysis::statistics::Descriptive;
 median([1,2,5,7,8]);
@@ -155,20 +118,12 @@ private list[&T] middle(list[&T] nums) {
 }
 
 
-@synopsis{
-
-Smallest data value.
-}
+@synopsis{Smallest data value.}
 (&T <: num) min([(&T <: num) h, *(&T <: num) t]) = (h | it > n ? n : it | n <- t);
 
 
-@synopsis{
-
-Percentile of data values.
-
-}
+@synopsis{Percentile of data values.}
 @description{
-
 Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the data values.
  0 < `p` <= 100 should hold.
 }
@@ -183,13 +138,8 @@ Returns the `p`th [percentile](http://en.wikipedia.org/wiki/Percentile) of the d
 }
 
 
-@synopsis{
-
-Variance of data values.
-
-}
+@synopsis{Variance of data values.}
 @description{
-
 Computes the [variance](http://en.wikipedia.org/wiki/Variance) of the data values.
 It measures how far a set of numbers is spread out.
 }
@@ -206,26 +156,16 @@ num variance([num hd, *num tl]) {
 }
 
 
-@synopsis{
-
-Skewness of data values.
-
-}
+@synopsis{Skewness of data values.}
 @description{
-
 Returns the [skewness](http://en.wikipedia.org/wiki/Skewness) of the available values. Skewness is a measure of the asymmetry of a given distribution.
 }
 real skewness(list[num] values:[_, *_]) 
 	= centralMoment(values, order=3) / pow(centralMoment(values, order=2), 3/2);
 
 
-@synopsis{
-
-Standard deviation of data values.
-
-}
+@synopsis{Standard deviation of data values.}
 @description{
-
 Computes the [standard deviation](http://en.wikipedia.org/wiki/Standard_deviation)
 of the data values. It shows how much variation exists from the average (mean, or expected value).
 }
@@ -237,17 +177,11 @@ real standardDeviation(list[num] values) {
 }
 
 
-@synopsis{
-
-Sum of data values.
-}
+@synopsis{Sum of data values.}
 public (&T <:num) sum([(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
 
 
-@synopsis{
-
-Sum of the squares of data values.
-}
+@synopsis{Sum of the squares of data values.}
 (&T <:num) sumsq(list[&T <:num] values) = sum([ n * n | n <- values]);
 
 @synopsis{Calculate the k-th central moment}

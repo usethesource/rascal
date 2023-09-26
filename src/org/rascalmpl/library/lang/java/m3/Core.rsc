@@ -1,4 +1,4 @@
-@synopsis{Extends the M3 ((analysis::m3::Core)) with Java specific concepts such as inheritance and overriding.}
+@synopsis{Extends the M3 Core model with Java specific concepts such as inheritance and overriding.}
 module lang::java::m3::Core
 
 extend lang::java::m3::TypeSymbol;

@@ -9,7 +9,7 @@ import ParseTree;
 import DateTime;
 import util::UUID;
 
-loc targetFile = |test-temp:///csv-test-file--<"<uuidi()>">.csv|;
+loc targetFile = |memory://test-tmp/csv-test-file--<"<uuidi()>">.csv|;
 
 bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
 bool readWrite(type[&T] returnType, set[&T1] dt) {

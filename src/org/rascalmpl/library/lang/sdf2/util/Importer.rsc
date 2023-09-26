@@ -6,9 +6,11 @@ import lang::rascal::format::Grammar;
 import lang::rascal::grammar::definition::Modules;
 import util::Reflective;
 
-@resource{sdf}
+@resource{
+sdf
+}
 @synopsis{Converts an SDF2 module to a Rascal module}
-@description{ 
+@description{
 The `sdf` uri scheme works like this:
 `sdf:///<modulename>`
 

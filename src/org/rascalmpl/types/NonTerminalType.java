@@ -444,8 +444,7 @@ public class NonTerminalType extends RascalType {
 	  }
 
 	  if (SymbolAdapter.isParameter(otherSym)) {
-		  RascalType bound = (RascalType) RTF.nonTerminalType((IConstructor) otherSym.get("bound"));
-		  return isSubtypeOf(bound);
+		  return isSubtypeOf(RTF.nonTerminalType((IConstructor) otherSym.get("bound")));
 	  }
 	  
 	  // TODO co-variance for the other structured symbols (sequence, opt, list)

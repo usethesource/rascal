@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,7 +21,6 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.uri.libraries.RascalLibraryURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -618,31 +616,6 @@ public class PathConfig {
         if (!foundSrc) {
             // if we could not find source roots, we default to the jar root
             srcsWriter.append(jar);
-        }
-    }
-
-    private static void addJarToSearchPath(ISourceLocation jar, Set<String> libNames, IListWriter srcs) {
-        ISourceLocation prefix = RascalManifest.jarify(jar);
-        
-        RascalManifest mf = new RascalManifest();
-        List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
-        String projectName = mf.getManifestProjectName(mf.manifest(jar));
-
-        if (roots != null && projectName != null && libNames.contains(projectName)) {
-            for (String root : roots) {
-                srcs.append(URIUtil.getChildLocation(prefix, root));
-            }
-        }
-    }
-
-    private static void addJarToLibraryPath(ISourceLocation jar, Set<String> libNames, IListWriter libs) {
-        ISourceLocation prefix = RascalManifest.jarify(jar);
-        
-        RascalManifest mf = new RascalManifest();
-        String projectName = mf.getManifestProjectName(mf.manifest(jar));
-
-        if (projectName != null && libNames.contains(projectName)) {
-            libs.append(prefix);
         }
     }
 

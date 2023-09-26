@@ -11,13 +11,8 @@
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
 
 
-@synopsis{
-
-Functions for time measurement and benchmarking.
-
-}
+@synopsis{Functions for time measurement and benchmarking.}
 @description{
-
 The `Benchmark` library provides the following functions:
 (((TOC)))
 }
@@ -92,14 +87,14 @@ public java int cpuTime();
 Returns the difference, measured in milliseconds, between the current time and midnight, January 1, 1970 UTC
 }
 @pitfalls{
-   * The actual accuracy of the time may be not as good as a millisecond. This depends on OS and hardware specifics.
+* The actual accuracy of the time may be not as good as a millisecond. This depends on OS and hardware specifics.
    * Note that the resolution is _milliseconds_ here, while ((cpuTime)) produces nanosecond resolution.
 }
 public java int realTime();
 
 @synopsis{Return nanoseconds clock time of the JVM's high resolution clock.}
 @description{
-   See `System.nanoTime` Java documentation. An excerpt:
+See `System.nanoTime` Java documentation. An excerpt:
 
 > Returns the current value of the running Java Virtual Machine's 
 > high-resolution time source, in nanoseconds.
@@ -138,7 +133,6 @@ Returns the CPU time that the current thread has executed in system mode in nano
 * The other [CPU time]((cpuTime)), next to [System time]((systemTime)) is spent in [User time]((userTime)).
 }
 @examples{
-
 ```rascal-shell,continue
 import util::Benchmark;
 ```
@@ -156,7 +150,7 @@ public java int systemTime();
 
 @synopsis{Measure the exact running time of a block of code, using ((systemTime)).}
 @examples{
- ```rascal-shell,continue
+```rascal-shell,continue
 import util::Benchmark;
 int fac(int n) = n <= 1 ? 1 : n * fac(n - 1);
 systemTimeOf(
@@ -183,7 +177,6 @@ Returns the CPU time that the current thread has executed in user mode in nanose
 * The other [CPU time]((cpuTime)), next to [user time]((userTime)) is spent in [system time]((systemTime)).
 }
 @examples{
-
 ```rascal-shell
 import util::Benchmark;
 int fac(0) = 1;
@@ -195,7 +188,6 @@ before = userTime();
 fac(50);
 userTime() - before;
 ```
-
 }
 public java int userTime();
 
@@ -229,7 +221,6 @@ public int realTimeOf(void () block) {
 
 @synopsis{Utility to measure and compare the execution time a set of code blocks}
 @description{
-
 Given is a map that maps strings (used as label to identify each case) to void-closures that execute the code to be benchmarked.
 An optional `duration` argument can be used to specify the function to perform the actual measurement. By default the function ((realTimeOf)) is used. A map of labels and durations is returned.
 }
@@ -283,7 +274,9 @@ public map[str,num] benchmark(map[str, void()] Cases, int (void ()) duration)
 
 
 
-@ynopsis{"Force" a JVM garbage collection.}
+@ynopsis{
+"Force" a JVM garbage collection.
+}
 @description{
 This function tries to trigger a garbage collection. It may be useful to call this function
 just before measuring the efficiency of a code block, in order to factor out previous effects

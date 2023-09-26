@@ -56,12 +56,12 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2symb
   The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
   so we remove this here to create a canonical 'source-level' type.}
 private Symbol denormalize(Symbol s) = visit (s) { 
-  case \lex(n) => \sort(n)
-  case \iter-seps(u,[layouts(_),t,layouts(_)]) => \iter-seps(u,[t])
+  case \lex(n)                                      => \sort(n)
+  case \iter-seps(u,[layouts(_),t,layouts(_)])      => \iter-seps(u,[t])
   case \iter-star-seps(u,[layouts(_),t,layouts(_)]) => \iter-star-seps(u,[t])
-  case \iter-seps(u,[layouts(_)]) => \iter(u)
-  case \iter-star-seps(u,[layouts(_)]) => \iter-star(u)
-  // TODO: add rule for seq
+  case \iter-seps(u,[layouts(_)])                   => \iter(u)
+  case \iter-star-seps(u,[layouts(_)])              => \iter-star(u)
+  case \seq(ss)                                     => seq([t | t <- ss, !(t is layouts)])
 };
 
 @synopsis{This is needed such that list variables can be repeatedly used as elements of the same list}
@@ -94,15 +94,16 @@ private Symbol getTargetSymbol(Symbol sym) {
 
 @synopsis{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(Symbol x) { 
-    return 
-        !(\lit(_) := x 
-          || \empty() := x
-          || \cilit(_) := x 
-          || \char-class(_) := x 
-          || \layouts(_) := x
-          || \keywords(_) := x
-          || \start(_) := x
-          || \parameterized-sort(_,[\parameter(_,_),*_]) := x
-          || \parameterized-lex(_,[\parameter(_,_),*_]) := x
-         );
+    switch(x){ 
+        case \lit(_): return false;
+        case \empty(): return false;
+        case \cilit(_): return false;
+        case \char-class(_): return false;
+        case \layouts(_): return false;
+        case \keywords(_): return false;
+        case \start(_): return false;
+        case \parameterized-sort(_,[\parameter(_,_),*_]): return false;
+        case \parameterized-lex(_,[\parameter(_,_),*_]): return false;
+        default: return true;
+     };
 }

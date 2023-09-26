@@ -33,14 +33,10 @@ public class RascalShell  {
     
     public static void main(String[] args) throws IOException {
         printVersionNumber();
-        RascalManifest mf = new RascalManifest();
 
         try {
             ShellRunner runner; 
-            if (mf.hasManifest(RascalShell.class) && mf.hasMainModule(RascalShell.class)) {
-                runner = new ManifestRunner(mf, System.in, System.out, System.err);
-            } 
-            else if (args.length > 0) {            	
+            if (args.length > 0) {            	
             	if (args[0].equals("--help")) {
                     System.err.println("Usage: java -jar rascal-version.jar [Module]");
                     System.err.println("\ttry also the --help options of the respective commands.");

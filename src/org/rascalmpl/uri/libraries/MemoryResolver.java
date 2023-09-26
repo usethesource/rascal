@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
@@ -29,14 +31,14 @@ import org.rascalmpl.uri.ISourceLocationInputOutput;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
- * This resolver is used for example for the scheme "test-modules", which amongst others 
- * generates modules during tests.
- * These modules are implemented via an in-memory "file system" that guarantees
+ * This resolver implements the scheme "memory" scheme, which implements
+ * in-memory file systems for use during testing.
+ * 
+ * The in-memory "file system" that we use to implement this feature guarantees
  * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
  * is ALWAYS larger than for the previous version of the same file.
  * When files are written at high speeed (e.g. with 10-30 ms intervals), this property is, 
- * unfortunately, not guaranteed on all operating systems.
- * 
+ * unfortunately, not guaranteed on all operating systems, in all situations
  * So if you are writing temporary files very frequently and use lastModified to mark the fields 
  * as dirty, use an instance of this resolver to guarantee the dirty marking.
  * 
@@ -45,14 +47,15 @@ import io.usethesource.vallang.ISourceLocation;
  * BE AWARE that the information in this in-memory file system is volatile and does not survive:
  * - program execution
  * - replacement by another in-memory filesystem for the same scheme
+ * 
+ * ALSO BE AWARE that during the existence of the JVM files stored in this scheme
+ * are never garbage collected. Use `rm` to clean up after yourselves.
  *
  * The resolver supports the following trick to simulate readonly files, used for testing purposes:
  * If the scheme of a URI ends with `+readonly` the writing part of the resolved throws exceptions. 
  */
 
-public abstract class InMemoryResolver implements ISourceLocationInputOutput {
-	
-    private final String scheme;
+public class MemoryResolver implements ISourceLocationInputOutput {
     
     private final class InMemoryFileTree extends FileTree { 
         public ConcurrentNavigableMap<String, FSEntry> getFileSystem() {
@@ -60,16 +63,15 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
         }
     }
     
-    private InMemoryFileTree fileSystem = new InMemoryFileTree();
+    private final ConcurrentMap<String, InMemoryFileTree> fileSystems = new ConcurrentHashMap<>();
     
-	public InMemoryResolver(String scheme) {
-		//System.err.println("CREATE InMemoryResolver: " + scheme + ": " + this);
-        this.scheme = scheme;
+	public MemoryResolver() {
+		
     }
 
     @Override
 	public String scheme() {
-		return scheme;
+		return "memory";
 	}
 	
 	private static final class File extends FileTree.FSEntry {
@@ -92,8 +94,12 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 		}
 	}
 
+	private InMemoryFileTree getFS(String authority) {
+		return fileSystems.computeIfAbsent(authority, a -> new InMemoryFileTree());
+	}
+
 	private File get(ISourceLocation uri) {
-	    return (File) fileSystem.getFileSystem().get(uri.getPath());
+	    return (File) getFS(uri.getAuthority()).getFileSystem().get(uri.getPath());
 	}
 	
 	@Override
@@ -120,7 +126,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 				byte[] content = this.toByteArray();
 				if (file == null) {
 				    file = new File();
-				    fileSystem.getFileSystem().put(uri.getPath(), file);
+				    getFS(uri.getAuthority()).getFileSystem().put(uri.getPath(), file);
 				}
 				file.newContent(content);
 				super.close();
@@ -164,22 +170,22 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public boolean exists(ISourceLocation uri) {
-		return fileSystem.exists(uri.getPath());
+		return getFS(uri.getAuthority()).exists(uri.getPath());
 	}
 
 	@Override
 	public boolean isDirectory(ISourceLocation uri) {
-	    return fileSystem.isDirectory(uri.getPath());
+	    return getFS(uri.getAuthority()).isDirectory(uri.getPath());
 	}
 
 	@Override
 	public boolean isFile(ISourceLocation uri) {
-	    return fileSystem.isFile(uri.getPath());
+		return getFS(uri.getAuthority()).isFile(uri.getPath());
 	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-	    return fileSystem.directChildren(uri.getPath());
+	    return getFS(uri.getAuthority()).directChildren(uri.getPath());
 	}
 
 	@Override
@@ -199,7 +205,15 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 	    if (uri.getScheme().endsWith("+readonly")) {
             throw new AccessDeniedException(uri.toString());
         }
-	    
-	    fileSystem.getFileSystem().remove(uri.getPath());
+	  
+		var ft = getFS(uri.getAuthority()).getFileSystem();
+
+		// remove the specific file
+	    ft.remove(uri.getPath());
+
+		// clean up the entire map if this was the last entry in the filesystem
+		if (ft.isEmpty()) {
+			fileSystems.remove(uri.getAuthority());
+		}
 	}
 }

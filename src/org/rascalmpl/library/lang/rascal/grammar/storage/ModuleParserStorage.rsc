@@ -40,6 +40,8 @@ be bitten by a concrete syntax parser that is out of date at development time.
 module lang::rascal::grammar::storage::ModuleParserStorage
 
 import lang::rascal::grammar::definition::Modules;
+import lang::rascal::grammar::definition::Names;
+import lang::rascal::grammar::definition::Layout;
 import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import util::FileSystem;
@@ -47,6 +49,7 @@ import Location;
 import ParseTree;
 import Grammar;
 import IO;
+import Exception;
 
 @synopsis{For all modules in pcfg.srcs this will produce a `.parsers` stored parser capable of parsing concrete syntax fragment in said module.}
 @description{
@@ -121,13 +124,24 @@ void storeParserForModule(str main, loc file, set[Module] modules, PathConfig pc
     def = modules2definition(main, modules);
 
     // here the layout semantics comes really into action
-    gr = fuse(def);
+    gr = resolve(fuse(layouts(def)));
 
     // find a file in the target folder to write to
     target = pcfg.bin + relativize(pcfg.srcs, file)[extension="parsers"].path;
 
-    println("Generating parser for <main> at <target>");
-    if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
-        storeParsers(rt, target);
+    try {
+        println("Generating parser for <main> at <target>");
+        if (type[Tree] rt := type(sort("Tree"), gr.rules)) {
+            storeParsers(rt, target);
+        }
+    }
+    catch e:JavaCompilation(str message, int line, int column, str source, list[loc] classpath): {
+        println("Generated parser could not be compiled:
+                '  grammar: <iprintToString(gr.rules)>
+                '  error  : <message>
+                '  pos    : line: <line>, column: <column>
+                '  path   : <iprintToString(classpath)>
+                '  source : \"<source>\"");
+        throw e;
     }
 }

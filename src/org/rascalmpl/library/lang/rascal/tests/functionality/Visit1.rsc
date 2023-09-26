@@ -357,7 +357,8 @@ data Y = weird2(list[int] y);
  * This would require the following:
  * - maintain a path from the root of the subject to the current subtree
  * - use this path to determine the static type of the current subtree.
- */}
+ */
+}
 test bool visit22() = 
 	visit (weird2([])) { case list[int] _ => [1] } == weird2([1]);
 

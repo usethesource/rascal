@@ -236,6 +236,20 @@ test bool concreteMatch257(){
         case \iter-star-seps(_,_): n += 1;
     }
     return n == 4;
+}
+
+test bool matchAppl1(){
+    Tree a = appl(regular(\iter-seps(sort("Tag"),[layouts("LAYOUTLIST")])),[]);
+    switch(a){
+        case appl(_,[]): return true;
+    }
+    return false;
 }   
- 
- 								
+
+test bool matchAppl2(){
+    Tree a = appl(regular(\iter-seps(sort("Tag"),[layouts("LAYOUTLIST")])),[]);
+    switch(a){
+        case appl(_,[Tree _]): return false;
+    }
+    return true;
+}
