@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Visit extends AbstractAST {
   public Visit(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -116,7 +117,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 293 + 421 * subject.hashCode() + 467 * cases.hashCode() ; 
+      return 797 + 149 * subject.hashCode() + 877 * cases.hashCode() ; 
     } 
   
     
@@ -221,7 +222,7 @@ public abstract class Visit extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 181 + 383 * strategy.hashCode() + 263 * subject.hashCode() + 463 * cases.hashCode() ; 
+      return 401 + 787 * strategy.hashCode() + 239 * subject.hashCode() + 997 * cases.hashCode() ; 
     } 
   
     

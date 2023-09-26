@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Tag extends AbstractAST {
   public Tag(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -114,7 +115,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 29 + 947 * name.hashCode() + 883 * contents.hashCode() ; 
+      return 263 + 163 * name.hashCode() + 683 * contents.hashCode() ; 
     } 
   
     
@@ -197,7 +198,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 743 + 313 * name.hashCode() ; 
+      return 661 + 499 * name.hashCode() ; 
     } 
   
     
@@ -281,7 +282,7 @@ public abstract class Tag extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 607 + 727 * name.hashCode() + 883 * expression.hashCode() ; 
+      return 769 + 163 * name.hashCode() + 641 * expression.hashCode() ; 
     } 
   
     
