@@ -99,6 +99,10 @@ public abstract class RascalType extends ExternalType {
         return false;
     }
 
+    public boolean isRoleModifier() {
+        return false;
+    }
+
     public static boolean isNonterminal(Type type) {
         return type.isExternalType() && ((RascalType) type).isNonterminal();
     }
@@ -110,4 +114,9 @@ public abstract class RascalType extends ExternalType {
     public static boolean isFunction(Type type) {
         return type.isExternalType() && ((RascalType) type).isFunction();
     }
+
+     public static boolean isRoleModifier(Type type) {
+        return type.isExternalType() && ((RascalType) type).isRoleModifier();
+    }
+
 }

@@ -18,6 +18,7 @@ import org.rascalmpl.ast.DataTypeSelector;
 import org.rascalmpl.ast.FunctionType;
 import org.rascalmpl.ast.StructuredType;
 import org.rascalmpl.ast.Sym;
+import org.rascalmpl.ast.SyntaxRoleModifier;
 import org.rascalmpl.ast.TypeVar;
 import org.rascalmpl.ast.UserType;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -105,7 +106,7 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 		}
 
 	}
-
+	
 	static public class User extends org.rascalmpl.ast.Type.User {
 		public User(ISourceLocation __param1, IConstructor tree, UserType __param2) {
 			super(__param1, tree, __param2);
@@ -134,6 +135,17 @@ public abstract class Type extends org.rascalmpl.ast.Type {
 			}
 
 			return param;
+		}
+	}
+
+	static public class Modifier extends org.rascalmpl.ast.Type.Modifier {
+		public Modifier(ISourceLocation src, IConstructor node, SyntaxRoleModifier modifier) {
+			super(src, node, modifier);
+		}
+
+		@Override
+		public io.usethesource.vallang.type.Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
+			return getModifier().typeOf(env, eval, instantiateTypeParameters);
 		}
 	}
 
