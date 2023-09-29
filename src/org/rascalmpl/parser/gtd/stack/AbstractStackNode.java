@@ -640,7 +640,7 @@ public abstract class AbstractStackNode<P>{
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 			
-			propagatedPrefixes = new BitSet();
+			propagatedPrefixes = new BitSet(edgesMapSize);
 		}else{
 			if(prefixesMap.length < possibleMaxSize){
 				ArrayList<Link>[] oldPrefixesMap = prefixesMap;
@@ -649,7 +649,7 @@ public abstract class AbstractStackNode<P>{
 			}
 			
 			if(propagatedPrefixes == null){
-				propagatedPrefixes = new BitSet();
+				propagatedPrefixes = new BitSet(edgesMapSize);
 			}else{
 				propagatedPrefixes.enlargeTo(possibleMaxSize);
 			}
