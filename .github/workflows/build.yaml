@@ -38,15 +38,6 @@ jobs:
         with:
           check_name: "Test Report - ${{ runner.os }}"
 
-      - name: Report Failure
-        if: failure()
-        uses: act10ns/slack@v1
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}
-
   builds:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [test-linux]
@@ -118,14 +109,6 @@ jobs:
           ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
 
-      - name: Report Failure
-        if: failure()
-        uses: act10ns/slack@v1
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}
 
   tests:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
@@ -160,11 +143,3 @@ jobs:
         with:
           check_name: "Test Report - ${{ runner.os }}"
 
-      - name: Report Failure
-        if: failure()
-        uses: act10ns/slack@v1
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}
