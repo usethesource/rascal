@@ -5,6 +5,7 @@ import List;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import Grammar;
+import lang::rascalcore::check::RascalConfig;
 
  // Global state maintained when translating a Rascal module
 
@@ -16,33 +17,14 @@ private list[MuFunction] functions_in_module = [];	// functions declared in curr
 private list[MuModuleVar] variables_in_module = [];	// variables declared in current module
 private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
 
-private set[str] overriddenLibs = {};				// Java libraries overriden for compiler
-private set[str] notOverriddenLibs = {};			// Java libraries not overridden for compiler
-
-private bool optimize = false;
-private bool checkAsserts = true;
+private bool optimizingVisit = false;
+private bool enablingAsserts = true;
 
 // Access functions
 
-bool optimizing() = optimize;
+public bool optimizeVisit() = optimizingVisit;
 
-bool assertsEnabled() = checkAsserts;
-
-public set[str] getOverriddenlibs(){
-	return overriddenLibs;
-}
- 
-public void addOverriddenLib(str lib){
-	overriddenLibs += lib;
-}
-
-public set[str] getNotOverriddenlibs(){
-	return notOverriddenLibs;
-}
-
-public void addNotOverriddenLib(str lib){
-	notOverriddenLibs += lib;
-}
+public bool assertsEnabled() = enablingAsserts;
 
 public void setModuleName(str name){
 	module_name = name;
@@ -120,10 +102,10 @@ public list[MuExp] getVariableInitializationsInModule(){
 
 // Reset global state
 
-void resetModuleInfo(bool optimize_flag, bool enableAsserts_flag) {
+void resetModuleInfo(CompilerConfig compilerConfig) {
 
-    optimize = optimize_flag;
-    checkAsserts = enableAsserts_flag;
+    optimizingVisit = compilerConfig.optimizeVisit;
+    enablingAsserts = compilerConfig.enableAsserts;
  	module_name = "** undefined **";
  	module_tags = ("***":"+++");
     imported_modules = [];
@@ -132,6 +114,4 @@ void resetModuleInfo(bool optimize_flag, bool enableAsserts_flag) {
 	variables_in_module = [];
 	variable_initializations = [];
 	resetTmpAndLabel();
-	overriddenLibs = {};
-    notOverriddenLibs = {};
 }
