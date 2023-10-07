@@ -307,7 +307,7 @@ public data MuExp =
     ;
     
 data DescendantDescriptor
-    = descendantDescriptor(bool useConcreteFingerprint, set[AType] reachable_atypes, set[AType] reachable_aprods, map[AType,AProduction] definitions)
+    = descendantDescriptor(bool useConcreteFingerprint, set[AType] reachable_atypes, set[AProduction] reachable_aprods, map[AType,AProduction] definitions)
     ;
     
 data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);    
@@ -432,10 +432,10 @@ AType getType(muVar(str name, str fuid, int pos, AType atype, IdRole idRole)) = 
 AType getType(muTmpIValue(str name, str fuid, AType atype)) = atype;
 AType getType(muVarKwp(str name, str fuid, AType atype)) = atype;
 AType getType(muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src))
-    = getResultType(atype);                                                               
+    = getResult(atype);                                                               
 AType getType(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)) 
     = result;
-AType getType(muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun)) =  getResultType(funType); 
+AType getType(muCallJava(str name, str class, AType funType, list[MuExp] args, str enclosingFun)) =  getResult(funType); 
 AType getType(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)) = alub(getType(thenPart), getType(elsePart));
 
 AType getType(muGetKwFieldFromConstructor(AType resultType, MuExp var, str fieldName)) = resultType;
@@ -1650,11 +1650,6 @@ default MuExp ifElse2ifExp(MuExp e) = e;
 //MuExp muCall(MuExp fun, AType t, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs) 
 //    = muValueBlock(t, auxVars + pre + muCall(fun, t, flatArgs, kwargs))
 //when <true, auxVars, pre, flatArgs> := flattenArgs(args) && !isEmpty(pre);
-
-AType getResultType(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
-AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
-AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = getResultType(lubList(toList(overloads<2>)));
-default AType getResultType(AType t) = t;
      
 MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src){
     <b1, auxVars1, pre1, flatArgs1> = flattenArgs(args);
@@ -1662,7 +1657,7 @@ MuExp muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp 
    
     if((b1 || b2) && !(isEmpty(pre1) && isEmpty(pre2))){
         kwargs2 = [<kwargs[i].kwpName, flatArgs2[i]> | i <- index(kwargs)];
-        return muValueBlock(getResultType(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src));
+        return muValueBlock(getResult(atype), auxVars1 + auxVars2 + pre1 + pre2 + muOCall(fun, atype, flatArgs1, kwargs2, src));
     } else {
         fail;
     }
