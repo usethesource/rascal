@@ -52,19 +52,19 @@ loc makeModule(str name, str body){
     return mloc;
 }
 
-set[Message] getErrorMessages(CheckerResult r)
+set[Message] getErrorMessages(ModuleStatus r)
     =  { m | m <- getAllMessages(r), m is error };
 
-set[Message] getWarningMessages(CheckerResult r)
+set[Message] getWarningMessages(ModuleStatus r)
     = { m | m <- getAllMessages(r), m is warning };
 
-set[Message] getAllMessages(CheckerResult r)
+set[Message] getAllMessages(ModuleStatus r)
     = { m | mname <- r.tmodels, m <- r.tmodels[mname].messages };
 
 
-CheckerResult checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
+ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], testingConfig(), rascalTypePalConfig());
+   return rascalTModelForLocs([mloc], testingConfig(), rascalTypePalConfig(), dummy_compile1);
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
@@ -86,8 +86,8 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 }
 
 bool checkModuleOK(loc moduleToCheck){
-	rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig());
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig()));
+	//rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig());
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig(), dummy_compile1));
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
