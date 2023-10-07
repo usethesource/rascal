@@ -20,6 +20,7 @@ import lang::rascalcore::check::BacktrackFree;
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::compile::util::Names;
 
+import lang::rascalcore::compile::Rascal2muRascal::Common;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -998,7 +999,7 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             <fuid, pos> = getVariableScope(ppname, name@\loc);
             var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
             trueBranch = maybeUsedAsExternal(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
-                                                           : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+                                                            : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
             return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
                                      : muIfElse(precond, trueBranch, falseCont);
         }
@@ -2206,10 +2207,11 @@ MuExp translatePat(p:(Pattern) `/ <Pattern pattern>`, AType subjectType, MuExp s
 
 	reachable_syms = { avalue() };
 	reachable_prods = {};
-    //if(optimizing()){
-	   //tc = getTypesAndConstructorNames(pattern);
-    //   <reachable_syms, reachable_prods>  = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-    //}
+	
+    if(optimizeVisit()){
+	   tc = getTypesAndConstructorNames(pattern);
+       <reachable_syms, reachable_prods>  = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
+    }
     descriptor = descendantDescriptor(concreteMatch, reachable_syms, reachable_prods, getReifiedDefinitions());
     fuid = topFunctionScope();
     elmType = ( avoid() | alub(it, sym) | sym <- reachable_syms );
@@ -2253,25 +2255,6 @@ bool isConcreteType(AType subjectType) =
 	
 bool concreteTraversalAllowed(Pattern pattern, AType subjectType) =
     isConcreteType(subjectType) && isConcretePattern(pattern);
-	
-// get the types and constructor names from a pattern
-
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<QualifiedName qualifiedName>`) =
-	<{getType(p)}, {}>;
-	
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<Type tp> <Name name>`) =
-	<{getType(p)}, {}>;	
-	
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<Name name> : <Pattern pattern>`) =
-	getTypesAndConstructorNames(pattern);	
-
-tuple[set[AType] types, set[str] constructors]  getTypesAndConstructorNames(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`) =
-	getTypesAndConstructorNames(pattern);
-		
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
-	(expression is qualifiedName) ? <{}, {prettyPrintName("<expression>")}> : <{getType(p)}, {}>;
-
-tuple[set[AType] types, set[str] constructors] getTypesAndConstructorNames(Pattern p) = <{getType(p)}, {}>;
 
 // -- anti pattern ---------------------------------------------------
     
