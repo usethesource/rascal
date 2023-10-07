@@ -370,7 +370,7 @@ default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
     
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldTypeWithADT: <containerType>, <field>");
-    containerType = unwrapType(containerType);
+    containerType = unwrapAType(containerType);
     requireFullyInstantiated(s, containerType);
     fieldName = unescape("<field>");
     if(isNonTerminalAType(containerType) && fieldName == "top"){
@@ -382,7 +382,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(AType containerType, Tree field, loc scope, Solver s) {
    //println("computeFieldType: <containerType>, <field>");
-    containerType = unwrapType(containerType);
+    containerType = unwrapAType(containerType);
     requireFullyInstantiated(s, containerType);
     if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");
