@@ -24,6 +24,7 @@ import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::BacktrackFree;
 import lang::rascalcore::check::NameUtils;
 
+import lang::rascalcore::compile::Rascal2muRascal::Common;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
@@ -744,13 +745,14 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	reachable_syms = { avalue() };
 	reachable_prods = {};
-	//if(optimizing()){
-	//   tc = getTypesAndConstructorsInVisit(cases);
-	//   <reachable_syms1, reachable_prods1> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
-	//   reachable_syms = reachable_syms1;
-	//   reachable_prods = reachable_prods1;
-	//   println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
-	//}
+	
+	if(optimizeVisit()){
+	   tc = getTypesAndConstructorsInVisit(cases);
+	   <reachable_syms1, reachable_prods1> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
+	   reachable_syms = reachable_syms1;
+	   reachable_prods = reachable_prods1;
+	   //println("reachableTypesInVisit, <size(reachable_syms)>: <reachable_syms>, <size(reachable_prods)>: <reachable_prods>");
+	}
 	
 	ddescriptor = descendantDescriptor(useConcreteFingerprint, reachable_syms, reachable_prods, getReifiedDefinitions());
 		
@@ -785,20 +787,20 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
     return visit(visitCode) { case muReturn0() => muReturn0FromVisit() case muReturn1(AType t, MuExp e) => muReturn1FromVisit(t, e) };
 }
 
-//tuple[set[AType] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
-//	reachableTypes1 = {};// TODO: renamed for new (experimental) type checker
-//	reachableConstructors = {};
-//	for(c <- cases){
-//		if(c is patternWithAction){
-//			tc = getTypesAndConstructorNames(c.patternWithAction.pattern);
-//			reachableConstructors += tc.constructors;
-//			reachableTypes1 += tc.types;
-//		} else {
-//			return <{avalue()}, {}>;		// A default cases is present: everything can match
-//		}
-//	}
-//	return <reachableTypes1, reachableConstructors>;
-//}
+tuple[set[AType] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
+	reachableTypes1 = {};// TODO: renamed for new (experimental) type checker
+	reachableConstructors = {};
+	for(c <- cases){
+		if(c is patternWithAction){
+			tc = getTypesAndConstructorNames(c.patternWithAction.pattern);
+			reachableConstructors += tc.constructors;
+			reachableTypes1 += tc.types;
+		} else {
+			return <{avalue()}, {}>;		// A default cases is present: everything can match
+		}
+	}
+	return <reachableTypes1, reachableConstructors>;
+}
 
 public bool hasConcretePatternsOnly(list[Case] cases){
 	for(c <- cases){
