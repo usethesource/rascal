@@ -77,11 +77,11 @@ bool asubtype(avoid(), AType _) = true;
 bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
         case acons(a,list[AType] bp, list[Keyword] _):
-             return asubtypeList(ap,bp);
+             return comparableList(ap, bp);
         case adt: aadt(str _, list[AType] _, _):
              return asubtype(a,adt);
         case afunc(a,list[AType] bp, list[Keyword] _):
-             return asubtypeList(ap,bp);
+             return comparableList(ap, bp);
         case anode(_):
              return true;
         case afunc(AType b, list[AType] bp, list[Keyword] _):
@@ -595,21 +595,21 @@ AType addADTLabel(AType a1, AType a2, AType adt){
 
 //AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
 AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
-    if(/*lr == rr && */size(lp) == size(rp)){
+    if(size(lp) == size(rp)){
         return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO do we want to propagate the keyword parameters?
     } else
         return avalue();
 }
 
 AType alub(acons(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
-    if(size(lp) == size(rp) && size(lp) == size(rp)){
+    if(size(lp) == size(rp)){
         return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO do we want to propagate the keyword parameters?
     } else
         return avalue();
 }
 
 AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), acons(AType rr, list[AType] rp, list[Keyword] rkw)) {
-    if(size(lp) == size(rp) && size(lp) == size(rp)){
+    if(size(lp) == size(rp)){
         return afunc(alub(lr,rr), alubList(lp, rp), lkw + (rkw - lkw)); // TODO how do we want to propagate the keyword parameters?
     } else
         return avalue();
