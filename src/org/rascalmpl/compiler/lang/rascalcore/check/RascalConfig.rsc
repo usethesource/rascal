@@ -285,7 +285,6 @@ bool rascalReportUnused(loc def, TModel tm){
 TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
-    m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
     return m;
 }
 
@@ -340,7 +339,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             
             defaults = { d | d <- defs, t := facts[d.defined]?afunc(avoid(),[],[]), t.isDefault };
             if(size(defaults) > 1){
-                msgs = [ warning("Multiple defaults defined for function `<id>`, refactor or manually check non-overlap", d.defined) | d <- defaults ];
+                msgs = [ info("Multiple defaults defined for function `<id>`, refactor or manually check non-overlap", d.defined) | d <- defaults ];
                 s.addMessages(msgs);
             }
         } else if({Define d} := defs){
@@ -434,3 +433,10 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
         postSolver                    = rascalPostSolver,
         reportUnused                  = rascalReportUnused
     );
+    
+ data CompilerConfig(
+    loc reloc           = |noreloc:///|, 
+    bool verbose        = false, 
+    bool optimizeVisit  = true, 
+    bool enableAsserts  = true
+ ) = cconfig();
