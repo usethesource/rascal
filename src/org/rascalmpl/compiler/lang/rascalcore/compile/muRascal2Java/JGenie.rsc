@@ -102,16 +102,18 @@ JGenie makeJGenie(MuModule m,
     
     allPaths = { *(tmodels[mname].paths) | mname <- tmodels};
     
-    extendScopes = { mscope | <currentModuleScope, extendPath(), mscope> <- allPaths };
-    importScopes = { mscope | <currentModuleScope, importPath(), mscope> <- allPaths} ;
-    importScopes += { mscope | imp <- importScopes, <imp, extendPath(), mscope> <- allPaths };
-    importAndExtendScopes = importScopes + extendScopes;
+    allExtendScopes = { b | <a, extendPath(), b> <- allPaths };
+    
+    extendScopesCurrentModule = { mscope | <currentModuleScope, extendPath(), mscope> <- allPaths };
+    importScopesCurrentModule = { mscope | <currentModuleScope, importPath(), mscope> <- allPaths} ;
+    flattenedImportScopes = importScopesCurrentModule + { mscope | imp <- importScopesCurrentModule, <imp, extendPath(), mscope> <- allPaths };
+    importAndExtendScopes = flattenedImportScopes + extendScopesCurrentModule;
    
     extends = {<a, b> | <a, extendPath(), b> <- allPaths, a in importAndExtendScopes, b in importAndExtendScopes}+;
     
     sortedImportAndExtendScopes =
         sort(importAndExtendScopes,
-            bool(loc a, loc b) { return <a, b> in extends; });
+            bool(loc a, loc b) { return <a, b> in extends /*|| <a, importPath(), b> in allPaths*/; });
     
     JGenie thisJGenie;
    
@@ -209,10 +211,16 @@ JGenie makeJGenie(MuModule m,
         return ""; //throw "No accessor found for <t>";
     }
     
+    bool importFromSameModule(list[loc] srcs){
+        fst = srcs[0].top;
+        return all(src <- srcs, fst == src.top) && any(imp <- importScopesCurrentModule, isContainedIn(srcs[0], imp));
+    }
+    
     @memo
     str _getAccessor(list[loc] srcs){
+        assert !isEmpty(srcs);
         // Single src
-        if(size(srcs) == 1){
+        if(size(srcs) == 1 || importFromSameModule(srcs)){
             src = srcs[0];
             if(currentTModel.definitions[src]?){
                 def = currentTModel.definitions[src];
@@ -226,7 +234,7 @@ JGenie makeJGenie(MuModule m,
                         }
                         return baseName;
                     } else {
-                        res = def.scope in extendScopes ? "$me.<baseName>"
+                        res = def.scope in extendScopesCurrentModule ? "$me.<baseName>"
                                                         : "<_getImportedModuleName(def.defined)>.<baseName>";
                         return res;
                     }
@@ -244,7 +252,7 @@ JGenie makeJGenie(MuModule m,
                         if(isContainedIn(def.defined, currentModuleScope)){
                             return baseName;
                         } else {
-                            return def.scope in extendScopes ? "$me.<baseName>"
+                            return def.scope in extendScopesCurrentModule ? "$me.<baseName>"
                                                              : "<_getImportedModuleName(def.defined)>.<baseName>";
                         }
                      }
@@ -254,7 +262,8 @@ JGenie makeJGenie(MuModule m,
         }
         // Multiple srcs
     
-        name = "???_getAccessor_name_not_found_???<srcs>";                                       // Find of definition
+        unknown = "???_getAccessor_name_not_found_???<srcs>"; 
+        name = unknown;                                      // Find of definition
         Define fun_def;
         for(mname <- tmodels){
             if(tmodels[mname].definitions[srcs[0]]?){
@@ -263,6 +272,14 @@ JGenie makeJGenie(MuModule m,
                 break;
             }
         }
+        //if(name == "size"){
+        //    println("*** getAccessor: <name>");
+        //    iprintln(srcs);
+        //    println("importScopesCurrentModule:"); iprintln(importScopesCurrentModule);
+        //    println("flattenedImportScopes:"); iprintln(flattenedImportScopes);
+        //    println("extendScopesCurrentModule:"); iprintln(extendScopesCurrentModule);
+        //    println("sortedImportAndExtendScopes:"); iprintln(sortedImportAndExtendScopes);
+        //}
        
         if(isSyntheticFunctionName(name)){
             return name;
@@ -278,15 +295,27 @@ JGenie makeJGenie(MuModule m,
         if(any(d <- srcs, isContainedIn(d, currentModuleScope))){
             return "$me.<jname>";
         }
-        alternative_defined_in_extended_module = any(d <- srcs, ms <- sortedImportAndExtendScopes, isContainedIn(d, ms), ms in extendScopes);
+        alternative_defined_in_extended_module = any(d <- srcs, ms <- extendScopesCurrentModule, isContainedIn(d, ms));
         if(alternative_defined_in_extended_module){
             return "$me.<jname>";
         }
+        //all_alternatives_defined_in_imported_modules = all(d <- srcs,  any(ms <- importScopesCurrentModule, isContainedIn(d, ms)));
+        //if(all_alternatives_defined_in_imported_modules){
+        //    for(ms <- sortedImportAndExtendScopes){
+        //        if(any(d <- srcs,  isContainedIn(d, ms))){
+        //            return "<module2field(allLocs2Module[ms])>.<jname>";
+        //        }
+        //    }
+        //    //return "<_getImportedModuleName(fun_def.defined)>.<jname>";
+        //}
+        //println("*** getAccessor, final case: <name>");
+        //iprintln(srcs);
+        //println("importScopesCurrentModule:"); iprintln(importScopesCurrentModule);
+        //println("flattenedImportScopes:"); iprintln(flattenedImportScopes);
+        //println("extendScopesCurrentModule:"); iprintln(extendScopesCurrentModule);
+        //println("sortedImportAndExtendScopes:"); iprintln(sortedImportAndExtendScopes);
         
-       //return "<_getImportedModuleName(fun_def.defined)>.<jname>";
-       
        return jname;
-       //return "$me.<jname>";
     }
     
     str definedInInnerScope(list[loc] srcs){
@@ -405,26 +434,7 @@ JGenie makeJGenie(MuModule m,
         }
     }
     
-    str _shareType(AType atype){
-        couter = "";
-        if(type2id[atype]?){
-            return type2id[atype];
-        } else if(a: aadt(str adtName, list[AType] parameters, SyntaxRole _) := atype){
-            res = prefixADT(getUniqueADTName(a));  
-            couter = res;
-            type2id[unset(atype, "alabel")] = res;
-                                    
-        } else if(c:acons(AType _, list[AType] _, list[Keyword] _)  := atype){
-            couter = atype2idpart(c);
-            atype = atype[alabel=asUnqualifiedName(atype.alabel)];
-            type2id[atype] = couter;
-        } else {
-            ut = unset(atype, "alabel");
-            if(type2id[ut]?) return type2id[ut];
-            ntypes += 1;
-            couter = "$T<ntypes>";
-            type2id[ut] = couter;
-        }
+    void shareSubtypes(AType atype){
         atype1 = atype; // ensure this is a read only variable; TODO: compiler should do this.
         bottom-up visit(atype){
             case AType t: if(t != atype1){
@@ -443,6 +453,43 @@ JGenie makeJGenie(MuModule m,
                 }
             }
         }
+    }
+    
+    str _shareType(AType atype){
+        couter = "";
+        if(type2id[atype]?){
+            return type2id[atype];
+        } else if(a: aadt(str adtName, list[AType] parameters, SyntaxRole _) := atype){
+            res = prefixADT(getUniqueADTName(a));  
+            couter = res;
+            type2id[unset(atype, "alabel")] = res;                  
+        } else if(c:acons(AType _, list[AType] _, list[Keyword] _)  := atype){
+            couter = atype2idpart(c);
+            atype = atype[alabel=asUnqualifiedName(atype.alabel)];
+            type2id[atype] = couter;
+        } else if(overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := atype){
+            ovl_lub = (avoid() | alub(it, t) | t <- overloads.atype);
+            if(!type2id[ovl_lub]?) {
+                ntypes += 1;
+                couter = "$T<ntypes>";
+                type2id[ovl_lub] = couter;
+            }
+            shareSubtypes(ovl_lub);
+            
+            ut = unset(atype, "alabel");
+            if(type2id[ut]?) return type2id[ut];
+            ntypes += 1;
+            couter = "$T<ntypes>";
+            type2id[ut] = couter;
+        } else {
+            ut = unset(atype, "alabel");
+            if(type2id[ut]?) return type2id[ut];
+            ntypes += 1;
+            couter = "$T<ntypes>";
+            type2id[ut] = couter;
+        }
+        shareSubtypes(atype);
+       
         return couter;
     }
     
@@ -511,9 +558,21 @@ JGenie makeJGenie(MuModule m,
         // Generate type constants in the right declaration order, such that
         // they are always declared before they are used in the list of type fields
         
-        println("<moduleName>: domain(type2id): <size(domain(type2id))>"); iprintln(domain(type2id),lineLimit=10000);
-        sorted_types = sort(domain(type2id), bool(AType a, AType b){ return /a := b && a !:= b; });
-        println("sorted_types:"); iprintln(sorted_types,lineLimit=10000);
+        //println("<moduleName>: domain(type2id): <size(domain(type2id))>"); iprintln(domain(type2id),lineLimit=10000);
+        //println("type2id:");
+        //for(k <- type2id) println("<k>: <type2id[k]>");
+        //println("-----------------------------------------");
+        
+        bool simpler(AType a, AType b) {
+            if(/a := b && a !:= b) return true;
+            if(isAtomicAType(a) && !isAtomicAType(b)) return true;
+            return false;
+        }
+        
+        sorted_types = sort(domain(type2id), simpler);
+        
+        //println("sorted_types:"); for(t <- sorted_types) println(t);
+        
         for(t <- sorted_types){
             bottom-up visit(t) {
               case AType s:
@@ -687,6 +746,7 @@ JGenie makeJGenie(MuModule m,
                 _getImportedLibraries,
                 _usesLocalFunctions
             );
+    
      thisJGenie.shareType(anode([]));   // Add types that can be implicitly defined by lubbing overloaded functions
      thisJGenie.shareType(anum());
      thisJGenie.shareType(avalue());
