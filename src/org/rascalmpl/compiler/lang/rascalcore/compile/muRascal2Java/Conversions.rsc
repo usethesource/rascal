@@ -41,7 +41,7 @@ str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals
                                               when isEmpty(formals);
 str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                             = "TypedFunctionInstance<size(formals)>\<IValue, <intercalate(", ", ["IValue" | _ <- formals])>\>"
-                                              when !isEmpty(formals);
+                                              when !isEmpty(formals); // TODO: check for number of defined versions of TypedFunctionInstance
  
 str atype2javatype(anode(list[AType fieldType] fields)) 
                                             = "INode";
@@ -862,7 +862,10 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, contextFreeSyntax())
        
         //res = "$TF.fromSymbol($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <params>), $TS, p -\> Collections.emptySet())";
         //res = "$TF.constructor($TS, RascalValueFactory.Symbol_ParameterizedSort, \"<adtName>\", <params>)";
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        
+        res = (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
+        return res;
     }
 }
     
@@ -870,7 +873,8 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, lexicalSyntax()), JG
     if(isEmpty(parameters)){
         return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
     } else {
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
     }
 }
     
