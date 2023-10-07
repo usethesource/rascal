@@ -20,7 +20,7 @@ public class TraversalState {
 	 * 		- phi: the compiled function
 	 */
 
-	private final DescendantDescriptor descriptor; 	
+	private final IDescendantDescriptor descriptor; 	
 											// Describes in wich subtree to descend or not
 	private final boolean isAllwaysTrue;
 
@@ -35,10 +35,9 @@ public class TraversalState {
 	
 	ITraverse traverse;						// The specific traverseOnce function to be used
 
-	public TraversalState(IVisitFunction phi,  DescendantDescriptor descriptor) {
+	public TraversalState(IVisitFunction phi,  IDescendantDescriptor descriptor) {
 		this.descriptor = descriptor;
-//		this.isAllwaysTrue = descriptor.isAllwaysTrue();
-		this.isAllwaysTrue = true;
+		this.isAllwaysTrue = descriptor.isAllwaysTrue();
 		matched = false;
 		changed = false;
 		leavingVisit = false;

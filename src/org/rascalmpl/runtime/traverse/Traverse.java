@@ -11,7 +11,7 @@ public class Traverse {
 		this.vf = vf;
 	}
 	
-	public IValue traverse(DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, REBUILD rebuild,  DescendantDescriptor descriptor, IValue subject, IVisitFunction phi) {
+	public IValue traverse(DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, REBUILD rebuild,  IDescendantDescriptor descriptor, IValue subject, IVisitFunction phi) {
 		
 		Type subjectType = subject.getType();
 		TraversalState tr =  new TraversalState(phi, descriptor);
@@ -19,8 +19,7 @@ public class Traverse {
 		ITraverseSpecialization traversals = rebuild == REBUILD.Yes ? new TraverseOnceRebuild(vf) :new TraverseOnceNoRebuild(vf);
 
 		if(subjectType.isString()){
-			IValue result = traversals.traverseStringOnce(subject, tr);
-			return result;
+			return traversals.traverseStringOnce(subject, tr);
 		}
 
 		switch(direction){
