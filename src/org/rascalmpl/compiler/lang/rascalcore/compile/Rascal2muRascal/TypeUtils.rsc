@@ -69,6 +69,8 @@ private AGrammar current_grammar = grammar({}, ()); // Grammar for current modul
 
 AGrammar getGrammar() = current_grammar;            // Get the grammar
 
+rel[AType, AType] reachableConcreteTypes = {};      // Transitive closure of type usage in grammar
+
 private set[AType] ADTs = {};                       // ADTs defined in current module
 
 set[AType] getADTs() = ADTs;                        // Get ADTs
@@ -155,6 +157,7 @@ public void resetScopeExtraction() {
     adt_constructors = ();
     adt_uses_type = {};
     reachableTypes = {};
+    reachableConcreteTypes = {};
     adt_common_keyword_fields = ();
     adt_common_keyword_fields_name_and_type = ();
 }
@@ -262,6 +265,8 @@ void extractScopes(TModel tm){
         iprintln(tm.store[key_grammar]);
         throw "`grammar` has incorrect format in store";
     }
+    
+    reachableConcreteTypes =  {<nt, unset(t, "alabel")> | nt <- current_grammar.rules, /AType t := current_grammar.rules[nt] }+;
     
     if([*set[AType] adts] := tm.store[key_ADTs]){
         ADTs = adts[0];
@@ -888,7 +893,8 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
 // Reachability
 
 public map[AType,AProduction] getReifiedDefinitions() {
-    return (); // TODO
+    return getGrammar().rules;
+    //return (); // TODO
   //    // Collect all symbols
   //    set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(current_grammar);
   //    
@@ -908,10 +914,15 @@ public tuple[set[AType], set[AProduction]] getReachableTypes(AType subjectType, 
         return getReachableAbstractTypes(subjectType, consNames, patternTypes);
     }
 }
+
+// PM: take (common) key word parameters into account!
+
 private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
     desiredPatternTypes = { unset(s, "alabel") | /AType s := patternTypes};
     desiredSubjectTypes = { unset(s, "alabel") | /AType s := subjectType};
     desiredTypes = desiredSubjectTypes + desiredPatternTypes;
+    
+    //println("desiredTypes:"); iprintln(desiredTypes);
     
     if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalType(t) ||*/ asubtype(t, treeType))){
       // We just give up when abstract and concrete symbols occur together
@@ -922,28 +933,36 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     prunedReachableTypes = reachableTypes ;
     if(avalue() notin desiredSubjectTypes){
         // if specific subject types are given, the reachability relation can be further pruned
-        prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
-        //println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
+        //println("reachableTypes[desiredSubjectTypes]:");
+        //iprintln(reachableTypes[desiredSubjectTypes]);
+        //prunedReachableTypes = reachableTypes[desiredSubjectTypes];
+        prunedReachableTypes = rangeR(reachableTypes,reachableTypes[desiredSubjectTypes]);
+        //println("removed from reachableTypes:"); //[<size(reachableTypes - prunedReachableTypes)>]"); 
+        //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
     }
     
-    //println("prunedReachableTypes: [<size(prunedReachableTypes)>]"); //for(x <- prunedReachableTypes){println("\t<x>");}
+    //println("prunedReachableTypes: "); /*[<size(prunedReachableTypes)>]"); */for(x <- prunedReachableTypes){println("\t<x>");}
     descend_into = desiredTypes;
     
+    domPrunedReachableTypes = domain(prunedReachableTypes);
     for(<AType from, AType to> <- prunedReachableTypes){
-        if(to in desiredTypes){     // TODO || here was the cause 
+    //println("\<<from>, <to>\>");
+        if(to in domPrunedReachableTypes){     // TODO || here was the cause 
             descend_into += {from, to};
-        } else if(any(AType t <- desiredTypes, asubtype(t, to))){
+        } else if(any(AType t <- domPrunedReachableTypes, asubtype(t, to))){
             descend_into += {from, to};
         } else if(c:acons(AType \adtsym, list[AType] _, list[Keyword] _) := from  && // TODO: check
                             (\adtsym in patternTypes || c.alabel in consNames)){
                   descend_into += {from, to};   
         } else if(c:acons(AType \adtsym, list[AType] _, list[Keyword] _) := to  && 
                             (\adtsym in patternTypes || c.alabel in consNames)){
-                  descend_into += {from, to};        
+                  descend_into += {from, to};  
+        } else if(/AType s := to && s in domPrunedReachableTypes){
+                descend_into += {from, to}; 
         }
-        ;
+        
     }
-    if(avalue() in descend_into){
+    if(avalue() in descend_into || size(descend_into) > 50){
         //println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
       descend_into = {avalue()};
     }
@@ -953,72 +972,104 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     
     descend_into += tuples;
     descend_into = {sym | sym <- descend_into/*, alabel(_,_) !:= sym*/ };
-    //println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
+    //println("descend_into (abstract):"); // [<size(descend_into)>]:"); 
+    //for(elm <- descend_into){println("\t<elm>");};
     
     return <descend_into, {}>;
+}
+
+set [AProduction] addAlts(AProduction alts){
+    set [AProduction] descend_into = {};
+    for(/AProduction p := alts){
+        switch(p){
+           case choice(_, choices): descend_into += choices;
+           case associativity(_, _, set[AProduction] choices): descend_into += choices;
+           case priority(_, list[AProduction] choices): descend_into += toSet(choices);
+           default: {
+                descend_into += p;
+            }
+        }
+    }
+    return descend_into;
+}
+
+AProduction instantiate(list[AType] formals, list[AType] actuals, AProduction p){
+    for(int i <- index(formals)){
+        fi = formals[i];
+        p = visit(p) { case fi => actuals[i] };
+    }
+    return p;
 }
 
 // Extract the reachable concrete types
 
 tuple[set[AType], set[AProduction]] getReachableConcreteTypes(AType subjectType, set[str] _consNames, set[AType] patternTypes){
-    desiredPatternTypes = { s | /AType s := patternTypes};
-    desiredSubjectTypes = { s | /AType s := subjectType};
-    desiredTypes = desiredPatternTypes;
+    desiredPatternTypes = { unset(s, "alabel")  | /AType s := patternTypes};
+    desiredSubjectTypes = { unset(s, "alabel")  | /AType s := subjectType};
+    desiredTypes = desiredPatternTypes + desiredSubjectTypes;
     
-    //println("desiredPatternTypes = <desiredPatternTypes>");
+    //println("desiredTypes = <desiredTypes>");
+    reachableFromDesired = reachableConcreteTypes[desiredTypes] + desiredTypes;
     
-    prunedReachableConcreteTypes = reachableTypes;  //reachableConcreteTypes;
-    if(avalue() notin desiredSubjectTypes){
-        // if specific subject types are given, the reachability relation can be further pruned
-        prunedReachableConcreteTypes = carrierR(reachableTypes, (reachableTypes)[desiredSubjectTypes] + desiredSubjectTypes);
-        //println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
-    }
+    //println("reachableFromDesired:"); iprintln(reachableFromDesired);
     
+    prunedReachableConcreteTypes = reachableConcreteTypes;
+    //if(avalue() notin desiredTypes){
+    //    // if specific subject types are given, the reachability relation can be further pruned
+    //    prunedReachableConcreteTypes = rangeR(reachableConcreteTypes, reachableFromDesired);
+    //    println("removed from reachableConcreteTypes:"); for(x <- reachableConcreteTypes - prunedReachableConcreteTypes){println("\t<x>");}
+    //}
+    prunedReachableConcreteTypes += desiredTypes;
     set [AProduction] descend_into = {};
     
-    // Find all concrete types that can lead to a desired type
-    for(<AType sym, AType tp> <- (prunedReachableConcreteTypes+), tp in desiredPatternTypes){
+    // Find all productions that can lead to a desired type
+    for(<AType sym, AType tp> <- prunedReachableConcreteTypes /*tp in desiredTypes*/){
+       //println("\<<sym>, <tp>\>");
+       list[AType] syms = [sym];
+       list[list[AType]] bindings = [];
+       if(isParameterizedNonTerminalType(sym) && size(sym.parameters) > 0){
+            nparams =  size(sym.parameters);
+            adtName = sym.adtName;
+            bindings = [ps | /a:aadt(adtName, ps, _) := current_grammar, size(ps) == nparams, all(p <- ps, aparameter(_,_) !:= p ) ];
+       }
+     
        alts = current_grammar.rules[sym];
-       for(/AProduction p := alts){
-           switch(p){
-           case choice(_, choices): descend_into += choices;
-           case associativity(_, _, set[AProduction] choices): descend_into += choices;
-           case priority(_, list[AProduction] choices): descend_into += toSet(choices);
-           default:
-            descend_into += p;
-           }
+       if(isEmpty(bindings)){
+            descend_into += addAlts(alts);
+       } else {
+        for(list[AType] bds <- bindings){
+            descend_into += addAlts(instantiate(sym.parameters, bds, alts));
         }
+       }
     } 
     
     set [AProduction] descend_into1 = {};
     
     for(w <- descend_into){
       visit(w){
-      
-      case itr:\iter(AType s): {
-           descend_into1 += regular(itr);
-           if(isAltOrSeq(s)) descend_into1 += regular(s);
-      }
-      
-      case itr:\iter-star(AType s):{
-           descend_into1 += regular(itr);
-           if(isAltOrSeq(s)) descend_into1 += regular(s);
-      }
-      
-      case itr:\iter-seps(AType s,_):{
-           descend_into1 += regular(itr);
-           if(isAltOrSeq(s)) descend_into1 += regular(s);
-      }
-      
-      case itr:\iter-star-seps(AType s,_):{
-           descend_into1 += regular(itr);
-           if(isAltOrSeq(s)) descend_into1 += regular(s);
-      }
-     
+          case itr:\iter(AType s): {
+               descend_into1 += regular(unset(itr, "alabel"));
+               if(isAltOrSeq(s)) descend_into1 += regular(unset(s, "alabel"));
+          }
+          
+          case itr:\iter-star(AType s):{
+               descend_into1 += regular(unset(itr, "alabel"));
+               if(isAltOrSeq(s)) descend_into1 += regular(unset(s, "alabel"));
+          }
+          
+          case itr:\iter-seps(AType s,_):{
+               descend_into1 += regular(unset(itr, "alabel"));
+               if(isAltOrSeq(s)) descend_into1 += regular(unset(s, "alabel"));
+          }
+          
+          case itr:\iter-star-seps(AType s,_):{
+               descend_into1 += regular(unset(itr, "alabel"));
+               if(isAltOrSeq(s)) descend_into1 += regular(unset(s, "alabel"));
+          }
       }
       descend_into1 += w;
-    
     }
+    
     //println("descend_into (concrete) [<size(descend_into)>]: "); for(s <- descend_into) println("\t<s>"); 
     //println("descend_into1 (concrete) [<size(descend_into1)>]: "); for(s <- descend_into1) println("\t<s>");
     return <{}, descend_into + descend_into1>;
