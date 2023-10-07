@@ -70,24 +70,46 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
 
 int parseTreeCacheSize = 10;
 
-tuple[Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
     if(ms.parseTrees[qualifiedModuleName]?){
         if(traceCaches) println("*** using cached parse tree for <qualifiedModuleName>");
-        return <ms.parseTrees[qualifiedModuleName], ms>;
+        return <true, ms.parseTrees[qualifiedModuleName], ms>;
     } else {
-        if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
-            ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
-            if(traceCaches) println("*** deleting parse tree <ms.parseTreeLIFO[-1]>");
-            ms.parseTreeLIFO = ms.parseTreeLIFO[..-1];
+        if(parse_error() notin ms.status[qualifiedModuleName]){
+            if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
+                ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
+                if(traceCaches) println("*** deleting parse tree <ms.parseTreeLIFO[-1]>");
+                ms.parseTreeLIFO = ms.parseTreeLIFO[..-1];
+            }
+            ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
+            mloc = |unknown:///|;
+            try {
+                mloc = getModuleLocation(qualifiedModuleName, pcfg);      
+            } catch e: {
+                ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
+                ms.status[qualifiedModuleName] += {parse_error(), not_found()};
+                mpt = [Module] "module <qualifiedModuleName>";
+                ms.parseTrees[qualifiedModuleName] = mpt;
+                ms.moduleLocs[qualifiedModuleName] = mloc;
+                return <false, mpt, ms>;
+            }              
+            if(traceCaches) println("*** parsing <qualifiedModuleName> from <mloc>");
+            try {
+                pt = parseModuleWithSpaces(mloc).top;
+                ms.parseTrees[qualifiedModuleName] = pt;
+                ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
+                ms.status[qualifiedModuleName] += parsed();
+                return <true, pt, ms>;
+            } catch e: {//ParseError(loc src): {
+                ms.messages[qualifiedModuleName] ? [] = [error("Parse error in <qualifiedModuleName>", mloc)];
+                ms.moduleLocs[qualifiedModuleName] = mloc;
+                ms.status[qualifiedModuleName] += parse_error();
+                return <false, [Module] "module <qualifiedModuleName>", ms>;
+            }
         }
-        ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
-        mloc = getModuleLocation(qualifiedModuleName, pcfg);                    
-        if(traceCaches) println("*** parsing <qualifiedModuleName> from <mloc>");
-        pt = parseModuleWithSpaces(mloc).top;
-        ms.parseTrees[qualifiedModuleName] = pt;
-        ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
-        ms.status[qualifiedModuleName] += parsed();
-        return <pt, ms>;
+        mpt = [Module] "module <qualifiedModuleName>";
+        ms.parseTrees[qualifiedModuleName] = mpt;
+        return <false, mpt, ms>;
    }
 }
 
@@ -149,25 +171,29 @@ tuple[bool, TModel, ModuleStatus] getTmodelForModule(str qualifiedModuleName, Mo
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
             ms.tmodels[qualifiedModuleName] = tpl;
+            ms.status[qualifiedModuleName] += tpl_uptodate();
             return <true, tpl, ms>;
         } catch e:
-            throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
+            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", tplLoc)]), ms>; 
+            //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
     }
     if(qualifiedModuleName notin hardwired){
         ms.tmodelLIFO = ms.tmodelLIFO[1..];
     }
-    return <false, tmodel(), ms>;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", |unknown:///|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
 
 data MStatus =
-      parsed()
+      not_found()
+    | parsed()
+    | parse_error()
     | module_dependencies_extracted()
     | checked()
+    | check_error()
     | code_generated()
-    | tpl_exists()
-    | tpl_invalid()
-    | tpl_valid()
+//    | tpl_exists()
+    | tpl_uptodate()
     ;
 
 data ModuleStatus = 
@@ -183,14 +209,6 @@ data ModuleStatus =
       map[str, list[Message]] messages,
       map[str, set[MStatus]] status
    );
-                              
-void printModuleStatus(ModuleStatus ms){
-    println("strPaths:"); iprintln(ms.strPaths);
-    println("paths:"); iprintln(ms.paths);
-    println("parseTrees: <domain(ms.parseTrees)>");
-    println("moduleLocs for: <domain(ms.moduleLocs)>");
-    println("status:"); iprintln(ms.status);
-}
 
 ModuleStatus newModuleStatus() = moduleStatus({}, {}, (), [], (), [], (), (), (), ());
 
@@ -251,81 +269,75 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
     
     <found, tm, ms> = getTmodelForModule(qualifiedModuleName, ms, pcfg);
     if(found){
-        try {
-            allImportsAndExtendsValid = true;
-            rel[str, PathRole] localImportsAndExtends = {};
-            
-            if(!ms.moduleLastModified[qualifiedModuleName]?){
-                ms.moduleLastModified[qualifiedModuleName] = getLastModified(qualifiedModuleName, ms.moduleLastModified, pcfg);
-            }
-            ms.status[qualifiedModuleName] += tpl_exists();
-            
-            if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
-               //println("BOM:"); iprintln(bom);
-               for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
-                   if(!ms.status[m]?){
-                        ms.status[m] = {};
-                   }
-                   if(m != qualifiedModuleName){
-                        localImportsAndExtends += <m, pathRole>;
-                   }
-                   lm = getLastModified(m, ms.moduleLastModified, pcfg);
-                   if(!ms.moduleLastModified[m]?){
-                        ms.moduleLastModified[m] = lm;
-                   }
-                   //TODO: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
-                   if(decrementMilliseconds(getLastModified(m, ms.moduleLastModified, pcfg), 1000) > timestampInBom) {
-                        allImportsAndExtendsValid = false;
-                        if(tpl_invalid() notin ms.status[m] ){
-                            println("--- using <getLastModified(m, ms.moduleLastModified, pcfg)> (most recent) version of <m>, 
-                                    '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
-                            ms.status[m] += tpl_invalid();
-                        }
-                   }
+        allImportsAndExtendsValid = true;
+        rel[str, PathRole] localImportsAndExtends = {};
+        
+        if(!ms.moduleLastModified[qualifiedModuleName]?){
+            ms.moduleLastModified[qualifiedModuleName] = getLastModified(qualifiedModuleName, ms.moduleLastModified, pcfg);
+        }
+        imported_messages = [];
+        
+        if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
+           //println("BOM <qualifiedModuleName>:"); iprintln(bom);
+           for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
+               if(!ms.status[m]?){
+                    ms.status[m] = {};
                }
-             
-            } else {
-                throw "No bill-of-materials found for <qualifiedModuleName>";
+               if(m != qualifiedModuleName){
+                    localImportsAndExtends += <m, pathRole>;
+               }
+               lm = getLastModified(m, ms.moduleLastModified, pcfg);
+               //if(!ms.moduleLastModified[m]?){
+                    ms.moduleLastModified[m] = lm;
+               //}
+               //TODO: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
+               if(decrementMilliseconds(/*getLastModified(m, ms.moduleLastModified, pcfg)*/ lm, 1000) > timestampInBom) {
+                    allImportsAndExtendsValid = false;
+                    if(tpl_uptodate() notin ms.status[m] ){
+                        println("--- using <lm /*getLastModified(m, ms.moduleLastModified, pcfg)*/> (most recent) version of <m>, 
+                                '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
+                        //ms.status[m] += tpl_invalid();
+                    }
+               }
+           }
+         
+        } else {
+            throw "No bill-of-materials found for <qualifiedModuleName>";
+        }
+        if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
+            try {
+                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+            } catch value _:{
+                allImportsAndExtendsValid = true;
+                println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
             }
-            if(!allImportsAndExtendsValid){
-                try {
-                    mloc = getModuleLocation(qualifiedModuleName, pcfg);
-                } catch value _:{
-                    allImportsAndExtendsValid = true;
-                    println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
-                }
+        }
+        if(allImportsAndExtendsValid){
+            if(logImports) println("*** importing <qualifiedModuleName>");
+            ms.status[qualifiedModuleName] += {tpl_uptodate(), checked()}; //TODO: maybe check existence of generated java files
+   
+            ms.moduleLocs += tm.moduleLocs;
+            ms.paths += tm.paths;
+            ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
+            ms.status[qualifiedModuleName] += module_dependencies_extracted();
+            for(imp <- localImportsAndExtends<0>, module_dependencies_extracted() notin ms.status[imp]  ){
+                ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
             }
-            if(allImportsAndExtendsValid){
-                if(logImports) println("*** importing <qualifiedModuleName>");
-                ms.status[qualifiedModuleName] += {tpl_valid(), checked(), code_generated()}; //TODO: check java files
-       
-                ms.moduleLocs += tm.moduleLocs;
-                ms.paths += tm.paths;
-                ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
-                ms.status[qualifiedModuleName] += module_dependencies_extracted();
-                for(imp <- localImportsAndExtends<0>, module_dependencies_extracted() notin ms.status[imp]  ){
-                    ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
-                }
-                return ms;
-             }
-
-        } catch IO(str msg): {
-            ms.messages[qualifiedModuleName] = [ error("During import of module `<qualifiedModuleName>`: IO error <msg>", getModuleLocation(qualifiedModuleName, pcfg)) ];
+            return ms;
+         }
+    }
+    
+    <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms, pcfg);
+    if(success){
+        imports_and_extends = getModulePathsAsStr(pt);
+        ms.strPaths += imports_and_extends;
+   
+        for(<_, kind, imp> <- imports_and_extends){
+            ms.strPaths += {<qualifiedModuleName, kind, imp>};
+            ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
         }
     }
     
-    try {
-        <pt, ms> = getModuleParseTree(qualifiedModuleName, ms, pcfg);
-        imports_and_extends = getModulePathsAsStr(pt);
-        ms.strPaths += imports_and_extends;
-       
-        for(imp <- imports_and_extends<2>){
-            ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
-        }
-        //ms.parseTrees = delete(ms.parseTrees, qualifiedModuleName);
-    } catch value _: {
-        ms.messages[qualifiedModuleName] = [ error("Parse error in module `<qualifiedModuleName>`", getModuleLocation(qualifiedModuleName, pcfg)) ];
-    }
     return ms;
 }
 
@@ -367,22 +379,33 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-tuple[TModel, ModuleStatus] saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
-    tmodels = ();
-    for(m <- imports + extends, tpl_valid() in ms.status[m]){
-        <found, tpl, ms> = getTmodelForModule(m, ms, pcfg);
-        ms = addTModel(m, tpl, ms);
+tuple[TModel, ModuleStatus] saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,TModel] tmodels, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
+     if(parse_error() in ms.status[qualifiedModuleName]){
+        return <tmodel(modelName=qualifiedModuleName,messages=ms.messages[qualifiedModuleName]), ms>;
     }
-    //tmodels = ( m : getTmodelForModule(m, ms, pcfg) | m <- imports + extends, tpl_valid() in ms.status[m] );
+    dependencies_ok = true;
+    for(imp <- imports + extends){
+        imp_status = ms.status[imp];
+        if(parse_error() in imp_status || checked() notin imp_status){
+            dependencies_ok = false;
+            cause = (not_found() in imp_status) ? "module not found" : "due to syntax error";
+            ms.messages[qualifiedModuleName] = (ms.messages[imp] ? []) + 
+                                               error("<imp in imports ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", moduleScopes[qualifiedModuleName]); 
+        }
+    }
+    if(!dependencies_ok){
+        return <tmodel(modelName=qualifiedModuleName,messages=ms.messages[qualifiedModuleName]), ms>;
+    }
+    
     ms = addTModel(qualifiedModuleName, tm, ms);
     tm = addGrammar(qualifiedModuleName, imports, extends, ms.tmodels);
     ms.messages [qualifiedModuleName] = tm.messages;
-    tm = saveModule(qualifiedModuleName, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
+    tm = saveModule(qualifiedModuleName, imports, extends, ms, moduleScopes, ms.moduleLastModified, pcfg, tm);
     return <tm, ms>;
 }
 
-private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
-    //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
+private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
+    //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>") 
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
         <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
@@ -391,9 +414,9 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
             + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
             + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
         
-        extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends};
+        extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
         extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
-        filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
+        filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
        
         TModel m1 = tmodel();
         
@@ -409,7 +432,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
         
-        m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
+        m1.messages = tm. messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
@@ -477,6 +500,6 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         }
         return m1;
     } catch value e: {
-        return tmodel()[messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];
+        return tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
     }
 }
