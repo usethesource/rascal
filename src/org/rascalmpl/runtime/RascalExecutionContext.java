@@ -6,13 +6,11 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.interpreter.load.SourceLocationListContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
