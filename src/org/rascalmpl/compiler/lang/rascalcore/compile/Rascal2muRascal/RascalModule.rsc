@@ -2,11 +2,9 @@
 module lang::rascalcore::compile::Rascal2muRascal::RascalModule
 
 import IO;
-//import Map;
 import String;
 import Set;
 import List;
-//import Relation;
 import util::Reflective;
 
 import ParseTree;
@@ -14,10 +12,10 @@ import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
-//import lang::rascalcore::compile::muRascal2RVM::Relocate;
 
 //extend lang::rascalcore::check::Checker;
 extend analysis::typepal::TypePal;
+import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -41,9 +39,9 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, loc _reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=true){
+tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, CompilerConfig compilerConfig){
    try {
-      resetModuleInfo(optimize, enableAsserts);
+      resetModuleInfo(compilerConfig);
       module_scope = M@\loc;
       setModuleScope(module_scope);
       module_name = "<M.header.name>";
@@ -56,13 +54,10 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
             return <tmodel, errorMuModule(getModuleName(), {e}, M@\loc)>;
       }
      
-      if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
+      //if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the tmodel returned by the type checker  
    	  extractScopes(tmodel); 
-   	  
-   	  // Extract all declarations for the benefit of the type reifier
-      //extractDeclarationInfo(tmodel);
    	 
    	  if (<Module newModule, TModel newModel> := parseConcreteFragments(M, tmodel, getGrammar())) {
    	    M = newModule;
@@ -96,7 +91,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
 
    }
    catch ParseError(loc l): {
-        if (verbose) println("Parse error in concrete syntax <l>; returning error module");
+        if (compilerConfig.verbose) println("Parse error in concrete syntax <l>; returning error module");
         msg = error("Parse error in concrete syntax fragment", l);
         tmodel.messages += [msg];
         return <tmodel, errorMuModule(getModuleName(), {msg}, M@\loc)>;
@@ -105,11 +100,11 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
         tmodel.messages += [m];
         return <tmodel, errorMuModule(getModuleName(), {m}, M@\loc)>;
    }
-   //catch value e: {
-   //     return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
-   //}
+   catch value e: {
+        return <tmodel, errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc)>;
+   }
    finally {
-   	   resetModuleInfo(optimize, enableAsserts);
+   	   resetModuleInfo(compilerConfig);
    	   resetScopeExtraction();
    }
 }
