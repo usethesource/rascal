@@ -112,19 +112,19 @@ test bool matchListError1() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 
 	
 test bool matchListError2() = declarationError("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
-test bool matchListError4() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
+test bool matchListError3() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
  
-test bool matchListError5() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
+test bool matchListError4() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
    	
-test bool matchListError3() = checkOK("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  // DISCUSS, was: cannotMatch
+test bool matchListError5() = checkOK("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  // DISCUSS, was: cannotMatch
   	
-test bool matchListError5() = cannotMatch("str S = \"a\"; [1, S, 2] !:= [1,2,3];");  
+test bool matchListError6() = cannotMatch("str S = \"a\"; [1, S, 2] !:= [1,2,3];");  
   	
-test bool matchListError42() = cannotMatch("str S = \"a\"; list[int] x = [1,2,3]; [1, S, 2] := x;");  
+test bool matchListError7() = cannotMatch("str S = \"a\"; list[int] x = [1,2,3]; [1, S, 2] := x;");  
   	
-test bool matchListError5() = cannotMatch("list[str] S = [\"a\"];  [1, S, 2] !:= [1,2,3];");  
+test bool matchListError8() = cannotMatch("list[str] S = [\"a\"];  [1, S, 2] !:= [1,2,3];");  
   	
-test bool matchListError55() = cannotMatch("list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;");  
+test bool matchListError9() = cannotMatch("list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;");  
   	
 //test bool recursiveDataTypeNoPossibleHiddenRecursion() = 
 //	cannotMatch("p = or(t,t); and(t,t) := p;", initialDecls=["data Prop = f();", "data Bool = and(list[Prop], list[Prop]) | t();"]);  
