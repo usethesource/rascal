@@ -27,6 +27,10 @@ alias Name_Arity = tuple[str name, int arity];
 // Get all functions and constructors from a given tmodel
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
+    if(!tmodel.moduleLocs[tmodel.modelName]?){
+        iprintln(tmodel);
+        throw "getFunctionsAndConstructors";
+    }
      mscope = tmodel.moduleLocs[tmodel.modelName];
      
      //overloads0 = {*uids | u <- tmodel.facts, isContainedIn(u, mscope), /muOFun(uids, _) := tmodel.facts[u], bprintln(uids) };
@@ -81,7 +85,7 @@ str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads), JGen
 //    = "<e>.getConstructorType().comparable(<jg.shareType(t)>)";
 
 str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGenie jg) {
-    res = "$isComparable(<e>.getType(), <jg.accessType(a)>)";
+    res = "$isSubtypeOf(<e>.getType(), <jg.accessType(a)>)";
     return res;
 }
 
@@ -103,8 +107,11 @@ str atype2istype(str e, a:aadt(str adtName, list[AType] parameters, keywordSynta
 }
 
 default str atype2istype(str e, AType t, JGenie jg) {
-    res = "$isComparable(<e>.getType(),<jg.accessType(t)>)";
-    return res;
+    if(isFunctionAType(t)){
+        return "$intersectsType(<e>.getType(),<jg.accessType(t)>)";
+    } else {
+        return "$isSubtypeOf(<e>.getType(),<jg.accessType(t)>)";
+    }
 }
 
 public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) similar) {
@@ -121,7 +128,7 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
     
 // Generate all resolvers for a given module
 
-str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, JGenie jg){   
+str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, JGenie jg){  
     module_scope = module2loc[moduleName];
    
     loc2module = invertUnique(module2loc);
@@ -192,10 +199,6 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     
     implementing_module = "";
     if(isEmpty(local_fun_defs)){
-        //<found, im> = findImplementingModule(relevant_fun_defs, import_scopes, {});
-        //if(found){
-        //    return "";
-        //}
         <found, im> = findImplementingModule(relevant_fun_defs, import_scopes, extend_scopes);
         if(found){
             implementing_module = loc2module[im];
@@ -500,7 +503,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             body += switch_cases + default_and_constructor_cases;
         } else {
             if(!isEmpty(switch_cases)){
-                body += "switch(Util.getFingerprint($P0, false)){
+                body += "switch(Fingerprint.getFingerprint($P0)){
                         '<switch_cases>
                         '}\n";
            }
