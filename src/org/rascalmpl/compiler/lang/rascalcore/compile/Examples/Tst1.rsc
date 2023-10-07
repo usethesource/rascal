@@ -18,13 +18,16 @@ void main() {
                            |project://typepal/src|],
                     libs = [|lib:///| ]
                 );
-    CheckerResult result =  rascalTModelForNames([input_module], testConfig, 
+    ModuleStatus result =  rascalTModelForNames([input_module], testConfig, 
                                                  rascalTypePalConfig(
                                                     classicReifier=true
                                                     //logSolverSteps=true,
                                                     //logSolverIterations=true,
                                                     //logAttempts=true
-                                                 ));
+                                                 ),
+                                                 getRascalCompilerConfig(),
+                                                 dummy_compile1
+                                                 );
     iprintln(result.tmodels[input_module], lineLimit=10000);
     iprintln(result.tmodels[input_module].messages);
     println("Total time for checker: <(cpuTime() - start_time)/1000000> ms");

@@ -16,6 +16,6 @@ value main() {
                            |project://typepal/src|],
                     libs = [|lib:///| ]
                 );
-    msgs = compile("lang::rascalcore::compile::Examples::Tst0", getRascalCorePathConfig());
+    msgs = compile("lang::rascalcore::compile::Examples::Tst5", getRascalCorePathConfig(), getRascalCompilerConfig());
     return msgs;
 }
