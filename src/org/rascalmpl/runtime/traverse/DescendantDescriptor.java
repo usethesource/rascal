@@ -22,6 +22,7 @@ import io.usethesource.vallang.type.TypeFactory;
 public class DescendantDescriptor implements IDescendantDescriptor {
 	private final HashSet<Object> mSymbolSet;
 	private final boolean concreteMatch;
+	final boolean debug = false;
 	
 	public DescendantDescriptor(Type[] symbolset, IConstructor[] prodset, IBool concreteMatch){
 		mSymbolSet = new HashSet<Object>(symbolset.length + prodset.length);
@@ -49,13 +50,12 @@ public class DescendantDescriptor implements IDescendantDescriptor {
 	@Override
 	public IBool shouldDescentInAbstractValue(final IValue subject) {
 		//assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
-		//System.out.println("shouldDescentInAbstractValue: " + ++counter + ", " + subject.toString());
-		
+	
 		Type type = subject instanceof IConstructor 
 				    ? ((IConstructor) subject).getConstructorType().getAbstractDataType()
 				    : subject.getType();
 		IBool res = mSymbolSet.contains(type) ? TRUE : FALSE;
-		//System.err.println("shouldDescentInAbstractValue(" + res + "): " + subject);
+		if(debug) System.err.println("shouldDescentInAbstractValue(" + res + "): " + subject);
 		return res;
 	}
 	
@@ -65,14 +65,14 @@ public class DescendantDescriptor implements IDescendantDescriptor {
 		if (subject.isAppl()) {
 			IConstructor prod = (IConstructor) subject.getProduction();
 			IBool res =  mSymbolSet.contains(prod) ? TRUE : FALSE;
-			//System.err.println("shouldDescentInConcreteValue(" + res + "): " + subject);
+			if(debug) System.err.println("shouldDescentInConcreteValue(" + res + "): " + subject);
 			return res;
 		}
 		if (subject.isAmb()) {
-			//System.err.println("shouldDescentInConcreteValue(" + true + "): " + subject);
+			if(debug) System.err.println("shouldDescentInConcreteValue(" + true + "): " + subject);
 			return TRUE;
 		}
-		//System.err.println("shouldDescentInConcreteValue(" + false + "): " + subject);
+		if(debug) System.err.println("shouldDescentInConcreteValue(" + false + "): " + subject);
 		return FALSE;
 	}
 }
