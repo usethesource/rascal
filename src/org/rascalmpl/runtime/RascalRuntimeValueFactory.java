@@ -21,6 +21,7 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.Typed
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance3;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance4;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance5;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance6;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
