@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::compile::muRascal2Java::CodeGen
 
+/*
+ * Translate a muRascal module to Java
+ */
+
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::muRascal::AST;
@@ -232,7 +236,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '
                         '<module_imports>
                         '
-                        '@SuppressWarnings(\"unused\")
+                        '@SuppressWarnings({\"unused\",\"unchecked\",\"deprecation\"})
                         'public class <baseClassName> 
                         '    extends
                         '        org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule
@@ -477,7 +481,7 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
                 "<memoCache><visibility><returnType> <shortName>(<argTypes>){ // by CodeGen: <ftype> 
                '    <nonConstantKwpDefaults><removeRedeclaredKwps>
                '    <body>
-               '}">;
+               '}\n">;
     } else
         throw "trans MuFunction: <ftype>";
 }
@@ -503,8 +507,6 @@ JCode trans(muATypeCon(AType t, map[AType, set[AType]] definitions), JGenie jg) 
     // here we translate the types back to the old symbols, to be able
     // to bootstrap on the old parser generator, and also the client code
     // that use the definitions in the Type and ParseTree modules.
-    x = atype2symbol(t);
-    y = adefinitions2definitions(definitions);
     return jg.shareReifiedConstant(atype2symbol(t), adefinitions2definitions(definitions));
 } 
                       
@@ -953,7 +955,7 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AT
 }
 
 JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName, MuExp exp] kwargs, src), JGenie jg){
-//  println("muOCall((<fun>, <ftype>, ..., <src>");
+    //println("muOCall((<fun>, <ftype>, ..., <src>");
     argTypes = getFunctionOrConstructorArgumentTypes(ftype);
     actuals = getActuals(argTypes, largs, jg);
     cst = (getResult(ftype) == avoid()) ? "" : "(<atype2javatype(getResult(ftype))>)";
@@ -1033,7 +1035,8 @@ str prefix(str moduleName, JGenie jg){
 }
 JCode trans(muGetKwField(AType resultType,  adtType:aadt(_,_,_), MuExp cons, str fieldName, str moduleName), JGenie jg){
     //adtName = adtType.adtName;
-    adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
+    //adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<intercalate("_", [atype2idpart(p) | p <- adtType.parameters])>";
+    adtName = isEmpty(adtType.parameters) ? adtType.adtName : "<adtType.adtName>_<size(adtType.parameters)>";
     if(asubtype(adtType, treeType)){
         if(fieldName == "loc") fieldName = "src"; // TODO: remove when @\loc is gone
         adtName = "Tree";
@@ -1651,8 +1654,9 @@ JCode trans(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp las
          
 JCode trans(muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint), JGenie jg){
     noCaseMatched = "noCaseMatched_<exp.name>";
+    fp = "Fingerprint.get<useConcreteFingerprint ? "Concrete" : "">Fingerprint(<exp.name>)";
     return "boolean <noCaseMatched> = true;
-           '<asJavaName(label)>: switch(Util.getFingerprint(<exp.name>, <useConcreteFingerprint>)){
+           '<asJavaName(label)>: switch(<fp>){
            '<for(muCase(int fingerprint, MuExp exp1) <- cases){>
            '    case <fingerprint>:
            '        if(<noCaseMatched>){
@@ -1667,11 +1671,15 @@ JCode trans(muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp,
 }
 
 JCode genDescendantDescriptor(DescendantDescriptor descendant, JGenie jg){
-    definitions = descendant.definitions;
-    
     useConcreteFingerprint = "$VF.bool(<descendant.useConcreteFingerprint>)";
+    
+    if(anode([]) in descendant.reachable_atypes || avalue() in descendant.reachable_atypes){
+        return "new DescendantDescriptorAlwaysTrue(<useConcreteFingerprint>)";
+    }
+    
     reachable_atypes = "new io.usethesource.vallang.type.Type[]{<intercalate(", ", [atype2vtype(t, jg) | t <- descendant.reachable_atypes])>}";
-    reachable_aprods = "new io.usethesource.vallang.IConstructor[]{<intercalate(", ", [jg.shareReifiedConstant(atype2symbol(t), adefinitions2definitions(definitions)) | t <- descendant.reachable_aprods])>}";
+    reachable_aprods = "new io.usethesource.vallang.IConstructor[]{<intercalate(", ", [jg.shareConstant(aprod2prod(t)) | t <- descendant.reachable_aprods])>}";
+     
     return "new DescendantDescriptor(<reachable_atypes>, 
            '                         <reachable_aprods>, 
            '                         <useConcreteFingerprint>)";
@@ -1686,12 +1694,13 @@ JCode trans(muVisit(str visitName, MuExp exp, list[MuCase] cases, MuExp defaultE
     defaultCode = defaultExp == muBlock([]) ? "" : 
                   "    default: 
                   '        <trans(defaultExp, jg)>";
+    fp = "Fingerprint.get<vdescriptor.descendant.useConcreteFingerprint ? "Concrete" : "">Fingerprint(<exp.var.name>)";
     return
       "$TRAVERSE.traverse(DIRECTION.<direction>, PROGRESS.<progress>, FIXEDPOINT.<fixedpoint>, REBUILD.<rebuild>, 
       '     <genDescendantDescriptor(vdescriptor.descendant, jg)>,
       '     <trans(exp.exp,jg)>,
       '     (IVisitFunction) (IValue <exp.var.name>, TraversalState $traversalState) -\> {
-      '         <visitName>:switch(Util.getFingerprint(<exp.var.name>, <vdescriptor.descendant.useConcreteFingerprint>)){
+      '         <visitName>:switch(<fp>){
       '         <for(muCase(int fingerprint, MuExp exp) <- cases){>
       '             case <fingerprint>:
       '                 <trans(exp, jg)>
