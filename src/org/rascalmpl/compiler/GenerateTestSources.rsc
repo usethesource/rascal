@@ -23,9 +23,12 @@ void generateTestSources(PathConfig pcfg) {
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources|,
      resources = |project://rascal-core/target/generated-test-resources|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
+     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library| ],
      libs = [ ]
      );
+     
+   testCompilerConfig = getRascalCompilerConfig();
+   
    map[str,int] durations = ();
      
    println("PathConfig for generating test sources:\n");
@@ -79,17 +82,55 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::FlowGraph", 
                      "analysis::m3::Registry",
                      "analysis::m3::TypeSymbol"];  
+                     
+   list[str] checkerTestModules = [
+        "lang::rascalcore::check::tests::AccumulatingTCTests",
+        "lang::rascalcore::check::tests::AliasTests",
+        "lang::rascalcore::check::tests::AllStaticIussues",
+        "lang::rascalcore::check::tests::AllStaticIssuesUsingStdLib", 
+        "lang::rascalcore::check::tests::AnnotationTCTests",
+        "lang::rascalcore::check::tests::AnnotationUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::AssignmentTCTests",
+        "lang::rascalcore::check::tests::ATypeInstantiationTests",
+        "lang::rascalcore::check::tests::ATypeTests",
+        "lang::rascalcore::check::tests::BooleanTCTests",
+        "lang::rascalcore::check::tests::BooleanUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::CallTCTests",
+        "lang::rascalcore::check::tests::CallUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::ComprehensionTCTests",
+        "lang::rascalcore::check::tests::DataDeclarationTCTests",
+        "lang::rascalcore::check::tests::DataTypeTCTests",
+        "lang::rascalcore::check::tests::DeclarationTCTests",
+        "lang::rascalcore::check::tests::ImportTCTests",
+        "lang::rascalcore::check::tests::InferenceTCTests",
+        "lang::rascalcore::check::tests::ParameterizedTCTests",
+        "lang::rascalcore::check::tests::PatternTCTests",
+        "lang::rascalcore::check::tests::PatternUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::ProjectTCTests",
+        "lang::rascalcore::check::tests::RegExpTCTests",
+        "lang::rascalcore::check::tests::ScopeTCTests",
+        "lang::rascalcore::check::tests::StatementTCTests",
+        "lang::rascalcore::check::tests::StaticTestsingUtilsTests",
+        "lang::rascalcore::check::tests::StaticTestingUsingStdLibTests",
+        "lang::rascalcore::check::tests::SubscriptTCTests",
+        "lang::rascalcore::check::tests::VisitTCTests"
+   ];
+   
 
    for (m <- libraryModules) {
-     safeCompile(m, testConfig, (int d) { durations[m] = d; });
+     safeCompile(m, testConfig, testCompilerConfig, (int d) { durations[m] = d; });
    }
-     
-   testFolder = |std:///lang/rascal/tests|;
    
-   testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
-                 | loc file <- find(testFolder, "rsc")     // all Rascal source files
+   //for (m <- checkerTestModules) {
+   //  safeCompile(m, testConfig, testCompilerConfig, (int d) { durations[m] = d; });
+   //}
+     
+   testFolders = [|std:///lang/rascal/tests| ];
+   
+   testModules = [ *[ replaceAll(file[extension=""].path[1..], "/", "::") | loc file <- find(testFolder, "rsc") ]
+                 | testFolder <- testFolders
                  ];  
-                 
+   println(testModules);
    ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           
    testModules -= ignored;    
@@ -99,7 +140,7 @@ void generateTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      e = safeCompile(m, testConfig, (int d) { durations[m] = d; });
+      e = safeCompile(m, testConfig, testCompilerConfig, (int d) { durations[m] = d; });
       if(!isEmpty(e)){
         exceptions += e;
       }
@@ -112,16 +153,10 @@ void generateTestSources(PathConfig pcfg) {
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
-void testCompile(str \module) {
-  int duration = 0;
-  safeCompile(\module, manualTestConfig, (int d) { duration = d; return; });
-  println("compile of <\module> lasted <duration / (1000*1000*1000.0)> seconds");
-}
-
-str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
+str safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig, void (int duration) measure) {
    try {
      measure(cpuTimeOf(() {    
-       compile(\module, pcfg);
+       compile(\module, pcfg, compilerConfig);
      }));
      return "";
    }
