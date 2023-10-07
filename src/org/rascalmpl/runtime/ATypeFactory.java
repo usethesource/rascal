@@ -17,7 +17,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-/*** NOT USED ANYMORE ***/
+/*** NOT USED ANYMORE, NOT USED ANYMORE, NOT USED ANYMORE, NOT USED ANYMORE, NOT USED ANYMORE, NOT USED ANYMORE ***/
 public class ATypeFactory {
 	// Factories and stores
 	public final IValueFactory $VF = ValueFactoryFactory.getValueFactory();
