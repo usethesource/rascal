@@ -130,7 +130,7 @@ str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
      //measure(cpuTimeOf(() {    
        //compile(\module, pcfg);
        println("compiling <current_module>");
-       CheckerResult result =  rascalTModelForNames([current_module], current_pcfg, rascalTypePalConfig(classicReifier=true));
+       ModuleStatus result =  rascalTModelForNames([current_module], current_pcfg, rascalTypePalConfig(classicReifier=true));
        iprintln(result.tmodels[current_module].messages);
      //}));
      return "";
