@@ -22,7 +22,7 @@ bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messag
 bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, TModel tm, ModuleStatus ms, PathConfig pcfg/*, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=true*/){
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, TModel tm, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig){
     //iprintln(tm, lineLimit=10000);
    
     if(errorsPresent(tm)){
@@ -48,7 +48,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
    	try {
         //if(verbose) 
         println("Compile: <qualifiedModuleName> (<size(ms.parseTrees)> cached parse trees, <size(ms.tmodels)> cached tmodels)");
-       	<tm, muMod> = r2mu(M, tm /*reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts*/);
+       	<tm, muMod> = r2mu(M, tm, compilerConfig);
    
         if(errorsPresent(tm)){
             return tm.messages;
@@ -57,7 +57,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == qualifiedModuleName };
         extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
         tmodels = ();
-        for(m <- imports + extends, tpl_valid() in ms.status[m]){
+        for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
             <found, tpl, ms> = getTmodelForModule(m, ms, pcfg);
             tmodels[m] = tpl;
         }
@@ -84,13 +84,13 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
 }
 
 @doc{Compile a Rascal source module (given at a location) to Java}
-list[Message] compile(loc moduleLoc, PathConfig pcfg /*, loc reloc = |noreloc:///|, bool verbose=true, bool optimize=true, bool enableAsserts=false*/) =
-    compile(getModuleName(moduleLoc, pcfg), pcfg/*, reloc=reloc, verbose = verbose, optimize=optimize, enableAsserts=enableAsserts*/);
+list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerConfig) =
+    compile(getModuleName(moduleLoc, pcfg), pcfg, compilerConfig);
 
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
-list[Message] compile(str qualifiedModuleName, PathConfig pcfg/*, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=true*/){
+list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig compilerConfig){
     start_comp = cpuTime();   
-    ms = rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig(), compile1);
+    ms = rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig(), compilerConfig, compile1);
    
     comp_time = (cpuTime() - start_comp)/1000000;
     /*if(verbose)*/ println("Compiling <qualifiedModuleName>: <comp_time> ms");
