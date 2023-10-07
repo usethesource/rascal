@@ -214,7 +214,6 @@ Symbol atype2symbol1(aprod(p:prod(AType def, list[AType] atypes))) {
 //    return res;
 ////    res = Production::prod(atype2symbol(def), [ atype2symbol(t) | t <- atypes, bprintln(t) ]);   //atype2symbol(def);
 }
-Production aproduction2production(regular(AType def)) = \regular(atype2symbol(def));
 
 //Symbol atype2symbol1(regular(AType def)) = atype2symbol(def);
 default Symbol atype2symbol1(AType s)  { throw "could not convert <s> to Symbol"; }
@@ -278,6 +277,9 @@ Production aprod2prod(a:acons(AType adt, list[AType] fields, list[Keyword] kwFie
                             [/*(g.fieldType.alabel?) ? Symbol::label(g.fieldType.alabel, atype2symbol(g.fieldType)) : */atype2symbol(g.fieldType) | g <- kwFields], {});
     return res;
 }
+
+Production aprod2prod(regular(AType def)) = \regular(atype2symbol(def));
+
 
 Attr aattr2attr(atag(value \tag)) = Attr::\tag(\tag);
 Attr aattr2attr(\aassoc(AAssociativity \assoc)) = Attr::\assoc(AAssociativity2Associativity(\assoc));
@@ -505,13 +507,15 @@ set[ACondition] condition2acondition(set[Condition] conditions)
 // ---- utilities
 
 @doc{Unwraps parameters and conditionals from a type.}
-AType unwrapType(p: aparameter(_,tvb)) = p.alabel? ? unwrapType(tvb)[alabel=p.alabel] : unwrapType(tvb);
-AType unwrapType(\conditional(AType sym,  set[ACondition] _)) = unwrapType(sym);
-default AType unwrapType(AType t) = t;
+AType unwrapAType(p: aparameter(_,tvb)) = p.alabel? ? unwrapAType(tvb)[alabel=p.alabel] : unwrapAType(tvb);
+AType unwrapAType(\conditional(AType sym,  set[ACondition] _)) = unwrapAType(sym);
+default AType unwrapAType(AType t) = t;
 
 bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.alabel)]);
 
-bool isArithType(AType t) = isIntAType(t) || isRealAType(t) || isRatAType(t) || isNumAType(t);
+bool isArithAType(AType t) = isIntAType(t) || isRealAType(t) || isRatAType(t) || isNumAType(t);
+
+bool isAtomicAType(AType t) = isArithAType(t) || isLocAType(t) || isStrAType(t) || isDateTimeAType(t) || isVoidAType(t) || isValueAType(t);
 
 // ---- int
 
@@ -608,7 +612,7 @@ AType makeNodeType() = anode([]);
 
 @doc{Get the keywords of a node as a tuple.}
 AType getNodeFieldsAsTuple(AType t) {
-    if (anode(flds) := unwrapType(t)) return atuple(atypeList([ tp | tp <- flds, !isEmpty(tp.alabel) ]));
+    if (anode(flds) := unwrapAType(t)) return atuple(atypeList([ tp | tp <- flds, !isEmpty(tp.alabel) ]));
     throw rascalCheckerInternalError("getNodeFieldsAsTuple called with unexpected type <prettyAType(t)>");
 }  
 
@@ -696,8 +700,8 @@ AType makeSetType(AType elementType) {
 
 @doc{Get the element type of a set.}
 AType getSetElementType(AType t) {
-    if (aset(et) := unwrapType(t)) return et;
-    if (arel(ets) := unwrapType(t)) return atuple(ets);
+    if (aset(et) := unwrapAType(t)) return et;
+    if (arel(ets) := unwrapAType(t)) return atuple(ets);
     throw rascalCheckerInternalError("Error: Cannot get set element type from type <prettyAType(t)>");
 }
 
@@ -736,13 +740,13 @@ AType makeRelTypeFromTuple(AType t) = arel(atypeList(getTupleFields(t)));
 
 @doc{Get the type of the relation fields as a tuple.}
 AType getRelElementType(AType t) {
-    if (arel(ets) := unwrapType(t)) return atuple(ets);
-    if (aset(tup) := unwrapType(t)) return tup;
+    if (arel(ets) := unwrapAType(t)) return atuple(ets);
+    if (aset(tup) := unwrapAType(t)) return tup;
     throw rascalCheckerInternalError("Cannot get relation element type from type <prettyAType(t)>");
 }
 
 bool hasField(AType t, str name){
-    switch(unwrapType(t)){
+    switch(unwrapAType(t)){
         case arel(atypeList(tls)): return any(tp <- tls, tp.alabel == name);
         case alrel(atypeList(tls)): return any(tp <- tls, tp.alabel == name);
         case atuple(atypeList(tls)): return any(tp <- tls, tp.alabel == name);
@@ -754,13 +758,13 @@ bool hasField(AType t, str name){
 
 @doc{Get whether the rel has field names or not.}
 bool relHasFieldNames(AType t) {
-    if (arel(atypeList(tls)) := unwrapType(t)) return size(tls) == size([tp | tp <- tls, !isEmpty(tp.alabel)]);
+    if (arel(atypeList(tls)) := unwrapAType(t)) return size(tls) == size([tp | tp <- tls, !isEmpty(tp.alabel)]);
     throw rascalCheckerInternalError("relHasFieldNames given non-Relation type <prettyAType(t)>");
 }
 
 @doc{Get the field names of the rel fields.}
 list[str] getRelFieldNames(AType t) {
-    if (arel(atypeList(tls)) := unwrapType(t)){
+    if (arel(atypeList(tls)) := unwrapAType(t)){
         return [tp.alabel | tp <- tls];
     }
     throw rascalCheckerInternalError("getRelFieldNames given non-Relation type <prettyAType(t)>");
@@ -768,8 +772,8 @@ list[str] getRelFieldNames(AType t) {
 
 @doc{Get the fields of a relation.}
 list[AType] getRelFields(AType t) {
-    if (arel(atypeList(tls)) := unwrapType(t)) return tls;
-    if (aset(atuple(atypeList(tls))) := unwrapType(t)) return tls;
+    if (arel(atypeList(tls)) := unwrapAType(t)) return tls;
+    if (aset(atuple(atypeList(tls))) := unwrapAType(t)) return tls;
     throw rascalCheckerInternalError("getRelFields given non-Relation type <prettyAType(t)>");
 }
 
@@ -801,14 +805,14 @@ AType makeListRelTypeFromTuple(AType t) = alrel(atypeList(getTupleFields(t)));
 
 @doc{Get the type of the list relation fields as a tuple.}
 AType getListRelElementType(AType t) {
-    if (alrel(ets) := unwrapType(t)) return atuple(ets);
-    if (alist(tup) := unwrapType(t)) return tup;
+    if (alrel(ets) := unwrapAType(t)) return atuple(ets);
+    if (alist(tup) := unwrapAType(t)) return tup;
     throw rascalCheckerInternalError("Cannot get list relation element type from type <prettyAType(t)>");
 }
 
 @doc{Get the field names of the list rel fields.}
 list[str] getListRelFieldNames(AType t) {
-    if (alrel(atypeList(tls)) := unwrapType(t)){
+    if (alrel(atypeList(tls)) := unwrapAType(t)){
         return [tp.alabel | tp <- tls];
     }
     throw rascalCheckerInternalError("getListRelFieldNames given non-List-Relation type <prettyAType(t)>");
@@ -816,8 +820,8 @@ list[str] getListRelFieldNames(AType t) {
 
 @doc{Get the fields of a list relation.}
 list[AType] getListRelFields(AType t) {
-    if (alrel(atypeList(tls)) := unwrapType(t)) return tls;
-    if (alist(atuple(atypeList(tls))) := unwrapType(t)) return tls;
+    if (alrel(atypeList(tls)) := unwrapAType(t)) return tls;
+    if (alist(atuple(atypeList(tls))) := unwrapAType(t)) return tls;
     throw rascalCheckerInternalError("getListRelFields given non-List-Relation type <prettyAType(t)>");
 }
 
@@ -843,17 +847,17 @@ AType makeTupleType(AType elementTypes...) {
 
 @doc{Indicate if the given tuple has a field of the given name.}
 bool tupleHasField(AType t, str fn) {
-    return atuple(atypeList(tas)) := unwrapType(t) && fn in { tp.alabel | tp <- tas, tp.alabel? } ;
+    return atuple(atypeList(tas)) := unwrapAType(t) && fn in { tp.alabel | tp <- tas, tp.alabel? } ;
 }
 
 @doc{Indicate if the given tuple has a field with the given field offset.}
 bool tupleHasField(AType t, int fn) {
-    return atuple(atypeList(tas)) := unwrapType(t) && 0 <= fn && fn < size(tas);
+    return atuple(atypeList(tas)) := unwrapAType(t) && 0 <= fn && fn < size(tas);
 }
 
 @doc{Get the type of the tuple field with the given name.}
 AType getTupleFieldType(AType t, str fn) {
-    if (atuple(atypeList(tas)) := unwrapType(t)) {
+    if (atuple(atypeList(tas)) := unwrapAType(t)) {
         for(tp <- tas){
             if(tp.alabel == fn) return tp;
         }
@@ -865,7 +869,7 @@ AType getTupleFieldType(AType t, str fn) {
 @doc{Get the type of the tuple field at the given offset.}
 AType getTupleFieldType(AType t, int fn) {
     if (atuple(atypeList(tas)) := t) {
-        if (0 <= fn && fn < size(tas)) return unwrapType(tas[fn]);
+        if (0 <= fn && fn < size(tas)) return unwrapAType(tas[fn]);
         throw rascalCheckerInternalError("Tuple <prettyAType(t)> does not have field <fn>");
     }
     throw rascalCheckerInternalError("getTupleFieldType given unexpected type <prettyAType(t)>");
@@ -880,7 +884,7 @@ list[AType] getTupleFieldTypes(AType t) {
 
 @doc{Get the fields of a tuple as a list.}
 list[AType] getTupleFields(AType t) {
-    if (atuple(atypeList(tas)) := unwrapType(t)) return tas;
+    if (atuple(atypeList(tas)) := unwrapAType(t)) return tas;
     throw rascalCheckerInternalError("Cannot get tuple fields from type <prettyAType(t)>"); 
 }
 
@@ -889,13 +893,13 @@ int getTupleFieldCount(AType t) = size(getTupleFields(t));
 
 @doc{Does this tuple have field names?}
 bool tupleHasFieldNames(AType t) {
-    if (atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.alabel)]);
+    if (atuple(atypeList(tas)) := unwrapAType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.alabel)]);
     throw rascalCheckerInternalError("tupleHasFieldNames given non-Tuple type <prettyAType(t)>");
 }
 
 @doc{Get the names of the tuple fields.}
 list[str] getTupleFieldNames(AType t) {
-    if (atuple(atypeList(tls)) := unwrapType(t)) {
+    if (atuple(atypeList(tls)) := unwrapAType(t)) {
         if (allLabelled(tls)) {
             return [tp.alabel | tp <- tls];
         }
@@ -931,8 +935,8 @@ AType makeListType(AType elementType) {
 
 @doc{Get the element type of a list.}
 AType getListElementType(AType t) {
-    if (alist(et) := unwrapType(t)) return et;
-    if (alrel(ets) := unwrapType(t)) return atuple(ets);  
+    if (alist(et) := unwrapAType(t)) return et;
+    if (alrel(ets) := unwrapAType(t)) return atuple(ets);  
     return avalue();  
     //throw rascalCheckerInternalError("Cannot get list element type from type <prettyAType(t)>");
 }  
@@ -960,7 +964,7 @@ AType makeMapType(AType domain, AType range) {
 
 @doc{Get the domain and range of the map as a tuple.}
 AType getMapFieldsAsTuple(AType t) {
-    if (amap(dt,rt) := unwrapType(t)) return atuple(atypeList([dt,rt]));
+    if (amap(dt,rt) := unwrapAType(t)) return atuple(atypeList([dt,rt]));
     throw rascalCheckerInternalError("getMapFieldsAsTuple called with unexpected type <prettyAType(t)>");
 }       
 
@@ -994,10 +998,10 @@ list[str] getMapFieldNames(AType t) {
 str getMapFieldName(AType t, int idx) = getMapFieldNames(t)[idx];
 
 @doc{Get the domain type of the map.}    
-AType getMapDomainType(AType t) = unwrapType(getMapFields(t)[0]);
+AType getMapDomainType(AType t) = unwrapAType(getMapFields(t)[0]);
 
 @doc{Get the range type of the map.}
-AType getMapRangeType(AType t) = unwrapType(getMapFields(t)[1]);
+AType getMapRangeType(AType t) = unwrapAType(getMapFields(t)[1]);
 
 // ---- bag
 
@@ -1015,7 +1019,7 @@ AType makeBagType(AType elementType) = abag(elementType);
 
 @doc{Get the element type of a bag.}
 AType getBagElementType(AType t) {
-    if (abag(et) := unwrapType(t)) return et;
+    if (abag(et) := unwrapAType(t)) return et;
     throw rascalCheckerInternalError("Cannot get set element type from type <prettyAType(t)>");
 }
 
@@ -1037,21 +1041,21 @@ AType makeADTType(str n) = aadt(n,[], dataSyntax());
 
 @doc{Get the name of the ADT.}
 str getADTName(AType t) {
-    if (aadt(n,_,_) := unwrapType(t)) return n;
-    if (acons(a,_,_) := unwrapType(t)) return getADTName(a);
-    if (\start(ss) := unwrapType(t)) return getADTName(ss);
-    if (areified(_) := unwrapType(t)) return "type";
-     if (aprod(prod(AType def, list[AType] _)) := unwrapType(t)) return getADTName(def);
+    if (aadt(n,_,_) := unwrapAType(t)) return n;
+    if (acons(a,_,_) := unwrapAType(t)) return getADTName(a);
+    if (\start(ss) := unwrapAType(t)) return getADTName(ss);
+    if (areified(_) := unwrapAType(t)) return "type";
+     if (aprod(prod(AType def, list[AType] _)) := unwrapAType(t)) return getADTName(def);
     throw rascalCheckerInternalError("getADTName, invalid type given: <prettyAType(t)>");
 }
 
 @doc{Get the type parameters of an ADT.}
 list[AType] getADTTypeParameters(AType t) {
-    if (aadt(_,ps,_) := unwrapType(t)) return ps;
-    if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
-    if (\start(ss) := unwrapType(t)) return getADTTypeParameters(ss);
-    if (areified(_) := unwrapType(t)) return [];
-    if (aprod(prod(AType def, list[AType] _)) := unwrapType(t)) return getADTTypeParameters(def);
+    if (aadt(_,ps,_) := unwrapAType(t)) return ps;
+    if (acons(a,_,_) := unwrapAType(t)) return getADTTypeParameters(a);
+    if (\start(ss) := unwrapAType(t)) return getADTTypeParameters(ss);
+    if (areified(_) := unwrapAType(t)) return [];
+    if (aprod(prod(AType def, list[AType] _)) := unwrapAType(t)) return getADTTypeParameters(def);
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyAType(t)>");
 }
 
@@ -1074,13 +1078,13 @@ default bool isConstructorAType(AType _) = false;
 
 @doc{Get the ADT type of the constructor.}
 AType getConstructorResultType(AType ct) {
-    if (acons(a,_,_) := unwrapType(ct)) return a;
+    if (acons(a,_,_) := unwrapAType(ct)) return a;
     throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type, got <prettyAType(ct)>");
 }
 
 @doc{Get a list of the argument types in a constructor.}
 list[AType] getConstructorArgumentTypes(AType ct) {
-    if (acons(_,list[AType] cts,_) := unwrapType(ct)) return cts;
+    if (acons(_,list[AType] cts,_) := unwrapAType(ct)) return cts;
     throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type, got <prettyAType(ct)>");
 }
 
@@ -1099,12 +1103,12 @@ default bool isFunctionAType(AType _) = false;
 
 @doc{Get a list of arguments for the function.}
 list[AType] getFunctionArgumentTypes(AType ft) {
-    if (afunc(_, ats, _) := unwrapType(ft)) return ats;
+    if (afunc(_, ats, _) := unwrapAType(ft)) return ats;
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type, got <prettyAType(ft)>");
 }
 
 set[AType] getFunctionTypeParameters(AType ft){
-    if (af: afunc(_, _, _) := unwrapType(ft)){
+    if (af: afunc(_, _, _) := unwrapAType(ft)){
        return {p | /p:aparameter(_,_) := af };
     }
     throw rascalCheckerInternalError("Cannot get Type parameters from non-function type, got <prettyAType(ft)>");
@@ -1116,9 +1120,9 @@ set[AType] getTypeParameters(AType t){
 
 @doc{Get a list of arguments for overloaded function/constructors}
 list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
-    if (afunc(_, ats, _) := unwrapType(ft)) return ats;
-    if (acons(_,list[AType] cts,_) := unwrapType(ft)) return cts;
-    if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapType(ft)){
+    if (afunc(_, ats, _) := unwrapAType(ft)) return ats;
+    if (acons(_,list[AType] cts,_) := unwrapAType(ft)) return cts;
+    if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapAType(ft)){
        arities = { size(getFormals(tp)) | tp <- overloads<2> };
        assert size(arities) == 1;
        ar = getFirstFrom(arities);
@@ -1139,9 +1143,9 @@ list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
 
 @doc{Get a list of keyword parameters for overloaded function/constructors}
 list[Keyword] getFunctionOrConstructorKeywords(AType ft) {
-    if (afunc(_, _, list[Keyword] kws) := unwrapType(ft)) return kws;
-    if (acons(_,_,list[Keyword] kws) := unwrapType(ft)) return kws;
-    if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapType(ft)){
+    if (afunc(_, _, list[Keyword] kws) := unwrapAType(ft)) return kws;
+    if (acons(_,_,list[Keyword] kws) := unwrapAType(ft)) return kws;
+    if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapAType(ft)){
        kws = { *getFunctionOrConstructorKeywords(tp) | tp <- overloads<2> };
        return toList(kws);
     }
@@ -1150,15 +1154,15 @@ list[Keyword] getFunctionOrConstructorKeywords(AType ft) {
 
 @doc{Get the arguments for a function in the form of a tuple.}
 AType getFunctionArgumentTypesAsTuple(AType ft) {
-    if (afunc(_, ats, _) := unwrapType(ft)) return atuple(atypeList(ats));
+    if (afunc(_, ats, _) := unwrapAType(ft)) return atuple(atypeList(ats));
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type, got <prettyAType(ft)>");
 }
 
 @doc{Get the return type for a function.}
 AType getFunctionReturnType(AType ft) {
-    if (afunc(rt, _, _) := unwrapType(ft)) return rt;
-    if(overloadedAType(rel[loc, IdRole, AType] _) := unwrapType(ft)) {
-        return getResult( unwrapType(ft));
+    if (afunc(rt, _, _) := unwrapAType(ft)) return rt;
+    if(overloadedAType(rel[loc, IdRole, AType] _) := unwrapAType(ft)) {
+        return getResult( unwrapAType(ft));
     }
     throw rascalCheckerInternalError("Cannot get function return type from non-function type, got <prettyAType(ft)>");
 }
@@ -1202,7 +1206,7 @@ AType makeReifiedType(AType mainType) = areified(mainType);
 
 @doc{Get the type that has been reified and stored in the reified type.}
 AType getReifiedType(AType t) {
-    if (areified(rt) := unwrapType(t)) return rt;
+    if (areified(rt) := unwrapAType(t)) return rt;
     throw rascalCheckerInternalError("getReifiedType given unexpected type: <prettyAType(t)>");
 }
 
