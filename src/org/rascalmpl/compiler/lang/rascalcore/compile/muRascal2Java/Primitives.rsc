@@ -46,7 +46,7 @@ bool isSetOrListLikeType(AType t) = getName(t) in setOrListTypes;
 // ---- add -------------------------------------------------------------------
 
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)             = "$<getOuter(a)>_add_<getOuter(b)>(<x>,<y>)"  
-                                                                                             when isArithType(a) && isArithType(b) || 
+                                                                                             when isArithAType(a) && isArithAType(b) || 
                                                                                                   isStrAType(a) && isStrAType(b) ||
                                                                                                   isLocAType(a) && isStrAType(b) ||
                                                                                                   isDateTimeAType(a) && isDateTimeAType(b) ||
@@ -140,7 +140,7 @@ JCode transPrim("divide", AType r, [AType l, aparameter(_, AType bnd)], [str x, 
 JCode transPrim("divide", AType r, [aparameter(_, AType bnd), AType rgt], [str x, str y], JGenie jg)  
                                                                                          = transPrim("divide", r, [bnd,rgt], [x, y], jg);
 
-JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg)         = "$<getOuter(a)>_divide_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
+JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg)         = "$<getOuter(a)>_divide_<getOuter(b)>(<x>,<y>)"     when isArithAType(a), isArithAType(b);
 
 
 // ---- equal -----------------------------------------------------------------
@@ -175,7 +175,7 @@ JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args],
 // ---- greater ---------------------------------------------------------------
 
 JCode transPrim("greater", abool(), [abool(), abool()], [str x, str y], JGenie jg)      = "$abool_lessequal_abool(<x>,<y>).not()"; 
-JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "$<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
+JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "$<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>).not()"     when isArithAType(a), isArithAType(b);
 JCode transPrim("greater", abool(), [astr(), astr()], [str x, str y], JGenie jg)        = "$astr_lessequal_astr(<x>,<y>).not()"; 
 JCode transPrim("greater", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                         = "$adatetime_lessequal_adatetime(<x>,<y>).not()"; 
@@ -192,7 +192,7 @@ JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie j
 
 JCode transPrim("greaterequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)  = "$abool_less_abool(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$alist_less_alist(<x>,<y>).not()"            when isListLikeType(a), isListLikeType(b); 
-JCode transPrim("greaterequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)  = "$<getOuter(a)>_less_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
+JCode transPrim("greaterequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)  = "$<getOuter(a)>_less_<getOuter(b)>(<x>,<y>).not()"     when isArithAType(a), isArithAType(b);
 JCode transPrim("greaterequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)    = "$astr_less_astr(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                          = "$adatetime_less_adatetime(<x>,<y>).not()"; 
@@ -274,7 +274,7 @@ JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg) 
 // ----less -------------------------------------------------------------------
 
 JCode transPrim("less", abool(), [abool(), abool()], [str x, str y], JGenie jg)          = "$abool_less_abool(<x>,<y>)"; 
-JCode transPrim("less", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "$<getOuter(a)>_less_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
+JCode transPrim("less", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "$<getOuter(a)>_less_<getOuter(b)>(<x>,<y>)"     when isArithAType(a), isArithAType(b);
 JCode transPrim("less", abool(), [astr(), astr()], [str x, str y], JGenie jg)            = "$astr_less_astr(<x>,<y>)";  
 JCode transPrim("less", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  = "$adatetime_less_adatetime(<x>,<y>)"; 
 JCode transPrim("less", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)            = "$aloc_less_aloc(<x>,<y>)"; 
@@ -290,7 +290,7 @@ JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg) 
 // ---- lessequal -------------------------------------------------------------
 
 JCode transPrim("lessequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)     = "$abool_lessequal_abool(<x>,<y>)"; 
-JCode transPrim("lessequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
+JCode transPrim("lessequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "$<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>)"     when isArithAType(a), isArithAType(b);
 JCode transPrim("lessequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)       = "$astr_lessequal_astr(<x>,<y>)";  
 JCode transPrim("lessequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  
                                                                                          = "$adatetime_lessequal_adatetime(<x>,<y>)"; 
@@ -307,7 +307,7 @@ JCode transPrim("mod", aint(), [aint(), aint()], [str x, str y], JGenie jg)     
 
 // ---- negative --------------------------------------------------------------
 
-JCode transPrim("negative", AType r, [AType a], [str x], JGenie jg)                      = "<x>.negate()"            when isArithType(r);
+JCode transPrim("negative", AType r, [AType a], [str x], JGenie jg)                      = "<x>.negate()"            when isArithAType(r);
 
 // nonterminal-get-arg
 
@@ -343,7 +343,7 @@ JCode transPrim("parse", AType r, [avalue(), astr(), aloc()], [str x, str y, str
 
 // ---- product ---------------------------------------------------------------
 
-JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "$<getOuter(a)>_product_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
+JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "$<getOuter(a)>_product_<getOuter(b)>(<x>,<y>)"     when isArithAType(a), isArithAType(b);
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "$alist_product_alist(<x>,<y>)"   when isListLikeType(a), isListLikeType(b);
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "$aset_product_aset(<x>,<y>)"     when isSetLikeType(a), isSetLikeType(b);
 
@@ -547,7 +547,7 @@ JCode makeIndexDescr(list[AType] types, list[str] idx, JGenie jg)
  
 // ---- subtract --------------------------------------------------------------
 
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>) <x>.subtract(<y>))" when isArithType(a), isArithType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>) <x>.subtract(<y>))" when isArithAType(a), isArithAType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b), !equivalent(getElementType(a), b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
 JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapAType(a), isMapAType(b);
