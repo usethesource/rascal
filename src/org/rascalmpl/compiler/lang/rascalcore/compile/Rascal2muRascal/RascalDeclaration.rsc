@@ -49,12 +49,10 @@ public void translateToplevel((Toplevel) `<Declaration decl>`) {
 
 void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
 	str module_name = asUnqualifiedName(getModuleName());
-    ftype = afunc(avalue(),[avalue()], []);
     enterFunctionScope("<module_name>_init");
    	for(var <- variables){
    	    unescapedVarName = unescapeName("<var.name>");
    		addVariableToModule(muModuleVar(getType(tp), unescapedVarName));
-   		//variables_in_module += [];
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
    		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
@@ -112,6 +110,9 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         }
         //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
         str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
+        if(getterName == "$getkw_Tree_message"){ // TODO: remove when annotations are gone
+                continue;
+        }
        
         getterType = afunc(kwType, [adtType], []);
         adtVar = muVar(getterName, getterName, 0, adtType, variableId());
@@ -140,7 +141,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
             kwfield2cons += <kwFieldName, kwType, consType>;
             //str fuid = getGetterNameForKwpField(consType, kwFieldName);
             str getterName = unescapeAndStandardize("$getkw_<adtName>_<consName>_<kwFieldName>");
-            
+         
             if(getterName notin generated_getters){
                 generated_getters += getterName;
                 
@@ -475,33 +476,6 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
 /*                  Translate tags in a function declaration        */
 /********************************************************************/
 
-// Some library functions need special tratement when called from compiled code.
-// Therefore we provide special treatment for selected Java classes. 
-// A Java class X.java can be extended with a class XCompiled.java
-// and all calls are then first routed to XCompiled.java that can selectively override methods.
-// The compiler checks for the existence of a class XCompiled.java
-
-private str resolveLibOverriding(str lib){
-   getVariableInitializationsInModule();
-   
-	if(lib in getNotOverriddenlibs()) return lib;
-	
-	if(lib in getOverriddenlibs()) return "<lib>Compiled";
-
-    rlib1 = replaceFirst(lib, "org.rascalmpl.library.", "");
-    rlib2 = |std:///| + "<replaceAll(rlib1, ".", "/")>Compiled.class";
-  
-	if(exists(rlib2)){
-	   addOverriddenLib(lib);
-	   //println("resolveLibOverriding <lib> =\> <lib>Compiled");
-	   return "<lib>Compiled";
-	} else {
-	     addNotOverriddenLib(lib);
-		//println("resolveLibOverriding <lib> =\> <lib>");
-		return lib;
-	}
-}
-
 public map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
@@ -510,7 +484,7 @@ public map[str,str] translateTags(Tags tags){
        continue;
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
-        m[name] = name == "javaClass" ? resolveLibOverriding(cont) : cont;
+        m[name] = cont; //name == "javaClass" ? resolveLibOverriding(cont) : cont;
      } else if (tg is empty)
         m[name] = "";
      else
