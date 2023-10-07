@@ -147,6 +147,7 @@ Expression makeKeywordDefaultExpression(Type annoType, Collector c){
 
     // The default expression is arbitrary since a NoSuchAnnotation will be thrown before it can be executed.
     // However, in the generated code we need a type correct default expression.
+    // TODO: remove when annotations are gone
 
     res = (Expression) `0`;
     switch(annoType){
