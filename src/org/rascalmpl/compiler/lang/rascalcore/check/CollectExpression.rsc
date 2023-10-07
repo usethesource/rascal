@@ -729,7 +729,7 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
                                                size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){                
                 nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
                 if(!isEmpty(nont)){
-                    s.report(warning(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
+                    s.report(info(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
                 }
             }       
         }
