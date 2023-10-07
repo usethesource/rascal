@@ -28,6 +28,8 @@ void compileTestSources(PathConfig pcfg) {
      srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
      libs = [ ]
      );
+     
+   testCompilerConfig = getRascalCompilerConfig()[optimizeVisit=false];
    map[str,int] durations = ();
    total = 0;
      
@@ -82,11 +84,50 @@ void compileTestSources(PathConfig pcfg) {
                      "analysis::m3::FlowGraph", 
                      "analysis::m3::Registry",
                      "analysis::m3::TypeSymbol"];  
+                     
+    list[str] checkerTestModules = [
+        "lang::rascalcore::check::tests::AccumulatingTCTests",
+        "lang::rascalcore::check::tests::AliasTests",
+        "lang::rascalcore::check::tests::AllStaticIussues",
+        "lang::rascalcore::check::tests::AllStaticIssuesUsingStdLib", 
+        "lang::rascalcore::check::tests::AnnotationTCTests",
+        "lang::rascalcore::check::tests::AnnotationUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::AssignmentTCTests",
+        "lang::rascalcore::check::tests::ATypeInstantiationTests",
+        "lang::rascalcore::check::tests::ATypeTests",
+        "lang::rascalcore::check::tests::BooleanTCTests",
+        "lang::rascalcore::check::tests::BooleanUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::CallTCTests",
+        "lang::rascalcore::check::tests::CallUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::ComprehensionTCTests",
+        "lang::rascalcore::check::tests::DataDeclarationTCTests",
+        "lang::rascalcore::check::tests::DataTypeTCTests",
+        "lang::rascalcore::check::tests::DeclarationTCTests",
+        "lang::rascalcore::check::tests::ImportTCTests",
+        "lang::rascalcore::check::tests::InferenceTCTests",
+        "lang::rascalcore::check::tests::ParameterizedTCTests",
+        "lang::rascalcore::check::tests::PatternTCTests",
+        "lang::rascalcore::check::tests::PatternUsingStdLibTCTests",
+        "lang::rascalcore::check::tests::ProjectTCTests",
+        "lang::rascalcore::check::tests::RegExpTCTests",
+        "lang::rascalcore::check::tests::ScopeTCTests",
+        "lang::rascalcore::check::tests::StatementTCTests",
+        "lang::rascalcore::check::tests::StaticTestsingUtilsTests",
+        "lang::rascalcore::check::tests::StaticTestingUsingStdLibTests",
+        "lang::rascalcore::check::tests::SubscriptTCTests",
+        "lang::rascalcore::check::tests::VisitTCTests"
+   ];
+   
 
    for (m <- libraryModules) {
-     <e, d> = safeCompile(m, testConfig);
-      total += d;
+     <e, d> = safeCompile(m, testConfig, testCompilerConfig);
+     total += d;
    }
+   
+   //for (m <- checkerTestModules) {
+   //  <e, d> = safeCompile(m, testConfig, testCompilerConfig);
+   //  total += d;
+   //}
      
    testFolder = |std:///lang/rascal/tests|;
    
@@ -95,6 +136,7 @@ void compileTestSources(PathConfig pcfg) {
                  ];  
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3"
+              //"lang::rascal::tests::extend_function1::M3"
               //"lang::rascal::tests::concrete::Syntax4",
               //"lang::rascal::tests::concrete::Syntax5",
               //"lang::rascal::tests::concrete::FieldProjectionBug",
@@ -110,7 +152,7 @@ void compileTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      <e, d> = safeCompile(m, testConfig);
+      <e, d> = safeCompile(m, testConfig, testCompilerConfig);
       total += d;
       if(!isEmpty(e)){
         exceptions += e;
@@ -124,11 +166,11 @@ void compileTestSources(PathConfig pcfg) {
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
-tuple[str, int] safeCompile(str \module, PathConfig pcfg) {
+tuple[str, int] safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig) {
    start_time = cpuTime();
    try {
        println("compiling <\module>");   
-       compile(\module, pcfg);
+       compile(\module, pcfg, compilerConfig);
        return <"",cpuTime()-start_time>;
    }
    catch value exception: {
