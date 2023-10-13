@@ -113,7 +113,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 					
 					if (dynMatchType.isOpen()) {
 						// type parameter hygiene required (consider self-application of a function like `&T id(&T v) = v`)
-						dynMatchType = AbstractFunction.renameType(dynMatchType, new HashMap<>(), Integer.toString(ctx.getCurrentAST().getLocation().getOffset()));
+						dynMatchType = AbstractFunction.renameType(dynMatchType, new HashMap<>(), ctx.getCurrentAST().getLocation());
 					}
 
 					if (!declaredType.match(dynMatchType, dynBindings)) {
@@ -134,7 +134,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			Type dynType = subject.getValue().getType();
 			if (dynType.isOpen()) {
 				// type parameter hygiene required (consider self-application of a function like `&T id(&T v) = v`)
-				dynType = AbstractFunction.renameType(dynType, new HashMap<>(), Integer.toString(ctx.getCurrentAST().getLocation().getOffset()));
+				dynType = AbstractFunction.renameType(dynType, new HashMap<>(), ctx.getCurrentAST().getLocation());
 			}
 
 			if (!dynType.isSubtypeOf(declaredType.instantiate(ctx.getCurrentEnvt().getDynamicTypeBindings()))) {
