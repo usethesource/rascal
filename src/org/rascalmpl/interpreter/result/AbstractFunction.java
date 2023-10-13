@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
-
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -45,6 +43,7 @@ import org.rascalmpl.values.functions.IFunction;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -347,8 +346,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		    if (actualStaticTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
-			    actualStaticTypes = renameType(actualStaticTypes, renamings);
+			    actualStaticTypes = renameType(actualStaticTypes, renamings, env.getLocation());
 			}
+
 			
 			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
 			
@@ -394,13 +394,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    return resultType;
 	}
 	  
-    public static Type renameType(Type actualTypes, Map<Type, Type> renamings) {
+    public static Type renameType(Type actualTypes, Map<Type, Type> renamings, ISourceLocation uniquePrefix) {
         actualTypes.match(TypeFactory.getInstance().voidType(), renamings);
         
         // rename all the bound type parameters
         for (Entry<Type,Type> entry : renamings.entrySet()) {
             Type key = entry.getKey();
-            renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
+            renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + uniquePrefix, key.getBound()));
         }
         actualTypes = actualTypes.instantiate(renamings);
         return actualTypes;
