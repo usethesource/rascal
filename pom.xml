@@ -361,7 +361,7 @@
             <artifactId>junit</artifactId>
             <version>4.13.1</version>
         </dependency>
-        <dependency>
+        <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
             <version>1.0.0-RC2</version>
