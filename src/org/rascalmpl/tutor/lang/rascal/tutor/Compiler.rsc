@@ -98,11 +98,15 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
   }
 
   if (pcfg.citation? && exists(pcfg.citation)) {
-    copy(pcfg.citation, pcfg.bin + "CITATION.md");
+    copy(pcfg.citation, pcfg.bin + "CITATION_<pcfg.packageName>.md");
   }
 
   if (pcfg.funding? && exists(pcfg.funding)) {
-    copy(pcfg.funding, pcfg.bin + "FUNDING.md");
+    copy(pcfg.funding, pcfg.bin + "FUNDING_<pcfg.packageName>.md");
+  }
+
+  if (pcfg.releaseNotes? && exists(pcfg.releaseNotes)) {
+    copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.md");
   }
 
   dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
@@ -161,6 +165,15 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.citation)>");
   }
 
+  if (pcfg.releaseNotes?) {
+    writeFile(targetFile.parent + "RELEASE-NOTES.md", 
+      "---
+      'title: Release notes 
+      '---
+      '
+      '<readFile(pcfg.releaseNotes)>");
+  }
+
   dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
 
   if (dependencies != []) {
@@ -183,7 +196,7 @@ void generatePackageIndex(PathConfig pcfg) {
     );
   }
 
-  writeFile(targetFile,
+  writeFile(targetFile.parent + "RELEASE-NOTES.md",
     "---
     'title: <pcfg.packageName>
     '---
@@ -193,10 +206,11 @@ void generatePackageIndex(PathConfig pcfg) {
     '<if (src <- pcfg.srcs, src.file in {"src", "rascal", "api"}) {>* [API documentation](../../Packages/<package(pcfg.packageName)>/API)<}>
     '<for (src <- pcfg.srcs, src.file notin {"src", "rascal", "api"}) {>* [<capitalize(src.file)>](../../Packages/<package(pcfg.packageName)>/<capitalize(src.file)>)
     '<}>* [Stackoverflow questions](https://stackoverflow.com/questions/tagged/rascal+<pcfg.packageName>)
+    '<if (pcfg.releaseNotes?)  {>* [Release notes](../../Packages/<package(pcfg.packageName)>/RELEASE-NOTES.md)<}>
     '<if (pcfg.license?) {>* [Open-source license](../../Packages/<package(pcfg.packageName)>/License.md)<}>
     '<if (pcfg.citation?) {>* How to [cite this software](../../Packages/<package(pcfg.packageName)>/Citation.md)<}>
-    '<if (pcfg.funding?) {>* Follow the [money](../../Packages/<package(pcfg.packageName)>/Funding.md) sources.<}>
-    '<if (dependencies != []) {>* Check the [dependencies](../../Packages/<package(pcfg.packageName)>/Dependencies.md)<}>
+    '<if (pcfg.funding?) {>* [Funding sources](../../Packages/<package(pcfg.packageName)>/Funding.md) sources.<}>
+    '<if (dependencies != []) {>* [Dependencies](../../Packages/<package(pcfg.packageName)>/Dependencies.md)<}>
     '<if (pcfg.sources?) {>* [Source code](<"<pcfg.sources>"[1..-1]>)<}>
     '<if (pcfg.issues?) {>* [Issue tracker](<"<pcfg.issues>"[1..-1]>)<}>
     '

@@ -15,6 +15,7 @@ data PathConfig(
   loc  license=|cwd:///LICENSE.md|,
   loc  citation=|cwd:///CITATION.md|,
   loc  funding=|cwd:///FUNDING.md|,
+  loc  releaseNotes=|cwd:///RELEASE-NOTES.md|,
   str  packageVersion=getRascalVersion(),
   bool isPackageCourse=false
 );
