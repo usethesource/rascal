@@ -196,7 +196,7 @@ void generatePackageIndex(PathConfig pcfg) {
     );
   }
 
-  writeFile(targetFile.parent + "RELEASE-NOTES.md",
+  writeFile(targetFile.parent + "index.md",
     "---
     'title: <pcfg.packageName>
     '---
