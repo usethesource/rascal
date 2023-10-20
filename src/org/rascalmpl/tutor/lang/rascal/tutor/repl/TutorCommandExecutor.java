@@ -210,11 +210,12 @@ public class TutorCommandExecutor {
                     
                     // wait for page to render completely
                     WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
-                    wait.until(webDriver -> "complete".equals(((JavascriptExecutor) webDriver)
-                        .executeScript("return document.readyState")));
+                    wait.until(webDriver -> "complete".equals(
+                            ((JavascriptExecutor) webDriver).executeScript("return document.readyState")
+                    ));
 
-                    // take the screenshot
-                    WebElement body = driver.findElement(By.tagName("body"));
+                    // take the screenshot, but wait for the body to appear first.
+                    WebElement body = wait.until(webDriver -> driver.findElement(By.tagName("body")));
                     String screenshot = body.getScreenshotAs(OutputType.BASE64);
 
                     // store the screenshot as an output
