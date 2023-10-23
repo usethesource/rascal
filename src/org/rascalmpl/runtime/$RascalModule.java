@@ -378,44 +378,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		return w.done();
 	}
 	
-//	public final boolean $isComparable(Type t1, Type t2) {
-//		// TODO: needs improvement
-//		if(t1.comparable(t2)) {
-//			return true;
-//		} else if(t1 instanceof NonTerminalType && t2 instanceof NonTerminalType) {
-//			return ((NonTerminalType)t1).comparable(t2);
-//		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
-//			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
-//			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
-//			return t1name.equals(t2.getName());
-//		} else if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
-//			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
-//			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
-//			return t1.getName().equals(t2name);
-//		} else {
-//			return false;
-//		}
-//	}
-//	
-//	public final boolean $isSubtypeOf(Type t1, Type t2) {
-//		// TODO: needs improvement
-//		if( t1.isSubtypeOf(t2)) {
-//			return true;
-//		} else if(t1 instanceof NonTerminalType && t2 instanceof NonTerminalType) {
-//			return ((NonTerminalType)t1).isSubtypeOf(t2);
-//		} else if(t1 instanceof NonTerminalType && t2.isAbstractData()) {
-//			IValue arg0 = ((NonTerminalType)t1).getSymbol().get(0);
-//			String t1name = arg0 instanceof IString ? ((IString) arg0).getValue() : t1.getName();
-//			return t1name.equals(t2.getName());
-//		} else if(t1.isAbstractData() && t2 instanceof NonTerminalType) {
-//			IValue arg0 = ((NonTerminalType)t2).getSymbol().get(0);
-//			String t2name = arg0 instanceof IString ? ((IString) arg0).getValue() : t2.getName();
-//			return t1.getName().equals(t2name);
-//		} else {
-//			return false;
-//		}
-//	}
-	
 	public final boolean $intersectsType(Type t1, Type t2) {
 		return t1.intersects(t2);
 	}
@@ -439,245 +401,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	public final boolean $isSubtypeOf(Type left, Type right) {
 		return left.isSubtypeOf(right);
 	}
-	
-//	public final boolean $isSubtypeOf(Type leftTopType, Type right) {		
-//		boolean res = leftTopType.accept(new DefaultRascalTypeVisitor<IBool,RuntimeException>(Rascal_FALSE) {
-//			
-//			@Override
-//			public IBool visitInteger(Type left) throws RuntimeException {
-//				if(right.isInteger() || (right.isNumber() && !(right.isReal() || right.isRational()))) {
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			@Override
-//			public IBool visitReal(Type left) throws RuntimeException {
-//				if(right.isReal()|| (right.isNumber() && !(right.isInteger() || right.isRational()))) {
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			@Override
-//			public IBool visitRational(Type left) throws RuntimeException {
-//				if(right.isRational() || (right.isNumber() && !(right.isInteger() || right.isReal()))) {
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			@Override
-//			public IBool visitNumber(Type left) throws RuntimeException {
-//				if(right.isNumber()) {
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			@Override
-//			public IBool visitList(Type left) throws RuntimeException {
-//				if(right.isList()) {
-//					return $isSubtypeOf(left.getElementType(), right.getElementType()) || right.isTop() ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitMap(Type left) throws RuntimeException {
-//				if(right.isMap()) {
-//					return $isSubtypeOf(left.getKeyType(), right.getKeyType()) && $isSubtypeOf(left.getValueType(), right.getValueType()) ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitSet(Type left) throws RuntimeException {
-//				if(right.isSet()) {
-//					return $isSubtypeOf(left.getElementType(), right.getElementType()) ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitSourceLocation(Type left) throws RuntimeException {
-//				if(right.isSourceLocation()) {
-//					return Rascal_TRUE;		
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitString(Type left) throws RuntimeException {
-//				if(left.isBottom()) {
-//					return Rascal_TRUE;
-//				}
-//				if(right.isString()) {
-//					return Rascal_TRUE;	
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			@Override
-//			public IBool visitVoid(Type left) throws RuntimeException {
-//				return Rascal_TRUE;
-//			}
-//			
-//			@Override
-//			public IBool visitValue(Type left) throws RuntimeException {
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitNode(Type left) throws RuntimeException {
-//				if(right.isNode() && !right.isAbstractData()){
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitConstructor(Type left) throws RuntimeException {
-//				if(right.isNode()) {
-//					return Rascal_TRUE;
-//				}
-//				if(right.isConstructor()) {
-//					if(left.getAbstractDataType() == right.getAbstractDataType() && left.getName() == right.getName()) {
-//						int left_arity = left.getArity();
-//						if(left_arity == right.getArity()) {
-//							for(int i = 0; i < left_arity; i++) {
-//								if(!$isSubtypeOf(left.getFieldType(i), right.getFieldType(i))) {
-//									return Rascal_FALSE;
-//								}
-//							}
-//							return Rascal_TRUE;
-//						}
-//					}
-//				}
-//				if(right.isAbstractData()) {
-//					return left.getAbstractDataType() == right ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitAbstractData(Type left) throws RuntimeException {
-//				if(right instanceof NonTerminalType) {
-//					IConstructor symbol = ((NonTerminalType)right).getSymbol();
-//					if(SymbolAdapter.isStartSort(symbol)) {
-//						symbol = (IConstructor)symbol.get(0);
-//					}
-//					String type_name =  ( SymbolAdapter.isSort(symbol) 
-//							            || SymbolAdapter.isLex(symbol) 
-//							            || SymbolAdapter.isLayouts(symbol) 
-//							            || SymbolAdapter.isKeyword(symbol)
-//							            ) ?  left.getName() : "";
-//					return !type_name.isEmpty() && type_name.equals(((IString)symbol.get(0)).getValue()) ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				if(right.isAbstractData()) {
-//					return left.getName().equals(right.getName()) && $isSubtypeOf(left.getTypeParameters(), right.getTypeParameters()) ? Rascal_TRUE : Rascal_FALSE;
-//				}
-//				if(right.isNode()){
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			@Override
-//			public IBool visitTuple(Type left) throws RuntimeException {
-//				if(right.isTuple()) {
-//					int left_arity = left.getArity();
-//					if(left_arity == right.getArity()) {
-//						for(int i = 0; i < left_arity; i++) {
-//							if(!$isSubtypeOf(left.getFieldType(i), right.getFieldType(i))) {
-//								return Rascal_FALSE;
-//							}
-//						}
-//						return Rascal_TRUE;
-//					}
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//
-//			@Override
-//			public IBool visitBool(Type left) throws RuntimeException {
-//				if(right.isBool()) {
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//		
-//			@Override
-//			public IBool visitDateTime(Type left) throws RuntimeException {
-//				if(right.isDateTime()) {
-//					return Rascal_TRUE;
-//				}
-//				return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			}
-//			
-//			 @Override
-//			  public IBool visitParameter(Type left) throws RuntimeException {
-//				 if(right.isParameter()) {
-//					 return $isSubtypeOf(left.getBound(), right.getBound()) ? Rascal_TRUE : Rascal_FALSE;
-//				 }
-//				 return $isSubtypeOf(left.getBound(), right) ? Rascal_TRUE : Rascal_FALSE;
-//			  }
-//			
-//			@Override
-//			  public IBool visitExternal(Type left) throws RuntimeException {
-//			    assert left instanceof RascalType;
-//			    return ((RascalType) left).accept(this);
-//			  }
-//			  
-//			  @Override
-//			  public IBool visitReified(RascalType left) throws RuntimeException {
-//			    if(right instanceof ReifiedType) {
-//			    	//TODO
-//			    	return Rascal_TRUE;
-//			    }
-//			    return right.isTop() ? Rascal_TRUE : Rascal_FALSE;
-//			  }
-//
-//			  @Override
-//			  public IBool visitNonTerminal(RascalType left) throws RuntimeException {
-//				  
-//			      //TODO: parameters
-//				  if(right instanceof NonTerminalType) {
-//					  return ((NonTerminalType)left).isSubtypeOfNonTerminal((NonTerminalType) right)? Rascal_TRUE : Rascal_FALSE;
-//					  //return ((NonTerminalType)type).getSymbol().equals(((NonTerminalType) right).getSymbol()) ? Rascal_TRUE : Rascal_FALSE;
-//				  }
-//				  if(right.isAbstractData()) {
-//					  if(right.getName().equals("Tree")) {
-//						  return Rascal_TRUE;
-//					  }
-//					  IConstructor symbol = ((NonTerminalType)left).getSymbol();
-//					  boolean named_sym = SymbolAdapter.isSort(symbol) || SymbolAdapter.isLex(symbol) || SymbolAdapter.isLayouts(symbol) || SymbolAdapter.isKeyword(symbol);
-//					  return named_sym && (((IString)symbol.get(0)).getValue().equals(right.getName())) ? Rascal_TRUE : Rascal_FALSE;
-//				  }
-//				  if(right.isNode()) {
-//					  return Rascal_TRUE;
-//				  }
-//				  return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			  }
-//			  
-//			  @Override
-//			  public IBool visitFunction(Type left) throws RuntimeException {
-//				  if(right.isFunction()) {
-//					  Type left_return = left.getReturnType();
-//					  Type right_return = right.getReturnType();
-//					  Type left_arg_types = left.getFieldTypes();
-//					  Type right_arg_types = right.getFieldTypes();
-//					  boolean b1 = $isSubtypeOf(left_return, right_return); //return  $isSubtypeOf(left_return, right_return) && $isSubtypeOf(right_arg_types, left_arg_types) ? Rascal_TRUE : Rascal_FALSE;
-//					  boolean b2 = $isSubtypeOf(right_arg_types, left_arg_types);  // TODO: args should be switched!
-//					  return b1 && b2 ? Rascal_TRUE : Rascal_FALSE;
-//				  }
-//				  return checkRightValueOrParam(left, right) ? Rascal_TRUE : Rascal_FALSE;
-//			  }
-//			  
-//			}).getValue();
-////		System.out.println("$isSubtypeOf: " + left + ", " + right + " => " + res);
-//		return res;
-//	}
 	
 	public boolean $isTreeProductionEqual(IValue tree, IConstructor production) {
 	    return (tree instanceof ITree) && ((org.rascalmpl.values.parsetrees.ITree) tree).isAppl() && (production).equals(((org.rascalmpl.values.parsetrees.ITree) tree).getProduction());
@@ -758,143 +481,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	/*		Rascal primitives called by generated code						 */
 	/*************************************************************************/
 
-	// ---- add ---------------------------------------------------------------
-
-	public final IValue $add(final IValue lhs, final IValue rhs) {
-	    // TODO: all this switching is unnecessary since INumber.add(INumber)
-	    // implements the same functionality, and faster by double dispatch.
-		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
-		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
-		switch (lhsType) {
-		case INT:
-			switch (rhsType) {
-			case INT:
-				return ((IInteger) lhs).add((IInteger) rhs);
-			case NUM:
-				return ((IInteger) lhs).add((INumber) rhs);
-			case REAL:
-				return ((IInteger) lhs).add((IReal) rhs);
-			case RAT:
-				return ((IInteger) lhs).add((IRational) rhs);
-			case LIST:
-				return ((IList) rhs).insert(lhs);
-			case SET:
-				return ((ISet) rhs).insert(lhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case NUM:
-			switch (rhsType) {
-			case INT:
-				return ((INumber) lhs).add((IInteger) rhs);
-			case NUM:
-				return ((INumber) lhs).add((INumber) rhs);
-			case REAL:
-				return ((INumber) lhs).add((IReal) rhs);
-			case RAT:
-				return ((INumber) lhs).add((IRational) rhs);
-			case LIST:
-				return ((IList) rhs).insert(lhs);
-			case SET:
-				return ((ISet) rhs).insert(lhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case REAL:
-			switch (rhsType) {
-			case INT:
-				return ((IReal) lhs).add((IInteger) rhs);
-			case NUM:
-				return ((IReal) lhs).add((INumber) rhs);
-			case REAL:
-				return ((IReal) lhs).add((IReal) rhs);
-			case RAT:
-				return ((IReal) lhs).add((IRational) rhs);
-			case LIST:
-				return ((IList) rhs).insert(lhs);
-			case SET:
-				return ((ISet) rhs).insert(lhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case RAT:
-			switch (rhsType) {
-			case INT:
-				return  ((IRational) lhs).add((IInteger) rhs);
-			case NUM:
-				return ((IRational) lhs).add((INumber) rhs);
-			case REAL:
-				return ((IRational) lhs).add((IReal) rhs);
-			case RAT:
-				return ((IRational) lhs).add((IRational) rhs);
-			case LIST:
-				return ((IList) rhs).insert(lhs);
-			case SET:
-				return ((ISet) rhs).insert(lhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case SET:
-			return ((ISet) lhs).insert(rhs);
-
-		case LIST:
-			return ((IList) lhs).append(rhs);
-
-		case LOC:
-			switch (rhsType) {
-			case STR:
-				return $aloc_add_astr((ISourceLocation) lhs, (IString) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case LREL:
-			switch (rhsType) {
-			case LIST:
-			case LREL:
-				return ((IList) lhs).concat((IList)rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case MAP:
-			switch (rhsType) {
-			case MAP:
-				return ((IMap) lhs).compose((IMap) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case REL:
-			switch (rhsType) {
-			case SET:
-			case REL:
-				return ((ISet) lhs).union((ISet) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case STR:
-			switch (rhsType) {
-			case STR:
-				return ((IString) lhs).concat((IString) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case TUPLE:
-			switch (rhsType) {
-			case TUPLE:
-				return $atuple_add_atuple((ITuple) lhs, (ITuple) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		default:
-			switch (rhsType) {
-			case LIST:
-				return ((IList) rhs).insert(lhs);
-			case SET:
-				return ((ISet) rhs).insert(lhs);
-			default:
-				throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		}
-	}
+	
 	
 	public final IInteger $aint_add_aint(final IInteger lhs, final IInteger rhs) {
 		return lhs.add(rhs);
@@ -1095,68 +682,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		return $VF.sourceLocation(loc, offset.intValue(), length.intValue(), beginLine, endLine, beginCol, endCol);
 	}
 
-	// ---- divide ------------------------------------------------------------
-
-	public final IValue $divide(final IValue lhs, final IValue rhs) {
-		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
-		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
-		switch (lhsType) {
-		case INT:
-			switch (rhsType) {
-			case INT:
-				return $aint_divide_aint((IInteger) lhs, (IInteger) rhs);
-			case NUM:
-				return $aint_divide_anum((IInteger) lhs, (INumber) rhs);
-			case REAL:
-				return $aint_divide_areal((IInteger) lhs, (IReal) rhs);
-			case RAT:
-				return $aint_divide_arat((IInteger) lhs, (IRational) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case NUM:
-			switch (rhsType) {
-			case INT:
-				return $anum_divide_aint((INumber) lhs, (IInteger) rhs);
-			case NUM:
-				return $anum_divide_anum((INumber) lhs, (INumber) rhs);
-			case REAL:
-				return $anum_divide_areal((INumber) lhs, (IReal) rhs);
-			case RAT:
-				return $anum_divide_arat((INumber) lhs,  (IRational) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case REAL:
-			switch (rhsType) {
-			case INT:
-				return $areal_divide_aint((IReal) lhs, (IInteger) rhs);
-			case NUM:
-				return $areal_divide_anum((IReal) lhs, (INumber) rhs);
-			case REAL:
-				return $areal_divide_areal((IReal) lhs, (IReal) rhs);
-			case RAT:
-				return $areal_divide_arat((IReal) lhs, (IRational) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case RAT:
-			switch (rhsType) {
-			case INT:
-				return $arat_divide_aint((IRational) lhs, (IInteger) rhs);
-			case NUM:
-				return $arat_divide_anum((IRational) lhs, (INumber) rhs);
-			case REAL:
-				return $arat_divide_areal((IRational) lhs, (IReal) rhs);
-			case RAT:
-				return $arat_divide_arat((IRational) lhs, (IRational) rhs);
-			default:
-				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		default:
-			throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
-		}
-	}
+	
 
 	public final IInteger $aint_divide_aint(final IInteger a, final IInteger b) {
 		try {
@@ -2363,37 +1889,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		}
 		throw new InternalCompilerError("nonterminal does not have argument #" + idx);
 	}
-
-	// ---- intersect ---------------------------------------------------------
-
-	public final IValue $intersect(final IValue left, final IValue right) {
-		Type leftType = left.getType();
-		Type rightType = right.getType();
-
-		switch (ToplevelType.getToplevelType(leftType)) {
-		case LIST:
-			switch (ToplevelType.getToplevelType(rightType)) {
-			case LIST:
-			case LREL:
-				return ((IList) left).intersect((IList) right);
-			default:
-				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
-			}
-		case SET:
-			switch (ToplevelType.getToplevelType(rightType)) {
-			case SET:
-			case REL:
-				return ((ISet) left).intersect((ISet) right);
-			default:
-				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
-			}
-		case MAP:
-			return ((IMap) left).common((IMap) right);
-
-		default:
-			throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
-		}
-	}
 	
 	// ---- is -----------------------------------------------------------------
 	
@@ -3256,68 +2751,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		return parser.call(inputText, inputLocation);
 	}
 
-	// ---- product -----------------------------------------------------------
-
-	public final IValue $product(final IValue lhs, final IValue rhs) {
-		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
-		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
-		switch (lhsType) {
-		case INT:
-			switch (rhsType) {
-			case INT:
-				return ((IInteger) lhs).multiply((IInteger) rhs);
-			case NUM:
-				return ((IInteger) lhs).multiply((INumber) rhs);
-			case REAL:
-				return ((IInteger) lhs).multiply((IReal) rhs);
-			case RAT:
-				return ((IInteger) lhs).multiply((IRational) rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case NUM:
-			switch (rhsType) {
-			case INT:
-				return ((INumber) lhs).multiply((IInteger) rhs);
-			case NUM:
-				return ((INumber) lhs).multiply((INumber) rhs);
-			case REAL:
-				return ((INumber) lhs).multiply((IReal) rhs);
-			case RAT:
-				return ((INumber) lhs).multiply((IRational) rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case REAL:
-			switch (rhsType) {
-			case INT:
-				return ((IReal) lhs).multiply((IInteger) rhs);
-			case NUM:
-				return ((IReal) lhs).multiply((INumber) rhs);
-			case REAL:
-				return ((IReal) lhs).multiply((IReal) rhs);
-			case RAT:
-				return ((IReal) lhs).multiply((IRational) rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case RAT:
-			switch (rhsType) {
-			case INT:
-				return ((IRational) lhs).multiply((IInteger) rhs);
-			case NUM:
-				return ((IRational) lhs).multiply((INumber) rhs);
-			case REAL:
-				return ((IRational) lhs).multiply((IReal) rhs);
-			case RAT:
-				return ((IRational) lhs).multiply((IRational) rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		default:
-			throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-		}
-	}
+	
 
 	public final IInteger $aint_product_aint(final IInteger a, final IInteger b) {
 		return a.multiply(b);
@@ -4305,68 +3739,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		throw RuntimeExceptionFactory.illegalArgument(tree);
 	}
 
-	// ---- subtract ----------------------------------------------------------
-
-	public final IValue $subtract(final IValue lhs, final IValue rhs) {
-		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
-		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
-		switch (lhsType) {
-		case INT:
-			switch (rhsType) {
-			case INT:
-				return ((IInteger) lhs).subtract((IInteger)rhs);
-			case NUM:
-				return ((IInteger) lhs).subtract((INumber)rhs);
-			case REAL:
-				return ((IInteger) lhs).subtract((IReal)rhs);
-			case RAT:
-				return ((IInteger) lhs).subtract((IRational)rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case NUM:
-			switch (rhsType) {
-			case INT:
-				return ((INumber) lhs).subtract((IInteger)rhs);
-			case NUM:
-				return ((INumber) lhs).subtract((INumber)rhs);
-			case REAL:
-				return ((INumber) lhs).subtract((IReal)rhs);
-			case RAT:
-				return ((INumber) lhs).subtract((IRational)rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case REAL:
-			switch (rhsType) {
-			case INT:
-				return ((IReal) lhs).subtract((IInteger)rhs);
-			case NUM:
-				return ((IReal) lhs).subtract((INumber)rhs);
-			case REAL:
-				return ((IReal) lhs).subtract((IReal)rhs);
-			case RAT:
-				return ((IReal) lhs).subtract((IRational)rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		case RAT:
-			switch (rhsType) {
-			case INT:
-				return ((IRational) lhs).subtract((IInteger)rhs);
-			case NUM:
-				return ((IRational) lhs).subtract((INumber)rhs);
-			case REAL:
-				return ((IRational) lhs).subtract((IReal)rhs);
-			case RAT:
-				return ((IRational) lhs).subtract((IRational)rhs);
-			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-			}
-		default:
-			throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
-		}
-	}
+	
 	
 	// ---- typeOf ----------------------------------------------------------
 	
@@ -4431,9 +3804,370 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		for(int i = 0; i < args.length; i++) { res.append("arg #").append(i).append(": ").append(args[i]).append("\n");}
 		return res.toString();
 	}
+	
+	// Private methods for Slice Operator
+	
+	// ---- add ---------------------------------------------------------------
+	// The following package private functions $add, $product, $multiply, $divide, $intersect are never
+	// called from generated code, but are used by the SliceOperator that needs these generic versions.
+
+	final IValue $add(final IValue lhs, final IValue rhs) {
+			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+			switch (lhsType) {
+			case INT:
+				switch (rhsType) {
+				case INT:
+					return ((IInteger) lhs).add((IInteger) rhs);
+				case NUM:
+					return ((IInteger) lhs).add((INumber) rhs);
+				case REAL:
+					return ((IInteger) lhs).add((IReal) rhs);
+				case RAT:
+					return ((IInteger) lhs).add((IRational) rhs);
+				case LIST:
+					return ((IList) rhs).insert(lhs);
+				case SET:
+					return ((ISet) rhs).insert(lhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case NUM:
+				switch (rhsType) {
+				case INT:
+					return ((INumber) lhs).add((IInteger) rhs);
+				case NUM:
+					return ((INumber) lhs).add((INumber) rhs);
+				case REAL:
+					return ((INumber) lhs).add((IReal) rhs);
+				case RAT:
+					return ((INumber) lhs).add((IRational) rhs);
+				case LIST:
+					return ((IList) rhs).insert(lhs);
+				case SET:
+					return ((ISet) rhs).insert(lhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case REAL:
+				switch (rhsType) {
+				case INT:
+					return ((IReal) lhs).add((IInteger) rhs);
+				case NUM:
+					return ((IReal) lhs).add((INumber) rhs);
+				case REAL:
+					return ((IReal) lhs).add((IReal) rhs);
+				case RAT:
+					return ((IReal) lhs).add((IRational) rhs);
+				case LIST:
+					return ((IList) rhs).insert(lhs);
+				case SET:
+					return ((ISet) rhs).insert(lhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case RAT:
+				switch (rhsType) {
+				case INT:
+					return  ((IRational) lhs).add((IInteger) rhs);
+				case NUM:
+					return ((IRational) lhs).add((INumber) rhs);
+				case REAL:
+					return ((IRational) lhs).add((IReal) rhs);
+				case RAT:
+					return ((IRational) lhs).add((IRational) rhs);
+				case LIST:
+					return ((IList) rhs).insert(lhs);
+				case SET:
+					return ((ISet) rhs).insert(lhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case SET:
+				return ((ISet) lhs).insert(rhs);
+
+			case LIST:
+				return ((IList) lhs).append(rhs);
+
+			case LOC:
+				switch (rhsType) {
+				case STR:
+					return $aloc_add_astr((ISourceLocation) lhs, (IString) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case LREL:
+				switch (rhsType) {
+				case LIST:
+				case LREL:
+					return ((IList) lhs).concat((IList)rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case MAP:
+				switch (rhsType) {
+				case MAP:
+					return ((IMap) lhs).compose((IMap) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case REL:
+				switch (rhsType) {
+				case SET:
+				case REL:
+					return ((ISet) lhs).union((ISet) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case STR:
+				switch (rhsType) {
+				case STR:
+					return ((IString) lhs).concat((IString) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case TUPLE:
+				switch (rhsType) {
+				case TUPLE:
+					return $atuple_add_atuple((ITuple) lhs, (ITuple) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			default:
+				switch (rhsType) {
+				case LIST:
+					return ((IList) rhs).insert(lhs);
+				case SET:
+					return ((ISet) rhs).insert(lhs);
+				default:
+					throw new InternalCompilerError("$RascalModule add: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			}
+		}
+	
+	// ---- subtract ----------------------------------------------------------
+
+	 final IValue $subtract(final IValue lhs, final IValue rhs) {
+			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+			switch (lhsType) {
+			case INT:
+				switch (rhsType) {
+				case INT:
+					return ((IInteger) lhs).subtract((IInteger)rhs);
+				case NUM:
+					return ((IInteger) lhs).subtract((INumber)rhs);
+				case REAL:
+					return ((IInteger) lhs).subtract((IReal)rhs);
+				case RAT:
+					return ((IInteger) lhs).subtract((IRational)rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case NUM:
+				switch (rhsType) {
+				case INT:
+					return ((INumber) lhs).subtract((IInteger)rhs);
+				case NUM:
+					return ((INumber) lhs).subtract((INumber)rhs);
+				case REAL:
+					return ((INumber) lhs).subtract((IReal)rhs);
+				case RAT:
+					return ((INumber) lhs).subtract((IRational)rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case REAL:
+				switch (rhsType) {
+				case INT:
+					return ((IReal) lhs).subtract((IInteger)rhs);
+				case NUM:
+					return ((IReal) lhs).subtract((INumber)rhs);
+				case REAL:
+					return ((IReal) lhs).subtract((IReal)rhs);
+				case RAT:
+					return ((IReal) lhs).subtract((IRational)rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case RAT:
+				switch (rhsType) {
+				case INT:
+					return ((IRational) lhs).subtract((IInteger)rhs);
+				case NUM:
+					return ((IRational) lhs).subtract((INumber)rhs);
+				case REAL:
+					return ((IRational) lhs).subtract((IReal)rhs);
+				case RAT:
+					return ((IRational) lhs).subtract((IRational)rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			default:
+				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+			}
+		}
+	 
+	// ---- product -----------------------------------------------------------
+
+		public final IValue $product(final IValue lhs, final IValue rhs) {
+			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+			switch (lhsType) {
+			case INT:
+				switch (rhsType) {
+				case INT:
+					return ((IInteger) lhs).multiply((IInteger) rhs);
+				case NUM:
+					return ((IInteger) lhs).multiply((INumber) rhs);
+				case REAL:
+					return ((IInteger) lhs).multiply((IReal) rhs);
+				case RAT:
+					return ((IInteger) lhs).multiply((IRational) rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case NUM:
+				switch (rhsType) {
+				case INT:
+					return ((INumber) lhs).multiply((IInteger) rhs);
+				case NUM:
+					return ((INumber) lhs).multiply((INumber) rhs);
+				case REAL:
+					return ((INumber) lhs).multiply((IReal) rhs);
+				case RAT:
+					return ((INumber) lhs).multiply((IRational) rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case REAL:
+				switch (rhsType) {
+				case INT:
+					return ((IReal) lhs).multiply((IInteger) rhs);
+				case NUM:
+					return ((IReal) lhs).multiply((INumber) rhs);
+				case REAL:
+					return ((IReal) lhs).multiply((IReal) rhs);
+				case RAT:
+					return ((IReal) lhs).multiply((IRational) rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case RAT:
+				switch (rhsType) {
+				case INT:
+					return ((IRational) lhs).multiply((IInteger) rhs);
+				case NUM:
+					return ((IRational) lhs).multiply((INumber) rhs);
+				case REAL:
+					return ((IRational) lhs).multiply((IReal) rhs);
+				case RAT:
+					return ((IRational) lhs).multiply((IRational) rhs);
+				default:
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			default:
+				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType);
+			}
+		}
+		
+		// ---- divide ------------------------------------------------------------
+
+		final IValue $divide(final IValue lhs, final IValue rhs) {
+			ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
+			ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
+			switch (lhsType) {
+			case INT:
+				switch (rhsType) {
+				case INT:
+					return $aint_divide_aint((IInteger) lhs, (IInteger) rhs);
+				case NUM:
+					return $aint_divide_anum((IInteger) lhs, (INumber) rhs);
+				case REAL:
+					return $aint_divide_areal((IInteger) lhs, (IReal) rhs);
+				case RAT:
+					return $aint_divide_arat((IInteger) lhs, (IRational) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case NUM:
+				switch (rhsType) {
+				case INT:
+					return $anum_divide_aint((INumber) lhs, (IInteger) rhs);
+				case NUM:
+					return $anum_divide_anum((INumber) lhs, (INumber) rhs);
+				case REAL:
+					return $anum_divide_areal((INumber) lhs, (IReal) rhs);
+				case RAT:
+					return $anum_divide_arat((INumber) lhs,  (IRational) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case REAL:
+				switch (rhsType) {
+				case INT:
+					return $areal_divide_aint((IReal) lhs, (IInteger) rhs);
+				case NUM:
+					return $areal_divide_anum((IReal) lhs, (INumber) rhs);
+				case REAL:
+					return $areal_divide_areal((IReal) lhs, (IReal) rhs);
+				case RAT:
+					return $areal_divide_arat((IReal) lhs, (IRational) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			case RAT:
+				switch (rhsType) {
+				case INT:
+					return $arat_divide_aint((IRational) lhs, (IInteger) rhs);
+				case NUM:
+					return $arat_divide_anum((IRational) lhs, (INumber) rhs);
+				case REAL:
+					return $arat_divide_areal((IRational) lhs, (IReal) rhs);
+				case RAT:
+					return $arat_divide_arat((IRational) lhs, (IRational) rhs);
+				default:
+					throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
+				}
+			default:
+				throw new InternalCompilerError("$RascalModule divide: Illegal type combination: " + lhsType + " and " + rhsType);
+			}
+		}
+		
+		// ---- intersect ---------------------------------------------------------
+
+		final IValue $intersect(final IValue left, final IValue right) {
+			Type leftType = left.getType();
+			Type rightType = right.getType();
+
+			switch (ToplevelType.getToplevelType(leftType)) {
+			case LIST:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case LIST:
+				case LREL:
+					return ((IList) left).intersect((IList) right);
+				default:
+					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
+				}
+			case SET:
+				switch (ToplevelType.getToplevelType(rightType)) {
+				case SET:
+				case REL:
+					return ((ISet) left).intersect((ISet) right);
+				default:
+					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
+				}
+			case MAP:
+				return ((IMap) left).common((IMap) right);
+
+			default:
+				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
+			}
+		}
 }
 
 enum SliceOperator {
+	
 	replace(0) {
 		@Override
 		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
