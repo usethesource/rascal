@@ -239,7 +239,7 @@ public data MuExp =
           | muMatchAndBind(MuExp exp, AType tp)                 // match and bind type parameters
           | muValueIsComparableWithInstantiatedType(MuExp exp, AType tp)
           | muValueIsSubtypeOfInstantiatedType(MuExp exp, AType tp)
-          
+          | muValueIsNonVoidSubtypeOf(MuExp exp, AType tp)
           | muHasTypeAndArity(AType atype, int arity, MuExp exp)
           | muHasNameAndArity(AType atype, AType consType, MuExp nameExp, int arity, MuExp exp)
           | muValueIsSubtypeOf(MuExp exp, AType tp)
@@ -392,7 +392,7 @@ bool producesNativeBool(muIfExp(MuExp cond, MuExp thenExp, MuExp elseExp))
 default bool producesNativeBool(MuExp exp)
     = getName(exp) in {"muEqual", "muMatch", "muMatchAndBind", "muEqualNativeInt", "muIsVarKwpDefined", "muIsKwpConstructorDefined", "muHasKwp", "muHasKwpWithValue", "muHasTypeAndArity",
                   "muHasNameAndArity", "muValueIsSubtypeOf", "muValueIsComparable", "muValueIsComparableWithInstantiatedType", 
-                  "muValueIsSubtypeOfInstantiatedType", "muValueIsSubtypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
+                  "muValueIsSubtypeOfInstantiatedType", "muValueIsNonVoidSubtypeOf", "muValueIsSubtypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muIsInitialized", "muHasField", "muTreeIsProductionEqual"};
 
 // Produces NativeInt
