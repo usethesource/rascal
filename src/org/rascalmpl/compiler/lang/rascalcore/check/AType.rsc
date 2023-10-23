@@ -57,6 +57,8 @@ bool asubtype(AType a, AType b){
             return asubtype(a, t);
         case aparameter(str _, AType bound2):
             return aparameter(str _, AType bound1) := a ? asubtype(bound1, bound2) : asubtype(a, bound2);
+        case areified(AType t):
+            return asubtype(a, t);
     }
     if(a.alabel? || b.alabel?) 
         return asubtype(unset(a, "alabel") , unset(b, "alabel")); 
@@ -66,15 +68,9 @@ bool asubtype(AType a, AType b){
 
 bool asubtype(overloadedAType(overloads), AType r) = !isEmpty(overloads) && any(<_, _, tp> <- overloads, asubtype(tp, r));
 
-//bool asubtype(AType l, overloadedAType(overloads)) = !isEmpty(overloads) && any(<_, _, tp> <- overloads, asubtype(l, tp));
-
-//bool asubtype(AType _, avalue()) = true;
-
 bool asubtype(avoid(), AType _) = true;
-
-//bool asubtype(anode(_), anode(_)) = true;
  
-bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), AType b){
+bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
         case acons(a,list[AType] bp, list[Keyword] _):
              return comparableList(ap, bp);
@@ -86,36 +82,23 @@ bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), AType b){
              return true;
         case afunc(AType b, list[AType] bp, list[Keyword] _):
              return asubtype(a, b) && comparableList(ap, bp);
+        case \start(t):
+            return asubtype(ac, t);
     }
     fail;
 }
-
-//bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), acons(a,list[AType] bp, list[Keyword] _)) = asubtype(ap,bp);
-//bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), adt: aadt(str _, list[AType] _, _)) = asubtype(a,adt);
-//bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), afunc(a,list[AType] bp, list[Keyword] _)) = asubtype(ap,bp);
-//bool asubtype(acons(AType a, list[AType] ap, list[Keyword] _), anode(_)) = true;
-//bool asubtype(acons(a,list[AType] ap, list[Keyword] _), afunc(AType b, list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparable(ap, bp);
-
-//bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), acons(b,list[AType] bp, list[Keyword] _)) = asubtype(a, b) && comparableList(ap, bp);
 
 bool asubtype(aprod(AProduction p), AType b){
     switch(b){
         case aprod(AProduction q):
             return asubtype(p.def, q.def);
-
+        case \start(t):
+            return asubtype(p.def, t);
         case AType t:
             return asubtype(p.def, t);
     }
     fail;
 }
-
-//bool asubtype(aprod(AProduction p), aprod(AProduction q)) {
-//    return asubtype(p.def, q.def);
-//}
-//
-//bool asubtype(aprod(AProduction p), AType t) {
-//    return asubtype(p.def, t);
-//}
 
 bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
     switch(b){
@@ -127,41 +110,35 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
             if(isConcreteSyntaxRole(sr)) return true;
+        case \start(t):
+            if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
     }
     fail;
 }
 
-//bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
-//bool asubtype(adt: aadt(str _, list[AType] _, _), acons(AType a, list[AType] ap, list[Keyword] _)) = asubtype(adt, a);
-//bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
-//bool asubtype(aadt(_, _, sr), aadt("Tree", _, _)) = true when isConcreteSyntaxRole(sr);
-
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
-//bool asubtype(AType a, \start(AType b)) = asubtype(a, b);
 
-bool asubtype(AType::\iter(AType s), AType b){
+bool asubtype(i:AType::\iter(AType s), AType b){
     switch(b){
         case aadt("Tree", [], dataSyntax()):
             return true;
         case anode(_):
             return true;
+        case iter(AType t):
+            return asubtype(s, t);
         case AType::\iter-star(AType t):
             return asubtype(s, t);
         case AType::\iter-seps(AType t, list[AType] seps):
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case AType::\iter-star-seps(AType t, list[AType] seps):
             return asubtype(s,t) && isEmpty(removeLayout(seps));
+        case \start(t):
+            return asubtype(i, t);
     }
     fail;
 }
 
-//bool asubtype(AType::\iter(AType s), aadt("Tree", [], dataSyntax())) = true;
-//bool asubtype(AType::\iter(AType s), anode(_)) = true;
-//bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);
-//bool asubtype(AType::\iter(AType s), AType::\iter-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-//bool asubtype(AType::\iter(AType s), AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-
-bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType b){
+bool asubtype(i:AType::\iter-seps(AType s, list[AType] seps), AType b){
     switch(b){
         case aadt("Tree", [], dataSyntax()):
             return true;
@@ -175,65 +152,50 @@ bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType b){
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case AType::\iter-star-seps(AType t, list[AType] seps2):
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
+        case \start(t):
+            return asubtype(i, t);
     }
     fail;
 }
 
-//bool asubtype(AType::\iter-seps(AType s, list[AType] seps), aadt("Tree", [], dataSyntax())) = true;
-//bool asubtype(AType::\iter-seps(AType s, list[AType] seps), anode(_)) = true;
-//bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
-//bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter(AType t)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-//bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star(AType t)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-//bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
-
-bool asubtype(AType::\iter-star(AType s), AType b){
-    visit(b){
-    case aadt("Tree", [], dataSyntax()):
-        return true;
-    case  anode(_):
-        return true;
-    case AType::\iter-star-seps(AType t, list[AType] seps):
-        return asubtype(s,t) && isEmpty(removeLayout(seps));
+bool asubtype(i:AType::\iter-star(AType s), AType b){
+    switch(b){
+        case aadt("Tree", [], dataSyntax()):
+            return true;
+        case  anode(_):
+            return true;
+        case \iter-star(AType t):
+            return asubtype(s, t);
+        case AType::\iter-star-seps(AType t, list[AType] seps):
+            return asubtype(s,t) && isEmpty(removeLayout(seps));
+        case \start(t):
+            return asubtype(i, t);
     }
     fail;
 }
 
-//bool asubtype(AType::\iter-star(AType s), aadt("Tree", [], dataSyntax())) = true;
-//bool asubtype(AType::\iter-star(AType s), anode(_)) = true;
-//bool asubtype(AType::\iter-star(AType s), AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t) && isEmpty(removeLayout(seps));
-
-bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), AType b){
-    visit(b){
+bool asubtype(i:AType::\iter-star-seps(AType s, list[AType] seps), AType b){
+    switch(b){
         case aadt("Tree", [], dataSyntax()):
             return true;
         case anode(_):
             return true;
         case AType::\iter-star-seps(AType t, list[AType] seps2):
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
+        case \start(t):
+            return asubtype(i, t);
     }
     fail;
 }
 
-//bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [], dataSyntax())) = true;
-//bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
-//bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(removeLayout(seps), removeLayout(seps2));
+bool asubtype(\opt(AType _),aadt(n, [], dataSyntax())) = n == "Tree";
+bool asubtype(\alt(set[AType] _),aadt(n, [], dataSyntax())) = n == "Tree";
+bool asubtype(\seq(list[AType] _),aadt(n, [], dataSyntax())) = n == "Tree";
 
-
-//bool asubtype(AType s, AType::\iter(AType t)) = asubtype(s, t);
-//bool asubtype(AType s, AType::\iter-star(AType t)) =  asubtype(s, t);
-//bool asubtype(AType s, AType::\iter-seps(AType t, list[AType] seps)) = asubtype(s,t);// && isEmpty(removeLayout(seps));
-//bool asubtype(AType s, AType::\iter-star-seps(AType t, list[AType] seps)) = asubtype(s,t);// && isEmpty(removeLayout(seps));
-
-bool asubtype(\opt(AType _),aadt("Tree", [], dataSyntax())) = true;
-bool asubtype(\alt(set[AType] _),aadt("Tree", [], dataSyntax())) = true;
-bool asubtype(\seq(list[AType] _),aadt("Tree", [], dataSyntax())) = true;
-
-bool asubtype(alit(_), aadt("Tree", [], _)) = true;
-bool asubtype(acilit(_), aadt("Tree", [], _)) = true;
-//bool asubtype(\achar-class(_), aadt("Tree", [], _)) = true;
+bool asubtype(alit(_), aadt(n, [], _)) = n == "Tree";
+bool asubtype(acilit(_), aadt(n, [], _)) = n == "Tree";
 
 bool asubtype(conditional(AType s, _), AType t) = asubtype(s, t);
-//bool asubtype(AType s, conditional(AType t, _)) = asubtype(s, t);
 
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool asubtype(AType s, \opt(AType t)) = subtype(s,t);
@@ -265,12 +227,6 @@ bool asubtype(alrel(AType a), AType b){
     }
     fail;
 }
-    
-//bool asubtype(alist(AType s), alist(AType t)) = asubtype(s, t);
-//bool asubtype(alrel(AType l), alrel(AType r)) = asubtype(l, r);
-
-//bool asubtype(alist(AType s), alrel(AType r)) = asubtype(s, atuple(r));
-//bool asubtype(alrel(AType l), alist(AType r)) = asubtype(atuple(l), r);
 
 // set and rel
 
@@ -294,12 +250,6 @@ bool asubtype(arel(AType a), AType b){
     fail;
 }
 
-//bool asubtype(aset(AType s), aset(AType t)) = asubtype(s, t);
-//bool asubtype(arel(AType l), arel(AType r)) = asubtype(l, r);
-
-//bool asubtype(aset(AType s), arel(AType r)) = asubtype(s, atuple(r));
-//bool asubtype(arel(AType l), aset(AType r)) = asubtype(atuple(l), r);
-
 bool asubtype(abag(AType s), abag(AType t)) = asubtype(s, t);  
 
 bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2)) 
@@ -316,18 +266,9 @@ bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), AType r){
     fail;
 }
 
-//bool asubtype(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
-//    = asubtype(r1, r2) && comparableList(p1, p2);
-
 // aparameter
 bool asubtype(aparameter(str pname1, AType bound1), AType r) =
-     aparameter(str _, AType bound2) := r ? asubtype(bound1, bound2) : asubtype(bound1, r)
-    //when /aparameter(pname1,_) !:= r
-    ;
-//bool asubtype(AType l, r:aparameter(str pname2, AType bound2)) = 
-//    aparameter(str _, AType bound1) := l ? asubtype(bound1, bound2) : asubtype(l, bound2)
-//    //when /aparameter(pname2,_) !:= l
-//    ;
+     aparameter(str _, AType bound2) := r ? asubtype(bound1, bound2) : asubtype(bound1, r);
 
 // areified
 bool asubtype(areified(AType s), AType b){
@@ -340,20 +281,17 @@ bool asubtype(areified(AType s), AType b){
     fail;
 }
 
-//bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
-//bool asubtype(areified(AType s), anode(_)) = true;
-
-bool asubtype(anode(list[AType] l), AType b){
+bool asubtype(a:anode(list[AType] l), AType b){
     switch(b){
         case anode(_):
             return true;
         case anode(list[AType] r): 
             return l <= r;
+        case \start(t):
+            return asubtype(a, t);
     }
     fail;
 }
-//bool asubtype(anode(_), anode(_)) = true;
-//bool asubtype(anode(list[AType] l), anode(list[AType] r)) = l <= r;
 
 // Character classes and char
 
@@ -368,22 +306,13 @@ bool asubtype(l:\achar-class(_), AType r){
         }
         case aadt("Tree", _, _):
             return true; // characters are Tree instances 
+        case \start(t):
+            return asubtype(l, t);
     }
     fail;
 }
 
-//bool asubtype(l:\achar-class(_), r:\achar-class(_)) {
-//    if(l.ranges == r.ranges) return true;
-//    //println("asubtype: <l>, <r>");
-//    if(difference(r, l) == \achar-class([])) return false;
-//    return true;
-//    // TODO: original code (below) was not executed properly by Rascal interpreter:
-//    //return  l.ranges == r.ranges || (difference(r, l) != \achar-class([]));
-//}
-//bool asubtype(l:\achar-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
-
 bool asubtype(l:\achar-class(list[ACharRange] _), achar(int c)) = l == \achar-class([arange(c,c)]);
-
 
 bool asubtype(achar(int c), \achar-class(list[ACharRange] ranges))
     = difference(ranges, [arange(c,c)]) == [arange(c,c)];
@@ -398,13 +327,6 @@ bool asubtypeList(list[AType] l, list[AType] r){
     }
     return size(l) == size(r) && all(i <- index(l), asubtype(l[i], r[i]));
 }
-
-//bool asubtypeList(list[AType] l, list[AType] r) = all(i <- index(l), asubtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
-//default bool asubtypeLIst(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
-
-//bool asubtypeList(list[AType] l, list[AType] r) = all(i <- index(l), asubtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
-//default bool asubtypeList(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
-
 
 list[AType] removeLayout(list[AType] seps) = [ s | s <- seps, !isLayoutAType(s) ];
 
@@ -438,9 +360,6 @@ bool comparableList(list[AType] l, list[AType] r) {
     }
     return size(l) == size(r) && all(i <- index(l), comparable(l[i], r[i]));
 }
-
-//bool comparable(list[AType] l, list[AType] r) = all(i <- index(l), comparable(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
-//default bool comparable(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
 bool outerComparable(AType l, AType r){
     return outerComparable1(l, r);
@@ -658,8 +577,6 @@ public AType lubList(list[AType] ts) {
     for (t <- ts) theLub = alub(theLub,t);
     return theLub;
 }
-
-
 
 //public set[AType] numericTypes = { aint(), areal(), arat(), anum() };
 
