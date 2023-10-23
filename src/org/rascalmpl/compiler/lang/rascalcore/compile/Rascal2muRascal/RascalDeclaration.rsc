@@ -184,14 +184,8 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
 // -- function declaration ------------------------------------------
 
 private set[TypeVar] getTypeVarsinFunction(FunctionDeclaration fd){
-    trees = {};
-    if(fd has body){
-        trees = {fd.body};
-    } else if(fd has expression){
-        trees = fd has conditions ? {fd.expression, fd.conditions} : {fd.expression};
-    }
     res = {};
-    top-down-break visit(trees){
+    top-down-break visit(fd){
         case (Expression) `<Type _> <Parameters _> { <Statement+ _> }`:
                 /* ignore type vars in closures. This is not water tight since a type parameter of the surrounding
                   function may be used in the body of this closure */;
@@ -263,9 +257,10 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       conditions = (fd is \conditional) ? [exp | exp <- fd.conditions] : [];
       <formalVars, tbody> = translateFunction(fname, fd.signature.parameters.formals.formals, ftype, mubody, isMemo, conditions);
       
-      typeVarsInParams = getFunctionTypeParameters(ftype);
       
-      if(!isEmpty(useTypeParams)){ // && /muTypeParameterMap(_) !:= tbody){
+      
+      if(!isEmpty(useTypeParams) && /muTypeParameterMap(_) !:= tbody){
+        typeVarsInParams = getFunctionTypeParameters(ftype);
         tbody = muBlock([muTypeParameterMap(typeVarsInParams), tbody]);
       }
       
@@ -398,22 +393,19 @@ private MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars
          }
       }
       
-     // parameters = { par | /par:aparameter(name, bound) := ftype };
-     //
-     // if(!isEmpty(parameters) && /TypeVar _ := ftype && /muReturn1(_,_) := res){
-     //   str fuid = topFunctionScope();
-     //   result = muTmpIValue(nextTmp("result"), fuid, ftype.ret);
-     //   res = visit(res){
-     //       case muReturn1(_, e) => muBlock([ muConInit(result, e),
-     //                                         muIfElse(muValueIsSubtypeOfInstantiatedType(result, ftype.ret),
-     //                                                  muReturn1(ftype.ret, result),
-     //                                                  muFailReturn(ftype.ret))
-     //                                       ])
-     //   };
-     //  if(/muTypeParameterMap(_) !:= body){
-     //    res = muBlock([ muTypeParameterMap(parameters), res ]);
-     //  }
-     //}
+      parameters = { unset(par, "alabel") | /par:aparameter(name, bound) := ftype };
+     
+      if(!isEmpty(parameters) && /muReturn1(_,_) := res){
+        str fuid = topFunctionScope();
+        result = muTmpIValue(nextTmp("result"), fuid, ftype.ret);
+        res = visit(res){
+            case muReturn1(_, e) => muBlock([ muConInit(result, e),
+                                              muIfElse(muValueIsNonVoidSubtypeOf(result, ftype.ret),
+                                                       muReturn1(ftype.ret, result),
+                                                       muFailReturn(ftype.ret))
+                                            ])
+        };
+     }
       
       return res;   
   }
@@ -435,6 +427,7 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      list[Pattern] formalsList = [f | f <- formals];
      str fuid = topFunctionScope();
      my_btscopes = getBTScopesParams(formalsList, fname);
+     parameters = { unset(par, "alabel") | /par:aparameter(name, bound) := ftype };
      
      formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), unsetRec(getType(formalsList[i]), "alabel"), formalId())
                                                                                     : muVar(pname, fuid, -i, unsetRec(getType(formalsList[i]), "alabel"), formalId())   
@@ -452,7 +445,8 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      //iprintln(when_body);
      enterSignatureSection();
      params_when_body = ( when_body
-                        | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
+                        | isEmpty(parameters) ? translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) )
+                                              : translatePatInSignatureWithTypeParameters(formalsList[i], getType(formalsList[i]), formalVars[i], my_btscopes, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) )
                         | i <- reverse(index(formalsList)));
                         
      funCode = functionBody(isVoidAType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
@@ -460,7 +454,7 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      
      funCode = removeDeadCode(funCode);
      //iprintln(funCode);
-    
+     
      alwaysReturns = ftype.returnsViaAllPath || isVoidAType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
      if(!formalsBTFree || (formalsBTFree && !alwaysReturns)){
@@ -468,6 +462,10 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      }
      //iprintln(funCode);
      funCode = removeDeadCode(funCode);
+     
+      if(!isEmpty(parameters) && /muTypeParameterMap(_) !:= funCode){    
+         funCode = muBlock([ muTypeParameterMap(parameters), funCode ]);
+      }
      //iprintln(funCode);
      return <formalVars, funCode>;
 }
