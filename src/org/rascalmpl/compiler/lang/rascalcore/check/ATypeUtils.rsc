@@ -137,12 +137,12 @@ Symbol atype2symbol1(avoid()) = Symbol::\void();
 Symbol atype2symbol1(avalue()) = Symbol::\value();
 Symbol atype2symbol1(aloc()) = Symbol::\loc();
 Symbol atype2symbol1(adatetime()) = \datetime();
-Symbol atype2symbol1(alist(AType t)) = \list(atype2symbol(t));
-Symbol atype2symbol1(aset(AType t)) = \set(atype2symbol(t));
+Symbol atype2symbol1(alist(AType t)) = Symbol::\list(atype2symbol(t));
+Symbol atype2symbol1(aset(AType t)) = Symbol::\set(atype2symbol(t));
 Symbol atype2symbol1(atuple(atypeList(list[AType] ts))) = \tuple([atype2symbol(t) | t <- ts]);
 Symbol atype2symbol1(amap(AType d, AType r)) = \map(atype2symbol(d), atype2symbol(r));
-Symbol atype2symbol1(arel(atypeList(list[AType] ts))) = \set(\tuple([atype2symbol(t) | t <- ts]));
-Symbol atype2symbol1(alrel(atypeList(list[AType] ts))) = \list(\tuple([atype2symbol(t) | t <- ts]));
+Symbol atype2symbol1(arel(atypeList(list[AType] ts))) = Symbol::\set(\tuple([atype2symbol(t) | t <- ts]));
+Symbol atype2symbol1(alrel(atypeList(list[AType] ts))) = Symbol::\list(\tuple([atype2symbol(t) | t <- ts]));
 
 // TODO: kwFormals are lost here because not supported by old run-time system
 Symbol atype2symbol1(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
