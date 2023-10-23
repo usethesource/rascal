@@ -471,7 +471,10 @@ map[str,AType] minimizeBounds(rel[str,Type] typeVarBounds, Solver s){
 }
 
 map[str, AType] propagateParams(map[str,AType] typeVarBounds){
-    return (tvname : (aparameter(tvname2, _) := typeVarBounds[tvname]) ? typeVarBounds[tvname2] : typeVarBounds[tvname] | tvname <- typeVarBounds);
+    AType find(str tvname) = (aparameter(tvname2, _) := typeVarBounds[tvname]) ? typeVarBounds[tvname2] : typeVarBounds[tvname] ;
+    
+    return (tvname : find(tvname) | tvname <- typeVarBounds);
+    //return (tvname : (aparameter(tvname2, _) := typeVarBounds[tvname]) ? typeVarBounds[tvname2] : typeVarBounds[tvname] | tvname <- typeVarBounds);
 }
 
 AType commonLowerBound(rel[str,Type] typeVarBounds, str tvname, Collector c){
