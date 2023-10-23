@@ -339,6 +339,25 @@ data ACondition
      | \a-except(str label)
      ;
 
+AType \conditional(AType s, {*ACondition a, \conditional(AType _, set[ACondition] b), *ACondition c})
+    = \conditional(s, a+b+c);
+
+AType \conditional(\conditional(AType s, set[ACondition] a), set[ACondition] b)
+    = \conditional(s, a+b);
+    
+AType \follow(\conditional(AType s, set[ACondition] a))
+    = \conditional(s, a + {\follow(s)});
+
+AType \not-follow(\conditional(AType s, set[ACondition] a))
+    = \conditional(s, a + {\not-follow(s)});
+
+AType \precede(\conditional(AType s, set[ACondition] a))
+    = \conditional(s, a + {precede(s)});
+
+AType \not-precede(\conditional(AType s, set[ACondition] a))
+    = \conditional(s, a + {\not-precede(s)});
+
+
 
 @doc{
 .Synopsis
