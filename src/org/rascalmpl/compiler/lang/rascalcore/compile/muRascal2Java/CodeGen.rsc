@@ -514,10 +514,12 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
     uniq = uid.offset;
+    
+    needs_no_cast = !(loc2muFunction[uid]? && isClosureName(loc2muFunction[uid].name));
    
     formals = intercalate(", ", ["$<uniq>_<i>" | i <- [0..nformals]]);
-   
-    actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<uniq>_<i>" | i <- [0..nformals]]);
+  
+    actuals = intercalate(", ", ["<needs_no_cast ? "" : "(<atype2javatype(ftype.formals[i])>)">$<uniq>_<i>" | i <- [0..nformals]]);
     
     if(!isEmpty(ftype.kwFormals)){
         actuals = isEmpty(actuals) ?  "$kwpActuals" : "<actuals>, $kwpActuals";
@@ -947,10 +949,10 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(funType:afunc(ATy
 tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), list[MuExp] actuals, lrel[str name, MuExp exp] kwpActuals, JGenie jg){
     resulting_actuals = getActuals(fields, actuals, jg);
     
-     if(isEmpty(consType.kwFields) && !jg.hasCommonKeywordFields(consType)){
-        return <resulting_actuals, []>;
-     } else {
-            return <resulting_actuals, [getKwpActuals(kwFields, kwpActuals, jg, isConstructor=true)]>;
+    if(isEmpty(consType.kwFields) && !jg.hasCommonKeywordFields(consType)){
+       return <resulting_actuals, []>;
+    } else {
+       return <resulting_actuals, [getKwpActuals(kwFields, kwpActuals, jg, isConstructor=true)]>;
     }
 }
 
@@ -1878,8 +1880,9 @@ JCode trans(muMatch(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans(exp1, jg)>.match(<trans(exp2, jg)>)";
     
     
-JCode trans(muMatchAndBind(MuExp exp1, AType tp), JGenie jg)
-    = "<atype2vtype(tp, jg)>.match(<trans(exp1, jg)>.getType(), $typeBindings)";
+JCode trans(muMatchAndBind(MuExp exp1, AType tp), JGenie jg){
+   return "<atype2vtype(tp, jg)>.match(<trans(exp1, jg)>.getType(), $typeBindings)";
+}
       
 JCode trans(muEqualNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> == <trans2NativeInt(exp2, jg)>";
@@ -1896,6 +1899,13 @@ JCode trans(muValueIsSubtypeOfInstantiatedType(MuExp exp, AType tp), JGenie jg){
     return !isVarOrTmp(exp) && exp has atype && asubtype(exp.atype, tp) 
            ? "true"
            : "$isSubtypeOf(<trans(exp, jg)>.getType(),<jg.accessType(tp)>.instantiate($typeBindings))";   
+} 
+
+JCode trans(muValueIsNonVoidSubtypeOf(MuExp exp, AType tp), JGenie jg){ 
+    return !isVarOrTmp(exp) && exp has atype && asubtype(exp.atype, tp) && exp.atype != avoid()
+           ? "true"
+           : "<jg.accessType(tp)>.instantiate($typeBindings) != $TF.voidType() && $isSubtypeOf(<trans(exp, jg)>.getType(),<jg.accessType(tp)>)"; 
+           //: "<jg.accessType(tp)>.instantiate($typeBindings) != $TF.voidType() && $isSubtypeOf(<trans(exp, jg)>.getType(),<jg.accessType(tp)>.instantiate($typeBindings))";   
 } 
 
 JCode trans(m:muValueIsComparable(MuExp exp, AType tp), JGenie jg){
