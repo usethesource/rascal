@@ -137,9 +137,13 @@ void compileTestSources(PathConfig pcfg) {
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3"
               //"lang::rascal::tests::extend_function1::M3"
-              //"lang::rascal::tests::concrete::Syntax4",
-              //"lang::rascal::tests::concrete::Syntax5",
-              //"lang::rascal::tests::concrete::FieldProjectionBug",
+              //"lang::rascal::tests::concrete::Matching // class cast empty set
+              //"lang::rascal::tests::concrete::Parsing" // class cast empty set
+              //"lang::rascal::tests::concrete::Syntax1",  //class cast empty set
+              //"lang::rascal::tests::concrete::Syntax4" // parser generator
+              //"lang::rascal::tests::concrete::Syntax5" // parser generator
+              //"lang::rascal::tests::concrete::FieldProjectionBug"// parser generator
+              //"lang::rascal::tests::concrete::Patterns1" // class cast empty set
               //"lang::rascal::tests::functionality::Range",
               //"lang::rascal::tests::concrete::ParameterizedNonTerminals",
               //"lang::rascal::tests::functionality::Interpolation", // check on muCon arg

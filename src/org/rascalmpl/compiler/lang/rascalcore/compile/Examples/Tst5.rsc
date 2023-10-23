@@ -1,249 +1,86 @@
 module lang::rascalcore::compile::Examples::Tst5
 
+data B = and(B lhs, B rhs) | or(B lhs, B rhs) | t() | f();
 
-int twice (int n) = 2 * n;
-int triple (int n) = 3 * n;
 
-int dup (int n) = n + n;
-str dup (str s) = s + s;
-
-int trip(int n) = n + n + n;
-str trip(str s) = s + s + s;
-
-test bool twiceTriple1(){
-    return (twice o triple)(5) == twice(triple(5));
-}
-
-test bool twiceTriple2(){
-    c = twice o triple;
-    return c(5) == twice(triple(5));
-}
-
-test bool dupTriple1(){
-    return (dup o triple)(5) == dup(triple(5));
-}
-
-test bool tripleDup1(){
-    return (triple o dup)(5) == triple(dup(5));
-}
-
-test bool dupTrip1(){
-    return (dup o trip)(5) == dup(trip(5));
-}
-
-//test bool dupTrip2(){
-//    c = dup o trip;
-//    return c(5) == dup(trip(5));
-//}
-
-//test bool dupTrip3(){
-//    c = dup o trip;
-//    return c("abc") == dup(trip("abc"));
-//}        
-
-int fib(0) = 0;
-int fib(1) = 1;
-default int fib(int n) = fib(n-1) + fib(n-2);
-
-int fact(0) = 1;
-int fact(1) = 1;
-default int fact(int n) = n*fact(n-1);
-str printResult(int n) = " <n>; ";
-str printResult(str s) = s + s;
-    
-int f(0) = 0; 
-int f(1) = 1;
-default int f(int n) = n + 1; 
-    
-int g(0) { fail; }
-int g(1) = 1; 
-default int g(int n) = n + 2;
-
-test bool factorialFibonacci() {
-    list[int] inputs = [0,1,2,3,4,5,6,7,8,9]; 
-    list[int] outputs1 = [ fact(fib(i)) | int i <- inputs ]; 
-    list[int] outputs2 = [ (fact o fib)(i) | int i <- inputs ];
-    return outputs1 == outputs2;
-}
-    
-test bool factorialFibonacciPrint1() {
-    list[int] inputs = [0,1,2,3,4,5,6,7,8,9];
-    list[str] outputs1 = [ printResult(fact(fib(i))) | int i <- inputs ];
-    list[str] outputs2 = [ (printResult o fact o fib)(i) | int i <- inputs ];
-    
-    return outputs1 == outputs2; 
-}
-
-test bool factorialFibonacciPrint2() {
-    list[int] inputs = [0,1,2,3,4,5,6,7,8,9];
-    list[str] outputs1 = [ printResult(fact(fib(i))) | int i <- inputs ];
-    
-    // associativity check of the 'o' operator
-    list[str] outputs3 = [ ( (printResult o fact) o fib)(i) | int i <- inputs ]; 
-    return outputs1 == outputs3; 
-}
-
-test bool factorialFibonacciPrint3() {
-    list[int] inputs = [0,1,2,3,4,5,6,7,8,9];
-    list[str] outputs1 = [ printResult(fact(fib(i))) | int i <- inputs ];
-   
-    // associativity check of the 'o' operator
- 
-    list[str] outputs4 = [ (printResult o (fact o fib))(i) | int i <- inputs ];
-    return outputs1 == outputs4; 
-}       
-        
-test bool anonymousFunctionComposition() {
-    list[int] inputs = [0,1,2,3,4,5,6,7,8,9]; 
-    list[int] outputs1 = [ int (int n) { switch(n) { case 0: return 1; case 1: return 1; case int m: return m*(m-1); default: return -1;} }             /* renamed n to m*/
-                           ( int (int n) { switch(n) { case 0: return 0; case 1: return 1; case int m: return (m-1) + (m-2); default: return -1;} }     /* renamed n to m*/
-                           (i)) 
-                         | int i <- inputs ]; 
-    list[int] outputs2 = [ (int (int n) { switch(n) { case 0: return 1; case 1: return 1; case int m: return m*(m-1); default: return -1;} }            /* renamed n to m*/
-                          o int (int n) { switch(n) { case 0: return 0; case 1: return 1; case int m: return (m-1) + (m-2); default: return -1;} })     /* renamed n to m*/
-                            (i) 
-                         | int i <- inputs ]; 
-    return outputs1 == outputs2; 
-} 
-
-test bool composedOverloadedFunctions1() {
-    return (g o f)(0) == g(f(0)); 
-}
-
-test bool composedOverloadedFunctions2() {
-    return (g o f)(0) == 2; 
-}
-
-/*
- * The '+' function composition operator
- */
-
-str h(0) = "0"; 
-str h(1) = "1"; 
-default str h(int n) { fail; } 
-
-str i(0) = "1"; 
-str i(1) = "2"; 
-default str i(int n) = "<n + 1>"; 
-    
-int j0(0) = 0;
-int j1(1) = 1; 
-default int j3(int n) = 2*n; 
-    
-default int j4(int n) = 2*n - 1; 
-
-int k(int n) {
-    if(n%2 == 0){
-         fail k;
-    } else {
-        return 2*n; 
-    }
-} 
-
-int l(int n) {
-    if(n%2 == 0){
-        return n*(n-1);
-    } else { 
-        fail l;
+value main(){ //test bool curryAConstructor() {
+    &S(&U) c(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
     };
-}
-    
-//test bool nonDeterministicChoiceAndNormalComposition11() {
-//    list[int] inputs = [2,3];
-//    list[str] outputs1 = [ i(n) | int n <- inputs ];
-//    list[str] outputs2 = [ (h + i)(n) | int n <- inputs ]; 
-//    return outputs1 == outputs2;
-//}
-//
-//
-//test bool nonDeterministicChoiceAndNormalComposition12() {
-//    list[int] inputs = [2,3];
-//    list[str] outputs1 = [ i(n) | int n <- inputs ]; 
-//    list[str] outputs3 = [ (i + h)(n) | int n <- inputs ]; 
-//    return outputs1 == outputs3;    
-//}
-//
-//test bool nonDeterministicChoiceAndNormalComposition13() =
-//    (h + i)(0) == "0" || (h + i)(0) == "1";
-//            
-//test bool nonDeterministicChoiceAndNormalComposition14() =           
-//    (h + i)(1) == "1" || (h + i)(1) == "2";
-//            
-//test bool nonDeterministicChoiceAndNormalComposition15() =                 
-//    (i + h)(0) == "0" || (i + h)(0) == "1";
-//            
-//test bool nonDeterministicChoiceAndNormalComposition16() =             
-//    (i + h)(1) == "1" || (i + h)(1) == "2"; 
-//    
-//test bool nonDeterministicChoiceAndNormalComposition21() {
-//    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-//    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
-//    list[int] outputs1 = [ (k + l)(n) | int n <- inputs ]; 
-//    
-//    return outputs == outputs1;
-//   }
-//
-//test bool nonDeterministicChoiceAndNormalComposition22() {
-//    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-//    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
-//    list[int] outputs2 = [ (l + k)(n) | int n <- inputs ]; 
-//    
-//    return  outputs == outputs2;
-//}
 
-test bool nonDeterministicChoiceAndNormalComposition23() {
-    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-    list[int] outputs = [ (n%2 == 0) ? n*(n - 1) : 2*n | int n <- inputs ]; 
-    list[int] outputs3 = [ ( (k + l) o (l + k) )(n) | int n <- inputs ]; 
-    list[int] outputs4 = [ n*(n - 1) | int n <- outputs ]; 
-    
-    return outputs3 == outputs4;
+    B (B) f = c(and, t());
+
+    return f(t()) == and(t(), t());
 }
+
+//------------------------------------------
+
+
+//import util::Math;
 //
-//test bool nonDeterministicChoiceAndNormalComposition24() {
-//    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
+//list[&T <: num] abs(list[&T <: num] nums) 
+//    = [abs(n) | n <- nums]; 
 //
-//    list[int] outputs5 = [ (j0 + j1 + (k + l) o j3)(n) | int n <- inputs ]; 
-//    list[int] outputs7 = [0,1] + [ 2*n*(2*n - 1) | int n <- inputs - [0,1] ]; 
-//    list[int] outputs9 = [ 2*n*(2*n - 1) | int n <- inputs ];
-//    
-//    return outputs5 == outputs7 || outputs5 == outputs9 ;
-//}
-//
-//test bool nonDeterministicChoiceAndNormalComposition25() {
-//    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-//    
-//    list[int] outputs6 = [ ((k + l) o j4 + j0 + j1)(n) | int n <- inputs ]; 
-//    list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
-//    list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
-//
-//    return outputs6 == outputs8 || outputs6 == outputs10 ;
-//}
-//
-//int twiceNotEven(int n) { 
-//    if(n%2 == 0){
-//        fail twiceNotEven; 
-//    } else {
-//        return 2*n;
+//(&T<:num) assureRange(&T <: num n, num low, num high) {
+//    ab = abs(n);
+//    if (ab >= low && ab <= high) {
+//        return n;   
 //    }
-//}
-// 
-//test bool nonDeterministicChoiceAndNormalComposition26() {
-//    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
-//    
-//    list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
-//    list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
-//    list[int] outputs11 = [ (( twiceNotEven + l) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
-//    
-//    return outputs11 == outputs8 || outputs11 == outputs10;             
+//    if (ab <= high) {
+//        if (n < 0) {
+//            return n - low;
+//        }
+//        return n + low; 
+//    }
+//    return makeSmallerThan(n, toInt(high));
 //}
 //
-//test bool nonDeterministicChoiceAndNormalComposition27() {
-//    list[int] inputs = [0,1,2,3,4,5,6,7,8,9,10]; 
+////list[&T <: num] assureRange(list[&T <: num] nums, num low, num high)
+////    = [ assureRange(n, low, high) | n <- nums];
 //    
-//    list[int] outputs8 = [0,1] + [ 2*(2*n-1) | int n <- inputs - [0,1] ];
-//    list[int] outputs10 = [ 2*(2*n-1) | int n <- inputs ]; 
-//    list[int] outputs11 = [ (( l + twiceNotEven ) o (int (int n) { return 2*n - 1; }) + j0 + j1)(n) | int n <- inputs ]; 
-//    
-//    return outputs11 == outputs8 || outputs11 == outputs10;             
+//int makeSmallerThanInt(int n, int limit) = n % limit;
+//real makeSmallerThanReal(real n, int limit) {
+//    if (abs(n) < limit) {
+//        return n;
+//    }
+//    f = toInt(n);
+//    r = n - f;
+//    return (f % limit) + r;
+//}
+//rat makeSmallerThanRat(rat n, int limit) {
+//    if (abs(n) < limit) {
+//        return n;
+//    }
+//    return toRat(1, denominator(n));
+//}
+//
+//&T <: num makeSmallerThan(&T <: num n, int limit) {
+//    if (int i := n) {
+//        return makeSmallerThanInt(i, limit);    
+//    }
+//    if (real r := n) {
+//        return makeSmallerThanReal(r, limit);   
+//    }
+//    if (rat r := n) {
+//        return makeSmallerThanRat(r, limit);    
+//    }
+//    throw "Forgot about a different number type <n>";
+//}
+//
+//list[&T <: num] makeSmallerThan(list[&T <: num] nums, int limit) 
+//    = [ makeSmallerThan(n, limit) | n <- nums];
+//
+//
+//value main() = assureRange(0, 0.1, 30);
+
+//------------------------------------------
+
+//&T avoidEmpty(list[&T] _) { return 1; }
+//&T avoidEmpty(list[&T] _) { throw "this should happen"; }
+//
+//value main(){ //test bool voidReturnIsNotAllowed() {
+//   try {
+//     return avoidEmpty([]); 
+//   } catch "this should happen":
+//     return true;
 //}
