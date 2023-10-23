@@ -663,9 +663,6 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     // TODO: we plan to introduce keyword patterns as formal parameters
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat, ()) | stat <- cbody]), false, []);
     typeVarsInParams = getFunctionTypeParameters(ftype);
-    //if(!isEmpty(typeVarsInParams)){ // && /muTypeParameterMap(_) !:= funBody){
-        funBody = muBlock([muTypeParameterMap(typeVarsInParams), funBody]);
-    //}
       
     leaveSignatureSection();
     addFunctionToModule(muFunction("$CLOSURE_<uid.begin.line>A<uid.offset>", 
