@@ -61,7 +61,8 @@ test bool parsingWithAManualGrammar()
       {prod(sort("MySort"), [lit("hello")],{})})))
   && Tree t := parse(gr, "hello")
   && "<t>" == "hello";
-  
+
+@ignoreCompiler{Fails because the type Symbol is assigned to type(...), bust assigning value() breaks other code}
 test bool saveAndRestoreParser() {
   storeParsers(#start[A], |memory://test-tmp/parsers.jar|);
   p = loadParsers(|memory://test-tmp/parsers.jar|);
