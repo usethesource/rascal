@@ -188,6 +188,15 @@ bool haveEntered(str enter, BTSCOPES btscopes){
 /*                  Patterns                                         */
 /*********************************************************************/
 
+MuExp translatePatInSignatureWithTypeParameters(Pattern p, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore = muBlock([])){
+    res = translatePat(p, subjectType, subject, btscopes, trueCont, falseCont/*, subjectAssigned=subjectAssigned*/);
+    if(!isEmpty(getTypeParameters(subjectType))){
+        precond = muMatchAndBind(subject, subjectType);
+        return muIfElse(precond, res, falseCont);
+    }
+    return res;
+}
+
 // ==== literal pattern =======================================================
 
 default MuExp translatePat(p:(Pattern) `<Literal lit>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore = muBlock([])) 
@@ -980,15 +989,16 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
     } else {
     
         if(inSignatureSection()){
-            precond = muAndNativeBool(muMatchAndBind(subjectExp, trType), minSizeCheck);
+            precond = minSizeCheck; //muAndNativeBool(muMatchAndBind(subjectExp, trType), minSizeCheck);
             if(isWildCard("<name>") || subjectAssigned){
                 return muIfElse(precond, trueCont, falseCont);
             }
-            ppname = prettyPrintName(name);
-            <fuid, pos> = getVariableScope(ppname, name@\loc);
-            var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
-            return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
-                                     : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
+            return muIfElse(precond, trueCont, falseCont);
+            //ppname = prettyPrintName(name);
+            //<fuid, pos> = getVariableScope(ppname, name@\loc);
+            //var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
+            //return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
+            //                         : muIfElse(precond, muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
         
         } else {
             precond = muAndNativeBool(muValueIsSubtypeOfInstantiatedType(subjectExp, trType), minSizeCheck);
@@ -1153,9 +1163,9 @@ BTINFO getBTInfo(p:(Pattern) `{<{Pattern ","}* pats>}`,  BTSCOPE btscope, BTSCOP
 
 // ---- translate set pattern
 
-MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) 
-    = translateSetPat(p, subjectType, subjectExp, btscopes, trueCont, falseCont/*, subjectAssigned=subjectAssigned*/);
-
+MuExp translatePat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])) {
+    return translateSetPat(p, subjectType, subjectExp, btscopes, trueCont, falseCont/*, subjectAssigned=subjectAssigned*/);
+}
 // Translate patterns as element of a set pattern
 
 str isLast(bool b) = b ? "LAST_" : "";
@@ -1877,8 +1887,9 @@ MuExp computeFail(Tree p, list[Tree] lpats, int i, btscopes, MuExp falseCont){
     return resume_elm == fail_p ? falseCont : muFail(resume_elm, comment="2");
 }
 
-MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([]))
-    = translateListPat(p, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=subjectAssigned, restore=restore);
+MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])){
+    return translateListPat(p, subjectType, subjectExp, btscopes, trueCont, falseCont, subjectAssigned=subjectAssigned, restore=restore);
+}
 
 MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore=muBlock([])){
     //iprintln(pats);
