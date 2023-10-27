@@ -39,7 +39,7 @@ public set[Production] holes(Grammar object) {
   return  { regular(iter(\char-class([range(48,57)]))), 
             prod(label("$MetaHole",getTargetSymbol(nont)),
                  [ \char-class([range(0,0)]),
-                   lit("<denormalize(nont)>"),lit(":"),iter(\char-class([range(48,57)])),
+                   lit("<removeConditionals(denormalize(nont))>"),lit(":"),iter(\char-class([range(48,57)])),
                    \char-class([range(0,0)])
                  ],{Attr::\tag("holeType"(nont))})  // TODO: added qualifier to help compiler
           | Symbol nont <- object.rules, quotable(nont)
@@ -62,6 +62,10 @@ private Symbol denormalize(Symbol s) = visit (s) {
   case \iter-seps(u,[layouts(_)])                   => \iter(u)
   case \iter-star-seps(u,[layouts(_)])              => \iter-star(u)
   case \seq(ss)                                     => seq([t | t <- ss, !(t is layouts)])
+};
+
+private Symbol removeConditionals(Symbol sym) = visit(sym) {
+  case conditional(s, _) => s
 };
 
 @synopsis{This is needed such that list variables can be repeatedly used as elements of the same list}
