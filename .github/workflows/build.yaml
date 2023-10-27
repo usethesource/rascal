@@ -41,6 +41,8 @@ jobs:
   builds:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [test-linux]
+    permissions:
+      contents: write
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - uses: browser-actions/setup-chrome@latest
