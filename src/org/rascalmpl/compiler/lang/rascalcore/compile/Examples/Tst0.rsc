@@ -1,33 +1,29 @@
 module lang::rascalcore::compile::Examples::Tst0
 
-import ParseTree;
 
-start syntax A = "a";
-layout WS = [\ \t\n\r]*;
 
-test bool saveAndRestoreParser() {
-  storeParsers(#start[A], |memory://test-tmp/parsers.jar|);
-  p = loadParsers(|memory://test-tmp/parsers.jar|);
+data Tree;
 
-  x = p(type(\start(sort("A")), ()), "a", |origin:///|);
-  y = parse(#start[A], "a", |origin:///|);
- 
-  return x == y;  // (I)
+@synopsis{Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.}
+@description{
+This parser generator behaves the same as the `parser` function, but it produces parser functions which have an additional
+nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
 }
+@javaClass{org.rascalmpl.library.Prelude}
+java &U (type[&U] nonterminal, value input, loc origin) 
+    parsers(type[&T] grammar, 
+        bool allowAmbiguity=false, 
+        bool hasSideEffects=false,  
+        set[Tree(Tree)] filters={}); 
 
-Tree f(Symbol sym,  map[Symbol, Production] rules, str input)
-    = ParseTree::parse(type(sym, rules), input, |todo:///|); // (II)
-    
-/* A catch22:
-   How to assign a type to a reified type of the form type(...)?
-   
-   My current solution: compute the most specific type for the first argument of type(...).
-   This assigns type Symbol to x
-   This accepts (II) but fails for (I) with the message "Comparison not defined on `Symbol` and `start[A]`"
-   
-   An alternative solution (suggested by comments Jurgen added in CollectExpression): always return value()
-   This accepts (I) but fails for (II) with the message:
-   "Cannot instantiate formal parameter type `type[&T \<: Tree]`: Type parameter `T` should be less than `Tree`, but is bound to `value`"
-   
-   The question: how to assign a type to type(...) that accepts both these legal cases.
-*/
+////
+////import ParseTree;
+////
+////layout Whitespace = [\ \t\n]*;
+////
+////start syntax D = "d";
+////start syntax DS = D+ ds;
+////
+////
+////value main() //= test bool parseD1() = 
+////   =  (D)`d` := parse(#D, "d");

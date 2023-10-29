@@ -170,6 +170,12 @@ tuple[bool, TModel, ModuleStatus] getTmodelForModule(str qualifiedModuleName, Mo
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
+            
+            logical2physical = tpl.logical2physical;
+            tpl.logical2physical = ();
+            tpl = renameLocs(tpl, logical2physical);
+            tpl.logical2physical = logical2physical;
+            
             ms.tmodels[qualifiedModuleName] = tpl;
             ms.status[qualifiedModuleName] += tpl_uptodate();
             return <true, tpl, ms>;
@@ -365,7 +371,7 @@ set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <loc _, str id, str _orgId, moduleId(), loc defined, DefInfo _> <- tm.defines);
+    = (id: defined | <loc _, str id, str _orgId, moduleId(), int _, loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -404,6 +410,10 @@ tuple[TModel, ModuleStatus] saveModule(str qualifiedModuleName, set[str] imports
     return <tm, ms>;
 }
 
+private &T renameLocs(&T v, map[loc,loc] physical2logical){
+    return visit(v){ case loc l => (physical2logical[l] ? l) };
+}
+
 private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>") 
     try {
@@ -426,13 +436,10 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts = tm.facts;
         
-        
-        //if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
-        //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
         
-        m1.messages = tm. messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
+        m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
@@ -456,7 +463,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         
         // Filter model for current module and replace functions in defType by their defined type
         
-        defs = for(tup: <loc scope, str _, str _, IdRole idRole, loc defined, DefInfo _> <- tm.defines){ 
+        defs = for(tup: <loc scope, str _, str _, IdRole idRole, int uid, loc defined, DefInfo _> <- tm.defines){ 
                    if(  idRole in saveModuleRoles
                       && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
                          || scope in filteredModuleScopes
@@ -476,11 +483,16 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
+        if(!isEmpty(m1.messages)){
+            iprintln(m1.messages);
+        }
         
+        iv = invertUnique(tm.logical2physical);
+        
+        m1 = renameLocs(m1, iv);
+        m1.logical2physical = tm.logical2physical;
+      
         try {
-            if(!isEmpty(m1.messages)){
-                iprintln(m1.messages);
-            }
             writeBinaryValueFile(tplLoc, m1);
             println("Written: <tplLoc>");
         } catch _: {

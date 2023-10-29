@@ -426,7 +426,7 @@ tuple[ProfileData, TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNa
         //}
     }
     if(config.verbose) println("\<\<\< checking <modelName>");
-    c = newCollector(modelName, namedTrees, config);
+    c = newCollector("rascal", namedTrees, config);
     c.push(key_pathconfig, pcfg);
     
     rascalPreCollectInitialization(namedTrees, c);
@@ -474,17 +474,17 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, TModel tm, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig) codgen){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     iprintln(pcfg);
-    try {
+    //try {
         mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
         return rascalTModelForLocs(mlocs, pcfg, config, compilerConfig, codgen);
-    } catch value e: {
-        ms = newModuleStatus();
-        for( moduleName <- moduleNames){
-            ms.messages[moduleName] = [ error("<e>", mloc) ];
-        }
-        return ms;
-        //return <(moduleName : tmodel()[messages = [ error("<e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
-    }
+    //} catch value e: {
+    //    ms = newModuleStatus();
+    //    for( moduleName <- moduleNames){
+    //        ms.messages[moduleName] = [ error("<e>", mloc) ];
+    //    }
+    //    return ms;
+    //    //return <(moduleName : tmodel()[messages = [ error("<e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
+    //}
 }
 
 // ---- checker functions for IDE
