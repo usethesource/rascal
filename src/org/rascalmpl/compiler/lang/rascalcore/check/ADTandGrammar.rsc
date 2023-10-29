@@ -134,7 +134,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
             prodLocs1 = { k | loc k <- facts, aprod(_) := facts[k] };
             
             // filter out productions contained in priority/associativity declarations
-            prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, isStrictlyContainedIn(k, l)) };
+            prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, k != l, isStrictlyContainedIn(k, l)) };
 
             definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
             //definedProductions += {<p1.def, p1> | loc k <- prodLocs2, aprod(p) := facts[k], p1 := p[def=unset(p.def)] };/*syn*/

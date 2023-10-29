@@ -346,7 +346,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             fun = loc2muFunction[def.defined];
             inner_scope = "<fun.scopeIn>_";
         }
-        uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
+        uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>$<def.uid>";
+        //uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
         def_type = def.defInfo.atype;
         
         conds = [];

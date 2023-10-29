@@ -90,6 +90,8 @@ rel[UID, UID] defUses = {};                         // Relation from defintion t
 
 map[UID, Define] definitions = ();                  // All definitions
 map[UID, Define]  getDefinitions() = definitions;
+
+map[loc,loc] physical2logical = ();
                          
 map[UID,int]  position_in_container = ();           // Position of variable in containing function or module
 map[UID,set[Define]] vars_per_scope = ();           // The variables introduced per scope
@@ -149,6 +151,7 @@ public void resetScopeExtraction() {
     useDef = {};
     defUses = {};
     definitions = ();
+    physical2logical = ();
     position_in_container = ();
     vars_per_scope = ();
     vars_per_fun = ();
@@ -244,7 +247,11 @@ str findDefiningModule(loc l){
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
     //iprintln(tm);
+    logical2physical = tm.logical2physical;
+    physical2logical = invertUnique(logical2physical);
+    tm = visit(tm){ case loc l => (logical2physical[l] ? l) };
     current_tmodel = tm;
+    
     scopes = tm.scopes;
     module_scopes = { s | s <- scopes, scopes[s] == |global-scope:///|};
 
@@ -630,8 +637,8 @@ str convert2fuid(UID uid) {
 	str name = definitions[uid]? ? definitions[uid].id : "XXX";
 
     if(declaredIn[uid]?) {
-       if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = name + "_<uid.begin.line>A<uid.offset>";
-	   //if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = convert2fuid(declaredIn[uid]) + "$" + name + "_<uid.begin.line>_<uid.end.line>";
+       n =  definitions[uid].uid;
+       if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = "<name>$<n>";//  : "<name>_<uid.begin.line>A<uid.offset>";
     }
 	return name;
 }

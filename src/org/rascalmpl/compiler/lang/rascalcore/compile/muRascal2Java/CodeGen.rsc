@@ -56,7 +56,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     locsModule = invertUnique(moduleLocs);
     module_scope = moduleLocs[moduleName];
     tm = tmodels[moduleName];
-    //iprintln(tm);
+    //println("muRascal2Java:"); iprintln(tm);
     
     extends = { locsModule[m2loc] | <module_scope, extendPath(), m2loc> <- tmodels[moduleName].paths };
     
@@ -478,10 +478,11 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
         
         return <constantKwpDefaults, 
                 constantKwpDefaultsInits,
-                "<memoCache><visibility><returnType> <shortName>(<argTypes>){ // by CodeGen: <ftype> 
-               '    <nonConstantKwpDefaults><removeRedeclaredKwps>
-               '    <body>
-               '}\n">;
+                "// Source: <fun.src> 
+                '<memoCache><visibility><returnType> <shortName>(<argTypes>){ 
+                '    <nonConstantKwpDefaults><removeRedeclaredKwps>
+                '    <body>
+                '}\n\n">;
     } else
         throw "trans MuFunction: <ftype>";
 }

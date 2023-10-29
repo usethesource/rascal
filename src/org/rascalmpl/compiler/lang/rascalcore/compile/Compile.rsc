@@ -45,7 +45,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         return tm.messages;
     }
     
-   	try {
+   	//try {
         //if(verbose) 
         println("Compile: <qualifiedModuleName> (<size(ms.parseTrees)> cached parse trees, <size(ms.tmodels)> cached tmodels)");
        	<tm, muMod> = r2mu(M, tm, compilerConfig);
@@ -78,9 +78,9 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
            
         return tm.messages;
        
-    } catch _: CompileTimeError(Message m): {
-        return tm.messages + [m];   
-    }
+    //} catch _: CompileTimeError(Message m): {
+    //    return tm.messages + [m];   
+    //}
 }
 
 @doc{Compile a Rascal source module (given at a location) to Java}
