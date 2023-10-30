@@ -102,19 +102,58 @@ public class TutorCommandExecutor {
         repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
         repl.setMeasureCommandTime(false); 
  
-        if (DRIVER_BINARY != null && BROWSER_BINARY != null) {
+        String driver = DRIVER_BINARY;
+        String browser = BROWSER_BINARY;
+
+        if (driver == null) {
+            driver = inferChromeDriverBinaryLocation();
+        }
+
+        if (browser == null) {
+            browser = inferChromeBrowserBinaryLocation();
+        }
+
+        if (driver != null && browser != null) {
             this.service = new ChromeDriverService.Builder()         
-                .usingDriverExecutable(new File(DRIVER_BINARY))         
+                .usingDriverExecutable(new File(driver))         
                 .usingAnyFreePort()         
                 .build();    
 
             this.service.start();
-            this.driver = getBrowser(service);
+            this.driver = getBrowser(service, browser);
         }
         else {
             this.service = null;
             this.driver = null;
         }
+    }
+
+    private String inferChromeBrowserBinaryLocation() throws IOException {
+        ISourceLocation pathBrowser = URIUtil.correctLocation("PATH", "", "Google Chrome for Testing");
+
+        if (URIResolverRegistry.getInstance().exists(pathBrowser)) {
+            System.err.println("driver exists: " + pathBrowser);
+            return URIResolverRegistry.getInstance().logicalToPhysical(pathBrowser).getPath();
+        }
+
+        pathBrowser = URIUtil.correctLocation("PATH", "", "chrome");
+        if (URIResolverRegistry.getInstance().exists(pathBrowser)) {
+            System.err.println("driver exists: " + pathBrowser);
+            return URIResolverRegistry.getInstance().logicalToPhysical(pathBrowser).getPath();
+        }
+
+        return null;
+    }
+
+    private String inferChromeDriverBinaryLocation() throws IOException {
+        ISourceLocation pathDriver = URIUtil.correctLocation("PATH", "", "chromedriver");
+
+        if (URIResolverRegistry.getInstance().exists(pathDriver)) {
+            System.err.println("driver exists: " + pathDriver);
+            return URIResolverRegistry.getInstance().logicalToPhysical(pathDriver).getPath();
+        }
+
+        return null;
     }
 
     private static ISourceLocation inferProjectRoot(ISourceLocation member) {
@@ -244,11 +283,7 @@ public class TutorCommandExecutor {
         return result;
     }
 
-    private static RemoteWebDriver getBrowser(ChromeDriverService service) {
-        if (BROWSER_BINARY == null || DRIVER_BINARY == null) {
-            return null;
-        }
-
+    private static RemoteWebDriver getBrowser(ChromeDriverService service, String BROWSER_BINARY) {
         ChromeOptions options = new ChromeOptions()
             .setHeadless(true)
             .setBinary(BROWSER_BINARY)
