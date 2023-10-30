@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -214,12 +215,22 @@ public class TutorCommandExecutor {
                             ((JavascriptExecutor) webDriver).executeScript("return document.readyState")
                     ));
 
-                    // take the screenshot, but wait for the body to appear first.
+                    // also wait for the body to appear completely.
                     WebElement body = wait.until(webDriver -> driver.findElement(By.tagName("body")));
-                    String screenshot = body.getScreenshotAs(OutputType.BASE64);
+
+                    String previousScreenshot;
+                    String currentscreenshot = "";
+                    int max = 20;
+
+                    // keep taking shots until all visual elements have stopped moving 
+                    do {
+                        TimeUnit.SECONDS.sleep(1);
+                        previousScreenshot = currentscreenshot;
+                        currentscreenshot = body.getScreenshotAs(OutputType.BASE64);    
+                    } while (previousScreenshot.equals(currentscreenshot) && max-- > 0);
 
                     // store the screenshot as an output
-                    result.put("application/rascal+screenshot", screenshot);
+                    result.put("application/rascal+screenshot", currentscreenshot);
                 }
                 catch (Throwable e) {
                     shellErrorOutput.write(e.getMessage().getBytes("UTF-8"));
