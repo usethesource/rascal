@@ -125,7 +125,16 @@ public class TutorCommandExecutor {
         else {
             this.service = null;
             this.driver = null;
+            printInfoMessage();
         }
+    }
+
+    private void printInfoMessage() {
+        System.err.println("INFO: tutor screenshot feature is currently disabled. To enable:");
+        System.err.println("\t* add the folder holding `chromedriver` to your PATH;");
+        System.err.println("\t* add the foldering holding `chrome` or `Google Chrome for Testing` to your PATH;");
+        System.err.println("\t* or use: `-Dwebdriver.chrome.browser=/path/to/chrome -Dwebdriver.chrome.driver/path/to/chromedriver`");
+        System.err.println("INFO: chrome and the chromedriver need to be aligned exactly. See https://googlechromelabs.github.io/chrome-for-testing/");
     }
 
     private String inferChromeBrowserBinaryLocation() throws IOException {
