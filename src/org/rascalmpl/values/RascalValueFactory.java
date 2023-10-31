@@ -30,7 +30,6 @@ import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -385,8 +384,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
+		// This is where the "reified type contract" is implemented. 
+		// A few inocuous lines of code that have a lot riding on them.
+		
+		// Contract: The dynamic type of a `type(symbol, definitionsMap)` constructor instance 
+		// is `type[what the symbol value represents]`.
+		// So here the symbol value is "unlifted" to the {@see Type} representation (by `symbolToType`). 
+		// Therefore you can count on that, for example, `type(int(), ())` has type `type[int]`.
 		java.util.Map<Type,Type> bindings = 
 		        Collections.singletonMap(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		
 		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
 	}
 	
@@ -505,9 +512,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * and {@link AbstractArgumentList} abstract classes.
 	 */
 	
-	static class CharInt implements ITree, IExternalValue {
+	static class CharInt implements ITree {
 		final int ch;
-		
+
 		@Override
 		public boolean isChar() {
 			return true;
@@ -525,11 +532,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		public CharInt(int ch) {
 			this.ch = ch;
-		}
-
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override
@@ -675,7 +677,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
 	}
 	
-	private static class CharByte implements ITree, IExternalValue {
+	private static class CharByte implements ITree {
 		final byte ch;
 		
 		public CharByte(byte ch) {
@@ -695,11 +697,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeChar(this);
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 
 		@Override
@@ -850,7 +847,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
 	}
 	
-	private static class Cycle implements ITree, IExternalValue {
+	private static class Cycle implements ITree {
 		protected final IConstructor symbol;
 		protected final int cycleLength;
 		
@@ -867,11 +864,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeCycle(this);
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override
@@ -1034,7 +1026,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Amb implements ITree, IExternalValue {
+	private static class Amb implements ITree {
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
@@ -1049,11 +1041,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeAmb(this);
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override
@@ -1410,7 +1397,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
     }
 	
-	private static abstract class AbstractAppl implements ITree, IExternalValue {
+	private static abstract class AbstractAppl implements ITree {
 		protected final IConstructor production;
 		protected final boolean isMatchIgnorable;
 		protected Type type = null;
@@ -1437,11 +1424,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean isAppl() {
 			return true;
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override

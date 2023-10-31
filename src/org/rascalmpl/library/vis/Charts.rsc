@@ -344,6 +344,7 @@ data ChartType
 data ChartOptions  
     = chartOptions(
         bool responsive=true,
+        bool animations=false,
         ChartPlugins plugins = chartPlugins()  
     );
 
@@ -395,13 +396,14 @@ A chart has a typical default layout that we can reuse for all kinds of chart ty
 provides the template and immediately instantiates the client and the server to start displaying the chart
 in a browser.
 }
-Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str title="Chart", ChartAutoColorMode colorMode=\data(), bool legend=false)
+Response(Request) chartServer(ChartData theData, ChartType \type=\bar(), str title="Chart", ChartAutoColorMode colorMode=\data(), bool legend=false, bool animations=false)
     = chartServer(
         chart(
             \type=\type,
             \data=theData,
             options=chartOptions(
                 responsive=true,
+                animations=animations, 
                 plugins=chartPlugins(
                     legend=chartLegend(
                         position=top(),
