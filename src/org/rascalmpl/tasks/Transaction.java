@@ -417,6 +417,11 @@ IExpirationListener<IValue> {
 		map.remove(k);
 		removed.add(k);
 	}
+
+	@Override
+	public int getMatchFingerprint() {
+		return hashCode();
+	}
 }
 
 class Key {

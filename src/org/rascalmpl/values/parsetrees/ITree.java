@@ -3,14 +3,31 @@ package org.rascalmpl.values.parsetrees;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
-public interface ITree extends IConstructor {
+public interface ITree extends IConstructor, IExternalValue {
     
+	@Override
+	default IConstructor encodeAsConstructor() {
+		return this;
+	}
+
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitExternal(this);
+	}
+
+	@Override
+	default int getMatchFingerprint() {
+		return 3568542 /* "tree".hashCode() */ + 41 * getProduction().hashCode();
+	}
+
 	default boolean isAppl() {
 		return false;
 	}
