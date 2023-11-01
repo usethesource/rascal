@@ -1,0 +1,77 @@
+/** 
+ * Copyright (c) 2016, Jurgen J. Vinju, Centrum Wiskunde & Informatica (CWI) 
+ * All rights reserved. 
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+ *  
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+ *  
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */ 
+package org.rascalmpl;
+
+import java.io.IOException;
+import java.io.StringReader;
+
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.types.RascalTypeFactory;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.parsetrees.ITree;
+
+import junit.framework.TestCase;
+
+/**
+ * These tests check the hard contract on the integer values for `int IValue.getMatchFingerprint()`.
+ * Do not change these tests unless you are absolutely sure you know what you are doing. For one
+ * thing, changing fingerprints implies a pretty hairy bootstrap dependency hoop you have to jump through.
+ * Typically you would have to add a mode to the run-time to make it switch between the next version
+ * of the fingerprints for new code, and the old version of the fingerprints for the current run-time
+ * that runs the compiler.
+ */
+public class MatchFingerprintTest extends TestCase {
+    private final GlobalEnvironment heap = new GlobalEnvironment();
+    private final ModuleEnvironment root = new ModuleEnvironment("root", heap);
+    private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.err, System.out, root, heap);
+    private final RascalFunctionValueFactory VF = eval.getFunctionValueFactory();
+    private final TypeFactory TF = TypeFactory.getInstance();
+    private final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+
+    public void testFunctionFingerPrintStability() {
+        Type intint = TF.functionType(TF.integerType(), TF.tupleType(TF.integerType()), TF.tupleEmpty());
+
+        IFunction func = VF.function(intint, (args, kwargs) -> {
+            return VF.integer(0);
+        });
+        
+        // these magic numbers are sacred
+        assertEquals(func.getMatchFingerprint(), "func".hashCode() + 89 * intint.hashCode());
+    }
+
+
+    public void testTreeFingerPrintStability() {
+        String prodString="prod(sort(\"E\"),[],{})";
+        try {
+            IConstructor prod = (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString));
+            ITree tree = VF.appl(prod, VF.list());
+
+            assertEquals(tree.getMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
+        }
+        catch (FactTypeUseException | IOException e) {
+            fail(e.getMessage());
+        }
+    }
+    
+    
+}
