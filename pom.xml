@@ -29,6 +29,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lucence-version>7.5.0</lucence-version>
+        <jackson-version>2.15.3</jackson-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
@@ -440,6 +441,16 @@
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
             <version>69.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-toml</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-parameter-names</artifactId>
+            <version>${jackson-version}</version>
         </dependency>
     </dependencies>
 </project>
