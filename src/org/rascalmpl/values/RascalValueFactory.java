@@ -1046,6 +1046,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
+			assert alts.size() > 0;
 			this.alternatives = alts;
 		}
 		
