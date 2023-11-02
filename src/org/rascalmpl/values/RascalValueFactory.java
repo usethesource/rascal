@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -1050,17 +1051,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public int getConcreteMatchFingerprint() {
-			return 96694 /* "amb".hashCode() */ + 43 * alternatives.getElementType().hashCode();
+			return 96694 /* "amb".hashCode() */ + 43 * ((NonTerminalType) alternatives.getElementType()).getSymbol().hashCode();
 		}
 
 		@Override
 		public boolean isAmb() {
 			return true;
-		}
-		
-		@Override
-		public int getMatchFingerprint() {
-			return 96694 /* Tree_Amb.getName().hashCode() */ + 131; // should be equal what IConstructor does for the amb constructor!
 		}
 
 		@Override
