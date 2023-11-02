@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.types.RascalTypeFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
@@ -29,6 +30,7 @@ import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import junit.framework.TestCase;
 
@@ -46,7 +48,6 @@ public class MatchFingerprintTest extends TestCase {
     private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.err, System.out, root, heap);
     private final RascalFunctionValueFactory VF = eval.getFunctionValueFactory();
     private final TypeFactory TF = TypeFactory.getInstance();
-    private final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
     public void testFunctionFingerPrintStability() {
         Type intint = TF.functionType(TF.integerType(), TF.tupleType(TF.integerType()), TF.tupleEmpty());
@@ -59,19 +60,58 @@ public class MatchFingerprintTest extends TestCase {
         assertEquals(func.getMatchFingerprint(), "func".hashCode() + 89 * intint.hashCode());
     }
 
+    public void testTreeApplFingerPrintStability() {
+        String prodString = "prod(sort(\"E\"),[],{})";
 
-    public void testTreeFingerPrintStability() {
-        String prodString="prod(sort(\"E\"),[],{})";
         try {
             IConstructor prod = (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString));
             ITree tree = VF.appl(prod, VF.list());
 
-            assertEquals(tree.getMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
+            assertEquals(tree.getMatchFingerprint(), "prod".hashCode() + 131 * prod.arity());
+            assertEquals(tree.getConcreteMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
         }
         catch (FactTypeUseException | IOException e) {
             fail(e.getMessage());
         }
     }
     
-    
+    public void testTreeAmbFingerPrintStability() {
+        String prodString = "prod(sort(\"E\"),[],{})";
+
+        try {
+            IConstructor prod = (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString));
+            ITree tree = VF.appl(prod, VF.list());
+            ITree amb = VF.amb(VF.set(tree));
+
+            assertEquals(amb.getMatchFingerprint(), "amb".hashCode() + 131);
+            assertEquals(tree.getConcreteMatchFingerprint(), "amb".hashCode() + 43 * TreeAdapter.getType(amb).hashCode());
+        }
+        catch (FactTypeUseException | IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    public void testTreeCharFingerPrintStability() {
+        try {
+            ITree theChar = (ITree) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Tree, new StringReader("char(32)"));
+           
+            assertEquals(theChar.getMatchFingerprint(), "char".hashCode() + 131);
+            assertEquals(theChar.getConcreteMatchFingerprint(), "char".hashCode() + ((IInteger) theChar.get(0)).intValue());
+        }
+        catch (FactTypeUseException | IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+     public void testTreeCycleFingerPrintStability() {
+        try {
+            ITree theCycle = (ITree) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Tree, new StringReader("cycle(sort(\"A\"), 3)"));
+           
+            assertEquals(theCycle.getMatchFingerprint(), "cycle".hashCode() + 2 * 131);
+            assertEquals(theCycle.getConcreteMatchFingerprint(), "cycle".hashCode() + 13 * theCycle.get(0).hashCode());
+        }
+        catch (FactTypeUseException | IOException e) {
+            fail(e.getMessage());
+        }
+    }    
 }
