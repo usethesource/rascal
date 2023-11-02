@@ -20,6 +20,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
@@ -60,10 +61,17 @@ public class MatchFingerprintTest extends TestCase {
 
     public void testTreeApplFingerPrintStability() {
         String prodString = "prod(sort(\"E\"),[],{})";
+        ISourceLocation loc = VF.sourceLocation("BLABLA");
 
         try {
             IConstructor prod = (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString));
             ITree tree = VF.appl(prod, VF.list());
+
+            assertEquals(tree.getMatchFingerprint(), "appl".hashCode() + 131 * 2);
+            assertEquals(tree.getConcreteMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
+
+            // and now WITH a keyword parameter
+            tree = (ITree) tree.asWithKeywordParameters().setParameter("src", loc);
 
             assertEquals(tree.getMatchFingerprint(), "appl".hashCode() + 131 * 2);
             assertEquals(tree.getConcreteMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
@@ -76,6 +84,7 @@ public class MatchFingerprintTest extends TestCase {
     public void testTreeAmbFingerPrintStability() {
         String prodString1 = "prod(sort(\"E\"),[],{})";
         String prodString2 = "prod(sort(\"E\"),[empty()],{})";
+        ISourceLocation loc = VF.sourceLocation("BLABLA");
 
         try {
             IConstructor prod1= (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString1));
@@ -87,6 +96,12 @@ public class MatchFingerprintTest extends TestCase {
 
             assertEquals(amb.getMatchFingerprint(), "amb".hashCode() + 131);
             assertEquals(amb.getConcreteMatchFingerprint(), "amb".hashCode() + 43 * TreeAdapter.getType(amb).hashCode());
+
+            // and now WITH a keyword parameter
+            amb = (ITree) amb.asWithKeywordParameters().setParameter("src", loc);
+
+            assertEquals(amb.getMatchFingerprint(), "amb".hashCode() + 131);
+            assertEquals(amb.getConcreteMatchFingerprint(), "amb".hashCode() + 43 * TreeAdapter.getType(amb).hashCode());
         }
         catch (FactTypeUseException | IOException e) {
             fail(e.getMessage());
@@ -94,9 +109,17 @@ public class MatchFingerprintTest extends TestCase {
     }
 
     public void testTreeCharFingerPrintStability() {
+        ISourceLocation loc = VF.sourceLocation("BLABLA");
+
         try {
             ITree theChar = (ITree) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Tree, new StringReader("char(32)"));
            
+            assertEquals(theChar.getMatchFingerprint(), "char".hashCode() + 131);
+            assertEquals(theChar.getConcreteMatchFingerprint(), "char".hashCode() + ((IInteger) theChar.get(0)).intValue());
+
+            // and now WITH a keyword parameter
+            theChar = (ITree) theChar.asWithKeywordParameters().setParameter("src", loc);
+
             assertEquals(theChar.getMatchFingerprint(), "char".hashCode() + 131);
             assertEquals(theChar.getConcreteMatchFingerprint(), "char".hashCode() + ((IInteger) theChar.get(0)).intValue());
         }
@@ -106,9 +129,17 @@ public class MatchFingerprintTest extends TestCase {
     }
 
      public void testTreeCycleFingerPrintStability() {
+        ISourceLocation loc = VF.sourceLocation("BLABLA");
+
         try {
             ITree theCycle = (ITree) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Tree, new StringReader("cycle(sort(\"A\"), 3)"));
            
+            assertEquals(theCycle.getMatchFingerprint(), "cycle".hashCode() + 2 * 131);
+            assertEquals(theCycle.getConcreteMatchFingerprint(), "cycle".hashCode() + 13 * theCycle.get(0).hashCode());
+
+            // and now WITH a keyword parameter
+            theCycle = (ITree) theCycle.asWithKeywordParameters().setParameter("src", loc);
+
             assertEquals(theCycle.getMatchFingerprint(), "cycle".hashCode() + 2 * 131);
             assertEquals(theCycle.getConcreteMatchFingerprint(), "cycle".hashCode() + 13 * theCycle.get(0).hashCode());
         }
