@@ -519,6 +519,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public boolean isChar() {
 			return true;
 		}
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 3052374 /* "char".hashCode() */ + ch;
+		}
 		
 		@Override
 		public INode setChildren(IValue[] childArray) {
@@ -682,6 +687,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		public CharByte(byte ch) {
 			this.ch = ch;
+		}
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 3052374 /* "char".hashCode() */ + ch;
 		}
 		
 		@Override
@@ -854,6 +864,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public Cycle(IConstructor symbol, int cycleLength) {
 			this.symbol = symbol;
 			this.cycleLength = cycleLength;
+		}
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 95131878 /* "cycle".hashCode() */ + 13 * symbol.hashCode();
 		}
 		
 		@Override
@@ -1034,10 +1049,20 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
+		public int getConcreteMatchFingerprint() {
+			return 96694 /* "amb".hashCode() */ + 43 * alternatives.getElementType().hashCode();
+		}
+
+		@Override
 		public boolean isAmb() {
 			return true;
 		}
 		
+		@Override
+		public int getMatchFingerprint() {
+			return 96694 /* Tree_Amb.getName().hashCode() */ + 131; // should be equal what IConstructor does for the amb constructor!
+		}
+
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeAmb(this);
@@ -1101,8 +1126,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 				public IValue next() {
 					count++;
 					switch(count) {
-					case 1: return getAlternatives();
-					default: return null;
+						case 1: return getAlternatives();
+						default: return null;
 					}
 				}
 			};
@@ -1217,6 +1242,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeAppl(this);
@@ -1268,6 +1298,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeAmb(this);
@@ -1314,6 +1349,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeCycle(this);
@@ -1355,6 +1395,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         public CharWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.Map.Immutable<String, IValue> parameters) {
             super(content, parameters);
         }
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
 
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
@@ -1402,6 +1447,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		protected final boolean isMatchIgnorable;
 		protected Type type = null;
         
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 3568542 /* "tree".hashCode() */ + 41 * production.hashCode();
+		}
 
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {

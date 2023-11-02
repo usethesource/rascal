@@ -25,8 +25,23 @@ public interface ITree extends IConstructor, IExternalValue {
 
 	@Override
 	default int getMatchFingerprint() {
-		return 3568542 /* "tree".hashCode() */ + 41 * getProduction().hashCode();
+		// ITrees must simulate their constructor prints in case
+		// we pattern match on the abstract Tree data-type
+		return IConstructor.super.getMatchFingerprint();
 	}
+
+	/**
+	 * Concrete patterns need another layer of fingerprinting on top
+	 * of `getMatchFingerprint`. The reason is that _the same IValue_
+	 * can be matched against an abstract pattern of the Tree data-type,
+	 * and against concrete patterns. 
+	 * 
+	 * Like before, the match-fingerprint contract is:
+	 *   if pattern.match(tree) ==> pattern.fingerprint() == match.fingerprint();
+	 * 
+	 * @return a unique code for each outermost ITree node
+	 */
+	int getConcreteMatchFingerprint();
 
 	default boolean isAppl() {
 		return false;
