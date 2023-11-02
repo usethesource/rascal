@@ -12,6 +12,8 @@
  */ 
 package org.rascalmpl;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -81,6 +83,25 @@ public class MatchFingerprintTest extends TestCase {
         }
     }
     
+    public void testTreeFingerprintDifferentiation() {
+        String prodString1 = "prod(sort(\"E\"),[],{})";
+        String prodString2 = "prod(sort(\"E\"),[empty()],{})";
+
+        try {
+            IConstructor prod1= (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString1));
+            ITree tree1 = VF.appl(prod1, VF.list());
+            IConstructor prod2= (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString2));
+            ITree tree2 = VF.appl(prod2, VF.list());
+
+            // these two assert explain the different between `getMatchFingerprint` and `getConcreteMatchFingerprint`
+            assertEquals(tree1.getMatchFingerprint(), tree2.getMatchFingerprint());
+            assertNotEquals(tree1.getConcreteMatchFingerprint(), tree2.getMatchFingerprint());
+        }
+        catch (FactTypeUseException | IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
     public void testTreeAmbFingerPrintStability() {
         String prodString1 = "prod(sort(\"E\"),[],{})";
         String prodString2 = "prod(sort(\"E\"),[empty()],{})";
@@ -91,7 +112,7 @@ public class MatchFingerprintTest extends TestCase {
             ITree tree1 = VF.appl(prod1, VF.list());
             IConstructor prod2= (IConstructor) new StandardTextReader().read(VF, RascalFunctionValueFactory.getStore(), RascalFunctionValueFactory.Production, new StringReader(prodString2));
             ITree tree2 = VF.appl(prod2, VF.list());
-            
+
             ITree amb = VF.amb(VF.set(tree1, tree2));
 
             assertEquals(amb.getMatchFingerprint(), "amb".hashCode() + 131);
