@@ -344,7 +344,7 @@ data ChartType
 data ChartOptions  
     = chartOptions(
         bool responsive=true,
-        bool animations=false,
+        bool animations=true,
         ChartPlugins plugins = chartPlugins()  
     );
 
