@@ -83,13 +83,13 @@ To complete the function for the other kinds of trees, even though less importan
 implement a sensible encoding that follows the contract and tries to differentiate as much as possible between different values.
 }
 int concreteFingerprint(appl(Production p, list[Tree] _))                   = concreteFingerprint(p);
-int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashcode("appl")  + 43 * internalHashcode(t)
+int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashcode("amb")   + 43 * internalHashcode(t)
     when label(_, Symbol t) := s || Symbol t := s;
 int concreteFingerprint(char(int ch))                                       = internalHashcode("char")  + internalHashcode(ch);
 int concreteFingerprint(cycle(Symbol s, int _))                             = internalHashcode("cycle") + 13 * internalHashcode(s);
 
 @synopsis{Compute a fingerprint for a match pattern with this outermost production rule}
-int concreteFingerprint(Production p) = 3568542 + 41 * internalHashcode(p);
+int concreteFingerprint(Production p) = internalHashcode("appl") + 41 * internalHashcode(p);
 
 @synopsis{These two implementations are intentional clones.}
 test bool concreteFingerprintAlignment(Tree x) = concreteFingerprint(x) == internalConcreteFingerprint(x);
