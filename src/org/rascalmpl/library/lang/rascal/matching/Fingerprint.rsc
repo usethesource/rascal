@@ -43,8 +43,6 @@ extend ParseTree;
 import Node;
 import List;
 
-
-
 @synopsis{Computes a unique fingerprint for each kind of tree based on the identity of the top-level tree node.}
 @description{
 Concrete fingerprint implements the pattern matching contract:
@@ -58,13 +56,13 @@ To complete the function for the other kinds of trees, even though less importan
 implement a sensible encoding that follows the contract and tries to differentiate as much as possible between different values.
 }
 int concreteFingerprint(appl(Production p, list[Tree] _))                   = concreteFingerprint(p);
-int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashcode("amb")   + 43 * internalHashcode(t)
+int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashCode("amb")   + 43 * internalHashCode(t)
     when label(_, Symbol t) := s || Symbol t := s;
-int concreteFingerprint(char(int ch))                                       = internalHashcode("char")  + internalHashcode(ch);
-int concreteFingerprint(cycle(Symbol s, int _))                             = internalHashcode("cycle") + 13 * internalHashcode(s);
+int concreteFingerprint(char(int ch))                                       = internalHashCode("char")  + internalHashCode(ch);
+int concreteFingerprint(cycle(Symbol s, int _))                             = internalHashCode("cycle") + 13 * internalHashCode(s);
 
 @synopsis{Compute a fingerprint for a match pattern with this outermost production rule}
-int concreteFingerprint(Production p) = internalHashcode("appl") + 41 * internalHashcode(p);
+int concreteFingerprint(Production p) = internalHashCode("appl") + 41 * internalHashCode(p);
 
 @synopsis{Computes a unique fingerprint for each kind of value based on the identity of the top-level kind.}
 @description{
@@ -73,12 +71,12 @@ Fingerprint implements the pattern matching contract:
 
 Work is done to avoid generating the 0 fingerprint for simple values like empty strings and 0 integers, etc.
 }
-int fingerprint(str r)           = internalHashcode(r) == 0 ? internalHashcode("str")  : internalHashcode(r);
-int fingerprint(int r)           = internalHashcode(r) == 0 ? internalHashcode("int")  : internalHashcode(r);
-int fingerprint(real r)          = internalHashcode(r) == 0 ? internalHashcode("real") : internalHashcode(r);
-int fingerprint(rat  r)          = internalHashcode(r) == 0 ? internalHashcode("rat")  : internalHashcode(r);
+int fingerprint(str r)           = internalHashCode(r) == 0 ? internalHashCode("str")  : internalHashCode(r);
+int fingerprint(int r)           = internalHashCode(r) == 0 ? internalHashCode("int")  : internalHashCode(r);
+int fingerprint(real r)          = internalHashCode(r) == 0 ? internalHashCode("real") : internalHashCode(r);
+int fingerprint(rat  r)          = internalHashCode(r) == 0 ? internalHashCode("rat")  : internalHashCode(r);
 int fingerprint(value t)         = tupleFingerprint(size(fields)) when \tuple(list[Symbol] fields) := typeOf(t);
-default int fingerprint(value n) = internalHashcode(n);
+default int fingerprint(value n) = internalHashCode(n);
 
 int fingerprint(node n)          = nodeFingerprint(getName(n), arity(n));
 
@@ -87,13 +85,13 @@ int fingerprint(set[value] l)        = setFingerprint();
 int fingerprint(map[value,value] l)  = mapFingerprint();
 
 
-int         nodeFingerprint(""      , int arity) = internalHashcode("node") + 131 * arity;
-default int nodeFingerprint(str name, int arity) = internalHashcode(name)   + 131 * arity;
+int         nodeFingerprint(""      , int arity) = internalHashCode("node") + 131 * arity;
+default int nodeFingerprint(str name, int arity) = internalHashCode(name)   + 131 * arity;
 
-int tupleFingerprint(int arity) = internalHashcode("tuple") + arity;
-int listFingerprint()           = internalHashcode("list");
-int setFingerprint()            = internalHashcode("set");
-int mapFingerprint()            = internalHashcode("map");
+int tupleFingerprint(int arity) = internalHashCode("tuple") + arity;
+int listFingerprint()           = internalHashCode("list");
+int setFingerprint()            = internalHashCode("set");
+int mapFingerprint()            = internalHashCode("map");
 int constructorFingerprint(str name, int arity) = nodeFingerprint(name, arity);
 
 
@@ -126,7 +124,7 @@ public. Rascal values are hashed already and exactly these hashes are used inter
 set, relation and map data-structures. There is no need to write Rascal programs that "hash 
 on the hash", and it would leak implementation details that are very hard to encapsulate again.
 }
-private java int internalHashcode(value x);
+private java int internalHashCode(value x);
 
 @synopsis{These two implementations are intentional clones.}
 test bool fingerprintAlignment(value x) = fingerprint(x) == internalFingerprint(x);
