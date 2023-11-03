@@ -70,13 +70,13 @@ public class MatchFingerprintTest extends TestCase {
             ITree tree = VF.appl(prod, VF.list());
 
             assertEquals(tree.getMatchFingerprint(), "appl".hashCode() + 131 * 2);
-            assertEquals(tree.getConcreteMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
+            assertEquals(tree.getConcreteMatchFingerprint(), "appl".hashCode() + 41 * prod.hashCode());
 
             // and now WITH a keyword parameter
             tree = (ITree) tree.asWithKeywordParameters().setParameter("src", loc);
 
             assertEquals(tree.getMatchFingerprint(), "appl".hashCode() + 131 * 2);
-            assertEquals(tree.getConcreteMatchFingerprint(), "tree".hashCode() + 41 * prod.hashCode());
+            assertEquals(tree.getConcreteMatchFingerprint(), "appl".hashCode() + 41 * prod.hashCode());
         }
         catch (FactTypeUseException | IOException e) {
             fail(e.getMessage());

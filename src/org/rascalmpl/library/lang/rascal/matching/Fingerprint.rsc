@@ -14,7 +14,11 @@ fingerprints, with compile-time information for generating switch cases that use
 There are several explicit contracts implemented here:
    * a fingerprint is (almost) never `0`. 
    * the fingerprint functions in this module implement exactly the fingerprinting of the run-time that the generated code will be linked against.
-   This contract is tested with internal tests in this module.
+   This contract is tested with internal tests in this module: fingerprintAlignment and concreteFingerprintAlignment. 
+   If these tests fail, it is possible that during a bootstrap cycle of 3 steps,
+   the contract is temporarily not satisfied in the first and second steps. To break the impasse, the code below allows us to generate fingerprints for 
+   the _next_ run-time version, while the current run-time still runs the _previous_ version of the compiler. We have to disable the `concreteFingerprintAlignment`
+   and `fingerprintAlignment` tests temporarily during the first and second run.
    * `value matches pattern ==> fingerprint(pattern) == fingerprint(value)` such that a fingerprint is always an over-approximation of matching. It may
    never be the case that a value should match a pattern and the fingerprint contradicts this.
    This contract is tested by the pattern matching tests for the interpreter and the compiler.
