@@ -58,6 +58,7 @@ implement a sensible encoding that follows the contract and tries to differentia
 int concreteFingerprint(appl(Production p, list[Tree] _))                   = concreteFingerprint(p);
 int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashCode("amb")   + 43 * internalHashCode(t)
     when label(_, Symbol t) := s || Symbol t := s;
+int concreteFingerprint(amb({}))                                            = internalHashCode("amb");
 int concreteFingerprint(char(int ch))                                       = internalHashCode("char")  + internalHashCode(ch);
 int concreteFingerprint(cycle(Symbol s, int _))                             = internalHashCode("cycle") + 13 * internalHashCode(s);
 
