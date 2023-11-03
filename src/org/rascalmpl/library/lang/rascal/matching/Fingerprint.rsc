@@ -108,16 +108,21 @@ int fingerprint(rat  r)          = internalHashcode(r) == 0 ? internalHashcode("
 int fingerprint(value t)         = tupleFingerprint(size(fields)) when \tuple(list[Symbol] fields) := typeOf(t);
 default int fingerprint(value n) = internalHashcode(n);
 
-int fingerprint(node n)          = fingerprint(getName(n), arity(n));
+int fingerprint(node n)          = nodeFingerprint(getName(n), arity(n));
 
-int         fingerprint(""      , int arity) = internalHashcode("node") + 131 * arity;
-default int fingerprint(str name, int arity) = internalHashcode(name)   + 131 * arity;
+int fingerprint(list[value] l)       = listFingerprint();
+int fingerprint(set[value] l)        = setFingerprint();
+int fingerprint(map[value,value] l)  = mapFingerprint();
 
-int fingerprint(list[value] l)       = internalHashcode("list");
-int fingerprint(set[value] l)        = internalHashcode("set");
-int fingerprint(map[value,value] l)  = internalHashcode("map");
+
+int         nodeFingerprint(""      , int arity) = internalHashcode("node") + 131 * arity;
+default int nodeFingerprint(str name, int arity) = internalHashcode(name)   + 131 * arity;
 
 int tupleFingerprint(int arity) = internalHashcode("tuple") + arity;
+int listFingerprint()           = internalHashcode("list");
+int setFingerprint()            = internalHashcode("set");
+int mapFingerprint()            = internalHashcode("map");
+int constructorFingerprint(str name, int arity) = nodeFingerprint(name, arity);
 
 @synopsis{These two implementations are intentional clones.}
 test bool fingerprintAlignment(value x) = fingerprint(x) == internalFingerprint(x);
