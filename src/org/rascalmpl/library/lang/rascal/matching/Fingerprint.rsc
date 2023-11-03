@@ -71,10 +71,10 @@ Fingerprint implements the pattern matching contract:
 
 Work is done to avoid generating the 0 fingerprint for simple values like empty strings and 0 integers, etc.
 }
-int fingerprint(str r)           = internalHashCode(r) == 0 ? internalHashCode("str")  : internalHashCode(r);
-int fingerprint(int r)           = internalHashCode(r) == 0 ? internalHashCode("int")  : internalHashCode(r);
-int fingerprint(real r)          = internalHashCode(r) == 0 ? internalHashCode("real") : internalHashCode(r);
-int fingerprint(rat  r)          = internalHashCode(r) == 0 ? internalHashCode("rat")  : internalHashCode(r);
+int fingerprint(str r)           = hash == 0 ? internalHashCode("str")  : hash when int hash := internalHashCode(r);
+int fingerprint(int r)           = hash == 0 ? internalHashCode("int")  : hash when int hash := internalHashCode(r);
+int fingerprint(real r)          = hash == 0 ? internalHashCode("real") : hash when int hash := internalHashCode(r);
+int fingerprint(rat  r)          = hash == 0 ? internalHashCode("rat")  : hash when int hash := internalHashCode(r);
 int fingerprint(value t)         = tupleFingerprint(size(fields)) when \tuple(list[Symbol] fields) := typeOf(t);
 default int fingerprint(value n) = internalHashCode(n);
 
@@ -84,6 +84,8 @@ int fingerprint(list[value] l)       = listFingerprint();
 int fingerprint(set[value] l)        = setFingerprint();
 int fingerprint(map[value,value] l)  = mapFingerprint();
 
+int fingerprint(true) = internalHashCode("true");
+int fingerprint(false) = internalHashCode("true");
 
 int         nodeFingerprint(""      , int arity) = internalHashCode("node") + 131 * arity;
 default int nodeFingerprint(str name, int arity) = internalHashCode(name)   + 131 * arity;
