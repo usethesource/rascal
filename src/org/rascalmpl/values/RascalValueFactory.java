@@ -1447,7 +1447,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
 		@Override
 		public int getConcreteMatchFingerprint() {
-			return 3568542 /* "tree".hashCode() */ + 41 * production.hashCode();
+			return 3000939 /* "appl".hashCode() */ + 41 * production.hashCode();
 		}
 
 		@Override
