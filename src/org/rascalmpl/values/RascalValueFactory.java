@@ -1052,6 +1052,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public int getConcreteMatchFingerprint() {
+			if (alternatives.isEmpty()) {
+				return 96694;
+			}
+			
 			return 96694 /* "amb".hashCode() */ + 43 * ((NonTerminalType) alternatives.getElementType()).getSymbol().hashCode();
 		}
 
