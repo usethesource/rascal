@@ -43,36 +43,7 @@ extend ParseTree;
 import Node;
 import List;
 
-@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
-@synopsis{Compute the match fingerprint for any constant value. Only used for testing purposes.}
-@description{
-To decouple the Rascal compilers code generator from the bootstrapped run-time it is running in itself,
-the fingerprinting computation is replicated in this module. However, the computation should be the 
-same as this internalFingerprint function as long as nothing changes between compiler and run-time versions
-in the computations for fingerprinting. 
-}
-private java int internalFingerprint(value x);
 
-@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
-@synopsis{Compute the concrete match fingerprint for any parse `Tree`. Only used for testing purposes.}
-@description{
-To decouple the Rascal compilers code generator from the bootstrapped run-time it is running in itself,
-the fingerprinting computation is replicated in this module. However, the computation should be the 
-same as this internalFingerprint function as long as nothing changes between compiler and run-time versions
-in the computations for fingerprinting. 
-}
-@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
-private java int internalConcreteFingerprint(Tree x);
-
-@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
-@synopsis{Get the Object.hashCode() of the Java implementation of a Rascal value.}
-@description{
-This hash code is sometimes a part of computing a fingerprint. Do not make this function
-public. Rascal values are hashed already and exactly these hashes are used internally by the
-set, relation and map data-structures. There is no need to write Rascal programs that "hash 
-on the hash", and it would leak implementation details that are very hard to encapsulate again.
-}
-private java int internalHashcode(value x);
 
 @synopsis{Computes a unique fingerprint for each kind of tree based on the identity of the top-level tree node.}
 @description{
@@ -94,9 +65,6 @@ int concreteFingerprint(cycle(Symbol s, int _))                             = in
 
 @synopsis{Compute a fingerprint for a match pattern with this outermost production rule}
 int concreteFingerprint(Production p) = internalHashcode("appl") + 41 * internalHashcode(p);
-
-@synopsis{These two implementations are intentional clones.}
-test bool concreteFingerprintAlignment(Tree x) = concreteFingerprint(x) == internalConcreteFingerprint(x);
 
 @synopsis{Computes a unique fingerprint for each kind of value based on the identity of the top-level kind.}
 @description{
@@ -128,5 +96,40 @@ int setFingerprint()            = internalHashcode("set");
 int mapFingerprint()            = internalHashcode("map");
 int constructorFingerprint(str name, int arity) = nodeFingerprint(name, arity);
 
+
+@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
+@synopsis{Compute the match fingerprint for any constant value. Only used for testing purposes.}
+@description{
+To decouple the Rascal compilers code generator from the bootstrapped run-time it is running in itself,
+the fingerprinting computation is replicated in this module. However, the computation should be the 
+same as this internalFingerprint function as long as nothing changes between compiler and run-time versions
+in the computations for fingerprinting. 
+}
+private java int internalFingerprint(value x);
+
+@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
+@synopsis{Compute the concrete match fingerprint for any parse `Tree`. Only used for testing purposes.}
+@description{
+To decouple the Rascal compilers code generator from the bootstrapped run-time it is running in itself,
+the fingerprinting computation is replicated in this module. However, the computation should be the 
+same as this internalFingerprint function as long as nothing changes between compiler and run-time versions
+in the computations for fingerprinting. 
+}
+@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
+private java int internalConcreteFingerprint(Tree x);
+
+@javaClass{org.rascalmpl.library.lang.rascal.matching.internal.Fingerprint}
+@synopsis{Get the Object.hashCode() of the Java implementation of a Rascal value.}
+@description{
+This hash code is sometimes a part of computing a fingerprint. Do not make this function
+public. Rascal values are hashed already and exactly these hashes are used internally by the
+set, relation and map data-structures. There is no need to write Rascal programs that "hash 
+on the hash", and it would leak implementation details that are very hard to encapsulate again.
+}
+private java int internalHashcode(value x);
+
 @synopsis{These two implementations are intentional clones.}
 test bool fingerprintAlignment(value x) = fingerprint(x) == internalFingerprint(x);
+
+@synopsis{These two implementations are intentional clones.}
+test bool concreteFingerprintAlignment(Tree x) = concreteFingerprint(x) == internalConcreteFingerprint(x);
