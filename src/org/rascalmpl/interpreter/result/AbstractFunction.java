@@ -39,8 +39,8 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
-
-import io.usethesource.vallang.IConstructor;
+ 
+import io.usethesource.vallang.IConstructor; 
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
