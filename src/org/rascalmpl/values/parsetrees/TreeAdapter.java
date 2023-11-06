@@ -288,6 +288,7 @@ public class TreeAdapter {
 			return SymbolAdapter.charClass(TreeAdapter.getCharacter(tree));
 		}
 		else if (isAmb(tree)) {
+			// ambiguities are never empty
 			return getType((ITree) getAlternatives(tree).iterator().next());
 		}
 		throw new ImplementationError("ITree does not have a type");
