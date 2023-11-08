@@ -38,18 +38,11 @@ jobs:
         with:
           check_name: "Test Report - ${{ runner.os }}"
 
-      - name: Report Failure
-        if: failure()
-        uses: act10ns/slack@v1
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}
-
   builds:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     needs: [test-linux]
+    permissions:
+      contents: write
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
       - uses: browser-actions/setup-chrome@latest
@@ -97,15 +90,6 @@ jobs:
             tests (buildjet-4vcpu-ubuntu-2204-arm)
           ttl: 15
 
-      - name: Prepare Draft Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          draft: true
-          files: ${{ steps.build-artifact.outputs.artifact-root-dir}}/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Deploy
         if: startsWith(github.ref, 'refs/tags/v')
         uses: usethesource/releases-maven-action@v1
@@ -118,14 +102,15 @@ jobs:
           ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
 
-      - name: Report Failure
-        if: failure()
-        uses: act10ns/slack@v1
+      - name: Prepare Draft Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
+          draft: true
+          files: ${{ steps.build-artifact.outputs.artifact-root-dir}}/**/*
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
   tests:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
@@ -160,11 +145,3 @@ jobs:
         with:
           check_name: "Test Report - ${{ runner.os }}"
 
-      - name: Report Failure
-        if: failure()
-        uses: act10ns/slack@v1
-        with:
-          status: ${{ job.status }}
-          steps: ${{ toJson(steps) }}
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.RASCAL_SLACK_WEBHOOK }}

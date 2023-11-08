@@ -217,9 +217,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         // the return type of the generated parse function is instantiated here to the start nonterminal of
         // the provided grammar:
-        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
-            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
-            tf.tupleEmpty());
+        Type functionType = !firstAmbiguity.getValue() 
+            ? tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+                tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+                tf.tupleEmpty())
+            : tf.functionType(RascalFunctionValueFactory.Tree,
+                tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+                tf.tupleEmpty())
+            ;
         
         Class<IGTD<IConstructor, ITree, ISourceLocation>>parser = getParserClass((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
@@ -299,6 +304,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
+        @SuppressWarnings({"unchecked"})
         final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
             = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
                 .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
@@ -324,7 +330,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
       
-
+        @SuppressWarnings({"unchecked"})
         final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
             = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
                 .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
