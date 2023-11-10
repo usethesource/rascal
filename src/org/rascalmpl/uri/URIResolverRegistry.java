@@ -964,29 +964,40 @@ public class URIResolverRegistry {
 		}
 	}
 
-	public void watch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		loc = safeResolve(loc);
-
 		if (!isDirectory(loc)) {
 			// so underlying implementations of ISourceLocationWatcher only have to support
 			// watching directories (the native NEO file watchers are like that)
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
+		ISourceLocation resolved = safeResolve(loc);
+
+		Consumer<ISourceLocationChanged> newCallback = !resolved.equals(loc) ? 
+			// we resolved logical resolvers in order to use native watchers as much as possible
+			// for efficiency sake, but this breaks the logical URI abstraction. We have to undo
+			// this renaming before we trigger the callback.
+			changes -> {
+				ISourceLocation relative = URIUtil.relativize(resolved, changes.getLocation());
+				ISourceLocation unresolved = URIUtil.getChildLocation(loc, relative.getPath());
+				callback.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
+			}
+			: callback;
+
+		ISourceLocationWatcher watcher = watchers.getOrDefault(resolved.getScheme(), fallbackWatcher);
 		if (watcher != null) {
-			watcher.watch(loc, callback);
+			watcher.watch(resolved, callback);
 		}
 		else {
-			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).add(callback);
+			watching.computeIfAbsent(resolved, k -> ConcurrentHashMap.newKeySet()).add(newCallback);
 		}
 
-		if (isDirectory(loc) && recursive) {
-			for (ISourceLocation elem : list(loc)) {
+		if (isDirectory(resolved) && recursive) {
+			for (ISourceLocation elem : list(resolved)) {
 				if (isDirectory(elem)) {
 					try {
-						watch(elem, recursive, callback);
+						watch(elem, recursive, newCallback);
 					}
 					catch (IOException e) {
 						// we swallow recursive IO errors which can be caused by file permissions.
