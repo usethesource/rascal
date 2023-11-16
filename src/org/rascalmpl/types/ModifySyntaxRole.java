@@ -9,12 +9,17 @@ import static org.rascalmpl.values.parsetrees.SymbolAdapter.isSort;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import org.rascalmpl.ast.Nonterminal;
+import org.rascalmpl.ast.SyntaxRoleModifier;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
@@ -111,6 +116,34 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(RascalValueFactory.Symbol_SyntaxModifier, arg.asSymbol(vf, store, grammar, done));
+        }
+
+        
+        @Override
+        public boolean isSubtypeOfSyntaxModifier(RascalType type) {
+            assert isOpen();
+            return type instanceof Syntax;
+        }
+
+        @Override
+        public boolean isSubtypeOfNonTerminal(RascalType type) {
+            assert isOpen(); // otherwise we wouldn't be here 
+
+            NonTerminalType nt = (NonTerminalType) type;
+            IConstructor sym = nt.getSymbol();
+
+            return SymbolAdapter.isSort(sym) || SymbolAdapter.isParameterizedSort(sym);
+        }
+
+        @Override
+        protected boolean isSubtypeOfAbstractData(Type type) {
+            // syntax[T] <: Tree
+            return type == RascalValueFactory.Tree;
+        }
+
+        @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToSyntax(role.arg);
         }
@@ -166,6 +199,33 @@ public abstract class ModifySyntaxRole extends RascalType {
     public static class Lexical extends ModifySyntaxRole {
         public Lexical(Type arg) {
             super(arg);
+        }
+
+        @Override
+        public boolean isSubtypeOfSyntaxModifier(RascalType type) {
+            assert isOpen();
+            return type instanceof Lexical;
+        }
+
+        @Override
+        public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(RascalValueFactory.Symbol_LexicalModifier, arg.asSymbol(vf, store, grammar, done));
+        }
+
+        @Override
+        public boolean isSubtypeOfNonTerminal(RascalType type) {
+            assert isOpen(); // otherwise we wouldn't be here 
+
+            NonTerminalType nt = (NonTerminalType) type;
+            IConstructor sym = nt.getSymbol();
+
+            return SymbolAdapter.isLex(sym) || SymbolAdapter.isParameterizedLex(sym);
+        }
+
+        @Override
+        protected boolean isSubtypeOfAbstractData(Type type) {
+            // syntax[T] <: Tree
+            return type == RascalValueFactory.Tree;
         }
 
         @Override
@@ -225,6 +285,33 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        public boolean isSubtypeOfSyntaxModifier(RascalType type) {
+            assert isOpen();
+            return type instanceof Layout;
+        }
+
+        @Override
+        public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(RascalValueFactory.Symbol_LayoutModifier, arg.asSymbol(vf, store, grammar, done));
+        }
+
+        @Override
+        public boolean isSubtypeOfNonTerminal(RascalType type) {
+            assert isOpen(); // otherwise we wouldn't be here 
+
+            NonTerminalType nt = (NonTerminalType) type;
+            IConstructor sym = nt.getSymbol();
+
+            return SymbolAdapter.isLayouts(sym);
+        }
+
+        @Override
+        protected boolean isSubtypeOfAbstractData(Type type) {
+            // syntax[T] <: Tree
+            return type == RascalValueFactory.Tree;
+        }
+
+        @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToLayout(role.arg);
         }
@@ -277,7 +364,34 @@ public abstract class ModifySyntaxRole extends RascalType {
         public Keyword(Type arg) {
             super(arg);
         }
-        
+
+        @Override
+        public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(RascalValueFactory.Symbol_KeywordModifier, arg.asSymbol(vf, store, grammar, done));
+        }
+
+        @Override
+        public boolean isSubtypeOfSyntaxModifier(RascalType type) {
+            assert isOpen();
+            return type instanceof Keyword;
+        }
+
+        @Override
+        public boolean isSubtypeOfNonTerminal(RascalType type) {
+            assert isOpen(); // otherwise we wouldn't be here 
+
+            NonTerminalType nt = (NonTerminalType) type;
+            IConstructor sym = nt.getSymbol();
+
+            return SymbolAdapter.isKeyword(sym);
+        }
+
+        @Override
+        protected boolean isSubtypeOfAbstractData(Type type) {
+            // syntax[T] <: Tree
+            return type == RascalValueFactory.Tree;
+        }
+
         @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToKeyword(role.arg);
@@ -327,8 +441,30 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        public boolean isSubtypeOfSyntaxModifier(RascalType type) {
+            assert isOpen();
+            return type instanceof Data;
+        }
+
+        @Override
+        protected boolean isSupertypeOf(Type type) {
+            return type.isSubtypeOf(this);
+        }
+
+        @Override
+        public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(RascalValueFactory.Symbol_DataModifier, arg.asSymbol(vf, store, grammar, done));
+        }
+
+        @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToData(role.arg);
+        }
+
+        @Override
+        protected boolean isSubtypeOfAbstractData(Type type) {
+            assert isOpen();
+            return true;
         }
 
         @Override
@@ -368,6 +504,17 @@ public abstract class ModifySyntaxRole extends RascalType {
     }
 
     @Override
+    protected boolean isSupertypeOf(RascalType type) {
+        return type.isSubtypeOfSyntaxModifier(this);
+    }
+
+    @Override
+    protected boolean isSubtypeOfNode(Type type) {
+        // all syntax roles are sub-type of node
+       return true;
+    }
+
+    @Override
     protected Type lub(RascalType type) {
         return null;
     }
@@ -385,23 +532,12 @@ public abstract class ModifySyntaxRole extends RascalType {
     }
 
     @Override
-    protected boolean isSupertypeOf(RascalType type) {
-        if (type.isRoleModifier()) {
-
-        }
-        else if (isOpen()) {
-
-        }
-        else {
-
-        }
+    public Type asAbstractDataType() {
+        return RascalValueFactory.Symbol;
     }
 
     @Override
-    public Type asAbstractDataType() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'asAbstractDataType'");
-    }
+    abstract public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
 
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
