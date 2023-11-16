@@ -972,29 +972,30 @@ public class URIResolverRegistry {
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocation resolved = safeResolve(loc);
+		final ISourceLocation finalLocCopy = loc;
+		final ISourceLocation resolvedLoc  = safeResolve(loc);
 
-		Consumer<ISourceLocationChanged> newCallback = !resolved.equals(loc) ? 
+		Consumer<ISourceLocationChanged> newCallback = !resolvedLoc.equals(loc) ? 
 			// we resolved logical resolvers in order to use native watchers as much as possible
 			// for efficiency sake, but this breaks the logical URI abstraction. We have to undo
 			// this renaming before we trigger the callback.
 			changes -> {
-				ISourceLocation relative = URIUtil.relativize(resolved, changes.getLocation());
-				ISourceLocation unresolved = URIUtil.getChildLocation(loc, relative.getPath());
+				ISourceLocation relative = URIUtil.relativize(resolvedLoc, changes.getLocation());
+				ISourceLocation unresolved = URIUtil.getChildLocation(finalLocCopy, relative.getPath());
 				callback.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
 			}
 			: callback;
 
-		ISourceLocationWatcher watcher = watchers.getOrDefault(resolved.getScheme(), fallbackWatcher);
+		ISourceLocationWatcher watcher = watchers.getOrDefault(resolvedLoc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
-			watcher.watch(resolved, callback);
+			watcher.watch(resolvedLoc, callback);
 		}
 		else {
-			watching.computeIfAbsent(resolved, k -> ConcurrentHashMap.newKeySet()).add(newCallback);
+			watching.computeIfAbsent(resolvedLoc, k -> ConcurrentHashMap.newKeySet()).add(newCallback);
 		}
 
-		if (isDirectory(resolved) && recursive) {
-			for (ISourceLocation elem : list(resolved)) {
+		if (isDirectory(resolvedLoc) && recursive) {
+			for (ISourceLocation elem : list(resolvedLoc)) {
 				if (isDirectory(elem)) {
 					try {
 						watch(elem, recursive, newCallback);
