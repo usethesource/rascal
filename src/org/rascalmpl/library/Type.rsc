@@ -93,6 +93,13 @@ data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
 
+data Symbol = \data(Symbol modified); // to-data modifier
+
+Symbol \data(\data(Symbol s)) = \data(s);
+Symbol \data(adt(n, ps))      = adt(n, ps);
+
+bool subtype(\data(Symbol s), \node()) = true;
+
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
