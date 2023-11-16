@@ -90,7 +90,7 @@ public class RascalTypeFactory {
 		return tf.externalType(new NonTerminalType(SymbolFactory.makeLex(name, parameters)));
 	}
 
-	public Type keywordType(String name, Type[] parameters) {
+	public Type keywordType(String name) {
 		return tf.externalType(new NonTerminalType(SymbolFactory.makeKeyword(name, vf.list())));
 	}
 
@@ -118,14 +118,6 @@ public class RascalTypeFactory {
     public Type modifyToKeyword(Type arg) {
 		return tf.externalType(new ModifySyntaxRole.Keyword(arg).apply());
     }
-
-	private Type keywordType(IString name) {
-		return tf.externalType(new NonTerminalType(SymbolAdapter.makeKeyword(name.getValue())));
-	}
-
-	private Type syntaxType(IString name) {
-		return tf.externalType(new NonTerminalType(syntax(name)));
-	}
 
    /**
 	 * Changes a keyword, a lexical, a data type or a layout type to a syntax type.
