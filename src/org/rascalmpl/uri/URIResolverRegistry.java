@@ -964,29 +964,41 @@ public class URIResolverRegistry {
 		}
 	}
 
-	public void watch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		loc = safeResolve(loc);
-
 		if (!isDirectory(loc)) {
 			// so underlying implementations of ISourceLocationWatcher only have to support
 			// watching directories (the native NEO file watchers are like that)
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
+		final ISourceLocation finalLocCopy = loc;
+		final ISourceLocation resolvedLoc  = safeResolve(loc);
+
+		Consumer<ISourceLocationChanged> newCallback = !resolvedLoc.equals(loc) ? 
+			// we resolved logical resolvers in order to use native watchers as much as possible
+			// for efficiency sake, but this breaks the logical URI abstraction. We have to undo
+			// this renaming before we trigger the callback.
+			changes -> {
+				ISourceLocation relative = URIUtil.relativize(resolvedLoc, changes.getLocation());
+				ISourceLocation unresolved = URIUtil.getChildLocation(finalLocCopy, relative.getPath());
+				callback.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
+			}
+			: callback;
+
+		ISourceLocationWatcher watcher = watchers.getOrDefault(resolvedLoc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
-			watcher.watch(loc, callback);
+			watcher.watch(resolvedLoc, callback);
 		}
 		else {
-			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).add(callback);
+			watching.computeIfAbsent(resolvedLoc, k -> ConcurrentHashMap.newKeySet()).add(newCallback);
 		}
 
-		if (isDirectory(loc) && recursive) {
-			for (ISourceLocation elem : list(loc)) {
+		if (isDirectory(resolvedLoc) && recursive) {
+			for (ISourceLocation elem : list(resolvedLoc)) {
 				if (isDirectory(elem)) {
 					try {
-						watch(elem, recursive, callback);
+						watch(elem, recursive, newCallback);
 					}
 					catch (IOException e) {
 						// we swallow recursive IO errors which can be caused by file permissions.
