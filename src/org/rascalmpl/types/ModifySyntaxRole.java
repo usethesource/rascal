@@ -12,12 +12,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
-import org.rascalmpl.ast.Nonterminal;
-import org.rascalmpl.ast.SyntaxRoleModifier;
-import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
@@ -79,18 +75,18 @@ public abstract class ModifySyntaxRole extends RascalType {
             return applyToData(arg);
         }
         else if (arg instanceof NonTerminalType) {
-            Type kind = ((NonTerminalType) arg).getSymbol().getConstructorType();
+            IConstructor symbol = ((NonTerminalType) arg).getSymbol();
 
-            if (kind == RascalValueFactory.Symbol_Sort || kind == RascalValueFactory.Symbol_ParameterizedSort) {
+            if (isSort(symbol) || isParameterizedSort(symbol)) {
                 return applyToSyntax((NonTerminalType) arg);
             }
-            else if (kind == RascalValueFactory.Symbol_Lex || kind == RascalValueFactory.Symbol_ParameterizedLex) {
+            else if (isLex(symbol) || isParameterizedLex(symbol)) {
                 return applyToLexical((NonTerminalType) arg);
             }
-            else if (kind == RascalValueFactory.Symbol_Layouts) {
+            else if (isLayouts(symbol)) {
                 return applyToLayout((NonTerminalType) arg);
             }
-            else if (kind == RascalValueFactory.Symbol_Keywords) {
+            else if (isKeyword(symbol)) {
                 return applyToKeyword((NonTerminalType) arg);
             }
         }
@@ -135,10 +131,19 @@ public abstract class ModifySyntaxRole extends RascalType {
                 return RascalValueFactory.Tree;
             }
             else if (type instanceof Data) {
-                return TypeFactory.getInstance().nodeType();
+                return tf.nodeType();
             }
 
-            return TypeFactory.getInstance().nodeType();
+            return tf.nodeType();
+        }
+
+        @Override
+        protected Type glbWithModifySyntax(RascalType type) {
+            if (type instanceof Syntax) {
+                return TF.modifyToSyntax(((ModifySyntaxRole) type).arg.glb(arg));
+            }
+            
+            return tf.voidType();
         }
 
         @Override
@@ -247,10 +252,19 @@ public abstract class ModifySyntaxRole extends RascalType {
                 return RascalValueFactory.Tree;
             }
             else if (type instanceof Data) {
-                return TypeFactory.getInstance().nodeType();
+                return tf.nodeType();
             }
 
-            return TypeFactory.getInstance().nodeType();
+            return tf.nodeType();
+        }
+
+         @Override
+        protected Type glbWithModifySyntax(RascalType type) {
+            if (type instanceof Lexical) {
+                return TF.modifyToLexical(((ModifySyntaxRole) type).arg.glb(arg));
+            }
+
+            return tf.voidType();
         }
 
         @Override
@@ -347,10 +361,19 @@ public abstract class ModifySyntaxRole extends RascalType {
                 return RascalValueFactory.Tree;
             }
             else if (type instanceof Data) {
-                return TypeFactory.getInstance().nodeType();
+                return tf.nodeType();
             }
 
-            return TypeFactory.getInstance().nodeType();
+            return tf.nodeType();
+        }
+
+        @Override
+        protected Type glbWithModifySyntax(RascalType type) {
+            if (type instanceof Layout) {
+                return TF.modifyToLayout(((ModifySyntaxRole) type).arg.glb(arg));  
+            }
+            
+            return tf.voidType();
         }
 
 
@@ -434,8 +457,6 @@ public abstract class ModifySyntaxRole extends RascalType {
             return vf.constructor(RascalValueFactory.Symbol_KeywordModifier, arg.asSymbol(vf, store, grammar, done));
         }
 
-       
-
         @Override
         protected Type lubWithModifySyntax(RascalType type) {
             if (type instanceof Syntax) {
@@ -451,10 +472,20 @@ public abstract class ModifySyntaxRole extends RascalType {
                  return TF.modifyToKeyword(((ModifySyntaxRole) type).arg.lub(arg));            
             }
             else if (type instanceof Data) {
-                return TypeFactory.getInstance().nodeType();
+                return tf.nodeType();
             }
 
-            return TypeFactory.getInstance().nodeType();
+            return tf.nodeType();
+        }
+
+        @Override
+        protected Type glbWithModifySyntax(RascalType type) {
+            if (type instanceof Keyword) {
+                 return TF.modifyToKeyword(((ModifySyntaxRole) type).arg.glb(arg));            
+            }
+            
+
+            return tf.voidType();
         }
 
 
@@ -552,7 +583,16 @@ public abstract class ModifySyntaxRole extends RascalType {
                 return this;
             }
 
-            return TypeFactory.getInstance().nodeType();
+            return tf.nodeType();
+        }
+
+         @Override
+        protected Type glbWithModifySyntax(RascalType type) {
+            if (type instanceof Data) {
+                return this;
+            }
+
+            return tf.voidType();
         }
 
         @Override
@@ -582,10 +622,10 @@ public abstract class ModifySyntaxRole extends RascalType {
 
             if (arg.isParameterized()) {
                 Type[] params = SymbolAdapter.getParameters(arg.getSymbol()).stream().map(c -> TF.nonTerminalType((IConstructor) c)).toArray(Type[]::new);
-                return TypeFactory.getInstance().abstractDataType(new TypeStore(), name, params);
+                return tf.abstractDataType(new TypeStore(), name, params);
             }
             else {
-                return TypeFactory.getInstance().abstractDataType(new TypeStore(), name);
+                return tf.abstractDataType(new TypeStore(), name);
             }
         }
 
@@ -603,7 +643,7 @@ public abstract class ModifySyntaxRole extends RascalType {
         @Override
         public Type applyToLayout(NonTerminalType arg) {
             String name = SymbolAdapter.getName(arg.getSymbol());
-            return TypeFactory.getInstance().abstractDataType(new TypeStore(), name);
+            return tf.abstractDataType(new TypeStore(), name);
         }
 
         @Override
@@ -629,13 +669,13 @@ public abstract class ModifySyntaxRole extends RascalType {
             return type;
         }
 
-        return TypeFactory.getInstance().valueType();
+        return tf.valueType();
     }
 
     @Override
 	protected Type glbWithAbstractData(Type type) {
         // this is for all the syntax roles that are not data. Data overrides this
-	  return type == RascalValueFactory.Tree ? this : TypeFactory.getInstance().voidType(); 
+	  return type == RascalValueFactory.Tree ? this : tf.voidType(); 
 	}
 
     @Override
@@ -658,6 +698,9 @@ public abstract class ModifySyntaxRole extends RascalType {
     protected Type glb(RascalType type) {
         return type.glbWithModifySyntax(this);
     }
+
+    @Override
+    abstract protected Type glbWithModifySyntax(RascalType type);
 
     @Override
     protected boolean intersects(RascalType type) {

@@ -98,7 +98,8 @@ data Symbol = \data(Symbol modified); // to-data modifier
 Symbol \data(\data(Symbol s)) = \data(s);
 Symbol \data(adt(n, ps))      = adt(n, ps);
 
-bool subtype(\data(Symbol s), \node()) = true;
+bool subtype(\data(Symbol s), \node())        = true;
+bool subtype(\data(parameter(_,_)), adt(_,_)) = true;
 
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{

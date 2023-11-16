@@ -352,17 +352,26 @@ Symbol \layout(\keywords(n))       = layouts(n);
 Symbol \layout(\layouts(n))        = layouts(n);
 
 
-bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(Symbol::\parameterized-sort(_,_), Symbol::\adt("Tree", _)) = true;
-bool subtype(Symbol::\lex(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(Symbol::\parameterized-lex(_,_), Symbol::\adt("Tree", _)) = true;
-bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(Symbol::\keywords(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(\syntax(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(\lexical(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(\layout(_), Symbol::\adt("Tree", _)) = true;
-bool subtype(\keyword(_), Symbol::\adt("Tree", _)) = true;
+bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\parameterized-sort(_,_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\lex(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\parameterized-lex(_,_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\keywords(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(Symbol::\layouts(_), Symbol::\adt("Tree", [])) = true;
+
+bool subtype(\syntax(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(\lexical(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(\layout(_), Symbol::\adt("Tree", [])) = true;
+bool subtype(\keyword(_), Symbol::\adt("Tree", [])) = true;
+
+bool subtype(\data(parameter(_,_)), adt(_,_))                   = true;
+bool subtype(\syntax(parameter(_,_)), sort(_))                  = true;
+bool subtype(\syntax(parameter(_,_)), \parameterized-sort(_,_)) = true;
+bool subtype(\lexical(parameter(_,_)), lex(_))                  = true;
+bool subtype(\lexical(parameter(_,_)), \parameterized-lex(_,_)) = true;
+bool subtype(\keyword(parameter(_,_)), keywords(_))             = true;
+bool subtype(\layout(parameter(_,_)), layouts(_))               = true;
 
 
 @synopsis{Datatype for declaring preconditions and postconditions on symbols}
