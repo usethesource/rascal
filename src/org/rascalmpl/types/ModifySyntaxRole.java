@@ -9,7 +9,9 @@ import static org.rascalmpl.values.parsetrees.SymbolAdapter.isSort;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.StreamSupport;
 
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -19,30 +21,88 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
+/**
+ * A ModifySyntaxRole is a lazy modification operation on a Type that
+ * preserves its name, but not its syntax role. The lazyness is of essence
+ * due to type parameters: for `syntax[&T]` we must remember to modify
+ * to the `syntax` role until after the substitution of the type parameter.
+ * A lazy role has an effect during pattern matching, where it filters for
+ * types that have a certain role (e.g. `syntax[&T] _` only matches non-terminals
+ * that are not lexical, layout or keywords).
+ * 
+ * However, once a type parameter is made concrete, then ModifySyntaxRole
+ * should be `apply`ed. The canonical form of a ModifySyntaxRole for non-open
+ * types is the actually modified type representation. So a NonterminalType
+ * or an AbstractDatatype, etc. It is absolutely essential that the _apply_
+ * method is executed by the RascalTypeFactory and by the `Type.instantiate`
+ * implementations below to guarantee the canonical forms.
+ */
 public abstract class ModifySyntaxRole extends RascalType {
     private final static RascalTypeFactory TF = RascalTypeFactory.getInstance();
     private final static TypeFactory tf = TypeFactory.getInstance();
+
+    /**
+     * This is the type to be modified.
+     */
     protected final Type arg;
     
     public ModifySyntaxRole(Type param) {
         this.arg = param;
     }
 
-    public abstract Type apply();
-    protected abstract Type applyFromSyntax(ModifySyntaxRole role);
-    protected abstract Type applyFromLexical(ModifySyntaxRole role);
-    protected abstract Type applyFromLayout(ModifySyntaxRole role);
-    protected abstract Type applyFromKeyword(ModifySyntaxRole role);
-    protected abstract Type applyFromData(ModifySyntaxRole role);
-
-    /*
-     * These methods convert
+    /**
+     * `apply` modifies the parameter type to "become" a type that is indicated
+     * by the modifier class. This happens at construction time, when the
+     * type is made: syntax[data[X]] => syntax[X], and also after type-parameter
+     * substitution. 
+     * 
+     * Because there is a case distinction on both the receiver and the parameter
+     * type, we use the "double dispatch" design pattern to quickly reduce any
+     * combination of modifier and type kinds to the right result. 
+     * 
+     * Typically `apply` guarantees "name preservation". So the name of the
+     * resulting type is equal to the name of the parameter type.
      */
-    public abstract Type toSyntax();
-    public abstract Type toLexical();
-    public abstract Type toKeyword();
-    public abstract Type toLayout();
-    public abstract Type toData();
+    public Type apply() {
+        if (arg.isParameter()) {
+            return this;
+        }
+        else if (arg instanceof ModifySyntaxRole) {
+            return applyToRole((ModifySyntaxRole) arg);
+        }
+        else if (arg.isAbstractData()) {
+            return applyToData(arg);
+        }
+        else if (arg instanceof NonTerminalType) {
+            Type kind = ((NonTerminalType) arg).getSymbol().getConstructorType();
+
+            if (kind == RascalValueFactory.Symbol_Sort || kind == RascalValueFactory.Symbol_ParameterizedSort) {
+                return applyToSyntax((NonTerminalType) arg);
+            }
+            else if (kind == RascalValueFactory.Symbol_Lex || kind == RascalValueFactory.Symbol_ParameterizedLex) {
+                return applyToLexical((NonTerminalType) arg);
+            }
+            else if (kind == RascalValueFactory.Symbol_Layouts) {
+                return applyToLayout((NonTerminalType) arg);
+            }
+            else if (kind == RascalValueFactory.Symbol_Keywords) {
+                return applyToKeyword((NonTerminalType) arg);
+            }
+        }
+        
+        // this should not happen, but for robustness sake we return the unmodified type.
+        assert false  : "can not modify " + arg + " to " + this; 
+        
+        // `data[int] => int`
+        return arg;
+    }
+
+    protected abstract Type applyToRole(ModifySyntaxRole role);
+    protected abstract Type applyToSyntax(NonTerminalType role);
+    protected abstract Type applyToLexical(NonTerminalType role);
+    protected abstract Type applyToLayout(NonTerminalType role);
+    protected abstract Type applyToKeyword(NonTerminalType role);
+    protected abstract Type applyToData(Type role);
 
     /** this represents `syntax[&T]` */
     public static class Syntax extends ModifySyntaxRole {
@@ -50,97 +110,55 @@ public abstract class ModifySyntaxRole extends RascalType {
             super(arg);
         }
 
-        
         @Override
-        public Type toSyntax() {
-            return this;
+        protected Type applyToRole(ModifySyntaxRole role) {
+            return TF.modifyToSyntax(role.arg);
         }
 
         @Override
-        public Type toLexical() {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = getName();
+        public Type applyToSyntax(NonTerminalType arg) {
+            return arg;
+        }
 
-            if (type.isParameterized()) {
-                return TF.lexicalType(name, SymbolAdapter.getParameters(type.getSymbol()));
+        @Override
+        public Type applyToLexical(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+
+            if (arg.isParameterized()) {
+                return TF.syntaxType(name, SymbolAdapter.getParameters(arg.getSymbol()));
             }
             else {
-                return TF.lexicalType(name);
+                return TF.syntaxType(name);
+            }
+        }
+
+        @Override
+        public Type applyToKeyword(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.syntaxType(name);
+        }
+
+        @Override
+        public Type applyToLayout(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.syntaxType(name);
+        }
+
+        @Override
+        public Type applyToData(Type arg) {
+            String name = arg.getName();
+
+            if (arg.isParameterized()) {
+                return TF.syntaxType(name, StreamSupport.stream(arg.getTypeParameters().spliterator(), false).toArray(Type[]::new));
+            }
+            else {
+                return TF.syntaxType(name);
             }
         }
 
         @Override
         public String getName() {
             return SymbolAdapter.getName(((NonTerminalType) arg).getSymbol());
-        }
-
-        @Override
-        public Type toKeyword() {
-            return TF.keywordType(getName(), new Type[0]);
-        }
-
-        @Override
-        public Type toLayout() {
-            return toKeyword();
-        }
-
-        @Override
-        public Type toData() {
-            NonTerminalType type = (NonTerminalType) arg;
-
-            if (arg.isParameterized()) {
-                return tf.abstractDataType(new TypeStore(), getName());
-            }
-            else {
-                return tf.abstractDataType(new TypeStore(), getName(), SymbolAdapter.getParameters(type.getSymbol()).stream().map(c -> TF.nonTerminalType((IConstructor) c)).toArray(Type[]::new)));
-            }
-        }
-
-
-        @Override
-        public Type apply() {
-            if (arg instanceof ModifySyntaxRole) {
-                return ((ModifySyntaxRole) arg).applyFromSyntax(this);
-            }
-            else {
-                // TODO take care of regular symbols
-                return this;
-            }
-        }
-
-
-        @Override
-        protected Type applyFromSyntax(ModifySyntaxRole role) {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'applyFromSyntax'");
-        }
-
-
-        @Override
-        protected Type applyFromLexical(ModifySyntaxRole role) {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'applyFromLexical'");
-        }
-
-
-        @Override
-        protected Type applyFromLayout(ModifySyntaxRole role) {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'applyFromLayout'");
-        }
-
-
-        @Override
-        protected Type applyFromKeyword(ModifySyntaxRole role) {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'applyFromKeyword'");
-        }
-
-
-        @Override
-        protected Type applyFromData(ModifySyntaxRole role) {
-            // TODO Auto-generated method stub
-            throw new UnsupportedOperationException("Unimplemented method 'applyFromData'");
         }
     }
  
@@ -151,202 +169,202 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
-        public String getName() {
-            return SymbolAdapter.getName(((NonTerminalType) arg).getSymbol());
+        protected Type applyToRole(ModifySyntaxRole role) {
+            return TF.modifyToLexical(role.arg);
         }
 
         @Override
-        public Type toSyntax() {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = getName();
-            if (type.isParameterized()) {
-                return TF.syntaxType(name, SymbolAdapter.getParameters(type.getSymbol()));
+        public Type applyToLexical(NonTerminalType arg) {
+            return arg;
+        }
+
+        @Override
+        public Type applyToSyntax(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+
+            if (arg.isParameterized()) {
+                return TF.lexicalType(name, SymbolAdapter.getParameters(arg.getSymbol()));
             }
             else {
-                return TF.syntaxType(name);
+                return TF.lexicalType(name);
             }
         }
 
         @Override
-        public Type toLexical() {
-            return this;
-        }
-
-        @Override
-        public Type fromKeyword(Type arg) {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = SymbolAdapter.getName(type.getSymbol());
+        public Type applyToKeyword(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
             return TF.lexicalType(name);
         }
 
         @Override
-        public Type fromLayout(Type arg) {
-            return fromKeyword(arg);
+        public Type applyToLayout(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.lexicalType(name);
         }
 
         @Override
-        public Type fromData(Type arg) {
-            return TF.lexicalType(arg.getName());
+        public Type applyToData(Type arg) {
+            String name = arg.getName();
+
+            if (arg.isParameterized()) {
+                return TF.lexicalType(name, StreamSupport.stream(arg.getTypeParameters().spliterator(), false).toArray(Type[]::new));
+            }
+            else {
+                return TF.lexicalType(name);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return SymbolAdapter.getName(((NonTerminalType) arg).getSymbol());
         }
     }
-
     public static class Layout extends ModifySyntaxRole {
         public Layout(Type arg) {
             super(arg);
         }
 
         @Override
-        public Type fromSyntax(Type arg) {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = SymbolAdapter.getName(type.getSymbol());
-            if (type.isParameterized()) {
-                return TF.layoutType(name, SymbolAdapter.getParameters(type.getSymbol()));
-            }
-            else {
-                return TF.layoutType(name);
-            }
+        protected Type applyToRole(ModifySyntaxRole role) {
+            return TF.modifyToLayout(role.arg);
         }
 
         @Override
-        public Type fromLexical(Type arg) {
-            return fromSyntax(arg);
-        }
+        public Type applyToSyntax(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
 
-        @Override
-        public Type fromKeyword(Type arg) {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = SymbolAdapter.getName(type.getSymbol());
+            assert !arg.isParameterized() : "layout is never parameterized";
+            
             return TF.layoutType(name);
         }
 
         @Override
-        public Type fromLayout(Type arg) {
-            return arg;
+        public Type applyToLexical(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+
+            assert !arg.isParameterized() : "layout is never parameterized";
+            
+            return TF.layoutType(name);
         }
 
         @Override
-        public Type fromData(Type arg) {
-            return TF.lexicalType(arg.getName());
+        public Type applyToKeyword(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.layoutType(name);
+        }
+
+        @Override
+        public Type applyToLayout(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.layoutType(name);
+        }
+
+        @Override
+        public Type applyToData(Type arg) {
+            String name = arg.getName();
+
+            assert !arg.isParameterized() : "layout is never parameterized";
+            
+            return TF.layoutType(name);
+        }
+
+        @Override
+        public String getName() {
+            return SymbolAdapter.getName(((NonTerminalType) arg).getSymbol());
         }
     }
-
     public static class Keyword extends ModifySyntaxRole {
         public Keyword(Type arg) {
             super(arg);
         }
-
+        
         @Override
-        public Type fromSyntax(Type arg) {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = SymbolAdapter.getName(type.getSymbol());
-            if (type.isParameterized()) {
-                return TF.layoutType(name, SymbolAdapter.getParameters(type.getSymbol()));
-            }
-            else {
-                return TF.layoutType(name);
-            }
+        protected Type applyToRole(ModifySyntaxRole role) {
+            return TF.modifyToKeyword(role.arg);
         }
 
         @Override
-        public Type fromLexical(Type arg) {
-            return fromSyntax(arg);
+        public Type applyToSyntax(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+
+            assert !arg.isParameterized() : "keyword is never parameterized";
+
+            return TF.keywordType(name);
         }
 
         @Override
-        public Type fromKeyword(Type arg) {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = SymbolAdapter.getName(type.getSymbol());
-            return TF.layoutType(name);
+        public Type applyToLexical(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+
+            assert !arg.isParameterized() : "keyword is never parameterized";
+
+            return TF.keywordType(name);
         }
 
         @Override
-        public Type fromLayout(Type arg) {
+        public Type applyToKeyword(NonTerminalType arg) {
             return arg;
         }
 
         @Override
-        public Type fromData(Type arg) {
-            return TF.lexicalType(arg.getName());
+        public Type applyToLayout(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.keywordType(name);
+        }
+
+        @Override
+        public Type applyToData(Type arg) {
+            String name = arg.getName();
+
+            assert !arg.isParameterized() : "keyword is never parameterized";
+  
+            return TF.keywordType(name);
         }
     }
-
     public static class Data extends ModifySyntaxRole {
         public Data(Type arg) {
             super(arg);
         }
 
         @Override
-        public Type fromSyntax(Type arg) {
-            NonTerminalType type = (NonTerminalType) arg;
-            String name = SymbolAdapter.getName(type.getSymbol());
+        protected Type applyToRole(ModifySyntaxRole role) {
+            return TF.modifyToData(role.arg);
+        }
 
-            if (type.isParameterized()) {
-                return tf.abstractDataType(new TypeStore(), name, SymbolAdapter.getParameters(type.getSymbol()).stream().map(c -> TF.nonTerminalType((IConstructor) c)).toArray(Type[]::new));
+        @Override
+        public Type applyToSyntax(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+
+            if (arg.isParameterized()) {
+                Type[] params = SymbolAdapter.getParameters(arg.getSymbol()).stream().map(c -> TF.nonTerminalType((IConstructor) c)).toArray(Type[]::new);
+                return TypeFactory.getInstance().abstractDataType(new TypeStore(), name, params);
             }
             else {
-                return tf.abstractDataType(new TypeStore(), name);
+                return TypeFactory.getInstance().abstractDataType(new TypeStore(), name);
             }
         }
 
         @Override
-        public Type fromLexical(Type arg) {
-            return fromSyntax(arg);
+        public Type applyToLexical(NonTerminalType arg) {
+            return applyToSyntax(arg);
         }
 
         @Override
-        public Type fromKeyword(Type arg) {
-            return fromSyntax(arg);
+        public Type applyToKeyword(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TF.syntaxType(name);
         }
 
         @Override
-        public Type fromLayout(Type arg) {
-            return fromSyntax(arg);
+        public Type applyToLayout(NonTerminalType arg) {
+            String name = SymbolAdapter.getName(arg.getSymbol());
+            return TypeFactory.getInstance().abstractDataType(new TypeStore(), name);
         }
 
         @Override
-        public Type fromData(Type arg) {
+        public Type applyToData(Type arg) {
             return arg;
-        }
-    }
-
-    public static class Other extends ModifySyntaxRole {
-        public Other(Type arg) {
-            super(arg);
-        }
-
-        @Override
-        public Type fromSyntax(Type arg) {
-            return arg;
-        }
-
-        @Override
-        public Type fromLexical(Type arg) {
-            return arg;
-        }
-
-        @Override
-        public Type fromKeyword(Type arg) {
-            return arg;
-        }
-
-        @Override
-        public Type fromLayout(Type arg) {
-            return arg;
-        }
-
-        @Override
-        public Type fromData(Type arg) {
-            return arg;
-        }
-    }
-
-    public Type getParameter() {
-        return param;
-    }
-
-    @Override
-    public boolean isOpen() {
-        return param.isOpen();
+        }       
     }
 
     @Override
