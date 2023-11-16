@@ -12,18 +12,12 @@
 package org.rascalmpl.types;
 
 import java.util.Arrays;
-import java.util.stream.StreamSupport;
-
-import org.rascalmpl.types.ModifySyntaxRole.Role;
 import org.rascalmpl.values.IRascalValueFactory;
-import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import org.rascalmpl.values.parsetrees.SymbolFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
