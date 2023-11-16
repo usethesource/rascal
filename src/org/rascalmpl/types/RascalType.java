@@ -22,7 +22,6 @@ public abstract class RascalType extends ExternalType {
     @Override
     protected boolean intersectsWithExternal(Type type) {
         assert type instanceof RascalType;
-        System.err.println(this.toString() + "Intersects with " + type);
         return intersects((RascalType) type);
     }
 
@@ -39,6 +38,10 @@ public abstract class RascalType extends ExternalType {
     protected abstract boolean isSupertypeOf(RascalType type);
 
     public boolean isSubtypeOfNonTerminal(RascalType type) {
+        return false;
+    }
+
+    public boolean isSubtypeOfSyntaxModifier(RascalType type) {
         return false;
     }
 
