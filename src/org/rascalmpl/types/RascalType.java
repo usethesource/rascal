@@ -65,6 +65,10 @@ public abstract class RascalType extends ExternalType {
         return TF.valueType();
     }
 
+    protected Type lubWithModifySyntax(RascalType type) {
+        return TF.valueType();
+    }
+
     protected Type glbWithNonTerminal(RascalType type) {
         return TF.voidType();
     }
@@ -77,6 +81,9 @@ public abstract class RascalType extends ExternalType {
         return TF.voidType();
     }
 
+    protected Type glbWithModifySyntax(RascalType type) {
+        return TF.voidType();
+    }
     
     protected boolean intersectsWithNonTerminal(RascalType type) {
         return false;
@@ -87,6 +94,10 @@ public abstract class RascalType extends ExternalType {
     }
 
     protected boolean intersectsWithReified(RascalType type) {
+        return false;
+    }
+
+     protected boolean intersectsWithModifySyntax(RascalType type) {
         return false;
     }
     

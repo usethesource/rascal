@@ -120,7 +120,27 @@ public abstract class ModifySyntaxRole extends RascalType {
             return vf.constructor(RascalValueFactory.Symbol_SyntaxModifier, arg.asSymbol(vf, store, grammar, done));
         }
 
-        
+        @Override
+        protected Type lubWithModifySyntax(RascalType type) {
+            if (type instanceof Syntax) {
+                return TF.modifyToSyntax(((ModifySyntaxRole) type).arg.lub(arg));
+            }
+            else if (type instanceof Lexical) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Layout) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Keyword) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Data) {
+                return TypeFactory.getInstance().nodeType();
+            }
+
+            return TypeFactory.getInstance().nodeType();
+        }
+
         @Override
         public boolean isSubtypeOfSyntaxModifier(RascalType type) {
             assert isOpen();
@@ -213,6 +233,27 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        protected Type lubWithModifySyntax(RascalType type) {
+            if (type instanceof Syntax) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Lexical) {
+                return TF.modifyToLexical(((ModifySyntaxRole) type).arg.lub(arg));
+            }
+            else if (type instanceof Layout) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Keyword) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Data) {
+                return TypeFactory.getInstance().nodeType();
+            }
+
+            return TypeFactory.getInstance().nodeType();
+        }
+
+        @Override
         public boolean isSubtypeOfNonTerminal(RascalType type) {
             assert isOpen(); // otherwise we wouldn't be here 
 
@@ -289,6 +330,29 @@ public abstract class ModifySyntaxRole extends RascalType {
             assert isOpen();
             return type instanceof Layout;
         }
+
+        @Override
+        protected Type lubWithModifySyntax(RascalType type) {
+            if (type instanceof Syntax) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Lexical) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Layout) {
+                return TF.modifyToLayout(((ModifySyntaxRole) type).arg.lub(arg));
+                
+            }
+            else if (type instanceof Keyword) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Data) {
+                return TypeFactory.getInstance().nodeType();
+            }
+
+            return TypeFactory.getInstance().nodeType();
+        }
+
 
         @Override
         public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
@@ -370,6 +434,30 @@ public abstract class ModifySyntaxRole extends RascalType {
             return vf.constructor(RascalValueFactory.Symbol_KeywordModifier, arg.asSymbol(vf, store, grammar, done));
         }
 
+       
+
+        @Override
+        protected Type lubWithModifySyntax(RascalType type) {
+            if (type instanceof Syntax) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Lexical) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Layout) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Keyword) {
+                 return TF.modifyToKeyword(((ModifySyntaxRole) type).arg.lub(arg));            
+            }
+            else if (type instanceof Data) {
+                return TypeFactory.getInstance().nodeType();
+            }
+
+            return TypeFactory.getInstance().nodeType();
+        }
+
+
         @Override
         public boolean isSubtypeOfSyntaxModifier(RascalType type) {
             assert isOpen();
@@ -447,6 +535,27 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        protected Type lubWithModifySyntax(RascalType type) {
+            if (type instanceof Syntax) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Lexical) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Layout) {
+                return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Keyword) {
+                 return RascalValueFactory.Tree;
+            }
+            else if (type instanceof Data) {
+                return this;
+            }
+
+            return TypeFactory.getInstance().nodeType();
+        }
+
+        @Override
         protected boolean isSupertypeOf(Type type) {
             return type.isSubtypeOf(this);
         }
@@ -500,8 +609,34 @@ public abstract class ModifySyntaxRole extends RascalType {
         @Override
         public Type applyToData(Type arg) {
             return arg;
-        }       
+        }    
+        
+        @Override
+        protected Type lubWithAbstractData(Type type) {
+            return type.lub(arg);
+        }
+
+        @Override
+        protected Type glbWithAbstractData(Type type) {
+            return type.glb(arg);
+        }
     }
+
+    @Override
+    protected Type lubWithAbstractData(Type type) {
+        // this is for all the syntax roles that are not data. Data overrides this
+        if (type == RascalValueFactory.Tree) {
+            return type;
+        }
+
+        return TypeFactory.getInstance().valueType();
+    }
+
+    @Override
+	protected Type glbWithAbstractData(Type type) {
+        // this is for all the syntax roles that are not data. Data overrides this
+	  return type == RascalValueFactory.Tree ? this : TypeFactory.getInstance().voidType(); 
+	}
 
     @Override
     protected boolean isSupertypeOf(RascalType type) {
@@ -516,19 +651,23 @@ public abstract class ModifySyntaxRole extends RascalType {
 
     @Override
     protected Type lub(RascalType type) {
-        return null;
+        return type.lubWithModifySyntax(this);
     }
 
     @Override
     protected Type glb(RascalType type) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'glb'");
+        return type.glbWithModifySyntax(this);
     }
 
     @Override
     protected boolean intersects(RascalType type) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'intersects'");
+        return type.intersectsWithModifySyntax(this);
+    }
+
+    @Override
+    protected boolean intersectsWithModifySyntax(RascalType type) {
+        // since we have only one parameter, intersection coincides with subtype comparability
+        return this.comparable(type);
     }
 
     @Override
