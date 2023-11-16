@@ -638,7 +638,7 @@ public class SymbolFactory {
 			throw new IllegalArgumentException("keyword types can not have parameters");
 		}
 		else {
-			return makeSort(name);
+			return makeKeyword(name);
 		}
 	}
 
