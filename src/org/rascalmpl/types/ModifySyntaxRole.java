@@ -18,6 +18,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -163,6 +164,27 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            if (matched instanceof NonTerminalType) {
+                IConstructor sym = ((NonTerminalType) matched).getSymbol();
+
+                if (SymbolAdapter.isSort(sym) || SymbolAdapter.isParameterizedSort(sym)) {
+                    return arg.match(matched, bindings);
+                }
+            }
+            else if (matched.isBottom()) {
+                return arg.match(matched, bindings);
+            }
+
+            return false;
+        }
+
+        @Override
+        public Type instantiate(Map<Type, Type> bindings) {
+            return TF.modifyToSyntax(arg.instantiate(bindings));
+        }
+
+        @Override
         protected boolean isSubtypeOfAbstractData(Type type) {
             // syntax[T] <: Tree
             return type == RascalValueFactory.Tree;
@@ -284,6 +306,27 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            if (matched instanceof NonTerminalType) {
+                IConstructor sym = ((NonTerminalType) matched).getSymbol();
+
+                if (SymbolAdapter.isLex(sym) || SymbolAdapter.isParameterizedLex(sym)) {
+                    return arg.match(matched, bindings);
+                }
+            }
+            else if (matched.isBottom()) {
+                return arg.match(matched, bindings);
+            }
+
+            return false;
+        }
+
+        @Override
+        public Type instantiate(Map<Type, Type> bindings) {
+            return TF.modifyToLexical(arg.instantiate(bindings));
+        }
+
+        @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToLexical(role.arg);
         }
@@ -396,6 +439,27 @@ public abstract class ModifySyntaxRole extends RascalType {
         protected boolean isSubtypeOfAbstractData(Type type) {
             // syntax[T] <: Tree
             return type == RascalValueFactory.Tree;
+        }
+
+        @Override
+        public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            if (matched instanceof NonTerminalType) {
+                IConstructor sym = ((NonTerminalType) matched).getSymbol();
+
+                if (SymbolAdapter.isLayouts(sym)) {
+                    return arg.match(matched, bindings);
+                }
+            }
+            else if (matched.isBottom()) {
+                return arg.match(matched, bindings);
+            }
+
+            return false;
+        }
+
+        @Override
+        public Type instantiate(Map<Type, Type> bindings) {
+            return TF.modifyToLayout(arg.instantiate(bindings));
         }
 
         @Override
@@ -512,6 +576,27 @@ public abstract class ModifySyntaxRole extends RascalType {
         }
 
         @Override
+        public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            if (matched instanceof NonTerminalType) {
+                IConstructor sym = ((NonTerminalType) matched).getSymbol();
+
+                if (SymbolAdapter.isKeyword(sym)) {
+                    return arg.match(matched, bindings);
+                }
+            }
+            else if (matched.isBottom()) {
+                return arg.match(matched, bindings);
+            }
+
+            return false;
+        }
+
+        @Override
+        public Type instantiate(Map<Type, Type> bindings) {
+            return TF.modifyToKeyword(arg.instantiate(bindings));
+        }
+
+        @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToKeyword(role.arg);
         }
@@ -586,7 +671,7 @@ public abstract class ModifySyntaxRole extends RascalType {
             return tf.nodeType();
         }
 
-         @Override
+        @Override
         protected Type glbWithModifySyntax(RascalType type) {
             if (type instanceof Data) {
                 return this;
@@ -605,6 +690,7 @@ public abstract class ModifySyntaxRole extends RascalType {
             return vf.constructor(RascalValueFactory.Symbol_DataModifier, arg.asSymbol(vf, store, grammar, done));
         }
 
+
         @Override
         protected Type applyToRole(ModifySyntaxRole role) {
             return TF.modifyToData(role.arg);
@@ -614,6 +700,20 @@ public abstract class ModifySyntaxRole extends RascalType {
         protected boolean isSubtypeOfAbstractData(Type type) {
             assert isOpen();
             return true;
+        }
+
+        @Override
+        public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
+            if (matched.isAbstractData() || matched.isBottom()) {
+                return arg.match(matched, bindings);    
+            }
+            
+            return false;
+        }
+
+        @Override
+        public Type instantiate(Map<Type, Type> bindings) {
+            return TF.modifyToData(arg.instantiate(bindings));
         }
 
         @Override
@@ -721,6 +821,12 @@ public abstract class ModifySyntaxRole extends RascalType {
     @Override
     abstract public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done);
 
+    @Override
+    abstract public Type instantiate(Map<Type, Type> bindings);
+
+    @Override
+    abstract public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException;
+    
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
         int maxDepth, int maxBreadth) {

@@ -20,7 +20,6 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
@@ -35,12 +34,8 @@ public class RascalTypeFactory {
 	}
 	 
 	public Type nonTerminalType(IConstructor cons) {
-		if (SymbolAdapter.isADT(cons)) {
-			// TODO: what if the ADT has parameters?
-			return TypeFactory.getInstance().abstractDataType(
-				new TypeStore(), 
-				SymbolAdapter.getName(cons));
-		}
+		assert !SymbolAdapter.isADT(cons) && !SymbolAdapter.isParameter(cons);
+
 		return tf.externalType(new NonTerminalType(cons));
 	}
 	
@@ -139,67 +134,7 @@ public class RascalTypeFactory {
 		return tf.externalType(new ModifySyntaxRole.Lexical(arg).apply());
 	}
 
-	// 	if (arg.isParameter()) {
-	// 		// lazy modification.. we keep the modifier and wait for instantiation of the parameter
-	// 		return modifySyntax(Role.Syntax, arg);
-	// 	}
-    //     else if (arg.isAbstractData()) {
-	// 		if (arg.isParameterized()) {
-	// 			return tf.externalType(new NonTerminalType(
-	// 					syntax(
-	// 						arg.getName(), 
-	// 						StreamSupport.stream(arg.getTypeParameters().spliterator(), false).toArray(Type[]::new)
-	// 					)
-	// 			));
-	// 		}
-	// 		else {
-	// 			return tf.externalType(new NonTerminalType(syntax(arg.getName())));
-	// 		}
-	// 	}
-	// 	else if (arg.isExternalType()) {
-	// 		RascalType argType = (RascalType) arg;
-
-	// 		if (argType.isNonterminal()) {
-	// 			NonTerminalType nt = (NonTerminalType) argType;
-	// 			Type symbol = nt.getSymbol().getConstructorType();
-
-	// 			if (symbol == RascalValueFactory.Symbol_Adt) {
-	// 				// this should never happen, but for robustness' sake 
-	// 				return arg;
-	// 			}
-	// 			else {
-	// 				IString name = (IString) nt.getSymbol().get(0);
-
-	// 				if (symbol == RascalValueFactory.Symbol_Keywords) {
-	// 					assert !symbol.hasField("parameters");
-	// 					return tf.abstractDataType(new TypeStore(), name.getValue());
-	// 				}
-	// 				else if (symbol == RascalValueFactory.Symbol_Layouts) {
-	// 					assert !symbol.hasField("parameters");
-	// 					return tf.abstractDataType(new TypeStore(), name.getValue());
-	// 				}
-	// 				else if (symbol == RascalValueFactory.Symbol_Sort) {
-	// 					assert !symbol.hasField("parameters");
-	// 					return tf.abstractDataType(new TypeStore(), name.getValue());
-	// 				}
-	// 				else if (symbol == RascalValueFactory.Symbol_Lex) {
-	// 					assert !symbol.hasField("parameters");
-	// 					return tf.abstractDataType(new TypeStore(), name.getValue());
-	// 				}
-	// 				else if (symbol == RascalValueFactory.Symbol_ParameterizedLex 
-	// 				         || symbol == RascalValueFactory.Symbol_ParameterizedSort) {
-	// 					assert symbol.hasField("parameters");
-	// 					Type[] args = SymbolAdapter.getParameters(nt.getSymbol()).stream()
-	// 								.map(s -> nonTerminalType((IConstructor) s)).toArray(Type[]::new);
-	// 					return tf.abstractDataType(new TypeStore(), name.getValue(), args);	
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-
-	// 	throw new IllegalArgumentException("Can not modify " + arg + " to a data type");
-    // }
-
+	
 	/**
 	 * Changes a keyword, a lexical, a syntax or a layout type to a data type.
 	 * When the modified type is not a named entity type like a syntax or lexical sort,
