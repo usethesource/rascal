@@ -682,7 +682,8 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         protected boolean isSupertypeOf(Type type) {
-            return type.isSubtypeOf(this);
+            assert isOpen();
+            return type.isBottom() || type.isAbstractData();
         }
 
         @Override
@@ -826,7 +827,7 @@ public abstract class ModifySyntaxRole extends RascalType {
 
     @Override
     abstract public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException;
-    
+
     @Override
     public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
         int maxDepth, int maxBreadth) {
