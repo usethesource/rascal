@@ -365,7 +365,6 @@ bool subtype(\lexical(_), Symbol::\adt("Tree", [])) = true;
 bool subtype(\layout(_), Symbol::\adt("Tree", [])) = true;
 bool subtype(\keyword(_), Symbol::\adt("Tree", [])) = true;
 
-bool subtype(\data(parameter(_,_)), adt(_,_))                   = true;
 bool subtype(\syntax(parameter(_,_)), sort(_))                  = true;
 bool subtype(\syntax(parameter(_,_)), \parameterized-sort(_,_)) = true;
 bool subtype(\lexical(parameter(_,_)), lex(_))                  = true;
