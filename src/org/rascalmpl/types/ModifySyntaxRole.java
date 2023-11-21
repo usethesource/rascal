@@ -705,7 +705,14 @@ public abstract class ModifySyntaxRole extends RascalType {
 
         @Override
         public boolean match(Type matched, Map<Type, Type> bindings) throws FactTypeUseException {
-            if (matched.isAbstractData() || matched.isBottom()) {
+            if (matched instanceof NonTerminalType) {
+                // here a `syntax` or `lexical` or `keyword` or `layout` would match against a
+                // literal data[&T], and we need the &T to bind with `Tree` and not `Statement` or
+                // some non-terminal name. Note that this is correct because `Tree` is an
+                // algebraic `data` type.
+                return arg.match(RascalValueFactory.Tree, bindings);
+            }
+            else if (matched.isAbstractData() || matched.isBottom()) {
                 return arg.match(matched, bindings);    
             }
             
