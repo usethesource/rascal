@@ -147,7 +147,7 @@ M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJa
 }
 
 @synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
-M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
+M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7") {
     if (!exists(project + "pom.xml")) {
       throw IO("pom.xml not found");
     }
