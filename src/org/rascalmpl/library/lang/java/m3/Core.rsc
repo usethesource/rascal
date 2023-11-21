@@ -191,8 +191,8 @@ M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
 	methodContainment = {<c,m> | <c,m> <- containment, isMethod(m)};
 	
 	for(<from,to> <- candidates) {
-		model.methodOverrides += {<m, getMethodSignature(m)> | m <- methodContainment[from]} 
-			o {<getMethodSignature(m), m> | m <- methodContainment[to]};
+		model.methodOverrides += {<m, m.file> | m <- methodContainment[from]} 
+			o {<m.file, m> | m <- methodContainment[to]};
 	}
 
 	return model;
@@ -202,6 +202,9 @@ void unregisterJavaProject(loc project) {
   unregisterProjectSchemes(project, {"java+compilationUnit", "java+compilationUnit", "java+class", "java+constructor", "java+initializer", "java+parameter","java+variable","java+field" , "java+interface" , "java+enum", "java+class" , "java+interface","java+enum"});
 }
 
+@deprecated{
+  Use `.file` on a location instead, i.e. `someLocation.file`.
+}
 str getMethodSignature(loc method)
 	= substring(method.path, findLast(method.path,"/") + 1);
 
