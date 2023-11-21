@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
-import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
