@@ -72,9 +72,6 @@ public abstract class ModifySyntaxRole extends RascalType {
         else if (arg instanceof ModifySyntaxRole) {
             return applyToRole((ModifySyntaxRole) arg);
         }
-        else if (arg.isAbstractData()) {
-            return applyToData(arg);
-        }
         else if (arg instanceof NonTerminalType) {
             IConstructor symbol = ((NonTerminalType) arg).getSymbol();
 
@@ -90,6 +87,9 @@ public abstract class ModifySyntaxRole extends RascalType {
             else if (isKeyword(symbol)) {
                 return applyToKeyword((NonTerminalType) arg);
             }
+        }
+        else if (arg.isAbstractData()) {
+            return applyToData(arg);
         }
         
         // this should not happen, but for robustness sake we return the unmodified type.
@@ -860,7 +860,7 @@ public abstract class ModifySyntaxRole extends RascalType {
     public boolean isOpen() {
         return arg.isOpen();
     }
-    
+
     @Override
     protected Type lubWithAbstractData(Type type) {
         // this is for all the syntax roles that are not data. Data overrides this
