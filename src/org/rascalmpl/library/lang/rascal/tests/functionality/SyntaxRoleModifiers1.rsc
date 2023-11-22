@@ -71,3 +71,19 @@ test bool namePreservation2() {
     return sort("A") == typeOf(x);
 }
  
+test bool dataMatchesSyntaxTreesToo1() {
+    return data[Tree] _ := [syntax[A]] "a";
+}
+
+@expect{UnexpectedType}
+test bool dataMatchesSyntaxTreesToo2() {
+    data[&T] castIt(data[&T] i) = i;
+
+    // here &T should be bound to adt("Tree",[]) and not to sort("A"), statically.
+    // but I can't write a negative test for the type-checker here I think..
+        
+    syntax[A] shoultNotAssignStatically = castIt([syntax[A]] "a");
+        
+    // we are never supposed to end up here
+    return false;
+}
