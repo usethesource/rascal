@@ -82,7 +82,7 @@ test bool dataMatchesSyntaxTreesToo2() {
     // here &T should be bound to adt("Tree",[]) and not to sort("A"), statically.
     // but I can't write a negative test for the type-checker here I think..
         
-    syntax[A] shoultNotAssignStatically = castIt([syntax[A]] "a");
+    syntax[A] shouldNotAssignStatically = castIt([syntax[A]] "a");
         
     // we are never supposed to end up here
     return false;
