@@ -12,6 +12,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.stream.StreamSupport;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
 import io.usethesource.vallang.IConstructor;
@@ -936,5 +937,15 @@ public abstract class ModifySyntaxRole extends RascalType {
     @Override
     public <T, E extends Throwable> T accept(IRascalTypeVisitor<T, E> v) throws E {
         return v.visitRoleModifier(this);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object o) {
+        return o.getClass() == getClass() && ((ModifySyntaxRole) o).arg == arg;
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().getCanonicalName().hashCode() + 23 * arg.hashCode();
     }
 }
