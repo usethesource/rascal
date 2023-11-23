@@ -75,13 +75,14 @@ test bool dataMatchesSyntaxTreesToo1() {
     return data[Tree] _ := [syntax[A]] "a";
 }
 
-@expect{UnexpectedType}
+@expected{UnexpectedType}
 test bool dataMatchesSyntaxTreesToo2() {
+    // even though this is a type-preserving function,
+    // it will up-cast &T to Tree if called with a non-terminal
     data[&T] castIt(data[&T] i) = i;
 
     // here &T should be bound to adt("Tree",[]) and not to sort("A"), statically.
     // but I can't write a negative test for the type-checker here I think..
-        
     syntax[A] shouldNotAssignStatically = castIt([syntax[A]] "a");
         
     // we are never supposed to end up here
