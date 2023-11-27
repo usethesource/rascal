@@ -223,15 +223,20 @@ public class IO {
     }
 
     private ISourceLocation attrToLoc(Attribute a, ISourceLocation file) {
-        Range startRange = a.sourceRange().valueRange();
+        Range range = a.sourceRange().valueRange();
+
+        if (range.start().pos() < 0) {
+            // this is strange
+            return file;
+        }
 
         return vf.sourceLocation(file, 
-            startRange.start().pos(), 
-            startRange.end().pos() - startRange.start().pos(),
-            startRange.start().lineNumber(),
-            startRange.end().lineNumber(),
-            startRange.start().columnNumber() - 1,
-            startRange.end().columnNumber() - 1
+            range.start().pos(), 
+            range.end().pos() - range.start().pos(),
+            range.start().lineNumber(),
+            range.end().lineNumber(),
+            range.start().columnNumber() - 1,
+            range.end().columnNumber() - 1
         );
     }
 
