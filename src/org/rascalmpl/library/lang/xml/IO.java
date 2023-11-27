@@ -53,7 +53,8 @@ public class IO {
     private final IValueFactory vf;
     private static final String SRC_ATTR = "src";
     private static final String QUALIFIED_SRC_ATTR = "rascal-src";
-
+    private static final String SRCS_ATTR = "srcs";
+    private static final String QUALIFIED_SRCS_ATTR = "rascal-srcs";
 
     public IO(IValueFactory vf) {
         this.vf = vf;
@@ -147,6 +148,15 @@ public class IO {
                     .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
                     .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(a.getValue())));
             
+            // we traverse again to record the source positions of each attribute
+            IMap Srcs = file != null ? StreamSupport.stream(elem.attributes().spliterator(), false)
+                    .filter(a -> !a.getKey().startsWith("xmlns"))
+                    .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
+                    .map(a -> vf.tuple(vf.string(normalizeAttr(a.getKey())), attrToLoc(a, file)))
+                    .collect(vf.mapWriter())
+                : vf.map()
+            ;
+
             if (fullyQualify) {
                 IMap m = namespaces.done();
 
@@ -164,6 +174,9 @@ public class IO {
 
             if (file != null) {
                 kws.put(kws.containsKey(SRC_ATTR) ? QUALIFIED_SRC_ATTR : SRC_ATTR, nodeToLoc((Element) node, file, includeEndTags));
+                if (!Srcs.isEmpty()) {
+                    kws.put(kws.containsKey(SRCS_ATTR) ? QUALIFIED_SRCS_ATTR : SRCS_ATTR, Srcs);
+                }
             }
 
             return vf.node(removeNamespace(node.nodeName(), fullyQualify), args).asWithKeywordParameters().setParameters(kws);
@@ -207,6 +220,19 @@ public class IO {
         }
 
         return new Attribute(newKey, a.getValue());
+    }
+
+    private ISourceLocation attrToLoc(Attribute a, ISourceLocation file) {
+        Range startRange = a.sourceRange().valueRange();
+
+        return vf.sourceLocation(file, 
+            startRange.start().pos(), 
+            startRange.end().pos() - startRange.start().pos(),
+            startRange.start().lineNumber(),
+            startRange.end().lineNumber(),
+            startRange.start().columnNumber() - 1,
+            startRange.end().columnNumber() - 1
+        );
     }
 
     private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
