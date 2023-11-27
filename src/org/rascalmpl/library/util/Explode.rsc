@@ -32,6 +32,7 @@ module util::Explode
 
 extend ParseTree;
 import IO;
+import Node;
 
 @synopsis{Turn an AST into a ParseTree, while preserving the name of the type.}
 syntax[&T] explode(data[&T] ast) {
@@ -39,9 +40,20 @@ syntax[&T] explode(data[&T] ast) {
     assert readFile(ast.src.top) == readFile(ast.src);
     assert astNodeSpecification(ast);
 
-    return explode(ast, readFile(ast.src.top), ast.src.offset, ast.src.length);
+    return explode(typeOf(ast), ast, readFile(ast.src.top), ast.src.offset, ast.src.length);
 }
 
 syntax[&T] explode(data[&T] ast, str contents, int offset, int length) {
-   // TODO
+   typ = typeOf(ast);
+   sort = \syntax(typ); // modifying the adt to a syntax sort here
+   rule = prod(sort, [layouts("*separators*"), *[\syntax(typeOf(c)), layouts("*separators*") | c <- getChildren(ast)][..-1], layouts("*separators*")], {});
+
+   if (syntax[&T] r := appl(rule, [])) {
+      return r;
+   }
+   else {
+      throw "unexpected problem while exploding <ast>";
+   }
 }
+
+Symbol \syntax(\list(Symbol s)) = \iter-star(\syntax(s));
