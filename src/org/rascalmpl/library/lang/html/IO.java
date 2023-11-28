@@ -263,7 +263,8 @@ public class IO {
         Node node = normalise(cons, createElement(cons, dropOrigins));
         
         doc.appendChild(node);
-        return doc.normalise();
+        
+        return doc;
     }
 
     private Node normalise(IConstructor cons, Node elem) {
