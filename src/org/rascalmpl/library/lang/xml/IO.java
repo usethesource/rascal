@@ -67,7 +67,7 @@ public class IO {
        
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc)) {
             Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(false, false))
+                .settings(new ParseSettings(true, true))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
             
