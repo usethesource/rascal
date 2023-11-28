@@ -145,14 +145,12 @@ public class IO {
                         // remove all the namespace attributes
                         return !a.getKey().startsWith("xmlns");
                     })
-                    .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
-                    .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(a.getValue())));
+                    .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(removeNamespace(a, elem.attributes(), fullyQualify))));
             
             // we traverse again to record the source positions of each attribute
             IMap Srcs = file != null ? StreamSupport.stream(elem.attributes().spliterator(), false)
                     .filter(a -> !a.getKey().startsWith("xmlns"))
-                    // .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
-                    .map(a -> vf.tuple(vf.string(normalizeAttr(removeNamespace(a, elem.attributes(), fullyQualify).getKey())), attrToLoc(a, file))) // key-value tuples for the map collector
+                    .map(a -> vf.tuple(vf.string(normalizeAttr(removeNamespace(a, elem.attributes(), fullyQualify))), attrToLoc(a, file))) // key-value tuples for the map collector
                     .filter(t -> !t.get(1).equals(vf.tuple())) // remove the failed location lookups for robustness sake
                     .collect(vf.mapWriter())
                 : vf.map()
@@ -201,28 +199,19 @@ public class IO {
         return name.substring(index+1);
 
     }
-    private static Attribute removeNamespace(Attribute a, Attributes otherAttributes, boolean fullyQualify) {
+    private static String removeNamespace(Attribute a, Attributes otherAttributes, boolean fullyQualify) {
         if (fullyQualify) {
-            return a;
+            return a.getKey();
         }
         
         String key = a.getKey();
         int index = key.indexOf(":");
 
         if (index == -1) {
-            return a;
+            return a.getKey();
         }
 
-        String newKey = key.substring(index+1);
-
-        if (otherAttributes.hasKey(newKey)) {
-            // keep disambiguation if necessary
-            return a;
-        }
-
-        Attribute newVersion = a.clone();
-        newVersion.setKey(newKey);
-        return newVersion;
+        return key.substring(index+1);
     }
 
     private ITuple attrToLoc(Attribute a, ISourceLocation file) {
