@@ -44,11 +44,28 @@ syntax[&T] explode(data[&T] ast) {
 }
 
 syntax[&T] explode(data[&T] ast, str contents, int offset, int length) {
-   typ = typeOf(ast);
-   sort = \syntax(typ); // modifying the adt to a syntax sort here
-   rule = prod(sort, [layouts("*separators*"), *[\syntax(typeOf(c)), layouts("*separators*") | c <- getChildren(ast)][..-1], layouts("*separators*")], {});
+   children = getChildren(ast);
+  
+   // here we generate a quasi syntax rule that has the structure and the types
+   // of the exploded children. each rule starts with separators, has separators
+   // in between every child, and ends with separators. Each child node is modified
+   // to a syntax node. Lists become iter-star symbols
+   rule = prod(\syntax(typeOf(ast)), [
+         layouts("*separators*"), 
+         *[\syntax(typeOf(c)), layouts("*separators*") | c <- children][..-1], 
+         layouts("*separators*")
+      ], 
+      {});
 
-   if (syntax[&T] r := appl(rule, [])) {
+   children = [
+      separatorTree(contents, offset, c.src.offset),
+      explode(c, contents, c.src.offset, c.src.length)
+      | c <- getChildren(ast)
+   ] + [
+      separatorTree(contents, last.src.offset + last.src.length, offset + length) | last <- children[-1..]
+   ];
+
+   if (syntax[&T] r := appl(rule, children)) {
       return r;
    }
    else {
@@ -56,4 +73,9 @@ syntax[&T] explode(data[&T] ast, str contents, int offset, int length) {
    }
 }
 
+Tree separatorTree(str contents, int \start, int end)
+   = appl(prod(layouts("separators"),[\iter-star(\char-class([range(1,1114111)])],{}),
+     [char(ch) | int ch <- chars(contents[\start..end]]))
+
+Symbol \syntax(str())           = \lex("*identifiers*");
 Symbol \syntax(\list(Symbol s)) = \iter-star(\syntax(s));
