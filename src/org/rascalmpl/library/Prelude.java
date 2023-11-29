@@ -923,15 +923,15 @@ public class Prelude {
 	        // ignore, it's what we wanted
 	    }
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"));
+			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"));
 		}
 		finally {
-		    try {
-		        output.flush();
-		        output.close();
-		    }
-		    catch (IOException e) {
-		    }
+			try {
+				output.flush();
+			}
+			catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 	
