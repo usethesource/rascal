@@ -36,14 +36,26 @@ import Node;
 
 @synopsis{Turn an AST into a ParseTree, while preserving the name of the type.}
 syntax[&T] explode(data[&T] ast) {
-    assert ast.src?;
-    assert readFile(ast.src.top) == readFile(ast.src);
-    assert astNodeSpecification(ast);
+   assert ast.src?;
+   assert readFile(ast.src.top) == readFile(ast.src);
+   assert astNodeSpecification(ast);
 
-    return explode(typeOf(ast), ast, readFile(ast.src.top), ast.src.offset, ast.src.length);
+   if (syntax[&T] r := explode(typeOf(ast), ast, readFile(ast.src.top), ast.src.offset, ast.src.length)) {
+      return r;
+   }
+
+   throw "unexpected problem while exploding <ast>";
 }
 
-syntax[&T] explode(data[&T] ast, str contents, int offset, int length) {
+Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
+   return appl(prod(lex("identifier"),[\iter-star(\char-class([range(1,1114111)])],{}),
+      [
+         appl(regular(\iter-star(\char-class([range(1,1114111)]))),
+            [char(ch) | ch <- chars(contents[offset..offset+length])])
+      ]);
+}
+
+default Tree explode(data[&T] ast, str contents, int offset, int length) {
    children = getChildren(ast);
   
    // here we generate a quasi syntax rule that has the structure and the types
@@ -69,13 +81,16 @@ syntax[&T] explode(data[&T] ast, str contents, int offset, int length) {
       return r;
    }
    else {
-      throw "unexpected problem while exploding <ast>";
+     
    }
 }
 
 Tree separatorTree(str contents, int \start, int end)
    = appl(prod(layouts("separators"),[\iter-star(\char-class([range(1,1114111)])],{}),
-     [char(ch) | int ch <- chars(contents[\start..end]]))
+      [
+         appl(regular(\iter-star(\char-class([range(1,1114111)]))),
+            [char(ch) | int ch <- chars(contents[\start..end]])
+      ]);
 
 Symbol \syntax(str())           = \lex("*identifiers*");
 Symbol \syntax(\list(Symbol s)) = \iter-star(\syntax(s));
