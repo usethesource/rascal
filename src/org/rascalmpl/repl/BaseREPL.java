@@ -363,19 +363,21 @@ public class BaseREPL {
             // we are closing down, so do nothing, the finally clause will take care of it
         }
         catch (Throwable e) {
-            try (PrintWriter err = new PrintWriter(errorWriter, true)) {
+            PrintWriter err = new PrintWriter(errorWriter, true);
+            
+            if (!err.checkError()) {
                 err.println("Unexpected (uncaught) exception, closing the REPL: ");
-                if (!err.checkError()) {
-                    err.print(e.toString());
-                    e.printStackTrace(err);
-                }
-                else {
-                    System.err.print(e.toString());
-                    e.printStackTrace();
-                }
-                err.flush();
+                err.print(e.toString());
+                e.printStackTrace(err);
             }
-            errorWriter.flush();
+            else {
+                System.err.println("Unexpected (uncaught) exception, closing the REPL: ");
+                System.err.print(e.toString());
+                e.printStackTrace(System.err);
+            }
+            
+            err.flush();
+    
             throw e;
         }
         finally {
