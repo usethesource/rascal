@@ -48,7 +48,7 @@ syntax[&T] explode(data[&T] ast) {
 }
 
 Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
-   return appl(prod(lex("identifier"),[\iter-star(\char-class([range(1,1114111)])],{}),
+   return appl(prod(lex("*identifiers*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
       [
          appl(regular(\iter-star(\char-class([range(1,1114111)]))),
             [char(ch) | ch <- chars(contents[offset..offset+length])])
@@ -77,20 +77,15 @@ default Tree explode(data[&T] ast, str contents, int offset, int length) {
       separatorTree(contents, last.src.offset + last.src.length, offset + length) | last <- children[-1..]
    ];
 
-   if (syntax[&T] r := appl(rule, children)) {
-      return r;
-   }
-   else {
-     
-   }
+   return appl(rule, children);
 }
 
 Tree separatorTree(str contents, int \start, int end)
-   = appl(prod(layouts("separators"),[\iter-star(\char-class([range(1,1114111)])],{}),
+   = appl(prod(layouts("*separators*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
       [
          appl(regular(\iter-star(\char-class([range(1,1114111)]))),
-            [char(ch) | int ch <- chars(contents[\start..end]])
+            [char(ch) | int ch <- chars(contents[\start..end])])
       ]);
 
-Symbol \syntax(str())           = \lex("*identifiers*");
+Symbol \syntax(\str())          = \lex("*identifiers*");
 Symbol \syntax(\list(Symbol s)) = \iter-star(\syntax(s));
