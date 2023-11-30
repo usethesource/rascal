@@ -13,6 +13,7 @@ package org.rascalmpl.library;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -24,7 +25,10 @@ import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -46,6 +50,23 @@ public class Type {
 		        new TypeStore(),
 		        vf.mapWriter().done()
 		        ).get("symbol");
+	}
+	
+	public IValue getConstructor(INode v) {
+		assert v.getType().isAbstractData();
+		io.usethesource.vallang.type.Type constructor = ((IConstructor) v).getUninstantiatedConstructorType();
+
+		TypeStore store = new TypeStore();
+		store.declareAbstractDataType(v.getType());
+		store.declareConstructor(constructor);
+
+		ISetWriter grammar = vf.setWriter();
+		
+		new TypeReifier(vf).typeToValue(constructor, store, vf.map());
+
+		constructor.asProductions(vf, store, grammar, new HashSet<>());
+
+		return grammar.done().stream().map(t -> ((ITuple) t).get(1)).findFirst().get();
 	}
 	
 	public IBool eq(IValue x, IValue y) {

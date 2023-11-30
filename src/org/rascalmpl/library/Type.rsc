@@ -533,6 +533,9 @@ reify operator `#` does, since values may escape the scope in which they've been
 @javaClass{org.rascalmpl.library.Type}
 public java Symbol typeOf(value v);
 
+@javaClass{org.rascalmpl.library.Type}
+public java Production getConstructor(&A <: node constructor);
+
 @synopsis{Determine if the given type is an int.}
 public bool isIntType(Symbol::\alias(_,_,Symbol at)) = isIntType(at);
 public bool isIntType(Symbol::\parameter(_,Symbol tvb)) = isIntType(tvb);
