@@ -33,6 +33,8 @@ module util::Explode
 extend ParseTree;
 import IO;
 import Node;
+import List;
+import Location;
 
 @synopsis{Turn an AST into a ParseTree, while preserving the name of the type.}
 syntax[&T] explode(data[&T] ast) {
@@ -40,13 +42,14 @@ syntax[&T] explode(data[&T] ast) {
    assert readFile(ast.src.top) == readFile(ast.src);
    assert astNodeSpecification(ast);
 
-   if (syntax[&T] r := explode(typeOf(ast), ast, readFile(ast.src.top), ast.src.offset, ast.src.length)) {
+   if (syntax[&T] r := explode(ast, readFile(ast.src.top), ast.src.offset, ast.src.length)) {
       return r;
    }
 
    throw "unexpected problem while exploding <ast>";
 }
 
+// singleton str nodes are lexical identifiers
 Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
    return appl(prod(lex("*identifiers*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
       [
@@ -55,30 +58,55 @@ Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, i
       ]);
 }
 
+// lists get separator too. pretty sure the first and last separators will always be empty...
+list[Tree] explodeList(list[data[&T]] lst, Symbol s, str contents, int offset, int length) {
+   children = [
+      *[
+         separatorTree(contents, offset, c.src.offset),
+         explode(c, contents, c.src.offset, c.src.length) | c <- children
+      ],
+      separatorTree(contents, last.src.offset + last.src.length, offset + length) | last <- children[-1..]
+   ];
+
+   return appl(regular(s), children);
+}
+
+// we do not further explode parse trees
+Tree explode(Tree t, str _, int _, int _) = t;
+
 default Tree explode(data[&T] ast, str contents, int offset, int length) {
    children = getChildren(ast);
+   pox      = positions(ast.src, children);
+   cons     = getConstructor(ast);
+   symbols  = cons.symbols;
   
    // here we generate a quasi syntax rule that has the structure and the types
    // of the exploded children. each rule starts with separators, has separators
    // in between every child, and ends with separators. Each child node is modified
    // to a syntax node. Lists become iter-star symbols
-   rule = prod(\syntax(typeOf(ast)), [
+   rule = prod(\syntax(cons.def), [
          layouts("*separators*"), 
-         *[\syntax(typeOf(c)), layouts("*separators*") | c <- children][..-1], 
+         *[\syntax(c), layouts("*separators*") | Symbol c <- symbols][..-1], 
          layouts("*separators*")
       ], 
       {});
 
    children = [
-      separatorTree(contents, offset, c.src.offset),
-      explode(c, contents, c.src.offset, c.src.length)
-      | c <- getChildren(ast)
-   ] + [
+      *[
+         separatorTree(contents, offset, c.src.offset),
+         // there are 3 cases, mutually exclusive:
+         *[explode(c, contents, c.src.offset, c.src.length)[src=p] | node _ := c], // a node
+         *[emptyList(s)[src=p]                                     | []     := c], // an empty list
+         *[explodeList(c, \syntax(s), contents, c.src.offset, c.src.length)[src=p] | [_,*_] := c]  // a non-empty list
+      | <c, s, p> <- zip3(children, symbols, pox)
+      ],
       separatorTree(contents, last.src.offset + last.src.length, offset + length) | last <- children[-1..]
    ];
 
-   return appl(rule, children);
+   return appl(rule, children, src=ast.src);
 }
+
+Tree emptyList(Symbol s) = appl(regular(s), []);
 
 Tree separatorTree(str contents, int \start, int end)
    = appl(prod(layouts("*separators*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
@@ -87,5 +115,28 @@ Tree separatorTree(str contents, int \start, int end)
             [char(ch) | int ch <- chars(contents[\start..end])])
       ]);
 
-Symbol \syntax(\str())          = \lex("*identifiers*");
-Symbol \syntax(\list(Symbol s)) = \iter-star(\syntax(s));
+Symbol \syntax(label(str x, Symbol s)) = label(x, \syntax(s));
+Symbol \syntax(\str())                 = \lex("*identifiers*");
+Symbol \syntax(\list(Symbol s))        = \iter-star-seps(\syntax(s),[layouts("*separators*")]);
+
+private Symbol unlabel(label(str _, Symbol s))                  = unlabel(s);
+private Symbol unlabel(conditional(Symbol s, set[Condition] _)) = unlabel(s);
+private default Symbol unlabel(Symbol s)                        = s;
+
+@synopsis{Give every element a true location for later processing.}
+private list[loc] position(loc span, list[value] l) = infer(span, [pos(span, x) | x <- l]);
+
+@synopsis{Replaces all |empty:///| with a correct loc inferred from the surroundings}
+private list[loc] infer(loc span, [loc l, *loc rest])                       = infer(span, [span[length=0], *rest]) when l == |empty:///|;
+private list[loc] infer(loc span, [*loc rest, loc l])                       = infer(span, [*rest, span[offset=span.offset+span.length-1][length=0]]) when l == |empty:///|;
+private list[loc] infer(loc span, [*loc pre, loc before, loc l, *loc post]) = infer(span, [*pre, before, before[offset=before.offset+before.length][length = 0], *post]) when l == |empty:///|;
+private list[loc] infer(loc span, [*loc pre, loc l, loc after, *loc post])  = infer(span, [*pre, after[offset=after.offset][length = 0], after, *post]) when l == |empty:///|;
+private default list[loc] infer(loc _span, list[loc] done)                  = done;
+
+@synsopsis{An element either knows its position, or it does not.}
+private loc pos(loc span, int _)                 = span;
+private loc pos(loc span, str _)                 = span;
+private loc pos(loc _span, [])                   = |empty:///|;
+private loc pos(loc _span, node n)               = \loc(n);
+private loc pos(loc _span, [node n])             = \loc(n);
+private loc pos(loc _span, [node a, *_, node b]) = cover([\loc(a), \loc(b)]);
