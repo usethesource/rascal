@@ -49,7 +49,7 @@ getKeywordParameters("f"(10, "abc", height=0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getKeywordParameters(node T);
 
-@Deprecated{
+@deprecated{
 Use getKeywordParameters(T)
 }
 public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
@@ -65,7 +65,7 @@ setKeywordParameters("f"(10, "abc"), ("height":0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
 
-@Deprecated{
+@deprecated{
 Use setKeywordParameters(x, keywordParameters)
 }
 public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
@@ -98,7 +98,7 @@ public java node makeNode(str N, value V..., map[str, value] keywordParameters =
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x, str keywordParameter);
 
-@Deprecated{
+@deprecated{
 Use unset(x, kw)
 }
 public &T <: node delAnnotation(&T <:  node x, str keywordParameter) = unset(x, keywordParameter); 
@@ -118,7 +118,7 @@ public &T <: node unset(&T <: node x, set[str] keywordParameters){
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x);
 
-@Deprecated{
+@deprecated{
 Use `unset(x)`
 }
 public &T <: node delAnnotations(&T <: node x) = unset(x);
@@ -128,7 +128,7 @@ public &T <: node delAnnotations(&T <: node x) = unset(x);
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T unsetRec(&T x);
 
-@Deprecated{
+@deprecated{
 Use `unsetRec(x)`
 }
 public &T delAnnotationsRec(&T x) = unsetRec(x);
