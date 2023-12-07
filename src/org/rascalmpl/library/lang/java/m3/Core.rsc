@@ -18,6 +18,7 @@ import List;
 import util::FileSystem;
 import util::Reflective;
 
+@synopsis{Java extensions to the generic M3 model.}
 @description{
   Notice that this model also contains the attributes from ((Library:analysis::m3::Core::M3)).
 }
