@@ -74,20 +74,20 @@ list[Tree] explodeList(list[data[&T]] lst, Symbol s, str contents, int offset, i
 // we do not further explode parse trees
 Tree explode(Tree t, str _, int _, int _) = t;
 
+// this is the main workhorse
 default Tree explode(data[&T] ast, str contents, int offset, int length) {
    children = getChildren(ast);
    pox      = positions(ast.src, children);
    cons     = getConstructor(ast);
    symbols  = cons.symbols;
   
-   // here we generate a quasi syntax rule that has the structure and the types
-   // of the exploded children. each rule starts with separators, has separators
+   // Here we generate a quasi syntax rule that has the structure and the types
+   // of the exploded children. Each rule starts with separators, has separators
    // in between every child, and ends with separators. Each child node is modified
-   // to a syntax node. Lists become iter-star symbols
+   // to a syntax node. Lists become iter-star symbols.
    rule = prod(\syntax(cons.def), [
          layouts("*separators*"), 
-         *[\syntax(c), layouts("*separators*") | Symbol c <- symbols][..-1], 
-         layouts("*separators*")
+         *[\syntax(c), layouts("*separators*") | Symbol c <- symbols]
       ], 
       {});
 
@@ -96,7 +96,7 @@ default Tree explode(data[&T] ast, str contents, int offset, int length) {
          separatorTree(contents, offset, c.src.offset),
          // there are 3 cases, mutually exclusive:
          *[explode(c, contents, c.src.offset, c.src.length)[src=p] | node _ := c], // a node
-         *[emptyList(s)[src=p]                                     | []     := c], // an empty list
+         *[emptyList(s, p)                                         | []     := c], // an empty list
          *[explodeList(c, \syntax(s), contents, c.src.offset, c.src.length)[src=p] | [_,*_] := c]  // a non-empty list
       | <c, s, p> <- zip3(children, symbols, pox)
       ],
@@ -106,7 +106,7 @@ default Tree explode(data[&T] ast, str contents, int offset, int length) {
    return appl(rule, children, src=ast.src);
 }
 
-Tree emptyList(Symbol s) = appl(regular(s), []);
+Tree emptyList(Symbol s, loc src) = appl(regular(s), [], src=src);
 
 Tree separatorTree(str contents, int \start, int end)
    = appl(prod(layouts("*separators*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
