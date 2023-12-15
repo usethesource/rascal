@@ -45,12 +45,7 @@ loc relativize(list[loc] haystack, loc needle) {
 
 
 @synopsis{Check that two locations refer to the same file.}    
-bool isSameFile(loc l, loc r)
-    = (isEmpty(l.fragment) ? l.top : l.top[fragment=""])
-      == 
-      (isEmpty(r.fragment) ? r.top : r.top[fragment=""])
-    ;
-    
+bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
 
 @synopsis{Compare two location values lexicographically.}
 @description{
