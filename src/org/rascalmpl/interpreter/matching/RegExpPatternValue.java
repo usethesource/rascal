@@ -28,6 +28,7 @@ import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral;
@@ -88,7 +89,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		
 		Type runType = subject.getValue().getType();
 		
-		if(runType.isSubtypeOf(tf.stringType())) {
+		if (runType.isSubtypeOf(tf.stringType())) {
 			this.subject = ((IString) subject.getValue()).getValue();
 		}
 		else {
@@ -100,8 +101,15 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		
 		try {
 			String RegExpAsString = interpolate(ctx);
-			pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
-		} catch (PatternSyntaxException e){
+			this.pat = Pattern.compile(RegExpAsString, Pattern.UNICODE_CHARACTER_CLASS);
+			matcher = this.pat.matcher(((IString) subject.getValue()).getValue());
+			IString empty = ctx.getValueFactory().string("");
+			
+			// Initialize all pattern variables to ""
+			for (String name : patternVars) {
+				ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(tf.stringType(), empty, ctx));
+			}
+		} catch (PatternSyntaxException e) {
 			throw new SyntaxError(e.getMessage(), ctx.getCurrentAST().getLocation());
 		}
 	}
@@ -145,17 +153,6 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	public boolean next(){
 		if (firstMatch){
 			firstMatch = false;
-			matcher = pat.matcher(subject);
-			IString empty = ctx.getValueFactory().string("");
-			
-			// Initialize all pattern variables to ""
-			for(String name : patternVars){
-				if(!this.iWroteItMySelf && !ctx.getCurrentEnvt().declareVariable(tf.stringType(), name)) {
-					throw new RedeclaredVariable(name, ctx.getCurrentAST());
-				}
-				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), empty, ctx));
-			}
-			this.iWroteItMySelf = true;
 		}
 		
 		try {
