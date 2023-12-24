@@ -77,7 +77,10 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
             } else {
                 c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
             }
+        } else {
+            c.fact(name, tpResolved);
         }
+        return;
     } catch TypeUnavailable(): {
         c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
     }

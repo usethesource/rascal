@@ -158,3 +158,12 @@ str unescapeAndStandardize(str s){
 str unescapeName(str s){
     return s[0] ==  "\\" ? s[1..] : s;
 }
+
+bool isEqualModule(str name1, name2){
+    if(contains(name1, "::") && contains(name2, "::")) return name1 == name2;
+    name1a = replaceAll(name1, "::", "_");
+    name2a = replaceAll(name2, "::", "_");
+    res = endsWith(name1a, name2a) || endsWith(name2a, name1a);
+    //println("isEqualModule(<name1>, <name2>) =\> <res>");
+    return res;
+}

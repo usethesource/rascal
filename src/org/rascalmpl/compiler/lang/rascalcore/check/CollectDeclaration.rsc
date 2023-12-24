@@ -31,8 +31,8 @@ import util::Reflective;
 // ---- Rascal declarations ---------------------------------------------------
 
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
-   
-    if(current has top) current = current.top;
+
+    //current = current.top;
     mname = prettyPrintName(header.name);
     //println("Type checking module  <mname>");
     checkModuleName(getLoc(current), header.name, c);

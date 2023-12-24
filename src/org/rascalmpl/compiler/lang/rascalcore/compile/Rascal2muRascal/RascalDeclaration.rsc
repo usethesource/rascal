@@ -55,7 +55,7 @@ void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type t
    		addVariableToModule(muModuleVar(getType(tp), unescapedVarName));
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar(unescapedVarName, getModuleName(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, getModuleNameUnderscores(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}
@@ -78,7 +78,7 @@ void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> data <U
 private MuExp promoteVarsToFieldReferences(MuExp exp, AType consType, MuExp consVar)
     = visit(exp){
         case muVar(str fieldName, _, -1, AType tp, IdRole idRole) => muGetField(tp, consType, consVar, fieldName)
-        case muVarKwp(str fieldName, str _, AType tp) => muGetKwField(tp, consType, consVar, fieldName, getModuleName())
+        case muVarKwp(str fieldName, _, AType tp) => muGetKwField(tp, consType, consVar, fieldName, getModuleName())
      };
     
 public void translateDecl(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) {
@@ -353,8 +353,12 @@ public set[MuExp] getExternalRefs(MuExp exp, str fuid){
 /*
  * Get all keyword variables that have introduced outside the given function scope
  */
-public set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid)
-    = { unsetRec(v, "alabel") | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
+public set[MuExp] getKeywordParameterRefs(MuExp exp, str fuid){
+    //println("getKeywordParameterRefs(<exp>, <fuid>)");
+    res = { unsetRec(v, "alabel") | /v:muVarKwp(str _, str fuid2, AType _) := exp, fuid2 != fuid };
+    //println("getKeywordParameterRefs =\> <res>");
+    return res;
+}
     
 /********************************************************************/
 /*                  Translate keyword parameters                    */

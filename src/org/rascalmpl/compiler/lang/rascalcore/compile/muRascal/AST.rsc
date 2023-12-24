@@ -353,9 +353,12 @@ bool isClosureName(str name)
 bool isMainName("main") = true;
 default bool isMainName(str _) = false;
 
-bool isOuterScopeName(str name)
-    = isEmpty(name);
-    
+bool isOuterScopeName(str scope)
+    = isEmpty(scope);
+   
+bool isModuleScope(loc scope, loc moduleScope)
+    = scope == moduleScope;
+
 str getFunctionName(MuFunction fun){
     if(isOuterScopeName(fun.scopeIn)) return fun.name;
     if(isClosureName(fun.name)) return fun.name; // "<fun.scopeIn>_<fun.uniqueName>";
@@ -364,10 +367,11 @@ str getFunctionName(MuFunction fun){
 }
 
 str getUniqueFunctionName(MuFunction fun){
-    if(isOuterScopeName(fun.scopeIn)){
-        return fun.uniqueName;
-    }
-    return "<fun.scopeIn>_<fun.uniqueName>";
+    return fun.uniqueName;
+    //if(isModuleScope(fun.scopeIn, scope)){
+    //    return fun.uniqueName;
+    //}
+    //return "<fun.scopeIn>_<fun.uniqueName>";
 }
 
 set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};

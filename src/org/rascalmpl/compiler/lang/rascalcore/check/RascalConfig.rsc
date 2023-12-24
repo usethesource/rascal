@@ -10,6 +10,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
 import Location;
+import util::Reflective;
 
 //extend lang::rascalcore::grammar::ParserGenerator;
 
@@ -64,7 +65,7 @@ set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), pa
 @memo{expireAfter(minutes=5),maximumSize(1000)}
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
- 
+    
     if(isBefore(use.occ, def) &&                        // If we encounter a use before def
        !isEmpty(use.idRoles & defBeforeUseRoles) &&     // in an idRole that requires def before use
        isContainedIn(def, use.scope)){                  // and the definition is in the same scope as the use
@@ -391,11 +392,22 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
+loc rascalLogicalLoc(str id, IdRole idRole, loc physicalLoc, str modelName, PathConfig pcfg){
+   moduleName = getModuleName(physicalLoc, pcfg);
+   moduleNameSlashed = replaceAll(moduleName, "::", "/");
+   if(idRole == moduleId()){
+    return |<"<modelName>+<prettyRole(idRole)>">:///<moduleNameSlashed>|; 
+   } else {
+   return |<"<modelName>+<prettyRole(idRole)>">://<moduleNameSlashed>/<reduceToURIChars(id)>|; 
+   }
+}
+
 TypePalConfig rascalTypePalConfig(bool classicReifier      = true,  
                                   bool logSolverIterations = false,
                                   bool logSolverSteps      = false,
                                   bool logAttempts         = false,
-                                  bool logImports          = false
+                                  bool logImports          = false,
+                                  PathConfig rascalPathConfig    = pathConfig()
                                  )
     = tconfig(
         logTime                       = false,
@@ -404,6 +416,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
         logAttempts                   = logAttempts,
         logImports                    = logImports,
         validateConstraints           = true,
+        roleNeedslogicalLoc           = {moduleId(), functionId(), dataId(), constructorId(), productionId()},
         
         warnUnused                    = true,
         warnUnusedFormals             = true,
@@ -431,7 +444,9 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
         
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
-        reportUnused                  = rascalReportUnused
+        reportUnused                  = rascalReportUnused,
+        typepalPathConfig             = rascalPathConfig,
+        createLogicalLoc              = rascalLogicalLoc
     );
     
  data CompilerConfig(
