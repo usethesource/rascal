@@ -8,7 +8,7 @@ import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectDeclaration;
 
 import lang::rascal::\syntax::Rascal;
-
+ 
 import List;
 import Set;
 import String;

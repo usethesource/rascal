@@ -89,12 +89,19 @@ JGenie makeJGenie(MuModule m,
     int ntmps = -1;
     set[str] importedLibraries = {};
     
+    for(mname <- tmodels){
+        checkAllTypesAvailable(tmodels[mname]);
+    }
+    
     TModel currentTModel = tmodels[moduleName];
+    checkAllTypesAvailable(currentTModel);
+    println("---- jgenie:");
+    iprintln(currentTModel);
     loc currentModuleScope = moduleLocs[moduleName];
     set[loc] extending = currentTModel.paths[currentModuleScope, extendPath()];
     rel[loc, loc] importedByExtend = {<i, e> | e <- extending, i <- currentTModel.paths[e, importPath()]};
     str functionName = "$UNKNOWN";
-    MuFunction function = muFunction("", "", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
+    MuFunction function = muFunction("", "*unknown", avalue(), [], [], [], "", false, true, false, {}, {}, {}, currentModuleScope, [], (), muBlock([]));               
     
     
     map[loc,set[MuExp]] fun2externals = (fun.src : fun.externalRefs | fun <- range(muFunctions), fun.scopeIn != "");
@@ -227,7 +234,9 @@ JGenie makeJGenie(MuModule m,
                 if(defType(AType _) := def.defInfo){
                     baseName = asJavaName(def.id);
                     
-                    if(isContainedIn(def.defined, currentModuleScope)){
+                    if(isSyntheticFunctionName(baseName)){
+                        return baseName;
+                    } else if(isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
                             fun = muFunctionsByLoc[def.defined];
                             return isEmpty(fun.scopeIn) ? baseName : "<fun.scopeIn>_<baseName>";
@@ -246,9 +255,9 @@ JGenie makeJGenie(MuModule m,
                     if(defType(AType _) := def.defInfo){
                         baseName = asJavaName(def.id);
                         
-                        //if(isClosureName(baseName)){
-                        //    return baseName;
-                        //}
+                        if(isSyntheticFunctionName(baseName)){
+                            return baseName;
+                        }
                         if(isContainedIn(def.defined, currentModuleScope)){
                             return baseName;
                         } else {

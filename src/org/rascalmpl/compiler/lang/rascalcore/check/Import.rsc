@@ -171,10 +171,12 @@ tuple[bool, TModel, ModuleStatus] getTmodelForModule(str qualifiedModuleName, Mo
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
             
-            logical2physical = tpl.logical2physical;
-            tpl.logical2physical = ();
-            tpl = renameLocs(tpl, logical2physical);
-            tpl.logical2physical = logical2physical;
+            //logical2physical = tpl.logical2physical;
+            //tpl.logical2physical = ();
+            //tpl = convertLocs(tpl, logical2physical);
+            //tpl.logical2physical = logical2physical;
+            
+            tpl =convertTModel2PhysicalLocs(tpl);
             
             ms.tmodels[qualifiedModuleName] = tpl;
             ms.status[qualifiedModuleName] += tpl_uptodate();
@@ -371,7 +373,7 @@ set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <loc _, str id, str _orgId, moduleId(), int _, loc defined, DefInfo _> <- tm.defines);
+    = (id: defined | <loc _, str id, str _orgId, moduleId(), /*int _,*/ loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -385,7 +387,7 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-tuple[TModel, ModuleStatus] saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,TModel] tmodels, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
+tuple[TModel, ModuleStatus] preSaveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,TModel] tmodels, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
      if(parse_error() in ms.status[qualifiedModuleName]){
         return <tmodel(modelName=qualifiedModuleName,messages=ms.messages[qualifiedModuleName]), ms>;
     }
@@ -402,20 +404,29 @@ tuple[TModel, ModuleStatus] saveModule(str qualifiedModuleName, set[str] imports
     if(!dependencies_ok){
         return <tmodel(modelName=qualifiedModuleName,messages=ms.messages[qualifiedModuleName]), ms>;
     }
+    tm.modelName = qualifiedModuleName;
+    tm.moduleLocs = (qualifiedModuleName : getModuleScope(qualifiedModuleName, moduleScopes, pcfg));
+    ldefines =for(tup: <loc scope, str id, str _, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){ 
+    	if(!(defInfo has atype)){
+    		tup.defInfo = defInfo(getType(defined));
+    	}
+    	append tup;
+    };
+    tm.defines = toSet(ldefines);
+    tm.definitions = ( def.defined : def | Define def <- tm.defines);
     
     ms = addTModel(qualifiedModuleName, tm, ms);
     tm = addGrammar(qualifiedModuleName, imports, extends, ms.tmodels);
     ms.messages [qualifiedModuleName] = tm.messages;
-    tm = saveModule(qualifiedModuleName, imports, extends, ms, moduleScopes, ms.moduleLastModified, pcfg, tm);
+    //tm = doSaveModule(qualifiedModuleName, imports, extends, ms, moduleScopes, ms.moduleLastModified, pcfg, tm);
+    checkAllTypesAvailable(tm);
+    ms = addTModel(qualifiedModuleName, tm, ms);
     return <tm, ms>;
 }
 
-private &T renameLocs(&T v, map[loc,loc] physical2logical){
-    return visit(v){ case loc l => (physical2logical[l] ? l) };
-}
-
-private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
-    //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>") 
+TModel doSaveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes,  PathConfig pcfg, TModel tm){
+    map[str,datetime] moduleLastModified = ms.moduleLastModified;
+    //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>") 
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
         <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
@@ -428,15 +439,17 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
         filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
        
+        externallyReferencedLocs = range(tm.logical2physical);
+        
         TModel m1 = tmodel();
         
         m1.modelName = qualifiedModuleName;
         m1.moduleLocs = (qualifiedModuleName : mscope);
         
         //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
-        m1.facts = tm.facts;
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedIn(key, mscope)/*, key in externallyReferencedLocs*/);
         
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedIn(key, mscope), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
         m1.facts += m1.specializedFacts;
         
         m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
@@ -444,7 +457,7 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
         m1.scopes
-            = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
+            = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths, isContainedIn(inner, mscope)/*, inner in externallyReferencedLocs*/);
         
         m1.store 
             = (key_bom : bom);
@@ -459,39 +472,63 @@ private TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] ex
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
         
         //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
-        m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in saveModuleRoles || isContainedIn(u, mscope) };
+        m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in keepInTModelRoles || isContainedIn(u, mscope) };
         
         // Filter model for current module and replace functions in defType by their defined type
         
-        defs = for(tup: <loc scope, str _, str _, IdRole idRole, int uid, loc defined, DefInfo _> <- tm.defines){ 
-                   if(  idRole in saveModuleRoles
+        defs = for(tup: <loc scope, str id, str _, IdRole idRole, /*int uid,*/ loc defined, DefInfo _> <- tm.defines){ 
+                   if(  idRole in keepInTModelRoles
+                      && isContainedIn(defined, mscope)
+                      //&& (defined in externallyReferencedLocs || idRole == fieldId())
                       && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
                          || scope in filteredModuleScopes
                          || scope.path == mscope.path
                          )
-                     ){ 
-                     //if(scope in extendedModuleScopes){
-                     //   if(defType(_) !:= defInfo){
-                     //      throw "Suspicious define in TModel: <tup>";
-                     //   }
-                     //   //tup.scope = mscope;
-                     //}         
+                     ){   
+                     //println("keep <tup>");
                      append tup;
+                  } else {
+                    ;//println("remove <tup>");
                   }
                };
         
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
+        m1.logical2physical = tm.logical2physical;
+        
         if(!isEmpty(m1.messages)){
             iprintln(m1.messages);
         }
         
-        iv = invertUnique(tm.logical2physical);
+        checkAllTypesAvailable(tm);
         
-        m1 = renameLocs(m1, iv);
-        m1.logical2physical = tm.logical2physical;
-      
+        m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
+        
+        ////TODO temporary check:
+        
+        result = "";
+        
+        void checkPhysical(value v, str label){ 
+            visit(v){
+                case loc l: if(!(isContainedIn(l, mscope) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
+            }
+        }
+        checkPhysical(m1.moduleLocs, "moduleLocs");
+        checkPhysical(m1.facts, "facts");
+        checkPhysical(m1.specializedFacts, "specializedFacts");
+        checkPhysical(m1.defines, "defines");
+        checkPhysical(m1.definitions, "definitions");
+        checkPhysical(m1.scopes, "scopes");
+        checkPhysical(m1.store, "store");
+        checkPhysical(m1.paths, "paths");
+        checkPhysical(m1.useDef, "useDef");
+        
+        if(!isEmpty(result)){
+            println("------------- <qualifiedModuleName>:
+                    '<result>");
+        }
+     
         try {
             writeBinaryValueFile(tplLoc, m1);
             println("Written: <tplLoc>");

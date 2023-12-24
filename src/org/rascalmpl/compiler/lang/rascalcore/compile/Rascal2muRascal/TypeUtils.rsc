@@ -53,6 +53,15 @@ import lang::rascalcore::check::ATypeInstantiation;
 // A set of global values to represent the extracted information
 // TODO: wrap this in a function
 
+//private loc moduleScope = |unknown:///|;
+//
+//void setModuleScope(loc l){
+//    moduleScope = convert2fuid(l);
+//}  
+//
+//loc getModuleScope()
+//    = moduleScope;
+
 alias UID = loc;                                    // A UID is a unique identifier determined by the source location of a construct
 
 /*
@@ -221,10 +230,14 @@ bool is_assignable(Define d) = d.idRole in assignableRoles;
 bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid])].idRole == moduleId();
 
 private loc findContainer(Define d){
-    //println(d);
+    //println("findContainer for <d>");
     if(is_module(d)) return d.defined;
     cscope = d.scope;
     while(!is_module_or_function(cscope)) { 
+        //println("cscope = <cscope>");
+        if(!scopes[cscope]?){
+        iprintln(scopes);
+       }
         if(cscope == scopes[cscope]){
             println("WARNING: findContainer");
             println("scopes:"); iprintln(scopes);
@@ -246,11 +259,9 @@ str findDefiningModule(loc l){
     
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
 void extractScopes(TModel tm){
-    //iprintln(tm);
-    logical2physical = tm.logical2physical;
-    physical2logical = invertUnique(logical2physical);
-    tm = visit(tm){ case loc l => (logical2physical[l] ? l) };
+    tm = convertTModel2PhysicalLocs(tm);
     current_tmodel = tm;
+    physical2logical = invertUnique(tm.logical2physical);
     
     scopes = tm.scopes;
     module_scopes = { s | s <- scopes, scopes[s] == |global-scope:///|};
@@ -264,6 +275,7 @@ void extractScopes(TModel tm){
     useDef = tm.useDef;
     defUses = invert(useDef);
     set[loc] modules = {};
+    //setModuleScope(tm.moduleLocs[tm.modelName]);
     
     if([*AGrammar gs] := tm.store[key_grammar]){
         current_grammar = gs[0];
@@ -364,7 +376,7 @@ void extractScopes(TModel tm){
         ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
         dummies = dummyVars(ftype);
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
-        //println("vars_per_scope:"); iprintln(vars_per_scope);
+       // println("vars_per_scope:"); iprintln(vars_per_scope);
         locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionAType(getType(sc))) ? sc == fun : true};
         //locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionAType(getType(sc)) ==> sc == fun : true};
         locally_defined = {v | v <- locally_defined, v.defInfo.atype notin dummies };
@@ -421,6 +433,8 @@ private AType getType0(loc l) {
     if(definitions[l]?){
         return getDefType(l);
     }
+    //println("*** getType0 ***");
+    //iprintln(facts, lineLimit=10000);
     throw "getType0 cannot find type for <l>";
 }	
 AType getType(loc l) {
@@ -601,7 +615,7 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
   
   cdef = definitions[container];
   if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
-  if(cdef.idRole == moduleId()) return <cdef.id, getPositionInScope(name, l)>;
+  if(cdef.idRole == moduleId()) return <replaceAll(cdef.id, "::", "_"), getPositionInScope(name, l)>;
   throw "getVariableScope fails for <name>, <l>";
 }
 
@@ -633,12 +647,24 @@ int getPositionInScope(str _name, loc l){
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
 	   return "global-scope";
-	tp = getType(uid);
+	//tp = getType(uid);
 	str name = definitions[uid]? ? definitions[uid].id : "XXX";
 
     if(declaredIn[uid]?) {
-       n =  definitions[uid].uid;
-       if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = "<name>$<n>";//  : "<name>_<uid.begin.line>A<uid.offset>";
+       def = definitions[uid];
+       if(physical2logical[def.defined]?){
+          lg = physical2logical[def.defined];
+          path = lg.path;
+          if(def.idRole == moduleId()){
+            i = findLast(path, "/");
+            path = path[..i];
+          }
+          if(path[0] == "/"){
+            path = path[1..];
+          }
+          name = replaceAll(path, "/", "_");
+       }
+       //if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = "<name>$<n>";//  : "<name>_<uid.begin.line>A<uid.offset>";
     }
 	return name;
 }
@@ -646,9 +672,10 @@ str convert2fuid(UID uid) {
 public int getTupleFieldIndex(AType s, str fieldName) = 
     indexOf(getTupleFieldNames(s), fieldName);
 
-public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) {
+public rel[loc fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) {
     locally_defined = { v.defined | sc <- td_reachable_scopes[block], v <- (vars_per_scope[sc] ? {}) };
-    return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
+    return { <declaredIn[decl], position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
+    //return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
 }
 
 set[loc] getDefiningScopes(AType root)

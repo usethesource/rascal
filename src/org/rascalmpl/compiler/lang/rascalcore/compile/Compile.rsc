@@ -90,7 +90,7 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerCon
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig compilerConfig){
     start_comp = cpuTime();   
-    ms = rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig(), compilerConfig, compile1);
+    ms = rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, compile1);
    
     comp_time = (cpuTime() - start_comp)/1000000;
     /*if(verbose)*/ println("Compiling <qualifiedModuleName>: <comp_time> ms");

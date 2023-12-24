@@ -44,6 +44,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
       resetModuleInfo(compilerConfig);
       module_scope = M@\loc;
       setModuleScope(module_scope);
+      //setModuleScope(convert2fuid(module_scope));
       module_name = "<M.header.name>";
       setModuleName(module_name);
       mtags = translateTags(M.header.tags);
@@ -100,9 +101,9 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
         tmodel.messages += [m];
         return <tmodel, errorMuModule(getModuleName(), {m}, M@\loc)>;
    }
-   catch value e: {
-        return <tmodel, errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc)>;
-   }
+   //catch value e: {
+   //     return <tmodel, errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc)>;
+   //}
    finally {
    	   resetModuleInfo(compilerConfig);
    	   resetScopeExtraction();

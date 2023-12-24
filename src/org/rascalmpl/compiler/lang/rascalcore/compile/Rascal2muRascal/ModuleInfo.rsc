@@ -1,11 +1,12 @@
 module lang::rascalcore::compile::Rascal2muRascal::ModuleInfo
 
-//import IO;
+import IO;
 import List;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 import Grammar;
 import lang::rascalcore::check::RascalConfig;
+import String;
 
  // Global state maintained when translating a Rascal module
 
@@ -31,6 +32,8 @@ public void setModuleName(str name){
 }
 
 public str getModuleName() = module_name;
+
+public str getModuleNameUnderscores() = replaceAll(module_name, "::", "_");
 
 public void setModuleTags(map[str,str] mtags){
     module_tags = mtags;
@@ -97,6 +100,8 @@ public void addVariableInitializationToModule(MuExp exp){
 }
 
 public list[MuExp] getVariableInitializationsInModule(){
+//println("getVariableInitializationsInModule:");
+//iprintln(variable_initializations);
 	return variable_initializations;
 }
 

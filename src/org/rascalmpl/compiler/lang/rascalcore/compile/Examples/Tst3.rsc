@@ -1,3 +1,3 @@
 module lang::rascalcore::compile::Examples::Tst3
 
-data D = d(int x);
+int f(int n) = 2 * n;

@@ -64,7 +64,7 @@ set[Message] getAllMessages(ModuleStatus r)
 
 ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], testingConfig(), rascalTypePalConfig(), dummy_compile1);
+   return rascalTModelForLocs([mloc], testingConfig(), rascalTypePalConfig(rascalTypeConfig = testingConfig()), dummy_compile1);
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
@@ -87,7 +87,7 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 
 bool checkModuleOK(loc moduleToCheck){
 	//rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig());
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig(), dummy_compile1));
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig(rascalTypeConfig = testingConfig()), dummy_compile1));
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");

@@ -27,26 +27,17 @@ alias Name_Arity = tuple[str name, int arity];
 // Get all functions and constructors from a given tmodel
 
 rel[Name_Arity, Define] getFunctionsAndConstructors(TModel tmodel, set[loc] module_and_extend_scopes){
-    if(!tmodel.moduleLocs[tmodel.modelName]?){
+     if(!tmodel.moduleLocs[tmodel.modelName]?){
         iprintln(tmodel);
         throw "getFunctionsAndConstructors";
-    }
+     }
      mscope = tmodel.moduleLocs[tmodel.modelName];
-     
-     //overloads0 = {*uids | u <- tmodel.facts, isContainedIn(u, mscope), /muOFun(uids, _) := tmodel.facts[u], bprintln(uids) };
-     //
-     //overloads_used_in_module = {<<def.id, size(ov.atype has formals ? ov.atype.formals : ov.atype.fields)>, def> 
-     //                           | d <- overloads0, 
-     //                             def := tmodel.definitions[d], 
-     //                             (def.idRole == functionId() || def.idRole == constructorId()),
-     //                             !isSyntheticFunctionName(def.id),
-     //                             bprintln(ov)
-     //                           };
                                 
      overloads0 = {*{ ov | tuple[loc def, IdRole idRole, AType atype] ov <- ovl.overloads,(ov.idRole == functionId() || ov.idRole == constructorId()) } |  loc u <- tmodel.facts, isContainedIn(u, mscope), /ovl:overloadedAType(rel[loc def, IdRole idRole, AType atype] overloads) := tmodel.facts[u] };
      overloads_used_in_module = {<<def.id, size(tp has formals ? tp.formals : tp.fields)>, def> 
                                 | tuple[loc def, IdRole idRole, AType atype] ov <- overloads0, 
                                   (ov.idRole == functionId() || ov.idRole == constructorId()),
+                                  tmodel.definitions[ov.def]?,
                                   Define def := tmodel.definitions[ov.def], 
                                   defType(AType tp) := def.defInfo,
                                   !isSyntheticFunctionName(def.id)
@@ -129,6 +120,9 @@ public set[set[Define]] mygroup(set[Define] input, bool (Define a, Define b) sim
 // Generate all resolvers for a given module
 
 str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[str] imports, set[str] extends, map[str,TModel] tmodels, map[str,loc] module2loc, JGenie jg){  
+    //iprintln(tmodels);
+    
+    //tmodels = (mname : convertTModel2PhysicalLocs(tmodels[mname]) | mname <- tmodels);
     module_scope = module2loc[moduleName];
    
     loc2module = invertUnique(module2loc);
@@ -152,7 +146,7 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
                                               });
         // ... and generate a resolver for each group
         for(sdefs <- defs_in_disjoint_scopes){
-            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, loc2module, jg);
+            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
         }
     }
     return resolvers;
@@ -182,7 +176,7 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 }
 // Generate a resolver for a specific function
 
-str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, map[loc, str] loc2module, JGenie jg){
+str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
     module_scopes = domain(loc2module);
     
@@ -338,15 +332,30 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     map[int, lrel[str,str]] overload_table = ();
     lrel[str,str] defaults_and_constructors = [];
     
+    physical2logical = invertUnique(tm.logical2physical);
+    
     // Handle a function or constructor defintion
     
     void handleDef(Define def){
         inner_scope = "";
-        if(def.scope notin module_scopes, /*isContainedIn(def.scope, module_scope) */def in local_fun_defs){
-            fun = loc2muFunction[def.defined];
-            inner_scope = "<fun.scopeIn>_";
-        }
-        uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>$<def.uid>";
+        //if(def.scope notin module_scopes, /*isContainedIn(def.scope, module_scope) */def in local_fun_defs){
+        //    fun = loc2muFunction[def.defined];
+        //    inner_scope = "<fun.scopeIn>_";
+        //}
+        uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>";
+        if(physical2logical[def.defined]?){
+          ph = physical2logical[def.defined];
+          path = ph.path;
+          if(path[0] == "/"){
+            path = path[1..];
+          }
+          //i = findLast(path, "/");
+          //path = path[i+1..];
+          
+          name = replaceAll(path, "/", "_");
+          uniqueName = "<inner_scope><asJavaName(name, completeId=false)>";
+       }
+        //uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>$<def.uid>";
         //uniqueName = "<inner_scope><asJavaName(def.id, completeId=false)>_<def.defined.begin.line>A<def.defined.offset>";
         def_type = def.defInfo.atype;
         

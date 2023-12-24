@@ -64,42 +64,50 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
     c.push(patternContainer, "toplevel");
     c.push(key_allow_use_before_def, <|none:///|(0,0,<0,0>,<0,0>), |none:///|(0,0,<0,0>,<0,0>)>);
     
-    for(tree <- range(namedTrees)){
-        c.enterScope(tree);      
-            // Tree type, fields "top" and "src"
-            TreeType = aadt("Tree", [], dataSyntax());
-            treeScope = mkTree(1);
-            c.define("Tree", dataId(), treeScope, defType(TreeType));
-            c.enterScope(treeScope);
-                c.define("top", fieldId(), mkTree(2), defType(TreeType));
-                c.define("src", keywordFieldId(), mkTree(3), defType(aloc())); // TODO: remove when @\loc is gone
-            c.leaveScope(treeScope); 
-            
-            //DefaultLayoutType = aadt("$default$", [], layoutSyntax());
-            //c.define("$default$", layoutId(), mkTree(4), defType(DefaultLayoutType));
-            
-            // Reified type
-            if(c.getConfig().classicReifier){
-                ;////data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-                //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-                //SymbolType = aadt("Symbol", [], dataSyntax());
-                //ProductionType = aadt("Production", [], dataSyntax());
-                //symbolField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
-                //definitionsField = amap(SymbolType, ProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-                //c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], alabel="type")));
-                // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-            } else {
-                //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
-                //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-                SymbolType = aadt("AType", [], dataSyntax());
-                AProductionType = aadt("AProduction", [], dataSyntax());
-                atypeField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
-                definitionsField = amap(SymbolType, AProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-                //c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], alabel="type")));
-                // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-            }
-        c.leaveScope(tree);
-    }
+    //for(mname <- namedTrees){
+    //    tree = namedTrees[mname];
+    //    c.enterScope(tree);      
+    //        // Tree type, fields "top" and "src"
+    //        TreeType = aadt("Tree", [], dataSyntax());
+    //        treeScope = mkTree(1);
+    //        //if(!c.isAlreadyDefined("Tree", [Name] "Tree")){
+    //        //    println("Define Tree for <mname>");
+    //        //    c.define("Tree", dataId(), treeScope, defType(TreeType));
+    //        //}
+    //        c.enterScope(treeScope);
+    //            if(!c.isAlreadyDefined("top", [Name] "top")){
+    //                c.define("top", fieldId(), mkTree(2), defType(TreeType));
+    //            }
+    //            if(!c.isAlreadyDefined("src", [Name] "src")){
+    //                c.define("src", keywordFieldId(), mkTree(3), defType(aloc())); // TODO: remove when @\loc is gone
+    //            }
+    //        c.leaveScope(treeScope); 
+    //        
+    //        //DefaultLayoutType = aadt("$default$", [], layoutSyntax());
+    //        //c.define("$default$", layoutId(), mkTree(4), defType(DefaultLayoutType));
+    //        
+    //        // Reified type
+    //        //if(c.getConfig().classicReifier){
+    //        //    ;////data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
+    //        //    //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+    //        //    //SymbolType = aadt("Symbol", [], dataSyntax());
+    //        //    //ProductionType = aadt("Production", [], dataSyntax());
+    //        //    //symbolField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
+    //        //    //definitionsField = amap(SymbolType, ProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
+    //        //    //c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], alabel="type")));
+    //        //    // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+    //        //} else {
+    //        //    //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
+    //        //    //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+    //        //    SymbolType = aadt("AType", [], dataSyntax());
+    //        //    AProductionType = aadt("AProduction", [], dataSyntax());
+    //        //    atypeField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
+    //        //    definitionsField = amap(SymbolType, AProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
+    //        //    //c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], alabel="type")));
+    //        //    // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+    //        //}
+    //    c.leaveScope(tree);
+    //}
 }
 //
 //// Enhance TModel before running Solver
@@ -325,9 +333,9 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                     }
                     tmodels_for_component[m] = tm;
                 }
-                // save the TModels of the modules in the component
+                // presave the TModels of the modules in the component
                 for(str m <- tmodels_for_component){
-                    <tm1, ms> = saveModule(m, m_imports[m], m_extends[m], ms, tmodels_for_component, moduleScopes, pcfg, tm);
+                    <tm1, ms> = preSaveModule(m, m_imports[m], m_extends[m], ms, tmodels_for_component, moduleScopes, pcfg, tm);
                     tmodels_for_component[m] = tm1;
                     ms = addTModel(m, tm1, ms);
                 }
@@ -339,6 +347,9 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                         ms.messages[m] = msgs;
                         ms.status[m] += {code_generated()};
                     }
+                    tm1 = doSaveModule(m, m_imports[m], m_extends[m], ms, moduleScopes, pcfg, tm);
+                    tmodels_for_component[m] = tm1;
+                    ms = addTModel(m, tm1, ms);
                 }
             }
         }
