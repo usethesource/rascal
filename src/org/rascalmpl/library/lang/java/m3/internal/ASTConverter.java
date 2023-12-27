@@ -120,14 +120,17 @@ public class ASTConverter extends JavaToRascalConverter {
             return;
         }
         setKeywordParameter("src", getSourceLocation(node));
-        ISourceLocation decl = resolveBinding(node);
-        if (!decl.getScheme().equals("unknown")) {
-            setKeywordParameter("decl", decl); 
-        }
-        if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE) {
-            IValue type = resolveType(node);
 
-            setKeywordParameter("typ", type);
+        if (collectBindings) {
+            ISourceLocation decl = resolveBinding(node);
+            if (!decl.getScheme().equals("unknown")) {
+                setKeywordParameter("decl", decl); 
+            }
+            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE) {
+                IValue type = resolveType(node);
+
+                setKeywordParameter("typ", type);
+            }
         }
     }
 
