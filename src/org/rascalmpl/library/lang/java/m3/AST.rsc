@@ -10,7 +10,7 @@ import util::Reflective;
 import IO;
 import String;
 import List;
- 
+
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
     | \compilationUnit(Declaration package, list[Declaration] imports, list[Declaration] types)
@@ -39,7 +39,7 @@ data Declaration
     ;
 
 
-data Expression 
+data Expression
     = \arrayAccess(Expression array, Expression index)
     | \newArray(Type \type, list[Expression] dimensions, Expression init)
     | \newArray(Type \type, list[Expression] dimensions)
@@ -76,11 +76,11 @@ data Expression
     | \simpleName(str name)
     | \markerAnnotation(str typeName)
     | \normalAnnotation(str typeName, list[Expression] memberValuePairs)
-    | \memberValuePair(str name, Expression \value)             
+    | \memberValuePair(str name, Expression \value)
     | \singleMemberAnnotation(str typeName, Expression \value)
-    ;                       
-  
-data Statement              
+    ;
+
+data Statement
     = \assert(Expression expression)
     | \assert(Expression expression, Expression message)
     | \block(list[Statement] statements)
@@ -104,16 +104,16 @@ data Statement
     | \synchronizedStatement(Expression lock, Statement body)
     | \throw(Expression expression)
     | \try(Statement body, list[Statement] catchClauses)
-    | \try(Statement body, list[Statement] catchClauses, Statement \finally)                                        
+    | \try(Statement body, list[Statement] catchClauses, Statement \finally)
     | \catch(Declaration exception, Statement body)
     | \declarationStatement(Declaration declaration)
     | \while(Expression condition, Statement body)
     | \expressionStatement(Expression stmt)
     | \constructorCall(bool isSuper, Expression expr, list[Expression] arguments)
     | \constructorCall(bool isSuper, list[Expression] arguments)
-    ;           
-  
-data Type 
+    ;
+
+data Type
     = arrayType(Type \type)
     | parameterizedType(Type \type)
     | qualifiedType(Type qualifier, Expression simpleName)
@@ -133,7 +133,7 @@ data Type
     | \void()
     | \boolean()
     ;
- 
+
 data Modifier
     = \private()
     | \public()
@@ -153,7 +153,7 @@ data Modifier
     ;
 
 @memo
-set[loc] getPaths(loc dir, str suffix) { 
+set[loc] getPaths(loc dir, str suffix) {
    bool containsFile(loc d) = isDirectory(d) ? (x <- d.ls && x.extension == suffix) : false;
    return find(dir, containsFile);
 }
@@ -172,15 +172,15 @@ set[loc] findRoots(set[loc] folders) {
               packagedepth = size(split(".", trim(p)));
               roots += { d[path = intercalate("/", split("/", d.path)[..-packagedepth])] };
             }
-            
-            if (roots == {}) { // no package declaration means d is a root 
-              roots += { d }; 
+
+            if (roots == {}) { // no package declaration means d is a root
+              roots += { d };
             }
-            
-            break;            
-          } catch: ;          
+
+            break;
+          } catch: ;
         }
-        
+
         if (roots != {}) {
           result += roots;
         }
@@ -190,14 +190,14 @@ set[loc] findRoots(set[loc] folders) {
       }
     }
   }
-  
+
   return result;
 }
-      
 
-@synopsis{Creates AST from a file}
+
+@synopsis{Creates AST from a single file.}
 @description{
-
+Wrapper around ((createAstsFromFiles)) to call it on a single file.
 }
 public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
     result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
@@ -207,29 +207,42 @@ public Declaration createAstFromFile(loc file, bool collectBindings, bool errorR
     throw "Unexpected number of ASTs returned from <file>";
 }
 
-@synopsis{Creates AST from a file using Eclipse JDT compiler}
+@synopsis{Creates ASTs for a set of files using Eclipse JDT compiler.}
+@pitfalls{
+  While the function takes a set of locations, it ignores the positional information of the location.
+  Meaning, that it analyzes the whole file and not just the part that the positional information describes.
+}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
-@synopsis{Creates AST from a string using Eclipse JDT compiler}
+@synopsis{Creates AST from a string using Eclipse JDT compiler.}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
 
 @synopsis{Creates a set ASTs for all Java source files in a project using Eclipse's JDT compiler}
+@description{
+  The function recursively looks for the `.java` files in the directory.
+  The function also looks for the dependencies (`.jar` files) to include them.
+  Wraps around ((createAstsFromFiles)).
+}
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
-    
+
     classPaths = [ j | j <- find(project, "jar"), isFile(j) ];
     sourcePaths = getPaths(project, "java");
     return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);
 }
 
-@synopsis{Creates a set ASTs for all Java source files in a Maven project using Eclipse's JDT compiler}
+@synopsis{Creates a set of ASTs for all Java source files in a Maven project using Eclipse's JDT compiler.}
 @description{
 This function uses ((util::Reflective-getProjectPathConfig)), which inspects a `pom.xml` to 
 compute the dependencies and concrete locations of jar files that a Maven project depends on.
+The location of `project` points to the root of the project to analyze. As a consequence, the `pom.xml`
+is expected to be at `project + "pom.xml"`.
+
+Wraps around ((createAstsFromFiles)).
 }
 public set[Declaration] createAstsFromMavenProject(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
     if (!exists(project + "pom.xml")) {
@@ -239,9 +252,8 @@ public set[Declaration] createAstsFromMavenProject(loc project, bool collectBind
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
-    
+
     classPaths = getProjectPathConfig(project).javaCompilerPath;
     sourcePaths = getPaths(project, "java");
     return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);
 }
-
