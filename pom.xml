@@ -31,7 +31,7 @@
         <lucence-version>7.5.0</lucence-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
-        <maven.compiler.release>11</maven.compiler.release>
+        <maven.compiler.release>17</maven.compiler.release>
         <rascal-maven.version>0.22.0-RC2</rascal-maven.version>
     </properties>
 
@@ -226,7 +226,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
+                <version>0.8.11</version>
                 <executions>
                     <execution>
                         <goals>
@@ -365,7 +365,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.0.0-RC3</version>
+            <version>1.0.0-RC4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>

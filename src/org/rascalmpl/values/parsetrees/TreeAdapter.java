@@ -834,11 +834,11 @@ public class TreeAdapter {
 	}
 
 	public static String yield(IConstructor tree, int limit) {
-		return yield(tree, false, limit);
+		return TreeAdapter.yield(tree, false, limit);
 	}
 
 	public static String yield(IConstructor tree) {
-		return yield(tree, false);
+		return TreeAdapter.yield(tree, false);
 	}
 
 	public static String yield(IConstructor tree, boolean highlight) {
