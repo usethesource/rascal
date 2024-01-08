@@ -287,6 +287,17 @@ public java int getFingerprint(value val, int arity, bool concretePatterns);
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprintNode(node nd);
 
+@synopsis{Get the internal hash code of a value. For the benefit of debugging the Rascal implementation.}
+@description{
+This function is useless for Rascal programmer's as it is a part of the under-the-hood implementation of values.
+You can use a value directly as a lookup key. The internal data-structures probably use this hashCode for
+optimal lookups in `O(log(size))`. 
+
+We use this function to diagnose possible performance issues caused by hash collisions.
+}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getHashCode(value v);
+
 @synopsis{Throw a raw Java NullPointerException, to help simulate an unexpected exception in test scenarios}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java void throwNullPointerException();
