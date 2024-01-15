@@ -119,19 +119,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 		        err.println();
 		    }
 		    err.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
-		    err.println("\t" + t.getMessage());
-		    
-		    if (t instanceof Throw) {
-		        try {
-                    ((Throw) t).getTrace().prettyPrintedString(err, new StandardTextWriter(true));
-                }
-                catch (IOException e) {
-                    // should not happen
-                }
-		    }
-		    else {
-		        t.printStackTrace(err);
-		    }
+		    err.println(message);
 		}
 		else {
 		    failures++;
