@@ -159,7 +159,7 @@ public class QuickCheck {
         return false;
     }
 
-    private static class TestFailedResult extends TestResult {
+    public static class TestFailedResult extends TestResult {
         protected final String functionName;
         protected final IValue[] values;
         protected final Type[] actualTypes;
