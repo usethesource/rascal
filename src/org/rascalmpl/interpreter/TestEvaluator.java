@@ -20,6 +20,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -113,7 +114,8 @@ public class TestEvaluator {
                             return QuickCheck.SUCCESS;
                         }
                         else {
-                            return new TestResult(false, null);
+                            // TODO: add type bindings report
+                            return new QuickCheck.TestFailedResult(test.getEnv().getName() + "::" + test.getName(), "test returned false", actuals, Map.of(), args);
                         }
                     }
                     catch (Throwable e) {
