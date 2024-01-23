@@ -182,6 +182,11 @@ ChartDataSet chartDataSet(str label, rel[num x, num y] r)
         label=label
     );
 
+ChartDataSet chartDataSet(str label, map[num x, num y] r)
+    = chartDataSet([point(x,r[x]) | x <- r],
+        label=label
+    );    
+
 ChartDataSet chartDataSet(str label, rel[num x, num y, num rad] r)
     = chartDataSet([point(x,y,r=rad) | <x,y,rad> <- r],
         label=label
@@ -206,7 +211,15 @@ ChartData chartData(rel[str label, num val] v)
         datasets=[
             chartDataSet([n | <_, n> <- v])
         ]
-    );    
+    );  
+
+ChartData chartData(map[str label, num val] v)
+    = chartData(
+        labels=[l | l <- v],
+        datasets=[
+            chartDataSet([v[l] | l <- v])
+        ]
+    );        
 
 ChartData chartData(lrel[str label, num val] v)
     = chartData(
@@ -267,6 +280,13 @@ ChartData chartData(list[str] labels, list[num] values...)
     );
 
 ChartData chartData(str label, lrel[num x, num y] values)
+    = chartData(
+        datasets=[
+            chartDataSet(label, values)
+        ]
+    );
+
+ChartData chartData(str label, map[num x, num y] values)
     = chartData(
         datasets=[
             chartDataSet(label, values)
