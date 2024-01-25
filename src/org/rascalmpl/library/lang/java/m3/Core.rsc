@@ -115,7 +115,7 @@ java M3 createM3FromString(loc fileName, str contents, bool errorRecovery = fals
 java M3 createM3FromJarClass(loc jarClass, list[loc] classPath = []);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-java M3 createM3FromSingleClass(loc jarClass, str className);
+java M3 createM3FromSingleClass(loc jarClass, str className, list[loc] classPath = []);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
