@@ -13,14 +13,11 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.repl.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.io.StandardTextWriter;
 
 public class DefaultTestResultListener implements ITestResultListener{
 	private PrintWriter err;
