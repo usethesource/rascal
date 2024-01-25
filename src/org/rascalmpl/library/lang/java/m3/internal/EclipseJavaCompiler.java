@@ -67,9 +67,9 @@ public class EclipseJavaCompiler {
         return createM3FromJarClass(jarLoc, classPath, getM3Store());
     }
     
-    public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className) {
+    public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className, IList classpath) {
         JarConverter converter = new JarConverter(getM3Store(), new HashMap<>());
-        converter.convertJarFile(classLoc, ((IString) className).getValue());
+        converter.convertJarFile(classLoc, ((IString) className).getValue(), classpath);
         return converter.getModel(false);
     }
     

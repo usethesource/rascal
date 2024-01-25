@@ -132,9 +132,9 @@ public class JarConverter extends M3Converter {
      * @param classFile
      * @param className
      */
-    public void convertJarFile(ISourceLocation classFile, String className) {
+    public void convertJarFile(ISourceLocation classFile, String className, IList classpath) {
         loc = classFile;
-        createSingleClassM3(className);
+        createSingleClassM3(className, classpath);
     }
     
     /**
@@ -172,7 +172,11 @@ public class JarConverter extends M3Converter {
      * and parent packages is triggered.
      * @param className
      */
-    private void createSingleClassM3(String className) {
+    private void createSingleClassM3(String className, IList classpath) {
+        if (resolver == null) {
+            resolver = new ASMNodeResolver(loc, classpath, typeStore);
+        }
+
         String compUnit = className;
         ClassReader classReader = resolver.buildClassReader(className);
 
