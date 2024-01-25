@@ -19,7 +19,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 

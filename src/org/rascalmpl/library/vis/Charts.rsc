@@ -91,8 +91,8 @@ Content bubbleChart(list[str] labels, lrel[num x,num y, num r] values ..., str t
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode, legend=true));
 
 Content bubbleChart(rel[num x,num y, num r] v, str title="Scatterplot", ChartAutoColorMode colorMode=\data()) 
-    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode), legend=false);
-
+    = content(title, chartServer(chartData(title, v), \type=scatter(), title=title, colorMode=colorMode, legend=false));
+ 
 Content bubbleChart(list[str] labels, rel[num x,num y, num r] values ..., str title="Scatterplots", ChartAutoColorMode colorMode=\data())
     = content(title, chartServer(chartData(labels, values), \type=scatter(), title=title, colorMode=colorMode, legend=true));    
 
