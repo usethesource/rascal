@@ -607,7 +607,7 @@ list[Output] compileMarkdown([/^<prefix:.*>~<digits:[^~]*[^aeh-pr-vx0-9]+[^~]*>~
     *compileMarkdown(["<prefix><digits><postfix>", *rest], line, offset, pcfg, exec, ind, dtls, sidebar_position=sidebar_position)
   ];
 
-@synopsis{Resolve [labeled]((links))}
+@synopsis{Resolve labeled links}
 list[Output] compileMarkdown([/^<prefix:.*>\[<title:[^\]]*>\]\(\(<link:[A-Za-z0-9\-\ \t\.\:]+>\)\)<postfix:.*>$/, *str rest], int line, int offset, PathConfig pcfg, CommandExecutor exec, Index ind, list[str] dtls, int sidebar_position=-1) {
   resolution = ind[removeSpaces(link)];
   p2r = pathToRoot(pcfg.currentRoot, pcfg.currentFile, pcfg.isPackageCourse);
