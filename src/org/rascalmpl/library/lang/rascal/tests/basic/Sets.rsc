@@ -123,9 +123,18 @@ test bool tst_takeOneFrom(set[int] S) {
 
 test bool tst_getSingleFrom(set[int] S) {
   if ({e} := S) {
-    return getSingleFrom(s) == e;
+    return getSingleFrom(S) == e;
   }
-  return false;
+  return true;
+}
+
+test bool tst_getSingleFromExample(str input) {
+  return getSingleFrom({input}) == input;
+}
+
+@expected{CallFailed}
+test bool tst_getSingleFromMore(str input, int i) {
+    getSingleFrom({input, i});
 }
 
 test bool tst_toList(set[int] S) = isEmpty(S) || size(S) == size(toList(S)) && all(x <- S, x in toList(S));
