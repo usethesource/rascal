@@ -1918,8 +1918,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 		
 		@Override
+		@SuppressWarnings("unchecked")
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
-			return new NegativePattern(__eval, this, getArgument().buildMatcher(__eval, bindTypeParameters));
+			Type t = getArgument().typeOf(__eval.getCurrentEnvt(), (IEvaluator<Result<IValue>>) __eval, bindTypeParameters);
+
+			if (getArgument().isTypedVariable() || getArgument().isQualifiedName() || getArgument().isLiteral()) {
+				return new NegativePattern(__eval, this, getArgument().buildMatcher(__eval, bindTypeParameters));				
+			}
+
+			throw new UnexpectedType(TF.numberType(), t, getLocation());
 		}
 
 		@Override
