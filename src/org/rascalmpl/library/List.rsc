@@ -19,7 +19,6 @@ module List
 
 import Exception;
 import Map;
-import IO;
 
 
 @synopsis{Concatenate a list of lists.}
