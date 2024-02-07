@@ -1341,8 +1341,8 @@ public class Prelude {
 					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					  TreeAdapter.yield((IConstructor) elem, out);
 					}
-					else{
-						out.append(elem.toString());
+					else {
+						new StandardTextWriter().write(elem, out);
 					}
 				}
 				if (postfix != null) {

@@ -433,6 +433,10 @@ public class Reflective {
 		return values.integer(ToplevelType.getFingerprintNode(nd));
 	}
 
+	public IInteger getHashCode(IValue v) {
+		return values.integer(v.hashCode());
+	}
+	
 	public void throwNullPointerException() {
         throw new NullPointerException();
     }

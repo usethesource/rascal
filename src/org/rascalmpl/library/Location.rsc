@@ -77,13 +77,17 @@ Strict containment between two locations `inner` and `outer` holds when
 }
 
 bool isStrictlyContainedIn(loc inner, loc outer){
+    if(inner == outer){
+        return false;
+    }
     if(isSameFile(inner, outer)){
        if(inner.offset?){
-          return outer.offset? ==> (  inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
-                                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                   );
-       } else {
-         return inner.offset > 0 && !outer.offset?;
+          if(outer.offset?){
+            return    inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
+                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
+          } else {
+            return inner.offset > 0;
+          }
        }
     }
     return false;
@@ -102,7 +106,11 @@ Containment between two locations `inner` and `outer` holds when
 bool isContainedIn(loc inner, loc outer){
     if(isSameFile(inner, outer)){
        if(inner.offset?){
-          return outer.offset? ==> (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+          if(outer.offset?){
+            return (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+          } else {
+            return true;
+          }
        } else {
          return !outer.offset?;
        }

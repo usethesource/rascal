@@ -157,7 +157,7 @@ int incr(int x) { return x + 1; }
 mapper(("apple": 1, "pear": 2, "orange": 3), prefix, incr);
 ```
 }
-public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
+public map[&L, &W] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
  = (F(key) : G(M[key]) | &K key <- M);
 
 
