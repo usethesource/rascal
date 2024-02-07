@@ -121,6 +121,22 @@ test bool tst_takeOneFrom(set[int] S) {
   return x in S && x notin S2 && size(S2) == size(S) - 1 && S2 < S;
 }
 
+test bool tst_getSingleFrom(set[int] S) {
+  if ({e} := S) {
+    return getSingleFrom(S) == e;
+  }
+  return true;
+}
+
+test bool tst_getSingleFromExample(str input) {
+  return getSingleFrom({input}) == input;
+}
+
+@expected{CallFailed}
+test bool tst_getSingleFromMore(str input, int i) {
+    getSingleFrom({input, i});
+}
+
 test bool tst_toList(set[int] S) = isEmpty(S) || size(S) == size(toList(S)) && all(x <- S, x in toList(S));
 
 test bool tst_toMap(rel[int, int] S) = isEmpty(S) || domain(S) == domain(toMap(S)) && range(S) == {*toMap(S)[k] | k <- toMap(S)};

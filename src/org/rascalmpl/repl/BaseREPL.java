@@ -19,7 +19,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 
@@ -274,7 +273,7 @@ public class BaseREPL {
     }
 
     private String previousPrompt = "";
-    public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().fg(Color.BLACK).toString();
+    public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
     public static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
 
     protected void updatePrompt() {

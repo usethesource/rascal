@@ -20,12 +20,14 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.test.infrastructure.QuickCheck;
 import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
+import org.rascalmpl.test.infrastructure.QuickCheck.UnExpectedExceptionThrownResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IString;
@@ -117,7 +119,8 @@ public class TestEvaluator {
                         }
                     }
                     catch (Throwable e) {
-                        return new TestResult(false, e);
+                        // TODO: add bound type parameters
+                        return new UnExpectedExceptionThrownResult(test.getEnv().getName() + "::" + test.getName(), actuals, Map.of(), args, e);
                     }
                 }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
                 
@@ -137,6 +140,7 @@ public class TestEvaluator {
             catch(Throwable e){
                 testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
             }
+            
             eval.getOutPrinter().flush();
             eval.getErrorPrinter().flush();
         }
