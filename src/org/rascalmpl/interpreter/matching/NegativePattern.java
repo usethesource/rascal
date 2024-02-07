@@ -20,7 +20,10 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.values.IRascalValueFactory;
+
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.type.Type;
 
 public class NegativePattern extends AbstractMatchingResult {
@@ -53,6 +56,11 @@ public class NegativePattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean next() {
-		return pat.next();
+		if(pat.next()) {
+			if (subject.getDynamicType().isNumber()) {
+				return ((INumber) subject.getValue()).lessEqual(IRascalValueFactory.getInstance().integer(0)).getValue();
+			}
+		}
+		return false;
 	}
 }
