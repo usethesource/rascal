@@ -46,7 +46,7 @@ public class NegativePattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean mayMatch(Type subjectType, Environment env){
-		return pat.mayMatch(subjectType, env);
+		return subjectType.isSubtypeOf(tf.numberType()) && pat.mayMatch(subjectType, env);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public class NegativePattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean next() {
-		if(pat.next()) {
+		if (pat.next()) {
 			if (subject.getDynamicType().isNumber()) {
 				return ((INumber) subject.getValue()).lessEqual(IRascalValueFactory.getInstance().integer(0)).getValue();
 			}
