@@ -40,9 +40,9 @@ import vis::Graphs;
 import IO;
 d = [<|std:///|, e> | e <- |std:///|.ls];
 d += [<e,f> | <_, e> <- d, isDirectory(e), f <- e.ls];
-graph(d, \layout=defaultCoseLayout());
+graph(d, \layout=defaultDagreLayout());
 // here we adapt the node labeler to show only the last file name in the path of the location:
-graph(d, \layout=defaultCoseLayout(), nodeLabeler=str (loc l) { return l.file; });
+graph(d, \layout=defaultDagreLayout(), nodeLabeler=str (loc l) { return l.file; });
 ```
 }
 Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
@@ -319,9 +319,16 @@ data CytoLayoutName
     | circle()
     | breadthfirst()
     | cose()
+    | dagre()
     ;
 
-data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
+@synopsis{An alias for dagre layout for documentation purposes.}
+@description{
+Dagre is a hierarchical graph layout.
+}
+CytoLayoutName hierarchical() = dagre();
+
+data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     = cytolayout()
     | breadthfirstLayout(
         CytoLayoutName name = CytoLayoutName::breadthfirst(),
@@ -345,6 +352,9 @@ data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
     )
     | coseLayout(
         CytoLayoutName name = cose()
+    )
+    | dagreLayout(
+        CytoLayoutName name = dagre()
     )
     ;
 
@@ -385,6 +395,13 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, boo
         directed=directed
     );
 
+CytoLayout defaultDagreLayout(num spacingFactor=1)
+    = dagreLayout(
+        name=CytoLayoutName::dagre(),
+        animate=false,
+        spacingFactor=spacingFactor
+    );
+
 
 @synopsis{this is the main server generator for any graph value}
 @description{
@@ -417,7 +434,9 @@ Response (Request) graphServer(Cytoscape ch) {
 private HTMLElement plotHTML()
     = html([
         head([ 
-            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.umd.js"),
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
