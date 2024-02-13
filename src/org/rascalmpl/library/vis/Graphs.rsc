@@ -343,18 +343,19 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         int rows=2,
         int cols=2,
         bool avoidOverlap=true,
-        num spacingFactor=1
+        num spacingFactor=.1
     )
     | circleLayout(
         CytoLayoutName name = CytoLayoutName::circle(),
         bool avoidOverlap=true,
-        num spacingFactor=1
+        num spacingFactor=.1
     )
     | coseLayout(
         CytoLayoutName name = cose()
     )
     | dagreLayout(
-        CytoLayoutName name = dagre()
+        CytoLayoutName name = dagre(),
+        num spacingFactor = .1
     )
     ;
 
@@ -365,7 +366,7 @@ CytoLayout defaultCoseLayout()
     )
     ;
 
-CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
+CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=.1)
     = circleLayout(
         name = CytoLayoutName::circle(),
         animate=false,
@@ -373,7 +374,7 @@ CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
         spacingFactor=spacingFactor
     );
 
-CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=1)
+CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=.1)
     = gridLayout(
         name=CytoLayoutName::grid(),
         animate=false,
@@ -384,7 +385,7 @@ CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, 
     )
     ;
 
-CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, bool grid=!circle, bool directed=false)
+CytoLayout defaultBreadthfirstLayout(num spacingFactor=.1, bool circle=false, bool grid=!circle, bool directed=false)
     = 
     breadthfirstLayout(
         name=CytoLayoutName::breadthfirst(),
@@ -395,7 +396,7 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, boo
         directed=directed
     );
 
-CytoLayout defaultDagreLayout(num spacingFactor=1)
+CytoLayout defaultDagreLayout(num spacingFactor=.1)
     = dagreLayout(
         name=CytoLayoutName::dagre(),
         animate=false,
