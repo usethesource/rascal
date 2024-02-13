@@ -396,7 +396,7 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=.1, bool circle=false, bo
         directed=directed
     );
 
-CytoLayout defaultDagreLayout(num spacingFactor=.1)
+CytoLayout defaultDagreLayout(num spacingFactor=1)
     = dagreLayout(
         name=CytoLayoutName::dagre(),
         animate=false,
