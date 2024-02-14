@@ -83,7 +83,8 @@ loc defaultNodeLinker(/loc l) = l;
 default loc defaultNodeLinker(&T _) = |nothing:///|;
 
 alias NodeLabeler[&T]= str (&T _id2);
-loc defaultNodeLinker(/str s) = s;
+str defaultNodeLabeler(/str s) = s;
+str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
 
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
