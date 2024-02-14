@@ -79,11 +79,12 @@ Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeL
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 alias NodeLinker[&T] = loc (&T _id1);
-loc defaultNodeLinker(loc l) = l;
+loc defaultNodeLinker(/loc l) = l;
 default loc defaultNodeLinker(&T _) = |nothing:///|;
 
 alias NodeLabeler[&T]= str (&T _id2);
-str defaultNodeLabeler(&T v) = "<v>";
+loc defaultNodeLinker(/str s) = s;
+default str defaultNodeLabeler(&T v) = "<v>";
 
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
 str defaultEdgeLabeler(&T _source, &T _target)  = "";
