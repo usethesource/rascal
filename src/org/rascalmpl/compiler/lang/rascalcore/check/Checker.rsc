@@ -12,13 +12,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 }
 @bootstrapParser
 module lang::rascalcore::check::Checker
+
+/*
+    Top level driver for the checker (rascalTModelForLocsNote). 
+    Note that the checker calls the code generator (given as parameter) when there are no type errors.
+*/
               
 /*
  * TODO:
- * - Unused modules not detected correctly
- * - Fix reference in grammar rules (it seems that production label get lost somewhere and reference cannot be found)
- * - Support for reified types
- *
  * Potential additions/improvements
  * - Reduce rechecking by comparing old and new tpl file
  */
@@ -39,10 +40,10 @@ import IO;
 import List;
 import Map;
 import Message;
+import Node;
 import Relation;
 import Set;
 import String;
-import ValueIO;
 
 import util::Benchmark;
 import util::Reflective;
@@ -218,7 +219,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                                  PathConfig pcfg, 
                                  TypePalConfig config, 
                                  CompilerConfig compilerConfig,
-                                 list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, TModel tm, ModuleStatus ms, PathConfig pcfg,  CompilerConfig compilerConfig) codgen){     
+                                 list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg,  CompilerConfig compilerConfig) codgen){     
     bool forceCompilationTopModule = true; /***** for convenience, set to true during development of type checker *****/
     ModuleStatus ms = newModuleStatus();
     beginTime = cpuTime();   
@@ -270,7 +271,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                 mi += 1;
                 if(!recheck){
                     if(tpl_uptodate() notin ms.status[m]){
-                        <found, tm, ms> = getTmodelForModule(m, ms, pcfg);
+                        <found, tm, ms> = getTModelForModule(m, ms, pcfg);
                         if(found){   
                             ms.status[m] += {tpl_uptodate(), checked()};
                         }
@@ -331,26 +332,22 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                     if(!isEmpty([ e | e:error(_,_) <- ms.messages[m] ])){
                         ms.status[m]  += {check_error()};
                     }
-                    tmodels_for_component[m] = tm;
                 }
                 // presave the TModels of the modules in the component
-                for(str m <- tmodels_for_component){
-                    <tm1, ms> = preSaveModule(m, m_imports[m], m_extends[m], ms, tmodels_for_component, moduleScopes, pcfg, tm);
-                    tmodels_for_component[m] = tm1;
-                    ms = addTModel(m, tm1, ms);
-                }
+                
+                ms = preSaveModule(component, m_imports, m_extends, ms, moduleScopes, pcfg, tm);
+                
                 // generate code for the modules in the component
-                for(str m <- tmodels_for_component){
+                
+                for(str m <- component){
                     <success, pt, ms> = getModuleParseTree(m, ms, pcfg);
                     if(success){
-                        msgs = codgen(m, pt, tmodels_for_component[m], ms, pcfg, compilerConfig);
+                        msgs = codgen(m, pt, ms, pcfg, compilerConfig);
                         ms.messages[m] = msgs;
                         ms.status[m] += {code_generated()};
                     }
-                    tm1 = doSaveModule(m, m_imports[m], m_extends[m], ms, moduleScopes, pcfg, tm);
-                    tmodels_for_component[m] = tm1;
-                    ms = addTModel(m, tm1, ms);
                 }
+                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, pcfg);
             }
         }
  
@@ -370,25 +367,16 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
             println("<topModuleNames> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
             println("<topModuleNames>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
         }
-        //return ms; //<ms.tmodels, ms.moduleLocs, ()>;;
     } catch ParseError(loc src): {
         for(mname <- topModuleNames){
             ms.messages[mname] = [ error("Parse error", src) ];
         }
-       // return ms;
     } catch Message msg: {
         for(mname <- topModuleNames){
             ms.messages[mname] = [error("During type checking: <msg>", msg.at)];
         }
-        //return ms;
     }
-    //catch e:{
-    //    println("**** Exception: <e> ****");
-    //    //return ms;  
-    //}
-    //for(nm <- topModuleNames){
-    //    ms.parseTrees = delete(ms.parseTrees, nm);
-    //}
+
     return ms;
 }
 
@@ -402,10 +390,16 @@ bool implicitlyUsesLayoutOrLexical(str modulePath, str importPath, TModel tm){
 }
 
 bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
-    usedADTs = { tm.facts[l] | loc l <- tm.facts, l.path == modulePath, aadt(_,_,_) := tm.facts[l] };
-    definedADTs = { the_adt | Define d <- tm.defines, d.defined.path == modulePath, defType(the_adt:aadt(_,_,_)) := d.defInfo };
+    usedADTs = { unset(tm.facts[l], "alabel") | loc l <- tm.facts, l.path == modulePath, aadt(_,_,_) := tm.facts[l] };
+    definedADTs = { unset(the_adt, "alabel") | Define d <- tm.defines, d.defined.path == modulePath, defType(the_adt:aadt(_,_,_)) := d.defInfo };
     usedOrDefinedADTs = usedADTs + definedADTs;
-    return any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], the_adt in usedOrDefinedADTs);
+    res = any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], unset(the_adt, "alabel") in usedOrDefinedADTs);
+    //println("usesOrExtendsADT <modulePath>, <importPath> returns <res>");
+    //if(!res){
+    //    println("usedOrDefinedADTs: <usedOrDefinedADTs>");
+    //    for(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], bprintln("the_adt: <the_adt>, <tm.facts[l]> in: <unset(the_adt, "alabel") in usedOrDefinedADTs>"));
+    //}
+    return res;
 }
 
 tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus ms, Collector c, set[str] added, PathConfig pcfg){
@@ -414,7 +408,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
         if(imp notin added){
             if(tpl_uptodate() in ms.status[imp]){ //ms.tmodels[imp]?){
                 added += imp;
-                <found, tm, ms> = getTmodelForModule(imp, ms, pcfg);
+                <found, tm, ms> = getTModelForModule(imp, ms, pcfg);
                 c.addTModel(tm); //ms.tmodels[imp]);
             }
         }
@@ -437,7 +431,7 @@ tuple[ProfileData, TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNa
         //}
     }
     if(config.verbose) println("\<\<\< checking <modelName>");
-    c = newCollector("rascal", namedTrees, config);
+    c = newCollector(modelName, namedTrees, config);
     c.push(key_pathconfig, pcfg);
     
     rascalPreCollectInitialization(namedTrees, c);
@@ -482,7 +476,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   PathConfig pcfg, 
                                   TypePalConfig config, 
                                   CompilerConfig compilerConfig, 
-                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, TModel tm, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig) codgen){
+                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig) codgen){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     iprintln(pcfg);
     //try {
@@ -503,7 +497,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
 // name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, TModel _tm, ModuleStatus _ms, PathConfig _pcfg, CompilerConfig compilerConfig)
+list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, PathConfig _pcfg, CompilerConfig compilerConfig)
     = [];
     
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg, CompilerConfig compilerConfig){

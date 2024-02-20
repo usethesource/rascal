@@ -1,5 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectExpression
+
+/*
+    Check all expressions
+*/
  
 extend lang::rascalcore::check::CheckerCommon;
 extend lang::rascalcore::check::PathAnalysis;
@@ -17,40 +21,7 @@ import String;
 import util::Math;
 import IO;
 
-//// ---- Rascal literals
-//
-//void collect(IntegerLiteral il, Collector c){
-//    c.fact(il, aint());
-//}
-//
-//void collect(RealLiteral current, Collector c){
-//    c.fact(current, areal());
-//}
-//
-//void collect(BooleanLiteral current, Collector c){
-//    c.fact(current, abool());
-// }
-//
-//void collect(DateTimeLiteral current, Collector c){
-//    c.fact(current, adatetime());
-//    try {
-//        readTextValueString("<current>");   // ensure that the datetime literal is valid
-//    } catch IO(_): {
-//        c.report(error(current, "Malformed datetime literal %q", current));
-//    }
-//}
-//
-//void collect(RationalLiteral current, Collector c){
-//    c.fact(current, arat());
-//}
-//
-//// ---- string literals and templates
-//void collect(current:(Literal)`<StringLiteral sl>`, Collector c){
-//    c.fact(current, astr());
-//    collect(sl, c);
-//}
-
-//void collect(StringCharacter current, Collector c){ }
+// ---- Rascal literals, also see CollectLiteral
 
 void collect(current: (StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`, Collector c){
     c.fact(current, astr());
@@ -116,8 +87,6 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
         collect(preStatsThen, thenString, postStatsThen, c);
     c.leaveCompositeScope(compScope);
     collect(preStatsElse, elseString, postStatsElse, c);    
-    
-    //c.leaveScope(current);
 } 
 
 void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
@@ -180,45 +149,6 @@ void collect(current: (PathTail) `<MidPathChars mid> <Expression expression> <Pa
 
  void collect(current: (PathTail) `<PostPathChars post>`, Collector c){
  }
-
-//// ---- Concrete literals
-//
-//void collect((Expression) `<Concrete concrete>`, Collector c){
-//    c.fact(concrete, concrete.symbol);
-//    c.push(inConcreteLiteral, true);
-//    collect(concrete.symbol, c);
-//    collect(concrete.parts, c);
-//    c.pop(inConcreteLiteral);
-//    checkSupportedByParserGenerator(concrete.symbol, c);
-//}
-//
-//void collect((Pattern) `<Concrete concrete>`, Collector c){
-//    c.fact(concrete, concrete.symbol);
-//    collect(concrete.symbol, c);
-//    collect(concrete.parts, c);
-//    checkSupportedByParserGenerator(concrete.symbol, c);
-//}
-//
-//void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
-//    varType = symbol;
-//    uname = prettyPrintName(name);
-//    if(!isEmpty(c.getStack(inConcreteLiteral))){    // We are inside a concrete literal expression 
-//                                                    // This hole must be a use       
-//       c.useLub(name, {formalId(), patternVariableId(), variableId()});
-//    } else {                                        // We are inside a concrele Literal pattern   
-//                                                    // This hole can be a use or define   
-//        if(!isWildCard(uname)){
-//           if(uname in c.getStack(patternNames)){
-//              c.useLub(name, {formalOrPatternFormal(c)});
-//           } else {
-//               c.push(patternNames, uname);
-//               c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
-//           }
-//        }
-//    }
-//    c.fact(current, symbol);
-//    collect(symbol, c);
-//}
 
 // Rascal expressions
 
@@ -376,6 +306,7 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // more precise types, but `type[value]` is always a proper type for all
     // possible instances.
     
+    //TODO: the jury is still out how to do this
     bool containsProductions(AType t) = /aadt("Production",_, _) := t;
     
     c.calculate("reified type", current, [es, ed], AType(Solver s) { 
@@ -645,9 +576,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             if(ft.deprecationMessage? && c.getConfig().warnDeprecated){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
-                            //if(size(formals) == 0){
-                            //    s.report(error(expression, "Nullary function may not be overloaded"));
-                            //}
+                           
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
@@ -1059,7 +988,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
+    c.useViaType(expression, field, {fieldId(), keywordFieldId()/*, annoId()*/}); // DURING TRANSITION: allow annoIds
     c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
     c.fact(current, field);
     collect(expression, c);
@@ -1190,33 +1119,67 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
 }
 
 // ---- setAnnotation
-// Deprecated
-void collect(current:(Expression) `<Expression expression> [ @ <Name field> = <Expression repl> ]`, Collector c) {
-     // TODO: disabled: c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+
+//TODO: Deprecated
+private AType computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s)
+    = ternaryOp("set annotation", _computeSetAnnotationType, current, t1, tn, t2, s);
+
+private AType _computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s){
+    if (isNodeAType(t1) || isADTAType(t1) || isNonTerminalAType(t1)) {
+        if(aanno(_, onType, annoType) := tn){
+          s.requireSubType(t2, annoType, error(current, "Cannot assign value of type %t to annotation of type %t", t2, annoType));
+           return t1;
+        } else
+            s.report(error(current, "Invalid annotation type: %t", tn));
+    } else {
+        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
+    }
+    return avalue();
+}
+
+// TODO: Deprecated
+void collect(current:(Expression) `<Expression expression> [ @ <Name name> = <Expression repl> ]`, Collector c) {
+    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     
-     scope = c.getScope();
-   
-    c.calculate("field update of `<field>`", current, [expression, repl],
+    c.use(name, {annoId()});
+    c.calculate("set annotation", current, [expression, name, repl],
         AType(Solver s){ 
-                 fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
-                 replType = s.getType(repl);
-                 checkNonVoid(expression, s, "Base expression of annotation update`");
-                 checkNonVoid(repl, s, "Replacement expression of annotation update`");
-                 s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to annotation %q of type %t", replType, field, fieldType));
-                 return s.getType(expression);
-        });
+                t1 = s.getType(expression); tn = s.getType(name); t2 = s.getType(repl);
+                checkNonVoid(expression, s, "Base expression of set annotation");
+                checkNonVoid(repl, s, "Replacement expression of set annotation");
+               return computeSetAnnotationType(current, t1, tn, t2, s);
+               });
     collect(expression, repl, c);
 }
 
-
 // ---- getAnnotation
 
-// Deprecated
-void collect(current:(Expression) `<Expression expression>@<Name field>`, Collector c) {
-     // TODO: disabled: c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+AType computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s)
+    = binaryOp("get annotation", _computeGetAnnotationType, current, t1, tn, s);
+
+private AType _computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s){
+    if (isNodeAType(t1) || isADTAType(t1) || isNonTerminalAType(t1)) {
+        if(aanno(_, onType, annoType) := tn){
+           return annoType;
+        } else
+            s.report(error(current, "Invalid annotation type: %t", tn));
+    } else {
+        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
+    }
+    return avalue();
+}
+
+// TODO: Deprecated
+void collect(current:(Expression) `<Expression expression>@<Name name>`, Collector c) {
+    c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     
-    c.useViaType(expression, field, {keywordFieldId(), annoId()});
-    c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of get annotation"));
-    c.fact(current, field);
-    collect(expression, c);
+    c.use(name, {annoId()});
+    c.calculate("get annotation", current, [expression, name],
+        AType(Solver s){ 
+                 t1 = s.getType(expression);
+                 tn = s.getType(name);
+                 checkNonVoid(expression, s, "Base expression of get annotation`");
+                 return computeGetAnnotationType(current, t1, tn, s);
+                 });
+   collect(expression, c);
 }

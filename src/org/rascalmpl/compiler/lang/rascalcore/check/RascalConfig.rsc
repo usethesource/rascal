@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::RascalConfig
 
+/*
+    High level configuration of the Rascal checker.
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 
  
@@ -182,6 +186,12 @@ AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[I
     containerType = s.getType(containerDef.defined);
     if(fieldId() in idRolesSel && selectorName == "top" && isStartNonTerminalType(containerType)){
         return getStartNonTerminalType(containerType);
+    }
+    if(fieldId() in idRolesSel && selectorName == "top" && isTreeType(containerType)){
+        return containerType;
+    }
+    if(keywordFieldId() in idRolesSel && selectorName == "src" &&  isNonTerminalAType(containerType)){
+        return aloc();
     }
     
     for(kwf <- containerDef.defInfo.commonKeywordFields){
@@ -396,9 +406,9 @@ loc rascalLogicalLoc(str id, IdRole idRole, loc physicalLoc, str modelName, Path
    moduleName = getModuleName(physicalLoc, pcfg);
    moduleNameSlashed = replaceAll(moduleName, "::", "/");
    if(idRole == moduleId()){
-    return |<"<modelName>+<prettyRole(idRole)>">:///<moduleNameSlashed>|; 
+    return |<"rascal+<prettyRole(idRole)>">:///<moduleNameSlashed>|; 
    } else {
-   return |<"<modelName>+<prettyRole(idRole)>">://<moduleNameSlashed>/<reduceToURIChars(id)>|; 
+   return |<"rascal+<prettyRole(idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(id)>|; 
    }
 }
 

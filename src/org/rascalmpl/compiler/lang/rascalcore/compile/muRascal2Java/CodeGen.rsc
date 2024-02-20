@@ -177,7 +177,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     
     externalArgs = "";                 
     if(hasMainFunction && !isEmpty(mainFunction.externalRefs)){
-      externalArgs = intercalate(", ", [ newValueRef(var.name, jtype, var.name) /*"new ValueRef\<<jtype>\>(<var.name>)"*/ | var <- mainFunction.externalRefs, var.pos >= 0, jtype := atype2javatype(var.atype)]);
+      externalArgs = intercalate(", ", [ newValueRef(var.name, jtype, var.name, jg) /*"new ValueRef\<<jtype>\>(<var.name>)"*/ | var <- mainFunction.externalRefs, var.pos >= 0, jtype := atype2javatype(var.atype)]);
     }              
         
     main_method = "public static void main(String[] args) {
@@ -262,11 +262,11 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
       return <the_interface, the_class, the_test_class, constants>;
 }
 
-str newValueRef(str name, str jtype, str code)
+str newValueRef(str name, str jtype, str code, JGenie jg)
     = "new ValueRef\<<jtype>\>(\"<asJavaName(name)>\", <code>)";
     
 str newValueRef(str vname, AType atype, v:muVar(str name, str _, int pos, AType _, IdRole idRole), JGenie jg)
-    = jg.isRef(v) ? "new ValueRef\<<atype2javatype(atype)>\>(\"<vname>\", <varName(v, jg)>.getValue())" : newValueRef(vname, atype2javatype(atype), varName(v, jg))
+    = jg.isRef(v) ? "new ValueRef\<<atype2javatype(atype)>\>(\"<vname>\", <varName(v, jg)>.getValue())" : newValueRef(vname, atype2javatype(atype), varName(v, jg), jg)
     ;
 
 default str newValueRef(str name, AType atype, MuExp exp, JGenie jg)
@@ -332,14 +332,6 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
     return all(<str _, AType _, MuExp defaultExp> <- kwpDefaults, muCon(_) := defaultExp);
 }
 
-//str makeArgType(AType t, MuExp formal, set[MuExp] externals){
-//    if(formal in externals){
-//        return "ValueRef\<<atype2javatype(t)>\>";
-//    } else {
-//        return atype2javatype(t);
-//    }
-//}
-
 tuple[str argTypes, str constantKwpDefaults, str constantKwpDefaultsInit, str nonConstantKwpDefaults, str refInits] getArgTypes(MuFunction fun, JGenie jg){   
     shortName = asJavaName(getUniqueFunctionName(fun)); 
 
@@ -353,7 +345,7 @@ tuple[str argTypes, str constantKwpDefaults, str constantKwpDefaultsInit, str no
         if(formal in formalsUsedAsRef){
             aux = "$aux_<vname>";
             argTypeList += "<jtype> <aux>";
-            refInits += "ValueRef\<<jtype>\> <vname> = <newValueRef(vname, jtype, aux)>;\n";  //new ValueRef\<<jtype>\>(<aux>);\n";
+            refInits += "ValueRef\<<jtype>\> <vname> = <newValueRef(vname, jtype, aux, jg)>;\n";  //new ValueRef\<<jtype>\>(<aux>);\n";
         } else {
             argTypeList += "<jtype> <vname>";
         }
@@ -429,7 +421,7 @@ str getMemoCache(MuFunction fun)
     = "$memo_<asJavaName(getUniqueFunctionName(fun))>";
     
 tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(MuFunction fun, JGenie jg){
-   iprintln(fun); // print function
+   //iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
@@ -539,7 +531,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
             fun = loc2muFunction[uid];
             current_fun = jg.getFunction();
             
-            ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? ((jg.isRef(var) || var.idRole notin assignableRoles)  ? vp : newValueRef(var.name, atype2javatype(var.atype), vp))
+            ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? ((jg.isRef(var) || var.idRole notin assignableRoles)  ? vp : newValueRef(var.name, atype2javatype(var.atype), vp, jg))
                                                                       : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs, vp :=  "<asJavaName(var.name)>_<var.pos>"]);
             
             //ext_actuals = intercalate(", ", [ fun.scopeIn == var.fuid ? "<var.name>_<var.pos>" : newValueRef(var.name, var.atype, var, jg) | var <- externalRefs ]);
@@ -732,6 +724,9 @@ JCode trans(muVarDecl(var: muTmpNative(str name, str fuid, NativeKind nkind)), J
   
 // ---- muVarInit --------------------------------------------------------------
 
+bool isSameVarModuloRole(MuExp x, MuExp y)
+    = muVar(str name, str fuid, int pos, AType _, IdRole _) := y && x.name == name && x.fuid == fuid && x.pos == pos;
+
 str parens(str code)
     = endsWith(code, ";\n") ? "(<code[0..-2]>)" : "(<code>)";
 
@@ -743,7 +738,9 @@ JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype, IdRole 
     } else if(exp == muNoValue()){
         return jg.isRef(v) ? "ValueRef\<<jtype>\> <varName(v, jg)> = new ValueRef\<<jtype>\>();\n"
                            : "<jtype> <varName(v, jg)> = null;\n";  
-    } else {    
+    } else if(isSameVarModuloRole(v, exp)) { 
+        return "";
+    } else {   
     x = varName(v, jg);
     y = newValueRef(name, atype, exp, jg);
         return jg.isRef(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = <newValueRef(name, atype, exp, jg)>;\n" //new ValueRef\<<jtype>\>(<transWithCast(atype,exp,jg)>);\n"
@@ -787,6 +784,9 @@ JCode trans(muVarInit(var: muTmpNative(str name, str fuid, NativeKind nkind), Mu
 // --- muConInit --------------------------------------------------------------
 
  JCode trans(muConInit(v:muVar(str name, str fuid, int pos, AType atype, IdRole idRole), MuExp exp), JGenie jg){
+    if(isSameVarModuloRole(v, exp)){
+        return "";
+    }
     jtype = atype2javatype(atype);
     if(jg.isRef(v)){  
         return "final ValueRef\<<jtype>\> <varName(v, jg)> = <newValueRef(name, atype, exp, jg)>;\n"; //new ValueRef\<<jtype>\>(<transWithCast(atype,exp,jg)>);\n";

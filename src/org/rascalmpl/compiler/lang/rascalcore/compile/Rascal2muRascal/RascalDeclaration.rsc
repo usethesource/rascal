@@ -433,10 +433,21 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
      my_btscopes = getBTScopesParams(formalsList, fname);
      parameters = { unset(par, "alabel") | /par:aparameter(name, bound) := ftype };
      
-     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), unsetRec(getType(formalsList[i]), "alabel"), formalId())
-                                                                                    : muVar(pname, fuid, -i, unsetRec(getType(formalsList[i]), "alabel"), formalId())   
-                  | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
-                  ];
+     ndummies = size(dummyFormalsInReturnType(ftype));
+     
+     formalVars = for(i <- index(formalsList)){
+        pname = getParameterName(formalsList, i);
+        ndummies += size(dummyFormalsInType(getType(formalsList[i])));
+        if(hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc)){
+            pos = getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc);
+            //println("<pname>: pos = <pos>, ndummies = <ndummies>, pos - ndummies = <pos - ndummies>");
+            //if(pos - ndummies > 0) pos -= ndummies;
+            append muVar(pname, fuid, pos, unsetRec(getType(formalsList[i]), "alabel"), formalId());
+        } else {
+            append muVar(pname, fuid, -i, unsetRec(getType(formalsList[i]), "alabel"), formalId());
+        }
+     }           
+                  
      leaveSignatureSection();
      when_body = returnFromFunction(body, ftype, formalVars, isMemo, addReturn=addReturn);
      //iprintln(when_body);

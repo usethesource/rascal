@@ -1797,11 +1797,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		if(consType.hasField(fieldName)){
 			return true;
 		}
-		
-		if($TS.hasKeywordParameter(consType, fieldName)) {
+		//TODO: enable this when annotations are gone
+		//if($TS.hasKeywordParameter(consType, fieldName)) {
 			return cons.asWithKeywordParameters().getParameter(fieldName) != null;
-		}
-		return false;
+		//}
+		//return false;
 	}
 	
 	// ---- has_name_and_arity

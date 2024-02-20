@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::ComputeType
 
+/*
+    Compute the type of expressions and various other constructs
+*/
+
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::BuiltinFields;
 extend lang::rascalcore::check::ScopeInfo;

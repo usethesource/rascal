@@ -233,19 +233,20 @@ private loc findContainer(Define d){
     //println("findContainer for <d>");
     if(is_module(d)) return d.defined;
     cscope = d.scope;
-    while(!is_module_or_function(cscope)) { 
+    while(!is_module_or_function(cscope) || cscope == |global-scope:///|) { 
         //println("cscope = <cscope>");
-        if(!scopes[cscope]?){
-        iprintln(scopes);
-       }
-        if(cscope == scopes[cscope]){
-            println("WARNING: findContainer");
-            println("scopes:"); iprintln(scopes);
-            println("d: <d>");
-            println("cscope: <cscope>");
+        if(scopes[cscope]?){
+            if(cscope == scopes[cscope]){
+                println("WARNING: findContainer");
+                println("scopes:"); iprintln(scopes);
+                println("d: <d>");
+                println("cscope: <cscope>");
+                return cscope;
+            }
+            cscope = scopes[cscope];
+        } else {
             return cscope;
         }
-        cscope = scopes[cscope];
     }
     return cscope;
 }
@@ -255,6 +256,23 @@ str findDefiningModule(loc l){
         return definitions[ms].id;
     }
     throw "No module found for <l>";
+}
+
+// Identify "dummy" formals in function types that are to be ignored
+list[AType] dummyFormalsInReturnType(af: afunc(ret, _, _)){
+    return [ *formalsList1 | /af2:afunc(_, formalsList1, _) := ret, af2 != af ];
+}
+
+// Identify "dummy" formals in function return type that are to be ignored
+
+default list[AType] dummyFormalsInReturnType(AType t) =[];
+
+list[AType] dummyFormalsInType(AType t){
+    result = [];
+    top-down-break visit(t){
+        case afunc(_, formalsList1, _): result += formalsList1;
+    }
+    return result;
 }
     
 // extractScopes: extract and convert type information from the TModel delivered by the type checker.
@@ -363,10 +381,7 @@ void extractScopes(TModel tm){
     declares = invert(toRel(declaredIn));
     
     
-    // Identify "dummy" vars in function types that are to be ignored
-    set[AType] dummyVars(af: afunc(_, _, _)){
-        return {*formalsList1 | /af2:afunc(_, formalsList1, _) := af, af2 != af };
-    }
+   
     
     // Determine position of variables inside functions
     
@@ -374,12 +389,12 @@ void extractScopes(TModel tm){
     for(fun <- functions){   
         fundef = definitions[fun];
         ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
-        dummies = dummyVars(ftype);
+        dummies = dummyFormalsInReturnType(ftype);
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
        // println("vars_per_scope:"); iprintln(vars_per_scope);
         locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionAType(getType(sc))) ? sc == fun : true};
         //locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionAType(getType(sc)) ==> sc == fun : true};
-        locally_defined = {v | v <- locally_defined, v.defInfo.atype notin dummies };
+        locally_defined = { v | v <- locally_defined, v.defInfo.atype notin dummies };
         
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
@@ -398,6 +413,8 @@ void extractScopes(TModel tm){
                 position_in_container[vdefine.defined] = (is_formal(vdefine) ? 0 : formal_base) + i;
             }
         }
+        //println("position_in_container:");
+        //iprintln(position_in_container);
     }
 }
 
@@ -568,9 +585,9 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     
     // Common kw field of concrete type?
     if(asubtype(adtType1, treeType)){
-        if(fieldName == "src"){         // TODO: remove when @\loc is gone
-            return <"ParseTree", adtType1, true>;
-        }
+        //if(fieldName == "src"){         // TODO: remove when @\loc is gone
+        //    return <"ParseTree", adtType1, true>;
+        //}
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
                 return <findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;
@@ -596,7 +613,7 @@ list[MuExp] getExtendedFunctionFormals(loc funsrc, str scopeName){
 }
 
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
-//iprintln(definitions);
+  //iprintln(definitions);
   //println("getVariableScope: <name>, <l>, <definitions[l] ? "???">, <declaredIn[l] ? "???">, <useDef[l] ? "???">)");
   container = |global-scope:///|;
   if(definitions[l]?) container = findContainer(definitions[l]);
@@ -620,29 +637,11 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
 }
 
 int getPositionInScope(str _name, loc l){
-    //println("getPositionInScope:<name>, <l>");
-    //iprintln(position_in_container);
     uid = l in definitions ? l : getFirstFrom(useDef[l]); 
-    return position_in_container[uid] ? 0;
+    res = position_in_container[uid] ? 0;
+    //println("getPositionInScope:<_name>, <l>, <res>");
+    return res;
 }
-
-
-
-//str getGetterNameForKwpField(tp: aadt(str adtName, list[AType] parameters, SyntaxRole _), str fieldName){
-//    n = isEmpty(parameters) ? "" : "_<size(parameters)>";
-//    return unescapeAndStandardize("$getkw_<tp.adtName><n>_<fieldName>");
-//}
-
-//str prefixADT(str s) = "ADT_<s>";
-
-//str getGetterNameForKwpField(tp: acons(AType adtType, list[AType] fields, list[Keyword] kwpFields), str fieldName){
-//    n = isEmpty(adtType.parameters) ? "" : "_<size(adtType.parameters)>";
-//    return unescapeAndStandardize("$getkw_<adtType.adtName><n>_<fieldName>");
-//}
-                                          
-//str getGetterNameForKwpField(AType tp, str fieldName)
-//    =  unescapeAndStandardize(tp is acons ? "$getkw_<tp.adt.adtName>_<tp.alabel>_<fieldName>"
-//                                          : "$getkw_<tp.adtName>_<fieldName>");
 
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)

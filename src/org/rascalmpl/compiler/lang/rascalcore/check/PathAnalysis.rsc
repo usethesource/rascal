@@ -1,6 +1,11 @@
 @bootstrapParser
 module lang::rascalcore::check::PathAnalysis
 
+/*
+    Perform a path analysis on the Rascal source code of a function.
+    On the fly it will report dead code.
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;

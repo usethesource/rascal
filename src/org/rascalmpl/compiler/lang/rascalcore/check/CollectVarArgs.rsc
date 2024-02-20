@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectVarArgs
 
+/*
+    Check variable arguments
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;

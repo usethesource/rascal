@@ -1,6 +1,11 @@
 @bootstrapParser
 module lang::rascalcore::check::Import
 
+/*
+    Check imports, and read/write TPL files.
+    Introduces ModuleStatus that represents all the relevant information about currently processed modules.
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
@@ -113,81 +118,80 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
    }
 }
 
-set[str] hardwired = {};
+//set[str] hardwired = {};
+//
+//int maxHardwired = 10;
+//
+//int tmodelCacheSize = 200;
+//
+//void analyzeTModels(ModuleStatus ms){
+//    freq = ();
+//    total = 0;
+//    for(<_, _, m2> <- ms.strPaths){
+//        freq[m2] ? 0 += 1;
+//        total += 1;
+//    }
+//    sorted_freq = sort(toList(freq), bool(tuple[str s,int n] a, tuple[str s, int n] b){ return a.n > b.n; });
+//    nmodules = size(freq);
+//    cutoff = 2 * total/(nmodules + 1);
+//    hardwire = [tp | tuple[str s, int n] tp <- sorted_freq , tp.n > cutoff][0..maxHardwired];
+//    if(traceCaches){
+//        println("analyzeTModels: <nmodules> modules, imports/extends: <total>, cutoff: <cutoff>");
+//      iprintln(hardwire);
+//    }
+//    hardwired = toSet(domain(hardwire));
+//}
+//
+//ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
+//    if(traceCaches) println("addTModel: <qualifiedModuleName>");
+//    ms.tmodels[qualifiedModuleName] = tm;
+//    if(qualifiedModuleName notin hardwired){
+//        if(qualifiedModuleName notin ms.tmodelLIFO){
+//            ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
+//        }
+//        while(size(ms.tmodels) >= tmodelCacheSize){
+//            if(tpl_saved() notin ms.status[ms.tmodelLIFO[-1]]){
+//                throw "Cannot remove unsaved tpl <ms.tmodelLIFO[-1]>, <ms.status[ms.tmodelLIFO[-1]]>";
+//            }
+//            ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
+//            if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
+//            ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+//        }
+//    }
+//    return ms;
+//}
 
-int maxHardwired = 10;
-
-int tmodelCacheSize = 15;
-
-void analyzeTModels(ModuleStatus ms){
-    freq = ();
-    total = 0;
-    for(<_, _, m2> <- ms.strPaths){
-        freq[m2] ? 0 += 1;
-        total += 1;
-    }
-    sorted_freq = sort(toList(freq), bool(tuple[str s,int n] a, tuple[str s, int n] b){ return a.n > b.n; });
-    nmodules = size(freq);
-    cutoff = 2 * total/(nmodules + 1);
-    hardwire = [tp | tuple[str s, int n] tp <- sorted_freq , tp.n > cutoff][0..maxHardwired];
-    if(traceCaches){
-        println("analyzeTModels: <nmodules> modules, importd/extends: <total>, cutoff: <cutoff>");
-      iprintln(hardwire);
-    }
-    hardwired = toSet(domain(hardwire));
-}
-
-ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
-    ms.tmodels[qualifiedModuleName] = tm;
-    if(qualifiedModuleName notin hardwired){
-        if(qualifiedModuleName notin ms.tmodelLIFO){
-            ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
-        }
-        while(size(ms.tmodels) >= tmodelCacheSize){
-            ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
-            if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
-            ms.tmodelLIFO = ms.tmodelLIFO[..-1];
-        }
-    }
-    return ms;
-}
-
-tuple[bool, TModel, ModuleStatus] getTmodelForModule(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+    //if(traceCaches) println("getTModelForModule: <qualifiedModuleName>");
     if(ms.tmodels[qualifiedModuleName]?){
         return <true, ms.tmodels[qualifiedModuleName], ms>;
     }
-    while(size(ms.tmodels) >= tmodelCacheSize){
-        ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
-        if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
-        ms.tmodelLIFO = ms.tmodelLIFO[..-1];
-    }
-    if(qualifiedModuleName notin hardwired){
-        ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
-    }
+    //while(size(ms.tmodels) >= tmodelCacheSize){
+    //    ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
+    //    if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
+    //    ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+    //}
+    //if(qualifiedModuleName notin hardwired){
+    //    ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
+    //}
     
     <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
-            
-            //logical2physical = tpl.logical2physical;
-            //tpl.logical2physical = ();
-            //tpl = convertLocs(tpl, logical2physical);
-            //tpl.logical2physical = logical2physical;
-            
-            tpl =convertTModel2PhysicalLocs(tpl);
+            tpl = convertTModel2PhysicalLocs(tpl);
             
             ms.tmodels[qualifiedModuleName] = tpl;
-            ms.status[qualifiedModuleName] += tpl_uptodate();
+            ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
             return <true, tpl, ms>;
         } catch e:
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
     }
-    if(qualifiedModuleName notin hardwired){
-        ms.tmodelLIFO = ms.tmodelLIFO[1..];
-    }
+    //if(qualifiedModuleName notin hardwired){
+    //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
+    //}
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", |unknown:///|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
@@ -200,8 +204,8 @@ data MStatus =
     | checked()
     | check_error()
     | code_generated()
-//    | tpl_exists()
     | tpl_uptodate()
+    | tpl_saved()
     ;
 
 data ModuleStatus = 
@@ -211,14 +215,14 @@ data ModuleStatus =
       map[str, Module] parseTrees,
       list[str] parseTreeLIFO,
       map[str, TModel] tmodels,
-      list[str] tmodelLIFO,
+      //list[str] tmodelLIFO,
       map[str,loc] moduleLocs, 
       map[str,datetime] moduleLastModified,
       map[str, list[Message]] messages,
       map[str, set[MStatus]] status
    );
 
-ModuleStatus newModuleStatus() = moduleStatus({}, {}, (), [], (), [], (), (), (), ());
+ModuleStatus newModuleStatus() = moduleStatus({}, {}, (), [], (), (), (), (), ());
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
@@ -251,7 +255,7 @@ ModuleStatus complete(ModuleStatus ms, PathConfig pcfg){
     ms.paths = paths;
    
     ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};
-    analyzeTModels(ms);  
+    //analyzeTModels(ms);  
     return ms;
 }
 
@@ -275,7 +279,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
     }
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
     
-    <found, tm, ms> = getTmodelForModule(qualifiedModuleName, ms, pcfg);
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, pcfg);
     if(found){
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
@@ -387,168 +391,180 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-tuple[TModel, ModuleStatus] preSaveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,TModel] tmodels, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
-     if(parse_error() in ms.status[qualifiedModuleName]){
-        return <tmodel(modelName=qualifiedModuleName,messages=ms.messages[qualifiedModuleName]), ms>;
-    }
-    dependencies_ok = true;
-    for(imp <- imports + extends){
-        imp_status = ms.status[imp];
-        if(parse_error() in imp_status || checked() notin imp_status){
-            dependencies_ok = false;
-            cause = (not_found() in imp_status) ? "module not found" : "due to syntax error";
-            ms.messages[qualifiedModuleName] = (ms.messages[imp] ? []) + 
-                                               error("<imp in imports ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", moduleScopes[qualifiedModuleName]); 
-        }
-    }
-    if(!dependencies_ok){
-        return <tmodel(modelName=qualifiedModuleName,messages=ms.messages[qualifiedModuleName]), ms>;
-    }
-    tm.modelName = qualifiedModuleName;
-    tm.moduleLocs = (qualifiedModuleName : getModuleScope(qualifiedModuleName, moduleScopes, pcfg));
-    ldefines =for(tup: <loc scope, str id, str _, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){ 
-    	if(!(defInfo has atype)){
-    		tup.defInfo = defInfo(getType(defined));
-    	}
-    	append tup;
-    };
-    tm.defines = toSet(ldefines);
-    tm.definitions = ( def.defined : def | Define def <- tm.defines);
+ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
+    map[str,TModel] tmodels = ms.tmodels;
     
-    ms = addTModel(qualifiedModuleName, tm, ms);
-    tm = addGrammar(qualifiedModuleName, imports, extends, ms.tmodels);
-    ms.messages [qualifiedModuleName] = tm.messages;
-    //tm = doSaveModule(qualifiedModuleName, imports, extends, ms, moduleScopes, ms.moduleLastModified, pcfg, tm);
-    checkAllTypesAvailable(tm);
-    ms = addTModel(qualifiedModuleName, tm, ms);
-    return <tm, ms>;
-}
-
-TModel doSaveModule(str qualifiedModuleName, set[str] imports, set[str] extends, ModuleStatus ms, map[str,loc] moduleScopes,  PathConfig pcfg, TModel tm){
-    map[str,datetime] moduleLastModified = ms.moduleLastModified;
-    //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>") 
-    try {
-        mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
-        <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
-        
-        bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
-            + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
-            + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
-        
-        extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
-        extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
-        filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
-       
-        externallyReferencedLocs = range(tm.logical2physical);
-        
-        TModel m1 = tmodel();
-        
-        m1.modelName = qualifiedModuleName;
-        m1.moduleLocs = (qualifiedModuleName : mscope);
-        
-        //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedIn(key, mscope)/*, key in externallyReferencedLocs*/);
-        
-        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedIn(key, mscope), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
-        m1.facts += m1.specializedFacts;
-        
-        m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
-        
-        filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
-        
-        m1.scopes
-            = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths, isContainedIn(inner, mscope)/*, inner in externallyReferencedLocs*/);
-        
-        m1.store 
-            = (key_bom : bom);
-        m1.store[key_grammar] 
-            = tm.store[key_grammar] ? grammar({}, ());
-        
-        m1.store[key_ADTs]    
-            = tm.store[key_ADTs] ? {};
-        m1.store[key_common_keyword_fields]   
-            = tm.store[key_common_keyword_fields] ? [];
-        
-        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
-        
-        //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
-        m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in keepInTModelRoles || isContainedIn(u, mscope) };
-        
-        // Filter model for current module and replace functions in defType by their defined type
-        
-        defs = for(tup: <loc scope, str id, str _, IdRole idRole, /*int uid,*/ loc defined, DefInfo _> <- tm.defines){ 
-                   if(  idRole in keepInTModelRoles
-                      && isContainedIn(defined, mscope)
-                      //&& (defined in externallyReferencedLocs || idRole == fieldId())
-                      && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
-                         || scope in filteredModuleScopes
-                         || scope.path == mscope.path
-                         )
-                     ){   
-                     //println("keep <tup>");
-                     append tup;
-                  } else {
-                    ;//println("remove <tup>");
-                  }
-               };
-        
-        m1.defines = toSet(defs);
-        m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
-        m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
-        m1.logical2physical = tm.logical2physical;
-        
-        if(!isEmpty(m1.messages)){
-            iprintln(m1.messages);
+    dependencies_ok = true;
+    for(m <- component){
+        if(parse_error() in ms.status[m]){
+            ms.tmodels[m] = tmodel(modelName=m,messages=ms.messages[m]);
+            return ms;
         }
-        
-        checkAllTypesAvailable(tm);
-        
-        m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
-        
-        ////TODO temporary check:
-        
-        result = "";
-        
-        void checkPhysical(value v, str label){ 
-            visit(v){
-                case loc l: if(!(isContainedIn(l, mscope) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
+        for(imp <- m_imports[m] + m_extends[m]){
+            imp_status = ms.status[imp];
+            if(parse_error() in imp_status || checked() notin imp_status){
+                dependencies_ok = false;
+                cause = (not_found() in imp_status) ? "module not found" : "due to syntax error";
+                ms.messages[m] = (ms.messages[imp] ? []) + error("<imp in m_imports[imp] ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", moduleScopes[m]); 
             }
         }
-        checkPhysical(m1.moduleLocs, "moduleLocs");
-        checkPhysical(m1.facts, "facts");
-        checkPhysical(m1.specializedFacts, "specializedFacts");
-        checkPhysical(m1.defines, "defines");
-        checkPhysical(m1.definitions, "definitions");
-        checkPhysical(m1.scopes, "scopes");
-        checkPhysical(m1.store, "store");
-        checkPhysical(m1.paths, "paths");
-        checkPhysical(m1.useDef, "useDef");
-        
-        if(!isEmpty(result)){
-            println("------------- <qualifiedModuleName>:
-                    '<result>");
+        if(!dependencies_ok){
+            ms.tmodels[m] = tmodel(modelName=m,messages=ms.messages[m]);
+            return ms;
         }
-     
-        try {
-            writeBinaryValueFile(tplLoc, m1);
-            println("Written: <tplLoc>");
-        } catch _: {
-            throw "Corrupt TPL file <tplLoc>";
-        }
-        if(tm.config.logImports) {
-             errors = { msg | msg <- m1.messages, error(_,_) := msg };
-             n_errors = size(errors);
-             n_other = size(m1.messages) - n_errors;
-             notes = n_errors > 0 ? " ERRORS <n_errors>" : "";
-             notes += n_errors > 0 ? " WARNINGS/INFO: <n_other>" : "";
-             if (n_errors > 0) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<notes>");
-             for(e <- errors){
-                iprintln(e);
-             }
-      
-        }
-        return m1;
-    } catch value e: {
-        return tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
     }
+    for(m <- component){
+        tm.modelName = m;
+        tm.moduleLocs = (m : getModuleScope(m, moduleScopes, pcfg));
+        
+        tm.definitions = ( def.defined : def | Define def <- tm.defines);
+       
+        ms.tmodels[m] = tm;
+        tm = addGrammar(m, m_imports[m], m_extends[m], ms.tmodels);
+        ms.messages[m] = tm.messages;
+        ms.tmodels[m] = tm;
+    }
+    return ms;
+}
+
+ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes,  PathConfig pcfg){
+    map[str,datetime] moduleLastModified = ms.moduleLastModified;
+    //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
+    component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
+    
+    bool isContainedInComponentScopes(loc inner){
+        return any(cs <- component_scopes, isContainedIn(inner, cs));
+    };
+    
+    for(qualifiedModuleName <- component){
+        tm = ms.tmodels[qualifiedModuleName];
+        try {
+            mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
+            <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
+            imports = m_imports[qualifiedModuleName];
+            extends = m_extends[qualifiedModuleName];
+            
+            bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
+                + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
+                + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
+            
+            extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
+            extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
+            filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
+            
+            TModel m1 = tmodel();
+            
+            m1.modelName = qualifiedModuleName;
+            m1.moduleLocs = (qualifiedModuleName : mscope);
+            
+            //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+            m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInComponentScopes(key));
+            
+            m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+            m1.facts += m1.specializedFacts;
+            
+            m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
+            
+            filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
+            
+            //println("tm.scopes:"); iprintln(tm.scopes);
+            //m1.scopes = tm.scopes;
+            m1.scopes
+                = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths, isContainedInComponentScopes(inner));
+            
+            m1.store 
+                = (key_bom : bom);
+            m1.store[key_grammar] 
+                = tm.store[key_grammar] ? grammar({}, ());
+            
+            m1.store[key_ADTs]    
+                = tm.store[key_ADTs] ? {};
+            m1.store[key_common_keyword_fields]   
+                = tm.store[key_common_keyword_fields] ? [];
+            
+            m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
+            
+            //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
+            m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in keepInTModelRoles || isContainedIn(u, mscope) };
+            
+            // Filter model for current module and replace functions in defType by their defined type
+            
+            defs = for(tup: <loc scope, str id, str _, IdRole idRole, /*int uid,*/ loc defined, DefInfo _> <- tm.defines){ 
+                       if( idRole in keepInTModelRoles
+                          && isContainedInComponentScopes(defined)
+                          && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
+                             || scope in filteredModuleScopes
+                             || scope.path == mscope.path
+                             || idRole == fieldId()
+                             )
+                         ){   
+                         append tup;
+                      } else {
+                         ;
+                      }
+                   };
+            
+            m1.defines = toSet(defs);
+            m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
+            m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
+            m1.logical2physical = tm.logical2physical;
+            
+            if(!isEmpty(m1.messages)){
+                iprintln(m1.messages);
+            }
+                        
+            m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
+            
+            //TODO temporary check:
+            
+            result = "";
+            
+            void checkPhysical(value v, str label){ 
+                visit(v){
+                    case loc l: if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
+                }
+            }
+            checkPhysical(m1.moduleLocs, "moduleLocs");
+            checkPhysical(m1.facts, "facts");
+            checkPhysical(m1.specializedFacts, "specializedFacts");
+            checkPhysical(m1.defines, "defines");
+            checkPhysical(m1.definitions, "definitions");
+            checkPhysical(m1.scopes, "scopes");
+            checkPhysical(m1.store, "store");
+            checkPhysical(m1.paths, "paths");
+            checkPhysical(m1.useDef, "useDef");
+            
+            if(!isEmpty(result)){
+                println("------------- <qualifiedModuleName>:
+                        '<result>");
+                //iprintln(m1, lineLimit=10000);
+            }
+            
+            ms.status[qualifiedModuleName] += tpl_saved();
+            try {
+                writeBinaryValueFile(tplLoc, m1);
+                println("Written: <tplLoc>");
+            } catch _: {
+                throw "Corrupt TPL file <tplLoc>";
+            }
+            
+            ms.tmodels[qualifiedModuleName] = m1;
+            
+            if(tm.config.logImports) {
+                 errors = { msg | msg <- m1.messages, error(_,_) := msg };
+                 n_errors = size(errors);
+                 n_other = size(m1.messages) - n_errors;
+                 notes = n_errors > 0 ? " ERRORS <n_errors>" : "";
+                 notes += n_errors > 0 ? " WARNINGS/INFO: <n_other>" : "";
+                 if (n_errors > 0) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<notes>");
+                 for(e <- errors){
+                    iprintln(e);
+                 }
+            }
+        } catch value e: {
+            ms.tmodels[qualifiedModuleName] = tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
+            return ms;
+        }
+    }
+    return ms;
 }

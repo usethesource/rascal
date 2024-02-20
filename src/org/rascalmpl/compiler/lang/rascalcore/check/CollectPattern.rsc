@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectPattern
 
+/*
+    Check patterns
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 extend lang::rascalcore::check::CollectLiteral;
 
@@ -337,12 +341,6 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
 // ---- descendant pattern
 
 void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
-    //scope = c.getScope();
-    //c.calculate("descendant pattern", current, [pattern], AType(Solver s){ 
-    //    res = getPatternType(pattern, avalue(), scope, s);
-    //    println(res);
-    //    return res;
-    //     });
     c.push(patternContainer, "descendant");
     collect(pattern, c);
     c.pop(patternContainer);

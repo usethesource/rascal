@@ -1,6 +1,11 @@
 @bootstrapParser
 module lang::rascalcore::check::Fingerprint
 
+
+/*
+    Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascal::\syntax::Rascal;
@@ -8,7 +13,7 @@ import lang::rascal::\syntax::Rascal;
 import util::Reflective;
 import ValueIO;
 
-// Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
+
 
 private int fingerprintDefault = 0;
 

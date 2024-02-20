@@ -576,12 +576,14 @@ MuExp translate(s: (Statement) `fail <Target target> ;`, BTSCOPES btscopes) {
 // -- break statement ------------------------------------------------
 
 MuExp translate((Statement) `break <Target target> ;`, BTSCOPES btscopes) = 
-    muBreak(target is empty ? currentLoop() : "<target.name>");
+    target is empty ? muBreak(currentLoop()) : muBreak("<target.name>");
+    //TODO: rewritten due to compiler issue (conditional exp moved before call): muBreak(target is empty ? currentLoop() : "<target.name>");
  
 // -- continue statement ---------------------------------------------
 
 MuExp translate((Statement) `continue <Target target> ;`, BTSCOPES btscopes) = 
-    muContinue(target is empty ? currentLoop() : "<target.name>");
+    target is empty ? muContinue(currentLoop()) : muContinue("<target.name>");
+    //TODO: rewritten due to compiler issue (conditional exp moved before call): muContinue(target is empty ? currentLoop() : "<target.name>");
 
 // -- filter statement -----------------------------------------------
 

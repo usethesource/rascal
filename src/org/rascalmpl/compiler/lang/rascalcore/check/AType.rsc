@@ -1,6 +1,11 @@
 @bootstrapParser
 module lang::rascalcore::check::AType
 
+/*
+    Every needed to operate on ATypes, including asubtype, alub, 
+*/
+
+
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::grammar::definition::Characters;
 

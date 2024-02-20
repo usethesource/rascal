@@ -1,5 +1,8 @@
 module lang::rascalcore::check::BuiltinFields
 
+/*
+    Declaration of field for built-in typoes such as aloc, adatetime.
+*/
 import lang::rascalcore::check::ATypeUtils;
 
 

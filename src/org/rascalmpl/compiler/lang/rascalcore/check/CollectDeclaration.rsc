@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectDeclaration
 
+/*
+    Check all declarations in a module
+*/
+
 extend lang::rascalcore::check::CollectDataDeclaration;
 extend lang::rascalcore::check::CollectSyntaxDeclaration;
 
@@ -142,74 +146,19 @@ void collect(Tag tg, Collector c){
     }
 }
 
-// ---- annotation ------------------------------------------------------------
-Expression makeKeywordDefaultExpression(Type annoType, Collector c){
-
-    // The default expression is arbitrary since a NoSuchAnnotation will be thrown before it can be executed.
-    // However, in the generated code we need a type correct default expression.
-    // TODO: remove when annotations are gone
-
-    res = (Expression) `0`;
-    switch(annoType){
-    case (Type) `bool`: res = (Expression) `true`;
-    case (Type) `int`: res = (Expression) `0`;
-    case (Type) `real`: res = (Expression) `0.0`;
-    case (Type) `str`: res = (Expression) `""`;
-    case (Type) `datetime`: res = (Expression) `$2020-09-10T11:17:10.760+00:00$`;
-    case (Type) `loc`: res = (Expression) `|project://rascal/src/org/rascalmpl/library/Node.rsc|`;
-    case (Type) `value`: res = (Expression) `true`;
-    case (Type) `list[<TypeArg _>]`: res = (Expression) `[]`;
-    case (Type) `set[<TypeArg _>]`: res = (Expression) `{}`;
-    case (Type) `map[<TypeArg _>,<TypeArg _>]`: res = (Expression) `()`;
-    case (Type) `rel[<{TypeArg ","}+ _>]`: res = (Expression) `{}`;
-    case (Type) `lrel[<{TypeArg ","}+ _>]`: res = (Expression) `[]`;
-    //case (Type) `Message`: {
-    //        ;//res = (Expression) `error("AUTOMATICALLY GENERATED DEFAULT MESSAGE", |error:///|)`;
-    //    }
-    default: {
-        println("WARNING: makeKeywordDefaultExpression: <annoType>");
-        }
-    }
-    c.fact(res, annoType); 
-    return res; 
-}
-KeywordFormal makeKeywordFormal(Type annoType, Name name, Collector c){
-    Expression dflt = makeKeywordDefaultExpression(annoType, c);
-    res = (KeywordFormal) `<Type annoType> <Name name> = <Expression dflt>`;
-    res.\type@\loc = getLoc(annoType);  // set back locations in synthetic keywordFormal
-    res.expression@\loc = getLoc(annoType);
-    c.fact(res.\type, annoType);
-    c.fact(res.expression, dflt);
-    return res;
-}
 // Deprecated
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
     c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
     
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
-    collect(annoType, onType, c);
     
-    //userType = onType has user ? onType.user 
-    adtName = onType is user ? prettyPrintName(onType.user.name) : "<onType>";
-    commonKeywordParameterList = [makeKeywordFormal(annoType, name, c) ];     
-    dt1 = defType(aadt(adtName, [], dataSyntax()));
-    
-    dt1.commonKeywordFields = commonKeywordParameterList;
-    c.define(adtName, dataId(), current, dt1);
-   
-    //pname = prettyPrintName(name);
-    //dt2 = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
-    //dt2.vis = getVis(current.visibility, publicVis());
-    //if(!isEmpty(tagsMap)) dt2.tags = tagsMap;
-    //c.define(pname, keywordFieldId(), name, dt2);
-    
-    //pname = prettyPrintName(name);
-    //dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
-    //dt.vis = getVis(current.visibility, publicVis());
-    //if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-    //c.define(pname, annoId(), name, dt);
-    //collect(annoType, onType, c); 
+    pname = prettyPrintName(name);
+    dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
+    dt.vis = getVis(current.visibility, publicVis());
+    if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+    c.define(pname, annoId(), name, dt);
+    collect(annoType, onType, c); 
 }
 
 // ---- keyword Formal --------------------------------------------------------

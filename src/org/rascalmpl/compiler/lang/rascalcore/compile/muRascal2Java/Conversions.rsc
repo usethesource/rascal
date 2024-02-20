@@ -345,8 +345,8 @@ private str attr2IValue1(\bracket())
 
 /*&*/
 private str tree2IValue1(tr:appl(Production prod, list[Tree] args), map[AType, set[AType]] defs)
-    = tr.src? ? "appl(<prod2IValue(prod, defs)>, <tree2IValue(args, defs)>, <value2IValue(tr.src)>)" //<<
-              : "appl(<prod2IValue(prod, defs)>, <tree2IValue(args, defs)>)";                         //<<
+    = tr@\loc? ? "appl(<prod2IValue(prod, defs)>, <tree2IValue(args, defs)>, <value2IValue(tr@\loc)>)" //<<
+               : "appl(<prod2IValue(prod, defs)>, <tree2IValue(args, defs)>)";                         //<<
 
 private str tree2IValue1(cycle(Symbol asymbol, int cycleLength), map[AType, set[AType]] defs)
     = "cycle(<atype2IValue(symbol2atype(asymbol), defs)>, <value2IValue(cycleLength)>)";
