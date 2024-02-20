@@ -1,6 +1,8 @@
 module lang::rascalcore::check::AllRascalTests
 
-
+/*
+    Run all Rascal tests
+*/
 import IO;
 import List;
 import Set;

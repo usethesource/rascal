@@ -14,7 +14,7 @@ import lang::rascalcore::compile::util::Names;
 import IO;
 import List;
 import Location;
-import ListRelation;
+//import ListRelation;
 import Map;
 import Node;
 import Relation;
@@ -178,6 +178,10 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
+    
+    //if(functionName == "conditional"){
+    //    println("conditional");
+    //}
     module_scopes = domain(loc2module);
     
     set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)/*, "test" notin loc2muFunction[def.defined].modifiers*/ };
@@ -478,10 +482,16 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                 }
                 // Share common conditions
                 calls_with_same_cond = call;
+                constructor_seen = contains(call, "$VF.constructor");
                 
                 while(i < size(overloads) -1 && conds == overloads[i+1].conds){
+                    repeated_conses = constructor_seen && contains(overloads[i+1].call, "$VF.constructor");
                     i += 1;
-                    calls_with_same_cond += "\n<overloads[i].call>";
+                    if(repeated_conses){
+                        calls_with_same_cond = "throw new RuntimeException(\"Constructor `<functionName>` is overloaded and can only be called with qualifier\");"; 
+                    } else {
+                        calls_with_same_cond += "\n<overloads[i].call>";
+                    }
                 }
                 i += 1;
                 if(!isEmpty(calls_with_same_cond)){

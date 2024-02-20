@@ -32,10 +32,10 @@ tuple[Tree, TModel] parseConcreteFragments(Tree M, TModel tm, AGrammar gr) {
                 ])[@\loc=t@\loc];
       }
       catch ParseError(loc l) : {
-        throw CompileTimeError(error("Parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", l)); 
+        throw CompileTimeError(error("Parse error in concrete syntax fragment `<for (p <- parts){><p><}>`", t@\loc)); 
       }
       catch Ambiguity(loc location, str nonterminal, str sentence): {
-        throw CompileTimeError(error("Ambiguity in concrete syntax fragment for <nonterminal>: `<sentence>`", location /*parts[1]@\loc*/)); 
+        throw CompileTimeError(error("Ambiguity in concrete syntax fragment for <nonterminal>: `<sentence>`", /*location*/ t@\loc)); 
       }
    }
 

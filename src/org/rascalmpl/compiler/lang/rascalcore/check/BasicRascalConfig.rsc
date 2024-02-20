@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::BasicRascalConfig
 
+/*
+    Basic configuration information as required by TypePal, including IdRole, PathRole, ScopeRole, DefInfo and the like.
+    The checker itself is configure in RascalConfig.
+*/
 extend analysis::typepal::TypePal;
  
 import lang::rascal::\syntax::Rascal;
@@ -37,7 +41,7 @@ public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
 public set[IdRole] variableRoles = formalRoles + {variableId(), patternVariableId()};
 public set[IdRole] inferrableRoles = formalRoles + {variableId(), patternVariableId()};
 //public set[IdRole] saveModuleRoles = dataOrSyntaxRoles + {moduleId(), constructorId(), functionId(), fieldId(), keywordFieldId(), keywordFormalId()} + variableRoles;
-public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + {moduleId(), constructorId(), functionId(), fieldId(), keywordFieldId(), keywordFormalId()} + variableRoles;
+public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + {moduleId(), constructorId(), functionId(), fieldId(), keywordFieldId(), keywordFormalId(), annoId()};
 public set[IdRole] assignableRoles = variableRoles;
 
 data PathRole

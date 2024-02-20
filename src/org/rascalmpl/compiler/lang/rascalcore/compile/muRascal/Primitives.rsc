@@ -37,6 +37,8 @@ MuExp muPrim("subtract", aint(), [aint(), aint()], [muCon(int n1), muPrim("subtr
 
 // Unary minus 
 MuExp muPrim("negative", aint(), [aint()], [muCon(int n)], loc src2)  = muCon(-n);
+MuExp muPrim("negative", areal(), [areal()], [muCon(real r)], loc src2)  = muCon(-r);
+MuExp muPrim("negative", arat(), [arat()], [muCon(rat r)], loc src2)  = muCon(-r);
 
 // Integer multiplication
 

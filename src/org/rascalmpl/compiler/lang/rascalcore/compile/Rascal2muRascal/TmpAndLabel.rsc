@@ -31,37 +31,37 @@ public void resetTmpAndLabel(){
 	functionDeclarations = [];
 }
 
-loc moduleScope = |unknown:///|;
+private loc currentModuleScope = |unknown:///|;
 
 void setModuleScope(loc l){
-    moduleScope = l;
+    currentModuleScope = l;
 }  
 
 loc getModuleScope()
-    = moduleScope;
+    = currentModuleScope;
 
 // Generation of temporary variables and labels
 
-public int tmpVar = -1;   						// *** state
+private int tmpVar = -1;   						// *** state
 
-public str nextTmp(){
+str nextTmp(){
 	tmpVar += 1;
     return "$TMP<tmpVar>";
 }
 
-public str nextTmp(str name){
+str nextTmp(str name){
     tmpVar += 1;
     return "$<name><tmpVar>";
 }
 
-public int tmpLabel = -1;						// *** state
+private int tmpLabel = -1;						// *** state
 
-public str nextLabel(){
+str nextLabel(){
 	tmpLabel += 1;
 	return "LAB<tmpLabel>";
 }
 
-public str nextLabel(str prefix){
+str nextLabel(str prefix){
 	tmpLabel += 1;
 	return "<prefix><tmpLabel>";
 }
@@ -108,7 +108,7 @@ void leaveLoop(){
 
 // labelled statements (if, while, 
 
-lrel[str label, str resume] labelledStats = [];               // *** state
+private lrel[str label, str resume] labelledStats = [];               // *** state
 
 void initLabelledStats(){
     labelledStats = [];
@@ -262,7 +262,7 @@ void fillCaseType(AType t) {
 //	visits = avoid() + tail(visits);
 //}
 
-int allCounter = 0;								// *** state
+private int allCounter = 0;								// *** state
 
 int getNextAll() {
     int counter = allCounter;
@@ -274,7 +274,7 @@ void resetAllCounter() {
     allCounter = 0;
 }
 
-int orCounter = 0;								// *** state
+private int orCounter = 0;								// *** state
 
 int getNextOr() {
     int counter = orCounter;

@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectSyntaxDeclaration
 
+/*
+    Check syntax declarations
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 
 import IO;
@@ -114,17 +118,6 @@ private default bool isTerminalSym(Sym s) =  s is characterClass || s is literal
 
 private AType removeChainRule(aprod(prod(AType adt1,[AType adt2]))) = adt2 when isNonTerminalAType(adt2);
 private default AType removeChainRule(AType t) = t;
-
-//private Sym removeConditions((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `<Sym symbol> $`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `^ <Sym symbol>`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `<Sym symbol> ! <NonterminalLabel _>`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `<Sym symbol> \>\> <Sym _>`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `<Sym symbol> !\>\> <Sym _>`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `<Sym _> \<\< <Sym symbol>`) = removeConditions(symbol);
-//private Sym removeConditions((Sym) `<Sym _> !\<\< <Sym symbol>`) = removeConditions(symbol);
-//
-//private default Sym removeConditions(Sym symbol) = symbol;
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];

@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::ScopeInfo
 
+/*
+    Manage information related to specific scopes
+*/
+
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;

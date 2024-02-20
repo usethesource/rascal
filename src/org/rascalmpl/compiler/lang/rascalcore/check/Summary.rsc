@@ -1,6 +1,11 @@
 @bootstrapParser
 module lang::rascalcore::check::Summary
 
+/*
+    Generate a summary for the benefit of an IDE
+    TODO: check out-of-date?
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 //extend lang::rascalcore::check::ATypeUtils;
 //import lang::rascalcore::check::BasicRascalConfig;

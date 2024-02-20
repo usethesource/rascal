@@ -22,8 +22,10 @@ bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messag
 bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, TModel tm, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig){
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig){
     //iprintln(tm, lineLimit=10000);
+    
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, pcfg);
    
     if(errorsPresent(tm)){
         return tm.messages;
@@ -58,7 +60,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
         tmodels = ();
         for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
-            <found, tpl, ms> = getTmodelForModule(m, ms, pcfg);
+            <found, tpl, ms> = getTModelForModule(m, ms, pcfg);
             tmodels[m] = tpl;
         }
         tmodels[qualifiedModuleName] = tm;

@@ -1,6 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::BacktrackFree
 
+/*
+    Check whether an expression or pattern is free of backtracking.
+*/
 import lang::rascal::\syntax::Rascal;
 import List;
 import ParseTree;

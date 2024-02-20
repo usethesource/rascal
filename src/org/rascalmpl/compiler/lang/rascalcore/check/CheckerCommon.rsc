@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CheckerCommon
 
+/*
+    A convenience module that helps to break cycles in the import structure
+*/
+
 extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::ComputeType;
 extend lang::rascalcore::check::SyntaxGetters;

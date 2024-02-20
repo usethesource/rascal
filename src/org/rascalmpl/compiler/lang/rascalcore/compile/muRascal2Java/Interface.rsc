@@ -11,7 +11,7 @@ import lang::rascalcore::compile::util::Names;
 
 import List;
 import Location;
-import ListRelation;
+////import ListRelation;
 import Map;
 import Set;
 import String;

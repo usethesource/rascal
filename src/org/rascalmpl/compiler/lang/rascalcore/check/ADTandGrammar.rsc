@@ -1,5 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::ADTandGrammar
+
+/*
+    Based on the facts in a given TModel, the functions in this module compute and store ADTs in the store using the key key_ADTs 
+    as well as a grammar using the key key_grammar. While doing so it also performs some consistency checks.
+*/
    
 extend lang::rascalcore::check::CheckerCommon;
 

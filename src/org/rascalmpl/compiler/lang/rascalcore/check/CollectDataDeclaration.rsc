@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectDataDeclaration
 
+/*
+    Check data declarations.
+*/
+
 extend lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::compile::util::Names;
 

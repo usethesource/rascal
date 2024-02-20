@@ -12,6 +12,11 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
+/*
+    Utility functions to get information from ATypes as well as predicates on ATypes.
+    Also conversion functions to/from ATypes.
+*/
+
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::BasicRascalConfig;
@@ -1124,7 +1129,12 @@ list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
     if (acons(_,list[AType] cts,_) := unwrapAType(ft)) return cts;
     if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapAType(ft)){
        arities = { size(getFormals(tp)) | tp <- overloads<2> };
-       assert size(arities) == 1;
+       //assert size(arities) == 1;
+       if(size(arities) != 1){
+            println("getFunctionOrConstructorArgumentTypes, arities: <arities>, for atype:");
+            iprintln(ft);
+            assert size(arities) == 1;
+       }
        ar = getFirstFrom(arities);
        resType = (avoid() | alub(it, getResult(tp) )| tp <- overloads<2>);
        formalsTypes = [avoid() | _ <- [0 .. ar]];

@@ -11,6 +11,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectType
 
+/*
+    Check type declarations
+*/
+
 extend lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
@@ -356,7 +360,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
                 labelledArgType = argType[alabel="<targ.name>"];
                 resolvedArgTypes += labelledArgType;
                 c.define("<targ.name>", formalId(), targ.name, defType(labelledArgType));
-                c.fact(targ, argType);
+                c.fact(targ, labelledArgType);
             } else {
                 resolvedArgTypes += argType;
             }

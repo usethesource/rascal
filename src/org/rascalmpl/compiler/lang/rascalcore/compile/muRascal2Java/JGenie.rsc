@@ -94,9 +94,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     TModel currentTModel = tmodels[moduleName];
-    checkAllTypesAvailable(currentTModel);
-    println("---- jgenie:");
-    iprintln(currentTModel);
+    checkAllTypesAvailable(currentTModel);  // TODO: remove
     loc currentModuleScope = moduleLocs[moduleName];
     set[loc] extending = currentTModel.paths[currentModuleScope, extendPath()];
     rel[loc, loc] importedByExtend = {<i, e> | e <- extending, i <- currentTModel.paths[e, importPath()]};
@@ -150,7 +148,7 @@ JGenie makeJGenie(MuModule m,
         
     void _setFunction(MuFunction fun){
         function = fun;
-        functionName = fun.uniqueName; //isOuterScopeName(fun.scopeIn) ? fun.uniqueName : "<fun.scopeIn>_<fun.uniqueName>";
+        functionName = fun.uniqueName;
     }
     
     MuFunction _getFunction()
@@ -182,14 +180,12 @@ JGenie makeJGenie(MuModule m,
     bool b = false;
     @memo
     str _getATypeAccessor(AType t){
-        //if(getName(t) in {"avoid", "abool", "aint", "areal", "arat", "anum", 
-        //                 "astr", "aloc", "adatetime", "alist", "aset", "abag", "arel", "alrel", "atuple",
-        //                 "amap", "anode", "avalue", "aparameter", "afunc"}){
-        //    return "";
-        //}
         t1 = unsetR(t, "alabel");
         tlabel = t.alabel? ? asUnqualifiedName(t.alabel) : "";
         
+        //if(aadt("Grammar",_,_) := t){
+        //    println("getATypeAccessor: <t>");
+        //}
         // Instantiated adt will allways come from current module
         if(aadt(adtName,params,_) := t, !isEmpty(params)){
             if(any(p <- params, !isTypeParameter(p))){
@@ -201,13 +197,17 @@ JGenie makeJGenie(MuModule m,
         for(Define def <- range(currentTModel.definitions), def.idRole in (dataOrSyntaxRoles + constructorId())){
             // TODO: the following conditions were originally combined with an ||, but the compiler does not like that
             if(isConstructorAType(t1) && t1 := def.defInfo.atype && def.defInfo.atype.alabel == tlabel){
+                //if(tlabel == "conditional"){
+                //    println("conditional");
+                //}
                 found_defs += def;
             } else if(aadt(adtName,ps1,_) := t1 && aadt(adtName,ps2,_) := def.defInfo.atype && asubtypeList(ps1, ps2)){
                 found_defs += def;
             }
         }
         for(Define def <- found_defs){
-            for(ms <- allLocs2Module, isContainedIn(def.scope, ms)){
+          //println("def: <def>");
+            for(ms <- allLocs2Module, ms in importAndExtendScopes, isContainedIn(def.scope, ms)){
                 defMod = allLocs2Module[ms];
                 res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
                 if(b)println("getTypeAccessor(<t>) =\> <res>)");
@@ -234,7 +234,7 @@ JGenie makeJGenie(MuModule m,
                 if(defType(AType _) := def.defInfo){
                     baseName = asJavaName(def.id);
                     
-                    if(isSyntheticFunctionName(baseName)){
+                    if(isSyntheticFunctionName(def.id)){
                         return baseName;
                     } else if(isContainedIn(def.defined, currentModuleScope)){
                         if(def.scope != currentModuleScope){    // inner function
@@ -563,7 +563,11 @@ JGenie makeJGenie(MuModule m,
         done = {};
         declared_ADT_names = {};
         parameterized_ADTs = { a | a:aadt(str adtName, list[AType] parameters, SyntaxRole _) <- getADTs(), !isEmpty(parameters), all(p <- parameters, isTypeParameter(p)) };
+        instantiated_Cons = { c | /c:acons(AType adtType, list[AType] fields, list[Keyword] kwpFields) := currentTModel.facts + currentTModel.specializedFacts, !isEmpty(adtType.parameters), all(p <- adtType.parameters, !isTypeParameter(p)) };
         
+        for(c <- instantiated_Cons){
+            _shareType(c);
+        }
         // Generate type constants in the right declaration order, such that
         // they are always declared before they are used in the list of type fields
         
@@ -573,7 +577,7 @@ JGenie makeJGenie(MuModule m,
         //println("-----------------------------------------");
         
         bool simpler(AType a, AType b) {
-            if(/a := b && a !:= b) return true;
+            if(/a := b && a != b) return true;
             if(isAtomicAType(a) && !isAtomicAType(b)) return true;
             return false;
         }
@@ -652,6 +656,7 @@ JGenie makeJGenie(MuModule m,
                     }
             }
         }
+        
         tinits = adtinits + tinits + adtinits_param + adtinits_instantiate + consinits;
         rdecls = "";
         rinits = "";
@@ -756,9 +761,9 @@ JGenie makeJGenie(MuModule m,
                 _usesLocalFunctions
             );
     
-     thisJGenie.shareType(anode([]));   // Add types that can be implicitly defined by lubbing overloaded functions
-     thisJGenie.shareType(anum());
-     thisJGenie.shareType(avalue());
+     //thisJGenie.shareType(anode([]));   // Add types that can be implicitly defined by lubbing overloaded functions
+     //thisJGenie.shareType(anum());
+     //thisJGenie.shareType(avalue());
      return thisJGenie;
 }
 

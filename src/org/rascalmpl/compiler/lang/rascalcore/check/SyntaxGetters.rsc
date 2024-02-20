@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::SyntaxGetters
 
+/*
+    Various getters to extract information from syntax constructs
+*/
+
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascal::\syntax::Rascal;
 

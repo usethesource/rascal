@@ -1,6 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeBase
 
+/*
+    Basic declarations for the ATypes used in the checker. They extend the datat type AType introduced in TypePal.
+ */
 
 extend analysis::typepal::TypePal;
 

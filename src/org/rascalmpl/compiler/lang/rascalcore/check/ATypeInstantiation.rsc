@@ -13,6 +13,10 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeInstantiation
 
+/*
+    Implement instantiation of type parameters
+*/
+
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::NameUtils;
 

@@ -1,6 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectStatement
 
+/*
+    Check all statements
+*/
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::check::CollectExpression;
@@ -134,7 +137,11 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                     //c.calculate("pattern", pattern, [], AType(Solver s){ return getPatternType(pattern, avalue(), scope, s); });
                     c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), scope, s); });
                     
-                    conditions = replacement is conditional ? [(Expression)`(<Expression e>)` := c ? e : c | Expression c <- replacement.conditions] : [];
+                    conditions = [];
+                    if(replacement is conditional){
+                        conditions = [(Expression)`(<Expression e>)` := c ? e : c | Expression c <- replacement.conditions];
+                    }
+                    //TODO: simplified for compiler from: conditions = replacement is conditional ? [(Expression)`(<Expression e>)` := c ? e : c | Expression c <- replacement.conditions] : [];
                     
                     if(replacement is conditional){
                        storeAllowUseBeforeDef(current, replacement.replacementExpression, c);
@@ -743,20 +750,15 @@ private AType computeReceiverType(Statement current, asg:(Assignable) `<Assignab
     s.fact(asg, fieldType);
     return fieldType;
 }
-    
+
+// TODO: Deprecated
 private AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
-    fieldType = computeFieldTypeWithADT(receiverType, n, scope, s);
-    s.fact(asg, fieldType);
-    return fieldType;
-    
-    //receiverType = computeReceiverType(current, receiver, scope, s);
-    //s.fact(receiver, receiverType);
-    //annoNameType = s.getTypeInScope(n, scope, {annoId()});
-    //getAnnoType = computeGetAnnotationType(current, receiverType, annoNameType, s);
-    //s.fact(asg, getAnnoType);
-    //return getAnnoType;
+    annoNameType = s.getTypeInScope(n, scope, {annoId()});
+    getAnnoType = computeGetAnnotationType(current, receiverType, annoNameType, s);
+    s.fact(asg, getAnnoType);
+    return getAnnoType;
 }
 
 private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){
@@ -1035,73 +1037,60 @@ private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Ass
   //collect(elements, c);
 }
 
+// TODO: Deprecated
 private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
-    // TODO: disabled: c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
-   
+   c.use(n, {annoId()});
    names = getReceiver(receiver, c);
-   c.use(names[0], variableRoles);
+   c.useLub(names[0], variableRoles);
    scope = c.getScope();
    
-   c.calculate("assignable with field", current, [rhs], 
+   c.calculate("assignable with annotation", current, [n, rhs], 
       AType(Solver s){ 
-           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, s),  n, operator, s.getType(rhs), scope, s);
-           //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           rt = computeReceiverType(current, receiver, scope, s);
            s.fact(asg, s.getType(rhs));
-           return res;
+           return computeAnnoAssignableType(current, rt,  n, operator, s.getType(rhs), scope, s);
          });
-   
-   //c.use(n, {annoId()});
-   //names = getReceiver(receiver, c);
-   //c.useLub(names[0], variableRoles);
-   //scope = c.getScope();
-   //
-   //c.calculate("assignable with annotation", current, [n, rhs], 
-   //   AType(Solver s){ 
-   //        rt = computeReceiverType(current, receiver, scope, s);
-   //        s.fact(asg, s.getType(rhs));
-   //        return computeAnnoAssignableType(current, rt,  n, operator, s.getType(rhs), scope, s);
-   //      });
    collect(receiver, c);
 }
 
-//private AType computeAnnoAssignableType(Statement current, AType receiverType, Name annoName, str operator, AType rhs, loc scope, Solver s){
-////println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
-//   
-//    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
-//    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
-//    
-//    if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
-//        anno_overloads = {};
-//        for(<key, idr, tp> <- overloads){ 
-//            try {
-//               anno_overloads += <key, idr, computeAnnoAssignableType(current, tp, annoName, operator, rhs, scope, s)>;
-//           } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload */;
-//             catch NoBinding(): /* do nothing and try next overload */;
-// //>>        catch e: /* do nothing and try next overload */;
-//        }
-//        if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved", receiverType));
-//        return overloadedAType(anno_overloads);
-//    }
-//    annoNameType = s.getTypeInScope(annoName, scope, {annoId()});
-//    //println("annoNameType: <annoNameType>");
-//    
-//    if (isNodeAType(receiverType) || isADTAType(receiverType) || isNonTerminalAType(receiverType)) {
-//        if(overloadedAType(rel[loc, IdRole, AType] overloads) := annoNameType){
-//            anno_overloads = {};
-//            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, tp2) := tp1, asubtype(receiverType, onType)){
-//               anno_overloads += <key, annoId(), tp1>;
-//           }
-//            if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved from %t", receiverType, annoNameType));
-//            return overloadedAType(anno_overloads);
-//        } else
-//        if(aanno(_, onType, annoType) := annoNameType){
-//           return annoNameType;
-//        } else
-//            s.report(error(current, "Invalid annotation type: %t", annoNameType));
-//    } else
-//        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", receiverType));
-//    return avalue();
-//}
+private AType computeAnnoAssignableType(Statement current, AType receiverType, Name annoName, str operator, AType rhs, loc scope, Solver s){
+//println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
+   
+    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
+    
+    if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
+        anno_overloads = {};
+        for(<key, idr, tp> <- overloads){ 
+            try {
+               anno_overloads += <key, idr, computeAnnoAssignableType(current, tp, annoName, operator, rhs, scope, s)>;
+           } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload */;
+             catch NoBinding(): /* do nothing and try next overload */;
+ //>>        catch e: /* do nothing and try next overload */;
+        }
+        if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved", receiverType));
+        return overloadedAType(anno_overloads);
+    }
+    annoNameType = s.getTypeInScope(annoName, scope, {annoId()});
+    //println("annoNameType: <annoNameType>");
+    
+    if (isNodeAType(receiverType) || isADTAType(receiverType) || isNonTerminalAType(receiverType)) {
+        if(overloadedAType(rel[loc, IdRole, AType] overloads) := annoNameType){
+            anno_overloads = {};
+            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, tp2) := tp1, asubtype(receiverType, onType)){
+               anno_overloads += <key, annoId(), tp1>;
+           }
+            if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved from %t", receiverType, annoNameType));
+            return overloadedAType(anno_overloads);
+        } else
+        if(aanno(_, onType, annoType) := annoNameType){
+           return annoNameType;
+        } else
+            s.report(error(current, "Invalid annotation type: %t", annoNameType));
+    } else
+        s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", receiverType));
+    return avalue();
+}
 
 private list[QualifiedName] getReceiver((Assignable) `<QualifiedName name>`, Collector c){
     c.use(name, variableRoles);

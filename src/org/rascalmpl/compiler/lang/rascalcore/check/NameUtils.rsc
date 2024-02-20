@@ -1,6 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::NameUtils
 
+/*
+    Utilities related to Name and QualifiedName
+*/
+
 import lang::rascal::\syntax::Rascal;
 
 import List;
