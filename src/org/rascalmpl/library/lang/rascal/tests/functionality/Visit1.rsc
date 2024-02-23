@@ -656,8 +656,6 @@ public &T delAnnotationsRec2(&T v) = visit(v) {
      case node n: { insert delAnnotations(n); }
   };
 
-anno int NODE@pos;
-
 public NODE A1 = leaf(3);
 public NODE A2 = leaf(3)[@pos = 1];
 
