@@ -140,7 +140,7 @@ str oStm( E(Id from, Id to)) = "<from>-\><to>";
 str oStm( E(Id from, Id to, Attrs attrs)) = "<from>-\><to><oAttrs(attrs)>";
         
 str oStm( E(NodeId from, Id to)) = "<oNodeId(from)>-\><to>";
-str oStm( E(Id from, Id to, Attrs attrs)) = "<from>-\><to><oAttrs(attrs)>";
+//str oStm( E(Id from, Id to, Attrs attrs)) = "<from>-\><to><oAttrs(attrs)>";
         
 str oStm( E(Stm from, Id to)) = "<oStm(from)>-\><to>";
 str oStm( E(Stm from, Id to, Attrs attrs)) = "<oStm(from)>-\><to><oAttrs(attrs)>";
@@ -149,7 +149,7 @@ str oStm( E(Id from, NodeId to)) = "<from>-\><oNodeId(to)>";
 str oStm( E(Id from, NodeId to, Attrs attrs)) = "<from>-\><oNodeId(to)><oAttrs(attrs)>";
         
 str oStm( E(NodeId from, NodeId to)) = "<oNodeId(from)>-\><oNodeId(to)>";
-str oStm( E(Id from, NodeId to, Attrs attrs)) = "<from>-\><oNodeId(to)><oAttrs(attrs)>";
+//str oStm( E(Id from, NodeId to, Attrs attrs)) = "<from>-\><oNodeId(to)><oAttrs(attrs)>";
         
 str oStm( E(Stm from, NodeId to)) = "<oStm(from)>-\><oNodeId(to)>";
 str oStm( E(Stm from, NodeId to, Attrs attrs)) = "<oStm(from)>-\><oNodeId(to)><oAttrs(attrs)>";
@@ -158,7 +158,7 @@ str oStm( E(Id from, Stm to)) = "<from>-\><oStm(to)>";
 str oStm( E(Id from, Stm to, Attrs attrs)) = "<from>-\><oStm(to)><oAttrs(attrs)>";
         
 str oStm( E(NodeId from, Stm to)) = "<oNodeId(from)>-\><oStm(to)>";
-str oStm( E(Id from, Stm to, Attrs attrs)) = "<from>-\><oStm(to)><oAttrs(attrs)>";
+//str oStm( E(Id from, Stm to, Attrs attrs)) = "<from>-\><oStm(to)><oAttrs(attrs)>";
         
 str oStm( E(Stm from, Stm to)) = "<oStm(from)>-\><oStm(to)>";
 str oStm( E(Stm from, Stm to, Attrs attrs)) = "<oStm(from)>-\><oStm(to)><oAttrs(attrs)>";
