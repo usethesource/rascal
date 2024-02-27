@@ -136,9 +136,9 @@ JGenie makeJGenie(MuModule m,
         return base;
     }
     
-    str _getModuleName()
-        = currentTModel.modelName;
-        
+    str _getModuleName(){
+        return currentTModel.modelName;
+     }   
     loc _getModuleLoc()
         = currentModuleScope;
         
@@ -183,9 +183,6 @@ JGenie makeJGenie(MuModule m,
         t1 = unsetR(t, "alabel");
         tlabel = t.alabel? ? asUnqualifiedName(t.alabel) : "";
         
-        //if(aadt("Grammar",_,_) := t){
-        //    println("getATypeAccessor: <t>");
-        //}
         // Instantiated adt will allways come from current module
         if(aadt(adtName,params,_) := t, !isEmpty(params)){
             if(any(p <- params, !isTypeParameter(p))){
@@ -205,15 +202,27 @@ JGenie makeJGenie(MuModule m,
                 found_defs += def;
             }
         }
-        for(Define def <- found_defs){
-          //println("def: <def>");
-            for(ms <- allLocs2Module, ms in importAndExtendScopes, isContainedIn(def.scope, ms)){
-                defMod = allLocs2Module[ms];
-                res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
-                if(b)println("getTypeAccessor(<t>) =\> <res>)");
-                return res;
+        for(ms <- sortedImportAndExtendScopes){
+            for(Define def <- found_defs){
+                //println("def: <def>");
+                if(isContainedIn(def.scope, ms)){
+                    defMod = allLocs2Module[ms];
+                    res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
+                    if(b)println("getTypeAccessor(<t>) =\> <res>)");
+                    return res;
+                }
             }
         }
+        //for(Define def <- found_defs){
+        //  println("def: <def>");
+        //  for(ms <- sortedImportAndExtendScopes, isContainedIn(def.scope, ms)){
+        //    //for(ms <- allLocs2Module, ms in importAndExtendScopes, isContainedIn(def.scope, ms)){
+        //        defMod = allLocs2Module[ms];
+        //        res = defMod == moduleName ? "" : "<_getImportViaExtend(ms, defMod)><module2field(defMod)>.";
+        //        if(b)println("getTypeAccessor(<t>) =\> <res>)");
+        //        return res;
+        //    }
+        //}
         //println("getTypeAccessor(<t>) =\> \"\"");
         return ""; //throw "No accessor found for <t>";
     }
@@ -281,14 +290,6 @@ JGenie makeJGenie(MuModule m,
                 break;
             }
         }
-        //if(name == "size"){
-        //    println("*** getAccessor: <name>");
-        //    iprintln(srcs);
-        //    println("importScopesCurrentModule:"); iprintln(importScopesCurrentModule);
-        //    println("flattenedImportScopes:"); iprintln(flattenedImportScopes);
-        //    println("extendScopesCurrentModule:"); iprintln(extendScopesCurrentModule);
-        //    println("sortedImportAndExtendScopes:"); iprintln(sortedImportAndExtendScopes);
-        //}
        
         if(isSyntheticFunctionName(name)){
             return name;
@@ -308,21 +309,6 @@ JGenie makeJGenie(MuModule m,
         if(alternative_defined_in_extended_module){
             return "$me.<jname>";
         }
-        //all_alternatives_defined_in_imported_modules = all(d <- srcs,  any(ms <- importScopesCurrentModule, isContainedIn(d, ms)));
-        //if(all_alternatives_defined_in_imported_modules){
-        //    for(ms <- sortedImportAndExtendScopes){
-        //        if(any(d <- srcs,  isContainedIn(d, ms))){
-        //            return "<module2field(allLocs2Module[ms])>.<jname>";
-        //        }
-        //    }
-        //    //return "<_getImportedModuleName(fun_def.defined)>.<jname>";
-        //}
-        //println("*** getAccessor, final case: <name>");
-        //iprintln(srcs);
-        //println("importScopesCurrentModule:"); iprintln(importScopesCurrentModule);
-        //println("flattenedImportScopes:"); iprintln(flattenedImportScopes);
-        //println("extendScopesCurrentModule:"); iprintln(extendScopesCurrentModule);
-        //println("sortedImportAndExtendScopes:"); iprintln(sortedImportAndExtendScopes);
         
        return jname;
     }

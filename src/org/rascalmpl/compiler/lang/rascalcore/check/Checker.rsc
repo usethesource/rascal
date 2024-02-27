@@ -351,22 +351,22 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
             }
         }
  
-        if(config.logTime){
-            tcollector = 0; tsolver = 0; tsave = 0;
-            for(m <- profs){
-                p = profs[m];
-                tcollector += p.collector;
-                tsolver += p.solver;
-                tsave += p.save;
-                report(p);
-            }
-            
-            int toMilli(int time_in_ns) = time_in_ns/1000000;
-            
-            println("<topModuleNames>, import graph <toMilli(graphTime)> ms");
-            println("<topModuleNames> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-            println("<topModuleNames>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
-        }
+        //if(config.logTime){
+        //    tcollector = 0; tsolver = 0; tsave = 0;
+        //    for(m <- profs){
+        //        p = profs[m];
+        //        tcollector += p.collector;
+        //        tsolver += p.solver;
+        //        tsave += p.save;
+        //        report(p);
+        //    }
+        //    
+        //    int toMilli(int time_in_ns) = time_in_ns/1000000;
+        //    
+        //    println("<topModuleNames>, import graph <toMilli(graphTime)> ms");
+        //    println("<topModuleNames> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
+        //    println("<topModuleNames>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
+        //}
     } catch ParseError(loc src): {
         for(mname <- topModuleNames){
             ms.messages[mname] = [ error("Parse error", src) ];
@@ -448,6 +448,8 @@ tuple[ProfileData, TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNa
         collect(namedTrees[nm], c);
     }
     tm = c.run();
+    //iprintln(tm);
+
     collectTime = cpuTime() - startTime; 
     startTime = cpuTime(); 
     
@@ -497,7 +499,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
 // name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, PathConfig _pcfg, CompilerConfig compilerConfig)
+list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, PathConfig _pcfg, CompilerConfig _compilerConfig)
     = [];
     
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg, CompilerConfig compilerConfig){

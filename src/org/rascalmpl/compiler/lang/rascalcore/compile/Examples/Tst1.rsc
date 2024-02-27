@@ -37,8 +37,8 @@ void main() {
  rascalTModelForNames(["lang::rascalcore::compile::Examples::Tst0"], getRascalCorePathConfig(), 
                                                      rascalTypePalConfig(
                                                         classicReifier=true,
-                                                        logSolverSteps=true,
-                                                        logSolverIterations=true,
+                                                        //logSolverSteps=true,
+                                                        //logSolverIterations=true,
                                                         logAttempts=true
                                                      ));
 */

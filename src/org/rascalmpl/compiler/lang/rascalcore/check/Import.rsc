@@ -90,7 +90,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             mloc = |unknown:///|;
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);      
-            } catch e: {
+            } catch _: {
                 ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
                 ms.status[qualifiedModuleName] += {parse_error(), not_found()};
                 mpt = [Module] "module <qualifiedModuleName>";
@@ -105,7 +105,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
                 ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
                 ms.status[qualifiedModuleName] += parsed();
                 return <true, pt, ms>;
-            } catch e: {//ParseError(loc src): {
+            } catch _: {//ParseError(loc src): {
                 ms.messages[qualifiedModuleName] ? [] = [error("Parse error in <qualifiedModuleName>", mloc)];
                 ms.moduleLocs[qualifiedModuleName] = mloc;
                 ms.status[qualifiedModuleName] += parse_error();
@@ -185,7 +185,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             ms.tmodels[qualifiedModuleName] = tpl;
             ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
             return <true, tpl, ms>;
-        } catch e:
+        } catch _:
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
     }
@@ -489,15 +489,14 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             
             // Filter model for current module and replace functions in defType by their defined type
             
-            defs = for(tup: <loc scope, str id, str _, IdRole idRole, /*int uid,*/ loc defined, DefInfo _> <- tm.defines){ 
+            defs = for(tup:<loc scope, str id, str orgId, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){ 
                        if( idRole in keepInTModelRoles
                           && isContainedInComponentScopes(defined)
                           && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
                              || scope in filteredModuleScopes
                              || scope.path == mscope.path
-                             || idRole == fieldId()
                              )
-                         ){   
+                         ){
                          append tup;
                       } else {
                          ;
@@ -515,30 +514,30 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                         
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
             
-            //TODO temporary check:
-            
-            result = "";
-            
-            void checkPhysical(value v, str label){ 
-                visit(v){
-                    case loc l: if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
-                }
-            }
-            checkPhysical(m1.moduleLocs, "moduleLocs");
-            checkPhysical(m1.facts, "facts");
-            checkPhysical(m1.specializedFacts, "specializedFacts");
-            checkPhysical(m1.defines, "defines");
-            checkPhysical(m1.definitions, "definitions");
-            checkPhysical(m1.scopes, "scopes");
-            checkPhysical(m1.store, "store");
-            checkPhysical(m1.paths, "paths");
-            checkPhysical(m1.useDef, "useDef");
-            
-            if(!isEmpty(result)){
-                println("------------- <qualifiedModuleName>:
-                        '<result>");
-                //iprintln(m1, lineLimit=10000);
-            }
+            ////TODO temporary check:
+            //
+            //result = "";
+            //
+            //void checkPhysical(value v, str label){ 
+            //    visit(v){
+            //        case loc l: if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
+            //    }
+            //}
+            //checkPhysical(m1.moduleLocs, "moduleLocs");
+            //checkPhysical(m1.facts, "facts");
+            //checkPhysical(m1.specializedFacts, "specializedFacts");
+            //checkPhysical(m1.defines, "defines");
+            //checkPhysical(m1.definitions, "definitions");
+            //checkPhysical(m1.scopes, "scopes");
+            //checkPhysical(m1.store, "store");
+            //checkPhysical(m1.paths, "paths");
+            //checkPhysical(m1.useDef, "useDef");
+            //
+            //if(!isEmpty(result)){
+            //    println("------------- <qualifiedModuleName>:
+            //            '<result>");
+            //    //iprintln(m1, lineLimit=10000);
+            //}
             
             ms.status[qualifiedModuleName] += tpl_saved();
             try {

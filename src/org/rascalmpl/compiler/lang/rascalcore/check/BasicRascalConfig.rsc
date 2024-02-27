@@ -17,6 +17,7 @@ data IdRole
     | keywordFormalId()
     | nestedFormalId()
     | patternVariableId()
+    | moduleVariableId()
     | fieldId()
     | keywordFieldId()
     | labelId()
@@ -38,10 +39,9 @@ public set[IdRole] dataRoles = {aliasId(), dataId()};
 public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
-public set[IdRole] variableRoles = formalRoles + {variableId(), patternVariableId()};
-public set[IdRole] inferrableRoles = formalRoles + {variableId(), patternVariableId()};
-//public set[IdRole] saveModuleRoles = dataOrSyntaxRoles + {moduleId(), constructorId(), functionId(), fieldId(), keywordFieldId(), keywordFormalId()} + variableRoles;
-public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + {moduleId(), constructorId(), functionId(), fieldId(), keywordFieldId(), keywordFormalId(), annoId()};
+public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
+public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + {moduleId(), constructorId(), functionId(), fieldId(), keywordFieldId(), annoId(), moduleVariableId()};
 public set[IdRole] assignableRoles = variableRoles;
 
 data PathRole
@@ -80,6 +80,9 @@ data DefInfo(map[str,str] tags = ());
 
 // Function modifiers
 data DefInfo(list[str] modifiers = []);
+
+// Function md5Hash of source
+data DefInfo(str md5 = "");
 
 // Common Keyword fields for ADTs
 data DefInfo(list[KeywordFormal] commonKeywordFields = []);

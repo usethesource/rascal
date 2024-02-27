@@ -9,7 +9,6 @@ extend lang::rascalcore::check::CheckerCommon;
 extend lang::rascalcore::check::CollectLiteral;
 
 import lang::rascal::\syntax::Rascal;
-
 import String;
 
 void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){
@@ -77,7 +76,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
             if(aadt(adtName,_,SyntaxRole sr) := tpResolved 
                && (isConcreteSyntaxRole(sr) || adtName == "Tree")
                && c.isAlreadyDefined("<name>", name)){
-              c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+              c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
             } else {
                 c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
             }
@@ -121,13 +120,17 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
    c.leaveScope(current);
 }
 
+default void collectAsVarArg(Pattern current,  Collector c){
+    c.report(error(current, "Unsupported construct in varargs"));
+}
+
 // ---- qualifiedName pattern: QualifiedName
 
 void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isWildCard(base)){
        if(inPatternNames(base, c)){
-          c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+          c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
@@ -137,7 +140,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(alabel=unescape(prettyPrintBaseName(name))); }));
        } else {
           if(c.isAlreadyDefined("<name>", name)){
-            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+            c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
             c.report(info(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
           } else {
             tau = c.newTypeVar(name);
@@ -150,39 +153,6 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     } else {
        c.fact(name, avalue(alabel=unescape(prettyPrintBaseName(name))));
     }
-}
-
-void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
-    <qualifier, base> = splitQualifiedName(name);
-    if(!isWildCard(base)){
-       if(inPatternNames(base, c)){
-          c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
-          return;
-       }
-       c.push(patternNames, <base, getLoc(current)>);
-       if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
-       
-       if(isTopLevelParameter(c)){
-          c.fact(current, alist(avalue()));
-          c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(); }));
-       } else {
-          if(c.isAlreadyDefined("<name>", name)) {
-            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
-            c.report(info(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
-          } else {
-            tau = c.newTypeVar(name);
-            c.fact(name, tau);     //<====
-            //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
-            c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[alabel=unescape("<name>")]; }));
-          }
-       }
-    } else {
-       c.fact(name, alist(avalue(),alabel=unescape(prettyPrintBaseName(name))));
-    }
-}
-
-default void collectAsVarArg(Pattern current,  Collector c){
-    c.report(error(current, "Unsupported construct in varargs"));
 }
 
 // ---- multiVariable pattern: QualifiedName*
@@ -252,7 +222,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
               c.define(base, formalId(), argName, defLub([], AType(Solver _) { return avalue(); }));
            } else {
               if(c.isAlreadyDefined("<argName>", argName)) {
-                  c.use(argName, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                  c.use(argName, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
                   c.report(info(argName, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", argName));
               } else {
                   tau = c.newTypeVar(current); // <== argName;

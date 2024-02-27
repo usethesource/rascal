@@ -690,9 +690,9 @@ str doValue2IValue(CharRange sym, map[value, int] constants) {
    return "$RVF.constructor(RascalValueFactory.CharRange_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
 }
 
-str doValue2IValue(Production sym, map[value, int] constants) {
-   return "$RVF.constructor(RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
-}
+//str doValue2IValue(Production sym, map[value, int] constants) {
+//   return "$RVF.constructor(RascalValueFactory.Production_<toRascalValueFactoryName(getName(sym))><if (getChildren(sym) != []){>,<}> <intercalate(",", [value2IValueRec(child, constants) | child <- getChildren(sym)])>)";
+//}
 
 str toRascalValueFactoryName(str consName) = capitalize(visit(consName) {
     case /\-<l:[a-z]>/ => capitalize(l) 

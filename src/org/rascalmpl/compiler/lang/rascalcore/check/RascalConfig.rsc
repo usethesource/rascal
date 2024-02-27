@@ -43,6 +43,8 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
         switch(defines[def].idRole){
         case variableId(): 
             { if(seenVAR) return false;  seenVAR = true;}
+        case moduleVariableId(): 
+            { if(seenVAR) return false;  seenVAR = true;}
         case formalId(): 
             { if(seenVAR) return false;  seenVAR = true;}
         case patternVariableId(): 
@@ -64,7 +66,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 
 // Name resolution filters
 
-set[IdRole] defBeforeUseRoles = {variableId(), formalId(), keywordFormalId(), patternVariableId()};
+set[IdRole] defBeforeUseRoles = {variableId(), moduleVariableId(), formalId(), keywordFormalId(), patternVariableId()};
 
 @memo{expireAfter(minutes=5),maximumSize(1000)}
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
@@ -280,6 +282,7 @@ bool rascalReportUnused(loc def, TModel tm){
                                           if(container.idRole == moduleId() && define.defInfo.vis == publicVis()) return false;
                                           return isWildCard(define.id[0]) || define.id == "it";
                                         }
+            case moduleVariableId():    return false;
             case annoId():              return false;
             case aliasId():             return false;
             case lexicalId():           return false;
@@ -402,31 +405,31 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-loc rascalLogicalLoc(str id, IdRole idRole, loc physicalLoc, str modelName, PathConfig pcfg){
-   moduleName = getModuleName(physicalLoc, pcfg);
-   moduleNameSlashed = replaceAll(moduleName, "::", "/");
-   if(idRole == moduleId()){
-    return |<"rascal+<prettyRole(idRole)>">:///<moduleNameSlashed>|; 
-   } else {
-   return |<"rascal+<prettyRole(idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(id)>|; 
-   }
+loc rascalLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+    if(def.idRole in keepInTModelRoles){
+       moduleName = getModuleName(def.defined, pcfg);
+       moduleNameSlashed = replaceAll(moduleName, "::", "/");
+       suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..5]>" : "";
+       if(def.idRole == moduleId()){
+            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|;
+       //} else if(def.idRole == moduleVariableId()){
+       //     return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)>|; 
+       } else {
+        return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|; 
+       }
+     }
+     return def.defined;
 }
 
 TypePalConfig rascalTypePalConfig(bool classicReifier      = true,  
-                                  bool logSolverIterations = false,
-                                  bool logSolverSteps      = false,
-                                  bool logAttempts         = false,
+                                  //bool logSolverIterations = false,
+                                  //bool logSolverSteps      = false,
+                                  //bool logAttempts         = false,
                                   bool logImports          = false,
                                   PathConfig rascalPathConfig    = pathConfig()
                                  )
     = tconfig(
-        logTime                       = false,
-        logSolverIterations           = logSolverIterations,
-        logSolverSteps                = logSolverSteps,
-        logAttempts                   = logAttempts,
         logImports                    = logImports,
-        validateConstraints           = true,
-        roleNeedslogicalLoc           = {moduleId(), functionId(), dataId(), constructorId(), productionId()},
         
         warnUnused                    = true,
         warnUnusedFormals             = true,

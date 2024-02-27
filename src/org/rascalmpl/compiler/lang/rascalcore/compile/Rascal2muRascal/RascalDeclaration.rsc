@@ -151,6 +151,9 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
                 defExpCode = promoteVarsToFieldReferences(translate(defaultExp), consType, consVar);
                 body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(consVar, kwFieldName), muGetKwFieldFromConstructor(kwType, consVar, kwFieldName), defExpCode));
                 addFunctionToModule(muFunction(getterName, getterName, getterType, [consVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body)); 
+            } else {
+                println("In generated_getters: <getterName>");
+                
             }              
        }
     }
@@ -246,6 +249,9 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
                 body_code = [ translate(stat, my_btscopes) | stat <- fd.body.statements ];
                 if(isVoidAType(ftype.ret)) body_code += muReturn0();
                 mubody = muBlock(body_code);
+                //if(!exitViaReturn(mubody)){
+                //    muBody = muReturn1(ftype.ret, mubody);
+                //}
        } else if(fd is \expression || fd is \conditional){
             mubody = translateReturn(ftype.ret, fd.expression);
        }

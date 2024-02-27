@@ -25,11 +25,11 @@ void compileTestSources(PathConfig pcfg) {
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources2|,
      resources = |project://rascal-core/target/generated-test-resources2|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| ],
+     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| , |project://rascal-core/src/org/rascalmpl/core/library|],
      libs = [ ]
      );
      
-   testCompilerConfig = getRascalCompilerConfig()[optimizeVisit=false];
+   testCompilerConfig = getRascalCompilerConfig();
    map[str,int] durations = ();
    total = 0;
      
@@ -77,7 +77,7 @@ void compileTestSources(PathConfig pcfg) {
                      "util::SemVer",
                      "util::UUID",
                      
-                     "demo::lang::Pico::Syntax",
+                     //"demo::lang::Pico::Syntax",
                     
                      "analysis::m3::AST", 
                      "analysis::m3::Core", 

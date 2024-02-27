@@ -75,7 +75,7 @@ void generateTestSources(PathConfig pcfg) {
                      "util::SemVer",
                      "util::UUID",
                      
-                     "demo::lang::Pico::Syntax",
+                     //"demo::lang::Pico::Syntax",
                     
                      "analysis::m3::AST", 
                      "analysis::m3::Core", 

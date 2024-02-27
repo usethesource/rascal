@@ -222,7 +222,7 @@ bool is_positional_formal(Define d) = d.idRole in positionalFormalRoles;
 bool is_outer_formal(Define d) = d.idRole in outerFormalRoles;
 bool is_variable(Define d) = d.idRole in variableRoles + fieldId();
 bool is_non_keyword_variable(Define d) = d.idRole in variableRoles - {keywordFormalId()};
-bool is_module_variable(Define d) = d.idRole == variableId() && d.scope in module_scopes;
+bool is_module_variable(Define d) = d.idRole == moduleVariableId() && d.scope in module_scopes;
 bool is_module_or_function(loc l) = definitions[l]? && definitions[l].idRole in {moduleId(), functionId()};
 bool is_module(Define d) = d.idRole in {moduleId()};
 bool is_assignable(Define d) = d.idRole in assignableRoles;
@@ -342,6 +342,8 @@ void extractScopes(TModel tm){
                  }
             case moduleId():
                  modules += def.defined;
+            case moduleVariableId():
+                 ;
             case variableId():
                  vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
             case formalId():
@@ -646,7 +648,7 @@ int getPositionInScope(str _name, loc l){
 str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
 	   return "global-scope";
-	//tp = getType(uid);
+	   
 	str name = definitions[uid]? ? definitions[uid].id : "XXX";
 
     if(declaredIn[uid]?) {
@@ -654,16 +656,11 @@ str convert2fuid(UID uid) {
        if(physical2logical[def.defined]?){
           lg = physical2logical[def.defined];
           path = lg.path;
-          if(def.idRole == moduleId()){
-            i = findLast(path, "/");
-            path = path[..i];
-          }
           if(path[0] == "/"){
             path = path[1..];
           }
           name = replaceAll(path, "/", "_");
        }
-       //if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = "<name>$<n>";//  : "<name>_<uid.begin.line>A<uid.offset>";
     }
 	return name;
 }
@@ -1056,14 +1053,14 @@ tuple[set[AType], set[AProduction]] getReachableConcreteTypes(AType subjectType,
     set [AProduction] descend_into = {};
     
     // Find all productions that can lead to a desired type
-    for(<AType sym, AType tp> <- prunedReachableConcreteTypes /*tp in desiredTypes*/){
+    for(<AType sym, AType _tp> <- prunedReachableConcreteTypes /*tp in desiredTypes*/){
        //println("\<<sym>, <tp>\>");
        list[AType] syms = [sym];
        list[list[AType]] bindings = [];
        if(isParameterizedNonTerminalType(sym) && size(sym.parameters) > 0){
             nparams =  size(sym.parameters);
             adtName = sym.adtName;
-            bindings = [ps | /a:aadt(adtName, ps, _) := current_grammar, size(ps) == nparams, all(p <- ps, aparameter(_,_) !:= p ) ];
+            bindings = [ps | /aadt(adtName, ps, _) := current_grammar, size(ps) == nparams, all(p <- ps, aparameter(_,_) !:= p ) ];
        }
      
        alts = current_grammar.rules[sym];

@@ -191,7 +191,7 @@ JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie j
 // ---- greaterequal ----------------------------------------------------------
 
 JCode transPrim("greaterequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)  = "$abool_less_abool(<x>,<y>).not()"; 
-JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$alist_less_alist(<x>,<y>).not()"            when isListLikeType(a), isListLikeType(b); 
+//JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "$alist_less_alist(<x>,<y>).not()"            when isListLikeType(a), isListLikeType(b); 
 JCode transPrim("greaterequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)  = "$<getOuter(a)>_less_<getOuter(b)>(<x>,<y>).not()"     when isArithAType(a), isArithAType(b);
 JCode transPrim("greaterequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)    = "$astr_less_astr(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
@@ -407,11 +407,11 @@ list[str] transPrimArgs("alist_slice_replace", AType r, [AType a], [MuExp x, MuE
 JCode transPrim("alist_slice_replace", AType r, [AType a], [str x, str first, str second, str end, str repl], JGenie jg) = "$alist_slice_replace(<x>, <first>, <second>, <end>, <repl>)";
 
 
-// list_slice_replace
-list[str] transPrimArgs("alist_slice_replace", AType r, [AType a], [MuExp x, MuExp first, MuExp second, MuExp end, MuExp repl], JGenie jg)
-                                                                                                 = [ trans(x,jg), *transSliceArgs(first, second, end, jg), trans(repl, jg)];
+//// list_slice_replace
+//list[str] transPrimArgs("alist_slice_replace", AType r, [AType a], [MuExp x, MuExp first, MuExp second, MuExp end, MuExp repl], JGenie jg)
+//                                                                                                 = [ trans(x,jg), *transSliceArgs(first, second, end, jg), trans(repl, jg)];
  
-JCode transPrim("alist_slice_replace", AType r, [AType a], [str x, str first, str second, str end, str repl], JGenie jg) = "$alist_slice_replace(<x>, <first>, <second>, <end>, <repl>)";
+//JCode transPrim("alist_slice_replace", AType r, [AType a], [str x, str first, str second, str end, str repl], JGenie jg) = "$alist_slice_replace(<x>, <first>, <second>, <end>, <repl>)";
 
 // list_slice_add
 list[str] transPrimArgs("alist_slice_add", AType r, [AType a], [MuExp x, MuExp first, MuExp second, MuExp end, MuExp repl], JGenie jg)

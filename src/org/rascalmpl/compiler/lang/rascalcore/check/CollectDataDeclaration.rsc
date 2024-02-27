@@ -37,6 +37,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
     dt = isEmpty(typeParameters) ? defType(aadt(adtName, [], dataSyntax()))
                                  : defType(typeParameters, AType(Solver s) { return aadt(adtName, [ s.getType(tp) | tp <- typeParameters], dataSyntax()); });
     
+    dt.md5 = md5Hash("<current>");
     if(!isEmpty(commonKeywordParameterList)) dt.commonKeywordFields = commonKeywordParameterList;
     c.define(adtName, dataId(), current, dt);
        
@@ -76,6 +77,8 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             declaredFieldNames += fieldName;
             fieldType = ta.\type;
             dt = defType([fieldType], makeFieldType(fieldName, fieldType));
+            dt.md5 = md5Hash("<c.getScope()><current><ta>");
+            //println("<ta>, md5 = <dt.md5>");
             c.define(fieldName, fieldId(), ta.name, dt);
         }
     }
@@ -86,6 +89,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         declaredFieldNames += fieldName;
         kwfType = kwf.\type;
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
+        dt.md5 = md5Hash("<c.getScope()><current><kwfType><fieldName>");
         c.define(fieldName, keywordFieldId(), kwf.name, dt);    
     }
 
@@ -124,7 +128,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                     kwFormalTypes = [<s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
-                }));
+                })[md5=md5Hash(current)]);
             c.fact(current, name);
              // The standard rules would declare arguments and kwFormals as variableId();
             for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) { c.fact(arg, arg.\type); } c.leaveScope(arg); }

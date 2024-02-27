@@ -519,7 +519,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
         AType(Solver s){ 
             res = s.getType(symbol)[alabel=un]; 
           return res;
-        }));
+        })[md5=md5Hash(current)]);
       
         //return getSyntaxType(symbol, s)[alabel=un]; }));
     c.fact(current, n);
