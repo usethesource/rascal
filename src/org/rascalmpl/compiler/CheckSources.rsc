@@ -34,6 +34,8 @@ void generateTestSources(PathConfig pcfg) {
      
    println("PathConfig for generating test sources:\n");
    iprintln(testConfig);
+   
+   testCompilerConfig = getRascalCompilerConfig()[optimizeVisit=false];
 
    //println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 
@@ -76,7 +78,7 @@ void generateTestSources(PathConfig pcfg) {
                      "util::SemVer",
                      "util::UUID",
                      
-                     "demo::lang::Pico::Syntax",
+                     //"demo::lang::Pico::Syntax",
                     
                      "analysis::m3::AST", 
                      "analysis::m3::Core", 
@@ -85,7 +87,7 @@ void generateTestSources(PathConfig pcfg) {
                      "analysis::m3::TypeSymbol"];  
 
    for (m <- libraryModules) {
-     safeCompile(m, testConfig, (int d) { /*durations[m] = d;*/ });
+     safeCompile(m, testConfig, testCompilerConfig, (int d) { /*durations[m] = d;*/ });
    }
      
    testFolder = |std:///lang/rascal/tests|;
@@ -93,17 +95,21 @@ void generateTestSources(PathConfig pcfg) {
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];  
+   
+   println(testModules);
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           
-   testModules -= ignored;    
+   testModules -= ignored; 
+   
+   println("*** <size(testModules)> ***");   
    
    list[str] exceptions = [];
    int n = size(testModules);
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      e = safeCompile(m, testConfig, (int d) { /*durations[m] = d;*/ });
+      e = safeCompile(m, testConfig, testCompilerConfig, (int d) { /*durations[m] = d;*/ });
       if(!isEmpty(e)){
         exceptions += e;
       }
@@ -122,7 +128,7 @@ void testCompile(str \module) {
   println("compile of <\module> lasted <duration / (1000*1000*1000.0)> seconds");
 }
 
-str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
+str safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig, void (int duration) measure) {
     current_module = \module; // TODO: make a copy of \module since that parameter is used in a closure and is not handled properly
     current_pcfg = pcfg;
     
@@ -130,7 +136,11 @@ str safeCompile(str \module, PathConfig pcfg, void (int duration) measure) {
      //measure(cpuTimeOf(() {    
        //compile(\module, pcfg);
        println("compiling <current_module>");
-       ModuleStatus result =  rascalTModelForNames([current_module], current_pcfg, rascalTypePalConfig(classicReifier=true));
+       ModuleStatus result = rascalTModelForNames([current_module], 
+                                                  current_pcfg, 
+                                                  rascalTypePalConfig(classicReifier=true), 
+                                                  compilerConfig,
+                                                  dummy_compile1);
        iprintln(result.tmodels[current_module].messages);
      //}));
      return "";

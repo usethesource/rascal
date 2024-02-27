@@ -685,12 +685,16 @@ str varName(muVar(str name, str _, int pos, AType _, IdRole idRole), JGenie _jg)
 }
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype, IdRole idRole), JGenie jg){
-    //println("muVar: fuid=<fuid>, functionName: <jg.getFunctionName()>");
-    return jg.isRef(var) //&& !jg.varHasLocalScope(var)
-                                    ? "<varName(var, jg)>.getValue()" 
-                                    : ( pos >= 0 ? varName(var, jg)
-                                                 : "<fuid == jg.getFunctionName() ? "" : /*fuid == jg.getModuleName()*/ isEqualModule(fuid, jg.getModuleName()) ? "" : "<module2field(fuid)>."><varName(var, jg)>"
-                                      );
+    //println("muVar: fuid=<fuid>, functionName: <jg.getFunctionName()>, moduleName: <jg.getModuleName()>");
+    return jg.isRef(var) ? "<varName(var, jg)>.getValue()" 
+                         : ( pos >= 0 ? varName(var, jg)
+                                      : "<fuid == jg.getFunctionName() ? "" : isEqualModule(fuid, jg.getModuleName()) ? "" : "<module2field(fuid)>."><varName(var, jg)>"
+                         );
+    //return jg.isRef(var) //&& !jg.varHasLocalScope(var)
+    //                                ? "<varName(var, jg)>.getValue()" 
+    //                                : ( pos >= 0 ? varName(var, jg)
+    //                                             : "<fuid == jg.getFunctionName() ? "" : /*fuid == jg.getModuleName()*/ isEqualModule(fuid, jg.getModuleName()) ? "" : "<module2field(fuid)>."><varName(var, jg)>"
+    //                                  );
 }
 // ---- muTmpIValue -----------------------------------------------------------------
 

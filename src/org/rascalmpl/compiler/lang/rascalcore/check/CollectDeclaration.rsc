@@ -13,7 +13,7 @@ extend lang::rascalcore::check::PathAnalysis;
 
 import lang::rascalcore::check::CollectOperators;
 import lang::rascalcore::check::CollectExpression;
-import lang::rascalcore::check::CollectVarArgs;
+import lang::rascalcore::check::CollectPattern;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
@@ -125,8 +125,9 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             c.enterLubScope(var);
             dt = defType([varType], makeGetSyntaxType(varType));
             dt.vis = getVis(current.visibility, privateVis());
+            //dt.md5 = md5Hash("<var>");
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-            c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, dt);
+            c.defineInScope(scope, prettyPrintName(var.name), moduleVariableId(), var.name, dt);
             
             if(var is initialized){
                 initial = var.initial;
@@ -156,6 +157,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     pname = prettyPrintName(name);
     dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
     dt.vis = getVis(current.visibility, publicVis());
+    dt.md5 = md5Hash("<current>");
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     c.define(pname, annoId(), name, dt);
     collect(annoType, onType, c); 
@@ -171,6 +173,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     } catch TypeUnavailable(): {
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
+    dt.md5 = md5Hash("<current>");
     c.define(kwformalName, keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
@@ -290,6 +293,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target _>;` := decl.body);
         if(!alwaysSucceeds) dt.canFail = true;
+        dt.md5 = md5Hash("<parentScope><decl>");
+        //println("<fname>, md5 = <dt.md5>");
        
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
          
@@ -355,11 +360,6 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
 void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c){
     collect(statements, c);
 }
-
-//AType anonymizeFunctionTypes(AType t){
-//    res = visit (t){ case afunc(ret, formalsList, kwformalsList) => afunc(unsetRec(ret, "alabel"), formalsList, kwformalsList) }
-//    return res;
-//}
 
 void collect(Signature signature, Collector c){
     returnType  = signature.\type;
@@ -640,7 +640,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
     aliasName = prettyPrintName(name);
-    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); }));
+    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<current>")]);
     collect(base, c);
 } 
 
@@ -670,6 +670,6 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         }
         
         return aalias(aliasName, params, s.getType(base));
-    }));
+    })[md5 = md5Hash("<current>")]);
     collect(typeVars + base, c);
 } 

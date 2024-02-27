@@ -588,166 +588,172 @@ bool reportResult(MuExp exp, bool res){
     return res;
 }
 
-bool noSequentialExit(m: muFail(str label)) {
+bool noSequentialExit(MuExp exp){
+    res = noSequentialExit1(exp);
+    if(trace) println("noSequentialExit(<exp> ===\> <res>");
+    return res;
+}
+
+bool noSequentialExit1(m: muFail(str label)) {
     res =/*false; */ true; //label notin entered;
     return reportResult(m, res);
 }
-bool noSequentialExit(m: muFailCase(_)){
+bool noSequentialExit1(m: muFailCase(_)){
     res = false;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muSucceedSwitchCase(str switchName)){
+bool noSequentialExit1(m: muSucceedSwitchCase(str switchName)){
     res = false;
     return reportResult(m, res);
  }
       
-bool noSequentialExit(m: muSucceed(str label)) {
+bool noSequentialExit1(m: muSucceed(str label)) {
     res = /*false; */ true; //label in entered; 
     return reportResult(m, res);
 }    
-bool noSequentialExit(m: muBreak(str label)) {
+bool noSequentialExit1(m: muBreak(str label)) {
     res = true; //label in entered; 
     return reportResult(m, res);
 }    
 
-bool noSequentialExit(m: muContinue(str label)) {
+bool noSequentialExit1(m: muContinue(str label)) {
     res = true; //label in entered; 
     return reportResult(m, res);
 }   
 
-bool noSequentialExit(m:muReturn0()) {
+bool noSequentialExit1(m:muReturn0()) {
     res = true;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m:muReturn1(_, _)){ 
+bool noSequentialExit1(m:muReturn1(_, _)){ 
     res = true;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m:muInsert(t, exp1)){
+bool noSequentialExit1(m:muInsert(t, exp1)){
     res = true;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m:muFailReturn(_)){
+bool noSequentialExit1(m:muFailReturn(_)){
     res = true;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muCheckMemo(_,_,_)){
+bool noSequentialExit1(m: muCheckMemo(_,_,_)){
     res = true;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muMemoReturn0(_,_)){
+bool noSequentialExit1(m: muMemoReturn0(_,_)){
     res = true;
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m:muMemoReturn1(_,_,_)) {
+bool noSequentialExit1(m:muMemoReturn1(_,_,_)) {
     res = true;
     return reportResult(m, res);
 }
 
-//bool noSequentialExit(m: muThrow(_,_)){ 
+//bool noSequentialExit1(m: muThrow(_,_)){ 
 //    res = true;
 //    return reportResult(m, res);
 //}
 
-bool noSequentialExit(m: muExists(str enter, MuExp exp)){
+bool noSequentialExit1(m: muExists(str enter, MuExp exp)){
     res = noFailOrSucceed(enter, exp) && noSequentialExit(exp);// || exitViaReturn(exp);
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muAll(str enter, MuExp exp)){
+bool noSequentialExit1(m: muAll(str enter, MuExp exp)){
     res = noFailOrSucceed(enter, exp) && noSequentialExit(exp);// || exitViaReturn(exp);
     return reportResult(m, res);
 }
     
-bool noSequentialExit(m: muBlock([*exps1, exp2])) {
+bool noSequentialExit1(m: muBlock([*exps1, exp2])) {
     res = /*(!isEmpty(exps1) && noSequentialExit(muBlock(exps1))) || */ noSequentialExit(exp2);
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muBlock([])) {
+bool noSequentialExit1(m: muBlock([])) {
     res = false;
     return reportResult(m, res);
 }
     
-bool noSequentialExit(m: muValueBlock(AType t, [*exps1, exp2])) {
+bool noSequentialExit1(m: muValueBlock(AType t, [*exps1, exp2])) {
     res = noSequentialExit(exp2);
     return reportResult(m, res);
 }
     
-bool noSequentialExit(m: muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart)){
+bool noSequentialExit1(m: muIfElse(MuExp cond, MuExp thenPart, MuExp elsePart)){
     res = noSequentialExit(thenPart) && noSequentialExit(elsePart);
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)){
+bool noSequentialExit1(m: muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)){
     res = noSequentialExit(thenPart) && noSequentialExit(elsePart);
     return reportResult(m, res);
 }
     
-bool noSequentialExit(m: muWhileDo(str label, muCon(true), MuExp body)){
+bool noSequentialExit1(m: muWhileDo(str label, muCon(true), MuExp body)){
     res = false; //noSequentialExit(body, label + entered);
     return reportResult(m, res);
 } 
  
-bool noSequentialExit(m: muDoWhile(str label,  MuExp body, muCon(false))){
+bool noSequentialExit1(m: muDoWhile(str label,  MuExp body, muCon(false))){
     res = noSequentialExit(body) && exitViaReturn(body);
     return reportResult(m, res); 
 }
 
-bool noSequentialExit(m: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
+bool noSequentialExit1(m: muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
     //res = (noFailOrSucceed(label, body) && noSequentialExit(body)) || (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
     res = (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
+bool noSequentialExit1(m: muForAny(str label, MuExp var, AType iterType, MuExp iterable, MuExp body, MuExp falseCont)){
     res = /*(noFailOrSucceed(label, body) && noSequentialExit(body)) || */ (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont)){
+bool noSequentialExit1(m: muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp body, MuExp falseCont)){
     res = /*(noFailOrSucceed(label, body) && noSequentialExit(body)) ||*/ (noFailOrSucceed(label, falseCont) && noSequentialExit(falseCont));
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont)){
+bool noSequentialExit1(m: muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp body, MuExp falseCont)){
     res = /*(noFailOrSucceed(label, body) && noSequentialExit(body)) ||*/ (noFailOrSucceed(label, falseCont) &&  noSequentialExit(falseCont));
     return reportResult(m, res);
 }
 
                 
-bool noSequentialExit(m: muSwitch(str switchName, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
+bool noSequentialExit1(m: muSwitch(str switchName, MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) {
     res = all(c <- cases, noSequentialExit(c.exp)) && noSequentialExit(defaultExp);
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)) {
+bool noSequentialExit1(m: muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)) {
     res = any(c <- cases, noSequentialExit(c.exp)) || noSequentialExit(defaultExp); // TODO: check this
     return reportResult(m, res);
 }
 
-bool noSequentialExit(m: muTry(MuExp exp, MuCatch \catch, MuExp \finally)){
+bool noSequentialExit1(m: muTry(MuExp exp, MuCatch \catch, MuExp \finally)){
     res = (noSequentialExit(exp) && noSequentialExit(\catch.body)) || noSequentialExit(\finally);
     //res = noSequentialExit(exp) && noSequentialExit(\catch.body) && noSequentialExit(\finally);
     return reportResult(m, res);
 }
 
-bool noSequentialExit(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) {
+bool noSequentialExit1(muCatch(MuExp _thrown_as_exception, MuExp _, MuExp body)) {
     res = noSequentialExit(body);
     return reportResult(body, res);
 }
 
-bool noSequentialExit(muThrow(MuExp exp, loc src))
+bool noSequentialExit1(muThrow(MuExp exp, loc src))
     = true;
     
-default bool noSequentialExit(MuExp exp){
+default bool noSequentialExit1(MuExp exp){
     res = false;
     return reportResult(exp, res);
 }
@@ -1218,9 +1224,6 @@ MuExp muIf(muIfElse(cond, thenPart1, elsePart1), thenPart2)
     
 MuExp muIf(muIf(cond, thenPart1), thenPart2)
     = muIf(cond, muBlock([thenPart1, thenPart2]));
-
-MuExp muIf(muIfElse(cond, thenPart1, elsePart1), thenPart2)
-    = muIfElse(cond, muBlock([thenPart1, thenPart2]), elsePart1);
 
 MuExp muIf(muIfExp(cond, thenPart1, elsePart1), thenPart2)
     = muIfElse(cond, muBlock([thenPart1, thenPart2]), elsePart1);

@@ -66,7 +66,7 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
     uname = prettyPrintName(name);
     if(!isEmpty(c.getStack(inConcreteLiteral))){    // We are inside a concrete literal expression 
                                                     // This hole must be a use       
-       c.useLub(name, {formalId(), patternVariableId(), variableId()});
+       c.useLub(name, {formalId(), patternVariableId(), variableId(), moduleVariableId()});
     } else {                                        // We are inside a concrele Literal pattern   
                                                     // This hole can be a use or define   
         if(!isWildCard(uname)){

@@ -307,15 +307,18 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // possible instances.
     
     //TODO: the jury is still out how to do this
-    bool containsProductions(AType t) = /aadt("Production",_, _) := t;
+    //Either:
+    // bool containsProductions(AType t) = /aadt("Production",_, _) := t;
     
-    c.calculate("reified type", current, [es, ed], AType(Solver s) { 
-        esType = s.getType(es);
-        edType = s.getType(ed);
-        esType = visit(esType) { case SyntaxRole sr => containsProductions(edType) ? contextFreeSyntax() : dataSyntax() };
-        return areified(esType); 
-    });
-    //c.fact(current, areified(\avalue()));
+    // c.calculate("reified type", current, [es, ed], AType(Solver s) { 
+    //     esType = s.getType(es);
+    //     edType = s.getType(ed);
+    //     esType = visit(esType) { case SyntaxRole sr => containsProductions(edType) ? contextFreeSyntax() : dataSyntax() };
+    //     return areified(esType); 
+    // });
+    
+    //// OR:
+    c.fact(current, areified(\avalue()));
 
     c.require("reified type", current, [es, ed],
         void (Solver s) {
@@ -913,14 +916,14 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
 void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isEmpty(qualifier)){     
-       c.useQualified([qualifier, base], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
+       c.useQualified([qualifier, base], name, {variableId(), moduleVariableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
        if(!isWildCard(base)){
           //if(inPatternScope(c)){
             if(!isEmpty(c.getStack(currentAdt))){
-                c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+                c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
             } else {
-                c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+                c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
             }
           //} else {
           //  c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});

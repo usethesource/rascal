@@ -16,7 +16,7 @@ TModel rascalTModelForTestModules(Tree pt, bool debug=false){
     ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
    TypePalConfig config=rascalTypePalConfig(classicReifier=true);
    if(debug){
-        config = config[logSolverIterations = true][logImports = true];
+        config = config[logImports = true];
    }
     if(start[Modules] mds := pt){
         return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, config=config, inline=true)[1];
