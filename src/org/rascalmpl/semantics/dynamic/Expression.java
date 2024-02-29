@@ -546,7 +546,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				catch (StackOverflowError e) {
 					// this should not use so much stack as to trigger another StackOverflowError
-					throw new RascalStackOverflowError(this, eval.getCurrentEnvt());
+					throw new RascalStackOverflowError(this, eval.getCurrentEnvt(), eval.getCallNesting());
 				}
 				return res;
 			}

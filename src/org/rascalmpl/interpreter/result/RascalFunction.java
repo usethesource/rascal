@@ -40,6 +40,7 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -303,18 +304,6 @@ public class RascalFunction extends NamedFunction {
                     result = computeReturn(e, renamings, dynamicRenamings);
                     storeMemoizedResult(actuals,keyArgValues, result);
                     return result;
-                }
-                catch (StackOverflowError e) {
-                    // get a shallow stack trace because we don't have any stack room at the moment.
-                    // StackTrace trace = new StackTrace();
-                    // Environment env = eval.getCurrentEnvt();
-                    // int max = 10;
-                    // while (env != null && max-- > 0) {
-                    // 	trace.add(env.getLocation(), env.getName());
-                    // 	env = env.getCallerScope();
-                    // }
-    
-                    throw new RuntimeException("hello");
                 }
             }
 
