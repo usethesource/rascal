@@ -417,7 +417,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
 }
 
 tuple[ProfileData, TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms, PathConfig pcfg,
-                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
+                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=true,rascalPathConfig=pcfg), bool inline=false){
     modelName = intercalate(" + ", toList(moduleNames));    
     map[str, Module] namedTrees = ();
     for(nm <- moduleNames){

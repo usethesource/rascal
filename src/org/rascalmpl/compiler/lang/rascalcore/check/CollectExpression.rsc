@@ -305,19 +305,7 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // with constant propagation of the symbol parameter, we could compute
     // more precise types, but `type[value]` is always a proper type for all
     // possible instances.
-    
-    //TODO: the jury is still out how to do this
-    //Either:
-    // bool containsProductions(AType t) = /aadt("Production",_, _) := t;
-    
-    // c.calculate("reified type", current, [es, ed], AType(Solver s) { 
-    //     esType = s.getType(es);
-    //     edType = s.getType(ed);
-    //     esType = visit(esType) { case SyntaxRole sr => containsProductions(edType) ? contextFreeSyntax() : dataSyntax() };
-    //     return areified(esType); 
-    // });
-    
-    //// OR:
+   
     c.fact(current, areified(\avalue()));
 
     c.require("reified type", current, [es, ed],

@@ -72,12 +72,12 @@ Tree doParseFragment(Symbol sym, list[Tree] parts, map[Symbol, Production] rules
    str input = "<for (p <- parts) {><cleanPart(p)><}>";
 
    // now parse the input to get a Tree (or a ParseError is thrown)
-   Tree tree = ParseTree::parse(type(sym, rules), input, |todo:///|);
-   //println("doParseFragment: <input>");
-  
-   res = isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
-   //iprintln(res, lineLimit=10000);
-   return res;
+   if(type[Tree] tp := type(sym, rules)){
+        Tree tree = ParseTree::parse(tp, input, |todo:///|);
+        return isEmpty(parts) ? tree : restoreHoles(tree, holes, parts[0]@\loc);
+   } else {
+        throw InternalCompilerError(error("Illegal type <sym> in concrete syntax fragment `<for (p <- parts){><p><}>`", parts[0]@\loc));
+   }
 }
 
 // TODO: this is a copy of denormalize in lang::rascal::grammar::ConcreteSyntax

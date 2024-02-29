@@ -16,25 +16,25 @@ PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-c
                                         generatedSources = |project://rascal-core/target/generated-test-sources2|,
                                         resources = |project://rascal-core/target/generated-test-resources2|
                                        );
-//void main(list[str] args) = compileTestSources(manualTestConfig);
 
 void main() = compileTestSources(manualTestConfig);
 
 void compileTestSources(PathConfig pcfg) {
-   testConfig = pathConfig(
+     testConfig = pathConfig(
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources2|,
      resources = |project://rascal-core/target/generated-test-resources2|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///| , |project://rascal-core/src/org/rascalmpl/core/library|],
+     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
      libs = [ ]
      );
      
-   testCompilerConfig = getRascalCompilerConfig();
-   map[str,int] durations = ();
-   total = 0;
+   
      
    println("PathConfig for generating test sources:\n");
    iprintln(testConfig);
+   
+   testCompilerConfig = getRascalCompilerConfig();
+   total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 
@@ -76,8 +76,6 @@ void compileTestSources(PathConfig pcfg) {
                      "util::Reflective",
                      "util::SemVer",
                      "util::UUID",
-                     
-                     //"demo::lang::Pico::Syntax",
                     
                      "analysis::m3::AST", 
                      "analysis::m3::Core", 
@@ -136,18 +134,6 @@ void compileTestSources(PathConfig pcfg) {
                  ];  
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3"
-              //"lang::rascal::tests::extend_function1::M3"
-              //"lang::rascal::tests::concrete::Matching // class cast empty set
-              //"lang::rascal::tests::concrete::Parsing" // class cast empty set
-              //"lang::rascal::tests::concrete::Syntax1",  //class cast empty set
-              //"lang::rascal::tests::concrete::Syntax4" // parser generator
-              //"lang::rascal::tests::concrete::Syntax5" // parser generator
-              //"lang::rascal::tests::concrete::FieldProjectionBug"// parser generator
-              //"lang::rascal::tests::concrete::Patterns1" // class cast empty set
-              //"lang::rascal::tests::functionality::Range",
-              //"lang::rascal::tests::concrete::ParameterizedNonTerminals",
-              //"lang::rascal::tests::functionality::Interpolation", // check on muCon arg
-              //"lang::rascal::tests::library::String"
              ];           
    testModules -= ignored;    
    
@@ -167,7 +153,6 @@ void compileTestSources(PathConfig pcfg) {
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
    secs = total/1000000000;
    println("Time: <secs> seconds");
-   //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
 tuple[str, int] safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig) {
