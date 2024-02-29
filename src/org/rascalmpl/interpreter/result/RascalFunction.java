@@ -40,8 +40,6 @@ import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.Type.Structured;
 import org.rascalmpl.exceptions.ImplementationError;
-import org.rascalmpl.exceptions.RascalStackOverflowError;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
