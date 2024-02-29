@@ -514,30 +514,30 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                         
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
             
-            ////TODO temporary check:
-            //
-            //result = "";
-            //
-            //void checkPhysical(value v, str label){ 
-            //    visit(v){
-            //        case loc l: if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
-            //    }
-            //}
-            //checkPhysical(m1.moduleLocs, "moduleLocs");
-            //checkPhysical(m1.facts, "facts");
-            //checkPhysical(m1.specializedFacts, "specializedFacts");
-            //checkPhysical(m1.defines, "defines");
-            //checkPhysical(m1.definitions, "definitions");
-            //checkPhysical(m1.scopes, "scopes");
-            //checkPhysical(m1.store, "store");
-            //checkPhysical(m1.paths, "paths");
-            //checkPhysical(m1.useDef, "useDef");
-            //
-            //if(!isEmpty(result)){
-            //    println("------------- <qualifiedModuleName>:
-            //            '<result>");
-            //    //iprintln(m1, lineLimit=10000);
-            //}
+            //TODO temporary check:
+            
+            result = "";
+            
+            void checkPhysical(value v, str label){ 
+                visit(v){
+                    case loc l: if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
+                }
+            }
+            checkPhysical(m1.moduleLocs, "moduleLocs");
+            checkPhysical(m1.facts, "facts");
+            checkPhysical(m1.specializedFacts, "specializedFacts");
+            checkPhysical(m1.defines, "defines");
+            checkPhysical(m1.definitions, "definitions");
+            checkPhysical(m1.scopes, "scopes");
+            checkPhysical(m1.store, "store");
+            checkPhysical(m1.paths, "paths");
+            checkPhysical(m1.useDef, "useDef");
+            
+            if(!isEmpty(result)){
+                println("------------- <qualifiedModuleName>:
+                        '<result>");
+                //iprintln(m1, lineLimit=10000);
+            }
             
             ms.status[qualifiedModuleName] += tpl_saved();
             try {
