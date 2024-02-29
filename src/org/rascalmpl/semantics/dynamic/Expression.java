@@ -34,7 +34,6 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -546,7 +545,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}
 				catch (StackOverflowError e) {
 					// this should not use so much stack as to trigger another StackOverflowError
-					throw new RascalStackOverflowError(this, eval.getCurrentEnvt(), eval.getCallNesting());
+					throw new RascalStackOverflowError(this, eval.getCurrentEnvt());
 				}
 				return res;
 			}
