@@ -26,10 +26,12 @@ public class RascalStackOverflowError extends RuntimeException {
     private static final long serialVersionUID = -3947588548271683963L;
     private final Environment deepestEnvironment;
     private final AbstractAST currentAST;
+    private final int depth;
  
-    public RascalStackOverflowError(AbstractAST current, Environment deepest) {
+    public RascalStackOverflowError(AbstractAST current, Environment deepest, int depth) {
         this.deepestEnvironment = deepest;
         this.currentAST = current;
+        this.depth = depth;
     }
 
     public Throw makeThrow() {
@@ -42,5 +44,13 @@ public class RascalStackOverflowError extends RuntimeException {
         }
 
         return RuntimeExceptionFactory.stackOverflow(currentAST, trace);
+    }
+
+    public Environment getEnvironment() {
+        return deepestEnvironment;
+    }
+    
+    public int getDepth() {
+        return depth;
     }
 }
