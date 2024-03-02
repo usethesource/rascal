@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIUtil;
@@ -59,6 +60,8 @@ public class JsonValueReader {
   private VarHandle posHandler;
   private VarHandle lineHandler;
   private VarHandle lineStartHandler;
+  private boolean explicitConstructorNames;
+  private boolean explicitDataTypes;
   
   /**
    * @param vf     factory which will be used to construct values
@@ -104,6 +107,17 @@ public class JsonValueReader {
     };
     return this;
   }
+
+  public JsonValueReader setExplicitConstructorNames(boolean value) {
+    this.explicitConstructorNames = value;
+    return this;
+  }
+
+   public JsonValueReader setExplicitDataTypes(boolean value) {
+    this.explicitDataTypes = value;
+    return this;
+  }
+
 
   /**
    * Read and validate a Json stream as an IValue
@@ -495,7 +509,37 @@ public class JsonValueReader {
 
         assert in.peek() == JsonToken.BEGIN_OBJECT;
 
-        Set<Type> alternatives = store.lookupAlternatives(type);
+         Set<Type> alternatives = null;
+
+        // use explicit information in the JSON to select and filter constructors from the TypeStore
+        // we expect always to have the field _constructor before _type.
+        if (explicitConstructorNames) {
+          String consLabel = in.nextName();
+          if ("_constructor".equals(consLabel)) {
+            String consName = in.nextString();
+
+            alternatives = store.lookupConstructors(consName);
+
+            if (explicitDataTypes) {
+              String dtLabel = in.nextName();
+
+              if ("_type".equals(dtLabel)) {
+                String dtValue = in.nextString();
+                alternatives = alternatives.stream().filter(t -> t.isAbstractData() && t.getName().equals(dtValue)).collect(Collectors.toSet());
+              }
+              else {
+                throw new IOException("Expected _type field but got " + dtLabel);    
+              }
+            }
+          }
+          else {
+            throw new IOException("Expected _constructor field but got " + consLabel);
+          }
+        }
+        else {
+          alternatives = store.lookupAlternatives(type);
+        }
+
         if (alternatives.size() > 1) {
           monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
         }
