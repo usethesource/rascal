@@ -15,7 +15,10 @@ import Set;
 //import Node;
 import String;
 
-alias Keyword     = tuple[AType fieldType, Expression defaultExp];
+data Keyword
+    = kwField(AType fieldType, Expression defaultExp)   // Only used during compilation of the current module
+    | kwField(AType fieldType, str definingModule)      // When compilation is complete, this reduced version is saved in the TModel
+    ;
    
 data AType (str alabel = "")
     =  
@@ -39,13 +42,13 @@ data AType (str alabel = "")
   
      | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  
              bool varArgs=false, 
-             str deprecationMessage="", 
-             bool isConcreteArg=false, 
-             bool isDefault=false, 
-             bool isTest=false, 
-             bool returnsViaAllPath = false,
-             int abstractFingerprint=0, 
-             int concreteFingerprint=0)
+             str deprecationMessage="",     // Only used during compilation of the current module
+             bool isConcreteArg=false,      // Only used during compilation of the current module
+             bool isDefault=false,          // Only used during compilation of the current module
+             bool isTest=false,             // Only used during compilation of the current module
+             bool returnsViaAllPath = false,// Only used during compilation of the current module
+             int abstractFingerprint=0,     // Only used during compilation of the current module
+             int concreteFingerprint=0)     // Only used during compilation of the current module
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      

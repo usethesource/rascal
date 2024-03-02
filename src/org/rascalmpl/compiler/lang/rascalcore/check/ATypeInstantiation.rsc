@@ -196,13 +196,13 @@ AType instantiateRascalTypeParams(a: aadt(str s, list[AType] ps, SyntaxRole sr),
     = aadt(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], sr);
 AType instantiateRascalTypeParams(acons(AType a, /*str name,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields, alabel=consName), Bindings bindings) = 
     //acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [<fn, instantiateRascalTypeParams(ft,bindings)> | <fn, ft> <- fields], [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFields], alabel=consName);
-    acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [instantiateRascalTypeParams(ft,bindings) | ft <- fields], [<instantiateRascalTypeParams(ft,bindings), de> | <ft, de> <- kwFields], alabel=consName);
+    acons(instantiateRascalTypeParams(a,bindings), /*name,*/ [instantiateRascalTypeParams(ft,bindings) | ft <- fields], [kwField(instantiateRascalTypeParams(ft,bindings), de) | kwField(ft, de) <- kwFields], alabel=consName);
     
 AType instantiateRascalTypeParams(aalias(str s, list[AType] ps, AType at), Bindings bindings)
     = aalias(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], instantiateRascalTypeParams(at,bindings));
 AType instantiateRascalTypeParams(afunc(AType rt, list[AType] formals, list[Keyword] kwFormals, varArgs=va), Bindings bindings) = 
     //afunc(instantiateRascalTypeParams(rt,bindings),instantiateRascalTypeParams(formals,bindings), [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFormals], varArgs=va);
-    afunc(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(f, bindings) | f <- formals], [<instantiateRascalTypeParams(ft,bindings), de> | <ft, de> <- kwFormals], varArgs=va);
+    afunc(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(f, bindings) | f <- formals], [kwField(instantiateRascalTypeParams(ft,bindings), de) | kwField(ft, de) <- kwFormals], varArgs=va);
 AType instantiateRascalTypeParams(areified(AType t), Bindings bindings) = areified(instantiateRascalTypeParams(t,bindings));
 AType instantiateRascalTypeParams(\start(AType s), Bindings bindings) = \start(instantiateRascalTypeParams(s,bindings));
 AType instantiateRascalTypeParams(\iter(AType s, isLexical = b), Bindings bindings) = \iter(instantiateRascalTypeParams(s,bindings), isLexical=b);

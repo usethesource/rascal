@@ -304,7 +304,8 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
     for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
         kwName = prettyPrintName(kwa.name);
         
-        for(<ft, _> <- kwFormals){
+        for(Keyword k <- kwFormals){
+           ft = k.fieldType;
            fn = ft.alabel;
            if(kwName == fn){
               ift = ft;
@@ -318,7 +319,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.alabel>`" | < AType ft, Expression _> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.alabel>`" | kwField(AType ft, Expression _) <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -336,7 +337,8 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
     for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
         kwName = prettyPrintName(kwa.name);
         
-        for(<ft, _> <- kwFormals){
+        for(Keyword k <- kwFormals){
+           ft = k.fieldType;
            fn = ft.alabel;
            if(kwName == fn){
               ift = ft;
@@ -350,7 +352,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.alabel>`" | <AType ft, Expression _> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.alabel>`" | kwField(AType ft, Expression _) <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -363,11 +365,11 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
 }
 
 list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
-    return [<s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
+    return [kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression) | kwf <- kwFormals];
 }
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) =
-     [ <s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
+     [ kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression) | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
      
 list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];

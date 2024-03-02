@@ -53,15 +53,6 @@ import lang::rascalcore::check::ATypeInstantiation;
 // A set of global values to represent the extracted information
 // TODO: wrap this in a function
 
-//private loc moduleScope = |unknown:///|;
-//
-//void setModuleScope(loc l){
-//    moduleScope = convert2fuid(l);
-//}  
-//
-//loc getModuleScope()
-//    = moduleScope;
-
 alias UID = loc;                                    // A UID is a unique identifier determined by the source location of a construct
 
 /*
@@ -317,7 +308,7 @@ void extractScopes(TModel tm){
         common = commons[0];
         //println("Common keyword parameters");
         //iprintln(common);
-        adt_common_keyword_fields = ( adtType : [ <getType(kwf.\type)[alabel="<kwf.name>"], kwf.expression> | kwf <- common[adtType]] | adtType <- domain(common) );
+        adt_common_keyword_fields = ( adtType : [ kwField(getType(kwf.\type)[alabel="<kwf.name>"], kwf.expression) | kwf <- common[adtType]] | adtType <- domain(common) );
         adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
     }
     
@@ -560,9 +551,9 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
                 return <"", consType,false>;
             }
         }
-        for(<AType kwType, Expression defaultExp> <- consType.kwFields){
-            if(kwType == fieldType){
-                return <findDefiningModule(getLoc(defaultExp)), consType, true>;
+        for(Keyword kw <- consType.kwFields){
+            if(kw.fieldType == fieldType){
+                return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), consType, true>;
             }
          }      
     }
@@ -571,7 +562,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     
     for(Keyword kw <- adt_common_keyword_fields[adtType1] ? []){
         if("<kw.fieldType.alabel>" == fieldName){
-            return <findDefiningModule(getLoc(kw.defaultExp)), adtType1, true>;
+            return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), adtType1, true>;
         }
     }
     
@@ -592,7 +583,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         //}
         for(Keyword kw <- adt_common_keyword_fields[treeType] ? []){
             if("<kw.fieldType.alabel>" == fieldName){
-                return <findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;
+                return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), is_start ? \start(adtType1) : adtType1, true>;
             }
         }
     }

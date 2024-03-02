@@ -36,7 +36,7 @@ data JGenie
         str (list[loc] srcs) getAccessor,
         Define (loc src) getDefine,
         list[MuExp] (loc src) getExternalRefs,
-        lrel[AType atype, Expression defaultExp] (MuFunction fun) collectKwpFormals,
+        list[Keyword] (MuFunction fun) collectKwpFormals,
         lrel[str name, AType atype, MuExp defaultExp] (MuFunction fun) collectKwpDefaults,
         list[str] (MuFunction fun) collectRedeclaredKwps,
         list[str] (MuFunction fun) collectDeclaredKwps,
@@ -356,7 +356,7 @@ JGenie makeJGenie(MuModule m,
         return false;
     }
     
-    lrel[AType atype, Expression defaultExp] _collectKwpFormals(MuFunction fun){
+    list[Keyword] _collectKwpFormals(MuFunction fun){
         scopes = currentTModel.scopes;
         kwFormals = fun.ftype.kwFormals;
         outer = scopes[fun.src];

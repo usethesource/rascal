@@ -1,6 +1,6 @@
 @bootstrapParser
 module  lang::rascalcore::compile::Compile
- 
+
 import Message;
 import Map;
 import String;
