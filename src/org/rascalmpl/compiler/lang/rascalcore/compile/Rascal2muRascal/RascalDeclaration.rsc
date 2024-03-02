@@ -102,7 +102,7 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
      * Create getters for common keyword fields of this data type
      */
     seen = {};
-    for(<kwType, defaultExp> <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
+    for(kwField(kwType, defaultExp) <- common_keyword_fields, kwType notin seen, isContainedIn(defaultExp@\loc, module_scope)){
         seen += kwType;
         str kwFieldName = unescape(kwType.alabel);
         if(asubtype(adtType, treeType)){
@@ -136,7 +136,9 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         */
        consName = consType.alabel;
        
-       for(<kwType, defaultExp> <- consType.kwFields, isContainedIn(defaultExp@\loc, module_scope)){
+       for(kw <- consType.kwFields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope)){
+            kwType = kw.fieldType;
+            defaultExp = kw.defaultExp;
             str kwFieldName = kwType.alabel;
             kwfield2cons += <kwFieldName, kwType, consType>;
             //str fuid = getGetterNameForKwpField(consType, kwFieldName);

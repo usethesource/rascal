@@ -61,8 +61,8 @@ str prettyAType(amap(AType d, AType r)) = "map[<prettyAType(d)>, <prettyAType(r)
 str prettyAType(arel(AType ts)) = "rel[<prettyAType(ts)>]";
 str prettyAType(alrel(AType ts)) = "lrel[<prettyAType(ts)>]";
 
-str prettyAType(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.alabel>=..." | <ft, _> <- kwFormals])>)";
+str prettyAType(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.alabel>=..." | kwField(ft, _) <- kwFormals])>)";
 
 str prettyAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyAType(aliased)>";
 str prettyAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyAType(ps)>] = <prettyAType(aliased)>" when size(ps) > 0;
@@ -74,8 +74,8 @@ str prettyAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyAType(ps)>]" when s
 
 str prettyAType(t: acons(AType adt, /*str consName,*/ 
                 list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "<prettyAType(adt)>::<t.alabel>(<intercalate(", ", ["<prettyAType(ft)><ft.alabel? ? " <ft.alabel>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.alabel>=..." | <ft, _> <- kwFields])>)";
+                list[Keyword] kwFields))
+                 = "<prettyAType(adt)>::<t.alabel>(<intercalate(", ", ["<prettyAType(ft)><ft.alabel? ? " <ft.alabel>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.alabel>=..." | kwField(ft, _) <- kwFields])>)";
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
 str prettyAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyAType(t)>";
@@ -87,7 +87,8 @@ str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
 
 str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
-str prettyAType(Keyword kw) = "<prettyAType(kw.fieldType) <kw.fieldType.alabel/*fieldName*/> = <kw.defaultExp>";
+str prettyAType(Keyword kw: kwField(fieldType,defaultExp)) = "<prettyAType(fieldType) <fieldType.alabel> = <defaultExp>";
+str prettyAType(Keyword kw: kwField(fieldType)) = "<prettyAType(fieldType) <kw.fieldType.alabel> = <kw.defaultExp>";
 
 // non-terminal symbols
 str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyAType(s)> : (<intercalate(", ", [ prettyAType(f) | f <- fs ])>)"; //TODO others
@@ -150,8 +151,8 @@ Symbol atype2symbol1(arel(atypeList(list[AType] ts))) = Symbol::\set(\tuple([aty
 Symbol atype2symbol1(alrel(atypeList(list[AType] ts))) = Symbol::\list(\tuple([atype2symbol(t) | t <- ts]));
 
 // TODO: kwFormals are lost here because not supported by old run-time system
-Symbol atype2symbol1(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
-  = \func(atype2symbol(ret), [atype2symbol(f) | f <- formals], [ atype2symbol(f) | <f, _> <- kwFormals]);
+Symbol atype2symbol1(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+  = \func(atype2symbol(ret), [atype2symbol(f) | f <- formals], [ atype2symbol(f) | kwField(f, _) <- kwFormals]);
 
 Symbol atype2symbol1(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
 Symbol atype2symbol1(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
@@ -169,7 +170,7 @@ Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [
 
 Symbol atype2symbol1(t: acons(AType adt,
                 list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields))
+                list[Keyword] kwFields))
  = Symbol::cons(atype2symbol(adt), t.alabel, [atype2symbol(f) | f <- fields]); // we loose kw fields here
 
 Symbol atype2symbol1(aparameter(str pn, AType t)) = Symbol::\parameter(pn, atype2symbol(t));

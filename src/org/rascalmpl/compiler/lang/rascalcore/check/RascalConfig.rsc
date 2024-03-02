@@ -335,11 +335,16 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                         s.addMessages(msgs);
                     }
             
+                    list[str] getKwNames(list[Keyword] l) =  [k.fieldType.alabel | Keyword k <- l];
+                    
                     if(comparableList(t1.formals, t2.formals)) {  
-                         if(t1.kwFormals<0> != t2.kwFormals<0>){     
-                            diffkws = t2.kwFormals<0> - t1.kwFormals<0>;  
+                         t1_kwNames = getKwNames(t1.kwFormals);
+                         t2_kwNames = getKwNames(t2.kwFormals);
+                         
+                         if(t1_kwNames != t2_kwNames){     
+                            diffkws = t2_kwNames - t1_kwNames;  
                             plural = size(diffkws) > 1 ? "s" : "";
-                            msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameter<plural> <intercalate(",", [ "`<k.alabel>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
+                            msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameter<plural> <intercalate(",", [ "`<k>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
                             s.addMessages(msgs);
                           }
                      }

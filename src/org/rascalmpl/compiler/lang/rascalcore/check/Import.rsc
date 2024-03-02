@@ -431,10 +431,18 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
+    loc2moduleName = invertUnique(ms.moduleLocs);
     
     bool isContainedInComponentScopes(loc inner){
         return any(cs <- component_scopes, isContainedIn(inner, cs));
     };
+    
+    str findDefiningModule(loc l){
+        for(mscope <- loc2moduleName, isContainedIn(l, mscope)){
+            return loc2moduleName[mscope];
+        }
+        throw "No module found for <l>";
+    }
     
     for(qualifiedModuleName <- component){
         tm = ms.tmodels[qualifiedModuleName];
@@ -504,8 +512,13 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                    };
             
             m1.defines = toSet(defs);
-            m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
+            
             m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
+            // Remove default expressions and fragments
+            m1 = visit(m1) {
+                    case kwField(AType atype, Expression defaultExp) => kwField(atype, findDefiningModule(defaultExp@\loc))
+                    case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
+                 };
             m1.logical2physical = tm.logical2physical;
             
             if(!isEmpty(m1.messages)){

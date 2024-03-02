@@ -388,7 +388,7 @@ void collect(Signature signature, Collector c){
         creturnType = c.getType(returnType);
         cparameters = c.getType(parameters);
         formalsList = atypeList(elems) := cparameters ? elems : [cparameters];
-        kwformalsList = [<c.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
+        kwformalsList = [kwField(c.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression) | kwf <- kwFormals];
         //c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
         c.fact(signature, updateBounds(afunc(creturnType, formalsList, kwformalsList), minimizeBounds(tvbounds, c)));
         return;
