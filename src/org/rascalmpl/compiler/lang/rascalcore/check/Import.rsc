@@ -516,7 +516,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
             // Remove default expressions and fragments
             m1 = visit(m1) {
-                    case kwField(AType atype, Expression defaultExp) => kwField(atype, findDefiningModule(defaultExp@\loc))
+                    case kwField(AType atype, str fieldName, str definingModule, Expression defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
             m1.logical2physical = tm.logical2physical;
@@ -526,6 +526,9 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             }
                         
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
+            
+            println("TModel before check:");
+            iprintln(m1);
             
             //TODO temporary check:
             

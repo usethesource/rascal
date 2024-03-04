@@ -199,7 +199,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                     '  <}><if (hasListStrArgs) {>
                     '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>(java.util.Arrays.stream(args).map(a -\> $VF.string(a)).collect($VF.listWriter()));
                     '  <}><if (hasDefaultArgs) {>
-                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>($parseCommandlineParameters(\"<baseClassName>\", args, <atype2vtype(atuple(atypeList([t |  kwField(t,_) <- mainFunction.ftype.kwFormals])), jg)>));
+                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>($parseCommandlineParameters(\"<baseClassName>\", args, <atype2vtype(atuple(atypeList([kw.fieldType | Keyword kw <- mainFunction.ftype.kwFormals])), jg)>));
                     '  <}>
                     '  long end_time = System.currentTimeMillis();
                     '  <if (!mainIsVoid) {>if (res == null) {
@@ -908,7 +908,7 @@ JCode getKwpActuals(list[Keyword] kwFormals, lrel[str name, MuExp exp] kwpActual
     if(shouldNotExtend) return "Util.kwpMap(<kwpActualsCode>)";
     
     declaredKwps = jg.collectDeclaredKwps(jg.getFunction());
-    redeclaredKwps = declaredKwps & [tp.alabel | kwField(tp, _) <- kwFormals];
+    redeclaredKwps = declaredKwps & [kw.fieldName | Keyword kw <- kwFormals];
     kwpActualsPossiblyRedeclared = "$kwpActuals";
     if(!isEmpty(redeclaredKwps))
         kwpActualsPossiblyRedeclared =  "Util.kwpMapRemoveRedeclared($kwpActuals, <intercalate(", ", ["\"<asJavaName(key)>\"" | str key <- redeclaredKwps ])>)";
@@ -1148,9 +1148,11 @@ JCode trans(muGuardedGetKwField(AType resultType, aadt(str adtName, list[AType] 
 JCode trans(muGuardedGetKwField(AType resultType, consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
     base = trans(cons, jg);
     qFieldName = "\"<unescape(fieldName)>\"";
-    for(kwField(AType kwType, Expression exp) <- kwFields){
-        if(fieldName == kwType.alabel){
-            expCode = translate(exp);
+    for(Keyword kw <- kwFields){
+        kwType = kw.fieldType;
+        kwName = kw.fieldName;
+        if(fieldName == kwName){
+            expCode = translate(kw.defaultExp);
             if(muCon(_) := expCode){
                 return "<base>.asWithKeywordParameters().hasParameter(<qFieldName>) ? <castArg(kwType, "<base>.asWithKeywordParameters().getParameter(<qFieldName>)")> : <expCode>";
             } else {

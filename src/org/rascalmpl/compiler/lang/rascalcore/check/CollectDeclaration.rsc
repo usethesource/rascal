@@ -56,7 +56,7 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
     c.enterScope(current);
         collect(header, body, c);
     c.leaveScope(current);
-    c.pop(key_current_module);
+    //c.pop(key_current_module); // leave it there for all following phases to see
 }
 
 void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
@@ -388,10 +388,15 @@ void collect(Signature signature, Collector c){
         creturnType = c.getType(returnType);
         cparameters = c.getType(parameters);
         formalsList = atypeList(elems) := cparameters ? elems : [cparameters];
-        kwformalsList = [kwField(c.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression) | kwf <- kwFormals];
-        //c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
-        c.fact(signature, updateBounds(afunc(creturnType, formalsList, kwformalsList), minimizeBounds(tvbounds, c)));
-        return;
+        if(str currentModuleName := c.top(key_current_module)){
+            kwformalsList = [kwField(c.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | kwf <- kwFormals];
+            //c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
+            c.fact(signature, updateBounds(afunc(creturnType, formalsList, kwformalsList), minimizeBounds(tvbounds, c)));
+            return;
+        } else {
+            throw "collect Signature: key_current_module not found";
+        }
+        
     } catch TypeUnavailable(): {
         c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
             AType(Solver s){

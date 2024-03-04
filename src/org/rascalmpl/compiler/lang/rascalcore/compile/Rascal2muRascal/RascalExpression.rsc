@@ -1497,7 +1497,7 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc _src) {
         muLHS = muPrim("guarded_subscript", result, details, exps, src);
         lhsType = result;
     } 
-    else if(muGetAnno(MuExp exp, AType resultType, str annoName) := muLHS){
+    else if(muGetAnno(MuExp exp, AType resultType, str annoName) := muLHS){ // TODO remove when annos are gone
         muLHS = muGuardedGetAnno(exp, resultType, annoName);
         lhsType = resultType;
     }

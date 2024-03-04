@@ -16,8 +16,8 @@ import Set;
 import String;
 
 data Keyword
-    = kwField(AType fieldType, Expression defaultExp)   // Only used during compilation of the current module
-    | kwField(AType fieldType, str definingModule)      // When compilation is complete, this reduced version is saved in the TModel
+    = kwField(AType fieldType, str fieldName, str definingModule, Expression defaultExp)   // Only used during compilation of the current module
+    | kwField(AType fieldType, str fieldName, str definingModule)      // When compilation is complete, this reduced version is saved in the TModel
     ;
    
 data AType (str alabel = "")

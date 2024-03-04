@@ -21,6 +21,7 @@ import Location;
 import Relation;
 import Message;
 import Map;
+import util::Reflective;
 
 void addADTsAndCommonKeywordFields(Solver s){
     addADTs(s);
@@ -55,19 +56,26 @@ void addADTs(Solver s){
 
 void addCommonKeywordFields(Solver s){
     set[Define] definitions = s.getAllDefines();
-    lrel[AType, KeywordFormal] commonKeywordFields = [];
+    lrel[AType adtType, Keyword defaultType] commonKeywordFields = [];
+    //lrel[AType adtType, AType defaultType] commonKeywordFields = [];
+    //lrel[AType, KeywordFormal] commonKeywordFields = [];
     
     // Collect common keywords and check double declarations
   
-    rel[AType,str,KeywordFormal] commonKeywordFieldNames = {};
+    //rel[AType,str,AType] commonKeywordFieldNames = {};
+    //rel[AType,str,KeywordFormal] commonKeywordFieldNames = {};
+  
     for(Define def <- definitions, def.idRole == dataId()){
         try {
             adtType = s.getType(def);
-            commonKeywordNames = commonKeywordFieldNames[adtType]<0>;
+            //commonKeywordNames = commonKeywordFieldNames[adtType]<0>;
             for(kwf <- def.defInfo.commonKeywordFields){
                 fieldName = "<kwf.name>";
-                commonKeywordFields += <adtType, kwf>;
-                commonKeywordFieldNames += <adtType, fieldName, kwf>;
+                fieldType = s.getType(kwf);
+                fieldType.alabel = fieldName;
+                moduleName = getModuleName(kwf.expression@\loc, s.getConfig().typepalPathConfig);
+                commonKeywordFields += <adtType, kwField(fieldType, fieldName, moduleName, kwf.expression)>;
+                //commonKeywordFieldNames += <adtType, fieldName, fieldType>;
                 // TODO: reconsider this
                 //if(fieldName in commonKeywordNames){
                 //    msgs = [ Message::error("Double declaration of common keyword Field `<fieldName>` for data type `<adtType.adtName>`", getLoc(kwf2))
@@ -78,16 +86,17 @@ void addCommonKeywordFields(Solver s){
             }
         } catch TypeUnavailable():
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
-      
-    }
+      }
     //println("commonKeywordFields");
     //for(<tp, dflt> <- commonKeywordFields) println("<tp>, <dflt>");
     s.push(key_common_keyword_fields, commonKeywordFields);
     
     // Warn for overlapping declarations of common keyword fields and ordinary fields
       
-    map[AType, map[str, KeywordFormal]] adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
-    
+    map[AType, map[str, AType]] adt_common_keyword_fields_name_and_kwf = ( adtType : ( kwf.fieldName : kwf.fieldType | kwf <- commonKeywordFields[adtType] ? []) | adtType <- toSet(commonKeywordFields<0>) );
+  
+    //map[AType, map[str, KeywordFormal]] adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
+    //
     for(Define def <- definitions, def.idRole == constructorId()){
         try {
             consType = s.getType(def);
@@ -95,7 +104,7 @@ void addCommonKeywordFields(Solver s){
             for(fld <- consType.fields){
                if(fld.alabel in commonFieldNames){
                     kwf = adt_common_keyword_fields_name_and_kwf[consType.adt][fld.alabel];
-                    msgs = [ Message::warning("Common keyword field `<fld.alabel>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.alabel>`", getLoc(kwf)),
+                    msgs = [ Message::warning("Common keyword field `<fld.alabel>` of data type `<consType.adt.adtName>` overlaps with field of constructor `<consType.alabel>`", |unknown:///|),
                              Message::warning ("Field `<fld.alabel>` of constructor `<consType.alabel>` overlaps with common keyword field of data type `<consType.adt.adtName>`", def.defined)
                            ];
                     s.addMessages(msgs);
