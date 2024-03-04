@@ -216,7 +216,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  protected static class <value2id(s)> {
            '    public final static AbstractStackNode\<IConstructor\>[] EXPECTS;
            '    static{
-           '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_resultStoreIdMappings);
+           '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_dontNest, _resultStoreIdMappings);
            '      init(builder);
            '      EXPECTS = builder.buildExpectArray();
            '    }
