@@ -95,7 +95,8 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
 
     scope = c.getScope();
     
-    if(<Tree adt, list[TypeVar] dataTypeParameters, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+    if(<Tree adt, list[TypeVar] dataTypeParameters, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt) &&
+       str currentModuleName := c.top(key_current_module)){
         c.enterScope(current);
             // Generate use/defs for type parameters occurring in the constructor signature
             
@@ -125,7 +126,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);
-                    kwFormalTypes = [kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], kwf.expression) | kwf <- kwFormals /*+ commonKwFormals*/];
+                    kwFormalTypes = [kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
                 })[md5=md5Hash(current)]);

@@ -130,7 +130,7 @@ void generateTestSources(PathConfig pcfg) {
    testModules = [ *[ replaceAll(file[extension=""].path[1..], "/", "::") | loc file <- find(testFolder, "rsc") ]
                  | testFolder <- testFolders
                  ];  
-   println(testModules);
+
    ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           
    testModules -= ignored;    

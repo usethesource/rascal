@@ -304,12 +304,12 @@ void extractScopes(TModel tm){
         throw "`ADTs` has incorrect format in store";
     }
    
-    if([*lrel[AType,KeywordFormal] commons] := tm.store[key_common_keyword_fields], !isEmpty(commons)){
+    if([*lrel[AType,Keyword] commons] := tm.store[key_common_keyword_fields], !isEmpty(commons)){
         common = commons[0];
         //println("Common keyword parameters");
         //iprintln(common);
-        adt_common_keyword_fields = ( adtType : [ kwField(getType(kwf.\type)[alabel="<kwf.name>"], kwf.expression) | kwf <- common[adtType]] | adtType <- domain(common) );
-        adt_common_keyword_fields_name_and_type = ( adtType : ( "<kwf.name>" : getType(kwf.\type) | kwf <- common[adtType]) | adtType <- domain(common) );
+        adt_common_keyword_fields = ( adtType : common[adtType] | adtType <- common<0> );
+        adt_common_keyword_fields_name_and_type = ( adtType : ( kw.fieldName : kw.fieldType | kw <- common[adtType]) | adtType <- common<0> );
     }
     
     for(def <- defines){
@@ -553,7 +553,7 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
         }
         for(Keyword kw <- consType.kwFields){
             if(kw.fieldType == fieldType){
-                return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), consType, true>;
+                return <kw.definingModule, consType, true>;
             }
          }      
     }
@@ -561,8 +561,8 @@ tuple[str moduleName, AType atype, bool isKwp] getConstructorInfo(AType adtType,
     // Common kw field of the ADT?
     
     for(Keyword kw <- adt_common_keyword_fields[adtType1] ? []){
-        if("<kw.fieldType.alabel>" == fieldName){
-            return <kw has definingModule ? kw.definingModule : findDefiningModule(getLoc(kw.defaultExp)), adtType1, true>;
+        if(kw.fieldName == fieldName){
+            return <kw.definingModule, adtType1, true>;
         }
     }
     

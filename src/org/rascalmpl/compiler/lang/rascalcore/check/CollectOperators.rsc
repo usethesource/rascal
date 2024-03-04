@@ -100,7 +100,7 @@ bool isValidIsDefinedArg(Expression arg)
     =  arg is subscript 
     || arg is fieldAccess 
     || arg is fieldProject 
-    || arg is getAnnotation
+    || arg is getAnnotation // TODO remove when annotations are gone
 //    || arg is callOrTree
     || arg is qualifiedName
     || (arg is \bracket && isValidIsDefinedArg(arg.expression));
