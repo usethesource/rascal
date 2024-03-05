@@ -145,32 +145,27 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 // ----  Various check functions  ---------------------------------------------
 
 private int npc = 0;
-@synopsis{
-  PathConfig for testing generated modules in |memory://test-modules/| in memory file system.
-}
+@synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system.}
 @description{
-  * gets source files exclusively from |memory://test-modules/|
-  * generates bin files in the in-memory file system 
-  * depends only on the pre-compiled standard library from the rascal project 
+* gets source files exclusively from |memory://test-modules/|
+* generates bin files in the in-memory file system 
+* depends only on the pre-compiled standard library from the rascal project 
 }
 public PathConfig getDefaultPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(   
-        srcs = [|memory://test-modules/| 
+        srcs = [|memory://test-modules/|],
         bin = |memory://test-modules/rascal-core-tests-bin-<snpc>|, 
         libs = [|lib://rascal/|]
     );
 }
 
-@synopsis{ 
-  for type-checking test modules in the rascal-core project; such as "lang::rascalcore::check::Test1" 
-}
+@synopsis{for type-checking test modules in the rascal-core project; such as lang::rascalcore::check::Test1}
 @description{
-  * sources have to be in |project://rascal-core/src/org/rascalmpl/core/library|
-  * binaries will be stored in-memory only
-  * has the standard library and typepal on the library path, in case you accidentally want to test
-    a module in rascal-core which depends on typepal.
+* sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
+* binaries will be stored in-memory only
+* has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
 }
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
@@ -220,7 +215,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                                  TypePalConfig config, 
                                  CompilerConfig compilerConfig,
                                  list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg,  CompilerConfig compilerConfig) codgen){     
-    bool forceCompilationTopModule = true; /***** for convenience, set to true during development of type checker *****/
+    bool forceCompilationTopModule = false; /***** for convenience, set to true during development of type checker *****/
     ModuleStatus ms = newModuleStatus();
     beginTime = cpuTime();   
     topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
