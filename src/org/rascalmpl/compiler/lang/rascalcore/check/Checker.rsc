@@ -145,10 +145,11 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 // ----  Various check functions  ---------------------------------------------
 
 private int npc = 0;
-@doc{
-  PathConfig for testing generated modules in |test-modules:///| in memory file system.
-  
-  * gets source files exclusively from |test-modules:///|
+@synopsis{
+  PathConfig for testing generated modules in |memory://test-modules/| in memory file system.
+}
+@description{
+  * gets source files exclusively from |memory://test-modules/|
   * generates bin files in the in-memory file system 
   * depends only on the pre-compiled standard library from the rascal project 
 }
@@ -156,15 +157,16 @@ public PathConfig getDefaultPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(   
-        srcs = [|test-modules:///| /* test-modules is an in-memory file-system */], 
-        bin = |test-modules:///rascal-core-tests-bin-<snpc>|, 
+        srcs = [|memory://test-modules/| 
+        bin = |memory://test-modules/rascal-core-tests-bin-<snpc>|, 
         libs = [|lib://rascal/|]
     );
 }
 
-@doc{ 
+@synopsis{ 
   for type-checking test modules in the rascal-core project; such as "lang::rascalcore::check::Test1" 
-  
+}
+@description{
   * sources have to be in |project://rascal-core/src/org/rascalmpl/core/library|
   * binaries will be stored in-memory only
   * has the standard library and typepal on the library path, in case you accidentally want to test
@@ -187,15 +189,13 @@ public PathConfig getRascalCorePathConfig() {
     );
 }
     
-@doc{
-  a path config for testing type-checking of the standard library in the rascal project
-}    
+@synopsis{a path config for testing type-checking of the standard library in the rascal project}    
 public PathConfig getRascalProjectPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|], 
-        bin = |test-modules:///rascal-lib-bin-<snpc>|, 
+        bin = |memory://test-modules/rascal-lib-bin-<snpc>|, 
         libs = []
     );  
 }  

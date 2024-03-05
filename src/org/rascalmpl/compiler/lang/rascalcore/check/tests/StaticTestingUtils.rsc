@@ -44,7 +44,7 @@ loc buildModule(str stmts,  list[str] importedModules = [], list[str] initialDec
 }
 
 loc makeModule(str name, str body){
-    mloc = |test-modules:///<name>.rsc|;
+    mloc = |memory://test-modules/<name>.rsc|;
     writeFile(mloc, "@bootstrapParser
                      'module <name>
                      '<body>");
