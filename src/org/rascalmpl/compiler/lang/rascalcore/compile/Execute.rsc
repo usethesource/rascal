@@ -552,7 +552,7 @@ RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuse
             bool jvm=true, 
             bool verbose=false, 
             bool optimize=true){
-   //pcfg = pathConfig(srcs=[|std:///|, |test-modules:///|], bin=|home:///bin-console|, libs=[|home:///bin-console|]);
+   //pcfg = pathConfig(srcs=[|std:///|, |memory://test-modules/|], bin=|home:///bin-console|, libs=[|home:///bin-console|]);
    //pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
    if(!reuseConfig){
       mergedImportLoc = getMergedImportsWriteLoc(qualifiedModuleName, pcfg);

@@ -423,7 +423,7 @@ void allFiles(PathConfig pcfg = pathConfig(
                 |project://salix/src|
                 //|std:///|
                ],
-         bin = |test-modules:///rascal-core-bin|,
+         bin = |memory://test-modules/rascal-core-bin|,
          libs = [/*|lib://rascal/|, |lib://typepal/|*/])){
     modulePaths =  find(|project://rascal/src/org/rascalmpl/library|, bool(loc l) { return endsWith(l.path, ".rsc"); });
                    //find(|std:///lang/rascal/tests|, bool(loc l) { return endsWith(l.path, ".rsc"); });
