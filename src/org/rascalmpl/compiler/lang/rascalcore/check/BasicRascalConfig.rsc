@@ -107,7 +107,6 @@ public str key_common_keyword_fields = "CommonKeywordFields";
 
 data TypePalConfig(
     bool logImports                 = true,
-    bool classicReifier             = true,
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,

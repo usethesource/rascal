@@ -14,7 +14,7 @@ start syntax Modules
 
 TModel rascalTModelForTestModules(Tree pt, bool debug=false){
     ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
-   TypePalConfig config=rascalTypePalConfig(classicReifier=true);
+   TypePalConfig config=rascalTypePalConfig();
    if(debug){
         config = config[logImports = true];
    }

@@ -148,7 +148,7 @@ void generateTestSources(PathConfig pcfg) {
    println("Compiled <n> test modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
-   secs = sum(range(durations))/1000000000;
+   secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
    println("Time: <secs/60> minutes");
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }

@@ -77,7 +77,8 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
 
 int parseTreeCacheSize = 10;
 
-tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms){
+    pcfg = ms.pathConfig;
     if(ms.parseTrees[qualifiedModuleName]?){
         if(traceCaches) println("*** using cached parse tree for <qualifiedModuleName>");
         return <true, ms.parseTrees[qualifiedModuleName], ms>;
@@ -163,8 +164,9 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
 //    return ms;
 //}
 
-tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, PathConfig pcfg){
+tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
     //if(traceCaches) println("getTModelForModule: <qualifiedModuleName>");
+    pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]?){
         return <true, ms.tmodels[qualifiedModuleName], ms>;
     }
@@ -221,17 +223,19 @@ data ModuleStatus =
       map[str,loc] moduleLocs, 
       map[str,datetime] moduleLastModified,
       map[str, list[Message]] messages,
-      map[str, set[MStatus]] status
+      map[str, set[MStatus]] status,
+      PathConfig pathConfig
    );
 
-ModuleStatus newModuleStatus() = moduleStatus({}, {}, (), [], (), (), (), (), ());
+ModuleStatus newModuleStatus(PathConfig pcfg) = moduleStatus({}, {}, (), [], (), (), (), (), (), pcfg);
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
 }
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
-ModuleStatus complete(ModuleStatus ms, PathConfig pcfg){
+ModuleStatus complete(ModuleStatus ms){
+    pcfg = ms.pathConfig;
     moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
     extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
@@ -262,14 +266,15 @@ ModuleStatus complete(ModuleStatus ms, PathConfig pcfg){
 }
 
 ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg){
-    return complete((newModuleStatus() | getImportAndExtendGraph(qualifiedModuleName, pcfg, it) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
+    return complete((newModuleStatus(pcfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
 }
 
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, newModuleStatus()), pcfg);
+    return complete(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(pcfg)));
 }
 
-ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, ModuleStatus ms){
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
+    pcfg = ms.pathConfig;
     qualifiedModuleName = unescape(qualifiedModuleName);
     
     if(!ms.status[qualifiedModuleName]?){
@@ -281,7 +286,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
     }
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
     
-    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, pcfg);
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
     if(found){
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
@@ -334,20 +339,20 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
             for(imp <- localImportsAndExtends<0>, module_dependencies_extracted() notin ms.status[imp]  ){
-                ms = getImportAndExtendGraph(imp, pcfg, ms);
+                ms = getImportAndExtendGraph(imp, ms);
             }
             return ms;
          }
     }
     
-    <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms, pcfg);
+    <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms);
     if(success){
         imports_and_extends = getModulePathsAsStr(pt);
         ms.strPaths += imports_and_extends;
    
         for(<_, kind, imp> <- imports_and_extends){
             ms.strPaths += {<qualifiedModuleName, kind, imp>};
-            ms = getImportAndExtendGraph(imp, pcfg, ms);
+            ms = getImportAndExtendGraph(imp, ms);
         }
     }
     
@@ -355,7 +360,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
 }
 
 ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
-    ms = newModuleStatus();
+    ms = newModuleStatus(pcfg);
     visit(pt){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
@@ -364,7 +369,7 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
             ms.strPaths += imports_and_extends;
         }
     }
-    return complete(ms, pcfg);
+    return complete(ms);
 }
 
 rel[str, PathRole, str] getModulePathsAsStr(Module m){
@@ -392,8 +397,9 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
+ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, TModel tm){
     map[str,TModel] tmodels = ms.tmodels;
+    pcfg = ms.pathConfig;
     
     dependencies_ok = true;
     for(m <- component){
@@ -428,8 +434,9 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
     return ms;
 }
 
-ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes,  PathConfig pcfg, CompilerConfig compilerConfig){
+ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, CompilerConfig compilerConfig){
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
+    pcfg = ms.pathConfig;
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
     loc2moduleName = invertUnique(ms.moduleLocs);
@@ -437,14 +444,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     bool isContainedInComponentScopes(loc inner){
         return any(cs <- component_scopes, isContainedIn(inner, cs));
     };
-    
-    str findDefiningModule(loc l){
-        for(mscope <- loc2moduleName, isContainedIn(l, mscope)){
-            return loc2moduleName[mscope];
-        }
-        throw "No module found for <l>";
-    }
-    
+        
     for(qualifiedModuleName <- component){
         tm = ms.tmodels[qualifiedModuleName];
         try {
@@ -525,43 +525,36 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             if(!isEmpty(m1.messages)){
                 iprintln(m1.messages);
             }
-                        
+                
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
             
-            //println("TModel before check:");
-            //iprintln(m1, lineLimit=10000);
-            
-            //TODO temporary check:
-            
-            result = "";
-            
-            void checkPhysical(value v, str label){ 
-                visit(v){
-                    case loc l: {
-                            if(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+")){
-                                ;
-                            } else {
-                                result += "<label>, outside <qualifiedModuleName>: <l>\n";
-                            }
-                        }
-                }
-            }
-            checkPhysical(m1.moduleLocs, "moduleLocs");
-            checkPhysical(m1.facts, "facts");
-            checkPhysical(m1.specializedFacts, "specializedFacts");
-            checkPhysical(m1.defines, "defines");
-            checkPhysical(m1.definitions, "definitions");
-            checkPhysical(m1.scopes, "scopes");
-            checkPhysical(m1.store, "store");
-            checkPhysical(m1.paths, "paths");
-            checkPhysical(m1.useDef, "useDef");
-            
-            if(!isEmpty(result)){
-                println("------------- <qualifiedModuleName>:
-                        '<result>");
-                iprintln(m1, lineLimit=10000);
-                throw "checkPhysical failed, see above";
-            }
+            ////TODO temporary check: are external locations present in the TModel? If so, throw exception
+            //
+            //result = "";
+            //
+            //void checkPhysical(value v, str label){ 
+            //    visit(v){
+            //        case loc l:
+            //                if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+")))
+            //                    result += "<label>, outside <qualifiedModuleName>: <l>\n";
+            //    }
+            //}
+            //checkPhysical(m1.moduleLocs, "moduleLocs");
+            //checkPhysical(m1.facts, "facts");
+            //checkPhysical(m1.specializedFacts, "specializedFacts");
+            //checkPhysical(m1.defines, "defines");
+            //checkPhysical(m1.definitions, "definitions");
+            //checkPhysical(m1.scopes, "scopes");
+            //checkPhysical(m1.store, "store");
+            //checkPhysical(m1.paths, "paths");
+            //checkPhysical(m1.useDef, "useDef");
+            //
+            //if(!isEmpty(result)){
+            //    println("------------- <qualifiedModuleName>:
+            //            '<result>");
+            //    iprintln(m1, lineLimit=10000);
+            //    throw "checkPhysical failed, see above";
+            //}
             
             ms.status[qualifiedModuleName] += tpl_saved();
             try {
