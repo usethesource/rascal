@@ -48,6 +48,7 @@ import String;
 import util::Benchmark;
 import util::Reflective;
 import util::FileSystem;
+import util::Monitor;
 import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
@@ -57,69 +58,15 @@ data PathConfig(
     loc testResources =|unknown:///|
 );
 
-
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int _ <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 
     c.push(patternContainer, "toplevel");
     c.push(key_allow_use_before_def, <|none:///|(0,0,<0,0>,<0,0>), |none:///|(0,0,<0,0>,<0,0>)>);
-    
-    //for(mname <- namedTrees){
-    //    tree = namedTrees[mname];
-    //    c.enterScope(tree);      
-    //        // Tree type, fields "top" and "src"
-    //        TreeType = aadt("Tree", [], dataSyntax());
-    //        treeScope = mkTree(1);
-    //        //if(!c.isAlreadyDefined("Tree", [Name] "Tree")){
-    //        //    println("Define Tree for <mname>");
-    //        //    c.define("Tree", dataId(), treeScope, defType(TreeType));
-    //        //}
-    //        c.enterScope(treeScope);
-    //            if(!c.isAlreadyDefined("top", [Name] "top")){
-    //                c.define("top", fieldId(), mkTree(2), defType(TreeType));
-    //            }
-    //            if(!c.isAlreadyDefined("src", [Name] "src")){
-    //                c.define("src", keywordFieldId(), mkTree(3), defType(aloc())); // TODO: remove when @\loc is gone
-    //            }
-    //        c.leaveScope(treeScope); 
-    //        
-    //        //DefaultLayoutType = aadt("$default$", [], layoutSyntax());
-    //        //c.define("$default$", layoutId(), mkTree(4), defType(DefaultLayoutType));
-    //        
-    //        // Reified type
-    //        //if(c.getConfig().classicReifier){
-    //        //    ;////data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-    //        //    //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-    //        //    //SymbolType = aadt("Symbol", [], dataSyntax());
-    //        //    //ProductionType = aadt("Production", [], dataSyntax());
-    //        //    //symbolField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
-    //        //    //definitionsField = amap(SymbolType, ProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-    //        //    //c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], alabel="type")));
-    //        //    // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-    //        //} else {
-    //        //    //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
-    //        //    //typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-    //        //    SymbolType = aadt("AType", [], dataSyntax());
-    //        //    AProductionType = aadt("AProduction", [], dataSyntax());
-    //        //    atypeField = SymbolType[alabel="symbol"]; //<"symbol", SymbolType>;
-    //        //    definitionsField = amap(SymbolType, AProductionType)[alabel="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-    //        //    //c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], alabel="type")));
-    //        //    // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-    //        //}
-    //    c.leaveScope(tree);
-    //}
 }
-//
-//// Enhance TModel before running Solver
-//TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
-//    // add transitive edges for extend
-//    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-//    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
-//    m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
-//    return m;
-//}
-//
+
+//TODO: renact this when we will generate parsers
 //void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 //    if(!s.reportedErrors()){
 //        for(mname <- namedTrees){
@@ -198,29 +145,22 @@ public PathConfig getRascalProjectPathConfig() {
 CompilerConfig getRascalCompilerConfig()
     = cconfig();
 
-// Profiling
-
-data ProfileData = profile(str file = "unknown", int collector = 0, int solver = 0, int save = 0);
+// rascalTModelForLocs is the basic work horse
  
-void report(ProfileData pd){
-    text = "<pd.collector? ? "collector: <pd.collector> ms;" : ""> <pd.solver? ? "solver: <pd.solver> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.collector + pd.solver + pd.save> ms";
-    if(pd.file != "unknown") text += " (<pd.file>)";
-    println(text);
-}
-
-// rascalTModelForLoc is the basic work horse
- 
-ModuleStatus rascalTModelForLocs(list[loc] mlocs, 
-                                 PathConfig pcfg, 
-                                 TypePalConfig config, 
-                                 CompilerConfig compilerConfig,
-                                 list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg,  CompilerConfig compilerConfig) codgen){     
+ModuleStatus rascalTModelForLocs(
+    list[loc] mlocs,  
+    TypePalConfig config, 
+    CompilerConfig compilerConfig,
+    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig) codgen
+){     
+    
+    pcfg = config.typepalPathConfig;
+    if(compilerConfig.verbose) iprintln(pcfg);
+     
     bool forceCompilationTopModule = false; /***** for convenience, set to true during development of type checker *****/
-    ModuleStatus ms = newModuleStatus();
-    beginTime = cpuTime();   
+    ModuleStatus ms = newModuleStatus(pcfg); 
     topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
         
-    before = cpuTime();
     try {
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
@@ -229,10 +169,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                 ms.status[nm] = {};
             }
         }
-        
-        graphTime = cpuTime() - before;
        
-        map[str, ProfileData] profs = ();
         imports_and_extends = ms.strPaths<0,2>;
         
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
@@ -266,7 +203,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                 mi += 1;
                 if(!recheck){
                     if(tpl_uptodate() notin ms.status[m]){
-                        <found, tm, ms> = getTModelForModule(m, ms, pcfg);
+                        <found, tm, ms> = getTModelForModule(m, ms);
                         if(found){   
                             ms.status[m] += {tpl_uptodate(), checked()};
                         }
@@ -274,8 +211,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                }
             }
             if(!all(m <- component, tpl_uptodate() in ms.status[m] || checked() in ms.status[m])){
-                <prof, tm, ms> = rascalTModelComponent(component, ms, pcfg, config=config);
-                profs[intercalate("/", toList(component))] = prof;
+                <tm, ms> = rascalTModelComponent(component, ms, config=config);
                 moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
@@ -291,7 +227,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                         usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
                         usedModules += {*invertedExtends[um] | um <- usedModules}; // use of an extended module via import
                         msgs = [];
-                        <success, pt, ms> = getModuleParseTree(m, ms, pcfg);
+                        <success, pt, ms> = getModuleParseTree(m, ms);
                         if(success){
                             check_imports:
                             for(imod <- pt.header.imports, imod has \module){
@@ -330,38 +266,21 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                 }
                 // presave the TModels of the modules in the component
                 
-                ms = preSaveModule(component, m_imports, m_extends, ms, moduleScopes, pcfg, tm);
+                ms = preSaveModule(component, m_imports, m_extends, ms, moduleScopes, tm);
                 
                 // generate code for the modules in the component
                 
                 for(str m <- component){
-                    <success, pt, ms> = getModuleParseTree(m, ms, pcfg);
+                    <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
-                        msgs = codgen(m, pt, ms, pcfg, compilerConfig);
+                        msgs = codgen(m, pt, ms, compilerConfig);
                         ms.messages[m] = msgs;
                         ms.status[m] += {code_generated()};
                     }
                 }
-                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, pcfg, compilerConfig);
+                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, compilerConfig);
             }
         }
- 
-        //if(config.logTime){
-        //    tcollector = 0; tsolver = 0; tsave = 0;
-        //    for(m <- profs){
-        //        p = profs[m];
-        //        tcollector += p.collector;
-        //        tsolver += p.solver;
-        //        tsave += p.save;
-        //        report(p);
-        //    }
-        //    
-        //    int toMilli(int time_in_ns) = time_in_ns/1000000;
-        //    
-        //    println("<topModuleNames>, import graph <toMilli(graphTime)> ms");
-        //    println("<topModuleNames> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-        //    println("<topModuleNames>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
-        //}
     } catch ParseError(loc src): {
         for(mname <- topModuleNames){
             ms.messages[mname] = [ error("Parse error", src) ];
@@ -389,35 +308,33 @@ bool usesOrExtendsADT(str modulePath, str importPath, TModel tm){
     definedADTs = { unset(the_adt, "alabel") | Define d <- tm.defines, d.defined.path == modulePath, defType(the_adt:aadt(_,_,_)) := d.defInfo };
     usedOrDefinedADTs = usedADTs + definedADTs;
     res = any(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], unset(the_adt, "alabel") in usedOrDefinedADTs);
-    //println("usesOrExtendsADT <modulePath>, <importPath> returns <res>");
-    //if(!res){
-    //    println("usedOrDefinedADTs: <usedOrDefinedADTs>");
-    //    for(loc l <- tm.facts, l.path == importPath, the_adt:aadt(_,_,_) := tm.facts[l], bprintln("the_adt: <the_adt>, <tm.facts[l]> in: <unset(the_adt, "alabel") in usedOrDefinedADTs>"));
-    //}
     return res;
 }
 
-tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus ms, Collector c, set[str] added, PathConfig pcfg){
+tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus ms, Collector c, set[str] added){
+    pcfg = ms.pathConfig;
     rel[str,str] contains = ms.strPaths<0,2>;
     for(imp <- contains[moduleName]){
         if(imp notin added){
-            if(tpl_uptodate() in ms.status[imp]){ //ms.tmodels[imp]?){
+            if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
-                <found, tm, ms> = getTModelForModule(imp, ms, pcfg);
-                c.addTModel(tm); //ms.tmodels[imp]);
+                <found, tm, ms> = getTModelForModule(imp, ms);
+                c.addTModel(tm);
             }
         }
     }
     return <added, ms>;
 }
 
-tuple[ProfileData, TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms, PathConfig pcfg,
-                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=true,rascalPathConfig=pcfg), bool inline=false){
+tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms,
+                                                 TypePalConfig config=rascalTypePalConfig(rascalPathConfig=ms.pathConfig), bool inline=false){
+                                                        
+    pcfg = ms.pathConfig;
     modelName = intercalate(" + ", toList(moduleNames));    
     map[str, Module] namedTrees = ();
     for(nm <- moduleNames){
         //if(checked() notin ms.status[nm]){
-            <success, pt, ms> = getModuleParseTree(nm, ms, pcfg);
+            <success, pt, ms> = getModuleParseTree(nm, ms);
             if(success){
                 namedTrees[nm] = pt;
             }
@@ -425,61 +342,49 @@ tuple[ProfileData, TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNa
         //    println("*** rascalTModelComponent: <moduleNames>: reusing <nm>");
         //}
     }
-    if(config.verbose) println("\<\<\< checking <modelName>");
+    
+    jobStep("RascalCompiler", "Type checking <modelName>"); // TODO: monitor
+    if(config.verbose) println("Type checking <modelName>");
+    
     c = newCollector(modelName, namedTrees, config);
     c.push(key_pathconfig, pcfg);
     
     rascalPreCollectInitialization(namedTrees, c);
-    startTime = cpuTime();
     
     added = {};
     for(nm <- moduleNames){
-        <a, ms> = loadImportsAndExtends(nm, ms, c, added, pcfg);
+        <a, ms> = loadImportsAndExtends(nm, ms, c, added);
         added += a;
     }
-    //println("<modelName>: added before collect <added>");
-    startTime = cpuTime();
+  
     for(str nm <- namedTrees){
         collect(namedTrees[nm], c);
     }
     tm = c.run();
-    //iprintln(tm);
-
-    collectTime = cpuTime() - startTime; 
-    startTime = cpuTime(); 
     
     tm.paths =  ms.paths;
     
     s = newSolver(namedTrees, tm);
     tm = s.run();
     
-    solveTime = cpuTime() - startTime;
-    
-    ProfileData prof = profile(file=modelName);
-    
-    if(!inline){
-        prof.collector = collectTime/1000000;
-        prof.solver = solveTime/1000000;
-    }
-    //for(nm <- moduleNames){
-    //    delete(ms.parseTrees, nm);
-    //}
-    return <prof, tm, ms>;
+    return <tm, ms>;
 }
 
 // ---- rascalTModelForName a checker version that works on module names
 
 ModuleStatus rascalTModelForNames(list[str] moduleNames, 
-                                  PathConfig pcfg, 
                                   TypePalConfig config, 
                                   CompilerConfig compilerConfig, 
-                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig) codgen){
-    mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-    if(compilerConfig.verbose) iprintln(pcfg);
+                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig) codgen){
+
+   
+    
     //try {
+        pcfg = config.typepalPathConfig;
         mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
-        return rascalTModelForLocs(mlocs, pcfg, config, compilerConfig, codgen);
+        return rascalTModelForLocs(mlocs, config, compilerConfig, codgen);
     //} catch value e: {
+    //    mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     //    ms = newModuleStatus();
     //    for( moduleName <- moduleNames){
     //        ms.messages[moduleName] = [ error("<e>", mloc) ];
@@ -494,30 +399,19 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
 // name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, PathConfig _pcfg, CompilerConfig _compilerConfig)
+list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, CompilerConfig _compilerConfig)
     = [];
     
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg, CompilerConfig compilerConfig){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     //println("=== check: <moduleLocs>"); iprintln(pcfg1);
-    ms = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true), compilerConfig, dummy_compile1);
+    ms = rascalTModelForLocs(moduleLocs, rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, dummy_compile1);
     return [ program(ms.moduleLocs[mname], toSet(ms.messages[mname])) | mname <- ms.messages ];
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg, CompilerConfig compilerConfig){
     return check(toList(find(root, "rsc")), pcfg, compilerConfig);
 }
-
-//// ---- Convenience check function during development -------------------------
-//      
-//map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config, PathConfig pcfg) {
-//    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, pcfg, config);
-//    return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
-//}
-
-// ---- Convenience check function during development -------------------------
-
-
 
 // -- calculate rename changes
 // a change request happens at a symbol location that points to the lexical the cursor position, not necessarily a full symbol present in the TModel

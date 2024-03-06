@@ -120,8 +120,7 @@ tuple[str, int]  safeCompile(str \module, PathConfig pcfg, CompilerConfig compil
     try {
        println("checking <\module>");
        ModuleStatus result = rascalTModelForNames([\module], 
-                                                  pcfg, 
-                                                  rascalTypePalConfig(classicReifier=true,rascalPathConfig=pcfg), 
+                                                  rascalTypePalConfig(rascalPathConfig=pcfg), 
                                                   compilerConfig,
                                                   dummy_compile1);
        iprintln(result.tmodels[\module].messages);

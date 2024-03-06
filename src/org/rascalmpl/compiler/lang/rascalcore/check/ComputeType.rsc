@@ -404,30 +404,17 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
     fieldName = unescape("<field>");
     
    if (isReifiedAType(containerType)) {
-        if(s.getConfig().classicReifier){
-            if (fieldName == "symbol") {
-                return s.getTypeInScopeFromName("Symbol", scope, {dataId()});
-            } else if (fieldName == "definitions") {
-               s.getTypeInScopeFromName("Symbol", scope, {dataId()});
-                      
-               s.getTypeInScopeFromName("Production", scope, {dataId()});
-               return makeMapType(makeADTType("Symbol"), makeADTType("Production"));
-                    
-            } else {
-               s.report(error(field, "Field %q does not exist on type `type` (classic reifier)", fieldName));
-            }
-         } else {
-            if (fieldName == "symbol") { // TODO: symbol => atype
-                return s.getTypeInScopeFromName("AType", scope, {dataId()});
-            } else if (fieldName == "definitions") { // TODO definitions => ?
-               s.getTypeInScopeFromName("AType", scope, {dataId()});
-               s.getTypeInScopeFromName("AProduction", scope, {dataId()});
-               return makeMapType(makeADTType("AType"), makeADTType("AProduction"));
-                    
-            } else {
-               s.report(error(field, "Field %q does not exist on type `type`  (non-classic reifier)", fieldName));
-            }
-         }
+        if (fieldName == "symbol") {
+            return s.getTypeInScopeFromName("Symbol", scope, {dataId()});
+        } else if (fieldName == "definitions") {
+           s.getTypeInScopeFromName("Symbol", scope, {dataId()});
+                  
+           s.getTypeInScopeFromName("Production", scope, {dataId()});
+           return makeMapType(makeADTType("Symbol"), makeADTType("Production"));
+                
+        } else {
+           s.report(error(field, "Field %q does not exist on type `type` (classic reifier)", fieldName));
+        }
     } else if(isSyntaxType(containerType)){
        
         if(isStartNonTerminalType(containerType)){
@@ -1097,14 +1084,14 @@ private bool acceptable(int i, AType a, AType b, list[bool] uninstantiated)
         
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
-    filteredOverloads = {};
-    identicalFields = [true | int _ <- [0 .. arity]];
+    rel[loc, IdRole, AType] filteredOverloads = {};
+    list[bool] identicalFields = [true | int _ <- [0 .. arity]];
     
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
     //bool acceptable(int i, AType a, AType b)
     //    = uninstantiated[i] || comparable(a, b);
     
-    for(ovl:<_, _, tp> <- overloads){                       
+    for(ovl:<loc _, IdRole _, AType tp> <- overloads){                       
         if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
            if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
             filteredOverloads += ovl;

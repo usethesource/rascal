@@ -1,6 +1,7 @@
 @bootstrapParser
 module  lang::rascalcore::compile::Compile
 
+import Exception;
 import Message;
 import Map;
 import String;
@@ -8,6 +9,7 @@ import util::Reflective;
 import util::Benchmark;
 import IO;
 import ValueIO;
+import util::Monitor;
 
 import lang::rascal::\syntax::Rascal;
  
@@ -26,10 +28,9 @@ bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messag
 bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig){
-    //iprintln(tm, lineLimit=10000);
-    
-    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, pcfg);
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig){    
+    pcfg = ms.pathConfig;
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
    
     if(errorsPresent(tm)){
         return tm.messages;
@@ -51,53 +52,62 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         return tm.messages;
     }
     
-   	//try {
-        if(compilerConfig.verbose) println("<qualifiedModuleName>: compiling");
-       	<tm, muMod> = r2mu(M, tm, compilerConfig);
+    jobStep("RascalCompiler", "<qualifiedModuleName>: compiling");// TODO: monitor
+    if(compilerConfig.verbose) println("<qualifiedModuleName>: compiling");
+    
+    <tm, muMod> = r2mu(M, tm, compilerConfig);
    
-        if(errorsPresent(tm)){
-            return tm.messages;
-        }
-        
-        imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == qualifiedModuleName };
-        extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
-        tmodels = ();
-        for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
-            <found, tpl, ms> = getTModelForModule(m, ms, pcfg);
-            tmodels[m] = tpl;
-        }
-        tmodels[qualifiedModuleName] = tm;
-        
-        <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs);
-     
-        writeFile(interfaceFile, the_interface);
-        writeFile(classFile, the_class);
-        if(compilerConfig.logWrittenFiles) println("Written: <classFile>");
-        
-        if(!isEmpty(the_test_class)){
-            writeFile(testClassFile, the_test_class);
-        }
-        
-        writeBinaryValueFile(constantsFile, <size(constants), md5Hash(constants), constants>);
-        if(compilerConfig.logWrittenFiles) println("Written: <constantsFile>"); 
-           
+    if(errorsPresent(tm)){
         return tm.messages;
-       
-    //} catch _: CompileTimeError(Message m): {
-    //    return tm.messages + [m];   
-    //}
+    }
+        
+    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == qualifiedModuleName };
+    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
+    tmodels = ();
+    for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
+        <found, tpl, ms> = getTModelForModule(m, ms);
+        tmodels[m] = tpl;
+    }
+    tmodels[qualifiedModuleName] = tm;
+        
+    <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs);
+     
+    writeFile(interfaceFile, the_interface);
+    writeFile(classFile, the_class);
+    if(compilerConfig.logWrittenFiles) println("Written: <classFile>");
+        
+    if(!isEmpty(the_test_class)){
+        writeFile(testClassFile, the_test_class);
+        if(compilerConfig.logWrittenFiles) println("Written: <testClassFile>"); 
+    }
+      
+    writeBinaryValueFile(constantsFile, <size(constants), md5Hash(constants), constants>);
+    if(compilerConfig.logWrittenFiles) println("Written: <constantsFile>"); 
+           
+    return tm.messages;
 }
 
 @doc{Compile a Rascal source module (given at a location) to Java}
-list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerConfig) =
-    compile(getModuleName(moduleLoc, pcfg), pcfg, compilerConfig);
+list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerConfig) {
+    try {
+        moduleName = getModuleName(moduleLoc, pcfg);
+        return compile(moduleName, pcfg, compilerConfig);
+    } catch IO(msg): {
+        return [ error(msg, moduleLoc) ];
+    }
+}
 
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig compilerConfig){
+    jobStart("RascalCompiler");// TODO: monitor
     start_comp = cpuTime();   
-    ms = rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, compile1);
+    ms = rascalTModelForNames([qualifiedModuleName], rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, compile1);
    
     comp_time = (cpuTime() - start_comp)/1000000;
+   
+    jobStep("RascalCompiler", "<qualifiedModuleName>: compiled in <comp_time> ms");// TODO: monitor
+    jobEnd("RascalCompiler");// TODO: monitor
+    
     if(compilerConfig.verbose) println("<qualifiedModuleName>: compiled in <comp_time> ms");
 	
     return ms.messages[qualifiedModuleName] ? [];

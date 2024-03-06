@@ -16,6 +16,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import Location;
 import util::Reflective;
 
+//TODO: eventually, parser generator will be called
 //extend lang::rascalcore::grammar::ParserGenerator;
 
 import IO;
@@ -141,8 +142,6 @@ Accept rascalIsAcceptablePath(loc _defScope, loc def, Use _use, PathRole pathRol
     return acceptBinding();
 }
 
-//alias Bindings = map[str varName, AType varType];
-
 AType rascalInstantiateTypeParameters(Tree selector,
                                       def:aadt(str adtName1, list[AType] formals, SyntaxRole syntaxRole1),
                                       ins:aadt(str adtName2, list[AType] actuals, SyntaxRole syntaxRole2),
@@ -230,7 +229,6 @@ bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] 
 }
 
 bool rascalReportUnused(loc def, TModel tm){
-
     config = tm.config;
     if(!config.warnUnused) return false;
      
@@ -410,31 +408,28 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-loc rascalLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        moduleName = getModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..5]>" : "";
        if(def.idRole == moduleId()){
             return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|;
-       //} else if(def.idRole == moduleVariableId()){
-       //     return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)>|; 
        } else {
-        return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|; 
+            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|; 
        }
      }
      return def.defined;
 }
 
-TypePalConfig rascalTypePalConfig(bool classicReifier      = true,  
-                                  //bool logSolverIterations = false,
-                                  //bool logSolverSteps      = false,
-                                  //bool logAttempts         = false,
-                                  bool logImports          = false,
-                                  PathConfig rascalPathConfig    = pathConfig()
-                                 )
+TypePalConfig rascalTypePalConfig(
+        bool logImports               = false,
+        PathConfig rascalPathConfig   = pathConfig()
+    )
     = tconfig(
         logImports                    = logImports,
+        
+        typepalPathConfig             = rascalPathConfig,
         
         warnUnused                    = true,
         warnUnusedFormals             = true,
@@ -444,16 +439,15 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
         
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },
-        isSubType                     = /*lang::rascalcore::check::AType::*/asubtype,
-        getLub                        = /*lang::rascalcore::check::AType::*/alub,
+        isSubType                     = asubtype,
+        getLub                        = alub,
         
         isInferrable                  = rascalIsInferrable,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,
         isAcceptablePath              = rascalIsAcceptablePath,
         
-        mayOverload                   = rascalMayOverload,       
-        classicReifier                = classicReifier,
+        mayOverload                   = rascalMayOverload,
       
         getTypeNamesAndRole           = rascalGetTypeNamesAndRole,
         getTypeInTypeFromDefine       = rascalGetTypeInTypeFromDefine,
@@ -462,13 +456,14 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
         
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
-        reportUnused                  = rascalReportUnused
+        reportUnused                  = rascalReportUnused,
+        createLogicalLoc              = rascalCreateLogicalLoc
     );
     
  data CompilerConfig(
     loc reloc            = |noreloc:///|, 
-    bool verbose         = true, // for each compiled module, print PathConfig, module name and compilation time
+    bool verbose         = true,    // for each compiled module, print PathConfig, module name and compilation time
     bool optimizeVisit   = true, 
     bool enableAsserts   = true,
-    bool logWrittenFiles = false  // print location of written files: .constants, .tpl, .java
+    bool logWrittenFiles = false    // print location of written files: .constants, .tpl, *.java
  ) = cconfig();
