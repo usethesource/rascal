@@ -1,7 +1,8 @@
 @bootstrapParser
 module lang::rascalcore::compile::Examples::Tst4
+import IO;
 
-syntax S
-    = a: "a" 
-    | b : "b"
-    ;
+value main() {
+    println("Hello");
+    return true;
+}

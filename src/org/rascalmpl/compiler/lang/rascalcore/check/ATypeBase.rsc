@@ -133,7 +133,7 @@ public AProduction choice(AType s, set[AProduction] choices){
 // ---- Parse Tree
 
 data ATree 
-     = appl(AProduction aprod, list[ATree] args, loc src=|unknown:///|) // <1>
+     = appl(AProduction aprod, list[ATree] args/*, loc src=|unknown:///|*/) // <1>
      | cycle(AType atype, int cycleLength)  // <2>
      | aamb(set[ATree] alternatives) // <3> 
      | achar(int character) // <4>

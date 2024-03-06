@@ -1,4 +1,4 @@
-module CheckSources
+module CheckTestSources
 
 import IO;
 import String;
@@ -90,9 +90,7 @@ void checkTestSources(PathConfig pcfg) {
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
-                 ];  
-   
-   println(testModules);
+                 ];
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           

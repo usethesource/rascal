@@ -11,12 +11,16 @@ import ValueIO;
 
 import lang::rascal::\syntax::Rascal;
  
-import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
 extend lang::rascalcore::check::Checker;
+import lang::rascalcore::check::RascalConfig;
+
+import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
+
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
+
 
 bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messages ]);
 bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
@@ -48,8 +52,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     }
     
    	//try {
-        //if(verbose) 
-        println("Compile: <qualifiedModuleName> (<size(ms.parseTrees)> cached parse trees, <size(ms.tmodels)> cached tmodels)");
+        if(compilerConfig.verbose) println("<qualifiedModuleName>: compiling");
        	<tm, muMod> = r2mu(M, tm, compilerConfig);
    
         if(errorsPresent(tm)){
@@ -69,14 +72,14 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
      
         writeFile(interfaceFile, the_interface);
         writeFile(classFile, the_class);
-        println("Written: <classFile>");
+        if(compilerConfig.logWrittenFiles) println("Written: <classFile>");
         
         if(!isEmpty(the_test_class)){
             writeFile(testClassFile, the_test_class);
         }
         
         writeBinaryValueFile(constantsFile, <size(constants), md5Hash(constants), constants>);
-        println("Written: <constantsFile>"); 
+        if(compilerConfig.logWrittenFiles) println("Written: <constantsFile>"); 
            
         return tm.messages;
        
@@ -95,7 +98,7 @@ list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig c
     ms = rascalTModelForNames([qualifiedModuleName], pcfg, rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, compile1);
    
     comp_time = (cpuTime() - start_comp)/1000000;
-    /*if(verbose)*/ println("Compiling <qualifiedModuleName>: <comp_time> ms");
+    if(compilerConfig.verbose) println("<qualifiedModuleName>: compiled in <comp_time> ms");
 	
     return ms.messages[qualifiedModuleName] ? [];
 }

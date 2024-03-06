@@ -8,6 +8,8 @@ module lang::rascalcore::check::Import
 
 extend lang::rascalcore::check::CheckerCommon;
 
+import lang::rascalcore::check::RascalConfig;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ADTandGrammar;
 
@@ -259,15 +261,15 @@ ModuleStatus complete(ModuleStatus ms, PathConfig pcfg){
     return ms;
 }
 
-ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg, bool logImports){
-    return complete((newModuleStatus() | getImportAndExtendGraph(qualifiedModuleName, pcfg, it, logImports) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
+ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg){
+    return complete((newModuleStatus() | getImportAndExtendGraph(qualifiedModuleName, pcfg, it) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
 }
 
-ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool logImports){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, newModuleStatus(), logImports), pcfg);
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg){
+    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, newModuleStatus()), pcfg);
 }
 
-ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, ModuleStatus ms, bool logImports){
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, ModuleStatus ms){
     qualifiedModuleName = unescape(qualifiedModuleName);
     
     if(!ms.status[qualifiedModuleName]?){
@@ -325,7 +327,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
             }
         }
         if(allImportsAndExtendsValid){
-            if(logImports) println("*** importing <qualifiedModuleName>");
             ms.status[qualifiedModuleName] += {tpl_uptodate(), checked()}; //TODO: maybe check existence of generated java files
    
             ms.moduleLocs += tm.moduleLocs;
@@ -333,7 +334,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
             for(imp <- localImportsAndExtends<0>, module_dependencies_extracted() notin ms.status[imp]  ){
-                ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
+                ms = getImportAndExtendGraph(imp, pcfg, ms);
             }
             return ms;
          }
@@ -346,7 +347,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, M
    
         for(<_, kind, imp> <- imports_and_extends){
             ms.strPaths += {<qualifiedModuleName, kind, imp>};
-            ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
+            ms = getImportAndExtendGraph(imp, pcfg, ms);
         }
     }
     
@@ -427,7 +428,7 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
     return ms;
 }
 
-ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes,  PathConfig pcfg){
+ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes,  PathConfig pcfg, CompilerConfig compilerConfig){
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
@@ -527,8 +528,8 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                         
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
             
-            println("TModel before check:");
-            iprintln(m1);
+            //println("TModel before check:");
+            //iprintln(m1, lineLimit=10000);
             
             //TODO temporary check:
             
@@ -536,7 +537,13 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             
             void checkPhysical(value v, str label){ 
                 visit(v){
-                    case loc l: if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+"))) result += "<label>, outside <qualifiedModuleName>: <l>\n";
+                    case loc l: {
+                            if(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+")){
+                                ;
+                            } else {
+                                result += "<label>, outside <qualifiedModuleName>: <l>\n";
+                            }
+                        }
                 }
             }
             checkPhysical(m1.moduleLocs, "moduleLocs");
@@ -552,30 +559,20 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             if(!isEmpty(result)){
                 println("------------- <qualifiedModuleName>:
                         '<result>");
-                //iprintln(m1, lineLimit=10000);
+                iprintln(m1, lineLimit=10000);
+                throw "checkPhysical failed, see above";
             }
             
             ms.status[qualifiedModuleName] += tpl_saved();
             try {
                 writeBinaryValueFile(tplLoc, m1);
-                println("Written: <tplLoc>");
+                if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
             } catch _: {
                 throw "Corrupt TPL file <tplLoc>";
             }
             
             ms.tmodels[qualifiedModuleName] = m1;
             
-            if(tm.config.logImports) {
-                 errors = { msg | msg <- m1.messages, error(_,_) := msg };
-                 n_errors = size(errors);
-                 n_other = size(m1.messages) - n_errors;
-                 notes = n_errors > 0 ? " ERRORS <n_errors>" : "";
-                 notes += n_errors > 0 ? " WARNINGS/INFO: <n_other>" : "";
-                 if (n_errors > 0) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)<notes>");
-                 for(e <- errors){
-                    iprintln(e);
-                 }
-            }
         } catch value e: {
             ms.tmodels[qualifiedModuleName] = tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
             return ms;

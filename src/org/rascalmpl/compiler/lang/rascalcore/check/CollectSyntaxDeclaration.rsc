@@ -31,10 +31,10 @@ void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod product
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, Collector c){
-    declareSyntax(current, contextFreeSyntax(), nonterminalId(), c/*, isStart=strt is present*/);
+    declareSyntax(current, contextFreeSyntax(), nonterminalId(), c);
 }
 
-void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, /*bool isStart=false,*/ Vis vis=publicVis()){
+void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
    //println("declareSyntax: <current>");
     Sym defined = current.defined;
     Prod production = current.production;
@@ -76,7 +76,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
 AProduction getProd(AType adtType, Tree tree, Solver s){
     symType = s.getType(tree);
     if(aprod(AProduction p) := symType) return p;    
-    return prod(adtType, [symType], src=getLoc(tree));
+    return prod(adtType, [symType]/*, src=getLoc(tree)*/);
 }
 
 void collect(current: (Prod) `: <Name referenced>`, Collector c){
@@ -89,15 +89,10 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
 }
 
 AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
-    //try {   
-    //    if(ap: aprod(p) := s.getType(current)){
-    //        return aprod(ap);
-    //    }     
-    //} catch e:;
     args = [s.getType(sym) | sym <- symbols];  
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
-    p = isEmpty(m2a) ? prod(adtType, args, src=src) : prod(adtType, args, attributes=m2a, src=src);
+    p = isEmpty(m2a) ? prod(adtType, args/*, src=src*/) : prod(adtType, args, attributes=m2a/*, src=src*/);
     if(name != ""){
         p.alabel = name;
     }
@@ -145,8 +140,8 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         }
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
         
-         // Define the constructor (using a location annotated with "cons" to differentiate from the above)
-        c.defineInScope(adtParentScope, unescape("<name>") /*qualName*/, constructorId(), name /*getLoc(current)[fragment="cons"]*/, defType([current], 
+         // Define the constructor
+        c.defineInScope(adtParentScope, unescape("<name>"), constructorId(), name, defType([current], 
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
