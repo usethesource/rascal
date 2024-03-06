@@ -222,7 +222,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
         
     before = cpuTime();
     try {
-        ms = getImportAndExtendGraph(topModuleNames, pcfg, config.logImports);
+        ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
         if(forceCompilationTopModule){
             for(nm <- topModuleNames){
@@ -342,7 +342,7 @@ ModuleStatus rascalTModelForLocs(list[loc] mlocs,
                         ms.status[m] += {code_generated()};
                     }
                 }
-                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, pcfg);
+                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, pcfg, compilerConfig);
             }
         }
  
@@ -475,7 +475,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   CompilerConfig compilerConfig, 
                                   list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, PathConfig pcfg, CompilerConfig compilerConfig) codgen){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-    iprintln(pcfg);
+    if(compilerConfig.verbose) iprintln(pcfg);
     //try {
         mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
         return rascalTModelForLocs(mlocs, pcfg, config, compilerConfig, codgen);
@@ -500,7 +500,7 @@ list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Ra
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg, CompilerConfig compilerConfig){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     //println("=== check: <moduleLocs>"); iprintln(pcfg1);
-    ms = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=false), compilerConfig, dummy_compile1);
+    ms = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true), compilerConfig, dummy_compile1);
     return [ program(ms.moduleLocs[mname], toSet(ms.messages[mname])) | mname <- ms.messages ];
 }
 

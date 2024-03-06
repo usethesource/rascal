@@ -466,8 +466,9 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
     );
     
  data CompilerConfig(
-    loc reloc           = |noreloc:///|, 
-    bool verbose        = false, 
-    bool optimizeVisit  = true, 
-    bool enableAsserts  = true
+    loc reloc            = |noreloc:///|, 
+    bool verbose         = true, // for each compiled module, print PathConfig, module name and compilation time
+    bool optimizeVisit   = true, 
+    bool enableAsserts   = true,
+    bool logWrittenFiles = false  // print location of written files: .constants, .tpl, .java
  ) = cconfig();
