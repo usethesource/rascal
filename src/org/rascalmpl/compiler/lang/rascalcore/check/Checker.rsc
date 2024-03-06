@@ -413,6 +413,17 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg, CompilerConfig compiler
     return check(toList(find(root, "rsc")), pcfg, compilerConfig);
 }
 
+// ---- Convenience check function during development -------------------------
+      
+map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config, PathConfig pcfg) {
+    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, pcfg, config);
+    return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
+}
+
+// ---- Convenience check function during development -------------------------
+
+
+
 // -- calculate rename changes
 // a change request happens at a symbol location that points to the lexical the cursor position, not necessarily a full symbol present in the TModel
 // returns a list of changes (that can cross multiple files)
