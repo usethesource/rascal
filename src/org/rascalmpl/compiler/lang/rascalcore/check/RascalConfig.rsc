@@ -462,9 +462,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier      = true,
         
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
-        reportUnused                  = rascalReportUnused,
-        typepalPathConfig             = rascalPathConfig,
-        createLogicalLoc              = rascalLogicalLoc
+        reportUnused                  = rascalReportUnused
     );
     
  data CompilerConfig(
