@@ -28,7 +28,7 @@ void checkTestSources(PathConfig pcfg) {
      libs = [ ]
      );
      
-   println("PathConfig for generating test sources:\n");
+   println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
    
    testCompilerConfig = getRascalCompilerConfig();
@@ -92,7 +92,7 @@ void checkTestSources(PathConfig pcfg) {
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];
                  
-   ignored = ["lang::rascal::tests::concrete::Patterns3"
+   ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
    testModules -= ignored; 
    

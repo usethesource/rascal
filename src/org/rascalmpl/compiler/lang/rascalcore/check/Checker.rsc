@@ -416,7 +416,8 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg, CompilerConfig compiler
 // ---- Convenience check function during development -------------------------
       
 map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config, PathConfig pcfg) {
-    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, pcfg, config);
+    ModuleStatus ms = rascalTModelForNames(moduleNames, config, getRascalCompilerConfig(), dummy_compile1);
+    tmodels = ms.tmodels;
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }
 
