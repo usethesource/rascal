@@ -530,10 +530,10 @@ isDisjoined({{1,2}, {1,4}, {1,6}});
 }
 public bool isDisjoined(set[set[&T]] sets) {
   list[set[&T]] setsAsList = toList(sets);
-  pairs = {};
-  for (elem1 <- setsAsList) {
-    for (elem2 <- setsAsList[1..]) {
-      if (elem1 & elem2 != {}) return false;
+
+  for (elem1 <- [0..size(setsAsList)-1]) {
+    for (elem2 <- [elem1+1..size(setsAsList)]) {
+      if (setsAsList[elem1] & setsAsList[elem2] != {}) return false;
     }
   }
 
