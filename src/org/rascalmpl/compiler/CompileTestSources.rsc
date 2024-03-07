@@ -1,5 +1,10 @@
 module CompileTestSources
 
+// Compile:
+// - selected standard libraries
+// - all tests in the lang/rascal/tests folder
+// - all type checker tests in "lang::rascalcore::check::tests (for now disabled)
+
 import IO;
 import String;
 import Set;
@@ -21,16 +26,14 @@ void main() = compileTestSources(manualTestConfig);
 
 void compileTestSources(PathConfig pcfg) {
      testConfig = pathConfig(
-     bin=pcfg.bin,
-     generatedSources=|project://rascal-core/target/generated-test-sources2|,
-     resources = |project://rascal-core/target/generated-test-resources2|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
-     libs = [ ]
+        bin=pcfg.bin,
+        generatedSources=|project://rascal-core/target/generated-test-sources2|,
+        resources = |project://rascal-core/target/generated-test-resources2|,
+        srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
+        libs = [ ]
      );
      
-   
-     
-   println("PathConfig for generating test sources:\n");
+   println("PathConfig for compiling test sources:\n");
    iprintln(testConfig);
    
    testCompilerConfig = getRascalCompilerConfig();
@@ -133,7 +136,7 @@ void compileTestSources(PathConfig pcfg) {
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
                  ];  
                  
-   ignored = ["lang::rascal::tests::concrete::Patterns3"
+   ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
    testModules -= ignored;    
    
