@@ -513,3 +513,29 @@ public set[&T] union(set[set[&T]] sets) = {*s | s <- sets};
 
 @synopsis{Compute the Jaccard similarity between two sets.}
 real jaccard(set[value] x, set[value] y) = (1. * size(x & y)) / size(x + y);
+
+
+@synopsis{Calculate the intersection of a set of sets.}
+public set[&T] intersection(set[set[&T]] sets)  = (getFirstFrom(sets) | it & elem | elem <- sets);
+
+
+@synopsis{Checks if all sets in the set are pairwise disjoined.}
+@examples{
+```rascal-shell
+import Set;
+isDisjoined({{1,2}, {3,4}, {5,6}});
+isDisjoined({{1,2}, {1,4}, {5,6}});
+isDisjoined({{1,2}, {1,4}, {1,6}});
+```
+}
+public bool isDisjoined(set[set[&T]] sets) {
+  list[set[&T]] setsAsList = toList(sets);
+  pairs = {};
+  for (elem1 <- setsAsList) {
+    for (elem2 <- setsAsList[1..]) {
+      if (elem1 & elem2 != {}) return false;
+    }
+  }
+
+  return true;
+}
