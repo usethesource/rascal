@@ -465,5 +465,5 @@ TypePalConfig rascalTypePalConfig(
     bool verbose         = true,    // for each compiled module, print PathConfig, module name and compilation time
     bool optimizeVisit   = true, 
     bool enableAsserts   = true,
-    bool logWrittenFiles = false    // print location of written files: .constants, .tpl, *.java
+    bool logWrittenFiles = true    // print location of written files: .constants, .tpl, *.java
  ) = cconfig();
