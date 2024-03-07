@@ -111,7 +111,7 @@ public PathConfig getDefaultPathConfig() {
 @synopsis{for type-checking test modules in the rascal-core project; such as lang::rascalcore::check::Test1}
 @description{
 * sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
-* binaries will be stored in-memory only
+* binaries will be stored the target folder of the rascal-core project
 * has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
 }
 public PathConfig getRascalCorePathConfig() {

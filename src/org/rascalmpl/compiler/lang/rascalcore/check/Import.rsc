@@ -560,8 +560,8 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             try {
                 writeBinaryValueFile(tplLoc, m1);
                 if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
-            } catch _: {
-                throw "Corrupt TPL file <tplLoc>";
+            } catch value e: {
+                throw "Corrupt TPL file <tplLoc> because of <e>";
             }
             
             ms.tmodels[qualifiedModuleName] = m1;
