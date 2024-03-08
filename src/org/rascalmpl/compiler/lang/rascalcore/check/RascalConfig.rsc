@@ -422,9 +422,8 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      return def.defined;
 }
 
-TypePalConfig rascalTypePalConfig(
-        bool logImports               = false,
-        PathConfig rascalPathConfig   = pathConfig()
+TypePalConfig rascalTypePalConfig(PathConfig rascalPathConfig,
+        bool logImports               = false
     )
     = tconfig(
         logImports                    = logImports,

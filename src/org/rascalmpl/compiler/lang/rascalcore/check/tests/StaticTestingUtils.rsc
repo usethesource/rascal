@@ -20,7 +20,7 @@ import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::check::Checker;
 
-PathConfig testingConfig() { 
+PathConfig pathConfigForTesting() { 
   return getDefaultPathConfig(); 
 }
 
@@ -64,7 +64,7 @@ set[Message] getAllMessages(ModuleStatus r)
 
 ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true){
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], rascalTypePalConfig(rascalPathConfig=testingConfig()),  getRascalCompilerConfig()[verbose=verbose], dummy_compile1);
+   return rascalTModelForLocs([mloc], rascalTypePalConfig(pathConfigForTesting()), getRascalCompilerConfig(), dummy_compile1);
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
@@ -89,8 +89,12 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 }
 
 bool checkModuleOK(loc moduleToCheck){
+<<<<<<< HEAD
 	//rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig());
      errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalTypePalConfig(rascalPathConfig=testingConfig()), getRascalCompilerConfig(), dummy_compile1));
+=======
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalTypePalConfig(pathConfigForTesting()), getRascalCompilerConfig(), dummy_compile1));
+>>>>>>> e1f02a88 (Changed keyword parameter rascalPathConfig to positional parameter)
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");

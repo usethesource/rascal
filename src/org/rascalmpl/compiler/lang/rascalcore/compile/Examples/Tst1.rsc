@@ -18,13 +18,8 @@ void main() {
                            |project://typepal/src|],
                     libs = [|lib:///| ]
                 );
-    ModuleStatus result =  rascalTModelForNames([input_module], testConfig, 
-                                                 rascalTypePalConfig(
-                                                    classicReifier=true
-                                                    //logSolverSteps=true,
-                                                    //logSolverIterations=true,
-                                                    //logAttempts=true
-                                                 ),
+    ModuleStatus result =  rascalTModelForNames([input_module],
+                                                 rascalTypePalConfig(testConfig),
                                                  getRascalCompilerConfig(),
                                                  dummy_compile1
                                                  );
@@ -32,13 +27,3 @@ void main() {
     iprintln(result.tmodels[input_module].messages);
     println("Total time for checker: <(cpuTime() - start_time)/1000000> ms");
 }
-/*
-
- rascalTModelForNames(["lang::rascalcore::compile::Examples::Tst0"], getRascalCorePathConfig(), 
-                                                     rascalTypePalConfig(
-                                                        classicReifier=true,
-                                                        //logSolverSteps=true,
-                                                        //logSolverIterations=true,
-                                                        logAttempts=true
-                                                     ));
-*/

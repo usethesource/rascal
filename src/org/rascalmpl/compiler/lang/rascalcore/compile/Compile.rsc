@@ -101,7 +101,7 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerCon
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig compilerConfig){
     jobStart("RascalCompiler");// TODO: monitor
     start_comp = cpuTime();   
-    ms = rascalTModelForNames([qualifiedModuleName], rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, compile1);
+    ms = rascalTModelForNames([qualifiedModuleName], rascalTypePalConfig(pcfg), compilerConfig, compile1);
    
     comp_time = (cpuTime() - start_comp)/1000000;
    
