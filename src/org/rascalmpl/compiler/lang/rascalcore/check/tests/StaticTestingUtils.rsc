@@ -62,14 +62,17 @@ set[Message] getAllMessages(ModuleStatus r)
     = { m | mname <- r.tmodels, m <- r.tmodels[mname].messages };
 
 
-ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
+ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true){
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], rascalTypePalConfig(rascalPathConfig=testingConfig()),  getRascalCompilerConfig(), dummy_compile1);
+   return rascalTModelForLocs([mloc], rascalTypePalConfig(rascalPathConfig=testingConfig()),  getRascalCompilerConfig()[verbose=verbose], dummy_compile1);
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
-     errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls));
-     println(errors);
+	bool verbose=false;
+     errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose));
+	 if (verbose) {
+     	println(errors);
+	 }
      for(eitem <- errors, str exp <- expected){
          if(matches(eitem.msg, exp))
                return true;          
