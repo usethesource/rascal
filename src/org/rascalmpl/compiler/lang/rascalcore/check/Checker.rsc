@@ -327,7 +327,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
 }
 
 tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms,
-                                                 TypePalConfig config=rascalTypePalConfig(rascalPathConfig=ms.pathConfig), bool inline=false){
+                                                 TypePalConfig config=rascalTypePalConfig(ms.pathConfig), bool inline=false){
                                                         
     pcfg = ms.pathConfig;
     modelName = intercalate(" + ", toList(moduleNames));    
@@ -405,7 +405,7 @@ list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Ra
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg, CompilerConfig compilerConfig){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     //println("=== check: <moduleLocs>"); iprintln(pcfg1);
-    ms = rascalTModelForLocs(moduleLocs, rascalTypePalConfig(rascalPathConfig = pcfg), compilerConfig, dummy_compile1);
+    ms = rascalTModelForLocs(moduleLocs, rascalTypePalConfig(pcfg), compilerConfig, dummy_compile1);
     return [ program(ms.moduleLocs[mname], toSet(ms.messages[mname])) | mname <- ms.messages ];
 }
 
