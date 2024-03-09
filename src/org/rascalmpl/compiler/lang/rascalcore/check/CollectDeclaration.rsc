@@ -36,9 +36,8 @@ import util::Reflective;
 
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
 
-    //current = current.top;
+    mloc = getLoc(current);
     mname = prettyPrintName(header.name);
-    //println("Type checking module  <mname>");
     checkModuleName(getLoc(current), header.name, c);
     
     tagsMap = getTags(header.tags);
@@ -68,8 +67,8 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
             if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
                 c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
             }
-        } catch _: {
-            c.report(error(qualifiedModuleName, "Module name %v is not consistent with its file location", mname));
+        } catch str e: {
+            c.report(error(qualifiedModuleName, e));
         }
     } else if(isEmpty(pcfgVal)){
         return;

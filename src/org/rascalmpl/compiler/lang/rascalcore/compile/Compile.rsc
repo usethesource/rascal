@@ -89,16 +89,27 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
 
 @doc{Compile a Rascal source module (given at a location) to Java}
 list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerConfig) {
+
+    msgs = validatePathConfigForCompiler(pcfg, moduleLoc);
+    if(!isEmpty(msgs)){
+        return msgs;
+    }
+    moduleName = "**unknown**";
     try {
         moduleName = getModuleName(moduleLoc, pcfg);
-        return compile(moduleName, pcfg, compilerConfig);
-    } catch IO(msg): {
-        return [ error(msg, moduleLoc) ];
+    } catch str e: {
+        return [ error("Cannot find name for location, reason: <e>", moduleLoc) ];
     }
+    return compile(moduleName, pcfg, compilerConfig);
 }
 
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig compilerConfig){
+    msgs = validatePathConfigForCompiler(pcfg, |unknown:///|);
+    if(!isEmpty(msgs)){
+        return msgs;
+    }
+    
     jobStart("RascalCompiler");// TODO: monitor
     start_comp = cpuTime();   
     ms = rascalTModelForNames([qualifiedModuleName], rascalTypePalConfig(pcfg), compilerConfig, compile1);

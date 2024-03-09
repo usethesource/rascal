@@ -354,6 +354,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms.strPaths += {<qualifiedModuleName, kind, imp>};
             ms = getImportAndExtendGraph(imp, ms);
         }
+    } else {
+        ms.messages[qualifiedModuleName] += error("Cannot get parse tree for module `<qualifiedModuleName>`", ms.moduleLocs[qualifiedModuleName]);
     }
     
     return ms;
@@ -462,7 +464,6 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
             
             TModel m1 = tmodel();
-            
             m1.modelName = qualifiedModuleName;
             m1.moduleLocs = (qualifiedModuleName : mscope);
             
@@ -561,13 +562,13 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                 writeBinaryValueFile(tplLoc, m1);
                 if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
             } catch value e: {
-                throw "Corrupt TPL file <tplLoc> because of <e>";
+                throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
             
             ms.tmodels[qualifiedModuleName] = m1;
             
         } catch value e: {
-            ms.tmodels[qualifiedModuleName] = tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
+            ms.tmodels[qualifiedModuleName] = tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
             return ms;
         }
     }
