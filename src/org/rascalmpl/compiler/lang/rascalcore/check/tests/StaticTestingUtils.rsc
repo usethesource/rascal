@@ -21,7 +21,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::Checker;
 
 PathConfig pathConfigForTesting() { 
-  return getDefaultPathConfig(); 
+  return getDefaultTestingPathConfig(); 
 }
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
@@ -44,11 +44,10 @@ loc buildModule(str stmts,  list[str] importedModules = [], list[str] initialDec
 }
 
 loc makeModule(str name, str body){
-    mloc = |memory://test-modules/<name>.rsc|;
+    mloc = |memory:///test-modules/<name>.rsc|;
     writeFile(mloc, "@bootstrapParser
                      'module <name>
                      '<body>");
-    //println("module: <name>\n<body>");
     return mloc;
 }
 
@@ -60,7 +59,6 @@ set[Message] getWarningMessages(ModuleStatus r)
 
 set[Message] getAllMessages(ModuleStatus r)
     = { m | mname <- r.tmodels, m <- r.tmodels[mname].messages };
-
 
 ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true){
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
@@ -89,12 +87,7 @@ bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls =
 }
 
 bool checkModuleOK(loc moduleToCheck){
-<<<<<<< HEAD
-	//rascalTModelForLocs([moduleToCheck], testingConfig(), rascalTypePalConfig());
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalTypePalConfig(rascalPathConfig=testingConfig()), getRascalCompilerConfig(), dummy_compile1));
-=======
      errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalTypePalConfig(pathConfigForTesting()), getRascalCompilerConfig(), dummy_compile1));
->>>>>>> e1f02a88 (Changed keyword parameter rascalPathConfig to positional parameter)
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
@@ -130,34 +123,6 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Types _ and _ do not match",
 	    "Cannot instantiate formal parameter type _",
 	    "Bounds _ and _ are not comparable"
-		//"_ not defined for _ and _", 
-		//"not defined on _ and _", 
-		//"not declared on",
-		//"Invalid type: expected _, found _", 
-		//"Invalid type _, expected expression of type _",
-		//"Expected type _, found _", 
-		//"Expected _, found _",
-		//"Unable to bind subject type _ to assignable", 
-		//"Unable to bind result type _ to assignable",
-		//"not assignable to",
-		//"Cannot use type", 
-		//"expected return type",
-		//"Expected subscript of type _, not _", 
-		//"Cannot subscript assignable of type", 
-		//"Unexpected type _, expected type _", 
-		//"Unexpected type _, generator should be an expression of type bool",
-		//"Type of bound should be", 
-		//"_ and _ incomparable", 
-		//"must have an actual type",
-		//"Cannot assign value of type", 
-		//"Cannot assign pattern of type",
-		//"does not allow fields",
-		//"Tuple index must be between", 
-		//"out of range",
-		//"Cannot add append information, no valid surrounding context found",
-		//"Cannot match an expression of type: _ against a pattern of type _",
-		//"Cannot subscript map of type _ using subscript of type _",
-		//"Inserted type _ must be a subtype of case type _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
@@ -181,7 +146,6 @@ bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] ini
 bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 	   "Undefined _"
-		//"Type _ not declared"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool undefinedField(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -195,22 +159,13 @@ bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initi
 	      "Expected _ argument(s),",
 	      "Argument _ should have type _ found _",
 	      "Return type _ expected, found _",
-	      "Keyword argument _ has type _, expected _"
-	   
-	      //"Function of type _ cannot be called with argument types _", 
-		  //"Constructor of type _ cannot be built with argument types _",
-		  //"Constructor accepts _ arguments but was given only _ arguments",
-		  //"Keyword parameter of type _ cannot be assigned argument of type _",
-		  //"Unknown keyword parameter passed: _"
+	      "Keyword argument _ has type _, expected _"  
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool redeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 	      "Undefined _ due to double declaration",
 	      "Double declaration of _"
-		  //"Cannot re-declare name that is already declared in the current function or closure",
-		  //"redeclaration",
-		  //"has already been declared"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -222,9 +177,6 @@ bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDec
 	      "Pattern should be comparable with _, found _",
 	      "Expected tuple pattern with _ elements, found _",
 	      "Pattern variable _ has been introduced before, add explicit declaration of its type"
-		  //"Cannot match an expression of type: _ against a pattern of type", 
-		  //"Cannot assign pattern of type", 
-		  //"is not enumerable"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool declarationError(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -237,16 +189,11 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	      "Unresolved type for _",
 	       "Constructor _ in formal parameter should be unique",
 	       "Type _ should have one type argument"
-		  //"Constructor _ overlaps existing constructors in the same datatype", 
-		  //"Initializer type",
-		  //"Errors present in constructor parameters, cannot add constructor to scope"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 	      "Reference to name _ cannot be resolved"
-		  //"Cannot import module _",
-		  //"Could not parse and prepare config for base module to check: IO"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -257,7 +204,6 @@ bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecl
 bool nonVoidType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
     check(stmts, [
           "Contribution to _ comprehension should not have type `void`"
-          //"Non-void type required"
     ], importedModules=importedModules, initialDecls=initialDecls);
     
 bool unsupported(str stmts, list[str] importedModules = [], list[str] initialDecls = []) =

@@ -38,14 +38,12 @@ extend lang::rascalcore::check::RascalConfig;
 
 import IO;
 import List;
-import Map;
 import Message;
 import Node;
 import Relation;
 import Set;
 import String;
 
-import util::Benchmark;
 import util::Reflective;
 import util::FileSystem;
 import util::Monitor;
@@ -89,7 +87,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 //   }
 //}
 
-// ----  Various check functions  ---------------------------------------------
+// ----  Various PathConfigs  ---------------------------------------------
 
 private int npc = 0;
 @synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system.}
@@ -98,17 +96,19 @@ private int npc = 0;
 * generates bin files in the in-memory file system 
 * depends only on the pre-compiled standard library from the rascal project 
 }
-public PathConfig getDefaultPathConfig() {
+public PathConfig getDefaultTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(   
-        srcs = [|memory://test-modules/|],
-        bin = |memory://test-modules/rascal-core-tests-bin-<snpc>|, 
-        libs = [|lib://rascal/|]
+        srcs = [ |memory:///test-modules/|  ],
+        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
+        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
+        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        libs = [ |std:///| ]
     );
 }
 
-@synopsis{for type-checking test modules in the rascal-core project; such as lang::rascalcore::check::Test1}
+@synopsis{PathConfig for type-checking test modules in the rascal-core project; such as lang::rascalcore::check::Test1}
 @description{
 * sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
 * binaries will be stored the target folder of the rascal-core project
@@ -137,13 +137,52 @@ public PathConfig getRascalProjectPathConfig() {
     snpc = "<npc>";
     return pathConfig(   
         srcs = [|project://rascal/src/org/rascalmpl/library|], 
-        bin = |memory://test-modules/rascal-lib-bin-<snpc>|, 
+        bin = |memory:///test-modules/rascal-lib-bin-<snpc>|, 
         libs = []
     );  
 }  
 
 CompilerConfig getRascalCompilerConfig()
     = cconfig();
+
+list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc){
+    msgs = [];
+    
+    if(isEmpty(pcfg.srcs)) msgs += error("PathConfig: `srcs` is empty", mloc);
+    for(src <- pcfg.srcs){
+        if(!exists(src)) msgs += error("PathConfig `srcs`: <src> does not exist", src);
+    }
+    for(lb <- pcfg.libs){
+        if(!exists(lb)) msgs += error("PathConfig `libs`: <lb> does not exist", lb);
+    }
+    
+    if(!exists(pcfg.bin)) {
+        try {
+            mkDirectory(pcfg.resources);
+        } catch _: {
+            msgs += error("PathConfig `bin`: <pcfg.bin> does not exist", pcfg.bin);
+        }
+    }
+    
+    if(!exists(pcfg.resources)) {
+        try {
+            mkDirectory(pcfg.resources);
+        } catch _: {
+            msgs += error("PathConfig `resources`: <pcfg.resources> does not exist", pcfg.resources);
+        }
+    }
+    
+    if(!exists(pcfg.generatedSources)) 
+        try {
+            mkDirectory(pcfg.generatedSources);
+        } catch _: {
+            msgs += error("PathConfig `generatedSources`: <pcfg.generatedSources> does not exist", pcfg.generatedSources);
+        }
+        
+    return msgs;
+}
+
+// ----  Various check functions  ---------------------------------------------
 
 // rascalTModelForLocs is the basic work horse
  
@@ -153,14 +192,29 @@ ModuleStatus rascalTModelForLocs(
     CompilerConfig compilerConfig,
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig) codgen
 ){     
+    bool forceCompilationTopModule = false; /***** for convenience, set to true during development of type checker *****/
     
     pcfg = config.typepalPathConfig;
     if(compilerConfig.verbose) iprintln(pcfg);
-     
-    bool forceCompilationTopModule = false; /***** for convenience, set to true during development of type checker *****/
+    
+    msgs = validatePathConfigForCompiler(pcfg, mlocs[0]);
+    if(!isEmpty(msgs)){
+        throw msgs;
+    }
+
     ModuleStatus ms = newModuleStatus(pcfg); 
-    topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
-        
+    topModuleNames = {};
+    
+    for(mloc <- mlocs){
+        //try {
+            m = getModuleName(mloc, pcfg);
+            topModuleNames += {m};
+        //} catch str e: {
+        //    ms.messages += [ error("Cannot get module name for <mloc>, reason: <e>", mloc) ];
+        //    return ms;
+        //}
+    }
+    
     try {
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
@@ -179,7 +233,7 @@ ModuleStatus rascalTModelForLocs(
         
         if(isEmpty(sorted)){
             ordered = toList(topModuleNames);
-            for(topModuleName <- topModuleNames){
+            for(str topModuleName <- topModuleNames){
                 module2component[topModuleName] = {topModuleName};
             }
         } else {
@@ -211,7 +265,7 @@ ModuleStatus rascalTModelForLocs(
                }
             }
             if(!all(m <- component, tpl_uptodate() in ms.status[m] || checked() in ms.status[m])){
-                <tm, ms> = rascalTModelComponent(component, ms, config=config);
+                <tm, ms> = rascalTModelComponent(component, ms, config);
                 moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
@@ -252,6 +306,8 @@ ModuleStatus rascalTModelForLocs(
                                 }
                             }
                             tm.messages += msgs;
+                        } else {
+                            tm.messages += error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]);
                         }
                     }
                     if(ms.messages[m]?){
@@ -276,6 +332,8 @@ ModuleStatus rascalTModelForLocs(
                         msgs = codgen(m, pt, ms, compilerConfig);
                         ms.messages[m] = msgs;
                         ms.status[m] += {code_generated()};
+                    } else {
+                        ms.messages[m] += error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]);
                     }
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, compilerConfig);
@@ -326,23 +384,20 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
     return <added, ms>;
 }
 
-tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms,
-                                                 TypePalConfig config=rascalTypePalConfig(ms.pathConfig), bool inline=false){
+tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms, TypePalConfig config){
                                                         
     pcfg = ms.pathConfig;
     modelName = intercalate(" + ", toList(moduleNames));    
     map[str, Module] namedTrees = ();
     for(nm <- moduleNames){
-        //if(checked() notin ms.status[nm]){
-            <success, pt, ms> = getModuleParseTree(nm, ms);
-            if(success){
-                namedTrees[nm] = pt;
-            }
-        //} else {
-        //    println("*** rascalTModelComponent: <moduleNames>: reusing <nm>");
-        //}
+        <success, pt, ms> = getModuleParseTree(nm, ms);
+        if(success){
+            namedTrees[nm] = pt;
+        } else {
+            ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
+        }
     }
-    
+    jobStart("RascalCompiler");
     jobStep("RascalCompiler", "Type checking <modelName>"); // TODO: monitor
     if(config.verbose) println("Type checking <modelName>");
     
@@ -378,20 +433,19 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig) codgen){
 
    
-    
-    //try {
-        pcfg = config.typepalPathConfig;
-        mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
-        return rascalTModelForLocs(mlocs, config, compilerConfig, codgen);
-    //} catch value e: {
-    //    mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-    //    ms = newModuleStatus();
-    //    for( moduleName <- moduleNames){
-    //        ms.messages[moduleName] = [ error("<e>", mloc) ];
-    //    }
-    //    return ms;
-    //    //return <(moduleName : tmodel()[messages = [ error("<e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
-    //}
+    pcfg = config.typepalPathConfig;
+    mlocs = [];
+    for(moduleName <- moduleNames){
+        try {
+            mlocs += [ getModuleLocation(moduleName, pcfg) ];
+        } catch value e: {
+            mloc = |unknown:///|(0,0,<0,0>,<0,0>);
+            ms = newModuleStatus(pcfg);
+            ms.messages[moduleName] = [ error("<e>", mloc) ];
+            return ms;
+        }
+    }
+    return rascalTModelForLocs(mlocs, config, compilerConfig, codgen);
 }
 
 // ---- checker functions for IDE
