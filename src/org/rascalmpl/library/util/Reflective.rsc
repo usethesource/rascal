@@ -118,7 +118,13 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension =
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
-            //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
+            return fileLoc;
+        }
+    }
+
+    for(loc dir <- pcfg.libs){
+        fileLoc = dir + fileName;
+        if(exists(fileLoc)){
             return fileLoc;
         }
     }
@@ -131,7 +137,7 @@ tuple[str,str] splitFileExtension(str path){
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
-str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", "tpl"}){
+str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
     if(!endsWith(modulePath, "rsc")){
@@ -150,20 +156,17 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
         }
     }
     
-     for(loc dir <- pcfg.libs){
+    for(loc dir <- pcfg.libs){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
            moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(ext in extensions){
-               if(moduleName[0] == "/"){
-                  moduleName = moduleName[1..];
-               }
-               moduleName = replaceAll(moduleName, "/", "::");
-               return moduleName;
+           moduleName = replaceLast(moduleName, ".rsc", "");
+           if(moduleName[0] == "/"){
+              moduleName = moduleName[1..];
            }
+           moduleName = replaceAll(moduleName, "/", "::");
+           return moduleName;
         }
     }
-    
     
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
