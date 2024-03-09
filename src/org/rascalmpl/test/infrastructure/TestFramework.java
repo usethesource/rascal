@@ -163,7 +163,7 @@ public class TestFramework {
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		reset();
         try {
-            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("test-modules", null, "/" + name.replace("::", "/") + ".rsc");
+            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("memory", "test-modules", "/" + name.replace("::", "/") + ".rsc");
             generatedModules.add(moduleLoc);
             try (OutputStream target = URIResolverRegistry.getInstance().getOutputStream(moduleLoc, false)) {
                 target.write(module.getBytes(StandardCharsets.UTF_8));
