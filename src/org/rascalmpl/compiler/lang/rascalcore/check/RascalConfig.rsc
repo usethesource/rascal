@@ -422,20 +422,45 @@ loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
      return def.defined;
 }
 
-TypePalConfig rascalTypePalConfig(PathConfig rascalPathConfig,
-        bool logImports               = false
+RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
+        // Control message levels
+        bool warnUnused               = true,
+        bool warnUnusedFormals        = true,
+        bool warnUnusedVariables      = true,
+        bool warnUnusedPatternFormals = true,
+        bool warnDeprecated           = false,
+        
+        // Debugging
+        bool verbose                  = true,    // for each compiled module, print PathConfig, module name and compilation time
+        bool logImports               = false,
+        bool logWrittenFiles          = false,   // print location of written files: .constants, .tpl, *.java
+        
+        loc reloc                     = |noreloc:///|, // Currently unused
+       
+        bool optimizeVisit            = true,   // Options for compiler developer
+        bool enableAsserts            = true,
+        bool forceCompilationTopModule = false
     )
     = tconfig(
+        // Compiler options
+        warnUnused                    = warnUnused,
+        warnUnusedFormals             = warnUnusedFormals,
+        warnUnusedFormals             = warnUnusedFormals,
+        warnUnusedPatternFormals      = warnUnusedPatternFormals,
+        warnUnusedPatternFormals      = warnUnusedPatternFormals,
+        
+        verbose                       = verbose,   
         logImports                    = logImports,
+        logWrittenFiles               = logWrittenFiles,
         
-        typepalPathConfig             = rascalPathConfig,
-        
-        warnUnused                    = true,
-        warnUnusedFormals             = true,
-        warnUnusedVariables           = true,
-        warnUnusedPatternFormals      = true,
-        warnDeprecated                = false,
-        
+        reloc                         = reloc, 
+        optimizeVisit                 = optimizeVisit, 
+        enableAsserts                 = enableAsserts,
+        forceCompilationTopModule     = forceCompilationTopModule,
+    
+        // Basic TypePalConfig options
+        typepalPathConfig             = pcfg,
+         
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },
         isSubType                     = asubtype,
@@ -458,11 +483,3 @@ TypePalConfig rascalTypePalConfig(PathConfig rascalPathConfig,
         reportUnused                  = rascalReportUnused,
         createLogicalLoc              = rascalCreateLogicalLoc
     );
-    
- data CompilerConfig(
-    loc reloc            = |noreloc:///|, 
-    bool verbose         = true,    // for each compiled module, print PathConfig, module name and compilation time
-    bool optimizeVisit   = true, 
-    bool enableAsserts   = true,
-    bool logWrittenFiles = true    // print location of written files: .constants, .tpl, *.java
- ) = cconfig();

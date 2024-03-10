@@ -39,7 +39,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, CompilerConfig compilerConfig){
+tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, RascalCompilerConfig compilerConfig){
    try {
       resetModuleInfo(compilerConfig);
       module_scope = M@\loc;

@@ -107,7 +107,7 @@ public list[MuExp] getVariableInitializationsInModule(){
 
 // Reset global state
 
-void resetModuleInfo(CompilerConfig compilerConfig) {
+void resetModuleInfo(RascalCompilerConfig compilerConfig) {
 
     optimizingVisit = compilerConfig.optimizeVisit;
     enablingAsserts = compilerConfig.enableAsserts;
