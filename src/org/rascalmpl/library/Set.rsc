@@ -516,26 +516,20 @@ real jaccard(set[value] x, set[value] y) = (1. * size(x & y)) / size(x + y);
 
 
 @synopsis{Calculate the intersection of a set of sets.}
-public set[&T] intersection(set[set[&T]] sets)  = (getFirstFrom(sets) | it & elem | elem <- sets);
+public set[&T] intersection({set[&T] firstSet, *set[&T] otherSets}) = (firstSet | it & elem | elem <- otherSets);
+public set[&T] intersection({}) = {};
 
 
-@synopsis{Checks if all sets in the set are pairwise disjoined.}
+@synopsis{Checks if all sets in the set are pairwise disjoint.}
 @examples{
 ```rascal-shell
 import Set;
-isDisjoined({{1,2}, {3,4}, {5,6}});
-isDisjoined({{1,2}, {1,4}, {5,6}});
-isDisjoined({{1,2}, {1,4}, {1,6}});
+isDisjoint([{1,2}, {3,4}, {5,6}]);
+isDisjoint([{1,2}, {1,4}, {5,6}]);
+isDisjoint([{1,2}, {1,4}, {1,6}]);
 ```
 }
-public bool isDisjoined(set[set[&T]] sets) {
-  list[set[&T]] setsAsList = toList(sets);
-
-  for (elem1 <- [0..size(setsAsList)-1]) {
-    for (elem2 <- [elem1+1..size(setsAsList)]) {
-      if (setsAsList[elem1] & setsAsList[elem2] != {}) return false;
-    }
-  }
-
-  return true;
-}
+public bool isDisjoint([set[&T] a, set[&T] b, *_]) = false when a & b != {}; // will backtrack to other pairs of a and b while the condition fails
+public default bool isDisjoint([set[&T] a, set[&T] b, *_]) = true;
+public bool isDisjoint([set[&T] a]) = true;
+public bool isDisjoint([]) = true;
