@@ -7,6 +7,8 @@ import lang::rascalcore::check::Checker;
 import analysis::typepal::TypePal;
 import analysis::typepal::TestFramework;
 
+import IO;
+
 start syntax Modules
     = Module+ modules;
 
@@ -19,11 +21,14 @@ TModel rascalTModelForTestModules(Tree pt, bool debug=false){
         config = config[logImports = true];
     }
     if(start[Modules] mds := pt){
-        return rascalTModelComponent( {unescape("<md.header.name>") | md <- mds.top.modules }, ms, config)[1];
-    } else if(Modules mds := pt){
-        return rascalTModelComponent( {unescape("<md.header.name>") | md <- mds.modules }, ms, config)[1];
+        <tm, ms> = rascalTModelComponent( { unescape("<md.header.name>") | md <- mds.top.modules }, ms, config);
+        return tm;
+    } else 
+    if(Modules mds := pt){
+        <tm, ms> = rascalTModelComponent( { unescape("<md.header.name>") | md <- mds.modules }, ms, config);
+        return tm;
     } else
-        throw "Cannot handle Modules";
+        throw "Cannot handle Module";
 }
 
 void testModules(str names...) {

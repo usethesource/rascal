@@ -219,7 +219,7 @@ ModuleStatus rascalTModelForLocs(
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
         if(forceCompilationTopModule){
-            for(nm <- topModuleNames){
+            for(str nm <- topModuleNames){
                 ms.status[nm] = {};
             }
         }
@@ -307,7 +307,7 @@ ModuleStatus rascalTModelForLocs(
                             }
                             tm.messages += msgs;
                         } else {
-                            tm.messages += error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]);
+                            tm.messages += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
                         }
                     }
                     if(ms.messages[m]?){
@@ -333,18 +333,18 @@ ModuleStatus rascalTModelForLocs(
                         ms.messages[m] = msgs;
                         ms.status[m] += {code_generated()};
                     } else {
-                        ms.messages[m] += error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]);
+                        ms.messages[m] += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
                     }
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, compilerConfig);
             }
         }
     } catch ParseError(loc src): {
-        for(mname <- topModuleNames){
+        for(str mname <- topModuleNames){
             ms.messages[mname] = [ error("Parse error", src) ];
         }
     } catch Message msg: {
-        for(mname <- topModuleNames){
+        for(str mname <- topModuleNames){
             ms.messages[mname] = [error("During type checking: <msg>", msg.at)];
         }
     }
@@ -389,7 +389,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     pcfg = ms.pathConfig;
     modelName = intercalate(" + ", toList(moduleNames));    
     map[str, Module] namedTrees = ();
-    for(nm <- moduleNames){
+    for(str nm <- moduleNames){
         <success, pt, ms> = getModuleParseTree(nm, ms);
         if(success){
             namedTrees[nm] = pt;
@@ -407,7 +407,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     rascalPreCollectInitialization(namedTrees, c);
     
     added = {};
-    for(nm <- moduleNames){
+    for(str nm <- moduleNames){
         <a, ms> = loadImportsAndExtends(nm, ms, c, added);
         added += a;
     }

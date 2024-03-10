@@ -1193,7 +1193,11 @@ default JCode transMuSetField(AType resultType, AType baseType, MuExp baseExp, s
 JCode trans(muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src), JGenie jg){
     //details = [ overloadedAType(rel[loc, IdRole, AType] overloads) := d ? lubList(toList(overloads<2>)) : d | d <- details];
     actuals = transPrimArgs(name, result, details, exps, jg);
-    return transPrim(name, result, details, actuals, jg);
+    try {
+        return transPrim(name, result, details, actuals, jg);
+    } catch e: {
+        throw "muPrim fails for <src>: <e>";
+    }
 }
 
 JCode trans(muCallJava(str name, str class, AType funType, list[MuExp] largs, str enclosingFun), JGenie jg){
