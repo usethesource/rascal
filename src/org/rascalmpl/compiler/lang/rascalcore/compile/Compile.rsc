@@ -28,6 +28,7 @@ bool errorsPresent(TModel tmodel) = !isEmpty([ e | e:error(_,_) <- tmodel.messag
 bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
+
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig){    
     pcfg = ms.pathConfig;
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);

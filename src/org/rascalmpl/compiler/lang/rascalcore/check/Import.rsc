@@ -83,6 +83,9 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
         if(traceCaches) println("*** using cached parse tree for <qualifiedModuleName>");
         return <true, ms.parseTrees[qualifiedModuleName], ms>;
     } else {
+        if(!ms.status[qualifiedModuleName]?){
+            ms.status[qualifiedModuleName] = {};
+        }
         if(parse_error() notin ms.status[qualifiedModuleName]){
             if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
                 ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
