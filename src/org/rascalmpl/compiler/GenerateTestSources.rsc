@@ -27,7 +27,7 @@ void generateTestSources(PathConfig pcfg) {
      libs = [ ]
      );
      
-   testCompilerConfig = getRascalCompilerConfig();
+   testCompilerConfig = getRascalCompilerConfigForDev(testConfig);
    
    map[str,int] durations = ();
      
@@ -118,7 +118,7 @@ void generateTestSources(PathConfig pcfg) {
    
 
    for (m <- libraryModules) {
-     safeCompile(m, testConfig, testCompilerConfig, (int d) { durations[m] = d; });
+     safeCompile(m, testCompilerConfig, (int d) { durations[m] = d; });
    }
    
    //for (m <- checkerTestModules) {
@@ -140,7 +140,7 @@ void generateTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      e = safeCompile(m, testConfig, testCompilerConfig, (int d) { durations[m] = d; });
+      e = safeCompile(m, testCompilerConfig, (int d) { durations[m] = d; });
       if(!isEmpty(e)){
         exceptions += e;
       }
@@ -153,10 +153,10 @@ void generateTestSources(PathConfig pcfg) {
    //iprintln(sort({ <m, durations[m] / 1000000000> | m <- durations}, bool (<_,int i>, <_, int j>) { return i < j; }));
 }
 
-str safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig, void (int duration) measure) {
+str safeCompile(str \module, RascalCompilerConfig compilerConfig, void (int duration) measure) {
    try {
      measure(cpuTimeOf(() {    
-       compile(\module, pcfg, compilerConfig);
+       compile(\module, compilerConfig);
      }));
      return "";
    }

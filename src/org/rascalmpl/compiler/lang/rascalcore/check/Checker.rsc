@@ -55,8 +55,6 @@ data PathConfig(
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
 );
-
-Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int _ <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 
@@ -130,6 +128,14 @@ public PathConfig getRascalCorePathConfig() {
         libs = []
     );
 }
+
+public RascalCompilerConfig getRascalCoreCompilerConfig(){
+    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles = true];
+}
+
+public RascalCompilerConfig getRascalCompilerConfigForDev(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg);
+}
     
 @synopsis{a path config for testing type-checking of the standard library in the rascal project}    
 public PathConfig getRascalProjectPathConfig() {
@@ -141,9 +147,6 @@ public PathConfig getRascalProjectPathConfig() {
         libs = []
     );  
 }  
-
-CompilerConfig getRascalCompilerConfig()
-    = cconfig();
 
 list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc){
     msgs = [];
@@ -187,14 +190,11 @@ list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc){
 // rascalTModelForLocs is the basic work horse
  
 ModuleStatus rascalTModelForLocs(
-    list[loc] mlocs,  
-    TypePalConfig config, 
-    CompilerConfig compilerConfig,
-    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig) codgen
-){     
-    bool forceCompilationTopModule = false; /***** for convenience, set to true during development of type checker *****/
-    
-    pcfg = config.typepalPathConfig;
+    list[loc] mlocs,   
+    RascalCompilerConfig compilerConfig,
+    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
+){         
+    pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.verbose) iprintln(pcfg);
     
     msgs = validatePathConfigForCompiler(pcfg, mlocs[0]);
@@ -218,7 +218,7 @@ ModuleStatus rascalTModelForLocs(
     try {
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
-        if(forceCompilationTopModule){
+        if(compilerConfig.forceCompilationTopModule){
             for(str nm <- topModuleNames){
                 ms.status[nm] = {};
             }
@@ -265,7 +265,7 @@ ModuleStatus rascalTModelForLocs(
                }
             }
             if(!all(m <- component, tpl_uptodate() in ms.status[m] || checked() in ms.status[m])){
-                <tm, ms> = rascalTModelComponent(component, ms, config);
+                <tm, ms> = rascalTModelComponent(component, ms, compilerConfig);
                 moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
@@ -276,7 +276,7 @@ ModuleStatus rascalTModelForLocs(
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
                     m_extends[m] = extends;
                     invertedExtends = ms.strPaths<2,0>;
-                    if(config.warnUnused){
+                    if(compilerConfig.warnUnused){
                         // Look for unused imports or exports
                         usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
                         usedModules += {*invertedExtends[um] | um <- usedModules}; // use of an extended module via import
@@ -384,7 +384,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
     return <added, ms>;
 }
 
-tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms, TypePalConfig config){
+tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms, RascalCompilerConfig compilerConfig){
                                                         
     pcfg = ms.pathConfig;
     modelName = intercalate(" + ", toList(moduleNames));    
@@ -398,10 +398,10 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         }
     }
     jobStart("RascalCompiler");
-    jobStep("RascalCompiler", "Type checking <modelName>"); // TODO: monitor
-    if(config.verbose) println("Type checking <modelName>");
+    jobStep("RascalCompiler", "Checking <modelName>"); // TODO: monitor
+    if(compilerConfig.verbose) println("Checking <modelName>");
     
-    c = newCollector(modelName, namedTrees, config);
+    c = newCollector(modelName, namedTrees, compilerConfig);
     c.push(key_pathconfig, pcfg);
     
     rascalPreCollectInitialization(namedTrees, c);
@@ -428,12 +428,11 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
 // ---- rascalTModelForName a checker version that works on module names
 
 ModuleStatus rascalTModelForNames(list[str] moduleNames, 
-                                  TypePalConfig config, 
-                                  CompilerConfig compilerConfig, 
-                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig) codgen){
+                                  RascalCompilerConfig compilerConfig, 
+                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen){
 
    
-    pcfg = config.typepalPathConfig;
+    pcfg = compilerConfig.typepalPathConfig;
     mlocs = [];
     for(moduleName <- moduleNames){
         try {
@@ -445,7 +444,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
             return ms;
         }
     }
-    return rascalTModelForLocs(mlocs, config, compilerConfig, codgen);
+    return rascalTModelForLocs(mlocs, compilerConfig, codgen);
 }
 
 // ---- checker functions for IDE
@@ -453,24 +452,25 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
 // name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, CompilerConfig _compilerConfig)
+list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
     = [];
     
-list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg, CompilerConfig compilerConfig){
-    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
+    pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+    compilerConfig.typepalPathConfig = pcfg1;
     //println("=== check: <moduleLocs>"); iprintln(pcfg1);
-    ms = rascalTModelForLocs(moduleLocs, rascalTypePalConfig(pcfg), compilerConfig, dummy_compile1);
+    ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
     return [ program(ms.moduleLocs[mname], toSet(ms.messages[mname])) | mname <- ms.messages ];
 }
 
-list[ModuleMessages] checkAll(loc root, PathConfig pcfg, CompilerConfig compilerConfig){
-    return check(toList(find(root, "rsc")), pcfg, compilerConfig);
+list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
+    return check(toList(find(root, "rsc")), compilerConfig);
 }
 
 // ---- Convenience check function during development -------------------------
       
-map[str, list[Message]] checkModules(list[str] moduleNames, TypePalConfig config, PathConfig pcfg, bool verbose=true) {
-    ModuleStatus ms = rascalTModelForNames(moduleNames, config, getRascalCompilerConfig()[verbose=verbose], dummy_compile1);
+map[str, list[Message]] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
+    ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
     tmodels = ms.tmodels;
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }

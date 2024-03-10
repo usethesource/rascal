@@ -31,7 +31,7 @@ void checkTestSources(PathConfig pcfg) {
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = getRascalCompilerConfig();
+   testCompilerConfig = rascalCompilerConfig(testConfig);
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
@@ -82,7 +82,7 @@ void checkTestSources(PathConfig pcfg) {
                      "analysis::m3::TypeSymbol"];  
 
    for (m <- libraryModules) {
-     <e,d> = safeCompile(m, testConfig, testCompilerConfig);
+     <e,d> = safeCompile(m, testCompilerConfig);
      total += d;
    }
      
@@ -101,7 +101,7 @@ void checkTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Checking test module <m> [<i>/<n>]");
-      <e, d> = safeCompile(m, testConfig, testCompilerConfig);
+      <e, d> = safeCompile(m, testCompilerConfig);
       total += d;
       if(!isEmpty(e)){
         exceptions += e;
@@ -114,13 +114,11 @@ void checkTestSources(PathConfig pcfg) {
    println("Time: <secs> seconds");
 }
 
-tuple[str, int]  safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig) {
+tuple[str, int]  safeCompile(str \module, RascalCompilerConfig compilerConfig) {
     start_time = cpuTime();
     
     try {
-       println("checking <\module>");
        ModuleStatus result = rascalTModelForNames([\module], 
-                                                  rascalTypePalConfig(pcfg), 
                                                   compilerConfig,
                                                   dummy_compile1);
        iprintln(result.tmodels[\module].messages);

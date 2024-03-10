@@ -192,8 +192,8 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             ms.tmodels[qualifiedModuleName] = tpl;
             ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
             return <true, tpl, ms>;
-        } catch _:
-            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", tplLoc)]), ms>; 
+        } catch e:
+            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read .tpl for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
     }
     //if(qualifiedModuleName notin hardwired){
@@ -439,7 +439,7 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
     return ms;
 }
 
-ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, CompilerConfig compilerConfig){
+ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, RascalCompilerConfig compilerConfig){
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");

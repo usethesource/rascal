@@ -36,7 +36,7 @@ void compileTestSources(PathConfig pcfg) {
    println("PathConfig for compiling test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = getRascalCompilerConfig();
+   testCompilerConfig = rascalCompilerConfig(testConfig);
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
@@ -121,7 +121,7 @@ void compileTestSources(PathConfig pcfg) {
    
 
    for (m <- libraryModules) {
-     <e, d> = safeCompile(m, testConfig, testCompilerConfig);
+     <e, d> = safeCompile(m, testCompilerConfig);
      total += d;
    }
    
@@ -145,7 +145,7 @@ void compileTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Compiling test module <m> [<i>/<n>]");
-      <e, d> = safeCompile(m, testConfig, testCompilerConfig);
+      <e, d> = safeCompile(m, testCompilerConfig);
       total += d;
       if(!isEmpty(e)){
         exceptions += e;
@@ -158,11 +158,10 @@ void compileTestSources(PathConfig pcfg) {
    println("Time: <secs> seconds");
 }
 
-tuple[str, int] safeCompile(str \module, PathConfig pcfg, CompilerConfig compilerConfig) {
+tuple[str, int] safeCompile(str \module, RascalCompilerConfig compilerConfig) {
    start_time = cpuTime();
-   try {
-       println("compiling <\module>");   
-       compile(\module, pcfg, compilerConfig);
+   try { 
+       compile(\module, compilerConfig);
        return <"",cpuTime()-start_time>;
    }
    catch value exception: {

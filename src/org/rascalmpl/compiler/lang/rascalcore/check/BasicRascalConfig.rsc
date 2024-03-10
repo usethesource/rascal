@@ -105,11 +105,29 @@ public str key_grammar = "grammar";
 public str key_ADTs = "ADTs";
 public str key_common_keyword_fields = "CommonKeywordFields";
 
+// Define alias for TypePalConfig
+
+alias RascalCompilerConfig = TypePalConfig;
+
+// Add keyword parameters to a TypePalConfig to represent compiler settings
+// Also see lang::rascalcore::check::RascalConfig
+
 data TypePalConfig(
-    bool logImports                 = true,
+    // Control message level
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,
     bool warnUnusedPatternFormals   = true,
-    bool warnDeprecated             = false
+    bool warnDeprecated             = false,
+    
+    loc reloc                       = |noreloc:///|,  // Unused
+    
+    // Debugging options
+    bool verbose                    = true,    // for each compiled module, print PathConfig, module name and compilation time
+    bool logImports                 = false,   // log all imported files
+    bool logWrittenFiles            = false,   // log all files written by compiler
+      
+    bool optimizeVisit              = true,     // Options for compiler developer
+    bool enableAsserts              = true,
+    bool forceCompilationTopModule  = false
 );

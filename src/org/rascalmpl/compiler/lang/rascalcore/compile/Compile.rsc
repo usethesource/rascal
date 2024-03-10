@@ -29,7 +29,7 @@ bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
 
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, CompilerConfig compilerConfig){    
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
     pcfg = ms.pathConfig;
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
    
@@ -53,8 +53,8 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         return tm.messages;
     }
     
-    jobStep("RascalCompiler", "<qualifiedModuleName>: compiling");// TODO: monitor
-    if(compilerConfig.verbose) println("<qualifiedModuleName>: compiling");
+    jobStep("RascalCompiler", "Compiling <qualifiedModuleName>");// TODO: monitor
+    if(compilerConfig.verbose) println("Compiling <qualifiedModuleName>");
     
     <tm, muMod> = r2mu(M, tm, compilerConfig);
    
@@ -89,8 +89,9 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
 }
 
 @doc{Compile a Rascal source module (given at a location) to Java}
-list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerConfig) {
+list[Message] compile(loc moduleLoc, RascalCompilerConfig compilerConfig) {
 
+    pcfg = compilerConfig.typepalPathConfig;
     msgs = validatePathConfigForCompiler(pcfg, moduleLoc);
     if(!isEmpty(msgs)){
         return msgs;
@@ -101,11 +102,12 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, CompilerConfig compilerCon
     } catch str e: {
         return [ error("Cannot find name for location, reason: <e>", moduleLoc) ];
     }
-    return compile(moduleName, pcfg, compilerConfig);
+    return compile(moduleName, compilerConfig);
 }
 
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
-list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig compilerConfig){
+list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConfig){
+    pcfg = compilerConfig.typepalPathConfig;
     msgs = validatePathConfigForCompiler(pcfg, |unknown:///|);
     if(!isEmpty(msgs)){
         return msgs;
@@ -113,14 +115,14 @@ list[Message] compile(str qualifiedModuleName, PathConfig pcfg, CompilerConfig c
     
     jobStart("RascalCompiler");// TODO: monitor
     start_comp = cpuTime();   
-    ms = rascalTModelForNames([qualifiedModuleName], rascalTypePalConfig(pcfg), compilerConfig, compile1);
+    ms = rascalTModelForNames([qualifiedModuleName], compilerConfig, compile1);
    
     comp_time = (cpuTime() - start_comp)/1000000;
    
-    jobStep("RascalCompiler", "<qualifiedModuleName>: compiled in <comp_time> ms");// TODO: monitor
+    jobStep("RascalCompiler", "Compiled <qualifiedModuleName> in <comp_time> ms");// TODO: monitor
     jobEnd("RascalCompiler");// TODO: monitor
     
-    if(compilerConfig.verbose) println("<qualifiedModuleName>: compiled in <comp_time> ms");
+    if(compilerConfig.verbose) println("Compiled <qualifiedModuleName> in <comp_time> ms");
 	
     return ms.messages[qualifiedModuleName] ? [];
 }
