@@ -521,6 +521,9 @@ public set[&T] intersection({}) = {};
 
 
 @synopsis{Checks if all sets in the set are pairwise disjoint.}
+@description{
+  To allow two elements (i.e. two sets) to be identical, the argument is of type list and not type set.
+}
 @examples{
 ```rascal-shell
 import Set;
