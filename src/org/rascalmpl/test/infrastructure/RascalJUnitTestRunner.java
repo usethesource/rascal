@@ -77,8 +77,8 @@ public class RascalJUnitTestRunner extends Runner {
         this.projectRoot = inferProjectRoot(clazz);
         this.clazz = clazz;
         
-        System.err.println("Rascal Junit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
-        System.err.println("Rascal JUnit Project root: " + projectRoot);
+        System.err.println("Rascal JUnit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
+        System.err.println("Rascal JUnit project root: " + projectRoot);
         
 
         if (projectRoot != null) {
@@ -264,11 +264,15 @@ public class RascalJUnitTestRunner extends Runner {
         notifier.fireTestRunStarted(desc);
 
         for (Description mod : desc.getChildren()) {
+            // TODO: this will never match because we are on the level of module descriptions now.
+            // This the reason that modules with errors in them silently succeed with 0 tests run.
             if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
                 notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
-                continue;
+                break;
             }
 
+            // TODO: we lose the link here with the test Descriptors for specific test functions
+            // and this impacts the accuracy of the reporting (only module name, not test name which failed)
             Listener listener = new Listener(notifier, mod);
             TestEvaluator runner = new TestEvaluator(evaluator, listener);
             runner.test(mod.getDisplayName());
