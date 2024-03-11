@@ -60,14 +60,14 @@ set[Message] getWarningMessages(ModuleStatus r)
 set[Message] getAllMessages(ModuleStatus r)
     = { m | mname <- r.tmodels, m <- r.tmodels[mname].messages };
 
-ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true){
+ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true, PathConfig pcfg=pathConfigForTesting()) {
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting()), dummy_compile1);
+   return rascalTModelForLocs([mloc], rascalCompilerConfig(pcfg), dummy_compile1);
 }
 
-bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []){
+bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = [], PathConfig pcfg=pathConfigForTesting()) {
 	bool verbose=false;
-     errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose));
+     errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose, pcfg=pcfg));
 	 if (verbose) {
      	println(errors);
 	 }
@@ -78,16 +78,16 @@ bool check(str stmts, list[str] expected, list[str] importedModules = [], list[s
      throw abbrev("<errors>");
 }
 
-bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []){
+bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = [], PathConfig pcfg=pathConfigForTesting()) {
      println("Imported: <importedModules>");
-     errors = getErrorMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls));
+     errors = getErrorMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, pcfg=pcfg));
      if(size(errors) == 0)
         return true;
      throw errors;
 }
 
-bool checkModuleOK(loc moduleToCheck){
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfigForTesting()), dummy_compile1));
+bool checkModuleOK(loc moduleToCheck, PathConfig pcfg=pathConfigForTesting()) {
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pcfg), dummy_compile1));
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
