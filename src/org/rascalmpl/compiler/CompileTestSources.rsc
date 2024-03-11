@@ -36,7 +36,7 @@ void compileTestSources(PathConfig pcfg) {
    println("PathConfig for compiling test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = rascalCompilerConfig(testConfig);
+   testCompilerConfig = getRascalCoreCompilerConfig(testConfig);
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));

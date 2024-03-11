@@ -150,8 +150,8 @@ public RascalCompilerConfig getRascalCoreCompilerConfig(){
     return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles = true];
 }
 
-public RascalCompilerConfig getRascalCompilerConfigForDev(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg);
+public RascalCompilerConfig getRascalCoreCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = true][logWrittenFiles = true];
 }
     
 @synopsis{a path config for testing type-checking of the standard library in the rascal project}    
@@ -425,7 +425,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     }
     jobStart("RascalCompiler");
     jobStep("RascalCompiler", "Checking <modelName>"); // TODO: monitor
-    if(compilerConfig.verbose) println("Checking <modelName>");
+    if(compilerConfig.verbose) println("Checking ... <modelName>");
     
     c = newCollector(modelName, namedTrees, compilerConfig);
     c.push(key_pathconfig, pcfg);
