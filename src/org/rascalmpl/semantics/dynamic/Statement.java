@@ -28,6 +28,7 @@ import org.rascalmpl.ast.LocalVariableDeclaration;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Type;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.AssignableEvaluator;
@@ -959,14 +960,14 @@ r
 				if (!handled)
 					throw e;
 			} 
-			catch (StackOverflowError e) {
-				// and now we pretend as if a Rascal stackoverflow has been thrown, such that 
+			catch (RascalStackOverflowError e) {
+				// and now we pretend as if a real Stackoverflow() value has been thrown, such that 
 				// it can be caugt in this catch block if necessary:
 				boolean handled = false;
 
 				for (Catch c : handlers) {
 					if (c.hasPattern() && isCatchStackOverflow(c.getPattern())) {
-					    IValue pseudo = RuntimeExceptionFactory.stackOverflow().getException();
+					    IValue pseudo = e.makeThrow().getException();
 
 						if (Cases.matchAndEval(makeResult(pseudo.getType(), pseudo, eval), c.getPattern().buildMatcher(eval, false), c.getBody(), eval)) {
 							handled = true;
@@ -976,6 +977,7 @@ r
 				}
 
 				if (!handled) {
+					// we rethrow because higher up the stack may be another catch block
 					throw e;
 				}	
 			}
