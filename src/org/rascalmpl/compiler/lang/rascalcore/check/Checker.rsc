@@ -105,7 +105,7 @@ public PathConfig getDefaultTestingPathConfig() {
     );
 }
 
-synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, dependent on a previously released standard library}
+@synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, dependent on a previously released standard library}
 @description{
 * gets source files exclusively from |memory://test-modules/|
 * generates bin files in the in-memory file system 
@@ -165,7 +165,7 @@ public PathConfig getRascalProjectPathConfig() {
     );  
 }  
 
-list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc){
+list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
     msgs = [];
     
     if(isEmpty(pcfg.srcs)) msgs += error("PathConfig: `srcs` is empty", mloc);
