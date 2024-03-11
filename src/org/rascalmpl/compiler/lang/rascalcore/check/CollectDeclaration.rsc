@@ -176,7 +176,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     c.define(kwformalName, keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
-            s.requireSubType(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
+            s.requireSubType(expression, kwType, error(expression, "Default expression of type %t expected, found %t", kwType, expression));
             return s.getType(kwType);
         });
     c.enterScope(kwType);   // Wrap the type in a subscope to avoid name clashes caused by names introduced in function types
