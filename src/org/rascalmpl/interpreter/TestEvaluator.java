@@ -85,8 +85,6 @@ public class TestEvaluator {
         }
     }
 
-    
-
     private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
         testResultListener.start(env.getName(), tests.size());
         // first, let's shuffle the tests
@@ -137,7 +135,7 @@ public class TestEvaluator {
                     testResultListener.report(true, test.getName(), test.getAst().getLocation(), "test succeeded", null);
                 }
             }
-            catch(Throwable e){
+            catch (Throwable e) {
                 testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
             }
             
