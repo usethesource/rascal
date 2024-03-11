@@ -113,6 +113,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
+@synopsis{Get the source location of a named module with given extension}
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
     fileName = makeFileName(qualifiedModuleName, extension=extension);
     for(loc dir <- pcfg.srcs){
@@ -121,14 +122,7 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension =
             return fileLoc;
         }
     }
-
-    for(loc dir <- pcfg.libs){
-        fileLoc = dir + fileName;
-        if(exists(fileLoc)){
-            return fileLoc;
-        }
-    }
-    throw "Module <qualifiedModuleName> not found, <pcfg>";
+    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
 tuple[str,str] splitFileExtension(str path){
@@ -137,6 +131,7 @@ tuple[str,str] splitFileExtension(str path){
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
+@synopsis{Get the name of a Rascal module given its source location}
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
@@ -168,7 +163,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
         }
     }
     
-    throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
+    throw "No module name found for `<moduleLoc>`;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
 
