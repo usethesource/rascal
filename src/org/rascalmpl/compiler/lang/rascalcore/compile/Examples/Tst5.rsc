@@ -1,5 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-void main() { 
-        map[str key, int key] x;       
-}
+
+//list[str] x = "x":
+
+
+data F = f(list[str] x = "x");

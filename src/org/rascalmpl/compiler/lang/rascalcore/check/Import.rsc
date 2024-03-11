@@ -97,10 +97,10 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);      
             } catch _: {
-                ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
-                ms.status[qualifiedModuleName] += {parse_error(), not_found()};
+                //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
+                //ms.status[qualifiedModuleName] += {not_found()};
                 mpt = [Module] "module <qualifiedModuleName>";
-                ms.parseTrees[qualifiedModuleName] = mpt;
+                //ms.parseTrees[qualifiedModuleName] = mpt;
                 ms.moduleLocs[qualifiedModuleName] = mloc;
                 return <false, mpt, ms>;
             }              
@@ -192,13 +192,16 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             ms.tmodels[qualifiedModuleName] = tpl;
             ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
             return <true, tpl, ms>;
-        } catch e:
+        } catch e: {
+            //ms.status[qualifiedModuleName] ? {} += not_found();
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read .tpl for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
+        }
     }
     //if(qualifiedModuleName notin hardwired){
     //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
     //}
+    //ms.status[qualifiedModuleName] ? {} += not_found();
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", |unknown:///|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
@@ -233,7 +236,10 @@ data ModuleStatus =
 ModuleStatus newModuleStatus(PathConfig pcfg) = moduleStatus({}, {}, (), [], (), (), (), (), (), pcfg);
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
-    return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
+    if(moduleStrs[mloc]? ){
+        return moduleStrs[mloc];
+    }
+    return getModuleName(mloc, pcfg);
 }
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
@@ -263,8 +269,17 @@ ModuleStatus complete(ModuleStatus ms){
     paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
     ms.paths = paths;
    
-    ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};
-    //analyzeTModels(ms);  
+   strPaths = {};
+    for(<loc from, PathRole r, loc to> <- paths){
+        try {
+            mfrom = getModuleName(from, moduleStrs, pcfg);
+            mto = getModuleName(to, moduleStrs, pcfg);
+            strPaths += <mfrom, r, mto >;
+        } catch _: ;/* ignore non-existing module */
+    }
+    ms.strPaths = strPaths;
+    //ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};
+  
     return ms;
 }
 
@@ -346,6 +361,11 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             }
             return ms;
          }
+    } 
+    
+    else {
+        allImportsAndExtendsValid = false;
+        //ms.status[qualifiedModuleName] += not_found();
     }
     
     <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms);
@@ -358,7 +378,10 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms = getImportAndExtendGraph(imp, ms);
         }
     } else {
-        ms.messages[qualifiedModuleName] += error("Cannot get parse tree for module `<qualifiedModuleName>`", ms.moduleLocs[qualifiedModuleName]);
+        if(not_found() notin ms.status[qualifiedModuleName]){
+            ms.messages[qualifiedModuleName] ? [] += [ error("Cannot get parse tree for module `<qualifiedModuleName>`", ms.moduleLocs[qualifiedModuleName]) ];
+            ms.status[qualifiedModuleName] += not_found();
+        }
     }
     
     return ms;
@@ -407,12 +430,12 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
     pcfg = ms.pathConfig;
     
     dependencies_ok = true;
-    for(m <- component){
+    for(m <- component, not_found() notin ms.status[m]){
         if(parse_error() in ms.status[m]){
             ms.tmodels[m] = tmodel(modelName=m,messages=ms.messages[m]);
             return ms;
         }
-        for(imp <- m_imports[m] + m_extends[m]){
+        for(imp <- m_imports[m] + m_extends[m], not_found() notin ms.status[imp]){
             imp_status = ms.status[imp];
             if(parse_error() in imp_status || checked() notin imp_status){
                 dependencies_ok = false;
@@ -425,7 +448,7 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
             return ms;
         }
     }
-    for(m <- component){
+    for(m <- component, not_found() notin ms.status[m]){
         tm.modelName = m;
         tm.moduleLocs = (m : getModuleScope(m, moduleScopes, pcfg));
         
@@ -442,6 +465,10 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
 ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, RascalCompilerConfig compilerConfig){
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
+    
+    if(any(c <- component, !isEmpty({parse_error(), not_found()} & ms.status[c]))){
+        return ms;
+    }
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
     loc2moduleName = invertUnique(ms.moduleLocs);
