@@ -277,7 +277,10 @@ ModuleStatus rascalTModelForLocs(
                         <found, tm, ms> = getTModelForModule(m, ms);
                         if(found){   
                             ms.status[m] += {tpl_uptodate(), checked()};
-                        }
+                        } 
+                        //else {
+                        //    ms.status[m] += not_found();
+                        //}
                     }
                }
             }
@@ -287,7 +290,7 @@ ModuleStatus rascalTModelForLocs(
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
                 map[str,set[str]] m_extends = ();
-                for(m <- component){
+                for(m <- component, not_found() notin ms.status[m]){
                     imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
                     m_imports[m] =  imports;
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
@@ -303,6 +306,9 @@ ModuleStatus rascalTModelForLocs(
                             check_imports:
                             for(imod <- pt.header.imports, imod has \module){
                                 iname = unescape("<imod.\module.name>");
+                                if(!ms.status[iname]?){
+                                    ms.status[iname] = {};
+                                }
                                 if(iname notin usedModules){ 
                                    if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){      
                                      continue check_imports;
@@ -313,7 +319,7 @@ ModuleStatus rascalTModelForLocs(
                                    if(ms.moduleLocs[iname]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                     continue check_imports;
                                    }
-                                   if(checked() in (ms.status[iname] ? {})){
+                                   if(checked() in ms.status[iname] && not_found() notin ms.status[iname]){
                                        if(imod is \default){
                                          msgs += warning("Unused import of `<iname>`", imod@\loc);
                                        } else {
@@ -323,9 +329,10 @@ ModuleStatus rascalTModelForLocs(
                                 }
                             }
                             tm.messages += msgs;
-                        } else {
-                            tm.messages += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
                         }
+                        //else {
+                        //    tm.messages += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
+                        //}
                     }
                     if(ms.messages[m]?){
                         tm.messages = ms.messages[m];
@@ -349,9 +356,10 @@ ModuleStatus rascalTModelForLocs(
                         msgs = codgen(m, pt, ms, compilerConfig);
                         ms.messages[m] = msgs;
                         ms.status[m] += {code_generated()};
-                    } else {
-                        ms.messages[m] += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
                     }
+                    //else {
+                    //    ms.messages[m] += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
+                    //}
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, compilerConfig);
             }
@@ -410,9 +418,10 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         <success, pt, ms> = getModuleParseTree(nm, ms);
         if(success){
             namedTrees[nm] = pt;
-        } else {
-            ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
-        }
+        } 
+        //else {
+        //    ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
+        //}
     }
     jobStart("RascalCompiler");
     jobStep("RascalCompiler", "Checking <modelName>"); // TODO: monitor

@@ -68,7 +68,7 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
                 c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
             }
         } catch str e: {
-            c.report(error(qualifiedModuleName, e));
+            c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
         }
     } else if(isEmpty(pcfgVal)){
         return;
