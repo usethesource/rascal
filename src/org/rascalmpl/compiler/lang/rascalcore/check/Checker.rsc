@@ -88,21 +88,38 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
 // ----  Various PathConfigs  ---------------------------------------------
 
 private int npc = 0;
-@synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system.}
+@synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, not depending on any outside libraries.}
 @description{
-* gets source files exclusively from |memory://test-modules/|
-* generates bin files in the in-memory file system 
-* depends only on the pre-compiled standard library from the rascal project 
+* gets source files exclusively from |memory://test-modules/| and |std:///| (for library code)
+* generates bin files in the in-memory file system  
 }
 public PathConfig getDefaultTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
     return pathConfig(   
-        srcs = [ |memory:///test-modules/|  ],
+        srcs = [ |memory:///test-modules/|, |std:///|  ],
         bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
         resources = |memory:///test-modules/generated-test-resources-<snpc>|,
-        libs = [ |std:///| ]
+        libs = [ ]
+    );
+}
+
+synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, dependent on a previously released standard library}
+@description{
+* gets source files exclusively from |memory://test-modules/|
+* generates bin files in the in-memory file system 
+* depends only on the pre-compiled standard library from the rascal project 
+}
+public PathConfig getReleasedStandardLibraryTestingPathConfig() {
+    npc += 1;
+    snpc = "<npc>";
+    return pathConfig(   
+        srcs = [ |memory:///test-modules/| ],
+        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
+        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
+        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
+        libs = [ |lib://rascal| ]
     );
 }
 
