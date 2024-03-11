@@ -54,7 +54,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     }
     
     jobStep("RascalCompiler", "Compiling <qualifiedModuleName>");// TODO: monitor
-    if(compilerConfig.verbose) println("Compiling <qualifiedModuleName>");
+    if(compilerConfig.verbose) println("Compiling .. <qualifiedModuleName>");
     
     <tm, muMod> = r2mu(M, tm, compilerConfig);
    
@@ -116,13 +116,15 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     jobStart("RascalCompiler");// TODO: monitor
     start_comp = cpuTime();   
     ms = rascalTModelForNames([qualifiedModuleName], compilerConfig, compile1);
+    
+    //iprintln(ms.tmodels[qualifiedModuleName]);
    
     comp_time = (cpuTime() - start_comp)/1000000;
    
     jobStep("RascalCompiler", "Compiled <qualifiedModuleName> in <comp_time> ms");// TODO: monitor
     jobEnd("RascalCompiler");// TODO: monitor
     
-    if(compilerConfig.verbose) println("Compiled <qualifiedModuleName> in <comp_time> ms");
+    if(compilerConfig.verbose) println("Compiled ... <qualifiedModuleName> in <comp_time> ms");
 	
     return ms.messages[qualifiedModuleName] ? [];
 }
