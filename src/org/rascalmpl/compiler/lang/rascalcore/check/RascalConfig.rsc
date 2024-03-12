@@ -408,7 +408,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
+loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        moduleName = getModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
@@ -439,15 +439,16 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
        
         bool optimizeVisit            = true,   // Options for compiler developer
         bool enableAsserts            = true,
-        bool forceCompilationTopModule = false
+        bool forceCompilationTopModule= false
     )
     = tconfig(
         // Compiler options
         warnUnused                    = warnUnused,
         warnUnusedFormals             = warnUnusedFormals,
-        warnUnusedFormals             = warnUnusedFormals,
+        warnUnusedVariables           = warnUnusedVariables,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
+        warnDeprecated                = warnDeprecated,
         
         verbose                       = verbose,   
         logImports                    = logImports,
