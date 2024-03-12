@@ -13,7 +13,6 @@ import lang::rascalcore::grammar::definition::Keywords;
   
 import lang::rascal::\syntax::Rascal;
  
-import IO;
 import Node;
 import Set;
 import ListRelation;
