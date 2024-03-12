@@ -56,7 +56,7 @@ data PathConfig(
     loc testResources =|unknown:///|
 );
  
-void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
+void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
 
     c.push(patternContainer, "toplevel");
     c.push(key_allow_use_before_def, <|none:///|(0,0,<0,0>,<0,0>), |none:///|(0,0,<0,0>,<0,0>)>);
@@ -147,11 +147,11 @@ public PathConfig getRascalCorePathConfig() {
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfig(){
-    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles = true];
+    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true];
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = true][logWrittenFiles = true];
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = true];
 }
     
 @synopsis{a path config for testing type-checking of the standard library in the rascal project}    
@@ -212,7 +212,7 @@ ModuleStatus rascalTModelForLocs(
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){         
     pcfg = compilerConfig.typepalPathConfig;
-    if(compilerConfig.verbose) iprintln(pcfg);
+    if(compilerConfig.verbose) { iprintln(pcfg); }
     
     msgs = validatePathConfigForCompiler(pcfg, mlocs[0]);
     if(!isEmpty(msgs)){
@@ -425,7 +425,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     }
     jobStart("RascalCompiler");
     jobStep("RascalCompiler", "Checking <modelName>"); // TODO: monitor
-    if(compilerConfig.verbose) println("Checking ... <modelName>");
+    if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
     
     c = newCollector(modelName, namedTrees, compilerConfig);
     c.push(key_pathconfig, pcfg);
