@@ -9,7 +9,6 @@ module lang::rascalcore::check::AType
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::grammar::definition::Characters;
 
-import IO;
 import Node;
 import Set;
 
