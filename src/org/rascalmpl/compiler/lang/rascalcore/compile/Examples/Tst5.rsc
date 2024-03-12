@@ -1,18 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst5
 
 
+import List;
+
+value main(){
+    myList = [<1,2>,<2,2>];
+    return sort(myList, bool (<int i, _>, <int j, _>) { return i < j; });
+}
+
 //value main(){
 //    if([1, int x] !:= [1]) return x;
 //    return -1;
 //}
 
-//import List;
-
-//void warningExample() {
-//    mylist = [1,2,3];
-//    myrel = { <1,"a">,<1,"b">,<2,"c">,<2,"d">,<2,"e">,<3,"f"> };
-//    mymap = ( p : [e | <p,e> <- myrel] | int p <- mylist );
-//}
 
 
 //import util::Maybe;
@@ -27,9 +27,3 @@ module lang::rascalcore::compile::Examples::Tst5
 //    return ![] := 
 //            [1];
 //}
-
-import Type;
-//MH
-public rel[str s, int n] filterRelBroken(rel[str s, int n] inRel, set[str] relFilter) {
-    return { t | t:< s, n > <- inRel, s in relFilter };
-}

@@ -4,11 +4,9 @@ import IO;
 import String;
 import Set;
 import List;
-import Map;
 import util::Reflective;
 import lang::rascalcore::check::Checker;
 import util::FileSystem;
-import util::Monitor;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 
