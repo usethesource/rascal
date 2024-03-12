@@ -12,9 +12,7 @@ public class TypedFunctionInstance5<R,A,B,C,D,E> extends TypedFunctionInstance {
 	public TypedFunctionInstance5(TypedFunction5<R,A,B,C,D,E> function, Type ftype){
 		super(ftype);
 		this.function = function;
-		if(ftype.isFunction()) {
-			assert ftype.getArity() == 5;
-		}
+		assert ftype.isFunction() && ftype.getArity() == 5;
 	}
 	
 	public R typedCall(A a, B b, C c, D d, E e) {
