@@ -117,7 +117,7 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     start_comp = cpuTime();   
     ms = rascalTModelForNames([qualifiedModuleName], compilerConfig, compile1);
     
-    //iprintln(ms.tmodels[qualifiedModuleName]);
+    //iprintln(convertTModel2PhysicalLocs(ms.tmodels[qualifiedModuleName]));
    
     comp_time = (cpuTime() - start_comp)/1000000;
    
