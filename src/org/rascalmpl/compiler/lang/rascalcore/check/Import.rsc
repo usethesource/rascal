@@ -455,8 +455,7 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
        
         ms.tmodels[m] = tm;
         tm = addGrammar(m, m_imports[m], m_extends[m], ms.tmodels);
-        ms.messages[m] = [msg | msg <- tm.messages, msg.at.file == mScope.file ];
-        tm.messages = ms.messages[m];
+        ms.messages[m] = tm.messages;
         ms.tmodels[m] = tm;
     }
     return ms;
@@ -528,7 +527,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             
             // Filter model for current module and replace functions in defType by their defined type
             
-            defs = for(tup:<loc scope, str id, str orgId, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){ 
+            defs = for(tup:<loc scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){ 
                        if( idRole in keepInTModelRoles
                           && isContainedInComponentScopes(defined)
                           && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
@@ -547,7 +546,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
             // Remove default expressions and fragments
             m1 = visit(m1) {
-                    case kwField(AType atype, str fieldName, str definingModule, Expression defaultExp) => kwField(atype, fieldName, definingModule)
+                    case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
             m1.logical2physical = tm.logical2physical;
