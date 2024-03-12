@@ -1,36 +1,23 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
 import java.util.Map;
+
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.InternalCompilerError;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 public class TypedFunctionInstance3<R,A,B,C> extends TypedFunctionInstance {
 	
 	private final TypedFunction3<R,A,B,C> function;
-//	private final Type type_arg_0;
-//	private final Type type_arg_1;
-//	private final Type type_arg_2;
 
 	public TypedFunctionInstance3(TypedFunction3<R,A,B,C> function, Type ftype){
 		super(ftype);
 		this.function = function;
-		if(ftype.isFunction()) {
-			assert ftype.getArity() == 3;
-//			type_arg_0 = type.getFieldType(0);
-//			type_arg_1 = type.getFieldType(1);
-//			type_arg_2 = type.getFieldType(2);
-		} else {
-//			type_arg_0 = type_arg_1 = type_arg_2 = TypeFactory.getInstance().valueType();
-		}
+		assert ftype.isFunction() && ftype.getArity() == 3;
 	}
 	
 	public R typedCall(A a, B b, C c) {
-//		if(validating &&
-//		   !(((IValue) a).getType().comparable(type_arg_0) &&
-//		     ((IValue) b).getType().comparable(type_arg_1) &&
-//		     ((IValue) c).getType().comparable(type_arg_2))){
-//			throw RuntimeExceptionFactory.callFailed(ValueFactory.getInstance().list((IValue)a, (IValue)b, (IValue)c));	
-//		}
 		return function.typedCall(a, b, c);
 	}
 	

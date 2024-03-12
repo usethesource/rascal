@@ -10,13 +10,12 @@ public class TypedFunctionInstance1<R extends IValue,A> extends TypedFunctionIns
 
 	public TypedFunctionInstance1(TypedFunction1<R,A> function, Type ftype){
 		super(ftype);
-		assert ftype.isFunction() ? ftype.getArity() == 1 : true;
 		this.function = function;
+		assert ftype.isFunction() && ftype.getArity() == 1;
 	}
 	
 	public R typedCall(A a) {
 		return function.typedCall(a);
-		
 	}
 	
 	@SuppressWarnings("unchecked")
