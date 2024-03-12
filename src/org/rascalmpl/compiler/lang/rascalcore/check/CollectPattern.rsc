@@ -64,9 +64,9 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
-    c.enterScope(current);
+    if(tp is function) c.enterScope(current);
         collect(tp, c);
-    c.leaveScope(current);
+    if(tp is function) c.leaveScope(current);
     
     try {
         tpResolved = c.getType(tp)[alabel=uname];
