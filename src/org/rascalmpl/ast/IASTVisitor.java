@@ -693,6 +693,16 @@ public interface IASTVisitor<T> {
 
   public T visitSyntaxDefinitionLexical(SyntaxDefinition.Lexical x);
 
+  public T visitSyntaxRoleModifierData(SyntaxRoleModifier.Data x);
+
+  public T visitSyntaxRoleModifierKeyword(SyntaxRoleModifier.Keyword x);
+
+  public T visitSyntaxRoleModifierLayout(SyntaxRoleModifier.Layout x);
+
+  public T visitSyntaxRoleModifierLexical(SyntaxRoleModifier.Lexical x);
+
+  public T visitSyntaxRoleModifierSyntax(SyntaxRoleModifier.Syntax x);
+
   public T visitTagDefault(Tag.Default x);
 
   public T visitTagEmpty(Tag.Empty x);
@@ -712,6 +722,8 @@ public interface IASTVisitor<T> {
   public T visitTypeBracket(Type.Bracket x);
 
   public T visitTypeFunction(Type.Function x);
+
+  public T visitTypeModifier(Type.Modifier x);
 
   public T visitTypeSelector(Type.Selector x);
 

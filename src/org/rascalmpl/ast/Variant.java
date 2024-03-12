@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class Variant extends AbstractAST {
   public Variant(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -126,7 +127,7 @@ public abstract class Variant extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 907 + 41 * name.hashCode() + 59 * arguments.hashCode() + 823 * keywordArguments.hashCode() ; 
+      return 263 + 463 * name.hashCode() + 223 * arguments.hashCode() + 139 * keywordArguments.hashCode() ; 
     } 
   
     

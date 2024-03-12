@@ -93,6 +93,14 @@ data Symbol // <4>
      = \parameter(str name, Symbol bound) 
      ;
 
+data Symbol = \data(Symbol modified); // to-data modifier
+
+Symbol \data(\data(Symbol s)) = \data(s);
+Symbol \data(adt(n, ps))      = adt(n, ps);
+
+bool subtype(\data(Symbol s), \node())        = true;
+bool subtype(\data(parameter(_,_)), adt(_,_)) = true;
+
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
@@ -524,6 +532,9 @@ reify operator `#` does, since values may escape the scope in which they've been
 }
 @javaClass{org.rascalmpl.library.Type}
 public java Symbol typeOf(value v);
+
+@javaClass{org.rascalmpl.library.Type}
+public java Production getConstructor(&A <: node constructor);
 
 @synopsis{Determine if the given type is an int.}
 public bool isIntType(Symbol::\alias(_,_,Symbol at)) = isIntType(at);
