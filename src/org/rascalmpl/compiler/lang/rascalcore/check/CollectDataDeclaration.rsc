@@ -91,7 +91,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
         dt.md5 = md5Hash("<c.getScope()><current><kwfType><fieldName>");
         c.define(fieldName, keywordFieldId(), kwf.name, dt);  
-        c.requireSubType(kwfType, kwf.expression, error(kwf, "Default expression of type %t expected, found %t", kwfType, kwf.expression));
+        c.requireSubType(kwf.expression, kwfType, error(kwf, "Default expression of type %t expected, found %t", kwfType, kwf.expression));
   
     }
 
