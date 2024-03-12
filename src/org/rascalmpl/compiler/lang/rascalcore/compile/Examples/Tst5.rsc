@@ -6,12 +6,14 @@ module lang::rascalcore::compile::Examples::Tst5
 //    return -1;
 //}
 
-data A = a();
-void main() {
-    if (A _ !:= a()) {
-        ;
-    }
-}
+//import List;
+
+//void warningExample() {
+//    mylist = [1,2,3];
+//    myrel = { <1,"a">,<1,"b">,<2,"c">,<2,"d">,<2,"e">,<3,"f"> };
+//    mymap = ( p : [e | <p,e> <- myrel] | int p <- mylist );
+//}
+
 
 //import util::Maybe;
 //
@@ -28,6 +30,6 @@ void main() {
 
 
 //MH
-//public rel[str s, int n] filterRelBroken(rel[str s, int n] inRel, set[str] relFilter) {
-//    return { t | t:< s, n > <- inRel, s in relFilter };
-//}
+public rel[str s, int n] filterRelBroken(rel[str s, int n] inRel, set[str] relFilter) {
+    return { t | t:< s, n > <- inRel, s in relFilter };
+}

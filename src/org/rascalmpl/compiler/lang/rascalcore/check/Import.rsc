@@ -379,7 +379,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
     } else {
         if(not_found() notin ms.status[qualifiedModuleName]){
-            ms.messages[qualifiedModuleName] ? [] += [ error("Cannot get parse tree for module `<qualifiedModuleName>`", ms.moduleLocs[qualifiedModuleName]) ];
+            //ms.messages[qualifiedModuleName] ? [] += [ error("Cannot get parse tree for module `<qualifiedModuleName>`", ms.moduleLocs[qualifiedModuleName]) ];
             ms.status[qualifiedModuleName] += not_found();
         }
     }
@@ -503,7 +503,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
             m1.facts += m1.specializedFacts;
             
-            m1.messages = tm.messages; //[msg | msg <- tm.messages, msg.at.path == mscope.path];
+            m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
             
             filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
             
@@ -552,11 +552,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
             m1.logical2physical = tm.logical2physical;
-            
-            if(!isEmpty(m1.messages)){
-                iprintln(m1.messages);
-            }
-                
+                            
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
             
             ////TODO temporary check: are external locations present in the TModel? If so, throw exception
