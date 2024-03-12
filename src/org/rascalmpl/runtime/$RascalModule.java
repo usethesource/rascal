@@ -1833,8 +1833,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	}
 	
 	public final boolean $has_type_and_arity(final IValue v, final Type type, final int arity) {
-//		System.err.println("$has_type_and_arity:: " + type + " MATCHES? " + v);
-		
 		if(v instanceof IConstructor) {
 			Type consType = ((IConstructor)v).getConstructorType();
 			Map<Type,Type> m = new HashMap<>();
@@ -1851,14 +1849,10 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 					if(TreeAdapter.isLiteral(tree)) {
 						IConstructor p = org.rascalmpl.values.parsetrees.TreeAdapter.getProduction(tree);
 						IList symbols = ProductionAdapter.getSymbols(p);
-						boolean res = args.size() == symbols.size();
-//						System.err.println(res);
-						return res;
+						return args.size() == symbols.size();
 					}
 					if(!TreeAdapter.isAppl(tree)) return false;
-					boolean res = arity == 2;
-//					System.err.println(res + " 2");
-					return res;
+					return arity == 2;
 				}
 //				if(consType.getArity() == arity) {
 //					System.err.println(true + " 3");
@@ -1866,7 +1860,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 //				}
 			}
 		}
-//		System.err.println(false + " 4");
 		return false;
 	}
 	
