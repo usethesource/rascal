@@ -107,8 +107,8 @@ str getResume(Tree t, BTSCOPES btscopes) {
         //println("btscopes[getLoc(t)]: < btscopes[getLoc(t)]>");
         return btscopes[getLoc(t)].resume;
     } catch _: {
-        println("getResume: <t>, <getLoc(t)>");
-        iprintln(btscopes);
+        //println("getResume: <t>, <getLoc(t)>");
+        //iprintln(btscopes);
         return "";
     }    
 }
