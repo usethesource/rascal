@@ -327,13 +327,14 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
 void collect(current: (Expression)`any ( <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
     c.fact(current, abool());
-    
-    beginPatternScope("any", c);
-        c.require("any", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
-            });
-        collectGenerators([], gens, c);
-    endPatternScope(c);
+    c.enterLubScope(current);
+        beginPatternScope("any", c);
+            c.require("any", current, gens,
+                void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+                });
+            collectGenerators([], gens, c);
+        endPatternScope(c);
+    c.leaveScope(current);
 }
 
 // ---- all
@@ -341,13 +342,14 @@ void collect(current: (Expression)`any ( <{Expression ","}+ generators> )`, Coll
 void collect(current: (Expression)`all ( <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
     c.fact(current, abool());
-    
-    beginPatternScope("all", c);
-        c.require("all", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
-            });
-        collectGenerators([], gens, c);
-    endPatternScope(c);
+    c.enterLubScope(current);
+        beginPatternScope("all", c);
+            c.require("all", current, gens,
+                void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+                });
+            collectGenerators([], gens, c);
+        endPatternScope(c);
+    c.leaveScope(current);
 }
 
 // ---- comprehensions and reducer
@@ -373,7 +375,7 @@ void collectGenerators(list[Tree] results, list[Expression] generators, Collecto
 void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expression ","}+ generators> }`, Collector c){
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
-    c.enterScope(current);
+    c.enterLubScope(current);
     beginPatternScope("set-comprehension", c);
         c.require("set comprehension", current, gens,
             void (Solver s) { 
@@ -396,7 +398,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
     
-    c.enterScope(current);
+    c.enterLubScope(current);
     beginPatternScope("list-comprehension", c);
         collectGenerators(res, gens, c);
         try {
@@ -424,7 +426,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
     gens = [gen | gen <- generators];
     res = [from, to];
   
-    c.enterScope(current);
+    c.enterLubScope(current);
     beginPatternScope("map-comprehension", c);
         c.require("map comprehension", current, gens,
             void (Solver s) { for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
@@ -446,7 +448,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
 void collect(current: (Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
     res = [result];
-    c.enterScope(current);
+    c.enterLubScope(current);
     beginPatternScope("reducer", c);
         c.define("it", variableId(), init, defType(current));
         c.require("reducer", current, gens,
