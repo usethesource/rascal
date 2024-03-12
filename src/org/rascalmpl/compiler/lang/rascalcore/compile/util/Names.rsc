@@ -1,7 +1,6 @@
 module lang::rascalcore::compile::util::Names
 
 import String;
-import IO;
 import List;
 import util::Reflective;
 
