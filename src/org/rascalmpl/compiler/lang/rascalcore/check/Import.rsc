@@ -262,7 +262,7 @@ ModuleStatus complete(ModuleStatus ms){
         set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
                          { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
         if(size(cycle) > 1){
-            ms.messages[mname] =  (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+            ms.messages[mname] = (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
         }
     }
    
@@ -277,9 +277,7 @@ ModuleStatus complete(ModuleStatus ms){
             strPaths += <mfrom, r, mto >;
         } catch _: ;/* ignore non-existing module */
     }
-    ms.strPaths = strPaths;
-    //ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};
-  
+    ms.strPaths = strPaths;  
     return ms;
 }
 
@@ -450,13 +448,15 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
     }
     for(m <- component, not_found() notin ms.status[m]){
         tm.modelName = m;
-        tm.moduleLocs = (m : getModuleScope(m, moduleScopes, pcfg));
+        mScope = getModuleScope(m, moduleScopes, pcfg);
+        tm.moduleLocs = (m : mScope);
         
         tm.definitions = ( def.defined : def | Define def <- tm.defines);
        
         ms.tmodels[m] = tm;
         tm = addGrammar(m, m_imports[m], m_extends[m], ms.tmodels);
-        ms.messages[m] = tm.messages;
+        ms.messages[m] = [msg | msg <- tm.messages, msg.at.file == mScope.file ];
+        tm.messages = ms.messages[m];
         ms.tmodels[m] = tm;
     }
     return ms;
@@ -497,13 +497,12 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             m1.modelName = qualifiedModuleName;
             m1.moduleLocs = (qualifiedModuleName : mscope);
             
-            //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
             m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInComponentScopes(key));
             
             m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
             m1.facts += m1.specializedFacts;
             
-            m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
+            m1.messages = [msg | msg <- tm.messages, msg.at.file == mscope.file];
             
             filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
             

@@ -28,7 +28,7 @@ module lang::rascalcore::compile::Examples::Tst5
 //            [1];
 //}
 
-
+import Type;
 //MH
 public rel[str s, int n] filterRelBroken(rel[str s, int n] inRel, set[str] relFilter) {
     return { t | t:< s, n > <- inRel, s in relFilter };
