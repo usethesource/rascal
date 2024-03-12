@@ -179,24 +179,24 @@ list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
     if(!exists(pcfg.bin)) {
         try {
             mkDirectory(pcfg.resources);
-        } catch _: {
-            msgs += error("PathConfig `bin`: <pcfg.bin> does not exist", pcfg.bin);
+        } catch e: {
+            msgs += error("PathConfig `bin`: <e>", pcfg.bin);
         }
     }
     
     if(!exists(pcfg.resources)) {
         try {
             mkDirectory(pcfg.resources);
-        } catch _: {
-            msgs += error("PathConfig `resources`: <pcfg.resources> does not exist", pcfg.resources);
+        } catch e: {
+            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
         }
     }
     
     if(!exists(pcfg.generatedSources)) 
         try {
             mkDirectory(pcfg.generatedSources);
-        } catch _: {
-            msgs += error("PathConfig `generatedSources`: <pcfg.generatedSources> does not exist", pcfg.generatedSources);
+        } catch e: {
+            msgs += error("PathConfig `generatedSources`: <e>", pcfg.generatedSources);
         }
         
     return msgs;
