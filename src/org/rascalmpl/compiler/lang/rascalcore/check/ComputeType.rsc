@@ -1193,6 +1193,6 @@ private AType getPatternType0(current: (Pattern) `[ <Type tp> ] <Pattern p>`, AT
 // ---- anti
 
 private AType getPatternType0(current: (Pattern) `! <Pattern pattern>`, AType subjectType, loc scope, Solver s){
-    getPatternType(pattern, avalue(), scope, s);
-    return avoid();
+    getPatternType(pattern, avalue(), scope, s);  // to force nested type calculations
+    return avalue();
 }

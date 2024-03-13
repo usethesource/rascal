@@ -56,7 +56,7 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
        c.fact(current, alist(avoid()));
     }
     c.push(patternContainer, "list");
-    collect(elements0, c);
+        collect(elements0, c);
     c.pop(patternContainer);
 }
 
@@ -191,8 +191,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        if(!isWildCard(uname)){
           if(!inPatternNames(uname, c)){
              c.push(patternNames, <uname, getLoc(argName)>);
-          }
-          //c.define(uname, formalOrPatternFormal(c), argName, defType(tp));     
+          }    
           
           c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
                AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));     
@@ -209,7 +208,6 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
         <qualifier, base> = splitQualifiedName(argName);
         if(!isWildCard(base)){
            if(inPatternNames(base, c)){
-              //println("qualifiedName: <name>, useLub, <getLoc(current)>");
               c.useLub(argName, variableRoles);
               return;
            }
@@ -218,7 +216,6 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
            if(isTopLevelParameter(c)){
               c.fact(current, avalue());
               if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
-              //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
               c.define(base, formalId(), argName, defLub([], AType(Solver _) { return avalue(); }));
            } else {
               if(c.isAlreadyDefined("<argName>", argName)) {
@@ -312,7 +309,7 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
 
 void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
     c.push(patternContainer, "descendant");
-    collect(pattern, c);
+        collect(pattern, c);
     c.pop(patternContainer);
     c.fact(current, avalue());
 }
@@ -329,7 +326,7 @@ void collect(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, Collector c
        c.fact(current, amap(avoid(), avoid()));
     }
     c.push(patternContainer, "map");
-    collect(mps, c);
+        collect(mps, c);
     c.pop(patternContainer);
 }
 
@@ -338,25 +335,25 @@ void collect(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, Collector c
 void collect(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> )`, Collector c){
     c.fact(current, areified(avalue()));
     c.push(patternContainer, "reified type constructor");
-    collect(symbol, definitions, c);
+        collect(symbol, definitions, c);
     c.pop(patternContainer);
 }
 
 // ---- asType
 void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
     c.fact(current, tp);
-    //c.requireComparable(tp, p, error(p, "Pattern should be subtype of %t, found %t", tp, p));
+    c.requireSubType(p, tp, error(p, "Pattern should be subtype of %t, found %t", tp, p));
     collect(tp, c);
     c.push(patternContainer, "asType");
-    collect(p, c);
+    	collect(p, c);
     c.pop(patternContainer);
 }
 
 // ---- anti
 
 void collect(current: (Pattern) `! <Pattern pattern>`, Collector c){
-    c.fact(current, avoid());
-    c.enterScope(current); // wrap in extra scope to avoid that variables in pattern leak to surroundings
-    collect(pattern, c);
-    c.leaveScope(current);
+    c.fact(current, avalue());
+    c.enterLubScope(current); // wrap in extra scope to avoid that variables in pattern leak to surroundings
+        collect(pattern, c);
+    c.leaveScope(current);    
 }
