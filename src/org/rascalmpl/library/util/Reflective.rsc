@@ -122,6 +122,13 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension =
             return fileLoc;
         }
     }
+
+    for(loc dir <- pcfg.libs){
+        fileLoc = dir + fileName;
+        if(exists(fileLoc)){
+            return fileLoc;
+        }
+    }
     throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
