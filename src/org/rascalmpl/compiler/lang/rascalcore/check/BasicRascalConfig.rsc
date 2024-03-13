@@ -126,7 +126,7 @@ data TypePalConfig(
     bool verbose                    = true,    // for each compiled module, module name and compilation time
     bool logImports                 = false,   // log all imported files
     bool logWrittenFiles            = false,   // log all files written by compiler
-    bool logPathConfig              = true,    // log PathConfig that is used
+    bool logPathConfig              = false,    // log PathConfig that is used
       
     bool optimizeVisit              = true,     // Options for compiler developer
     bool enableAsserts              = true,
