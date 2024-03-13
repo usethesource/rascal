@@ -1,9 +1,7 @@
 @bootstrapParser
 module  lang::rascalcore::compile::Compile
 
-import Exception;
 import Message;
-import Map;
 import String;
 import util::Reflective;
 import util::Benchmark;
@@ -124,8 +122,8 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
    
     comp_time = (cpuTime() - start_comp)/1000000;
    
-    jobStep("RascalCompiler", "Compiled <qualifiedModuleName> in <comp_time> ms");// TODO: monitor
-    if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleName> in <comp_time> ms"); }
+    jobStep("RascalCompiler", "Compiled <qualifiedModuleName> in <comp_time> ms [total]");// TODO: monitor
+    if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleName> in <comp_time> ms [total]"); }
     jobEnd("RascalCompiler");// TODO: monitor
 	
     return ms.messages[qualifiedModuleName] ? [];
