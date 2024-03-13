@@ -142,7 +142,7 @@ tuple[str,str] splitFileExtension(str path){
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
-    if(!moduleLoc.extension in {"rsc", "tpl"}){
+    if(!(moduleLoc.extension in {"rsc", "tpl"})){
         throw "Not a Rascal source or tpl file: <moduleLoc>";
     }
    
