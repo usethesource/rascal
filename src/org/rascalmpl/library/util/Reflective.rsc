@@ -113,16 +113,16 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
-@synopsis{Get the source location of a named module with given extension}
-loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
-    fileName = makeFileName(qualifiedModuleName, extension=extension);
+@synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
+loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
             return fileLoc;
         }
     }
-
+    fileName = makeFileName(qualifiedModuleName, extension="tpl");
     for(loc dir <- pcfg.libs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
@@ -138,12 +138,12 @@ tuple[str,str] splitFileExtension(str path){
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
-@synopsis{Get the name of a Rascal module given its source location}
+@synopsis{Get the name of a Rascal module given its (src or tpl) location}
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
+    if(!moduleLoc.extension in {"rsc", "tpl"}){
+        throw "Not a Rascal source or tpl file: <moduleLoc>";
     }
    
     for(loc dir <- pcfg.srcs){
@@ -161,7 +161,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     for(loc dir <- pcfg.libs){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
            moduleName = replaceFirst(modulePath, dir.path, "");
-           moduleName = replaceLast(moduleName, ".rsc", "");
+           moduleName = replaceLast(moduleName, ".tpl", "");
            if(moduleName[0] == "/"){
               moduleName = moduleName[1..];
            }
