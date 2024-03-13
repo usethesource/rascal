@@ -178,7 +178,7 @@ list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
     
     if(!exists(pcfg.bin)) {
         try {
-            mkDirectory(pcfg.resources);
+            mkDirectory(pcfg.bin);
         } catch e: {
             msgs += error("PathConfig `bin`: <e>", pcfg.bin);
         }
