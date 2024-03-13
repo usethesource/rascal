@@ -355,7 +355,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             }
             
             defaults = { d | d <- defs, t := facts[d.defined]?afunc(avoid(),[],[]), t.isDefault };
-            if(size(defaults) > 1){
+            if(size(defaults) > 1 && all(d1 <- defaults, d2 <- defaults, d1 != d2, d1.scope == d2.scope)){
                 msgs = [ info("Multiple defaults defined for function `<id>`, refactor or manually check non-overlap", d.defined) | d <- defaults ];
                 s.addMessages(msgs);
             }
