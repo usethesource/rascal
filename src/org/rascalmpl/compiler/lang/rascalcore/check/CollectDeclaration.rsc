@@ -645,7 +645,9 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     
     aliasName = prettyPrintName(name);
     c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<current>")]);
-    collect(base, c);
+    c.enterScope(current);
+        collect(base, c);
+    c.leaveScope(current);
 } 
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name>[ <{Type ","}+ parameters> ] = <Type base>;`, Collector c){
