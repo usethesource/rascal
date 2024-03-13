@@ -27,7 +27,7 @@ void generateTestSources(PathConfig pcfg) {
      libs = [ ]
      );
      
-   testCompilerConfig = getRascalCoreCompilerConfig(testConfig);
+   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false];
    
    map[str,int] durations = ();
      
@@ -156,7 +156,10 @@ void generateTestSources(PathConfig pcfg) {
 str safeCompile(str \module, RascalCompilerConfig compilerConfig, void (int duration) measure) {
    try {
      measure(cpuTimeOf(() {    
-       compile(\module, compilerConfig);
+       msgs = compile(\module, compilerConfig);
+       if(!isEmpty(msgs)){
+            iprintln(msgs);
+       }
      }));
      return "";
    }

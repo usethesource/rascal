@@ -212,7 +212,7 @@ ModuleStatus rascalTModelForLocs(
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){         
     pcfg = compilerConfig.typepalPathConfig;
-    if(compilerConfig.verbose) { iprintln(pcfg); }
+    if(compilerConfig.logPathConfig) { iprintln(pcfg); }
     
     msgs = validatePathConfigForCompiler(pcfg, mlocs[0]);
     if(!isEmpty(msgs)){
@@ -354,7 +354,7 @@ ModuleStatus rascalTModelForLocs(
                     <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
                         msgs = codgen(m, pt, ms, compilerConfig);
-                        ms.messages[m] = msgs;
+                        ms.messages[m] += msgs;
                         ms.status[m] += {code_generated()};
                     }
                     //else {
@@ -427,6 +427,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     jobStep("RascalCompiler", "Checking <modelName>"); // TODO: monitor
     if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
     
+    start_check = cpuTime();  
     c = newCollector(modelName, namedTrees, compilerConfig);
     c.push(key_pathconfig, pcfg);
     
@@ -447,6 +448,11 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     
     s = newSolver(namedTrees, tm);
     tm = s.run();
+    
+    check_time = (cpuTime() - start_check)/1000000;
+    
+    jobStep("RascalCompiler", "Checked <modelName> in <check_time> ms");// TODO: monitor
+    if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
     
     return <tm, ms>;
 }

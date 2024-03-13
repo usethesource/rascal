@@ -13,7 +13,6 @@ import Map;
 import util::Reflective;
 import lang::rascalcore::compile::Compile;
 import util::FileSystem;
-import util::Monitor;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 
@@ -161,7 +160,10 @@ void compileTestSources(PathConfig pcfg) {
 tuple[str, int] safeCompile(str \module, RascalCompilerConfig compilerConfig) {
    start_time = cpuTime();
    try { 
-       compile(\module, compilerConfig);
+       msgs = compile(\module, compilerConfig);
+       if(!isEmpty(msgs)){
+            iprintln(msgs);
+       }
        return <"",cpuTime()-start_time>;
    }
    catch value exception: {

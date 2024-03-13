@@ -29,7 +29,7 @@ void checkTestSources(PathConfig pcfg) {
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = rascalCompilerConfig(testConfig);
+   testCompilerConfig = rascalCompilerConfig(testConfig)[logPathConfig=false];
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
@@ -119,8 +119,10 @@ tuple[str, int]  safeCompile(str \module, RascalCompilerConfig compilerConfig) {
        ModuleStatus result = rascalTModelForNames([\module], 
                                                   compilerConfig,
                                                   dummy_compile1);
-       iprintln(result.tmodels[\module].messages);
-     return <"", cpuTime()-start_time>;
+       if(!isEmpty(result.tmodels[\module].messages)){
+            iprintln(result.tmodels[\module].messages);
+       }
+       return <"", cpuTime()-start_time>;
    }
    catch value exception: {
      println("Something unexpected went wrong during test source generation for <\module>:
