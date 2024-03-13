@@ -1,11 +1,25 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-//public rel[str s, int n] filterRelWorking(rel[str s, int n] inRel, set[str] relFilter) {
-//    return { < s, n > | < s, n > <- inRel, s in relFilter };
-//}
-public rel[str s, int n] filterRelBroken(rel[str s, int n] inRel, set[str] relFilter) {
-    return { t | t:< s, n > <- inRel };
+// #1464
+//int f6(&T x) { return x; }
+
+//#1855
+
+import ParseTree;
+//import IO;
+bool main(){
+    
+    if(appl(r:regular(\iter-star(_)), 
+                args:
+                !
+                []) 
+                := appl(regular(\iter-star(sort("A"))), [char(0)])){
+        return true;
+    } else {
+        return false;
+    }
 }
+
 
 //import List;
 //
