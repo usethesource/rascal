@@ -157,6 +157,51 @@ test bool testDynamicTypes2() {set[value] s = {"1",2,3}; return set[int] _ := s 
 test bool testDynamicTypes3() {set[value] s = {"1",2,3}; return set[int] _ := s & {2,3};}
 test bool testDynamicTypes4() = {"1", *int _} := {"1",2,3}; 
   		
-  
-  
- 
+// intersection
+test bool testIntersectionEmptySet() {
+  try {
+    intersection({});
+  }
+  catch IllegalArgument(wholeSet, msg): {
+    return wholeSet == {} && msg == "Intersection only possible with at least two sets.";
+  }
+  return false;
+}
+
+test bool testIntersectionSingleElement() {
+  try {
+    intersection({{1}});
+  }
+  catch IllegalArgument(wholeSet, msg): {
+    return wholeSet == {{1}} && msg == "Intersection only possible with at least two sets.";
+  }
+  return false;
+}
+
+test bool testIntersectionNoOverlap() {return intersection({{1,2}, {3,4}}) == {};}
+test bool testIntersectionOverlap() {return intersection({{1,2}, {2,3}, {2,5}}) == {2};}
+
+// isDisjoint
+test bool testIsPairwiseDisjointEmpty() {
+  try {
+    isPairwiseDisjoint([]);
+  }
+  catch IllegalArgument(wholeInput, msg): {
+    return wholeInput == [] && msg == "Only two or more sets can be pairwise disjoint.";
+  }
+  return false;
+}
+
+test bool testIsPairwiseDisjointSingleElement() {
+  try {
+    isPairwiseDisjoint([{1}]);
+  }
+  catch IllegalArgument(wholeInput, msg): {
+    return wholeInput == [{1}] && msg == "Only two or more sets can be pairwise disjoint.";
+  }
+  return false;
+}
+
+test bool testIsPairwiseDisjointIdenticalElements() {return isPairwiseDisjoint([{1}, {1}]) == false;}
+test bool testIsPairwiseDisjointNoOverlap() {return isPairwiseDisjoint([{1,2},{3,4},{5,6}]) == true;}
+test bool testIsPairwiseDisjointOverlap() {return isPairwiseDisjoint([{1,2}, {-4,5}, {1,6,7}]) == false;}
