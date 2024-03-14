@@ -849,7 +849,7 @@ keyword HexaSignificandKeywords =
   ;
 
 lexical BinaryNumeral =
-  "0" [b B] [0-1] [0-1 _]* !>> [0-1]*
+  "0" [b B] [0-1] [0-1 _]* !>> [0-1]
   ;
 
 lexical StringChars =
@@ -929,7 +929,7 @@ lexical EscapeSeq =
   ;
 
 layout LAYOUTLIST  =
-  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> (  [/]  [*]  ) !>> (  [/]  [/]  ) !>> "/*" !>> "//"
+  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> "/*" !>> "//"
   ;
 
 lexical NamedEscape =
