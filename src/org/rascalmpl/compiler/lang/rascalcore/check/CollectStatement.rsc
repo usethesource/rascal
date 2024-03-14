@@ -698,15 +698,10 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
             AType(Solver s){ 
                 return s.getType(statement); 
             }));
-           //c.useLub(name, variableRoles);
         } else {
-           //if(c.isAlreadyDefined(base, name)) {
-            //c.useLub(name, variableRoles);
-           //} else {
             c.define(base, variableId(), name, defLub([statement, name],  AType(Solver s){ 
                 return computeAssignmentRhsType(statement, s.getType(name), operator, s.getType(statement), s); 
             }));
-           //}
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
