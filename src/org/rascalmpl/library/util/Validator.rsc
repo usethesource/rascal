@@ -40,7 +40,7 @@ private data RuntimeException = none();
         // there may be several constructors with this name; we try them all, backtracking over already validated sub-values:
         for (/\cons(label(str otherName:name, def), list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] _) := grammar[def]?[]
             // if the constructors with the right name are exhausted, we try the others (in relaxed mode)
-            || <true, name, def, /\cons(label(otherName, _), list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] _)> := <relaxed, name, def, grammar[def]?[]>) {
+            || <true, name, def, /\cons(label(otherName, _), list[Symbol] _symbols, list[Symbol] _kwTypes, set[Attr] _)> := <relaxed, name, def, grammar[def]?[]>) {
             children = getChildren(v);
             params = getKeywordParameters(v);
         
