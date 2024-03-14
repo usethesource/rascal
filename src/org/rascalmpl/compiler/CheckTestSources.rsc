@@ -29,7 +29,7 @@ void checkTestSources(PathConfig pcfg) {
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = rascalCompilerConfig(testConfig)[logPathConfig=false];
+   testCompilerConfig = rascalCompilerConfig(testConfig)[logPathConfig=false][forceCompilationTopModule=false];
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));

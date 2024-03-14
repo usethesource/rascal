@@ -27,7 +27,7 @@ void generateTestSources(PathConfig pcfg) {
      libs = [ ]
      );
      
-   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false];
+   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false][forceCompilationTopModule=false];
    
    map[str,int] durations = ();
      
