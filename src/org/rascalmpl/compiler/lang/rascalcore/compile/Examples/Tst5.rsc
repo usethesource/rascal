@@ -1,27 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-
-syntax Expr = "e";
-
-syntax Expr =
-  right 
-    ( right postIncr: Expr "++" 
-    | right postDecr: Expr "--" 
-    )
-  > left 
-      ( left div: Expr "/" !>> [/] Expr 
-      | left remain: Expr "%" Expr
-      )
-  ;
-
-syntax Expr =
-   castPrim: "(" "PrimType" ")" Expr 
-  > left 
-      ( left div: Expr "/" !>> [/] Expr 
-      | left remain: Expr "%" Expr
-      )
-  ;
-  
   
 //import List;
 //
