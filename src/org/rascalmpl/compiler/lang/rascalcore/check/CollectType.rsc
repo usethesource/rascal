@@ -451,13 +451,13 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
                 nformals = size(baseType.parameters);
                 if(nactuals != nformals) s.report(error(ts, "Expected %v type parameter(s) for %v, found %v", nformals, adtName, nactuals));
                 bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
-                return xxInstantiateRascalTypeParameters(ts, baseType, bindings, s);
+                return instantiateRascalTypeParameters(ts, baseType, bindings, s);
             } else if(aalias(aname, params, aliased) := baseType){
                 nformals = size(baseType.parameters);
                 if(nactuals != nformals) s.report(error(ts, "Expected %v type parameter(s) for %v, found %v", nformals, aname, nactuals));
                 
                 bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
-                return xxInstantiateRascalTypeParameters(ts, aliased, bindings, s);
+                return instantiateRascalTypeParameters(ts, aliased, bindings, s);
             }
             s.report(error(n, "Type %t cannot be parameterized, found %v parameter(s)", n, nactuals));
             return avoid();

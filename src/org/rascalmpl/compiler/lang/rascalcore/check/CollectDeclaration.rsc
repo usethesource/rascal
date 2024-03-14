@@ -594,28 +594,46 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType declaredReturnAType)
         returnRequirement(returnExpr, declaredReturnAType, s);
     };
 
-void returnRequirement(Tree returnExpr, AType theDeclaredReturnType, Solver s){
+bool isParameterized(AType t){
+    return /aparameter(_,_) := t;
+}
+void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
       
     returnExprType = s.getType(returnExpr);
+    
     Bindings bindings = ();
-    try   bindings = matchRascalTypeParams(returnExprType, theDeclaredReturnType, bindings);
+    try   bindings = matchRascalTypeParams(returnExprType, declaredReturnType, bindings);
     catch invalidMatch(str reason):
           s.report(error(returnExpr, reason));
-      
+    
+    if(isParameterized(returnExprType)){
+        if(!isParameterized(declaredReturnType)){
+            if(!s.subtype(returnExprType, declaredReturnType)){
+                s.report(error(returnExpr, "Cannot return a parameterized type %t, when declared return type %t is not parameterized", returnExprType, declaredReturnType));
+            }
+        }
+    } else if(isParameterized(declaredReturnType)){
+        if(!s.subtype(returnExprType, declaredReturnType)){
+            s.report(error(returnExpr, "Cannot return a non-parameterized type %t, when declared return type %t is parameterized", returnExprType, declaredReturnType));
+        }
+    }
+   
     actualReturnType = returnExprType;
     try {
-        actualReturnType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+        actualReturnType = instantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
     } catch invalidInstantiation(str reason):{
-        s.report(error(returnExpr, "Returned type %t does not match declared type %t: %v", returnExprType, theDeclaredReturnType, reason));
+        s.report(error(returnExpr, "Returned type %t does not match declared type %t: %v", returnExprType, declaredReturnType, reason));
     }
 
     if(s.isFullyInstantiated(actualReturnType)){
-        s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
-                     !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
+        s.requireTrue(s.equal(actualReturnType, avoid()) ? s.equal(declaredReturnType, avoid()) 
+                                                         : s.subtype(actualReturnType, declaredReturnType), 
+                      error(returnExpr, "Return type %t expected, found %t", declaredReturnType, actualReturnType));
     } else
-        if(!s.unify(actualReturnType, theDeclaredReturnType)){
-        s.requireTrue(s.equal(actualReturnType, avoid()) && s.equal(theDeclaredReturnType, avoid()) ||
-                     !s.equal(actualReturnType, avoid()) && s.subtype(actualReturnType, theDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", theDeclaredReturnType, actualReturnType));
+        if(!s.unify(actualReturnType, declaredReturnType)){
+        s.requireTrue(s.equal(actualReturnType, avoid()) ? s.equal(declaredReturnType, avoid())
+                                                         : s.subtype(actualReturnType, declaredReturnType), 
+                     error(returnExpr, "Return type %t expected, found %t", declaredReturnType, actualReturnType));
     }   
  }
 

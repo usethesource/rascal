@@ -2035,7 +2035,7 @@ list[Expression] normalizeOr(list[Expression] exps)
     = [ *normalizeOr(e) | e <- exps ];
     
 MuExp translateOrConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCont, MuExp falseCont, MuExp(MuExp) normalize = identity){
-    iprintln(btscopes);
+    //iprintln(btscopes);
     if(isEmpty(conds)) return normalize(trueCont);
     conds = normalizeOr(conds);
     

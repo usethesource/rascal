@@ -342,7 +342,8 @@ void collect(current: (Pattern) `type ( <Pattern symbol>, <Pattern definitions> 
 // ---- asType
 void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
     c.fact(current, tp);
-    c.requireSubType(p, tp, error(p, "Pattern should be subtype of %t, found %t", tp, p));
+    // TODO: explore why this gives undesired erors, e..g in lang::rascal::grammar::definition::Literals
+    //c.requireSubType(p, tp, error(p, "Pattern should be subtype of %t, found %t", tp, p)); 
     collect(tp, c);
     c.push(patternContainer, "asType");
     	collect(p, c);
