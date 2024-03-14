@@ -278,7 +278,7 @@ bool rascalReportUnused(loc def, TModel tm){
             case variableId():          { if(!config.warnUnusedVariables) return false;
                                           container = definitions[findContainer(def, definitions, scopes)];
                                           if(container.idRole == moduleId() && define.defInfo.vis == publicVis()) return false;
-                                          return isWildCard(define.id[0]) || define.id == "it";
+                                          return !(isWildCard(define.id[0]) || define.id == "it");
                                         }
             case moduleVariableId():    return false;
             case annoId():              return false;
