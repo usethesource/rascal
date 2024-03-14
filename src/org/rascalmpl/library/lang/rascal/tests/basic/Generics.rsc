@@ -54,7 +54,8 @@ test bool lessIsConsistentThroughTypeParameters(num x, num y) = (x < y) ==> less
 
 test bool voidReturnIsNotAllowed() {
    try {
-     return avoidEmpty([]); 
+     avoidEmpty([]); 
+     return false;
    } catch "this should happen":
      return true;
 }
