@@ -89,9 +89,7 @@ alias   foptions = map[str, list[str]];
 
 map[Box, text] box2textmap=();
 
-
-anno list[str] Box@format;
-
+data Box(list[str] format=[]);
 
 text vv(text a, text b) {
 // if (!isEmpty(a) && isEmpty(a[0])) return b;
@@ -258,7 +256,7 @@ text II(list[Box] b, Box c, options opts, int m) {
 
 text WDWD(list[Box] b, Box c ,options opts, int m) {
     if (isEmpty(b)) return [];
-    int h= b[0]@hs?opts["h"];
+    int h= b[0].hs?opts["h"];
     text t = O(b[0], c, opts, m);
     int s = hwidth(t);
     return  hh(t , hh_(hskip(h) , WDWD(tail(b), c, opts, m-s-h)));
@@ -366,12 +364,12 @@ text O(Box b, Box c, options opts, int m) {
     int h = opts["h"];
     int v = opts["v"];
     int i = opts["i"];
-    // if ((b@vs)?) println("Start:<getName(b)> <b@vs>");
-     if ((b@hs)?) {opts["h"] = b@hs;}
-     if ((b@vs)?) {opts["v"] = b@vs;}
-     if ((b@is)?) {opts["i"] = b@is;}
+    // if ((b.vs)?) println("Start:<getName(b)> <b.vs>");
+     if ((b.hs)?) {opts["h"] = b.hs;}
+     if ((b.vs)?) {opts["v"] = b.vs;}
+     if ((b.is)?) {opts["i"] = b.is;}
      foptions f =();
-     if ((b@format)?) {f["f"] = b@format;}
+     if ((b.format)?) {f["f"] = b.format;}
      text t = QQ(b, c, opts, f, m);
      opts["h"]=h;
      opts["v"]=v;
@@ -384,8 +382,8 @@ text O(Box b, Box c, options opts, int m) {
 
 Box boxSize(Box b, Box c, options opts, int m) {
        text s = O(b, c, opts, m);
-       b@width = twidth(s);
-       b@height = size(s);
+       b.width = twidth(s);
+       b.height = size(s);
        return b;
        }
 
@@ -396,7 +394,7 @@ list[list[Box]] RR(list[Box] bl, Box c, options opts, int m) {
 }
 
 int getMaxWidth(list[Box] b) {
-   return max([c@width| Box c <- b]);
+   return max([c.width| Box c <- b]);
 }
 
 list[int] Awidth(list[list[Box]] a) {
@@ -404,7 +402,7 @@ list[int] Awidth(list[list[Box]] a) {
      int m = size(head(a));  // Rows have the same length
      list[int] r = [];
      for (int k<-[0..m]) {
-           r+=[max([b[k]@width|b<-a])];
+           r+=[max([b[k].width|b<-a])];
            }
      return r;
      }
@@ -420,7 +418,7 @@ text AA(list[Box] bl, Box c ,options opts, foptions f, int m) {
          list[str] format =format0;
          list[Box] hargs = [];
          for (Box b<- bl2) {
-                int width = b@width;
+                int width = b.width;
                 str f_str = !isEmpty(format)?head(format):"l";
                 if (!isEmpty(format)) format = tail(format);
                 max_width = head(mw);
@@ -428,12 +426,12 @@ text AA(list[Box] bl, Box c ,options opts, foptions f, int m) {
                 int h= opts["h"];
                 switch(f_str) {
                     case "l": {
-                     // b@hs=max_width - width+h; /*left alignment */  
+                     // b.hs=max_width - width+h; /*left alignment */  
                          hargs+=b;
                          hargs += SPACE(max_width - width);
                          }
                     case "r": {
-                     // b@hs=max_width - width+h; /*left alignment */
+                     // b.hs=max_width - width+h; /*left alignment */
                          hargs += SPACE(max_width - width);
                          hargs+=b;
                          }
@@ -461,13 +459,13 @@ bool changeHV2H(list[Box] hv) {
 Box removeHV(Box b) {
 return innermost visit(b) {
      case t:HV(list[Box] hv) => {
-                     int h = (t@hs)?(-1);
-                     int i =   (t@is)?(-1);
-                     int v =   (t@vs)?(-1);
+                     int h = (t.hs)?(-1);
+                     int i =   (t.is)?(-1);
+                     int v =   (t.vs)?(-1);
                      Box r = H(hv);
-                     if (h>=0) r@hs = h;
-                     if (i>=0)  r@is = i;
-                     if (v>=0) r@vs = v;
+                     if (h>=0) r.hs = h;
+                     if (i>=0)  r.is = i;
+                     if (v>=0) r.vs = v;
                      r;                
                      }
                   when changeHV2H(hv)
@@ -477,13 +475,13 @@ return innermost visit(b) {
 Box removeHOV(Box b) {
 return innermost visit(b) {
      case t:HOV(list[Box] hov) => {
-                     int h = (t@hs)?(-1);
-                     int i =   (t@is)?(-1);
-                     int v =   (t@vs)?(-1);
+                     int h = (t.hs)?(-1);
+                     int i =   (t.is)?(-1);
+                     int v =   (t.vs)?(-1);
                      Box r = changeHV2H(hov)?H(hov):V(hov);
-                     if (h>=0) r@hs = h;
-                     if (i>=0)  r@is = i;
-                     if (v>=0) r@vs = v;
+                     if (h>=0) r.hs = h;
+                     if (i>=0)  r.is = i;
+                     if (v>=0) r.vs = v;
                      // println("changed2");
                      r;
                      }
@@ -620,7 +618,7 @@ void tst() {
   Box  b2 = R([L("def"), L("hg")]);
   Box  b3 = R([L("ijkl"), L("m")]);
   Box b = A([b1, b2, b3]);
-  b@format=["c","c"];
+  b.format=["c","c"];
 } 
 
 public str baseName(str input) {
