@@ -343,7 +343,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
            if(kwName == fn){
               ift = ft;
               if(!isEmpty(bindings)){
-                  try   ift = instantiateRascalTypeParameters(k, ft, bindings, s); // changed
+                  try   ift = instantiateRascalTypeParameters(kwa, ft, bindings, s); // changed
                   catch invalidInstantiation(str msg):
                         s.report(error(kwa, msg));
               }
