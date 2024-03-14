@@ -47,6 +47,7 @@ import String;
 import util::Reflective;
 import util::FileSystem;
 import util::Monitor;
+import util::Benchmark;
 import analysis::graphs::Graph;
 
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
@@ -344,11 +345,11 @@ ModuleStatus rascalTModelForLocs(
                         ms.status[m]  += {check_error()};
                     }
                 }
-                // presave the TModels of the modules in the component
+                // presave the TModels of the modules in this component
                 
                 ms = preSaveModule(component, m_imports, m_extends, ms, moduleScopes, tm);
                 
-                // generate code for the modules in the component
+                // generate code for the modules in this component
                 
                 for(str m <- component){
                     <success, pt, ms> = getModuleParseTree(m, ms);
