@@ -1,25 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-// #1464
-//int f6(&T x) { return x; }
+// #1464 en #1446
+int f6(&T x) { return x; }
 
-//#1855
+value main() = f6(1);
 
-import ParseTree;
-//import IO;
-bool main(){
-    
-    if(appl(r:regular(\iter-star(_)), 
-                args:
-                !
-                []) 
-                := appl(regular(\iter-star(sort("A"))), [char(0)])){
-        return true;
-    } else {
-        return false;
-    }
-}
-
+ &T get(list[&T] _) = 1;
 
 //import List;
 //
@@ -40,10 +26,3 @@ bool main(){
 // &T testFunction(Maybe[&T] _, &T x) = x;
 // 
 // value main() = testFunction(just(3), 5);
-// 
-//value edits(value x: ![]) {return x;}
-//
-//value main(){
-//    return ![] := 
-//            [1];
-//}

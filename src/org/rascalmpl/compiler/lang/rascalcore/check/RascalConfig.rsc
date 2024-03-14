@@ -153,7 +153,7 @@ AType rascalInstantiateTypeParameters(Tree selector,
     if(nformals > 0){
         if(adtName1 != adtName2) throw TypePalUsage("rascalInstantiateTypeParameters: <adtName1> versus <adtName2>");
         bindings = (formals[i].pname : actuals [i] | int i <- index(formals));
-        return xxInstantiateRascalTypeParameters(selector, act, bindings, s);
+        return instantiateRascalTypeParameters(selector, act, bindings, s);
     } else {
         return act;
     }

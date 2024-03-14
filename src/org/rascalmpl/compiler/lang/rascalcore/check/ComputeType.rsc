@@ -63,7 +63,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
             
-            initialType = xxInstantiateRascalTypeParameters(var, initialType, bindings, s);  
+            initialType = instantiateRascalTypeParameters(var, initialType, bindings, s);  
             if(s.isFullyInstantiated(initialType)){
                 s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
             } else if(!s.unify(initialType, varType)){
@@ -235,7 +235,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     }
     iformals = formalTypes;
     if(!isEmpty(bindings)){
-        try   iformals = [instantiateRascalTypeParams(formalTypes[i], bindings) | int i <- index_formals];
+        try   iformals = [instantiateRascalTypeParameters(current, formalTypes[i], bindings, s) | int i <- index_formals]; // changed
         catch invalidInstantiation(str msg):
               s.report(error(current, msg));
     }
@@ -282,14 +282,14 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     if(!isEmpty(bindings)){
         try {
             ctype_old = s.getType(current);
-            ctype_new = instantiateRascalTypeParams(ctype_old, bindings);
+            ctype_new = instantiateRascalTypeParameters(current, ctype_old, bindings, s); // changed
             if(ctype_new != ctype_old){
                 s.specializedFact(current, ctype_new);
             }
         } catch TypeUnavailable(): /* ignore */ ;
           catch invalidInstantiation(str _msg): /* nothing to instantiate */ ;
         try {
-            return instantiateRascalTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings);
+            return instantiateRascalTypeParameters(current, s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings, s); // changed
         } catch invalidInstantiation(str msg):
                s.report(error(current, msg));
     }
@@ -310,7 +310,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
            if(kwName == fn){
               ift = ft;
               if(!isEmpty(bindings)){
-                  try   ift = instantiateRascalTypeParams(ft, bindings);
+                  try   ift = instantiateRascalTypeParameters(kwa, ft, bindings, s); // changed
                   catch invalidInstantiation(str msg):
                         s.report(error(kwa, msg));
               }
@@ -343,7 +343,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
            if(kwName == fn){
               ift = ft;
               if(!isEmpty(bindings)){
-                  try   ift = instantiateRascalTypeParams(ft, bindings);
+                  try   ift = instantiateRascalTypeParameters(k, ft, bindings, s); // changed
                   catch invalidInstantiation(str msg):
                         s.report(error(kwa, msg));
               }

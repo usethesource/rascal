@@ -770,7 +770,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
        iformalTypes =
             for(int i <- index_formals){
                 try {
-                    append instantiateRascalTypeParams(formalTypes[i], bindings);
+                    append instantiateRascalTypeParameters(current, formalTypes[i], bindings, s); // changed
                 } catch invalidInstantiation(str msg): {
                     s.report(error(current, "Cannot instantiate formal parameter type `<prettyAType(formalTypes[i])>`: " + msg));
                 }
@@ -801,7 +801,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     if(isEmpty(bindings))
        return retType;
        
-    try   return instantiateRascalTypeParams(retType, bindings);
+    try   return instantiateRascalTypeParameters(current, retType, bindings, s); // changed
     catch invalidInstantiation(str msg):
           s.report(error(current, msg));
 

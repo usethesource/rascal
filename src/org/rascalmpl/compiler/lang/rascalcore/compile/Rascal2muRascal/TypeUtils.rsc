@@ -228,10 +228,10 @@ private loc findContainer(Define d){
         //println("cscope = <cscope>");
         if(scopes[cscope]?){
             if(cscope == scopes[cscope]){
-                println("WARNING: findContainer");
-                println("scopes:"); iprintln(scopes);
-                println("d: <d>");
-                println("cscope: <cscope>");
+                //println("WARNING: findContainer");
+                //println("scopes:"); iprintln(scopes);
+                //println("d: <d>");
+                //println("cscope: <cscope>");
                 return cscope;
             }
             cscope = scopes[cscope];
