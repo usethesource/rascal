@@ -39,7 +39,7 @@ public AAttr mod2attr(ProdModifier m) {
   }
 }
 
-Maybe[AAssociativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
+Maybe[AAssociativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(AAssociativity x) := mod2assoc(m));
 
 Maybe[AAssociativity] mod2assoc(\associativity(\left()))           = just(AAssociativity::aleft());
 Maybe[AAssociativity] mod2assoc(\associativity(\right()))          = just(AAssociativity::aright());
