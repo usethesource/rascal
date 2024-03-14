@@ -1,12 +1,28 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-// #1464 en #1446
-int f6(&T x) { return x; }
 
-value main() = f6(1);
+syntax Expr = "e";
 
- &T get(list[&T] _) = 1;
+syntax Expr =
+  right 
+    ( right postIncr: Expr "++" 
+    | right postDecr: Expr "--" 
+    )
+  > left 
+      ( left div: Expr "/" !>> [/] Expr 
+      | left remain: Expr "%" Expr
+      )
+  ;
 
+syntax Expr =
+   castPrim: "(" "PrimType" ")" Expr 
+  > left 
+      ( left div: Expr "/" !>> [/] Expr 
+      | left remain: Expr "%" Expr
+      )
+  ;
+  
+  
 //import List;
 //
 //value main(){
