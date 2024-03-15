@@ -118,7 +118,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <errorsAsWarnings>true</errorsAsWarnings>
+                    <errorsAsWarnings>true</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
