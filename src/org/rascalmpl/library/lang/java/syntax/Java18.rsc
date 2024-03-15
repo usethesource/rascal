@@ -877,7 +877,7 @@ lexical Comment =
 
 syntax FloatingPointLiteral =
    float: HexaFloatLiteral !>> [D F d f] 
-  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
+  |  float: DeciFloatLiteral !>> [D F d f] 
   ;
 
 lexical OctaLiteral =
@@ -1028,10 +1028,6 @@ lexical CommentPart
 
 syntax Identifier = id: [$ A-Z _ a-z] !<< ID \ IDKeywords !>> [$ 0-9 A-Z _ a-z];
   
-keyword ArrayAccessKeywords =
-  ArrayCreationExpression ArrayAccess 
-  ;
-
 syntax BooleanLiteral
   = \false: "false" 
   | \true: "true" 
@@ -1039,10 +1035,6 @@ syntax BooleanLiteral
 
 lexical DeciFloatExponentPart =
   [E e] SignedInteger !>> [0-9] 
-  ;
-
-keyword DeciFloatLiteralKeywords =
-  [0-9]+ 
   ;
 
 keyword DeciFloatDigitsKeywords =
