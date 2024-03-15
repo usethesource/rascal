@@ -844,8 +844,9 @@ lexical DeciNumeral =
   | [1-9] [0-9 _]* [0-9];
  
  
-keyword HexaSignificandKeywords =
-  [0] [X x] "." 
+keyword HexaSignificandKeywords 
+  = "0X."
+  | "0x."
   ;
 
 lexical BinaryNumeral =
@@ -1009,10 +1010,6 @@ lexical StringPart =
   |  chars: StringChars !>> ![\n \a0D \" \\]  !>> [\a00]
   ;
 
-keyword FieldAccessKeywords =
-  ExpressionName "." ID 
-  ;
-
 lexical EOLCommentChars =
   ![\n \a0D]* 
   ;
@@ -1021,21 +1018,15 @@ lexical SingleChar =
   ![\n \a0D \' \\] 
   ;
 
-keyword ElemValKeywords =
-  LeftHandSide "=" Expression 
-  ;
-
-lexical CommentPart =
-  UnicodeEscape 
+lexical CommentPart 
+  = UnicodeEscape 
   | BlockCommentChars !>> ![* \\] 
   | EscChar !>> [\\ u] 
   | Asterisk !>> [/] 
   | EscEscChar 
   ;
 
-syntax Identifier =
-   id: [$ A-Z _ a-z] !<< ID \ IDKeywords !>> [$ 0-9 A-Z _ a-z] 
-  ;
+syntax Identifier = id: [$ A-Z _ a-z] !<< ID \ IDKeywords !>> [$ 0-9 A-Z _ a-z];
   
 keyword ArrayAccessKeywords =
   ArrayCreationExpression ArrayAccess 
@@ -1048,10 +1039,6 @@ syntax BooleanLiteral
 
 lexical DeciFloatExponentPart =
   [E e] SignedInteger !>> [0-9] 
-  ;
-
-lexical EndOfFile =
-  
   ;
 
 keyword DeciFloatLiteralKeywords =
@@ -1086,7 +1073,7 @@ lexical UnicodeEscape =
 
 lexical LineTerminator =
   [\n] 
-  | EndOfFile !>> ![] 
+  | () !>> ![] 
   | [\a0D] [\n] 
   | CarriageReturn !>> [\n] 
   ;

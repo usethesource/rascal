@@ -13,6 +13,7 @@ for identifier compatibility in Rascal.
 }
 @examples{
 ```rascal-shell
+import lang::html5::DOM;
 title("This is a title node")
 ```
 }

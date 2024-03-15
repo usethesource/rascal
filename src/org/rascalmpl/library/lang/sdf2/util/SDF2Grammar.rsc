@@ -6,10 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@synopsis{Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar).}
 module lang::sdf2::util::SDF2Grammar
        
-// Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
-   
 // Todo List:
 // - Some tests are marked with @ignore (and commented out) since they trigger a Rascal bug:
 //   . The expression: `(Group) `A -\> B <1>`; triggers a bug in AST construction
