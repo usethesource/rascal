@@ -224,13 +224,8 @@ ModuleStatus rascalTModelForLocs(
     topModuleNames = {};
     
     for(mloc <- mlocs){
-        //try {
             m = getModuleName(mloc, pcfg);
             topModuleNames += {m};
-        //} catch str e: {
-        //    ms.messages += [ error("Cannot get module name for <mloc>, reason: <e>", mloc) ];
-        //    return ms;
-        //}
     }
     
     try {
@@ -279,9 +274,6 @@ ModuleStatus rascalTModelForLocs(
                         if(found){   
                             ms.status[m] += {tpl_uptodate(), checked()};
                         } 
-                        //else {
-                        //    ms.status[m] += not_found();
-                        //}
                     }
                }
             }
@@ -291,7 +283,7 @@ ModuleStatus rascalTModelForLocs(
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
                 map[str,set[str]] m_extends = ();
-                for(m <- component, not_found() notin ms.status[m]){
+                for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
                     imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
                     m_imports[m] =  imports;
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
@@ -351,7 +343,7 @@ ModuleStatus rascalTModelForLocs(
                 
                 // generate code for the modules in this component
                 
-                for(str m <- component){
+                for(str m <- component, MStatus::ignored() notin ms.status[m]){
                     <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
                         msgs = codgen(m, pt, ms, compilerConfig);
@@ -418,7 +410,14 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     for(str nm <- moduleNames){
         <success, pt, ms> = getModuleParseTree(nm, ms);
         if(success){
-            namedTrees[nm] = pt;
+            tagsMap = getTags(pt.header.tags);
+    
+            if(ignoreCompiler(tagsMap)) {
+                    ms.messages[nm] ? [] += [ Message::info("Ignoring module <nm>", pt@\loc) ];
+                    ms.status[nm] += MStatus::ignored();
+            } else {
+                namedTrees[nm] = pt;
+            }
         } 
         //else {
         //    ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
@@ -435,7 +434,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     rascalPreCollectInitialization(namedTrees, c);
     
     added = {};
-    for(str nm <- moduleNames){
+    for(str nm <- domain(namedTrees)){
         <a, ms> = loadImportsAndExtends(nm, ms, c, added);
         added += a;
     }
@@ -447,8 +446,10 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     
     tm.paths =  ms.paths;
     
-    s = newSolver(namedTrees, tm);
-    tm = s.run();
+    if(!isEmpty(namedTrees)){
+        s = newSolver(namedTrees, tm);
+        tm = s.run();
+    }
     
     check_time = (cpuTime() - start_check)/1000000;
     

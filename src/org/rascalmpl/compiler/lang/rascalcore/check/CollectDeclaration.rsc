@@ -42,7 +42,10 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
     
     tagsMap = getTags(header.tags);
     
-    //if(ignoreCompiler(tagsMap)) {println("*** ignore module <mname>"); return; }
+    if(ignoreCompiler(tagsMap)) {
+        c.report(info(current, "Ignoring module <mname>"));
+        return; 
+    }
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
     
     tmod = deprecated ? amodule(mname, deprecationMessage=deprecationMessage) : amodule(mname);
@@ -55,7 +58,6 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
     c.enterScope(current);
         collect(header, body, c);
     c.leaveScope(current);
-    //c.pop(key_current_module); // leave it there for all following phases to see
 }
 
 void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
@@ -149,11 +151,14 @@ void collect(Tag tg, Collector c){
 // Deprecated
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
     c.report(warning(current, "Annotations are deprecated, use keyword parameters instead"));
+    pname = prettyPrintName(name);
     
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
+    if(ignoreCompiler(tagsMap)) { 
+        c.report(info(current, "Ignoring anno declaration for `<pname>`"));
+        return;
+    }
     
-    pname = prettyPrintName(name);
     dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
     dt.vis = getVis(current.visibility, publicVis());
     dt.md5 = md5Hash("<current>");
@@ -194,7 +199,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     fname = signature.name;
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
-    if(ignoreCompiler(tagsMap)) { println("ignore: function <decl.signature.name>"); return; }
+    if(ignoreCompiler(tagsMap)) {
+        c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
+        return;
+    }
     
     <expected, expectedTagString> = getExpected(decl.tags);
     if(expected){
@@ -583,58 +591,34 @@ void collect(Parameters parameters, Collector c){
     endPatternScope(c);
 }
 
-void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
+void(Solver) makeReturnRequirement(Tree returnExpr, Type returnType)
     = void(Solver s){
-        theDeclaredReturnType = s.getType(declaredReturnType);
-        returnRequirement(returnExpr, theDeclaredReturnType, s);
+        returnRequirement(returnExpr, s.getType(returnType), s);
     };
     
-void(Solver) makeReturnRequirement(Tree returnExpr, AType declaredReturnAType)
+void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
     = void(Solver s){
-        returnRequirement(returnExpr, declaredReturnAType, s);
+        returnRequirement(returnExpr, returnAType, s);
     };
 
-bool isParameterized(AType t){
-    return /aparameter(_,_) := t;
-}
-void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
-      
+void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){   
     returnExprType = s.getType(returnExpr);
-    
-    Bindings bindings = ();
-    try   bindings = matchRascalTypeParams(returnExprType, declaredReturnType, bindings);
-    catch invalidMatch(str reason):
-          s.report(error(returnExpr, reason));
-    
-    if(isParameterized(returnExprType)){
-        if(!isParameterized(declaredReturnType)){
-            if(!s.subtype(returnExprType, declaredReturnType)){
-                s.report(error(returnExpr, "Cannot return a parameterized type %t, when declared return type %t is not parameterized", returnExprType, declaredReturnType));
-            }
-        }
-    } else if(isParameterized(declaredReturnType)){
-        if(!s.subtype(returnExprType, declaredReturnType)){
-            s.report(error(returnExpr, "Cannot return a non-parameterized type %t, when declared return type %t is parameterized", returnExprType, declaredReturnType));
-        }
+    allTypeParametersInReturnType = { unsetRec(p, "alabel") | /p:aparameter(_,_) := declaredReturnType };
+    allTypeParametersInExpr = { unsetRec(p, "alabel") | /Expression e := returnExpr, /p:aparameter(_,_) := s.getType(e) };
+    missingTypeParameters = allTypeParametersInReturnType - allTypeParametersInExpr;
+   
+    if(!isEmpty(missingTypeParameters)){
+        s.report(error(returnExpr, "Return expression does not bind %v in return type", missingTypeParameters));
     }
    
-    actualReturnType = returnExprType;
-    try {
-        actualReturnType = instantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
-    } catch invalidInstantiation(str reason):{
-        s.report(error(returnExpr, "Returned type %t does not match declared type %t: %v", returnExprType, declaredReturnType, reason));
-    }
-
-    if(s.isFullyInstantiated(actualReturnType)){
-        s.requireTrue(s.equal(actualReturnType, avoid()) ? s.equal(declaredReturnType, avoid()) 
-                                                         : s.subtype(actualReturnType, declaredReturnType), 
-                      error(returnExpr, "Return type %t expected, found %t", declaredReturnType, actualReturnType));
-    } else
-        if(!s.unify(actualReturnType, declaredReturnType)){
-        s.requireTrue(s.equal(actualReturnType, avoid()) ? s.equal(declaredReturnType, avoid())
-                                                         : s.subtype(actualReturnType, declaredReturnType), 
-                     error(returnExpr, "Return type %t expected, found %t", declaredReturnType, actualReturnType));
-    }   
+    Bindings bindings = ();
+    try   bindings = matchRascalTypeParams(declaredReturnType, returnExprType, bindings);
+    catch invalidMatch(str reason):
+          s.report(error(returnExpr, reason));
+   
+    s.requireTrue(s.equal(returnExprType, avoid()) ? s.equal(declaredReturnType, avoid()) 
+                                                   : s.subtype(returnExprType, declaredReturnType), 
+                  error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType));  
  }
 
 // ---- return statement (closely interacts with function declaration) --------
@@ -644,7 +628,7 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     assert !isEmpty(functionScopes);
     for(<_, scopeInfo> <- functionScopes){
         if(returnInfo(Type returnType) := scopeInfo){
-           c.require("check return type", current, [returnType], makeReturnRequirement(statement, returnType));
+           c.require("check return type", current, [statement], makeReturnRequirement(statement, returnType));
            c.fact(current, returnType); // Note that type of the return statement as a whole is the function's return type
            collect(statement, c);
            return;
@@ -658,10 +642,13 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
 // ---- alias declaration -----------------------------------------------------
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name> = <Type base>;`, Collector c){
-    tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
-    
     aliasName = prettyPrintName(name);
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) {
+        c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
+        return;
+    }
+    
     c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<current>")]);
     c.enterScope(current);
         collect(base, c);
@@ -669,11 +656,14 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
 } 
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name>[ <{Type ","}+ parameters> ] = <Type base>;`, Collector c){
-    tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
-    
     aliasName = prettyPrintName(name);
-       
+    tagsMap = getTags(tags);
+    
+    if(ignoreCompiler(tagsMap)) {
+        c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
+        return;
+    }
+   
     typeVars  = for(tp <- parameters){
         if(!(tp has typeVar)) c.report(error(tp, "Only type parameter allowed"));
         append tp.typeVar;

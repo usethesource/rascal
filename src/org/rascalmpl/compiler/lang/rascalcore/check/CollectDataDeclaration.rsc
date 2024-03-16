@@ -25,11 +25,16 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <
     = dataDeclaration(tags, current, [v | v <- variants], c);
 
 void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Collector c){
-    tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
-    
     userType = current.user;
     adtName = prettyPrintName(userType.name);
+    
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) { 
+        c.report(info(current, "Ignoring declaration of `<adtName>`"));
+        return;
+    }
+    
+    
     commonKeywordParameterList = getCommonKwFormals(current);
 
     typeParameters = getTypeParameters(userType);

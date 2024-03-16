@@ -105,6 +105,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "_ is defined as _ and cannot be applied to argument",
 	    "Missing return statement",
 	    "Return type _ expected, found _",
+		"Return expression does not bind _",
 	    "Type of generator should be _, found _",
 	    "Pattern should be comparable with _, found _",
 	    "Argument of _ should be _, found _",

@@ -348,7 +348,7 @@ void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
     
     c.require("asType", current, [tp, p], void(Solver s){
         if(!isStrAType(s.getType(p))){
-            s.requireSubType(p, tp, error(p, "Pattern should be subtype of %t, found %t", tp, p)); 
+            s.requireComparable(p, tp, error(p, "Pattern should be subtype of %t, found %t", tp, p)); 
         }
     });
     collect(tp, c);
