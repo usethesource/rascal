@@ -49,7 +49,7 @@ bool less(&T a, &T b) = a < b;
 
 test bool lessIsConsistentThroughTypeParameters(num x, num y) = (x < y) ==> less(x, y);
 
-&T avoidEmpty(list[&T] _) { return 1; }
+&T avoidEmpty(list[&T] _) { &T x = 1; return x; }
 &T avoidEmpty(list[&T] _) { throw "this should happen"; }
 
 test bool voidReturnIsNotAllowed() {

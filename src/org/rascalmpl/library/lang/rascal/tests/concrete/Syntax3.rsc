@@ -9,8 +9,8 @@ syntax Aas
   ;
   
 &T <:Tree ambFilter(amb(set[&T <:Tree] alternatives)) {
-  result = {a | Aas a <- alternatives, !(a is nil)};
-  if ({oneTree} := result) {
+  set[&T <:Tree] result = {a | Aas a <- alternatives, !(a is nil)};
+  if ({&T <: Tree oneTree} := result) {
     return oneTree;
   }
   return ParseTree::amb(result);
