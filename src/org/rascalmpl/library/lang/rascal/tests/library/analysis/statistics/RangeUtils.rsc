@@ -44,13 +44,16 @@ rat makeSmallerThanRat(rat n, int limit) {
 
 &T <: num makeSmallerThan(&T <: num n, int limit) {
 	if (int i := n) {
-		return makeSmallerThanInt(i, limit);	
+	    &T <: num x = i;
+		return makeSmallerThanInt(x, limit);	
 	}
 	if (real r := n) {
-		return makeSmallerThanReal(r, limit);	
+	    &T <: num x = r;
+		return makeSmallerThanReal(x, limit);	
 	}
 	if (rat r := n) {
-		return makeSmallerThanRat(r, limit);	
+	    &T <: num x = r;
+		return makeSmallerThanRat(x, limit);	
 	}
 	throw "Forgot about a different number type <n>";
 }
