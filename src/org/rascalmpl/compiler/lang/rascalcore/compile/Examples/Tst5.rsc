@@ -1,6 +1,14 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-  
+
+&T <: num makeSmallerThan(&T <: num n) {
+    &T <: num res;
+    if (int i := n) {
+        res = i;
+        return res;    
+    }
+    return n;
+}
 //import List;
 //
 //value main(){
@@ -14,9 +22,3 @@ module lang::rascalcore::compile::Examples::Tst5
 //}
 
 
-
-//import util::Maybe;
-//
-// &T testFunction(Maybe[&T] _, &T x) = x;
-// 
-// value main() = testFunction(just(3), 5);

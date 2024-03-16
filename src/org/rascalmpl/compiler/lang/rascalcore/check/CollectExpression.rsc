@@ -1010,7 +1010,6 @@ void collect(current:(Expression) `<Expression expression> \< <{Field ","}+ fiel
             checkNonVoid(expression, s, "Base expression of field projection");
             return computeFieldProjectionType(current, s.getType(expression), flds, s); 
         });
-    //collectParts(current, c);
     collect(expression, fields, c);
 }
 

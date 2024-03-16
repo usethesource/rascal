@@ -875,7 +875,7 @@ AType getTupleFieldType(AType t, str fn) {
 @doc{Get the type of the tuple field at the given offset.}
 AType getTupleFieldType(AType t, int fn) {
     if (atuple(atypeList(tas)) := t) {
-        if (0 <= fn && fn < size(tas)) return unwrapAType(tas[fn]);
+        if (0 <= fn && fn < size(tas)) return tas[fn]; // unwrapAType(tas[fn]);
         throw rascalCheckerInternalError("Tuple <prettyAType(t)> does not have field <fn>");
     }
     throw rascalCheckerInternalError("getTupleFieldType given unexpected type <prettyAType(t)>");
@@ -1004,10 +1004,10 @@ list[str] getMapFieldNames(AType t) {
 str getMapFieldName(AType t, int idx) = getMapFieldNames(t)[idx];
 
 @doc{Get the domain type of the map.}    
-AType getMapDomainType(AType t) = unwrapAType(getMapFields(t)[0]);
+AType getMapDomainType(AType t) = getMapFields(t)[0]; //unwrapAType(getMapFields(t)[0]);
 
 @doc{Get the range type of the map.}
-AType getMapRangeType(AType t) = unwrapAType(getMapFields(t)[1]);
+AType getMapRangeType(AType t) = getMapFields(t)[1]; //unwrapAType(getMapFields(t)[1]);
 
 // ---- bag
 
@@ -1115,7 +1115,7 @@ list[AType] getFunctionArgumentTypes(AType ft) {
 
 set[AType] getFunctionTypeParameters(AType ft){
     if (af: afunc(_, _, _) := unwrapAType(ft)){
-       return {p | /p:aparameter(_,_) := af };
+       return {unsetRec(p, "alabel") | /p:aparameter(_,_) := af };
     }
     throw rascalCheckerInternalError("Cannot get Type parameters from non-function type, got <prettyAType(ft)>");
 }
@@ -1173,7 +1173,7 @@ AType getFunctionArgumentTypesAsTuple(AType ft) {
 AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapAType(ft)) return rt;
     if(overloadedAType(rel[loc, IdRole, AType] _) := unwrapAType(ft)) {
-        return getResult( unwrapAType(ft));
+        return getResult(ft); //getResult( unwrapAType(ft));
     }
     throw rascalCheckerInternalError("Cannot get function return type from non-function type, got <prettyAType(ft)>");
 }

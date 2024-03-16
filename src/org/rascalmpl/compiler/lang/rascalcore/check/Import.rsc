@@ -215,6 +215,7 @@ data MStatus =
     | code_generated()
     | tpl_uptodate()
     | tpl_saved()
+    | ignored()
     ;
 
 data ModuleStatus = 
@@ -408,7 +409,7 @@ set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <loc _, str id, str _orgId, moduleId(), /*int _,*/ loc defined, DefInfo _> <- tm.defines);
+    = (id: defined | <loc _, str id, str _orgId, moduleId(),  loc defined, DefInfo _> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConfig pcfg){
     if(moduleScopes[qualifiedModuleName]?){
@@ -427,12 +428,12 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
     pcfg = ms.pathConfig;
     
     dependencies_ok = true;
-    for(m <- component, not_found() notin ms.status[m]){
+    for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
         if(parse_error() in ms.status[m]){
             ms.tmodels[m] = tmodel(modelName=m,messages=ms.messages[m]);
             return ms;
         }
-        for(imp <- m_imports[m] + m_extends[m], not_found() notin ms.status[imp]){
+        for(imp <- m_imports[m] + m_extends[m], not_found() notin ms.status[imp], MStatus::ignored() notin ms.status[m]){
             imp_status = ms.status[imp];
             if(parse_error() in imp_status || checked() notin imp_status){
                 dependencies_ok = false;
@@ -445,7 +446,7 @@ ModuleStatus preSaveModule(set[str] component, map[str,set[str]] m_imports, map[
             return ms;
         }
     }
-    for(m <- component, not_found() notin ms.status[m]){
+    for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
         tm.modelName = m;
         mScope = getModuleScope(m, moduleScopes, pcfg);
         tm.moduleLocs = (m : mScope);
@@ -464,7 +465,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
     
-    if(any(c <- component, !isEmpty({parse_error(), not_found()} & ms.status[c]))){
+    if(any(c <- component, !isEmpty({parse_error(), not_found(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
