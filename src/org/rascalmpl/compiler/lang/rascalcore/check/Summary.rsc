@@ -46,15 +46,15 @@ private map[loc from, str tp] getLocationTypes(TModel tm)
     = (key : prettyAType(tm.specializedFacts[key] ? tm.facts[key]) | key <- tm.facts);
     
 ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
+    tm = convertTModel2PhysicalLocs(tm);
     // Extract @doc tags
     map[loc def, str synopsis] synopses = ();
     map[loc def, loc docloc] docLocs = ();
     for(def <- tm.defines){
         tags = def.defInfo.tags;
 
-        if(tags["doc"]?){
-            //println("<def>: <def.defInfo.tags>");
-            docContent = tags["doc"] ? "";
+        if(tags["synopsis"]? || tags["doc"]?){
+            docContent = tags["synopsis"]? ? tags["synopsis"] : tags["doc"];
             if(!isEmpty(docContent)){
                 synopsis = getSynopsis(docContent);
                 if(!isEmpty(synopsis)){
@@ -72,9 +72,6 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
         [vocabulary=getVocabulary(tm)]
         [synopses=synopses]
         [docLocs=docLocs];
-    //return visit(result) {
-    //    case loc l => l[fragment=""] // clean the timestamps of the locs
-    //};
 }    
     
 @doc{
@@ -134,22 +131,37 @@ str getDocForDefinition(loc def){
 
 str getSynopsis(str docContents){
     s = trim(docContents);
-    synopsisHeader = ".Synopsis\n";
-    if(startsWith(s, synopsisHeader)){
-        s = s[size(synopsisHeader) ..];
-    }
     n = findFirst(s, "\n");
     return trim(n < 0 ? s : s [ .. n]);
 }
 
+// Example and tests
+
 ModuleSummary example1() {
-    p1 = pathConfig(srcs=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/|]);
-    return makeSummary("experiments::Compiler::Examples::Fac", p1);
+    pcfg = pathConfig(
+            srcs=[|std:///|], 
+            bin = |project://rascal-core/target/test-classes|,
+            generatedSources = |project://rascal-core/target/generated-test-sources|,
+            resources = |project://rascal-core/target/generated-test-resources|,
+            libs = []);
+    return makeSummary("Boolean", pcfg);
 }
 
 value main(){
-    p1 = pathConfig(srcs=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/|]);
-    summary = makeSummary("experiments::Compiler::Examples::Fac", p1);
-    println(summary);
+    iprintln(example1());
     return true;
 }
+
+// Simple sanity tests. Any change in Boolean.rsc will break these tests.
+test bool synopsis1()
+    = example1().synopses[ |project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1538,254,<80,0>,<94,1>)] == "Convert Boolean value to string.";
+
+test bool vocabulary1()
+    = example1().vocabulary == {"Boolean","toString","toInt","toReal","fromString","arbBool"};
+
+test bool usedef1() 
+    = example1().useDef[|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(935,1,<39,6>,<39,7>)] 
+      == {|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(923,1,<37,27>,<37,28>)};
+
+test bool locationTypes1()
+    = example1().locationTypes[|project://rascal/src/org/rascalmpl/library/Boolean.rsc|(1023,48,<45,8>,<45,56>)] == "RuntimeException";
