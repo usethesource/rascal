@@ -14,9 +14,7 @@ import Message;
 import Set;
 import util::Reflective;
 import ParseTree;
-import util::SystemAPI;
 import lang::rascalcore::check::RascalConfig;
-import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::check::Checker;
 
