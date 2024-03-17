@@ -317,9 +317,11 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
         c.require("do statement", current, [body, condition], void (Solver s){ checkConditions([condition], s); });
         
         collect(body, c);
+        
         beginPatternScope("conditions", c);
-        collect(condition, c);
+            collect(condition, c);
         endPatternScope(c);
+        
         computeLoopType("do statement", loopName, current, c);
     c.leaveScope(current); 
 }
@@ -339,11 +341,11 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
         c.require("for statement", current, condList + [body], void (Solver s){ checkConditions(condList, s); });
         
         beginPatternScope("conditions", c);
-        collect(condList, c);
+            collect(condList, c);
         endPatternScope(c);
+        
         collect(body, c);
         computeLoopType("for statement", loopName, current, c);
-       
     c.leaveScope(current);  
 }
 

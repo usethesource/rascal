@@ -1,9 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-import String;
 void main(){
     previous = "non empty";
-     msg = "<for (x <- ["a", "b", "c"]) { if (trim(previous) == "", trim(x) == "") { continue; } previous = x;><x>
+     msg = "<for (x <- ["a", "b", "c"]) { continue;><x>
            '<}>";
 }
 

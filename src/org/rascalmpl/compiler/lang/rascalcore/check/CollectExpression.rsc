@@ -91,33 +91,51 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
 
 void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
     c.enterScope(generators);   // body may refer to variables defined in conditions
+        loopName = "";
+        c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
+        c.fact(current, alist(avoid()));
+        
         condList = [cond | Expression cond <- generators];
         c.require("for statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
+        
         beginPatternScope("conditions", c);
-        collect(condList, c);
+            collect(condList, c);
         endPatternScope(c);
+        
         collect(preStats, body, postStats, c);
     c.leaveScope(generators);
 }
 
 void collect(current: (StringTemplate) `do { <Statement* preStats> <StringMiddle body> <Statement* postStats> } while( <Expression condition> )`, Collector c){
     c.enterScope(current);   // condition may refer to variables defined in body
+        loopName = "";
+        c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
+        c.fact(current, alist(avoid()));
+        
         condList = [condition];
         c.require("do statement template", current, condList, void (Solver s){ checkConditions(condList, s); });
-        collect(preStats, body, postStats, c);
+       
         beginPatternScope("conditions", c);
-        collect(condition, c);
+            collect(condition, c);
         endPatternScope(c);
+        
+        collect(preStats, body, postStats, c);
     c.leaveScope(current); 
 }
 
 void collect(current: (StringTemplate) `while( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
     c.enterScope(condition);   // body may refer to variables defined in conditions
+        loopName = "";
+        c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
+        c.fact(current, alist(avoid()));
+        
         condList = [condition];
         c.require("while statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
+        
         beginPatternScope("conditions", c);
-        collect(condList, c);
+            collect(condList, c);
         endPatternScope(c);
+        
         collect(preStats, body, postStats, c);
     c.leaveScope(condition);
 } 
