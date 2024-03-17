@@ -353,7 +353,7 @@ tuple[MuExp exp, list[MuExp] vars] processRegExpLiteral(e: (RegExpLiteral) `/<Re
    if(size(fragment) > 0){
       fragmentCode += muCon(fragment);
    }
-   if(all(frag <- fragmentCode, muCon(_) := frag)){
+   if(all(MuExp frag <- fragmentCode, muCon(_) := frag)){
       buildRegExp = muCon(intercalate("", [s | muCon(str s) <- fragmentCode]));
       return <buildRegExp, vars>;
    } else {
