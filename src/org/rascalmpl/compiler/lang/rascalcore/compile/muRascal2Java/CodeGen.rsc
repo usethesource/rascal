@@ -24,7 +24,6 @@ import util::Reflective;
 import util::UUID;
 
 import lang::rascalcore::compile::muRascal2Java::Primitives;
-import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal2Java::Conversions;
@@ -1144,24 +1143,6 @@ default JCode transMuGuardedGetField(AType resultType, consType:acons(AType adt,
 
 JCode trans(muGuardedGetKwField(AType resultType, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), MuExp exp, str fieldName, str moduleName), JGenie jg)
     = "$guarded_aadt_get_field(<trans(exp,jg)>,  \"<asJavaName(fieldName)>\")";
-
-JCode trans(muGuardedGetKwField(AType resultType, consType:acons(AType adt, list[AType] fields, list[Keyword] kwFields), MuExp cons, str fieldName, str moduleName), JGenie jg){
-    base = trans(cons, jg);
-    qFieldName = "\"<unescape(fieldName)>\"";
-    for(Keyword kw <- kwFields){
-        kwType = kw.fieldType;
-        kwName = kw.fieldName;
-        if(fieldName == kwName){
-            expCode = translate(kw.defaultExp);
-            if(muCon(_) := expCode){
-                return "<base>.asWithKeywordParameters().hasParameter(<qFieldName>) ? <castArg(kwType, "<base>.asWithKeywordParameters().getParameter(<qFieldName>)")> : <expCode>";
-            } else {
-                return castArg(kwType, "<base>.asWithKeywordParameters().getParameter(<qFieldName>)");
-            }
-        }
-    }
-    throw "muGuardedGetKwField <resultType>, <consType>, <fieldName>";
-}
  
 // ---- muSetField ------------------------------------------------------------
 
