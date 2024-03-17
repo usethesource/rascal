@@ -38,6 +38,7 @@ extend lang::rascalcore::check::RascalConfig;
 
 import IO;
 import List;
+import Map;
 import Message;
 import Node;
 import Relation;
@@ -205,6 +206,11 @@ list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
 
 // ----  Various check functions  ---------------------------------------------
 
+// Dummy compile function (used when running only the checker)
+
+list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
+    = [];
+
 // rascalTModelForLocs is the basic work horse
  
 ModuleStatus rascalTModelForLocs(
@@ -323,9 +329,6 @@ ModuleStatus rascalTModelForLocs(
                             }
                             tm.messages += msgs;
                         }
-                        //else {
-                        //    tm.messages += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
-                        //}
                     }
                     if(ms.messages[m]?){
                         tm.messages = ms.messages[m];
@@ -337,9 +340,9 @@ ModuleStatus rascalTModelForLocs(
                         ms.status[m]  += {check_error()};
                     }
                 }
-                // presave the TModels of the modules in this component
+                // prepare the TModels of the modules in this component for compilation
                 
-                ms = preSaveModule(component, m_imports, m_extends, ms, moduleScopes, tm);
+                ms = prepareForCompilation(component, m_imports, m_extends, ms, moduleScopes, tm);
                 
                 // generate code for the modules in this component
                 
@@ -350,9 +353,6 @@ ModuleStatus rascalTModelForLocs(
                         ms.messages[m] += msgs;
                         ms.status[m] += {code_generated()};
                     }
-                    //else {
-                    //    ms.messages[m] += [ error("Cannot get parse tree for module `<m>`", ms.moduleLocs[m]) ];
-                    //}
                 }
                 ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, compilerConfig);
             }
@@ -486,8 +486,6 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
 // name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
-    = [];
     
 list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
     pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
