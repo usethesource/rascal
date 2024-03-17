@@ -482,8 +482,9 @@ void collect(current:(Sym) `<Nonterminal n>`, Collector c){
 }
 
 void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
-    c.use(n, {typeVarId()});
-    c.fact(current, n);
+    //c.use(n, {typeVarId()});
+    //c.fact(current, n);
+    c.fact(current, aparameter(prettyPrintName("<n>"),avalue()));
 }
 
 void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
