@@ -1,24 +1,25 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-
-value main(){
-    if (int j := 1  || int j := 2) {
-        return j;
-    }
-    return -1;
+import String;
+void main(){
+    previous = "non empty";
+     msg = "<for (x <- ["a", "b", "c"]) { if (trim(previous) == "", trim(x) == "") { continue; } previous = x;><x>
+           '<}>";
 }
 
-
-//&T avoidEmpty(list[&T] l) { return  1; }
-//&T avoidEmpty(list[&T] _) { throw "this should happen"; }
-//
-//test bool voidReturnIsNotAllowed() {
-//   try {
-//     avoidEmpty([]); 
-//     return false;
-//   } catch "this should happen":
-//     return true;
+//MH
+//public void showUsageCounts(Corpus corpus, lrel[str p, str v, QueryResult qr] res) {
+//    mr = ( p : size([ e | <p,_,e> <- res ]) | p <- corpus );
+//    for (p <- sort([p | str p <- mr<0>])) println("<p>:<mr[p]>");
 //}
+
+//value main(){
+//    if (int j := 1  || int j := 2) {
+//        return j;
+//    }
+//    return -1;
+//}
+
 
 //data Wrapper[&SAME] = something(&SAME wrapped);
 //
