@@ -1,14 +1,43 @@
 module lang::rascalcore::compile::Examples::Tst5
 
 
-&T <: num makeSmallerThan(&T <: num n) {
-    &T <: num res;
-    if (int i := n) {
-        res = i;
-        return res;    
+value main(){
+    if (int j := 1  || int j := 2) {
+        return j;
     }
-    return n;
+    return -1;
 }
+
+
+//&T avoidEmpty(list[&T] l) { return  1; }
+//&T avoidEmpty(list[&T] _) { throw "this should happen"; }
+//
+//test bool voidReturnIsNotAllowed() {
+//   try {
+//     avoidEmpty([]); 
+//     return false;
+//   } catch "this should happen":
+//     return true;
+//}
+
+//data Wrapper[&SAME] = something(&SAME wrapped);
+//
+//@synopsis{it matters for testing that '&SAME' is the same name as in the definition of Wrapper}
+//&XXXSAME getIt(Wrapper[&XXXSAME] x) = x.wrapped;
+//
+//value main() { //test bool hygienicGenericADT() {
+//  // in the same context, we bind the same type parameter in
+//  // different ways to see if nothing is leaking.
+//  int i = something(1).wrapped;
+//  int j = getIt(something(2));
+//  int k = getIt(something(3));
+//  str x = something("x").wrapped;
+//  str y = getIt(something("y"));
+//  
+//  return i == 1 && j == 2 && k == 3
+//      && x == "x" && y == "y";
+//}
+
 //import List;
 //
 //value main(){

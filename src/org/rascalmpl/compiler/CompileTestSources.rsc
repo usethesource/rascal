@@ -9,7 +9,6 @@ import IO;
 import String;
 import Set;
 import List;
-import Map;
 import util::Reflective;
 import lang::rascalcore::compile::Compile;
 import util::FileSystem;
