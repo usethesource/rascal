@@ -49,12 +49,9 @@ bool less(&T a, &T b) = a < b;
 
 test bool lessIsConsistentThroughTypeParameters(num x, num y) = (x < y) ==> less(x, y);
 
-@ignoreCompiler{How to make 1 compatible with &T?}
-&T avoidEmpty(list[&T] _) { return 1; }
-@ignoreCompiler{How to make 1 compatible with &T?}
+&T avoidEmpty(list[&T] _) { throw "this should not happen"; }
 &T avoidEmpty(list[&T] _) { throw "this should happen"; }
 
-@ignoreCompiler{How to make 1 compatible with &T?}
 test bool voidReturnIsNotAllowed() {
    try {
      avoidEmpty([]); 
