@@ -51,13 +51,14 @@ data PathRole
     ;
     
 data ScopeRole
-    = moduleScope()
-    | functionScope()
-    | conditionalScope()
+    = //moduleScope()
+     functionScope()
+    //| conditionalScope()
     | replacementScope()
     | visitOrSwitchScope()
-    | boolScope()
+    //| boolScope()
     | loopScope()
+    | orScope()
     ;
 
 data Vis
