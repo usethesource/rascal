@@ -143,7 +143,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
 }
 
 void collect(Tag tg, Collector c){
-    if(tg has expression){
+    if(tg is expression){
         collect(tg.expression, c);
     }
 }
@@ -164,7 +164,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     dt.md5 = md5Hash("<current>");
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     c.define(pname, annoId(), name, dt);
-    collect(annoType, onType, c); 
+    collect(tags, annoType, onType, c); 
 }
 
 // ---- keyword Formal --------------------------------------------------------
@@ -223,7 +223,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     c.enterLubScope(decl);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
-        collect(decl.signature, c);
+        collect(decl.tags, decl.signature, c);
         
       // DefInfo dt = noDefInfo();
       //  try { // try immediate computation of the function type if all types are already available
@@ -651,7 +651,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     
     c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<current>")]);
     c.enterScope(current);
-        collect(base, c);
+        collect(tags, base, c);
     c.leaveScope(current);
 } 
 
@@ -685,5 +685,5 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         
         return aalias(aliasName, params, s.getType(base));
     })[md5 = md5Hash("<current>")]);
-    collect(typeVars + base, c);
+    collect(tags, typeVars + base, c);
 } 

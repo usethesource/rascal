@@ -805,17 +805,18 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
             s.requireUnify(abool(), rhs, error(rhs, "Argument of || should be `bool`, found %t", rhs));
           });
           
-    collect(lhs, c);
-    
     introLhs = introducedVars(lhs, c);
     introRhs = introducedVars(rhs, c);  
+      
+    collect(lhs, c);
     
     // make common variables available when collecting rhs;
     // variables in rhs will use definition from lhs (see CollectPattern: typed variable pattern, qualifiedName pattern)
     c.setScopeInfo(c.getScope(), orScope(), orInfo(introLhs));
     collect(rhs, c);
     
-    // Check that the names introduced in lhs and rhs are the same    
+    // Check that the names introduced in lhs and rhs are the same  
+    
     common = introLhs & introRhs;
     missing = (introLhs - common) + (introRhs - common);
     

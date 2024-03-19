@@ -25,19 +25,10 @@ module lang::rascalcore::compile::Examples::Tst5
 //      && x == "x" && y == "y";
 //}
 
-@synopsis{Sort the elements of a list.}
+import util::Memo;
 
-list[&T] sort(list[&T] lst) =
-    sort(lst, bool (&T a, &T b) { return a < b; } );
-    
-@javaClass{org.rascalmpl.library.Prelude}
-java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
-
-value main(){
-    myList = [<1,2>,<2,2>];
-    return sort(myList, bool (<int i, _>, <int j, _>) { return i < j; });
-}
-
+@memo=expireAfter(minutes=10)
+void foo() { }
 
 //value main(){
 //    if([1, int x] !:= [1]) return x;
