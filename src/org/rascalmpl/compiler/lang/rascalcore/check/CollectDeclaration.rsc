@@ -225,41 +225,41 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         collect(decl.signature, c);
         
-        DefInfo dt = noDefInfo();
-        try { // try immediate computation of the function type if all types are already available
-            ft = c.getType(decl.signature);
-            if(signature.parameters is varArgs) {
-                    ft.varArgs = true;
-             }
-                 
-             if(deprecated) {
-                ft.deprecationMessage = deprecationMessage;
-             }
-             
-             if("default" in modifiers){
-                ft.isDefault = true;
-             }
-             
-             if("test" in modifiers){
-                ft.isTest = true;
-                c.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
-             }
-             
-             if(myReturnsViaAllPath){
-                ft.returnsViaAllPath = true;
-             }
-      
-             if(size(ft.formals) > 0){
-                the_formals = getFormals(signature.parameters);
-                ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
-                if(isConcretePattern(the_formals[0], ft.formals[0])){
-                    ft.isConcreteArg = true;
-                    ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
-                }
-             }
-             dt = defType(ft[alabel=unescape("<fname>")]);
-      
-        } catch TypeUnavailable():{
+      // DefInfo dt = noDefInfo();
+      //  try { // try immediate computation of the function type if all types are already available
+      //      ft = c.getType(decl.signature);
+      //      if(signature.parameters is varArgs) {
+      //              ft.varArgs = true;
+      //       }
+      //           
+      //       if(deprecated) {
+      //          ft.deprecationMessage = deprecationMessage;
+      //       }
+      //       
+      //       if("default" in modifiers){
+      //          ft.isDefault = true;
+      //       }
+      //       
+      //       if("test" in modifiers){
+      //          ft.isTest = true;
+      //          c.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
+      //       }
+      //       
+      //       if(myReturnsViaAllPath){
+      //          ft.returnsViaAllPath = true;
+      //       }
+      //
+      //       if(size(ft.formals) > 0){
+      //          the_formals = getFormals(signature.parameters);
+      //          ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
+      //          if(isConcretePattern(the_formals[0], ft.formals[0])){
+      //              ft.isConcreteArg = true;
+      //              ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
+      //          }
+      //       }
+      //       dt = defType(ft[alabel=unescape("<fname>")]);
+      //
+      //  } catch TypeUnavailable():{
             //  Delayed computation of the function type if some types are anot yet available
             dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
@@ -295,7 +295,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                  }
                  return ft[alabel=unescape("<fname>")];
              });
-        }
+        //}
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target _>;` := decl.body);
@@ -558,23 +558,23 @@ void collect(Parameters parameters, Collector c){
             c.fact(parameters, atypeList([]));
        } else {
             scope = c.getScope();
-            try {
-                formalTypes = [ c.getType(f) | f <- formals ];
-                
-                
-                int last = size(formalTypes) -1;
-                if(parameters is varArgs){
-                    formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
-                }
-                c.fact(parameters, atypeList(formalTypes));
-                for(int i <- index(formals)){
-                    checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
-                }
-            } catch TypeUnavailable():{
+            //try {
+            //    formalTypes = [ c.getType(f) | f <- formals ];
+            //    
+            //    
+            //    int last = size(formalTypes) -1;
+            //    if(parameters is varArgs){
+            //        formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
+            //    }
+            //    c.fact(parameters, atypeList(formalTypes));
+            //    for(int i <- index(formals)){
+            //        checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
+            //    }
+            //} catch TypeUnavailable():{
                 c.calculate("formals", parameters, [],
                     AType(Solver s) { 
                         s.push(inFormals, true);
-                        formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
+                            formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
                         s.pop(inFormals);
                         int last = size(formalTypes) -1;
                         if(parameters is varArgs){
@@ -585,7 +585,7 @@ void collect(Parameters parameters, Collector c){
                         }
                         return atypeList(formalTypes);
                     }); 
-           }
+           //}
        }
        collect(kwFormals, c);
     endPatternScope(c);
