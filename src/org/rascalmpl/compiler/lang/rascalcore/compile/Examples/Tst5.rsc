@@ -6,20 +6,6 @@ module lang::rascalcore::compile::Examples::Tst5
 //    for (p <- sort([p | str p <- mr<0>])) println("<p>:<mr[p]>");
 //}
 
-//value main(){
-//    if (int j := 1  || int j := 2) {
-//        return j;
-//    }
-//    return -1;
-//}
-
-value main(){
-    if ((j := 1) || (j := 2)) {
-        return j;
-    }
-    return -1;
-}
-
 
 //data Wrapper[&SAME] = something(&SAME wrapped);
 //
@@ -39,12 +25,19 @@ value main(){
 //      && x == "x" && y == "y";
 //}
 
-//import List;
-//
-//value main(){
-//    myList = [<1,2>,<2,2>];
-//    return sort(myList, bool (<int i, _>, <int j, _>) { return i < j; });
-//}
+@synopsis{Sort the elements of a list.}
+
+list[&T] sort(list[&T] lst) =
+    sort(lst, bool (&T a, &T b) { return a < b; } );
+    
+@javaClass{org.rascalmpl.library.Prelude}
+java list[&T] sort(list[&T] l, bool (&T a, &T b) less) ;
+
+value main(){
+    myList = [<1,2>,<2,2>];
+    return sort(myList, bool (<int i, _>, <int j, _>) { return i < j; });
+}
+
 
 //value main(){
 //    if([1, int x] !:= [1]) return x;

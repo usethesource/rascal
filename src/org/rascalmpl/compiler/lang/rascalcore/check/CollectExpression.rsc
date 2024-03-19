@@ -195,6 +195,7 @@ str closureName(Expression closure){
 }
 
 void collect(current: (Expression) `<Type returnType> <Parameters parameters> { <Statement+ statements> }`, Collector c){
+    // TODO: experimental check
     //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
     //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
     //}
@@ -206,24 +207,26 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     c.enterLubScope(current);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(returnType));
+        collect([returnType, parameters] + stats, c);
+        
         clos_name = closureName(current);
         bool returnsViaAll = returnsViaAllPath(stats, clos_name, c);
-        
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
-        
-        c.calculate("type of closure", current, returnType + formals,
-            AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll); });
-            
-        dt = defType(returnType + formals, AType(Solver s){
-                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[alabel=clos_name]; 
+                
+        dt = defType(returnType + formals + kwFormals, AType(Solver s){
+                res = afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[alabel=clos_name]; 
+                return res;
              });
-       
+        
+        alwaysSucceeds = all(pat <- formals, pat is typedVariable && /(Statement) `fail <Target _>;` := stats);
+        if(!alwaysSucceeds) dt.canFail = true;
+        
         c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
+        
         if(!returnsViaAll && "<returnType>" != "void"){
                 c.report(error(current, "Missing return statement"));
         }
-        collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
 
