@@ -685,5 +685,5 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         
         return aalias(aliasName, params, s.getType(base));
     })[md5 = md5Hash("<current>")]);
-    collect(tags, typeVars + base, c);
+    collect([tags] + typeVars + base, c);
 } 
