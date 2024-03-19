@@ -756,7 +756,8 @@ void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, Colle
 }
 
 private set[str] introducedVars(Expression exp, Collector c){
-    return exp is match ? introducedVars(exp.pattern, c) : {};
+    return exp is \bracket ? introducedVars(exp.expression, c)
+                           : (exp is match ? introducedVars(exp.pattern, c) : {});
 }
 
 private set[str] introducedVars(Pattern e, Collector c){
@@ -793,6 +794,8 @@ private set[str] introducedVars(Pattern e, Collector c){
 
 // ---- or
 
+data OrInfo = orInfo(set[str] vars);
+ 
 void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Collector c){
     c.fact(current, abool());
       
@@ -802,24 +805,22 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
             s.requireUnify(abool(), rhs, error(rhs, "Argument of || should be `bool`, found %t", rhs));
           });
           
-    // Check that the names introduced in lhs and rhs are the same    
-    
-    introLhs = introducedVars(lhs, c);
-    introRhs = introducedVars(rhs, c);
-    
     collect(lhs, c);
     
-    // Trick 1: wrap rhs in a separate scope to avoid double declarations with names introduced in lhs
-    // Trick 2: use "current" as scope (to avoid clash with scope created by rhs)
-    c.enterScope(lhs);
-        collect(rhs, c);
-    c.leaveScope(lhs);
+    introLhs = introducedVars(lhs, c);
+    introRhs = introducedVars(rhs, c);  
     
-    for(nm <- introLhs){
-      if(nm notin introRhs) c.report(error(rhs, "Arguments of `||` should introduce same variables, right argument does not introduce `%v`", nm));
-    }
-    for(nm <- introRhs){
-      if(nm notin introLhs) c.report(error(lhs, "Arguments of `||` should introduce same variables, left argument does not introduce `%v`", nm));
+    // make common variables available when collecting rhs;
+    // variables in rhs will use definition from lhs (see CollectPattern: typed variable pattern, qualifiedName pattern)
+    c.setScopeInfo(c.getScope(), orScope(), orInfo(introLhs));
+    collect(rhs, c);
+    
+    // Check that the names introduced in lhs and rhs are the same    
+    common = introLhs & introRhs;
+    missing = (introLhs - common) + (introRhs - common);
+    
+    if(!isEmpty(missing)){
+        c.report(error(current, "Variable(s) %v should be introduced on both sides of `||` operator", missing));
     }
 }
 

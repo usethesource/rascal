@@ -78,6 +78,15 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
                && c.isAlreadyDefined("<name>", name)){
               c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
             } else {
+                orScopes = c.getScopeInfo(orScope());
+                for(<_, orInfo(vars)> <- orScopes){
+                    for(str id <- vars, id == uname){
+                        if(c.isAlreadyDefined("<name>", name)){
+                            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                            return;
+                        }
+                    }
+                }
                 c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
             }
         } else {

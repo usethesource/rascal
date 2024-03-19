@@ -1,11 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-void main(){
-    previous = "non empty";
-     msg = "<for (x <- ["a", "b", "c"]) { continue;><x>
-           '<}>";
-}
-
 //MH
 //public void showUsageCounts(Corpus corpus, lrel[str p, str v, QueryResult qr] res) {
 //    mr = ( p : size([ e | <p,_,e> <- res ]) | p <- corpus );
@@ -18,6 +12,13 @@ void main(){
 //    }
 //    return -1;
 //}
+
+value main(){
+    if ((j := 1) || (j := 2)) {
+        return j;
+    }
+    return -1;
+}
 
 
 //data Wrapper[&SAME] = something(&SAME wrapped);
