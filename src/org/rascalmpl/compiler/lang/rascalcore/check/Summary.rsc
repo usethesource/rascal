@@ -47,7 +47,7 @@ private map[loc from, str tp] getLocationTypes(TModel tm)
     
 ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
     tm = convertTModel2PhysicalLocs(tm);
-    // Extract @doc tags
+    // Extract @doc and @synopsis tags
     map[loc def, str synopsis] synopses = ();
     map[loc def, loc docloc] docLocs = ();
     for(def <- tm.defines){
