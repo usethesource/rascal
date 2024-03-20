@@ -300,6 +300,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
 void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings, Solver s){
     if(keywordArgumentsExp is none) return;
  
+    msgs = [];
     next_arg:
     for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
         kwName = prettyPrintName(kwa.name);
@@ -327,12 +328,15 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
             availableKws = "; available keyword parameters: <availableKws>";
         }
         
-       s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
+       msgs += error(kwa, "Undefined keyword argument %q%v", kwName, availableKws);
     }
+    s.reports(msgs);
 } 
 
 void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Bindings bindings, loc scope, Solver s){
     if(keywordArgumentsPat is none) return;
+    
+    msgs = [];
     next_arg:
     for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
         kwName = prettyPrintName(kwa.name);
@@ -360,8 +364,9 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
             availableKws = "; available keyword parameters: <availableKws>";
         }
         
-        s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
+        msgs += error(kwa, "Undefined keyword argument %q%v", kwName, availableKws);
     }
+    s.reports(msgs);
 }
 
 list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){

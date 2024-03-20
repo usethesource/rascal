@@ -1,5 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst5
 
+
+int f(int a, int b, int c=1, int d=2) = a+b+c+d;
+
+str f(str a, int b, int x = 1, int y = 2) = "<a><b + x + y>";
+
+str f(str a, str b, int x = 1, int y = 2) = "<a><b><x+y>";
+
+value main(){
+    return f("a",2,x="a");
+}   
+
+
+
 //MH
 //public void showUsageCounts(Corpus corpus, lrel[str p, str v, QueryResult qr] res) {
 //    mr = ( p : size([ e | <p,_,e> <- res ]) | p <- corpus );
@@ -23,16 +36,6 @@ module lang::rascalcore::compile::Examples::Tst5
 //  
 //  return i == 1 && j == 2 && k == 3
 //      && x == "x" && y == "y";
-//}
-
-import util::Memo;
-
-@memo=expireAfter(minutes=10)
-void foo() { }
-
-//value main(){
-//    if([1, int x] !:= [1]) return x;
-//    return -1;
 //}
 
 
