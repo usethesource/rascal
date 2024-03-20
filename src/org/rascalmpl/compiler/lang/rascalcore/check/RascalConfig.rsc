@@ -342,7 +342,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                          if(t1_kwNames != t2_kwNames){     
                             diffkws = t2_kwNames - t1_kwNames;  
                             plural = size(diffkws) > 1 ? "s" : "";
-                            msgs = [ error("Declaration clashes with other declaration of function `<id>` with different keyword parameter<plural> <intercalate(",", [ "`<k>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
+                            msgs = [ error("Other declaration of function `<id>` has different keyword parameter<plural> <intercalate(",", [ "`<k>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
                             s.addMessages(msgs);
                           }
                      }

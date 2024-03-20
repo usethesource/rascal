@@ -646,16 +646,35 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 void reportCallError(Expression current, Expression callee, list[Expression] actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`, Solver s){
     kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
     
-    arguments = size(actuals) > 1 ? "arguments of types" : "argument of type";
-    kwarguments = size(kwactuals) > 1 ? "keyword arguments" : "keyword argument";
+    calleeType = s.getType(callee);
+    argumentsTypes = [s.getType(a)| a <- actuals];
+    argumentsTypesText = intercalate(", ", ["`<prettyAType(at)>`" | at <- argumentsTypes]);
+    argumentsText = "arguments of type<size(actuals) > 0 ? "s" : "">";
+    kwargumentsText = "keyword argument<size(kwactuals) > 1 ? "s" : "">";
     if(isEmpty(kwactuals)){
-        s.report(error(current, "%q is defined as %t and cannot be applied to %v %v",  "<callee>", callee, arguments, actuals));
+        someArityOk
+            = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType 
+              && any(ovl <- overloads, size(argumentsTypes) == size(getFunctionArgumentTypes(ovl.ftype)));
+        wrongArity = someArityOk ? "" : " with <size(argumentsTypes)> ";
+        if(someArityOk){
+            s.report(error(current, "Cannot call %q with %v %v, given definitions %t",  "<callee>", argumentsText, argumentsTypesText, callee));
+        } else {
+            s.report(error(current, "Cannot call %q with %v argument(s), given definitions %t", "<callee>", size(argumentsTypes), callee));
+        }
     } else {
         kwargs = keywordArguments is \default ? [ kwa | kwa <- keywordArguments.keywordArgumentList] : [];
         kws = [ "`<kwa.name>` of type `<prettyAType(s.getType(kwa.expression))>`" | kwa <- kwargs ];
-        s.report(error(current, "%q is defined as %t and cannot be applied to %v `%v` and %v %v", 
-                                "<callee>", callee, arguments, actuals, kwarguments, 
-                                kws));
+       
+        someOverloadsPositionalOk
+            = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType 
+              && any(ovl <- overloads, asubtypeList(argumentsTypes, getFunctionArgumentTypes(ovl.ftype)));
+        if(someOverloadsPositionalOk){
+            s.report(error(current, "Cannot call %q with %v %v, given definitions %t", 
+                                "<callee>", kwargumentsText, kws, callee));
+        } else {
+            s.report(error(current, "Cannot call %q with %v %v and %v %v, given definitions %t", 
+                                "<callee>", argumentsText, argumentsTypesText, kwargumentsText, kws, callee));
+        }
     }
 }
 
@@ -724,8 +743,6 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
     }
     return <filteredOverloads, identicalFormals>;
 }
-
-
 
 // TODO: in order to reuse the function below `keywordArguments` is passed as where `keywordArguments[&T] keywordArguments` would make more sense.
 // The interpreter does not handle this well, so revisit this later
