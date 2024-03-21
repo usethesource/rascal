@@ -1,6 +1,7 @@
 package org.rascalmpl.repl;
 
 import java.io.FilterOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,53 +10,58 @@ import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class TerminalProgressBarMonitor implements IRascalMonitor {
-    /**
-     * We monitor for orthogonal output to keep the progress bars in the same place.
-     */
-    private final ProgressBarStreamWrapper out;
-
+/**
+ * The terminal progress bar monitor wraps the standard output stream to be able to monitor
+ * output and keep the progress bars at the same place in the window while other prints happen
+ * asyncronously (or even in parallel). It can be passed to the IDEServices API such that
+ * clients can start progress bars, make them grow and end them using the API in util::Monitor.
+ * Of course this only works if the actual raw output stream of the terminal is wrapped.
+ */
+public class TerminalProgressBarMonitor extends FilterOutputStream implements IRascalMonitor  {
     /**
      * We administrate an ordered list of named bars, which will be printed from
      * top to bottom just above the next prompt.
      */
     private List<ProgressBar> bars = new LinkedList<>();
 
-    TerminalProgressBarMonitor(OutputStream stdout) {
-        out = new ProgressBarStreamWrapper(stdout);
-    }
-
-    /**
-     * The outputstream is wrapped to erase the current progress bars
-     * and let normal output be printed. When that is done, the bars
-     * are printed again, as-if they were always there.
-     */
-    private class ProgressBarStreamWrapper extends FilterOutputStream {
-
-        public ProgressBarStreamWrapper(OutputStream out) {
-            super(out);
-        }
+    public TerminalProgressBarMonitor(OutputStream out) {
+        super(out);
     }
 
     /**
      * Represents one currently running progress bar
      */
-    private static class ProgressBar {
+    private class ProgressBar {
         private final String name;
         private int max;
         private int current = 0;
+        private String message = "";
 
         ProgressBar(String name, int max) {
             this.name = name;
             this.max = max;
         }
 
-        void worked(int amount) {
-            current += Math.min(amount, max);
+        ProgressBar(String name, int max, String message) {
+            this.name = name;
+            this.max = max;
+            this.message = message;
         }
 
-        String format() {
-            return "" + current;
+        void worked(int amount) {
+            this.current += Math.min(amount, max);
+        }
+
+        void worked(int amount, String message) {
+            this.current += Math.min(amount, max);
+            this.message = message;
+        }
+
+        /**
+         * Print the current state of the progress bar
+         */
+        void write() {
+            write("".getBytes("UTF8"));
         }
 
         @Override
@@ -103,18 +109,20 @@ public class TerminalProgressBarMonitor implements IRascalMonitor {
 
     @Override
     public void jobStep(String name, String message, int workShare) {
-        findBarByName(name).worked(workShare);
+        findBarByName(name).worked(workShare, message);
     }
 
     @Override
     public int jobEnd(String name, boolean succeeded) {
-        // uses the equals method of ProgressBar
-        bars.remove(new ProgressBar(name, 0));
+        var pb = findBarByName(name);
+        bars.remove(pb);
+        return pb.current;
     }
 
     @Override
     public boolean jobIsCanceled(String name) {
-        jobEnd(name, false);
+       // ? don't know what this should do
+       return false;
     }
 
     @Override
@@ -126,6 +134,11 @@ public class TerminalProgressBarMonitor implements IRascalMonitor {
 
     @Override
     public void warning(String message, ISourceLocation src) {
-        out.write(("[WARNING] " + src + ": " + message));
+        try {
+            out.write(("[WARNING] " + src + ": " + message).getBytes("UTF8"));
+        }
+        catch (IOException e) {
+           // if we can't print, we can't print.
+        }
     }
 }
