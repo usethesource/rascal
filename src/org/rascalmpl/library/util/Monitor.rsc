@@ -11,28 +11,60 @@
 @bootstrapParser
 module util::Monitor
 
+import util::Math;
+import IO;
 
-@synopsis{Log the __start__ of a job.}
+@synopsis{Log the start of a job.}
 @description{
 jobStart registers a new current job on the job stack with an amount of
 steps todo and how much work it contributes (when it ends) to its parent job (if any).
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-public java void jobStart(str label, int work=1, int totalWork=100);
+java void jobStart(str label, int work=1, int totalWork=100);
 
 @synopsis{Log to the user that a certain event has happened under
   the currently registered Job.}
 @javaClass{org.rascalmpl.library.util.Monitor}
-public java void jobStep(str label, str message, int work = 1);
+java void jobStep(str label, str message, int work = 1);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-public java int jobEnd(str label, bool success=true);
+java int jobEnd(str label, bool success=true);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-public java void jobTodo(str label, int work=100);
+java void jobTodo(str label, int work=100);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-public java void jobIsCancelled(str label);
+java void jobIsCancelled(str label);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-public java void jobWarning(str message, loc src);
+java void jobWarning(str message, loc src);
+
+@synopsis{Puts the monitor API to work by racing 5 horses against each other.}
+test bool horseRaceTest() {
+  distance  = 1000000;
+  stride    = 100;
+  horses    = 5;
+  handicaps = [ arbInt(stride * 15 / 100)    | _ <- [0..horses]];
+  labels    = [ "Horse <h> (<handicaps[h]>)" | h <- [0..horses]];
+  progress  = [ 0                            | _ <- [0..horses]];
+ 
+  for (int h <- [0..horses]) 
+    jobStart(labels[h], totalWork=distance);
+
+  race:while (true) 
+    for(int h <- [0..horses]) {
+      advance      = arbInt(stride - handicaps[h]);
+      progress[h] += advance;
+      
+      jobStep(labels[h], "pacing...", work=advance);
+      
+      if (progress[h] >= distance) {
+        break race;
+      }
+    }
+  
+  for (int h <- [0..horses]) 
+    jobEnd(labels[h]);
+
+  return true;
+}
