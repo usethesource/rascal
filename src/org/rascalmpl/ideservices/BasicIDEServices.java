@@ -124,7 +124,7 @@ public class BasicIDEServices implements IDEServices {
   public void endAllJobs() {
       monitor.endAllJobs();
   }
-  
+
   @Override
   public boolean jobIsCanceled(String name) {
       return monitor.jobIsCanceled(name);
@@ -139,6 +139,4 @@ public class BasicIDEServices implements IDEServices {
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
   }
-
-  
 }

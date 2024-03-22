@@ -24,7 +24,6 @@ lexical CSISequence
 	| cursorPreviousLine         :  Number n [F]
 	| cursorHorizontalAbsolute   :  Number n [G]
 	| cursorPosition             :  Number n [;] Number m [H]
-	| cursorDown                 :  Number n [B]
 	| clearToEndOfScreen         :  Number n [0]? [J]
 	| clearToBeginningOfScreen   :  Number n [1] [J]
 	| clearEntireScreen          :  Number n [2] [J]
