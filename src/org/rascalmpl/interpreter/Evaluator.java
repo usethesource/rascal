@@ -326,6 +326,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return 0;
     }
 
+    @Override
+    public void endAllJobs() {
+        if (monitor != null) {
+            monitor.endAllJobs();
+        }
+    }
+
     @Override	
     public void jobStep(String name, String msg, int inc) {
         if (monitor != null)
@@ -1793,6 +1800,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         @Override
         public void jobTodo(String name, int work) {
             monitor.jobTodo(name, work);
+        }
+
+        @Override
+        public void endAllJobs() {
+            monitor.endAllJobs();
         }
 
         @Override

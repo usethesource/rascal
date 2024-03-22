@@ -130,6 +130,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
                 Timing tm = new Timing();
                 tm.start();
                 value = eval.eval(eval.getMonitor(), statement, URIUtil.rootLocation("prompt"));
+                eval.endAllJobs();
                 duration = tm.duration();
             }
             if (measureCommandTime) {

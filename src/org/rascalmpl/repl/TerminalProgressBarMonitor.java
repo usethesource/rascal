@@ -3,6 +3,8 @@ package org.rascalmpl.repl;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -15,7 +17,12 @@ import io.usethesource.vallang.ISourceLocation;
  * output and keep the progress bars at the same place in the window while other prints happen
  * asyncronously (or even in parallel). It can be passed to the IDEServices API such that
  * clients can start progress bars, make them grow and end them using the API in util::Monitor.
- * Of course this only works if the actual raw output stream of the terminal is wrapped.
+ * 
+ * This gives the console the ability to show progress almost as clearly as an IDE can with a
+ * UI experience. 
+ * 
+ * This class only works correctly if the actual _raw_ output stream of the terminal is wrapped
+ * with an object of this class.
  */
 public class TerminalProgressBarMonitor extends FilterOutputStream implements IRascalMonitor  {
     /**
@@ -23,9 +30,16 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * top to bottom just above the next prompt.
      */
     private List<ProgressBar> bars = new LinkedList<>();
+    
+    /**
+     * This writer is there to help with the encoding to UTF8. It writes directly to the
+     * underlying stream.
+     */
+    private final PrintWriter writer;
 
     public TerminalProgressBarMonitor(OutputStream out) {
         super(out);
+        this.writer = new PrintWriter(out, true, Charset.forName("UTF8" /*also for error messages */));
     }
 
     /**
@@ -42,16 +56,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             this.max = max;
         }
 
-        ProgressBar(String name, int max, String message) {
-            this.name = name;
-            this.max = max;
-            this.message = message;
-        }
-
-        void worked(int amount) {
-            this.current += Math.min(amount, max);
-        }
-
         void worked(int amount, String message) {
             this.current += Math.min(amount, max);
             this.message = message;
@@ -61,7 +65,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
          * Print the current state of the progress bar
          */
         void write() {
-            write("".getBytes("UTF8"));
+            int width = 60;
+            var partDone = (current * 1.0) / (max * 1.0);
+            var doneWidth =(int) Math.floor(width * partDone);
+            var overWidth = width - doneWidth;
+            // var part_char = new String[] {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}[part_width];
+
+            var line = "[" + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "]";
+
+            writer.println(line);
         }
 
         @Override
@@ -81,14 +93,31 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * of the bars
      */
     private void eraseBars() {
+        if (bars.isEmpty()) {
+            return;
+        }
+            
+        writer.write(ANSI.moveUp(bars.size())); 
+        writer.write(ANSI.clearToEndOfScreen()); 
+    }
 
+    private static class ANSI {
+        static String moveUp(int n) {
+            return "\u001B[" + n + "F";
+        }
+
+        static String clearToEndOfScreen() {
+            return "\u001B[0J";
+        }
     }
 
     /**
      * Simply print the bars. No cursor movement here.
      */
     private void printBars() {
-
+        for (var pb : bars) {
+            pb.write();
+        }
     }
 
     /**
@@ -110,12 +139,16 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     @Override
     public void jobStep(String name, String message, int workShare) {
         findBarByName(name).worked(workShare, message);
+        eraseBars();
+        printBars();
     }
 
     @Override
     public int jobEnd(String name, boolean succeeded) {
+        eraseBars();
         var pb = findBarByName(name);
         bars.remove(pb);
+        printBars();
         return pb.current;
     }
 
@@ -127,18 +160,58 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public void jobTodo(String name, int work) {
+        eraseBars();
         var bar = findBarByName(name);
-        bar.max = work;
-        bar.current = 0; 
+        bar.max += work;
+        printBars();
     }
 
     @Override
     public void warning(String message, ISourceLocation src) {
-        try {
-            out.write(("[WARNING] " + src + ": " + message).getBytes("UTF8"));
-        }
-        catch (IOException e) {
-           // if we can't print, we can't print.
+        writer.println(("[WARNING] " + src + ": " + message));
+    }
+
+    /**
+     * Here we make sure the progress bars are gone just before
+     * someone wants to print in the console. When the printing
+     * is ready, we simply add our own progress bars again.
+     */
+    @Override
+    public void write(byte[] b) throws IOException {
+        eraseBars();
+        super.write(b);
+        printBars();
+    }
+
+    /**
+     * Here we make sure the progress bars are gone just before
+     * someone wants to print in the console. When the printing
+     * is ready, we simply add our own progress bars again.
+     */
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        eraseBars();
+        super.write(b, off, len);
+        printBars();
+    }
+
+    /**
+     * Here we make sure the progress bars are gone just before
+     * someone wants to print in the console. When the printing
+     * is ready, we simply add our own progress bars again.
+     */
+    @Override
+    public void write(int b) throws IOException {
+        eraseBars();
+        super.write(b);
+        printBars();
+    }
+
+    @Override
+    public void endAllJobs() {
+        eraseBars();
+        for (var pb : bars) {
+            bars.remove(pb);
         }
     }
 }

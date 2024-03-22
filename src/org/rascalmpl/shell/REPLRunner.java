@@ -36,11 +36,11 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
     public REPLRunner(InputStream stdin, OutputStream stderr, OutputStream stdout, Terminal term)
         throws IOException, URISyntaxException {
         super(makeInterpreter(stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term), null,
-            stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, new BasicIDEServices(new PrintWriter(stderr)));
+            stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, new BasicIDEServices(new PrintWriter(stderr), stdout));
     }
 
     public REPLRunner(ILanguageProtocol language) throws IOException, URISyntaxException {
-        super(language, null, null, null, null, true, true, new File(""), null, new BasicIDEServices(new PrintWriter(System.err)));
+        super(language, null, null, null, null, true, true, new File(""), null, new BasicIDEServices(new PrintWriter(System.err), System.out));
     }
 
     private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stderr, OutputStream stdout,
