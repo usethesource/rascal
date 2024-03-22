@@ -35,6 +35,8 @@ lexical CSISequence
 	| scrollDown                 :  Number n [T] 
 	| horizontalVerticalPosition :  Number n [;] Number m [f]
 	| selectGraphicsRendition    :  Rendition r [m]
+	| hideCursor                 :  "?25l"
+	| showCursor                 :  "?25h"
     ;
 
 lexical Rendition
