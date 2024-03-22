@@ -50,6 +50,11 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
             new RascalInterpreterREPL(prettyPrompt, allowColors, getHistoryFile()) {
                 @Override
                 protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
+                    if (services instanceof BasicIDEServices) {
+                        // TODO: find a better way to promote this wrapper to stdout
+                        stdout = ((BasicIDEServices) services).getWrappedOutputStream();
+                    }
+
                     Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
                     eval.setMonitor(services);
                     return eval;
