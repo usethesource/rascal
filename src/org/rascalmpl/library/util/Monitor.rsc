@@ -12,7 +12,6 @@
 module util::Monitor
 
 import util::Math;
-import IO;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -42,7 +41,7 @@ java void jobWarning(str message, loc src);
 @synopsis{Puts the monitor API to work by racing 5 horses against each other.}
 test bool horseRaceTest() {
   distance  = 1000000;
-  stride    = 100;
+  stride    = 1000;
   horses    = 5;
   handicaps = [ arbInt(stride * 15 / 100)    | _ <- [0..horses]];
   labels    = [ "Horse <h> (<handicaps[h]>)" | h <- [0..horses]];

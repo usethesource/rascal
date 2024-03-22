@@ -15,12 +15,13 @@ package org.rascalmpl.ideservices;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -33,12 +34,12 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class BasicIDEServices implements IDEServices {
   
-  private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
+  private static TerminalProgressBarMonitor monitor;
   private PrintWriter stderr;
 
-  public BasicIDEServices(PrintWriter stderr){
+  public BasicIDEServices(PrintWriter stderr, OutputStream out){
     this.stderr = stderr;
-    monitor = new ConsoleRascalMonitor();
+    monitor = new TerminalProgressBarMonitor(out);
   }
   
   @Override
@@ -117,6 +118,11 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public int jobEnd(String name, boolean succeeded) {
     return monitor.jobEnd(name, succeeded);
+  }
+  
+  @Override
+  public void endAllJobs() {
+      monitor.endAllJobs();
   }
   
   @Override

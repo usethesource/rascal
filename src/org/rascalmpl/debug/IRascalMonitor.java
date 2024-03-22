@@ -73,6 +73,11 @@ public interface IRascalMonitor {
 	public void jobTodo(String name, int work);
 	
 	/**
+	 * Remove all active jobs from the monitor
+	 */
+	public void endAllJobs();
+
+	/**
 	 * Inform (about a warning
 	 */
 	public void warning(String message, ISourceLocation src);

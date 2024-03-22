@@ -103,6 +103,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             if (currentCommand == null) {
                 // we are still at a new command so let's see if the line is a full command
                 if (isStatementComplete(line)) {
+                
                     printResult(evalStatement(line, line), output, metadata);
                 }
                 else {
