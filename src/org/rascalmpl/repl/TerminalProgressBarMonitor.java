@@ -49,6 +49,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private final String name;
         private int max;
         private int current = 0;
+        private int previousWidth=0;
+        private int doneWidth=0;
+        private int width = 80;
         private String message = "";
 
         ProgressBar(String name, int max) {
@@ -62,16 +65,34 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         /**
+         * To avoid flickering of all bars at the same time, we only reprint
+         * the current bar
+         */
+        void update() {
+            // to avoid flicker we only print if there is a new bar character to draw
+            if (newWidth() != previousWidth) {
+                writer.write(ANSI.hideCursor());
+                writer.write(ANSI.moveUp(bars.size() - bars.indexOf(this)));
+                write();
+                writer.write(ANSI.moveDown(bars.size() - bars.indexOf(this)));
+                writer.write(ANSI.showCursor());
+            }
+        }
+
+        int newWidth() {
+            var partDone = (current * 1.0) / (max * 1.0);
+            return (int) Math.floor(width * partDone);
+        }
+        /**
          * Print the current state of the progress bar
          */
         void write() {
-            int width = 60;
-            var partDone = (current * 1.0) / (max * 1.0);
-            var doneWidth =(int) Math.floor(width * partDone);
+            previousWidth = doneWidth;
+            doneWidth = newWidth();
             var overWidth = width - doneWidth;
             // var part_char = new String[] {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}[part_width];
 
-            var line = "[" + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "]";
+            var line = "[" + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "] " + name;
 
             writer.println(line);
         }
@@ -97,17 +118,34 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             return;
         }
             
+        writer.write(ANSI.hideCursor());
         writer.write(ANSI.moveUp(bars.size())); 
         writer.write(ANSI.clearToEndOfScreen()); 
+        writer.write(ANSI.showCursor());
     }
 
+    /**
+     * ANSI escape codes convenience functions
+     */
     private static class ANSI {
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
         }
 
+        static String moveDown(int n) {
+            return "\u001B[" + n + "E";
+        }
+
         static String clearToEndOfScreen() {
             return "\u001B[0J";
+        }
+
+        static String hideCursor() {
+            return "\u001B[?25l";
+        }
+
+        static String showCursor() {
+            return "\u001B[?25h";
         }
     }
 
@@ -115,9 +153,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * Simply print the bars. No cursor movement here.
      */
     private void printBars() {
+        writer.write(ANSI.hideCursor());
         for (var pb : bars) {
             pb.write();
         }
+        writer.write(ANSI.showCursor());
     }
 
     /**
@@ -126,30 +166,48 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * @return the current instance by that name
      */
     private ProgressBar findBarByName(String name) {
-        return bars.stream().filter(b -> b.name.equals(name)).findFirst().get();
+        return bars.stream().filter(b -> b.name.equals(name)).findFirst().orElseGet(() -> null);
     }
     
     @Override
     public void jobStart(String name, int workShare, int totalWork) {
+        var pb = findBarByName(name);
+        
         eraseBars(); // to make room for the new bars
-        bars.add(new ProgressBar(name, totalWork));
-        printBars(); // one line longer than before!
+
+        if (findBarByName(name) == null) {
+            bars.add(new ProgressBar(name, totalWork));
+        }
+        else {
+            pb.current = 0;
+            pb.max = totalWork;
+        }
+
+        printBars(); // probably one line longer than before!
     }
 
     @Override
     public void jobStep(String name, String message, int workShare) {
-        findBarByName(name).worked(workShare, message);
-        eraseBars();
-        printBars();
+        ProgressBar pb = findBarByName(name);
+        
+        if (pb != null) {
+            pb.worked(workShare, message);
+            pb.update();
+        }
     }
 
     @Override
     public int jobEnd(String name, boolean succeeded) {
-        eraseBars();
         var pb = findBarByName(name);
-        bars.remove(pb);
-        printBars();
-        return pb.current;
+
+        if (pb != null) {
+            eraseBars();
+            bars.remove(pb);
+            printBars();
+            return pb.current;
+        }
+
+        return -1;
     }
 
     @Override
@@ -210,8 +268,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     @Override
     public void endAllJobs() {
         eraseBars();
-        for (var pb : bars) {
-            bars.remove(pb);
-        }
+        bars.clear();
+        writer.write(ANSI.showCursor());
     }
 }
