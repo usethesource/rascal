@@ -57,7 +57,7 @@ test bool horseRaceTest() {
       progress[h] += advance;
       
       jobStep(labels[h], "pacing...", work=advance);
-      // println("Annoying commentator blabla");
+      println("Annoying commentator blabla <arbInt(100)>");
       if (progress[h] >= distance) {
         break race;
       }

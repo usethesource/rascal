@@ -42,6 +42,10 @@ public class BasicIDEServices implements IDEServices {
     monitor = new TerminalProgressBarMonitor(out);
   }
   
+  public OutputStream getWrappedOutputStream() {
+    return monitor;
+  }
+
   @Override
   public PrintWriter stderr() {
     return stderr;
