@@ -116,13 +116,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private void eraseBars() {
         if (bars.isEmpty()) {
-            return;
+            writer.println();
         }
             
         writer.write(ANSI.hideCursor());
         writer.write(ANSI.moveUp(bars.size())); 
         writer.write(ANSI.clearToEndOfScreen()); 
         writer.write(ANSI.showCursor());
+        writer.flush();
     }
 
     /**
@@ -159,6 +160,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             pb.write();
         }
         writer.write(ANSI.showCursor());
+        writer.flush();
     }
 
     /**
