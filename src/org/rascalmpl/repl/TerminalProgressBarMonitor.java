@@ -93,7 +93,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             var overWidth = width - doneWidth;
             // var part_char = new String[] {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}[part_width];
 
-            var line = "[" + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "] " + name.substring(lineWidth - (width + 3));
+            var line = "[" + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "] " + name.substring(0, Math.min(name.length() - 1, Math.max(0, lineWidth - (width + 3))));
 
             writer.println(line);
         }
@@ -142,11 +142,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         static String hideCursor() {
-            return ""; // "\u001B[?25l";
+            return "\u001B[?25l";
         }
 
         static String showCursor() {
-            return ""; // "\u001B[?25h";
+            return "\u001B[?25h";
         }
     }
 
