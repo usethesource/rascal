@@ -63,7 +63,6 @@ public class ParserGenerator {
 		this.bridge = new JavaBridge(loaders, factory, config);
 		this.vf = factory;
 		
-		monitor.jobStart("Loading parser generator", 100, 139);
 		try {
 			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
 			evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");

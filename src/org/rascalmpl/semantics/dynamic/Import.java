@@ -293,6 +293,7 @@ public abstract class Import {
 	
 	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
 	    GlobalEnvironment heap = eval.getHeap();
+      eval.getMonitor().jobStart("loading");
 
 	    ModuleEnvironment env = heap.getModule(name);
 	    if (env == null) {
@@ -371,15 +372,9 @@ private static boolean isDeprecated(Module preModule){
   }
   
   private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-      try {
-          eval.jobStart("Loading module " + uri, 10);
-          ITree tree = eval.parseModuleAndFragments(eval, uri);
+      ITree tree = eval.parseModuleAndFragments(eval, uri);
 
-          return getBuilder().buildModule(tree);
-      }
-      finally {
-          eval.jobEnd("Loading module " + uri, true);
-      }
+      return getBuilder().buildModule(tree);
   }
   
   private static ASTBuilder getBuilder() {
@@ -400,6 +395,8 @@ private static boolean isDeprecated(Module preModule){
       eval.__setInterrupt(false);
       IActionExecutor<ITree> actions = new NoActionExecutor();
       ITree tree;
+
+      eval.jobStep("loading", "parsing " + URIUtil.getLocationName(location));
       
       try {
         tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
@@ -416,6 +413,8 @@ private static boolean isDeprecated(Module preModule){
       ITree top = TreeAdapter.getStartTop(tree);
 
       String name = Modules.getName(top);
+
+      eval.jobStep("loading", "declaring " + name);
 
       // create the current module if it does not exist yet
       GlobalEnvironment heap = eval.getHeap();
@@ -467,6 +466,7 @@ private static boolean isDeprecated(Module preModule){
             RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
             ISourceLocation parserCacheFile = URIUtil.changeExtension(location, "parsers");
+            eval.jobStep("loading", "parsing concrete fragment in " + name);
 
             IFunction parsers = null;
             
