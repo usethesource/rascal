@@ -66,7 +66,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth=0;
         private int doneWidth=0;
-        private int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00 ".length();
+        private int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -132,7 +132,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + backPart
                 + ANSI.noBackground()
                 + " " + clock + " "
-                + String.format("%d:%02d:%02d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart())
+                + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
                 ;
 
