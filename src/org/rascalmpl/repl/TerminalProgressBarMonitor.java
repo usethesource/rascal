@@ -5,12 +5,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
+import jline.Terminal;
 
 /**
  * The terminal progress bar monitor wraps the standard output stream to be able to monitor
@@ -32,14 +35,26 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     private List<ProgressBar> bars = new LinkedList<>();
     
     /**
-     * This writer is there to help with the encoding to UTF8. It writes directly to the
+     * This writer is there to help with the encoding to what the terminal needs. It writes directly to the
      * underlying stream.
      */
     private final PrintWriter writer;
 
-    public TerminalProgressBarMonitor(OutputStream out) {
+    /**
+     * The entire width in character columns of the current terminal. We do not support resizing (yet).
+     */
+    private final int lineWidth;
+
+    /**
+     * For portability it is important to encode according to the needs of the actual terminal.
+     */
+    private final String encoding;
+
+    public TerminalProgressBarMonitor(OutputStream out, Terminal tm) {
         super(out);
-        this.writer = new PrintWriter(out, true, Charset.forName("UTF8" /*also for error messages */));
+        this.encoding = tm.getOutputEncoding() != null ? tm.getOutputEncoding() : "UTF8";
+        this.writer = new PrintWriter(out, true, Charset.forName(encoding));
+        this.lineWidth = tm.getWidth();
     }
 
     /**
@@ -51,18 +66,26 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth=0;
         private int doneWidth=0;
-        private int width = 80;
-        private int lineWidth = 100;
+        private int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00 ".length();
+        private final Instant startTime;
+        private Duration duration;
         private String message = "";
+        private int stepper = 0;
+        private static final String clocks = "🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕛";
 
         ProgressBar(String name, int max) {
             this.name = name;
             this.max = max;
+            this.startTime = Instant.now();
+            this.duration = Duration.ZERO;
+            this.message = name;
         }
 
         void worked(int amount, String message) {
             this.current += Math.min(amount, max);
+            this.duration = Duration.between(startTime, Instant.now());
             this.message = message;
+            this.stepper++;
         }
 
         /**
@@ -82,7 +105,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         int newWidth() {
             var partDone = (current * 1.0) / (max * 1.0);
-            return (int) Math.floor(width * partDone);
+            return (int) Math.floor(barWidth * partDone);
         }
         /**
          * Print the current state of the progress bar
@@ -90,10 +113,27 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         void write() {
             previousWidth = doneWidth;
             doneWidth = newWidth();
-            var overWidth = width - doneWidth;
-            // var part_char = new String[] {" ", "▏", "▎", "▍", "▌", "▋", "▊", "▉"}[part_width];
+            // var overWidth = barWidth - doneWidth;
+            var done = current >= max ? "☑ " : "☐ ";
 
-            var line = "[" + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "] " + name.substring(0, Math.min(name.length() - 1, Math.max(0, lineWidth - (width + 3))));
+            // var line = done + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "] " + name.substring(0, Math.min(name.length() - 1, Math.max(0, lineWidth - (width + 3))));
+            // split the message into the part with dark background and with light background. fill it up if necessary.
+            message = message + " ".repeat(Math.max(0, barWidth - message.length()));
+            var frontPart = message.substring(0, doneWidth);
+            var backPart = message.substring(doneWidth, message.length());
+
+            var line 
+                = done 
+                + ANSI.darkBackground() 
+                + frontPart
+                + ANSI.noBackground()
+                + ANSI.lightBackground()
+                + backPart
+                + ANSI.noBackground()
+                + " " + clocks.charAt((clocks.length() - 1) % (stepper + 1)) + " "
+                + String.format("%d:%02d:%02d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart())
+                + " "
+                ;
 
             writer.println(line);
         }
@@ -106,6 +146,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         @Override
         public int hashCode() {
             return name.hashCode();
+        }
+
+        public void done() {
+            this.current = Math.min(current, max);
+            this.duration = Duration.between(startTime, Instant.now());
+            this.message = name;
+            this.stepper++;
         }
     }
 
@@ -132,6 +179,18 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     private static class ANSI {
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
+        }
+
+        public static String darkBackground() {
+            return "\u001B[48;5;232m";
+        }
+
+        public static String noBackground() {
+            return "\u001B[49m";
+        }
+
+        public static String lightBackground() {
+            return "\u001B[48;5;242m";
         }
 
         static String moveDown(int n) {
@@ -207,6 +266,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             eraseBars();
             // write it one last time into the scrollback buffer (on top)
             // pb.current = pb.max;
+            pb.done();
             pb.write();
             bars.remove(pb);
             // print the left over bars under this one.
