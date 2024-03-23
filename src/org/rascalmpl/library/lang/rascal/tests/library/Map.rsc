@@ -73,7 +73,7 @@ test bool domainX3(map[&K,&V] M)
 
 // getOneFrom
 @expected{EmptyMap} 
-test bool getOneFrom1() { v = getOneFrom(()); return true; }
+test bool getOneFrom1() { map[int,int] m = (); v = getOneFrom(m); return true; }
 test bool getOneFrom2() = getOneFrom((1:10)) == 1;
 test bool getOneFrom3() = getOneFrom((1:10, 2:20)) in {1,2};
 test bool getOneFrom4(map[&K,&V] M) = isEmpty(M) || getOneFrom(M) in domain(M);
