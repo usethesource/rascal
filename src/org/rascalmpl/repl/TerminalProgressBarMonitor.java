@@ -152,7 +152,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     /**
-     * Simply print the bars. No cursor movement here.
+     * Simply print the bars. No cursor movement here. Hiding the cursor prevents flickering.
      */
     private void printBars() {
         writer.write(ANSI.hideCursor());
@@ -164,7 +164,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     /**
-     * Find a bar in the ordered list of bars, by name
+     * Find a bar in the ordered list of bars, by name.
      * @param name of the bar
      * @return the current instance by that name
      */
@@ -178,7 +178,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         
         eraseBars(); // to make room for the new bars
 
-        if (findBarByName(name) == null) {
+        if (pb == null) {
             bars.add(new ProgressBar(name, totalWork));
         }
         else {
@@ -205,7 +205,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         if (pb != null) {
             eraseBars();
+            // write it one last time into the scrollback buffer (on top)
+            // pb.current = pb.max;
+            pb.write();
             bars.remove(pb);
+            // print the left over bars under this one.
             printBars();
             return pb.current;
         }
