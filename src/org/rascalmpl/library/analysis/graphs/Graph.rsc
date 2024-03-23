@@ -67,8 +67,8 @@ tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g
     set[&T] onStack = {};       // set of nodes on current stack
     list[&T] stack = [];        // node stack contains nodes of SCC under construction
     
-    components = {};            // set of SCCs to be constructed
-    topsort = [];
+    set[set[&T]]components = {};// set of SCCs to be constructed
+    list[&T] topsort = [];      // sorted list of elements
     
     void strongConnect(&T v){
         // Set the depth index for v to the smallest unused index
