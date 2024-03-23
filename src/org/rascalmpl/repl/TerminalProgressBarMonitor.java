@@ -279,7 +279,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         if (pb != null) {
             eraseBars();
             // write it one last time into the scrollback buffer (on top)
-            // pb.current = pb.max;
             pb.done();
             pb.write();
             bars.remove(pb);
@@ -350,8 +349,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public void endAllJobs() {
-        eraseBars();
+        // eraseBars();
         bars.clear();
         writer.write(ANSI.showCursor());
+        writer.flush();
     }
 }
