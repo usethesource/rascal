@@ -16,16 +16,20 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
+import jline.Terminal;
 
 /**
  * IDEServices for a Desktop environment that rely on the
@@ -34,16 +38,16 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class BasicIDEServices implements IDEServices {
   
-  private static TerminalProgressBarMonitor monitor;
+  private static IRascalMonitor monitor;
   private PrintWriter stderr;
 
-  public BasicIDEServices(PrintWriter stderr, OutputStream out){
+  public BasicIDEServices(PrintWriter stderr, OutputStream out, Terminal tm){
     this.stderr = stderr;
-    monitor = new TerminalProgressBarMonitor(out);
+    monitor = tm != null ? new TerminalProgressBarMonitor(out, tm) : new ConsoleRascalMonitor();
   }
   
   public OutputStream getWrappedOutputStream() {
-    return monitor;
+    return monitor instanceof TerminalProgressBarMonitor ? ((OutputStream) monitor) : null;
   }
 
   @Override
