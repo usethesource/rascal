@@ -41,7 +41,7 @@ java void jobWarning(str message, loc src);
 
 @synopsis{Puts the monitor API to work by racing 5 horses against each other.}
 test bool horseRaceTest() {
-  distance  = 1000000;
+  distance  = 3000000;
   stride    = 100;
   horses    = 5;
   handicaps = [ arbInt(stride * 15 / 100)    | _ <- [0..horses]];

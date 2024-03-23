@@ -71,7 +71,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private Duration duration;
         private String message = "";
         private int stepper = 0;
-        private static final String clocks = "🕐🕑🕒🕓🕔🕕🕖🕗🕘🕙🕛";
+        private final String[] clocks = new String[] {"🕐" , "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕛"};
 
         ProgressBar(String name, int max) {
             this.name = name;
@@ -85,7 +85,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             this.current += Math.min(amount, max);
             this.duration = Duration.between(startTime, Instant.now());
             this.message = message;
-            this.stepper++;
         }
 
         /**
@@ -95,6 +94,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         void update() {
             // to avoid flicker we only print if there is a new bar character to draw
             if (newWidth() != previousWidth) {
+                stepper++;
                 writer.write(ANSI.hideCursor());
                 writer.write(ANSI.moveUp(bars.size() - bars.indexOf(this)));
                 write();
@@ -121,6 +121,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             message = message + " ".repeat(Math.max(0, barWidth - message.length()));
             var frontPart = message.substring(0, doneWidth);
             var backPart = message.substring(doneWidth, message.length());
+            var clock = clocks[stepper % clocks.length];
 
             var line 
                 = done 
@@ -130,7 +131,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + ANSI.lightBackground()
                 + backPart
                 + ANSI.noBackground()
-                + " " + clocks.charAt((clocks.length() - 1) % (stepper + 1)) + " "
+                + " " + clock + " "
                 + String.format("%d:%02d:%02d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart())
                 + " "
                 ;
@@ -152,7 +153,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             this.current = Math.min(current, max);
             this.duration = Duration.between(startTime, Instant.now());
             this.message = name;
-            this.stepper++;
         }
     }
 
@@ -182,7 +182,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         public static String darkBackground() {
-            return "\u001B[48;5;232m";
+            return "\u001B[48;5;242m";
         }
 
         public static String noBackground() {
@@ -190,7 +190,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         public static String lightBackground() {
-            return "\u001B[48;5;242m";
+            return "\u001B[48;5;249m";
         }
 
         static String moveDown(int n) {
