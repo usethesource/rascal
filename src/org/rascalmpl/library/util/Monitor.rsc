@@ -12,7 +12,6 @@
 module util::Monitor
 
 import util::Math;
-import IO;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -20,29 +19,88 @@ jobStart registers a new current job on the job stack with an amount of
 steps todo and how much work it contributes (when it ends) to its parent job (if any).
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-java void jobStart(str label, int work=1, int totalWork=100);
+java void jobStart(str label, int work=1, int totalWork=0);
 
-@synopsis{Log to the user that a certain event has happened under
-  the currently registered Job.}
+@synopsis{Log to the user that a certain event has happened under the currently registered Job.}
 @javaClass{org.rascalmpl.library.util.Monitor}
 java void jobStep(str label, str message, int work = 1);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
+@synopsis{Log the end of a job}
 java int jobEnd(str label, bool success=true);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
-java void jobTodo(str label, int work=100);
+@synopsis{Register additional work for the identied job.}
+java void jobTodo(str label, int work=1);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
+@synopsis{Poll if the given job has been cancelled by a user interaction.}
 java void jobIsCancelled(str label);
 
 @javaClass{org.rascalmpl.library.util.Monitor} 
+@synopsis{Register a warning in the same UI that job progress is shown in.}
 java void jobWarning(str message, loc src);
+
+@synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+void job(str label, void (void (str message, int worked) step) block) {
+   try {
+     jobStart(label);
+     block((str message, int worked) { jobStep(label, message, work=worked);});
+   }
+   catch x: {
+     throw x;
+   }
+   finally {
+     jobEnd(label);
+   }
+}
+
+@synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+void job(str label, void (void (int worked) step) block) {
+   try {
+     jobStart(label);
+     block((int worked) { jobStep(label, label, work=worked);});
+   }
+   catch x: {
+     throw x;
+   }
+   finally {
+     jobEnd(label);
+   }
+}
+
+@synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+void job(str label, void (void () step) block) {
+   try {
+     jobStart(label);
+     block(() { jobStep(label, label, work=1);});
+   }
+   catch x: {
+     throw x;
+   }
+   finally {
+     jobEnd(label);
+   }
+}
+
+@synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+void job(str label, void () block) {
+   try {
+     jobStart(label);
+     block();
+   }
+   catch x: {
+     throw x;
+   }
+   finally {
+     jobEnd(label);
+   }
+}
 
 @synopsis{Puts the monitor API to work by racing 5 horses against each other.}
 test bool horseRaceTest() {
   distance  = 3000000;
-  stride    = 100;
+  stride    = 50;
   horses    = 5;
   handicaps = [ arbInt(stride * 15 / 100)    | _ <- [0..horses]];
   labels    = [ "Horse <h> (handicap is <handicaps[h]>)" | h <- [0..horses]];
