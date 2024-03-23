@@ -781,11 +781,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ParserGenerator pgen = getParserGenerator();
             String main = uri.getAuthority();
             ModuleEnvironment env = getHeap().getModule(main);
-            monitor.jobStart("Expanding Grammar");
             return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
         }
         finally {
-            monitor.jobEnd("Expanding Grammar", true);
             setMonitor(old);
         }
     }
@@ -811,14 +809,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
 
             Evaluator self = this;
-            job("Loading parser generator", () -> {
-                synchronized (self) {
-                    if (parserGenerator == null) {
-                        parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-                    }
-                    return true;
+            self.monitor.jobStart("loading");
+            synchronized (self) {
+                if (parserGenerator == null) {
+                    parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
                 }
-            });
+            }
         }
 
         return parserGenerator;
@@ -1135,12 +1131,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
-            monitor.jobStart("loading");
+            monitor.jobStart("loading", 1);
             ISourceLocation uri = URIUtil.rootLocation("import");
             org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
         }
         finally {
-            monitor.jobEnd("loading", true);
             setMonitor(old);
             setCurrentAST(null);
         }
@@ -1251,7 +1246,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         finally {
-            monitor.jobEnd("loading", true);
             setMonitor(old);
         }
     }
