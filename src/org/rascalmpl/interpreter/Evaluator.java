@@ -1135,10 +1135,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
+            monitor.jobStart("loading");
             ISourceLocation uri = URIUtil.rootLocation("import");
             org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
         }
         finally {
+            monitor.jobEnd("loading", true);
             setMonitor(old);
             setCurrentAST(null);
         }
@@ -1153,49 +1155,42 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
         SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
+        monitor.jobStart("loading", affectedModules.size());
+
         try {
             Set<String> onHeap = new HashSet<>();
             Set<String> extendingModules = new HashSet<>();
             PrintWriter errStream = getErrorPrinter();
-
-            try {
-                monitor.jobStart("Cleaning modules", names.size());
-                for (String mod : names) {
-                    if (heap.existsModule(mod)) {
-                        onHeap.add(mod);
-                        if (recurseToExtending) {
-                            extendingModules.addAll(heap.getExtendingModules(mod));
-                        }
-                        heap.removeModule(heap.getModule(mod));
+ 
+            for (String mod : names) {
+                monitor.jobStep("loading", "cleaning " + mod, 1);
+                if (heap.existsModule(mod)) {
+                    onHeap.add(mod);
+                    if (recurseToExtending) {
+                        extendingModules.addAll(heap.getExtendingModules(mod));
                     }
-                    monitor.jobStep("Cleaning modules", "Processed " + mod, 1);
+                    heap.removeModule(heap.getModule(mod));
                 }
-                extendingModules.removeAll(names);
-            } finally {
-                monitor.jobEnd("Cleaning modules", true);
             }
+            extendingModules.removeAll(names);
+            
+            monitor.jobTodo("loading", onHeap.size());
 
-            try {
-                monitor.jobStart("Reloading modules", onHeap.size());
-                for (String mod : onHeap) {
-                    wrapped.clear();
+            for (String mod : onHeap) {
+                wrapped.clear();
+                if (!heap.existsModule(mod)) {
+                    monitor.jobStep("loading", mod, 1);
+                    reloadModule(mod, errorLocation, affectedModules);
                     if (!heap.existsModule(mod)) {
-                        errStream.println("Reloading module " + mod);
-                        reloadModule(mod, errorLocation, affectedModules);
-                        if (!heap.existsModule(mod)) {
-                            // something went wrong with reloading, let's print that:
-                            errStream.println("** Something went wrong while reloading module " + mod + ":");
-                            for (String s : wrapped.getWarnings()) {
-                                errStream.println(s);
-                            }
-                            errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
-                            errStream.println("*** if the error persists, start a new console session.");
+                        // something went wrong with reloading, let's print that:
+                        errStream.println("** Something went wrong while reloading module " + mod + ":");
+                        for (String s : wrapped.getWarnings()) {
+                            errStream.println(s);
                         }
+                        errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
+                        errStream.println("*** if the error persists, start a new console session.");
                     }
-                    monitor.jobStep("Reloading modules", "loaded " + mod, 1);
-                }
-            } finally {
-                monitor.jobEnd("Reloading modules", true);
+                }          
             }
 
             Set<String> dependingImports = new HashSet<>();
@@ -1203,56 +1198,48 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             dependingImports.addAll(getImportingModules(names));
             dependingExtends.addAll(getExtendingModules(names));
 
-            try {
-                monitor.jobStart("Reconnecting importers of affected modules");
-                for (String mod : dependingImports) {
-                    ModuleEnvironment env = heap.getModule(mod);
-                    Set<String> todo = new HashSet<>(env.getImports());
-                    for (String imp : todo) {
-                        if (names.contains(imp)) {
-                            env.unImport(imp);
-                            ModuleEnvironment imported = heap.getModule(imp);
-                            if (imported != null) {
-                                env.addImport(imp, imported);
-                                affectedModules.add(mod);
-                            }
-                            else {
-                                errStream.println("Could not reimport" + imp + " at " + errorLocation);
-                                warning("could not reimport " + imp, errorLocation);
-                            }
+            monitor.jobTodo("loading", dependingImports.size());
+
+            for (String mod : dependingImports) {
+                ModuleEnvironment env = heap.getModule(mod);
+                Set<String> todo = new HashSet<>(env.getImports());
+                monitor.jobStep("loading", "re-importing for " + mod, 1);
+                for (String imp : todo) {
+                    if (names.contains(imp)) {
+                        env.unImport(imp);
+                        ModuleEnvironment imported = heap.getModule(imp);
+                        if (imported != null) {
+                            env.addImport(imp, imported);
+                            affectedModules.add(mod);
                         }
-
-                    }
-                    monitor.jobStep("Reconnecting importers of affected modules", "Reconnected " + mod, 1);
-                }
-            }
-            finally {
-                monitor.jobEnd("Reconnecting importers of affected modules", true);
-            }
-
-            try {
-                monitor.jobStart("Reconnecting extenders of affected modules");
-                for (String mod : dependingExtends) {
-                    ModuleEnvironment env = heap.getModule(mod);
-                    Set<String> todo = new HashSet<>(env.getExtends());
-                    for (String ext : todo) {
-                        if (names.contains(ext)) {
-                            env.unExtend(ext);
-                            ModuleEnvironment extended = heap.getModule(ext);
-                            if (extended != null) {
-                                env.addExtend(ext);
-                            }
-                            else {
-                                errStream.println("Could not re-extend" + ext + " at " + errorLocation);
-                                warning("could not re-extend " + ext, errorLocation);
-                            }
+                        else {
+                            errStream.println("Could not reimport" + imp + " at " + errorLocation);
+                            warning("could not reimport " + imp, errorLocation);
                         }
                     }
-                    monitor.jobStep("Reconnecting extenders of affected modules", "Reconnected " + mod, 1);
                 }
             }
-            finally {
-                monitor.jobEnd("Reconnecting extenders of affected modules", true);
+
+            monitor.jobTodo("loading", dependingExtends.size());
+
+            for (String mod : dependingExtends) {
+                ModuleEnvironment env = heap.getModule(mod);
+                Set<String> todo = new HashSet<>(env.getExtends());
+                monitor.jobStep("loading", "re-extending for " + mod, 1);
+
+                for (String ext : todo) {
+                    if (names.contains(ext)) {
+                        env.unExtend(ext);
+                        ModuleEnvironment extended = heap.getModule(ext);
+                        if (extended != null) {
+                            env.addExtend(ext);
+                        }
+                        else {
+                            errStream.println("Could not re-extend" + ext + " at " + errorLocation);
+                            warning("could not re-extend " + ext, errorLocation);
+                        }
+                    }
+                }
             }
 
             if (recurseToExtending && !extendingModules.isEmpty()) {
@@ -1264,6 +1251,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         finally {
+            monitor.jobEnd("loading", true);
             setMonitor(old);
         }
     }

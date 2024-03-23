@@ -113,15 +113,29 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         void write() {
             previousWidth = doneWidth;
             doneWidth = newWidth();
+
+                        
             // var overWidth = barWidth - doneWidth;
             var done = current >= max ? "☑ " : "☐ ";
 
-            // var line = done + "█".repeat(doneWidth) + " ".repeat(Math.max(0, overWidth)) + "] " + name.substring(0, Math.min(name.length() - 1, Math.max(0, lineWidth - (width + 3))));
-            // split the message into the part with dark background and with light background. fill it up if necessary.
-            message = message + " ".repeat(Math.max(0, barWidth - message.length()));
+            // fill up and cut off:
+            message = (message + " ".repeat(Math.max(0, barWidth - message.length()))).substring(0, barWidth);
+
+            // capitalize
+            message = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
+            
+            // split
             var frontPart = message.substring(0, doneWidth);
             var backPart = message.substring(doneWidth, message.length());
             var clock = clocks[stepper % clocks.length];
+
+            if (barWidth < 1) {
+                return; // robustness against very small screens. At least don't throw bounds exceptions
+            }
+            else if (barWidth <= 3) { // we can print the clock for good measure 
+                writer.println(clock);
+                return;
+            }
 
             var line 
                 = done 
@@ -241,8 +255,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             bars.add(new ProgressBar(name, totalWork));
         }
         else {
-            pb.current = 0;
-            pb.max = totalWork;
+            // Zeno-bar: we add the new work to the already existing work
+            pb.max += totalWork;
         }
 
         printBars(); // probably one line longer than before!
@@ -285,10 +299,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public void jobTodo(String name, int work) {
-        eraseBars();
-        var bar = findBarByName(name);
-        bar.max += work;
-        printBars();
+        ProgressBar pb = findBarByName(name);
+        
+        if (pb != null) {
+            pb.max += work;
+            pb.update();
+        }
     }
 
     @Override
