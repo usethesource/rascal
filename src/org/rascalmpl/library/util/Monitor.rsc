@@ -45,7 +45,7 @@ test bool horseRaceTest() {
   stride    = 100;
   horses    = 5;
   handicaps = [ arbInt(stride * 15 / 100)    | _ <- [0..horses]];
-  labels    = [ "Horse <h> (<handicaps[h]>)" | h <- [0..horses]];
+  labels    = [ "Horse <h> (handicap is <handicaps[h]>)" | h <- [0..horses]];
   progress  = [ 0                            | _ <- [0..horses]];
  
   for (int h <- [0..horses]) 
@@ -56,7 +56,7 @@ test bool horseRaceTest() {
       advance      = arbInt(stride - handicaps[h]);
       progress[h] += advance;
       
-      jobStep(labels[h], "pacing...", work=advance);
+      jobStep(labels[h], "Pacing horse <h> with <advance>...", work=advance);
       // println("Annoying commentator blabla <arbInt(100)>");
       if (progress[h] >= distance) {
         break race;
