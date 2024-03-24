@@ -84,8 +84,8 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isSetAType(r) && isSetAType(s) ) {
         if ( isRelAType(r) && isVoidAType(getSetElementType(s)) ) {
             return matchRascalTypeParams0(getSetElementType(r), atuple(atypeList([avoid() | _ <- index(getRelFields(r))])), b);
-        } else if ( isVoidAType(getSetElementType(s)) ) {
-            return b;
+        //} else if ( isVoidAType(getSetElementType(s)) ) {
+        //    return b;
         } else {    
             return matchRascalTypeParams0(getSetElementType(r), getSetElementType(s), b);
         }
@@ -96,8 +96,8 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isListAType(r) && isListAType(s) ) {
         if ( isListRelAType(r) && isVoidAType(getListElementType(s)) ) {
             return matchRascalTypeParams0(getListElementType(r), atuple(atypeList([avoid() | _ <- index(getListRelFields(r))])), b);
-        } else if ( isVoidAType(getListElementType(s)) ) {
-            return b;
+        //} else if ( isVoidAType(getListElementType(s)) ) {
+        //    return b;
         } else {
             return matchRascalTypeParams0(getListElementType(r), getListElementType(s), b);
         }
@@ -140,9 +140,9 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
         rfields = getTupleFieldTypes(r);
         sfields = getTupleFieldTypes(s);
         for (idx <- index(rfields)) {
-            if (!isVoidAType(sfields[idx])) {
+            //if (!isVoidAType(sfields[idx])) {
                 b = matchRascalTypeParams0(rfields[idx], sfields[idx], b);
-            }
+            //}
         }
         return b;
     }
