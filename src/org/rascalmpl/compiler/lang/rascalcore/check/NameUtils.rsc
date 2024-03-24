@@ -50,4 +50,4 @@ public tuple[str qualifier, str base] splitQualifiedName(QualifiedName qn){
    // throw "Unexpected syntax for qualified name: <qn>";
 }
 
-public bool isWildCard(str name) = name == "_";
+public bool isWildCard(str name) = name[0] == "_";
