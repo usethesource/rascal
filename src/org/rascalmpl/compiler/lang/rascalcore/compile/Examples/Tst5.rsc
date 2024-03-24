@@ -1,17 +1,68 @@
 module lang::rascalcore::compile::Examples::Tst5
 
+ 
+ rel[&T, &V] f(&T x) = {<x,x>};
+ 
+//data Maybe[&A] 
+//   = nothing() 
+//   | just(&A val)
+//   ;
+//Maybe[int] f() = nothing();
+//
+//set[int] main(){
+//    just(n) := nothing();
+//    if(just(n) := nothing()) return {n};
+//    return {};
+//}
 
-int f(int a, int b, int c=1, int d=2) = a+b+c+d;
 
-str f(str a, int b, int x = 1, int y = 2) = "<a><b + x + y>";
-
-str f(str a, str b, int x = 1, int y = 2) = "<a><b><x+y>";
-
-value main(){
-    return f("a",2,x="a");
-}   
+//tuple[&T, list[&T]] headTail(list[&T] l) {
+//      if ([&T h, *&T t] := l) {
+//        return <h, t>;
+//      }
+//      return <0,[]>; 
+//   }
 
 
+//&T f(&T _) = 1;
+// 
+
+//list[&T] f(int _) = [];
+
+//list[&T] emptyList(type[&T] _) = [];
+
+//map[&K, &V] emptyMap(type[map[&K,&V]] _) = ();
+
+//data Tree;
+
+//@javaClass{org.rascalmpl.library.Prelude}
+//java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+
+//@javaClass{org.rascalmpl.library.Prelude}
+//java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+
+
+//&T <: num makeSmallerThan(&T <: num n) {
+//     if (int i := n) {
+//         return i;    
+//     }
+//     return n;
+// }
+// 
+//&T <: num makeSmallerThan(&T <: num n) {
+//     if (int i := n) {
+//         &T <: num x = i;
+//         return x;    
+//     }
+//     return n;
+// }
+ 
+  
+ //&T <: num f(&T <: int x) = x + 1;
+ 
+ //list[&T <: num] f(&T <: int x) = [x+1];
+ 
+ //&T <: num sub(&T <:num x, &T y) = x - y;
 
 //MH
 //public void showUsageCounts(Corpus corpus, lrel[str p, str v, QueryResult qr] res) {
