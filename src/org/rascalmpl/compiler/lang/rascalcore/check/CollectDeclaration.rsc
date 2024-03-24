@@ -205,7 +205,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     signature = decl.signature;
     fname = signature.name;
    
-    ppfname = prettyPrintName(fnamr);
+    ppfname = prettyPrintName(fname);
     if(isWildCard(ppfname)){
         c.report(error(fname, "Cannot declare function name starting with `_`"));
     }
