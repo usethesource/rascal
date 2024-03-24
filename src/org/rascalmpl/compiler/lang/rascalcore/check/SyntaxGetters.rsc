@@ -83,7 +83,7 @@ tuple[bool, TagString] getExpected(Tags tags){
 
 set[TypeVar] getTypeParams(Tree t){
     res = {};
-    top-down visit(t){
+    top-down-break visit(t){
         case TypeVar tp :
             res += tp;
         case Type tp: 

@@ -33,13 +33,13 @@ module lang::rascalcore::compile::Examples::Tst5
 
 //map[&K, &V] emptyMap(type[map[&K,&V]] _) = ();
 
-//data Tree;
+data Tree;
 
 //@javaClass{org.rascalmpl.library.Prelude}
 //java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
-//@javaClass{org.rascalmpl.library.Prelude}
-//java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+@javaClass{org.rascalmpl.library.Prelude}
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 
 //&T <: num makeSmallerThan(&T <: num n) {
