@@ -68,39 +68,21 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
         collect(tp, c);
     if(tp is function) c.leaveScope(current);
     
-    try {
-        tpResolved = c.getType(tp)[alabel=uname];
-        c.fact(current, tpResolved);
-        if(!isWildCard(uname)){
-            c.push(patternNames, <uname, getLoc(name)>);
-            if(aadt(adtName,_,SyntaxRole sr) := tpResolved 
-               && (isConcreteSyntaxRole(sr) || adtName == "Tree")
-               && c.isAlreadyDefined("<name>", name)){
-              c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
-            } else {
-                orScopes = c.getScopeInfo(orScope());
-                for(<_, orInfo(vars)> <- orScopes){
-                    for(str id <- vars, id == uname){
-                        if(c.isAlreadyDefined("<name>", name)){
-                            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
-                            return;
-                        }
-                    }
-                }
-                c.define(uname, formalOrPatternFormal(c), name, defType(tpResolved));
-            }
-        } else {
-            c.fact(name, tpResolved);
-        }
-        return;
-    } catch TypeUnavailable(): {
-        c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
-    }
+    c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[alabel=uname]; });
     if(!isWildCard(uname)){
        c.push(patternNames, <uname, getLoc(name)>);
-       c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp)[alabel=uname]; }));
+       orScopes = c.getScopeInfo(orScope());
+       for(<_, orInfo(vars)> <- orScopes){
+            for(str id <- vars, id == uname){
+                if(c.isAlreadyDefined("<name>", name)){
+                    c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                    return;
+                }
+            }
+       }
+       c.define(uname, formalOrPatternFormal(c), name, defType(tp));
     } else {
-        c.fact(name, tp);
+       c.fact(name, tp);
     }
 }
 
@@ -155,7 +137,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
             tau = c.newTypeVar(name);
             c.fact(name, tau); //<====
             c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { 
-              return s.getType(tau)[alabel=unescape(prettyPrintBaseName(name))]; 
+                return s.getType(tau)[alabel=unescape(prettyPrintBaseName(name))]; 
             }));
           }
        }
