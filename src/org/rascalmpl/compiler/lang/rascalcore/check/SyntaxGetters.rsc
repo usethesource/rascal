@@ -81,20 +81,31 @@ tuple[bool, TagString] getExpected(Tags tags){
 }
 
 
-set[TypeVar] getTypeVars(Tree t){
-    return {tv | /TypeVar tv := t };
+set[TypeVar] getTypeParams(Tree t){
+    res = {};
+    top-down visit(t){
+        case TypeVar tp :
+            res += tp;
+        case Type tp: 
+            if(t is function) {
+                ;// do nothing, all type parameters inside the function type
+                // are not considered
+            }
+    }
+        
+    return res;
 }
 
-set[Name] getTypeVarNames(Tree t){
-    return {tv.name | /TypeVar tv := t };
+set[Name] getTypeParamNames(Tree t){
+    return { tp.name | tp <- getTypeParams(t) };
 }
 
 tuple[set[TypeVar], set[Name]] getDeclaredAndUsedTypeVars(Tree t){
     declared = {};
     used = {};
-    
+    // TODO function types!
     top-down-break visit(t){
-        case TypeVar tv: if(tv is free){ declared += tv; } else { declared += tv; used += getTypeVarNames(tv.bound); }
+        case TypeVar tv: if(tv is free){ declared += tv; } else { declared += tv; used += getTypeParamNames(tv.bound); }
     }
     
     //top-down-break visit(t){
