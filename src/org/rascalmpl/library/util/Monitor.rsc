@@ -12,6 +12,7 @@
 module util::Monitor
 
 import util::Math;
+import IO;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -42,6 +43,13 @@ java void jobIsCancelled(str label);
 java void jobWarning(str message, loc src);
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+@benefits{
+* job blocks help to avoid repeating the job label all the time
+* job blocks make sure that every job is stoped, no matter the exceptions
+}
+@pitfalls{
+* additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
+}
 void job(str label, void (void (str message, int worked) step) block) {
    try {
      jobStart(label);
@@ -115,7 +123,7 @@ test bool horseRaceTest() {
       progress[h] += advance;
       
       jobStep(labels[h], "Pacing horse <h> with <advance>...", work=advance);
-      // println("Annoying commentator blabla <arbInt(100)>");
+      println("Annoying commentator blabla <arbInt(100)>");
       if (progress[h] >= distance) {
         break race;
       }
