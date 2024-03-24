@@ -128,11 +128,15 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             dt.vis = getVis(current.visibility, privateVis());
             //dt.md5 = md5Hash("<var>");
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-            c.defineInScope(scope, prettyPrintName(var.name), moduleVariableId(), var.name, dt);
+            vname = prettyPrintName(var.name);
+            if(isWildCard(vname)){
+                c.report(error(var, "Cannot declare variable name starting with `_`"));
+            }
+            c.defineInScope(scope, vname, moduleVariableId(), var.name, dt);
             
             if(var is initialized){
                 initial = var.initial;
-                c.require("initialization of `<var.name>`", initial, [initial, varType], makeVarInitRequirement(var));
+                c.require("initialization of `<vname>`", initial, [initial, varType], makeVarInitRequirement(var));
                 collect(initial, c); 
             }
             c.leaveScope(var);
@@ -163,6 +167,9 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     dt.vis = getVis(current.visibility, publicVis());
     dt.md5 = md5Hash("<current>");
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+    if(isWildCard(pname)){
+        c.report(error(name, "Cannot declare annotation name starting with `_`"));
+    }
     c.define(pname, annoId(), name, dt);
     collect(tags, annoType, onType, c); 
 }
@@ -197,6 +204,11 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
    
     signature = decl.signature;
     fname = signature.name;
+   
+    ppfname = prettyPrintName(fnamr);
+    if(isWildCard(ppfname)){
+        c.report(error(fname, "Cannot declare function name starting with `_`"));
+    }
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
     if(ignoreCompiler(tagsMap)) {
@@ -225,83 +237,45 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         collect(decl.tags, decl.signature, c);
         
-      // DefInfo dt = noDefInfo();
-      //  try { // try immediate computation of the function type if all types are already available
-      //      ft = c.getType(decl.signature);
-      //      if(signature.parameters is varArgs) {
-      //              ft.varArgs = true;
-      //       }
-      //           
-      //       if(deprecated) {
-      //          ft.deprecationMessage = deprecationMessage;
-      //       }
-      //       
-      //       if("default" in modifiers){
-      //          ft.isDefault = true;
-      //       }
-      //       
-      //       if("test" in modifiers){
-      //          ft.isTest = true;
-      //          c.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
-      //       }
-      //       
-      //       if(myReturnsViaAllPath){
-      //          ft.returnsViaAllPath = true;
-      //       }
-      //
-      //       if(size(ft.formals) > 0){
-      //          the_formals = getFormals(signature.parameters);
-      //          ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
-      //          if(isConcretePattern(the_formals[0], ft.formals[0])){
-      //              ft.isConcreteArg = true;
-      //              ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
-      //          }
-      //       }
-      //       dt = defType(ft[alabel=unescape("<fname>")]);
-      //
-      //  } catch TypeUnavailable():{
-            //  Delayed computation of the function type if some types are anot yet available
-            dt = defType([signature], AType(Solver s) {
-                 ft = s.getType(signature);
-                
-                 if(signature.parameters is varArgs) {
-                    ft.varArgs = true;
-                 }
-                 
-                 if(deprecated) {
-                    ft.deprecationMessage = deprecationMessage;
-                 }
-                 
-                 if("default" in modifiers){
-                    ft.isDefault = true;
-                 }
-                 
-                 if("test" in modifiers){
-                    ft.isTest = true;
-                    s.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
-                 }
-                 
-                 if(myReturnsViaAllPath){
-                    ft.returnsViaAllPath = true;
-                 }
-          
-                 if(size(ft.formals) > 0){
-                    the_formals = getFormals(signature.parameters);
-                    ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
-                    if(isConcretePattern(the_formals[0], ft.formals[0])){
-                        ft.isConcreteArg = true;
-                        ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
-                    }
-                 }
-                 return ft[alabel=unescape("<fname>")];
-             });
-        //}
+        dt = defType([signature], AType(Solver s) {
+             ft = s.getType(signature);
+            
+             if(signature.parameters is varArgs) {
+                ft.varArgs = true;
+             }
+             
+             if(deprecated) {
+                ft.deprecationMessage = deprecationMessage;
+             }
+             
+             if("default" in modifiers){
+                ft.isDefault = true;
+             }
+             
+             if("test" in modifiers){
+                ft.isTest = true;
+                s.requireEqual(ft.ret, abool(), error(decl, "Test should have return type `bool`, found %t", ft.ret));
+             }
+             
+             if(myReturnsViaAllPath){
+                ft.returnsViaAllPath = true;
+             }
+      
+             if(size(ft.formals) > 0){
+                the_formals = getFormals(signature.parameters);
+                ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
+                if(isConcretePattern(the_formals[0], ft.formals[0])){
+                    ft.isConcreteArg = true;
+                    ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
+                }
+             }
+             return ft[alabel=unescape("<fname>")];
+         });
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target _>;` := decl.body);
         if(!alwaysSucceeds) dt.canFail = true;
         dt.md5 = md5Hash("<parentScope><decl>");
-        //println("<fname>, md5 = <dt.md5>");
        
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
          
@@ -389,33 +363,19 @@ void collect(Signature signature, Collector c){
     
     collect(returnType, parameters, c);
     
-    rel[str,Type] tvbounds = handleTypeVars(signature, c);
-     
-    try {
-        creturnType = c.getType(returnType);
-        cparameters = c.getType(parameters);
-        formalsList = atypeList(elems) := cparameters ? elems : [cparameters];
-        if(str currentModuleName := c.top(key_current_module)){
-            kwformalsList = [kwField(c.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | kwf <- kwFormals];
-            //c.fact(signature, afunc(creturnType, formalsList, kwformalsList));
-            c.fact(signature, updateBounds(afunc(creturnType, formalsList, kwformalsList), minimizeBounds(tvbounds, c)));
-            return;
-        } else {
-            throw "collect Signature: key_current_module not found";
-        }
-        
-    } catch TypeUnavailable(): {
-        c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
-            AType(Solver s){
-                tformals = s.getType(parameters);
-                formalsList = atypeList(elems) := tformals ? elems : [tformals];
-                //return afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s));
-                return updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minimizeBounds(tvbounds, s));
-            });
-     }
+    rel[str,Type] tpbounds = computeTypeParamBounds(signature, c);
+    
+    c.calculate("signature", signature, [returnType, parameters, *exceptions],
+        AType(Solver s){
+            tformals = s.getType(parameters);
+            formalsList = atypeList(elems) := tformals ? elems : [tformals];
+            ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minimizeBounds(tpbounds, s));
+            return ft;
+        });
 }
 
-AType updateBounds(AType t, map[str,AType] bounds){
+@synopsis{Given a type t and a map of named bounds, update the bound in all type parameters occurring in t}
+private AType updateBounds(AType t, map[str,AType] bounds){
     return visit(t) {case aparameter(pname, bnd, alabel=L) : {
                             bnd = bounds[pname] ? avalue();
                             insert isEmpty(L) ? aparameter(pname, bnd) : aparameter(pname, bnd, alabel=L);
@@ -423,51 +383,25 @@ AType updateBounds(AType t, map[str,AType] bounds){
                     };
 }
 
-map[str,AType] minimizeBounds(rel[str,Type] typeVarBounds, Collector c){
-    return propagateParams((tvname : commonLowerBound(typeVarBounds, tvname, c) | tvname <- domain(typeVarBounds)));
+@synopsis{Minimize the bounds of all type parameters in bounds map}
+private map[str,AType] minimizeBounds(rel[str,Type] typeParamBounds, Solver s){
+    return propagateParams((tpname : commonLowerBound(typeParamBounds, tpname, s) | tpname <- domain(typeParamBounds)));
 }
 
-map[str,AType] minimizeBounds(rel[str,Type] typeVarBounds, Solver s){
-    return propagateParams((tvname : commonLowerBound(typeVarBounds, tvname, s) | tvname <- domain(typeVarBounds)));
-}
-
-map[str, AType] propagateParams(map[str,AType] typeVarBounds){
-    AType find(str tvname) = (aparameter(tvname2, _) := typeVarBounds[tvname]) ? typeVarBounds[tvname2] : typeVarBounds[tvname] ;
+@synopsis{Propagate type pamaters in a bounds map}
+private map[str, AType] propagateParams(map[str,AType] typeParamBounds){
+    AType find(str tpname) = (aparameter(tpname2, _) := typeParamBounds[tpname]) ? typeParamBounds[tpname2] : typeParamBounds[tpname] ;
     
-    return (tvname : find(tvname) | tvname <- typeVarBounds);
-    //return (tvname : (aparameter(tvname2, _) := typeVarBounds[tvname]) ? typeVarBounds[tvname2] : typeVarBounds[tvname] | tvname <- typeVarBounds);
+    return (tpname : find(tpname) | tpname <- typeParamBounds);
 }
 
-AType commonLowerBound(rel[str,Type] typeVarBounds, str tvname, Collector c){
-    bounds = typeVarBounds[tvname];
-   
+@synopsis{Compute the common lower bound for type parameter `tpname`}
+private AType commonLowerBound(rel[str,Type] typeParamBounds, str tpname,  Solver s){
+    bounds = typeParamBounds[tpname];
     solve(bounds){
         for(b <- bounds){
-            if(b is variable && TypeVar tv := b.typeVar){
-                bounds += typeVarBounds["<tv.name>"];
-            } else bounds += b;
-        }
-    }
-    minBound = avalue();
-    for(b <- bounds){
-       bt = c.getType(b);
-       if(asubtype(minBound, bt)){
-            ;// keep smallest
-        } else if(asubtype(bt, minBound)){
-            minBound = bt;
-        } else {
-            c.report(error(b, "Bounds %t and %t for type parameter `%v` are not comparable", bt, minBound, tvname));
-        }
-    }
-    return minBound;
-}
-
-AType commonLowerBound(rel[str,Type] typeVarBounds, str tvname,  Solver s){
-    bounds = typeVarBounds[tvname];
-    solve(bounds){
-        for(b <- bounds){
-            if(b is variable && TypeVar tv := b.typeVar){
-                bounds += typeVarBounds["<tv.name>"];
+            if(b is variable && TypeVar tp := b.typeVar){
+                bounds += typeParamBounds["<tp.name>"];
             } else bounds += b;
         }
     }
@@ -479,68 +413,76 @@ AType commonLowerBound(rel[str,Type] typeVarBounds, str tvname,  Solver s){
         } else if(asubtype(bt, minBound)){
             minBound = bt;
         } else {
-            s.report(error(b, "Bounds %t and %t for type parameter `%v` are not comparable", bt, minBound, tvname));
+            s.report(error(b, "Bounds %t and %t for type parameter `&%v` are not comparable", bt, minBound, tpname));
         }
     }
+    //println("commonLowerBound for <tpname> =\> <minBound>");
     return minBound;
 }
 
-AType(Solver) makeBoundDef(str tvname,  rel[str,Type] typeVarBounds)
-    = AType(Solver s) { return aparameter(tvname, commonLowerBound(typeVarBounds, tvname, s)); };
+@synopsis{Create a function for computing the type of type var `tpname`, given a bounds map}
+private AType(Solver) makeBoundDef(str tpname,  rel[str,Type] typeParamBounds)
+    = AType(Solver s) { return aparameter(tpname, commonLowerBound(typeParamBounds, tpname, s)); };
     
-rel[str,Type] handleTypeVars(Signature signature, Collector c){
+@synopsis{Compute a bounds map for a signature}
+private rel[str,Type] computeTypeParamBounds(Signature signature, Collector c){
     formals = getFormals(signature.parameters);
     kwFormals = getKwFormals(signature.parameters);
     returnType  = signature.\type;
    
-    typeVarsInParams = {*getTypeVars(t) | t <- formals + kwFormals};
-    typeVarsInReturn = getTypeVars(returnType);
+    typeParamsInParameters = {*getTypeParams(t) | t <- formals + kwFormals};
+    typeParamsInReturn = getTypeParams(returnType);
     
-    rel[str,Type] typeVarBounds = {};
+    rel[str,Type] typeParamBounds = {};
     
-    for(tv <-  typeVarsInParams + typeVarsInReturn){
-        tvname = "<tv.name>";
-        if(tv is bounded){
-            typeVarBounds += <tvname, tv.bound>;
+    for(tp <-  typeParamsInParameters + typeParamsInReturn){
+        tpname = "<tp.name>";
+        if(tp is bounded){
+            typeParamBounds += <tpname, tp.bound>;
         }
     }
     
-    tvnamesInParams = { "<tv.name>" | tv <- typeVarsInParams };
+    tpnamesInParams = { "<tp.name>" | tp <- typeParamsInParameters };
     
     seenInReturn = {};
-    for(tv <- typeVarsInReturn){
-        if(tv is bounded){
-            for(tvbound <- getTypeVars(tv.bound)){
-                c.use(tvbound.name, {typeVarId()});
+    for(tp <- typeParamsInReturn){
+        if(tp is bounded){
+            for(tpbound <- getTypeParams(tp.bound)){
+                c.use(tpbound.name, {typeVarId()});
             }
         }
-        tvname = "<tv.name>";
-        if(tvname in seenInReturn || tvname in tvnamesInParams){
-            c.use(tv.name, {typeVarId()});
+        tpname = "<tp.name>";
+        if(tpname in seenInReturn || tpname in tpnamesInParams){
+            c.use(tp.name, {typeVarId()});
         } else {
-            seenInReturn += tvname;
-            c.define(tvname, typeVarId(), tv.name, 
-                defType(toList(typeVarBounds[tvname]), makeBoundDef(tvname, typeVarBounds)));
+            seenInReturn += tpname;
+            c.define(tpname, typeVarId(), tp.name, 
+                defType(toList(typeParamBounds[tpname]), makeBoundDef(tpname, typeParamBounds)));
         }
     }
     
     seenInParams = {};
-    for(tv <- typeVarsInParams){
-        if(tv is bounded){
-            for(tvbound <- getTypeVars(tv.bound)){
-                c.use(tvbound.name, {typeVarId()});
+    for(tp <- typeParamsInParameters){
+        if(tp is bounded){
+            for(tpbound <- getTypeParams(tp.bound)){
+                c.use(tpbound.name, {typeVarId()});
             }
         }
-        tvname = "<tv.name>";
-        if(tvname in seenInParams){
-            c.use(tv.name, {typeVarId()});
+        tpname = "<tp.name>";
+        if(tpname in seenInParams){
+            c.use(tp.name, {typeVarId()});
         } else {
-            seenInParams += tvname;
-            c.define(tvname, typeVarId(), tv.name, 
-                defType(toList(typeVarBounds[tvname]), makeBoundDef(tvname, typeVarBounds)));
+            seenInParams += tpname;
+            c.define(tpname, typeVarId(), tp.name, 
+                defType(toList(typeParamBounds[tpname]), makeBoundDef(tpname, typeParamBounds)));
         }
     }
-    return typeVarBounds;
+    missing = seenInReturn - seenInParams;
+    if(!isEmpty(missing)){
+        missing = {"&<m>" | m <- missing };
+        c.report(error(signature, "Type parameter(s) %v in return type of function %q not bound by its formal parameters", missing, signature.name));
+    }
+    return typeParamBounds;
 }
 
 void collect(Parameters parameters, Collector c){
@@ -558,34 +500,21 @@ void collect(Parameters parameters, Collector c){
             c.fact(parameters, atypeList([]));
        } else {
             scope = c.getScope();
-            //try {
-            //    formalTypes = [ c.getType(f) | f <- formals ];
-            //    
-            //    
-            //    int last = size(formalTypes) -1;
-            //    if(parameters is varArgs){
-            //        formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
-            //    }
-            //    c.fact(parameters, atypeList(formalTypes));
-            //    for(int i <- index(formals)){
-            //        checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
-            //    }
-            //} catch TypeUnavailable():{
-                c.calculate("formals", parameters, [],
-                    AType(Solver s) { 
-                        s.push(inFormals, true);
-                            formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
-                        s.pop(inFormals);
-                        int last = size(formalTypes) -1;
-                        if(parameters is varArgs){
-                            formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
-                        }
-                        for(int i <- index(formals)){
-                            checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
-                        }
-                        return atypeList(formalTypes);
-                    }); 
-           //}
+            
+            c.calculate("formals", parameters, [],
+                AType(Solver s) { 
+                    s.push(inFormals, true);
+                        formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
+                    s.pop(inFormals);
+                    int last = size(formalTypes) -1;
+                    if(parameters is varArgs){
+                        formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
+                    }
+                    for(int i <- index(formals)){
+                        checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
+                    }
+                    return atypeList(formalTypes);  //TODO: what happened to the kw parameters in this type?
+                });
        }
        collect(kwFormals, c);
     endPatternScope(c);
@@ -601,24 +530,35 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
         returnRequirement(returnExpr, returnAType, s);
     };
 
-void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){   
+void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){  
     returnExprType = s.getType(returnExpr);
-    allTypeParametersInReturnType = { unsetRec(p, "alabel") | /p:aparameter(_,_) := declaredReturnType };
-    allTypeParametersInExpr = { unsetRec(p, "alabel") | /Expression e := returnExpr, /p:aparameter(_,_) := s.getType(e) };
-    missingTypeParameters = allTypeParametersInReturnType - allTypeParametersInExpr;
-   
-    if(!isEmpty(missingTypeParameters)){
-        s.report(error(returnExpr, "Return expression does not bind %v in return type", missingTypeParameters));
+
+    if(s.subtype(returnExprType, declaredReturnType)){
+        if(p:/aparameter(_,_) := declaredReturnType){
+            // Return type contains type parameters
+            // Find out how the type parameters in the return type are bound
+            Bindings bindings = ();
+            try   bindings = matchRascalTypeParams(declaredReturnType, returnExprType, bindings);
+            catch invalidMatch(str reason):
+                s.report(error(returnExpr, reason));
+                
+            // If some type parameter is not bound to void, an extra check is neccessary
+            // Otherwise, the return type will always be valid and no more checks are needed
+            if({avoid()} !:= range(bindings)){  
+                // Some type parameters have been bound to a non-void type.
+                
+                // Special case: if the return type is a single parameter with bound num, this is ok since
+                // an int, real or rat return value is acceptable.
+                if(aparameter(_,bnd) := declaredReturnType && anum() := bnd) return;
+                
+                // In the general case, the declared return type should also be a subtype of the actually returned type
+                s.requireTrue(s.subtype(declaredReturnType, returnExprType),
+                    error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType));  
+            }
+        } 
+    } else {
+        s.report(error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType));
     }
-   
-    Bindings bindings = ();
-    try   bindings = matchRascalTypeParams(declaredReturnType, returnExprType, bindings);
-    catch invalidMatch(str reason):
-          s.report(error(returnExpr, reason));
-   
-    s.requireTrue(s.equal(returnExprType, avoid()) ? s.equal(declaredReturnType, avoid()) 
-                                                   : s.subtype(returnExprType, declaredReturnType), 
-                  error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType));  
  }
 
 // ---- return statement (closely interacts with function declaration) --------
@@ -648,6 +588,9 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
+    if(isWildCard(aliasName)){
+        c.report(error(name, "Cannot declare alias name starting with `_`"));
+    }
     
     c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<current>")]);
     c.enterScope(current);
@@ -663,27 +606,31 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
+    
+    if(isWildCard(aliasName)){
+        c.report(error(name, "Cannot declare alias name starting with `_`"));
+    }
    
-    typeVars  = for(tp <- parameters){
+    typeParams  = for(tp <- parameters){
         if(!(tp has typeVar)) c.report(error(tp, "Only type parameter allowed"));
         append tp.typeVar;
     }
     
-    for(tv <- typeVars){
-        c.define("<tv.name>", typeVarId(), tv.name, defType(tv));
+    for(tp <- typeParams){
+        c.define("<tp.name>", typeVarId(), tp.name, defType(tp));
     }
     
-    c.define(aliasName, aliasId(), name, defType(typeVars + base, AType(Solver s){ 
+    c.define(aliasName, aliasId(), name, defType(typeParams + base, AType(Solver s){ 
         bindings = ();
-        params = for(int i <- index(typeVars)){
-            ptype = s.getType(typeVars[i]);
+        params = for(int i <- index(typeParams)){
+            ptype = s.getType(typeParams[i]);
             if(!isRascalTypeParam(ptype)){
-                  s.report(error(typeVars[i], "Only type parameter allowed, found %t", ptype));
+                  s.report(error(typeParams[i], "Only type parameter allowed, found %t", ptype));
             }
             append ptype; //unset(ptype, "alabel"); // TODO: Erase alabels to enable later subset check
         }
         
         return aalias(aliasName, params, s.getType(base));
     })[md5 = md5Hash("<current>")]);
-    collect([tags] + typeVars + base, c);
+    collect([tags] + typeParams + base, c);
 } 
