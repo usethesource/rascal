@@ -311,17 +311,17 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         writer.println(("[WARNING] " + src + ": " + message));
     }
 
-    /**
-     * Here we make sure the progress bars are gone just before
-     * someone wants to print in the console. When the printing
-     * is ready, we simply add our own progress bars again.
-     */
-    @Override
-    public void write(byte[] b) throws IOException {
-        eraseBars();
-        super.write(b);
-        printBars();
-    }
+    // /**
+    //  * Here we make sure the progress bars are gone just before
+    //  * someone wants to print in the console. When the printing
+    //  * is ready, we simply add our own progress bars again.
+    //  */
+    // @Override
+    // public void write(byte[] b) throws IOException {
+    //     eraseBars();
+    //     super.write(b);
+    //     printBars();
+    // }
 
     /**
      * Here we make sure the progress bars are gone just before
@@ -330,22 +330,27 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        eraseBars();
-        super.write(b, off, len);
-        printBars();
+        if (bars.size() > 0) {
+            eraseBars();
+            super.write(b, off, len);
+            printBars();
+        }
+        else {
+            super.write(b, off, len);
+        }
     }
 
-    /**
-     * Here we make sure the progress bars are gone just before
-     * someone wants to print in the console. When the printing
-     * is ready, we simply add our own progress bars again.
-     */
-    @Override
-    public void write(int b) throws IOException {
-        eraseBars();
-        super.write(b);
-        printBars();
-    }
+    // /**
+    //  * Here we make sure the progress bars are gone just before
+    //  * someone wants to print in the console. When the printing
+    //  * is ready, we simply add our own progress bars again.
+    //  */
+    // @Override
+    // public void write(int b) throws IOException {
+    //     eraseBars();
+    //     super.write(b);
+    //     printBars();
+    // }
 
     @Override
     public void endAllJobs() {
