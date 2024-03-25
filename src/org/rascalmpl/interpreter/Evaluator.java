@@ -809,7 +809,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
 
             Evaluator self = this;
-            self.monitor.jobStart("loading");
+
             synchronized (self) {
                 if (parserGenerator == null) {
                     parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
@@ -1131,7 +1131,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
-            monitor.jobStart("loading", 1);
             ISourceLocation uri = URIUtil.rootLocation("import");
             org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
         }

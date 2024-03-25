@@ -64,8 +64,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private final String name;
         private int max;
         private int current = 0;
-        private int previousWidth=0;
-        private int doneWidth=0;
+        private int previousWidth = 0;
+        private int doneWidth = 0;
         private int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
@@ -104,6 +104,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         int newWidth() {
+            current = Math.min(max, current); // for robustness sake
             var partDone = (current * 1.0) / (max * 1.0);
             return (int) Math.floor(barWidth * partDone);
         }

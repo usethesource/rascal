@@ -293,7 +293,7 @@ public abstract class Import {
 	
 	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
 	    GlobalEnvironment heap = eval.getHeap();
-      eval.getMonitor().jobStart("loading");
+     
 
 	    ModuleEnvironment env = heap.getModule(name);
 	    if (env == null) {
@@ -301,8 +301,11 @@ public abstract class Import {
 	        heap.addModule(env);
 	    }
 
+      ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
+
 	    try {
-	        ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
+          eval.getMonitor().jobStart("loading " + URIUtil.getLocationName(uri), 1); 
+
 	        if (uri == null) {
 	            throw new ModuleImport(name, "can not find in search path", x);
 	        }
@@ -321,6 +324,7 @@ public abstract class Import {
 
 	            module.interpret(eval);
 
+              eval.jobStep("loading " + URIUtil.getLocationName(uri), URIUtil.getLocationName(uri) + " complete", 1);
 	            return env;
 	        }
 	    }
@@ -335,11 +339,15 @@ public abstract class Import {
 	    catch (Throw  e) {
 	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
 	        throw e;
-	    } catch (Throwable e) {
+	    } 
+      catch (Throwable e) {
 	        handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
 	        e.printStackTrace();
 	        throw new ModuleImport(name, e.getMessage(), x);
 	    } 
+      finally {
+        eval.getMonitor().jobEnd("loading " + URIUtil.getLocationName(uri), true);
+      }
 
 	    heap.removeModule(env);
 	    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
@@ -395,15 +403,18 @@ private static boolean isDeprecated(Module preModule){
       eval.__setInterrupt(false);
       IActionExecutor<ITree> actions = new NoActionExecutor();
       ITree tree;
+      String job = "loading " + URIUtil.getLocationName(location);
 
-      eval.jobStep("loading", "parsing " + URIUtil.getLocationName(location));
-      
+      eval.jobTodo(job, 1);
+         
       try {
         tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
       } 
       catch (ParseError e) {
         throw new SyntaxError("module", IRascalValueFactory.getInstance().sourceLocation(location, e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()));
       }
+
+      eval.jobStep(job, "parsed " + URIUtil.getLocationName(location), 1);
 
       if (TreeAdapter.isAmb(tree)) {
           // Ambiguity is dealt with elsewhere
@@ -413,8 +424,6 @@ private static boolean isDeprecated(Module preModule){
       ITree top = TreeAdapter.getStartTop(tree);
 
       String name = Modules.getName(top);
-
-      eval.jobStep("loading", "declaring " + name);
 
       // create the current module if it does not exist yet
       GlobalEnvironment heap = eval.getHeap();
@@ -438,21 +447,28 @@ private static boolean isDeprecated(Module preModule){
           ISet rules = Modules.getSyntax(top);
           for (IValue rule : rules) {
               evalImport(eval, (IConstructor) rule);
+              eval.getMonitor().jobStep(job, job, 1);
           }
 
           ISet imports = Modules.getImports(top);
+          eval.getMonitor().jobTodo(job, imports.size());
           for (IValue mod : imports) {
               evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(job, job, 1);
           }
 
           ISet extend = Modules.getExtends(top);
+          eval.getMonitor().jobTodo(job, extend.size());
           for (IValue mod : extend) {
               evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(job, job, 1);
           }
 
           ISet externals = Modules.getExternals(top);
+          eval.getMonitor().jobTodo(job, externals.size());
           for (IValue mod : externals) {
               evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(job, job, 1);
           }
       }
       finally {
@@ -487,7 +503,9 @@ private static boolean isDeprecated(Module preModule){
               parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
             }
         
+            eval.getMonitor().jobTodo(job, 1);
             result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
+            eval.getMonitor().jobStep(job, "parsed concrete fragments", 1);
         }
       }
       catch (URISyntaxException | ClassNotFoundException | IOException e) {

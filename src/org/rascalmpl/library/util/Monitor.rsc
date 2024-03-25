@@ -43,66 +43,102 @@ java void jobIsCancelled(str label);
 java void jobWarning(str message, loc src);
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+@description{
+The convenience function that is passed to the block can be used inside the block to register steps
+with a parameterized workload and the same label as the job name.
+}
 @benefits{
-* job blocks help to avoid repeating the job label all the time
-* job blocks make sure that every job is stoped, no matter the exceptions
+* the block body does not need to repeat the `name` parameter when ending the job or making steps
+* the job is always properly ended, even when exceptions are thrown
 }
 @pitfalls{
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
 void job(str label, void (void (str message, int worked) step) block) {
-   try {
-     jobStart(label);
-     block((str message, int worked) { jobStep(label, message, work=worked);});
-   }
-   catch x: {
+  try {
+    jobStart(label);
+    block((str message, int worked) { 
+      jobStep(label, message, work=worked);
+    });
+  }
+  catch x: {
      throw x;
-   }
-   finally {
-     jobEnd(label);
-   }
+  }
+  finally {
+    jobEnd(label);
+  }
 }
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+@description{
+The convenience function that is passed to the block can be used inside the block to register steps
+with a parameterized workload and the same label as the job name.
+}
+@benefits{
+* the block body does not need to repeat the `name` parameter when ending the job or making steps
+* the job is always properly ended, even when exceptions are thrown
+}
+@pitfalls{
+* additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
+}
 void job(str label, void (void (int worked) step) block) {
-   try {
-     jobStart(label);
-     block((int worked) { jobStep(label, label, work=worked);});
-   }
-   catch x: {
-     throw x;
-   }
-   finally {
-     jobEnd(label);
-   }
+  try {
+    jobStart(label);
+    block((int worked) { 
+      jobStep(label, label, work=worked);
+    });
+  }
+  catch x: {
+    throw x;
+  }
+  finally {
+    jobEnd(label);
+  }
 }
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+@description{
+The convenience function that is passed to the block can be used inside the block to register steps
+with workload `1` and the same label as the job name.
+}
+@benefits{
+* the block body does not need to repeat the `name` parameter when ending the job or making steps
+* the job is always properly ended, even when exceptions are thrown
+}
+@pitfalls{
+* additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
+}
 void job(str label, void (void () step) block) {
-   try {
-     jobStart(label);
-     block(() { jobStep(label, label, work=1);});
-   }
-   catch x: {
-     throw x;
-   }
-   finally {
-     jobEnd(label);
-   }
+  try {
+    jobStart(label);
+    block(() {
+      jobStep(label, label, work=1);
+    });
+  }
+  catch x: {
+    throw x;
+  }
+  finally {
+    jobEnd(label);
+  }
 }
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
+@benefits{
+* the block code does not need to remember to end the job with the same job name.
+* the job is always properly ended, even when exceptions are thrown
+}
 void job(str label, void () block) {
-   try {
-     jobStart(label);
-     block();
-   }
-   catch x: {
-     throw x;
-   }
-   finally {
-     jobEnd(label);
-   }
+  try {
+    jobStart(label);
+    block();
+  }
+  catch x: {
+    throw x;
+  }
+  finally {
+    jobEnd(label);
+  }
 }
 
 @synopsis{Puts the monitor API to work by racing 5 horses against each other.}
@@ -135,7 +171,7 @@ test bool horseRaceTest() {
   return true;
 }
 
-test void simpleAsyncPrintTest() {
+test bool simpleAsyncPrintTest() {
   jobStart("job", totalWork=3);
   println("a");
   jobStep("job", "step 1", work=1);
@@ -145,4 +181,5 @@ test void simpleAsyncPrintTest() {
   jobStep("job", "step 3", work=1);
   println("d");
   jobEnd("job");
+  return true;
 }
