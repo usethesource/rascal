@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -59,8 +60,12 @@ public abstract class Module {
 			  List<Toplevel> decls = this.getBody().getToplevels();
 			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
+			  String jobName = URIUtil.getLocationName(env.getLocation());
+			  eval.getMonitor().jobTodo(jobName, decls.size());
+
 			  for (Toplevel l : decls) {
 			    l.interpret(eval);
+				eval.getMonitor().jobStep(jobName, "toplevel", 1);
 			  }
 			}
 			catch (RuntimeException e) {
