@@ -123,7 +123,7 @@ test bool horseRaceTest() {
       progress[h] += advance;
       
       jobStep(labels[h], "Pacing horse <h> with <advance>...", work=advance);
-      println("Annoying commentator blabla <arbInt(100)>");
+      
       if (progress[h] >= distance) {
         break race;
       }
@@ -133,4 +133,16 @@ test bool horseRaceTest() {
     jobEnd(labels[h]);
 
   return true;
+}
+
+test void simpleAsyncPrintTest() {
+  jobStart("job", totalWork=3);
+  println("a");
+  jobStep("job", "step 1", work=1);
+  println("b");
+  jobStep("job", "step 2", work=1);
+  println("c");
+  jobStep("job", "step 3", work=1);
+  println("d");
+  jobEnd("job");
 }
