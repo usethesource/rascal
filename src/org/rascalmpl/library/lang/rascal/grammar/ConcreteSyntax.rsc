@@ -65,7 +65,7 @@ private Symbol denormalize(Symbol s) = visit (s) {
 };
 
 private Symbol removeConditionals(Symbol sym) = visit(sym) {
-  case conditional(s, _) => s
+  case conditional(Symbol s, _) => s
 };
 
 @synopsis{This is needed such that list variables can be repeatedly used as elements of the same list}
