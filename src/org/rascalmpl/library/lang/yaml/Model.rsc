@@ -65,7 +65,7 @@ public Node BAD_YAML =
       scalar("unsupported")[\tag=#node],
       reference(anchor=4),
       sequence([])[anchor=4]
-   ])[@anchor=2]))[anchor=2];
+   ])[anchor=2]))[anchor=2];
    
 public test bool testLoadDump() {
   Node n = loadYAML(TEST_YAML);
