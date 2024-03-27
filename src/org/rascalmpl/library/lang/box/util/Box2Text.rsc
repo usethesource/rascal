@@ -91,61 +91,34 @@ map[Box, text] box2textmap=();
 
 data Box(list[str] format=[]);
 
-text vv(text a, text b) {
-// if (!isEmpty(a) && isEmpty(a[0])) return b;
-// if (!isEmpty(b) && isEmpty(b[0])) return a;
-return a+b;}
+@synopsis{simple vertical concatenation (every list element is a line)}
+text vv(text a, text b) = [*a, *b];
 
-str blank(str a) {
-       return right("", width(a));
-       }
+str blank(str a) = right("", width(a));
 
-/* Computes a white line with the length of the last line of a */
-text wd(text a) {
-   if (isEmpty(a)) return [];
-   if (size(a)==1) return [blank(a[0])];
-   return wd(tail(a));
-}
+@synopsis{Computes a white line with the length of the last line of a}
+text wd([])             = [];
+text wd([*_, str x])    = wd([x]);
 
-/* Computes the length of unescaped string s */
-int width(str s) {
-     s = replaceAll(s,"\r...",""); 
-     int b = size(s); 
-     return b;
-     }
+@synopsis{Computes the length of unescaped string s}
+int width(str s) = size(s); // replaceAll(s,"\r...",""); ??
+     
+@synopsis{Computes the maximum width of text t}
+int twidth(text t) = max([width(line) | line <- t]);
+     
+@synopsis{Computes the length of the last line of t}
+int hwidth([])             = 0;
+int hwidth([*_, str last]) = width(last);
 
+@synopsis{Prepends str a before text b, all lines of b will be shifted}
+text bar(str a, [])                = [a];
+text bar(str a, [str bh, *str bt]) = vv([a+bh], prepend(blank(a), bt));
 
-/* Computes the maximum width of text t */
-int twidth(text t) {
-     if (isEmpty(t)) return 0;
-     return max([width(r)|str r <-t]);
-     }
-
-/* Computes the length of the last line of t */
-int hwidth(text t) {
-     if (isEmpty(t)) return 0;
-     return width(t[size(t)-1]);
-     }
-
-/* Prepends str a before text b, all lines of b will be shifted  */
-text bar(str a, text b) {
-    if (isEmpty(b)) return [a];
-    return  vv ([a+b[0]], prepend(blank(a), tail(b)));
-   }
-
-/* produce text consisting of a white line of length  n */
-text hskip(int n) {
-     return [right("", n)];
-    }
-
-/* produces a text consisting of n white lines at length 0 */
-text vskip(int n) {
-    text r = [];
-    // println("OK<n>");
-   for (int _ <-[0, 1..n])  r=vv(r,[""]);
-   // println(size(r));
-   return r;
-}
+@synopsis{Produce text consisting of a white line of length  n}
+text hskip(int n) = [right("", n)];
+    
+@synopsis{Produces text consisting of n white lines at length 0}
+text vskip(int n) = ([] | vv(it, [""]) | _ <- [0..n]);
 
 
 bool isBlank(str a) {return a==blank(a);}
@@ -154,21 +127,17 @@ text prepend(str a, text b) {
    return [(a+c)|str c <- b];
 }
 
-text hh(text a, text b) {
-          if (isEmpty(a)) return b;
-          if (isEmpty(b))  return a;
-          if (size(a)==1) return bar(a[0], b);
-          str last = a[size(a)-1];
-          list[str] first =  slice(a, 0, size(a)-1);
-          return vv(first, bar(last, b));
-   }
+text hh([], text b)  = b;
+text hh(text a, [])  = a;
+text hh([a], text b) = bar(a, b);
 
-text _hh(text a, text b) {
-     if (isEmpty(a)) return [];
-     return hh(a, b);
-}
+default text hh(text a, text b) = vv(a[0..-1], bar(a[-1], b));
+        
 
-text _vv(text a, text b) {
+text lhh([], text _) = [];
+default text lhh(a, b) = hh(a, b);
+
+text lvv(text a, text b) {
      if (isEmpty(a)) return [];
      return vv(a, b);
 }
@@ -290,7 +259,7 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options opts, int m) {
            return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
           }
       if (n <= s) {  // Box A fits in current line
-           return HVHV(hh(_hh(T, hskip(h)), a), s-n, B, opts, m, H([]));
+           return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H([]));
            }
       else {
         n -= h; // n == width(a)
