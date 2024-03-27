@@ -71,7 +71,7 @@ public text box2html(Box b) {
     }
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
- public text box2text(Box b) {
+public text box2text(Box b) {
     text q = [];
     if (box2textmap[b]?) q = box2textmap[b];
     else {

@@ -34,8 +34,8 @@ private data RuntimeException = none();
     Symbol unlabel(label(_, Symbol sym)) = sym;
     default Symbol unlabel(Symbol sym)  = sym;
 
-    if (expected.symbol == \node()) {
-        return v;
+    if (expected.symbol == \node(), &T vv := v) {
+        return vv;
     }
     
   	if (def:adt(_, _) := expected.symbol, grammar := expected.definitions) {
