@@ -22,7 +22,7 @@ data Box(int hs=-1, int vs=-1, int is=-1, int ts=-1, int width=-1, int height=-1
     | L(str l)
     | KW(Box kw)
     | VAR(Box  var)
-    | NM(Box  nm)
+    | NM(Box nm)
     | STRING(Box  string)
     | COMM(Box  comm)
     | MATH(Box math)

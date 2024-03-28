@@ -18,74 +18,93 @@ import String;
 import IO;
 import lang::box::util::Box;
 
-int maxWidth = 80;
-int hv2h_crit = 70;
-
-alias options = map [str, int];
-options  oDefault = ("h":1,"v":0, "i":2, "t":10);
-
-@synopsis{Print boxes}    
-public void fprint(Box b) {
-  print(format(b));
+@synopsis{Global options for a single formatting run.}
+@description{
+* `h` is the default separation between every horizontal element in H, HV and HOV boxes
+* `v` is the default separation between vertical elements in V, HV and HOV boxes
+* `i` is the default (additional) indentation for indented boxes
+* (((TODO))) `t` is the next tab stop (? check this)
+* `maxWidth` is the number of columns (characters) of a single line on screen or on paper
+* `hv2hCrit` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
+between horizontal and vertical for HOV boxes.
 }
-
-@synopsis{Print boxes followed by newline}
-public void fprintln(Box b) {
-  println(format(b));
+@benefits{
+* if any of these options, with the same name and intent, are set on a Box constructor, the latter take precedence.
 }
-
-@synopsis{Converts boxes into a string} 
-public str format(Box b) {
-  box2textmap=();
-  text t = box2text(b);
-  return "<for (l <- t) {><l>\n<}>";
+@pitfalls{
+* default options are also set on the Box constructors; they are not equal to these and set to `-1` to avoid
+any confusion. 
 }
+data Options = options(
+    int h = 1, 
+    int v = 0, 
+    int i = 2, 
+    int t = 10, 
+    int maxWidth=80, 
+    int hv2hCrit=70
+);
 
+@synopsis{Option values for the highlighting markup features of the FONT and KW boxes, etc.}
+data Markup 
+    = html()
+    | ansi()
+    | none()
+    ;
 
-@synopsis{Converts boxes into latex}       
-public text box2latex(Box b) {
-    // println("Start box2latex");
-    text q = [];
-    if (box2textmap[b]?) q = box2textmap[b];
-    else {
-        q = box2data(b);
-        box2textmap+=(b:q);
-        }
-    text t = readFileLines(|std:///lang/box/util/Start.tex|)+text2latex(q)+readFileLines(|std:///lang/box/util/End.tex|);    
-    // println("End box2latex");
-    return t;
-    }
+@synopsis{Converts boxes into a string by finding an "optional" two-dimensional layout}
+@description{
+* This algorithm never changes the left-to-right order of the Boxes constituents, such that
+syntactical correctness is maintained
+* This algorithm tries not never over-run the maxWidth parameter, but if it must to maintain 
+text order, and the specified nesting of boxes, it will anyway. For example, if a table column doesn't
+fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
+* Separator options like `i`, `h` and `v` options are _hard_ constraints, they may lead to overriding `maxWidth`.
+* H, V and I boxes represent hard constraints too.
+* HV and HOV are the soft constraints that allow for better solutions, so use them where you can to allow for 
+flexible layout that can handle deeply nested expressions and statements.
+} 
+public str format(Box b, Options opts = options())
+    = "<for (line <- box2text(b, opts=opts)) {><line>
+      '<}>";
 
-@synopsis{Converts boxes into html}       
-public text box2html(Box b) {
-    //println("Start box2html");
-    text q = [];
-    if (box2textmap[b]?) q = box2textmap[b];
-    else {
-        q = box2data(b);
-        box2textmap+=(b:q);
-        }
-    text t = readFileLines(|std:///lang/box/util/Start.html|)+text2html(q)+readFileLines(|std:///lang/box/util/End.html|);    
-    //println("End box2html");
-    return t;
-    }
+@synopsis{Converts boxes into latex}   
+// TODO: avoid file IO and read directly from constants    
+public text box2latex(Box b, Options opts=options()) 
+    = [
+    *readFileLines(|std:///lang/box/util/Start.tex|),
+    *text2latex(box2text(b, opts=opts)),
+    *readFileLines(|std:///lang/box/util/End.tex|)
+    ];
+
+@synopsis{Converts Box to HTML}
+@description{
+This produces a <code>...</code> markup that wraps the formatted
+output of ((box2text)). Next to this all the FONT boxes are
+translated to their HTML markup representation to provide the
+proper highlighting.
+}       
+public text box2html(Box b, Options opts=options()) 
+    = [
+    *readFileLines(|std:///lang/box/util/Start.html|),
+    *text2html(q, opts),
+    *readFileLines(|std:///lang/box/util/End.html|)
+]   ;
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
-public text box2text(Box b) {
+public text box2text(Box b, Options opts=options()) {
     text q = [];
-    if (box2textmap[b]?) q = box2textmap[b];
+    if (box2textmap[b]?) {
+        q = box2textmap[b];
+    }
     else {
-        q = box2data(b);
+        q = box2data(b, opts);
         box2textmap+=(b:q);
-        }
+    }
     text t = text2txt(q);
     return t;
-    }
+}
     
-//-------------------------------------------------------------------------------------------------
-
-alias   foptions = map[str, list[str]];
-
+alias   fOptions = map[str, list[str]];
 
 map[Box, text] box2textmap=();
 
@@ -151,324 +170,300 @@ default text rvv(text a, text b) = vv(a,b);
     
 text LL(str s ) = [s]; 
    
-/*
-text HH(list[Box] b, Box c, options opts, int m) {
-    if (isEmpty(b)) return [];
-    int h = opts["h"];
-    text t = O(b[0], H([]), opts, m);
-    int s = hwidth(t);
-    return hh(t, rhh(hskip(h), HH(tail(b), H([]), opts, m-s-h)));
-   }
-*/
-   
-text HH([], Box _, options opts, int m) = [];
+text HH([], Box _, Options opts, int m) = [];
 
-text HH(list[Box] b, Box _, options opts, int m) {
-    int h = opts["h"];
+text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     text r = [];
     b = reverse(b);
     for (a <- b) {
         text t = O(a, H([]), opts, m);
         int s = hwidth(t); 
-        r = hh(t, rhh(hskip(h), r));
-        m  = m - s - h;
+        r = hh(t, rhh(hskip(opts.h), r));
+        m  = m - s - opts.h;
     }
    
     return r;
 }
 
-text VV(list[Box] b, Box c, options opts, int m) {
+text VV(list[Box] b, Box c, Options opts, int m) {
     if (isEmpty(b)) return [];
-    int v = opts["v"];
     text r = [];
     b = reverse(b);
     for (a<-b) {
         if (V(_)!:=c || L("")!:=a)
             {
             text t = O(a, V([]), opts, m);
-            r = vv(t, rvv(vskip(v), r));
+            r = vv(t, rvv(vskip(opts.v), r));
             }
     }
     return r;
    }
 
-/*
-text VV(list[Box] b, Box c, options opts, int m) {
-    if (isEmpty(b)) return [];
-    int v = opts["v"];
-    return vv(O(b[0], c , opts, m), rvv(vskip(v), VV(tail(b), V([]), opts, m)));
-   }
-*/
+text II([], Box c, Options opts, int m) = [];
 
-text II(list[Box] b, Box c, options opts, int m) {
- if (isEmpty(b)) return [];
-    int i = opts["i"];
-    switch(c) {
-        case  H(list[Box] _):{
-            return HH(b, c, opts, m);
-        }
-       case  V(list[Box] _):{
-          int m1 = m-i;
-           text t = O(b[0], c, opts, m1);
-           int s = hwidth(t);
-           text r =  rhh(hskip(i),  hh(t, II(tail(b), c, opts, m1-s)));
-           return r;
-        }
-     }
-     return [];
+text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
+
+text II(list[Box] b:[_,*t], c:V(list[Box] _), Options opts, int m) {
+    text t = O(b[0], c, opts, m - opts.i);
+    return rhh(hskip(opts.i),  hh(t, II(t, c, opts, m - opts.i - hwidth(t))));
 }
 
-text WDWD(list[Box] b, Box c ,options opts, int m) {
+text WDWD(list[Box] b, Box c , Options opts, int m) {
     if (isEmpty(b)) return [];
-    int h= b[0].hs?opts["h"];
+    int h  = b[0].hs?opts.h;
     text t = O(b[0], c, opts, m);
-    int s = hwidth(t);
-    return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m-s-h)));
+    int s  = hwidth(t);
+    return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
+}
+
+text ifHOV(text t, Box b,  Box c, Options opts, int m) {
+    if (isEmpty(t)) {
+        return [];
     }
-
-
-
-text ifHOV(text t, Box b,  Box c, options opts, int m) {
-     if (isEmpty(t)) return [];
-     if (size(t)==1) {
-          if (width(t[0])<=m)  return t;
-          else 
+    if (size(t)==1) {
+        if (width(t[0])<=m) {
+            return t;
+        }
+        else {
            return O(b, c, opts, m);
-           }
-      return O(b, c, opts, m);
-     }
+        }
+    }
+    return O(b, c, opts, m);
+}
 
- text HOVHOV(list[Box] b, Box c, options opts, int m) {
-      return ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
-     }
+text HOVHOV(list[Box] b, Box c, Options opts, int m) {
+    return ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
+}
 
 
 /* Gets complicated HVHV */
-text HVHV(text T, int s, text a, Box A, list[Box] B, options opts, int m) {
-      int h= opts["h"];
-      int v = opts["v"];
-      int i= opts["i"];
-      int n = h + hwidth(a);
-      if (size(a)>1) { // Multiple lines 
-           text T1 = O(A, V([]), opts, m-i);
-           return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
-          }
-      if (n <= s) {  // Box A fits in current line
-           return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H([]));
-           }
-      else {
+text HVHV(text T, int s, text a, Box A, list[Box] B, Options opts, int m) {
+    int h= opts.h;
+    int v = opts.v;
+    int i= opts.i;
+    int n = h + hwidth(a);
+    if (size(a)>1) { // Multiple lines 
+        text T1 = O(A, V([]), opts, m-i);
+        return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
+    }
+    if (n <= s) {  // Box A fits in current line
+        return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H([]));
+    }
+    else {
         n -= h; // n == width(a)
-         if  ((i+n)<m) { // Fits in the next line, not in current line
-                 text T1 =O(A, V([]), opts, m-i);
-                 return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
-                 }
-         else { // Doesn't fit in both lines
-                 text T1 =O(A, V([]), opts, m-i);
-                 return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
-                 }
-          }
+        if  ((i+n)<m) { // Fits in the next line, not in current line
+            text T1 =O(A, V([]), opts, m-i);
+            return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
+        }
+        else { // Doesn't fit in both lines
+            text T1 =O(A, V([]), opts, m-i);
+            return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
+        }
+    }
 }
 
-text HVHV(text T, int s, list[Box] b, options opts,  int m, Box c) {
-      if (isEmpty(b))  return T;
-      text T1 = O(b[0], c  , opts, s);  // Was H([])
-      return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
-      }
+text HVHV(text T, int s, list[Box] b, Options opts,  int m, Box c) {
+    if (isEmpty(b)) {
+        return T;
+    }
+    text T1 = O(b[0], c  , opts, s);  // Was H([])
+    return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
+}
 
- text HVHV(list[Box] b, Box _, options opts, int m) {
-       // println("HVHV:<h>");
-       if (isEmpty(b))  return [];
-       text T =  O(b[0], V([]), opts, m);  // Was H([])
-       if (size(b)==1) return T;
-      return HVHV(T, m-hwidth(T), tail(b), opts, m, H([]));
-      }
+text HVHV(list[Box] b, Box _, Options opts, int m) {
+    if (isEmpty(b)) {
+        return [];
+    }
+    text T =  O(b[0], V([]), opts, m);  // Was H([])
+    if (size(b)==1) {
+        return T;
+    }
+    return HVHV(T, m - hwidth(T), tail(b), opts, m, H([]));
+}
 
+// TODO: use real ANSI escape codes here instead?
 text font(text t, str tg) {
-   if (isEmpty(t)) return t;
-   str h = "\r{<tg>"+t[0];
-   int n = size(t)-1;
-   if (n==0) {
-       h += "\r}12";
-       return [h];
-       }
-   text r = [];
-   r+=h;
-   for (int i <-[1, 2..n]) {
-       r+=t[i];
-      }
-   r+=(t[n]+"\r}<tg>");
-   return r;
-  }
-
-text QQ(Box b, Box c, options opts, foptions f, int m) {
-      // println("QQ:<getName(b)> <opts>");
-      switch(b) {
-         case L(str s): {return LL(s);}
-         case  H(list[Box] bl): {return HH(bl, c, opts, m); }
-         case  V(list[Box] bl): {return VV(bl, c, opts, m);}
-         case  I(list[Box] bl):{return II(bl, c, opts, m);}
-         case  WD(list[Box] bl):{return WDWD(bl, c, opts, m);}
-         case  HOV(list[Box] bl):{return HOVHOV(bl, c, opts, m);}
-         case  HV(list[Box] bl):{return  HVHV(bl, c, opts, m);}
-         case  SPACE(int n):{return  hskip(n);}
-         case  A(list[Box] bl):{return AA(bl, c, opts, f, m);}
-         //case  R(list[Box] bl):{return RR(bl, c, opts, m);} // TODO: Return type should be subtype of `list[str]`, found `list[list[Box]]`
-         case KW(Box a):{return font(O(a, c, opts, m),"KW");}
-         case VAR(Box a):{return  font(O( a, c, opts, m),"VR");}
-         case NM(Box a):{return font(O( a, c, opts, m),"NM");}
-         case STRING(Box a):{return font(O( a, c, opts, m),"SG");}
-         case COMM(Box a):{return font(O( a, c, opts, m),"CT");}
-         case MATH(Box a):{return font(O( a, c, opts, m),"MT");}
-         case ESC(Box a):{return font(O( a, c, opts, m),"SC");}
-     }
-return [];
+    if (isEmpty(t)) return t;
+    str h = "\r{<tg>"+t[0];
+    int n = size(t)-1;
+    if (n==0) {
+        h += "\r}12";
+        return [h];
+    }
+    text r = [];
+    r+=h;
+    for (int i <-[1, 2..n]) {
+        r+=t[i];
+    }
+    r+=(t[n]+"\r}<tg>");
+    return r;
 }
 
-text O(Box b, Box c, options opts, int m) {
-    int h = opts["h"];
-    int v = opts["v"];
-    int i = opts["i"];
+text QQ(Box b:L(str s)         , Box c, Options opts, fOptions f, int m) = LL(s);
+text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = HH(bl, c, opts, m); 
+text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = VV(bl, c, opts, m);
+text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = II(bl, c, opts, m);
+text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, fOptions f, int m) = WDWD(bl, c, opts, m);
+text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, fOptions f, int m) = HOVHOV(bl, c, opts, m);
+text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, fOptions f, int m) =  HVHV(bl, c, opts, m);
+text QQ(Box b:SPACE(int n)     , Box c, Options opts, fOptions f, int m) =  hskip(n);
+text QQ(Box b:A(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = AA(bl, c, opts, f, m);
+
+@synsopsis{This is a degenerate case, since R's should have been nested in an A}
+text QQ(Box b:R(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = [ *lines | lines <- RR(bl, c, opts, m)]; 
+text QQ(Box b:KW(Box a)        , Box c, Options opts, fOptions f, int m) = font(O(a, c, opts, m),"KW");
+text QQ(Box b:VAR(Box a)       , Box c, Options opts, fOptions f, int m) =  font(O( a, c, opts, m),"VR");
+text QQ(Box b:NM(Box a)        , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"NM");
+text QQ(Box b:STRING(Box a)    , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SG");
+text QQ(Box b:COMM(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"CT");
+text QQ(Box b:MATH(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"MT");
+text QQ(Box b:ESC(Box a)       , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SC");
+     
+text O(Box b, Box c, Options opts, int m) {
+    int h = opts.h;
+    int v = opts.v;
+    int i = opts.i;
     // if ((b.vs)?) println("Start:<getName(b)> <b.vs>");
-     if ((b.hs)?) {opts["h"] = b.hs;}
-     if ((b.vs)?) {opts["v"] = b.vs;}
-     if ((b.is)?) {opts["i"] = b.is;}
-     foptions f =();
-     if ((b.format)?) {f["f"] = b.format;}
-     text t = QQ(b, c, opts, f, m);
-     opts["h"]=h;
-     opts["v"]=v;
-     opts["i"]=i;
-     // println("End:<getName(b)>");
-     return t;
+    if ((b.hs)?) {opts.h = b.hs;}
+    if ((b.vs)?) {opts.v = b.vs;}
+    if ((b.is)?) {opts.i = b.is;}
+    
+    fOptions f =();
+    
+    if ((b.format)?) {
+        f["f"] = b.format;
+    }
+    
+    return QQ(b, c, opts, f, m);
 }
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
-Box boxSize(Box b, Box c, options opts, int m) {
-       text s = O(b, c, opts, m);
-       b.width = twidth(s);
-       b.height = size(s);
-       return b;
-       }
+Box boxSize(Box b, Box c, Options opts, int m) {
+    text s = O(b, c, opts, m);
+    b.width = twidth(s);
+    b.height = size(s);
+    return b;
+}
 
-list[list[Box]] RR(list[Box] bl, Box c, options opts, int m) {
+list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
      list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
      // println(g);
      return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
 }
 
-int getMaxWidth(list[Box] b) {
-   return max([c.width| Box c <- b]);
-}
+int getMaxWidth(list[Box] b) = max([c.width| Box c <- b]);
 
 list[int] Awidth(list[list[Box]] a) {
-     if (isEmpty(a)) return [];
-     int m = size(head(a));  // Rows have the same length
-     list[int] r = [];
-     for (int k<-[0..m]) {
-           r+=[max([b[k].width|b<-a])];
-           }
-     return r;
-     }
+    if (isEmpty(a)) {
+        return [];
+    }
+    
+    int m = size(head(a));  // Rows have the same length
 
-text AA(list[Box] bl, Box c ,options opts, foptions f, int m) {
-     // println(bl);
-     list[list[Box]]  r=RR(bl, c, opts, m);
-     list[int] mw0 = Awidth(r);
-     list[str] format0 = ((f["f"]?)?f["f"]:[]);
-     list[Box] vargs = [];
-     for (list[Box] bl2 <- r) {
-         list[int]  mw = mw0;
-         list[str] format =format0;
-         list[Box] hargs = [];
-         for (Box b<- bl2) {
-                int width = b.width;
-                str f_str = !isEmpty(format)?head(format):"l";
-                if (!isEmpty(format)) format = tail(format);
-                max_width = head(mw);
-                mw=tail(mw);
-                int h= opts["h"];
-                switch(f_str) {
-                    case "l": {
+    list[int] r = [];
+
+    for (int k<-[0..m]) {
+        r+=[max([b[k].width|b<-a])];
+    }
+    
+    return r;
+}
+
+text AA(list[Box] bl, Box c ,Options opts, fOptions f, int m) {
+    list[list[Box]]  r=RR(bl, c, opts, m);
+    list[int] mw0 = Awidth(r);
+    list[str] format0 = ((f["f"]?)?f["f"]:[]); // TODO: decipher this
+    list[Box] vargs = [];
+
+    for (list[Box] bl2 <- r) {
+        list[int]  mw = mw0;
+        list[str] format =format0;
+        list[Box] hargs = [];
+        for (Box b <- bl2) {
+            int width = b.width;
+            str f_str = !isEmpty(format)?head(format):"l";
+            if (!isEmpty(format)) {
+                format = tail(format);
+            }
+            max_width = head(mw);
+            mw=tail(mw);
+            int h= opts.h;
+            switch(f_str) {
+                case "l": {
                      // b.hs=max_width - width+h; /*left alignment */  
                          hargs+=b;
                          hargs += SPACE(max_width - width);
-                         }
-                    case "r": {
-                     // b.hs=max_width - width+h; /*left alignment */
-                         hargs += SPACE(max_width - width);
-                         hargs+=b;
-                         }
-                    case "c": {
-                         hargs += SPACE((max_width - width)/2);
-                         hargs+=b;
-                         hargs += SPACE((max_width - width)/2);
-                        }
                 }
-}
-         vargs += H(hargs);
-         }
-     return O(V(vargs), c, opts, m);
-}
-
-bool changeHV2H(list[Box] hv) {
-   int n = 0;
-    visit(hv) {
-         case L(str s): {n+=size(s);}
-         }
-    return n<hv2h_crit;
-    }
-
-
-Box removeHV(Box b) {
-return innermost visit(b) {
-     case t:HV(list[Box] hv) => {
-                     int h = (t.hs)?(-1);
-                     int i =   (t.is)?(-1);
-                     int v =   (t.vs)?(-1);
-                     Box r = H(hv);
-                     if (h>=0) r.hs = h;
-                     if (i>=0)  r.is = i;
-                     if (v>=0) r.vs = v;
-                     r;                
-                     }
-                  when changeHV2H(hv)
-      };
-}
-
-Box removeHOV(Box b) {
-return innermost visit(b) {
-     case t:HOV(list[Box] hov) => {
-                     int h = (t.hs)?(-1);
-                     int i =   (t.is)?(-1);
-                     int v =   (t.vs)?(-1);
-                     Box r = changeHV2H(hov)?H(hov):V(hov);
-                     if (h>=0) r.hs = h;
-                     if (i>=0)  r.is = i;
-                     if (v>=0) r.vs = v;
-                     // println("changed2");
-                     r;
-                     }
-                  // when changeHV2H(hov)
-      };
-}
-
-
-
-
-
-public text box2data(Box b) {
-    //println("BEGIN box2data");
-    // println(b);
-    b = removeHV(b);
-    b = removeHOV(b);
-    text t = O(b, V([]), oDefault, maxWidth);
-    // println(t);
-    //println("END box2data");
-    return t;
+                case "r": {
+                     // b.hs=max_width - width+h; /*left alignment */
+                    hargs += SPACE(max_width - width);
+                    hargs+=b;
+                }
+                case "c": {
+                    hargs += SPACE((max_width - width)/2);
+                    hargs+=b;
+                    hargs += SPACE((max_width - width)/2);
+                }
+            }
+        }   
+        
+        vargs += H(hargs);
     }
     
-public str convert2latex(str s) {
+    return O(V(vargs), c, opts, m);
+}
+
+bool changeHV2H(list[Box] hv, Options opts) {
+    int n = 0;
+    visit (hv) {
+        case L(str s): {
+            n+=size(s);
+        }
+    }
+    
+    return n < opts.hv2hCrit;
+}
+
+Box removeHV(Box b, Options opts) {
+return innermost visit(b) {
+     case t:HV(list[Box] hv) => {
+            int h = (t.hs)?(-1);
+            int i =   (t.is)?(-1);
+            int v =   (t.vs)?(-1);
+            Box r = H(hv);
+            if (h>=0) r.hs = h;
+            if (i>=0)  r.is = i;
+            if (v>=0) r.vs = v;
+            r;                
+        }
+        when changeHV2H(hv, opts)
+    };
+}
+
+Box removeHOV(Box b, Options opts) {
+    return innermost visit(b) {
+        case t:HOV(list[Box] hov) => {
+            int h = (t.hs)?(-1);
+            int i =   (t.is)?(-1);
+            int v =   (t.vs)?(-1);
+            Box r = changeHV2H(hov, opts)?H(hov):V(hov);
+            if (h>=0) r.hs = h;
+            if (i>=0)  r.is = i;
+            if (v>=0) r.vs = v;
+            r;
+        }
+    };
+}
+
+@synopsis{TODO: Don't understand this yet}
+text box2data(Box b, Options opts) {
+    b = removeHV(b, opts);
+    b = removeHOV(b, opts);
+    return O(b, V([]), options(), opts.maxWidth);
+}
+    
+str convert2latex(str s) {
 	return visit (s) { 
 	  case /^\r\{/ => "\r{"
 	  case /^\r\}/ => "\r}"
@@ -485,17 +480,14 @@ public str convert2latex(str s) {
 	}	
 }
 
-
-
 str text2latex(str t) {
     t = convert2latex(t);
     return visit(t) {
        // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<text2latex(key)>}"
        case /^\r\{<tg:..><key:[^\r]*>/ => "\\<tg>{<key>"
        case /^\r\}../ => "}"
-       }
     }
-
+}
 
 str selectBeginTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>";
@@ -515,7 +507,7 @@ str selectEndTag(str tg) {
    return "";
 }
    
-public str convert2html(str s) {
+str convert2html(str s) {
 	return visit (s) { 
 	  case /^\r\{/ => "\r{"
 	  case /^\r\}/ => "\r}"
@@ -533,78 +525,22 @@ str text2html(str t) {
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
        case /^\r\}<tg:..>/ => selectEndTag(tg)
-       }
     }
+}
     
-public str text2txt(str t) {
+str text2txt(str t) {
     return visit(t) {
        case /^\r\{../ => ""
        case /^\r\}../ => ""
-       }
     }
+}
     
-text text2latex(text t) {
-    return [text2latex(s)|s<-t];
-    }
+text text2latex(text t) = [text2latex(s)| s <- t];
     
-text text2html(text t) {
-    return ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>"|s<-t];
-    }
+text text2html(text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
     
-public text text2txt(text t) {
-    return [text2txt(s)|s<-t];
-    } 
+text text2txt(text t) = [text2txt(s) | s <- t];
+
        
 
 
-// JV TODO: these functions do not compile because writeData does not exist
-//public value toText(Box b, loc src, loc dest) {
-//     text t = box2text(b);
-//     writeData(src, dest, t, ".txt");
-//     return t;
-//     }
-//     
-//public value toLatex(Box b, loc src, loc dest) {
-//     text t = box2latex(b);
-//     writeData(src, dest, t, ".tex");
-//     return t;
-//     }
-//
-//  
-//public value toHtml(Box b, loc src, loc dest) {
-//     text t = box2html(b);
-//     writeData(src, dest, t, ".html");
-//     return t;
-//     } 
-        
-void tst() {
-  Box  b1 = R([L("ab"), L("c")]);
-  Box  b2 = R([L("def"), L("hg")]);
-  Box  b3 = R([L("ijkl"), L("m")]);
-  Box b = A([b1, b2, b3]);
-  b.format=["c","c"];
-} 
-
-public str baseName(str input) {
-     str s = input;
-     str find = "/";
-     if (/^<pre1:.*>\..*?$/:=input) {
-          s = "<pre1>";
-           if(/^.*<find><post2:.*?>$/ := s) {	
-               s = post2;
-               }
-          }
-     return s;
-     }
-
-public void toExport(loc src,loc dest, text r,str suffix) {
-     str s=baseName(src.path);
-     loc g=|file://<dest.path>/<s><suffix>|;
-     println("Written <suffix> content in file:\"<g>\"");
-     writeFile(g);
-     for (str q<-r) appendToFile(g,"<q>\n");
-     }
- 
- public void main(Box b) {
-  fprintln(b);
-  }    
