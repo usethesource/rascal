@@ -7,10 +7,28 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-@synopsis{This is an implementation of "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand and Eelco Visser (June 30, 1994)
+@synopsis{A 2-dimensional string layout algorithm, useful for formatting programming languages and pretty-printing syntax trees.}
+@description{
+This is an implementation of "From Box to Tex:An algebraic approach to the construction of documentation tools" 
+by Mark van den Brand and Eelco Visser (June 30, 1994)
 
-The main function `format` maps a box tree (which describes 2-dimensional layout constraints for a linear text) to a string
-which satisfies these constraints.}
+The main function `format` maps a box tree (which describes 2-dimensional layout constraints for a linear text) 
+to a string which satisfies these constraints.
+
+To create a formatter using this back-end, first connect a front-end that maps your languages to Box
+terms. There exist "default formatters" that map any Rascal parse tree to Box, which you can specialize
+for cases where the default mapper does something funny.
+}
+@benefits{
+* Box2text is a fast two-dimensional constraint algorithm which is versatile enough to deal with
+limited horizontal space on the screen and paper. The intermediate format allows for many different
+solutions that do not have to programmed manually because of this. This is comparable to what CSS does
+for HTML layout.
+* Box2text can create ANSI color codes and also HTML markup for syntax highlighting.
+}
+@pitfalls{
+* When mapping a language to box, it is often forgotten to also map source code comments to the Box tree.
+}
 module lang::box::util::Box2Text
 
 import List;
@@ -163,7 +181,7 @@ text HH(list[Box] b, Box c, options opts, int m) {
    
 text HH([], Box _, options opts, int m) = [];
 
-text HH(list[Box] b, Box _, options opts, int m) {
+text HH(list[Box] b:[_, *_], Box _, options opts, int m) {
     int h = opts["h"];
     text r = [];
     b = reverse(b);
@@ -200,25 +218,16 @@ text VV(list[Box] b, Box c, options opts, int m) {
    }
 */
 
-text II(list[Box] b, Box c, options opts, int m) {
- if (isEmpty(b)) return [];
-    int i = opts["i"];
-    switch(c) {
-        case  H(list[Box] _):{
-            return HH(b, c, opts, m);
-        }
-       case  V(list[Box] _):{
-          int m1 = m-i;
-           text t = O(b[0], c, opts, m1);
-           int s = hwidth(t);
-           text r =  rhh(hskip(i),  hh(t, II(tail(b), c, opts, m1-s)));
-           return r;
-        }
-     }
-     return [];
+text II([], Box c, options opts, int m) = [];
+
+text II(list[Box] b:[_,*_], c:H(list[Box] _), options opts, int m) = HH(b, c, opts, m);
+
+text II(list[Box] b:[_,*_], c:V(list[Box] _), options opts, int m) {
+    text t = O(b[0], c, opts, m - opts["i"]);
+    return rhh(hskip(i),  hh(t, II(tail(b), c, opts, m - opts["i"] - hwidth(t))));
 }
 
-text WDWD(list[Box] b, Box c ,options opts, int m) {
+text WDWD(list[Box] b, Box c , options opts, int m) {
     if (isEmpty(b)) return [];
     int h= b[0].hs?opts["h"];
     text t = O(b[0], c, opts, m);
