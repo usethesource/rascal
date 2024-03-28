@@ -31,11 +31,11 @@ private data RuntimeException = none();
 &T validate(type[&T] expected, node v, list[value] path = [], bool relaxed=false) {
     Symbol lookup(str name, [*_,label(key, sym),*_]) = sym;
     default Symbol lookup(str _, list[Symbol] _) = \value();
-    Symbol unlabe(label(_, Symbol sym)) = sym;
+    Symbol unlabel(label(_, Symbol sym)) = sym;
     default Symbol unlabel(Symbol sym)  = sym;
 
-    if (expected.symbol == \node()) {
-        return v;
+    if (expected.symbol == \node(), &T vv := v) {
+        return vv;
     }
     
   	if (def:adt(_, _) := expected.symbol, grammar := expected.definitions) {

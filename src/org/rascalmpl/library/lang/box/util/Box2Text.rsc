@@ -71,7 +71,7 @@ public text box2html(Box b) {
     }
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
- public text box2text(Box b) {
+public text box2text(Box b) {
     text q = [];
     if (box2textmap[b]?) q = box2textmap[b];
     else {
@@ -91,127 +91,91 @@ map[Box, text] box2textmap=();
 
 data Box(list[str] format=[]);
 
-text vv(text a, text b) {
-// if (!isEmpty(a) && isEmpty(a[0])) return b;
-// if (!isEmpty(b) && isEmpty(b[0])) return a;
-return a+b;}
+@synopsis{simple vertical concatenation (every list element is a line)}
+text vv(text a, text b) = [*a, *b];
 
-str blank(str a) {
-       return right("", width(a));
-       }
+str blank(str a) = right("", width(a));
 
-/* Computes a white line with the length of the last line of a */
-text wd(text a) {
-   if (isEmpty(a)) return [];
-   if (size(a)==1) return [blank(a[0])];
-   return wd(tail(a));
-}
+@synopsis{Computes a white line with the length of the last line of a}
+text wd([])             = [];
+text wd([*_, str x])    = wd([x]);
 
-/* Computes the length of unescaped string s */
-int width(str s) {
-     s = replaceAll(s,"\r...",""); 
-     int b = size(s); 
-     return b;
-     }
+@synopsis{Computes the length of unescaped string s}
+int width(str s) = size(s); // replaceAll(s,"\r...",""); ??
+     
+@synopsis{Computes the maximum width of text t}
+int twidth(text t) = max([width(line) | line <- t]);
+     
+@synopsis{Computes the length of the last line of t}
+int hwidth([])             = 0;
+int hwidth([*_, str last]) = width(last);
 
+@synopsis{Prepends str a before text b, all lines of b will be shifted}
+text bar(str a, [])                = [a];
+text bar(str a, [str bh, *str bt]) = vv([a+bh], prepend(blank(a), bt));
 
-/* Computes the maximum width of text t */
-int twidth(text t) {
-     if (isEmpty(t)) return 0;
-     return max([width(r)|str r <-t]);
-     }
+@synopsis{Produce text consisting of a white line of length  n}
+text hskip(int n) = [right("", n)];
+    
+@synopsis{Produces text consisting of n white lines at length 0}
+text vskip(int n) = ([] | vv(it, [""]) | _ <- [0..n]);
 
-/* Computes the length of the last line of t */
-int hwidth(text t) {
-     if (isEmpty(t)) return 0;
-     return width(t[size(t)-1]);
-     }
+@synopsis{Check if a string already consists of only blanks.}
+bool isBlank(str a) = (a == blank(a));
 
-/* Prepends str a before text b, all lines of b will be shifted  */
-text bar(str a, text b) {
-    if (isEmpty(b)) return [a];
-    return  vv ([a+b[0]], prepend(blank(a), tail(b)));
-   }
+@synopsis{Prepend Every line in b with `a`}
+text prepend(str a, text b) = ["<a><line>" | line <- b];
 
-/* produce text consisting of a white line of length  n */
-text hskip(int n) {
-     return [right("", n)];
-    }
+@synopsis{Implements horizontal concatenation, also for multiple lines}
+text hh([], text b)  = b;
+text hh(text a, [])  = a;
+text hh([a], text b) = bar(a, b);
 
-/* produces a text consisting of n white lines at length 0 */
-text vskip(int n) {
-    text r = [];
-    // println("OK<n>");
-   for (int _ <-[0, 1..n])  r=vv(r,[""]);
-   // println(size(r));
-   return r;
-}
+default text hh(text a, text b) = vv(a[0..-1], bar(a[-1], b));
+        
+@synsopsis{Horizontal concatenation, but if the left text is empty return nothing.}
+text lhh([], text _) = [];
+default text lhh(a, b) = hh(a, b);
 
+@synsopsis{Vertical concatenation, but if the left text is empty return nothing.}
+text lvv([], text _) = [];
+default text lvv(text a, text b) = vv(a,b);
 
-bool isBlank(str a) {return a==blank(a);}
+@synsopsis{Horizontal concatenation, but if the right text is empty return nothing.}
+text rhh(text _, []) = [];
+text rhh(text a, text b) = hh(a, b);
 
-text prepend(str a, text b) {
-   return [(a+c)|str c <- b];
-}
-
-text hh(text a, text b) {
-          if (isEmpty(a)) return b;
-          if (isEmpty(b))  return a;
-          if (size(a)==1) return bar(a[0], b);
-          str last = a[size(a)-1];
-          list[str] first =  slice(a, 0, size(a)-1);
-          return vv(first, bar(last, b));
-   }
-
-text _hh(text a, text b) {
-     if (isEmpty(a)) return [];
-     return hh(a, b);
-}
-
-text _vv(text a, text b) {
-     if (isEmpty(a)) return [];
-     return vv(a, b);
-}
-
-text hh_(text a, text b) {
-     if (isEmpty(b)) return [];
-     return hh(a, b);
-}
-
-text vv_(text a, text b) {
-     if (isEmpty(b)) return [];
-     return vv(a, b);
-}
-
-
-
-text LL(str s ) { 
-   return [s];
-   }
-
+@synsopsis{Vertical concatenation, but if the right text is empty return nothing.}
+text rvv(text _, []) = [];
+default text rvv(text a, text b) = vv(a,b);
+    
+text LL(str s ) = [s]; 
+   
 /*
 text HH(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
     int h = opts["h"];
     text t = O(b[0], H([]), opts, m);
     int s = hwidth(t);
-    return hh(t, hh_(hskip(h), HH(tail(b), H([]), opts, m-s-h)));
+    return hh(t, rhh(hskip(h), HH(tail(b), H([]), opts, m-s-h)));
    }
 */
    
+text HH([], Box _, options opts, int m) = [];
+
 text HH(list[Box] b, Box _, options opts, int m) {
-    if (isEmpty(b)) return [];
     int h = opts["h"];
     text r = [];
     b = reverse(b);
-    for (a<-b) {
-         text t = O(a, H([]), opts, m);
-         int s = hwidth(t); 
-         r = hh(t, hh_(hskip(h), r));
-         m  = m - s - h;
-   }
-   return r;
-   }
+    for (a <- b) {
+        text t = O(a, H([]), opts, m);
+        int s = hwidth(t); 
+        r = hh(t, rhh(hskip(h), r));
+        m  = m - s - h;
+    }
+   
+    return r;
+}
 
 text VV(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
@@ -222,7 +186,7 @@ text VV(list[Box] b, Box c, options opts, int m) {
         if (V(_)!:=c || L("")!:=a)
             {
             text t = O(a, V([]), opts, m);
-            r = vv(t, vv_(vskip(v), r));
+            r = vv(t, rvv(vskip(v), r));
             }
     }
     return r;
@@ -232,7 +196,7 @@ text VV(list[Box] b, Box c, options opts, int m) {
 text VV(list[Box] b, Box c, options opts, int m) {
     if (isEmpty(b)) return [];
     int v = opts["v"];
-    return vv(O(b[0], c , opts, m), vv_(vskip(v), VV(tail(b), V([]), opts, m)));
+    return vv(O(b[0], c , opts, m), rvv(vskip(v), VV(tail(b), V([]), opts, m)));
    }
 */
 
@@ -247,7 +211,7 @@ text II(list[Box] b, Box c, options opts, int m) {
           int m1 = m-i;
            text t = O(b[0], c, opts, m1);
            int s = hwidth(t);
-           text r =  hh_(hskip(i),  hh(t, II(tail(b), c, opts, m1-s)));
+           text r =  rhh(hskip(i),  hh(t, II(tail(b), c, opts, m1-s)));
            return r;
         }
      }
@@ -259,7 +223,7 @@ text WDWD(list[Box] b, Box c ,options opts, int m) {
     int h= b[0].hs?opts["h"];
     text t = O(b[0], c, opts, m);
     int s = hwidth(t);
-    return  hh(t , hh_(hskip(h) , WDWD(tail(b), c, opts, m-s-h)));
+    return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m-s-h)));
     }
 
 
@@ -287,20 +251,20 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, options opts, int m) {
       int n = h + hwidth(a);
       if (size(a)>1) { // Multiple lines 
            text T1 = O(A, V([]), opts, m-i);
-           return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
+           return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
           }
       if (n <= s) {  // Box A fits in current line
-           return HVHV(hh(_hh(T, hskip(h)), a), s-n, B, opts, m, H([]));
+           return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H([]));
            }
       else {
         n -= h; // n == width(a)
          if  ((i+n)<m) { // Fits in the next line, not in current line
                  text T1 =O(A, V([]), opts, m-i);
-                 return vv(T, vv_(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
+                 return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
                  }
          else { // Doesn't fit in both lines
                  text T1 =O(A, V([]), opts, m-i);
-                 return vv(T, vv_(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
+                 return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
                  }
           }
 }
