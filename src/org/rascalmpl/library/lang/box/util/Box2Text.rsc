@@ -23,7 +23,6 @@ import lang::box::util::Box;
 * `h` is the default separation between every horizontal element in H, HV and HOV boxes
 * `v` is the default separation between vertical elements in V, HV and HOV boxes
 * `i` is the default (additional) indentation for indented boxes
-* (((TODO))) `t` is the next tab stop (? check this)
 * `maxWidth` is the number of columns (characters) of a single line on screen or on paper
 * `hv2hCrit` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
 between horizontal and vertical for HOV boxes.
@@ -39,7 +38,6 @@ data Options = options(
     int h = 1, 
     int v = 0, 
     int i = 2, 
-    int t = 10, 
     int maxWidth=80, 
     int hv2hCrit=70
 );
@@ -189,12 +187,11 @@ text VV(list[Box] b, Box c, Options opts, int m) {
     if (isEmpty(b)) return [];
     text r = [];
     b = reverse(b);
-    for (a<-b) {
-        if (V(_)!:=c || L("")!:=a)
-            {
+    for (a <- b) {
+        if (V(_)!:=c || L("")!:=a) {
             text t = O(a, V([]), opts, m);
             r = vv(t, rvv(vskip(opts.v), r));
-            }
+        }
     }
     return r;
    }
@@ -209,7 +206,9 @@ text II(list[Box] b:[_,*t], c:V(list[Box] _), Options opts, int m) {
 }
 
 text WDWD(list[Box] b, Box c , Options opts, int m) {
-    if (isEmpty(b)) return [];
+    if (isEmpty(b)) {
+        return [];
+    }
     int h  = b[0].hs?opts.h;
     text t = O(b[0], c, opts, m);
     int s  = hwidth(t);
@@ -231,10 +230,8 @@ text ifHOV(text t, Box b,  Box c, Options opts, int m) {
     return O(b, c, opts, m);
 }
 
-text HOVHOV(list[Box] b, Box c, Options opts, int m) {
-    return ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
-}
-
+text HOVHOV(list[Box] b, Box c, Options opts, int m) 
+    = ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
 
 /* Gets complicated HVHV */
 text HVHV(text T, int s, text a, Box A, list[Box] B, Options opts, int m) {
@@ -278,6 +275,7 @@ text HVHV(list[Box] b, Box _, Options opts, int m) {
     if (size(b)==1) {
         return T;
     }
+
     return HVHV(T, m - hwidth(T), tail(b), opts, m, H([]));
 }
 
@@ -348,7 +346,6 @@ Box boxSize(Box b, Box c, Options opts, int m) {
 
 list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
      list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
-     // println(g);
      return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
 }
 
