@@ -194,25 +194,25 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   
   switch (s) {
     case \opt(conditional(t,cs)) : 
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter-star(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-star-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-star-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};       
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};       
     case \alt(as) :
-      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \seq(ss) :
-      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(Production q) := find(c,s,t,g)};
      default: return {};
   }
 }
