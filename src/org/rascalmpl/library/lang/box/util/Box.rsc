@@ -17,7 +17,7 @@ data Box(int hs=-1, int vs=-1, int is=-1, int width=-1, int height=-1, Alignment
     | I(list[Box] i)
     | WD(list[Box] wd)
     | R(list[Box] r)
-    | A(list[Box] a, list[Alignment] columns=[l() | _ <- a])
+    | A(list[Box] a, list[Alignment] columns=[l() | [R(list[Box] cs), *_] := a, _ <- cs] /* learns the amount of columns from the first row */)
     | SPACE(int space)
     | L(str l)
     // These "syntax highlighting" features are no longer supported by Box2Text. You can directly 
