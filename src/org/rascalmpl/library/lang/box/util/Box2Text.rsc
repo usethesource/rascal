@@ -536,3 +536,29 @@ private Text text2latex(Text t) = [text2latex(s)| s <- t];
 private Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
     
 private Text text2txt(Text t) = [text2txt(s) | s <- t];
+
+test bool horizontalPlacement2()
+    = format(H([L("A"), L("B"), L("C")], hs=2))
+    == "A  B  C
+       '";
+
+test bool horizontalPlacement3()
+    = format(H([L("A"), L("B"), L("C")], hs=3))
+    == "A   B   C
+       '";
+
+test bool verticalPlacement0()
+    = format(V([L("A"), L("B"), L("C")], vs=0))
+    == "A
+       'B
+       'C
+       '";
+
+test bool verticalPlacement1()
+    = format(V([L("A"), L("B"), L("C")], vs=1))
+    == "A
+       '
+       'B
+       '
+       'C
+       '";
