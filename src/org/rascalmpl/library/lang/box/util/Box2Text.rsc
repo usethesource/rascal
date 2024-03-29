@@ -7,10 +7,61 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
-@synopsis{This is an implementation of "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand and Eelco Visser (June 30, 1994)
+@synopsis{Two-dimensional text layout algorithm}
+@description{
+The input to Box2Text is a hierarchy of "Boxes" represented by the ((Box)) algebraic data-type.
+These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
+there is the global soft constraints of the width of the screen (or the paper). Box2Text can also
+add markup for syntax highlighting in either ANSI plaintext encoding, HTML font tags or LaTex macros.
 
-The main function `format` maps a box tree (which describes 2-dimensional layout constraints for a linear text) to a string
-which satisfies these constraints.}
+This implementation is a port from ASF+SDF to Rascal. The ASF+SDF implementation was published as 
+"From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand 
+and Eelco Visser (June 30, 1994). The original Box concept was introduced by Joel Coutaz as this technical report:
+"The Box, A Layout Abstraction for User Interface Toolkits" (1984) Pittsburgh, PA: Carnegie Mellon University.
+
+The main function `format` maps a ((Box)) tree to a `str`:
+* To obtain ((Box)) terms people typically transform ASTs or ((ParseTree))s to ((Box)) using pattern matching in Rascal.
+* ((Options)) encode global default options for constraint parameters that only override local parameters if they were elided.
+* ((Markup)) configures which markup language to use for syntax highlighting purposes.
+}
+@examples{
+This demonstrates the semantics of the main hard constraints:
+* `H` for horizontal;
+* `V` for vertical;
+* `I` for indentation.
+
+```rascal-shell
+import lang::box::util::Box2Text;
+format(H([L("A"), L("B"), L("C")], h=2))
+format(H([L("A"), L("B"), L("C")], h=1))
+format(H([L("A"), L("B"), L("C")], h=0))
+format(V([L("A"), L("B"), L("C")], h=2))
+format(V([L("A"), L("B"), L("C")], h=1))
+format(V([L("A"), L("B"), L("C")], h=0))
+format(H([L("A"), V([L("B"), L("C")])]))
+format(H([L("A"), I([L("B")]), L("C")]))
+```
+
+The "soft" constraints change their behavior based on available horizontal room:
+```rascal-shell,continue
+format(HV([L("W<i>") | i <- [0..10]]));
+format(HV([L("W<i>") | i <- [0..20]]));
+format(HV([L("W<i>") | i <- [0..40]]));
+format(HV([L("W<i>") | i <- [0..80]]));
+format(HV([L("W<i>") | i <- [0..100]]));
+format(HOV([L("W<i>") | i <- [0..10]]));
+format(HOV([L("W<i>") | i <- [0..20]]));
+format(HOV([L("W<i>") | i <- [0..40]]));
+format(HOV([L("W<i>") | i <- [0..80]]));
+format(HOV([L("W<i>") | i <- [0..100]]));
+```
+
+By cleverly combining constraints, a specifically desired behavior is easy to achieve:
+```rascal-shell,continue
+format(H([L("if"), H([L"(", L("true"), L(")")], h=0), HOV([L("doSomething")])]))
+format(H([L("if"), H([L"(", L("true"), L(")")], h=0), HOV([L("doSomething"), L("doSomethingElse"), L("yetAnotherThing"), L("andTheLastThing")])]))
+```
+}
 module lang::box::util::Box2Text
 
 import List;
@@ -43,13 +94,16 @@ data Options = options(
 );
 
 @synopsis{Option values for the highlighting markup features of the FONT and KW boxes, etc.}
+@description{
+(((TODO))) 
+}
 data Markup 
     = html()
     | ansi()
     | none()
     ;
 
-@synopsis{Converts boxes into a string by finding an "optional" two-dimensional layout}
+@synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
 * This algorithm never changes the left-to-right order of the Boxes constituents, such that
 syntactical correctness is maintained
@@ -67,7 +121,7 @@ public str format(Box b, Options opts = options())
 
 @synopsis{Converts boxes into latex}   
 // TODO: avoid file IO and read directly from constants    
-public text box2latex(Box b, Options opts=options()) 
+public Text box2latex(Box b, Options opts=options()) 
     = [
     *readFileLines(|std:///lang/box/util/Start.tex|),
     *text2latex(box2text(b, opts=opts)),
@@ -81,7 +135,7 @@ output of ((box2text)). Next to this all the FONT boxes are
 translated to their HTML markup representation to provide the
 proper highlighting.
 }       
-public text box2html(Box b, Options opts=options()) 
+public Text box2html(Box b, Options opts=options()) 
     = [
     *readFileLines(|std:///lang/box/util/Start.html|),
     *text2html(q, opts),
@@ -89,8 +143,8 @@ public text box2html(Box b, Options opts=options())
 ]   ;
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
-public text box2text(Box b, Options opts=options()) {
-    text q = [];
+public Text box2text(Box b, Options opts=options()) {
+    Text q = [];
     if (box2textmap[b]?) {
         q = box2textmap[b];
     }
@@ -98,83 +152,83 @@ public text box2text(Box b, Options opts=options()) {
         q = box2data(b, opts);
         box2textmap+=(b:q);
     }
-    text t = text2txt(q);
+    Text t = text2txt(q);
     return t;
 }
     
 alias   fOptions = map[str, list[str]];
 
-map[Box, text] box2textmap=();
+map[Box, Text] box2textmap=();
 
 data Box(list[str] format=[]);
 
 @synopsis{simple vertical concatenation (every list element is a line)}
-text vv(text a, text b) = [*a, *b];
+Text vv(Text a, Text b) = [*a, *b];
 
 str blank(str a) = right("", width(a));
 
 @synopsis{Computes a white line with the length of the last line of a}
-text wd([])             = [];
-text wd([*_, str x])    = wd([x]);
+Text wd([])             = [];
+Text wd([*_, str x])    = wd([x]);
 
 @synopsis{Computes the length of unescaped string s}
 int width(str s) = size(s); // replaceAll(s,"\r...",""); ??
      
 @synopsis{Computes the maximum width of text t}
-int twidth(text t) = max([width(line) | line <- t]);
+int twidth(Text t) = max([width(line) | line <- t]);
      
 @synopsis{Computes the length of the last line of t}
 int hwidth([])             = 0;
 int hwidth([*_, str last]) = width(last);
 
 @synopsis{Prepends str a before text b, all lines of b will be shifted}
-text bar(str a, [])                = [a];
-text bar(str a, [str bh, *str bt]) = vv([a+bh], prepend(blank(a), bt));
+Text bar(str a, [])                = [a];
+Text bar(str a, [str bh, *str bt]) = vv([a+bh], prepend(blank(a), bt));
 
 @synopsis{Produce text consisting of a white line of length  n}
-text hskip(int n) = [right("", n)];
+Text hskip(int n) = [right("", n)];
     
 @synopsis{Produces text consisting of n white lines at length 0}
-text vskip(int n) = ([] | vv(it, [""]) | _ <- [0..n]);
+Text vskip(int n) = ([] | vv(it, [""]) | _ <- [0..n]);
 
 @synopsis{Check if a string already consists of only blanks.}
 bool isBlank(str a) = (a == blank(a));
 
 @synopsis{Prepend Every line in b with `a`}
-text prepend(str a, text b) = ["<a><line>" | line <- b];
+Text prepend(str a, Text b) = ["<a><line>" | line <- b];
 
 @synopsis{Implements horizontal concatenation, also for multiple lines}
-text hh([], text b)  = b;
-text hh(text a, [])  = a;
-text hh([a], text b) = bar(a, b);
+Text hh([], Text b)  = b;
+Text hh(Text a, [])  = a;
+Text hh([a], Text b) = bar(a, b);
 
-default text hh(text a, text b) = vv(a[0..-1], bar(a[-1], b));
+default Text hh(Text a, Text b) = vv(a[0..-1], bar(a[-1], b));
         
 @synsopsis{Horizontal concatenation, but if the left text is empty return nothing.}
-text lhh([], text _) = [];
-default text lhh(a, b) = hh(a, b);
+Text lhh([], Text _) = [];
+default Text lhh(a, b) = hh(a, b);
 
 @synsopsis{Vertical concatenation, but if the left text is empty return nothing.}
-text lvv([], text _) = [];
-default text lvv(text a, text b) = vv(a,b);
+Text lvv([], Text _) = [];
+default Text lvv(Text a, Text b) = vv(a,b);
 
 @synsopsis{Horizontal concatenation, but if the right text is empty return nothing.}
-text rhh(text _, []) = [];
-text rhh(text a, text b) = hh(a, b);
+Text rhh(Text _, []) = [];
+Text rhh(Text a, Text b) = hh(a, b);
 
 @synsopsis{Vertical concatenation, but if the right text is empty return nothing.}
-text rvv(text _, []) = [];
-default text rvv(text a, text b) = vv(a,b);
+Text rvv(Text _, []) = [];
+default Text rvv(Text a, Text b) = vv(a,b);
     
-text LL(str s ) = [s]; 
+Text LL(str s ) = [s]; 
    
-text HH([], Box _, Options opts, int m) = [];
+Text HH([], Box _, Options opts, int m) = [];
 
-text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
-    text r = [];
+Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
+    Text r = [];
     b = reverse(b);
     for (a <- b) {
-        text t = O(a, H([]), opts, m);
+        Text t = O(a, H([]), opts, m);
         int s = hwidth(t); 
         r = hh(t, rhh(hskip(opts.h), r));
         m  = m - s - opts.h;
@@ -183,39 +237,39 @@ text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     return r;
 }
 
-text VV(list[Box] b, Box c, Options opts, int m) {
+Text VV(list[Box] b, Box c, Options opts, int m) {
     if (isEmpty(b)) return [];
-    text r = [];
+    Text r = [];
     b = reverse(b);
     for (a <- b) {
         if (V(_)!:=c || L("")!:=a) {
-            text t = O(a, V([]), opts, m);
+            Text t = O(a, V([]), opts, m);
             r = vv(t, rvv(vskip(opts.v), r));
         }
     }
     return r;
    }
 
-text II([], Box c, Options opts, int m) = [];
+Text II([], Box c, Options opts, int m) = [];
 
-text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
+Text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
-text II(list[Box] b:[_,*t], c:V(list[Box] _), Options opts, int m) {
-    text t = O(b[0], c, opts, m - opts.i);
+Text II(list[Box] b:[_,*t], c:V(list[Box] _), Options opts, int m) {
+    Text t = O(b[0], c, opts, m - opts.i);
     return rhh(hskip(opts.i),  hh(t, II(t, c, opts, m - opts.i - hwidth(t))));
 }
 
-text WDWD(list[Box] b, Box c , Options opts, int m) {
+Text WDWD(list[Box] b, Box c , Options opts, int m) {
     if (isEmpty(b)) {
         return [];
     }
     int h  = b[0].hs?opts.h;
-    text t = O(b[0], c, opts, m);
+    Text t = O(b[0], c, opts, m);
     int s  = hwidth(t);
     return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
 }
 
-text ifHOV(text t, Box b,  Box c, Options opts, int m) {
+Text ifHOV(Text t, Box b,  Box c, Options opts, int m) {
     if (isEmpty(t)) {
         return [];
     }
@@ -230,17 +284,17 @@ text ifHOV(text t, Box b,  Box c, Options opts, int m) {
     return O(b, c, opts, m);
 }
 
-text HOVHOV(list[Box] b, Box c, Options opts, int m) 
+Text HOVHOV(list[Box] b, Box c, Options opts, int m) 
     = ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
 
 /* Gets complicated HVHV */
-text HVHV(text T, int s, text a, Box A, list[Box] B, Options opts, int m) {
+Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m) {
     int h= opts.h;
     int v = opts.v;
     int i= opts.i;
     int n = h + hwidth(a);
     if (size(a)>1) { // Multiple lines 
-        text T1 = O(A, V([]), opts, m-i);
+        Text T1 = O(A, V([]), opts, m-i);
         return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
     }
     if (n <= s) {  // Box A fits in current line
@@ -249,29 +303,29 @@ text HVHV(text T, int s, text a, Box A, list[Box] B, Options opts, int m) {
     else {
         n -= h; // n == width(a)
         if  ((i+n)<m) { // Fits in the next line, not in current line
-            text T1 =O(A, V([]), opts, m-i);
+            Text T1 =O(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
         }
         else { // Doesn't fit in both lines
-            text T1 =O(A, V([]), opts, m-i);
+            Text T1 =O(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
         }
     }
 }
 
-text HVHV(text T, int s, list[Box] b, Options opts,  int m, Box c) {
+Text HVHV(Text T, int s, list[Box] b, Options opts,  int m, Box c) {
     if (isEmpty(b)) {
         return T;
     }
-    text T1 = O(b[0], c  , opts, s);  // Was H([])
+    Text T1 = O(b[0], c  , opts, s);  // Was H([])
     return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
 }
 
-text HVHV(list[Box] b, Box _, Options opts, int m) {
+Text HVHV(list[Box] b, Box _, Options opts, int m) {
     if (isEmpty(b)) {
         return [];
     }
-    text T =  O(b[0], V([]), opts, m);  // Was H([])
+    Text T =  O(b[0], V([]), opts, m);  // Was H([])
     if (size(b)==1) {
         return T;
     }
@@ -280,7 +334,7 @@ text HVHV(list[Box] b, Box _, Options opts, int m) {
 }
 
 // TODO: use real ANSI escape codes here instead?
-text font(text t, str tg) {
+Text font(Text t, str tg) {
     if (isEmpty(t)) return t;
     str h = "\r{<tg>"+t[0];
     int n = size(t)-1;
@@ -288,7 +342,7 @@ text font(text t, str tg) {
         h += "\r}12";
         return [h];
     }
-    text r = [];
+    Text r = [];
     r+=h;
     for (int i <-[1, 2..n]) {
         r+=t[i];
@@ -297,27 +351,27 @@ text font(text t, str tg) {
     return r;
 }
 
-text QQ(Box b:L(str s)         , Box c, Options opts, fOptions f, int m) = LL(s);
-text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = HH(bl, c, opts, m); 
-text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = VV(bl, c, opts, m);
-text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = II(bl, c, opts, m);
-text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, fOptions f, int m) = WDWD(bl, c, opts, m);
-text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, fOptions f, int m) = HOVHOV(bl, c, opts, m);
-text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, fOptions f, int m) =  HVHV(bl, c, opts, m);
-text QQ(Box b:SPACE(int n)     , Box c, Options opts, fOptions f, int m) =  hskip(n);
-text QQ(Box b:A(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = AA(bl, c, opts, f, m);
+Text QQ(Box b:L(str s)         , Box c, Options opts, fOptions f, int m) = LL(s);
+Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = HH(bl, c, opts, m); 
+Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = VV(bl, c, opts, m);
+Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = II(bl, c, opts, m);
+Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, fOptions f, int m) = WDWD(bl, c, opts, m);
+Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, fOptions f, int m) = HOVHOV(bl, c, opts, m);
+Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, fOptions f, int m) =  HVHV(bl, c, opts, m);
+Text QQ(Box b:SPACE(int n)     , Box c, Options opts, fOptions f, int m) =  hskip(n);
+Text QQ(Box b:A(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = AA(bl, c, opts, f, m);
 
 @synsopsis{This is a degenerate case, since R's should have been nested in an A}
-text QQ(Box b:R(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = [ *lines | lines <- RR(bl, c, opts, m)]; 
-text QQ(Box b:KW(Box a)        , Box c, Options opts, fOptions f, int m) = font(O(a, c, opts, m),"KW");
-text QQ(Box b:VAR(Box a)       , Box c, Options opts, fOptions f, int m) =  font(O( a, c, opts, m),"VR");
-text QQ(Box b:NM(Box a)        , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"NM");
-text QQ(Box b:STRING(Box a)    , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SG");
-text QQ(Box b:COMM(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"CT");
-text QQ(Box b:MATH(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"MT");
-text QQ(Box b:ESC(Box a)       , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SC");
+Text QQ(Box b:R(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = [ *lines | lines <- RR(bl, c, opts, m)]; 
+Text QQ(Box b:KW(Box a)        , Box c, Options opts, fOptions f, int m) = font(O(a, c, opts, m),"KW");
+Text QQ(Box b:VAR(Box a)       , Box c, Options opts, fOptions f, int m) =  font(O( a, c, opts, m),"VR");
+Text QQ(Box b:NM(Box a)        , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"NM");
+Text QQ(Box b:STRING(Box a)    , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SG");
+Text QQ(Box b:COMM(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"CT");
+Text QQ(Box b:MATH(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"MT");
+Text QQ(Box b:ESC(Box a)       , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SC");
      
-text O(Box b, Box c, Options opts, int m) {
+Text O(Box b, Box c, Options opts, int m) {
     int h = opts.h;
     int v = opts.v;
     int i = opts.i;
@@ -338,7 +392,7 @@ text O(Box b, Box c, Options opts, int m) {
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
 Box boxSize(Box b, Box c, Options opts, int m) {
-    text s = O(b, c, opts, m);
+    Text s = O(b, c, opts, m);
     b.width = twidth(s);
     b.height = size(s);
     return b;
@@ -367,7 +421,7 @@ list[int] Awidth(list[list[Box]] a) {
     return r;
 }
 
-text AA(list[Box] bl, Box c ,Options opts, fOptions f, int m) {
+Text AA(list[Box] bl, Box c ,Options opts, fOptions f, int m) {
     list[list[Box]]  r=RR(bl, c, opts, m);
     list[int] mw0 = Awidth(r);
     list[str] format0 = ((f["f"]?)?f["f"]:[]); // TODO: decipher this
@@ -454,7 +508,7 @@ Box removeHOV(Box b, Options opts) {
 }
 
 @synopsis{TODO: Don't understand this yet}
-text box2data(Box b, Options opts) {
+Text box2data(Box b, Options opts) {
     b = removeHV(b, opts);
     b = removeHOV(b, opts);
     return O(b, V([]), options(), opts.maxWidth);
@@ -521,7 +575,7 @@ str text2html(str t) {
     t = convert2html(t);
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
-       case /^\r\}<tg:..>/ => selectEndTag(tg)
+       case /^\r\}<tg:..>/             => selectEndTag(tg)
     }
 }
     
@@ -532,11 +586,11 @@ str text2txt(str t) {
     }
 }
     
-text text2latex(text t) = [text2latex(s)| s <- t];
+Text text2latex(Text t) = [text2latex(s)| s <- t];
     
-text text2html(text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
+Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
     
-text text2txt(text t) = [text2txt(s) | s <- t];
+Text text2txt(Text t) = [text2txt(s) | s <- t];
 
        
 
