@@ -463,3 +463,11 @@ test bool simpleTable()
        '4  5  6 
        '7  8  9 
        '";
+
+@synopsis{this does not look right... the 66 is  not right aligned}
+test bool simpleAlignedTable() 
+    = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], columns=[l(),c(),r()]))
+    == "1      2      3
+       '44    55    66
+       '777   888   999
+       '";
