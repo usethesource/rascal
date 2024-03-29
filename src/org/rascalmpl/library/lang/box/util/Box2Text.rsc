@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @synopsis{Two-dimensional text layout algorithm}
 @description{
-The input to Box2Text is a hierarchy of "Boxes" represented by the ((Box)) algebraic data-type.
+The input to Box2Text is a hierarchy of "Boxes" represented by the ((data:Box)) algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
 there is the global soft constraints of the width of the screen (or the paper). Box2Text can also
 add markup for syntax highlighting in either ANSI plaintext encoding, HTML font tags or LaTex macros.
@@ -19,10 +19,10 @@ This implementation is a port from ASF+SDF to Rascal. The ASF+SDF implementation
 and Eelco Visser (June 30, 1994). The original Box concept was introduced by Joel Coutaz as this technical report:
 "The Box, A Layout Abstraction for User Interface Toolkits" (1984) Pittsburgh, PA: Carnegie Mellon University.
 
-The main function `format` maps a ((Box)) tree to a `str`:
-* To obtain ((Box)) terms people typically transform ASTs or ((ParseTree))s to ((Box)) using pattern matching in Rascal.
+The main function `format` maps a ((data:Box)) tree to a `str`:
+* To obtain ((data:Box)) terms people typically transform ASTs or ((ParseTree))s to ((data:Box)) using pattern matching in Rascal.
 * ((Options)) encode global default options for constraint parameters that only override local parameters if they were elided.
-* ((Markup)) configures which markup language to use for syntax highlighting purposes.
+* ((MarkupLanguage)) configures which markup language to use for syntax highlighting purposes.
 }
 @examples{
 This demonstrates the semantics of the main hard constraints:
@@ -32,6 +32,7 @@ This demonstrates the semantics of the main hard constraints:
 
 ```rascal-shell
 import lang::box::util::Box2Text;
+import lang::box::util::Box;
 format(H([L("A"), L("B"), L("C")], hs=2))
 format(H([L("A"), L("B"), L("C")], hs=1))
 format(H([L("A"), L("B"), L("C")], hs=0))
@@ -60,7 +61,6 @@ By cleverly combining constraints, a specifically desired behavior is easy to ac
 format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("doSomething")])]))
 format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("W<i>") | i <- [0..30]])]))
 format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HV([L("W<i>") | i <- [0..30]])]))
-format(V([H([L("if"), H([L("("), L("true"), L(")")], hs=0)]), I([V([L("W<i>") | i <- [0..30]])])]))
 ```
 }
 module lang::box::util::Box2Text
@@ -231,9 +231,9 @@ private Text VV(list[Box] b, Box c, Options opts, int m) {
 
 private Text II([], Box c, Options opts, int m) = [];
 
-private Text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
+private Text II(list[Box] b:[_, *_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
-private Text II(list[Box] b:[head,*tail], c:V(list[Box] _), Options opts, int m) {
+private Text II(list[Box] b:[head, *tail], c:V(list[Box] _), Options opts, int m) {
     Text t = O(head, c, opts, m - opts.is);
     return rhh(hskip(opts.is),  hh(tail, II(t, c, opts, m - opts.is - hwidth(t))));
 }
