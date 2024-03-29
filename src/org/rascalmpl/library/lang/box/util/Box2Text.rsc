@@ -76,7 +76,7 @@ import lang::box::util::Box;
 * `vs` is the default separation between vertical elements in V, HV and HOV boxes
 * `is` is the default (additional) indentation for indented boxes
 * `maxWidth` is the number of columns (characters) of a single line on screen or on paper
-* `hv2hCrit` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
+* `wrapAfter` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
 between horizontal and vertical for HOV boxes.
 }
 @benefits{
@@ -91,7 +91,7 @@ data Options = options(
     int vs = 0, 
     int is = 2, 
     int maxWidth=80, 
-    int hv2hCrit=70,
+    int wrapAfter=70,
     MarkupLanguage markup=ansi()
 );
 
@@ -443,7 +443,7 @@ Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
 @synopsis{Check soft limit for HV and HOV boxes}
 // TODO this seems to ignore SPACE boxes?
 bool noWidthOverflow(list[Box] hv, Options opts) 
-    = (0 | it + size(s) | /L(s) := hv) < opts.hv2hCrit;
+    = (0 | it + size(s) | /L(s) := hv) < opts.wrapAfter;
 
 @synopsis{Changes all HV boxes that do fit horizontally into hard H boxes.}
 Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
@@ -543,7 +543,3 @@ Text text2latex(Text t) = [text2latex(s)| s <- t];
 Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
     
 Text text2txt(Text t) = [text2txt(s) | s <- t];
-
-       
-
-
