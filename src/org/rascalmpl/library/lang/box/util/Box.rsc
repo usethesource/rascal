@@ -20,14 +20,16 @@ data Box(int hs=-1, int vs=-1, int is=-1, int width=-1, int height=-1, Alignment
     | A(list[Box] a, list[Alignment] columns=[l() | _ <- a])
     | SPACE(int space)
     | L(str l)
-    | KW(Box kw)
-    | VAR(Box  var)
-    | NM(Box nm)
-    | STRING(Box string)
-    | COMM(Box comm)
-    | MATH(Box math)
-    | ESC(Box esc)
-    | REF(int ref)
+    // These "syntax highlighting" features are no longer supported by Box2Text. You can directly 
+    // highlight any parse tree by unparsing it to HTML, ANSI or LaTex using other functions.
+    // | KW(Box kw)
+    // | VAR(Box  var)
+    // | NM(Box nm)
+    // | STRING(Box string)
+    // | COMM(Box comm)
+    // | MATH(Box math)
+    // | ESC(Box esc)
+    // | REF(int ref)
     | NULL()
     ;
 
