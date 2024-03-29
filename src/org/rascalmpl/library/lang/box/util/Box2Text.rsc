@@ -87,9 +87,9 @@ between horizontal and vertical for HOV boxes.
 any confusion. 
 }
 data Options = options(
-    int h = 1, 
-    int v = 0, 
-    int i = 2, 
+    int hs = 1, 
+    int vs = 0, 
+    int is = 2, 
     int maxWidth=80, 
     int hv2hCrit=70,
     MarkupLanguage markup=ansi()
@@ -140,19 +140,13 @@ proper highlighting.
 public Text box2html(Box b, Options opts=options()) 
     = [
     *readFileLines(|std:///lang/box/util/Start.html|),
-    *text2html(q, opts),
+    *text2html(box2text(b, opts=opts)),
     *readFileLines(|std:///lang/box/util/End.html|)
 ]   ;
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
 public Text box2text(Box b, Options opts=options()) = text2txt(box2data(b, opts));
     
-alias   fOptions = map[str, list[str]];
-
-map[Box, Text] box2textmap=();
-
-data Box(list[str] format=[]);
-
 @synopsis{simple vertical concatenation (every list element is a line)}
 Text vv(Text a, Text b) = [*a, *b];
 
@@ -221,8 +215,8 @@ Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     for (a <- b) {
         Text t = O(a, H([]), opts, m);
         int s = hwidth(t); 
-        r = hh(t, rhh(hskip(opts.h), r));
-        m  = m - s - opts.h;
+        r = hh(t, rhh(hskip(opts.hs), r));
+        m  = m - s - opts.hs;
     }
    
     return r;
@@ -235,7 +229,7 @@ Text VV(list[Box] b, Box c, Options opts, int m) {
     for (a <- b) {
         if (V(_)!:=c || L("")!:=a) {
             Text t = O(a, V([]), opts, m);
-            r = vv(t, rvv(vskip(opts.v), r));
+            r = vv(t, rvv(vskip(opts.vs), r));
         }
     }
     return r;
@@ -246,15 +240,15 @@ Text II([], Box c, Options opts, int m) = [];
 Text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
 Text II(list[Box] b:[head,*tail], c:V(list[Box] _), Options opts, int m) {
-    Text t = O(head, c, opts, m - opts.i);
-    return rhh(hskip(opts.i),  hh(tail, II(t, c, opts, m - opts.i - hwidth(t))));
+    Text t = O(head, c, opts, m - opts.is);
+    return rhh(hskip(opts.is),  hh(tail, II(t, c, opts, m - opts.is - hwidth(t))));
 }
 
 Text WDWD(list[Box] b, Box c , Options opts, int m) {
     if (isEmpty(b)) {
         return [];
     }
-    int h  = b[0].hs?opts.h;
+    int h  = b[0].hs?opts.hs;
     Text t = O(b[0], c, opts, m);
     int s  = hwidth(t);
     return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
@@ -280,9 +274,9 @@ Text HOVHOV(list[Box] b, Box c, Options opts, int m)
 
 /* Gets complicated HVHV */
 Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m) {
-    int h= opts.h;
-    int v = opts.v;
-    int i= opts.i;
+    int h= opts.hs;
+    int v = opts.vs;
+    int i= opts.is;
     int n = h + hwidth(a);
     if (size(a)>1) { // Multiple lines 
         Text T1 = O(A, V([]), opts, m-i);
@@ -351,8 +345,8 @@ Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl, c, opt
 Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
 Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
-Text QQ(Box b:A(list[Box] bl)  , Box c, Options opts, int m) 
-    = AA([b[align=a] | <b, a> <- zip2(bl, b.columns)], c, opts, m);
+Text QQ(Box b:A(list[Box] rows)  , Box c, Options opts, int m) 
+    = AA(rows, c, b.columns, opts, m);
 
 Text QQ(Box b:KW(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "KW");
 Text QQ(Box b:VAR(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "VR");
@@ -362,17 +356,18 @@ Text QQ(Box b:COMM(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts
 Text QQ(Box b:MATH(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "MT");
 Text QQ(Box b:ESC(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "SC");
      
-Text O(Box b, Box c, Options opts, int m) {
-    int h = opts.h;
-    int v = opts.v;
-    int i = opts.i;
-    // if ((b.vs)?) println("Start:<getName(b)> <b.vs>");
-    if ((b.hs)?) {opts.h = b.hs;}
-    if ((b.vs)?) {opts.v = b.vs;}
-    if ((b.is)?) {opts.i = b.is;}
-    
-    return QQ(b, c, opts, m);
+@synopsis{Option inheritance layer.}
+@description{
+The next box is either configured by itself, or it inherits the options from the context.
 }
+Text O(Box b, Box c, Options opts, int m)
+    = QQ(b, c, opts[
+        hs=b.hs? ? b.hs : opts.hs][
+        vs=b.vs? ? b.vs : opts.vs][
+        is=b.is? ? b.is : opts.is], 
+        m
+    );
+
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
@@ -384,8 +379,8 @@ Box boxSize(Box b, Box c, Options opts, int m) {
 }
 
 list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
-    list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
-    return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
+    list[list[Box]] g = [b | R(list[Box] b) <- bl];
+    return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b <- g];
 }
 
 int getMaxWidth(list[Box] b) = max([c.width| Box c <- b]);
@@ -406,7 +401,7 @@ list[int] Awidth(list[list[Box]] a) {
     return r;
 }
 
-Text AA(list[Box] bl, Box c , Options opts, int m) {
+Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
     list[list[Box]] r = RR(bl, c, opts, m);
     list[int] mw0 = Awidth(r);
     list[Box] vargs = [];
@@ -414,16 +409,16 @@ Text AA(list[Box] bl, Box c , Options opts, int m) {
     for (list[Box] bl2 <- r) {
         list[int]  mw = mw0;
         list[Box] hargs = [];
-        for (Box b <- bl2) {
+        for (<Box b, Alignment a> <- zip2(bl2, columns)) {
             int width = b.width;
         
             max_width = head(mw);
-            mw=tail(mw);
-            int h= opts.h;
-            switch(b.align) {
+            mw        = tail(mw);
+            // int h= opts.hs;
+            switch(a) {
                 case l(): {
                     // b.hs=max_width - width+h; /*left alignment */  
-                    hargs+=b;
+                    hargs +=b;
                     hargs += SPACE(max_width - width);
                 }
                 case r(): {
