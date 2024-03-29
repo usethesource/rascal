@@ -456,3 +456,10 @@ test bool flipping1NoIndent()
        'B
        'C
        '";
+
+test bool simpleTable() 
+    = format(A([R([L("1"),L("2"),L("3")]),R([L("4"), L("5"), L("6")]),R([L("7"), L("8"), L("9")])]))
+    == "1  2  3 
+       '4  5  6 
+       '7  8  9 
+       '";
