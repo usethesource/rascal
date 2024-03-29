@@ -571,3 +571,16 @@ test bool verticalIndentation2()
        '  B
        'C
        '";
+
+test bool wrapping1IgnoreIndent()
+    = format(HV([L("A"), I([L("B")]), L("C")], hs=0), opts=options(maxWidth=2, wrapAfter=2))
+    == "AB
+       'C
+       '";
+
+test bool flipping1NoIndent()
+    = format(HOV([L("A"), L("B"), L("C")], hs=0, vs=0), opts=options(maxWidth=2, wrapAfter=2))
+    == "A
+       'B
+       'C
+       '";
