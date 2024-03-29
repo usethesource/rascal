@@ -32,7 +32,7 @@ data Box(int hs=-1, int vs=-1, int is=-1, int width=-1, int height=-1, Alignment
     ;
 
 data Alignment = l() | r() | c();  
-alias Text = list[str];
+alias Text     = list[str];
 
 
 

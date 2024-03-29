@@ -148,68 +148,62 @@ public Text box2html(Box b, Options opts=options())
 public Text box2text(Box b, Options opts=options()) = text2txt(box2data(b, opts));
     
 @synopsis{simple vertical concatenation (every list element is a line)}
-Text vv(Text a, Text b) = [*a, *b];
+private Text vv(Text a, Text b) = [*a, *b];
 
-str blank(str a) = right("", width(a));
+@synopsis{Create a string of spaces just as wide as the parameter a}
+private str blank(str a) = right("", width(a));
 
 @synopsis{Computes a white line with the length of the last line of a}
-Text wd([])             = [];
-Text wd([*_, str x])    = wd([x]);
+private Text wd([])             = [];
+private Text wd([*_, str x])    = wd([x]);
 
 @synopsis{Computes the length of unescaped string s}
-int width(str s) = size(s); // replaceAll(s,"\r...",""); ??
+private int width(str s) = size(s); // replaceAll(s,"\r...",""); ??
      
 @synopsis{Computes the maximum width of text t}
-int twidth(Text t) = max([width(line) | line <- t]);
+private int twidth(Text t) = max([width(line) | line <- t]);
      
 @synopsis{Computes the length of the last line of t}
-int hwidth([])             = 0;
-int hwidth([*_, str last]) = width(last);
+private int hwidth([])             = 0;
+private int hwidth([*_, str last]) = width(last);
 
 @synopsis{Prepends str a before text b, all lines of b will be shifted}
-Text bar(str a, [])                = [a];
-Text bar(str a, [str bh, *str bt]) = vv(["<a><bh>"], prepend(blank(a), bt));
+private Text bar(str a, [])                = [a];
+private Text bar(str a, [str bh, *str bt]) = vv(["<a><bh>"], prepend(blank(a), bt));
 
 @synopsis{Produce text consisting of a white line of length  n}
-Text hskip(int n) = [right("", n)];
+private Text hskip(int n) = [right("", n)];
     
 @synopsis{Produces text consisting of n white lines at length 0}
-Text vskip(int n) = ["" | _ <- [0..n]];
-
-@synopsis{Check if a string already consists of only blanks.}
-bool isBlank(str a) = (a == blank(a));
+private Text vskip(int n) = ["" | _ <- [0..n]];
 
 @synopsis{Prepend Every line in b with `a`}
-Text prepend(str a, Text b) = ["<a><line>" | line <- b];
+private Text prepend(str a, Text b) = ["<a><line>" | line <- b];
 
 @synopsis{Implements horizontal concatenation, also for multiple lines}
-Text hh([], Text b)  = b;
-Text hh(Text a, [])  = a;
-Text hh([a], Text b) = bar(a, b);
+private Text hh([], Text b)  = b;
+private Text hh(Text a, [])  = a;
+private Text hh([a], Text b) = bar(a, b);
 
-default Text hh(Text a, Text b) = vv(a[0..-1], bar(a[-1], b));
+private default Text hh(Text a, Text b) = vv(a[0..-1], bar(a[-1], b));
         
 @synsopsis{Horizontal concatenation, but if the left text is empty return nothing.}
-Text lhh([], Text _) = [];
-default Text lhh(a, b) = hh(a, b);
-
-@synsopsis{Vertical concatenation, but if the left text is empty return nothing.}
-Text lvv([], Text _) = [];
-default Text lvv(Text a, Text b) = vv(a,b);
+private Text lhh([], Text _) = [];
+private default Text lhh(a, b) = hh(a, b);
 
 @synsopsis{Horizontal concatenation, but if the right text is empty return nothing.}
-Text rhh(Text _, []) = [];
-Text rhh(Text a, Text b) = hh(a, b);
+private Text rhh(Text _, []) = [];
+private Text rhh(Text a, Text b) = hh(a, b);
 
 @synsopsis{Vertical concatenation, but if the right text is empty return nothing.}
-Text rvv(Text _, []) = [];
-default Text rvv(Text a, Text b) = vv(a,b);
+private Text rvv(Text _, []) = [];
+private default Text rvv(Text a, Text b) = vv(a,b);
     
-Text LL(str s ) = [s]; 
+private Text LL(str s ) = [s]; 
    
-Text HH([], Box _, Options opts, int m) = [];
+private Text HH([], Box _, Options opts, int m) = [];
 
-Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
+private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     Text r = [];
     b = reverse(b);
     for (a <- b) {
@@ -222,7 +216,7 @@ Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     return r;
 }
 
-Text VV(list[Box] b, Box c, Options opts, int m) {
+private Text VV(list[Box] b, Box c, Options opts, int m) {
     if (isEmpty(b)) return [];
     Text r = [];
     b = reverse(b);
@@ -235,16 +229,16 @@ Text VV(list[Box] b, Box c, Options opts, int m) {
     return r;
    }
 
-Text II([], Box c, Options opts, int m) = [];
+private Text II([], Box c, Options opts, int m) = [];
 
-Text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
+private Text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
-Text II(list[Box] b:[head,*tail], c:V(list[Box] _), Options opts, int m) {
+private Text II(list[Box] b:[head,*tail], c:V(list[Box] _), Options opts, int m) {
     Text t = O(head, c, opts, m - opts.is);
     return rhh(hskip(opts.is),  hh(tail, II(t, c, opts, m - opts.is - hwidth(t))));
 }
 
-Text WDWD(list[Box] b, Box c , Options opts, int m) {
+private Text WDWD(list[Box] b, Box c , Options opts, int m) {
     if (isEmpty(b)) {
         return [];
     }
@@ -254,7 +248,7 @@ Text WDWD(list[Box] b, Box c , Options opts, int m) {
     return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
 }
 
-Text ifHOV(Text t, Box b,  Box c, Options opts, int m) {
+private Text ifHOV(Text t, Box b,  Box c, Options opts, int m) {
     if (isEmpty(t)) {
         return [];
     }
@@ -269,11 +263,11 @@ Text ifHOV(Text t, Box b,  Box c, Options opts, int m) {
     return O(b, c, opts, m);
 }
 
-Text HOVHOV(list[Box] b, Box c, Options opts, int m) 
+private Text HOVHOV(list[Box] b, Box c, Options opts, int m) 
     = ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
 
 /* Gets complicated HVHV */
-Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m) {
+private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m) {
     int h= opts.hs;
     int v = opts.vs;
     int i= opts.is;
@@ -298,7 +292,7 @@ Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m) {
     }
 }
 
-Text HVHV(Text T, int s, list[Box] b, Options opts,  int m, Box c) {
+private Text HVHV(Text T, int s, list[Box] b, Options opts,  int m, Box c) {
     if (isEmpty(b)) {
         return T;
     }
@@ -306,7 +300,7 @@ Text HVHV(Text T, int s, list[Box] b, Options opts,  int m, Box c) {
     return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
 }
 
-Text HVHV(list[Box] b, Box _, Options opts, int m) {
+private Text HVHV(list[Box] b, Box _, Options opts, int m) {
     if (isEmpty(b)) {
         return [];
     }
@@ -319,7 +313,7 @@ Text HVHV(list[Box] b, Box _, Options opts, int m) {
 }
 
 // TODO: use real ANSI escape codes here instead?
-Text font(Text t, str tg) {
+private Text font(Text t, str tg) {
     if (isEmpty(t)) return t;
     str h = "\r{<tg>"+t[0];
     int n = size(t)-1;
@@ -336,31 +330,32 @@ Text font(Text t, str tg) {
     return r;
 }
 
-Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
-Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m); 
-Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(bl, c, opts, m);
-Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(bl, c, opts, m);
-Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(bl, c, opts, m);
-Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl, c, opts, m);
-Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
-Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
+private Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
+private Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m); 
+private Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(bl, c, opts, m);
+private Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(bl, c, opts, m);
+private Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(bl, c, opts, m);
+private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl, c, opts, m);
+private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
+private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
-Text QQ(Box b:A(list[Box] rows)  , Box c, Options opts, int m) 
+private Text QQ(Box b:A(list[Box] rows)  , Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
 
-Text QQ(Box b:KW(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "KW");
-Text QQ(Box b:VAR(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "VR");
-Text QQ(Box b:NM(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "NM");
-Text QQ(Box b:STRING(Box a)    , Box c, Options opts, int m) = font(O(a, c, opts, m), "SG");
-Text QQ(Box b:COMM(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "CT");
-Text QQ(Box b:MATH(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "MT");
-Text QQ(Box b:ESC(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "SC");
+private Text QQ(Box b:KW(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "KW");
+private Text QQ(Box b:VAR(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "VR");
+private Text QQ(Box b:NM(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "NM");
+private Text QQ(Box b:STRING(Box a)    , Box c, Options opts, int m) = font(O(a, c, opts, m), "SG");
+private Text QQ(Box b:COMM(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "CT");
+private Text QQ(Box b:MATH(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "MT");
+private Text QQ(Box b:ESC(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "SC");
      
 @synopsis{Option inheritance layer.}
 @description{
 The next box is either configured by itself, or it inherits the options from the context.
+Every recursive call to a nested box must go through this layer.
 }
-Text O(Box b, Box c, Options opts, int m)
+private Text O(Box b, Box c, Options opts, int m)
     = QQ(b, c, opts[
         hs=b.hs? ? b.hs : opts.hs][
         vs=b.vs? ? b.vs : opts.vs][
@@ -371,21 +366,19 @@ Text O(Box b, Box c, Options opts, int m)
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
-Box boxSize(Box b, Box c, Options opts, int m) {
+private Box boxSize(Box b, Box c, Options opts, int m) {
     Text s = O(b, c, opts, m);
     b.width = twidth(s);
     b.height = size(s);
     return b;
 }
 
-list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
+private list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
     list[list[Box]] g = [b | R(list[Box] b) <- bl];
     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b <- g];
 }
 
-int getMaxWidth(list[Box] b) = max([c.width| Box c <- b]);
-
-list[int] Awidth(list[list[Box]] a) {
+private list[int] Awidth(list[list[Box]] a) {
     if (isEmpty(a)) {
         return [];
     }
@@ -401,7 +394,7 @@ list[int] Awidth(list[list[Box]] a) {
     return r;
 }
 
-Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
+private Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
     list[list[Box]] r = RR(bl, c, opts, m);
     list[int] mw0 = Awidth(r);
     list[Box] vargs = [];
@@ -442,31 +435,31 @@ Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
 
 @synopsis{Check soft limit for HV and HOV boxes}
 // TODO this seems to ignore SPACE boxes?
-bool noWidthOverflow(list[Box] hv, Options opts) 
+private bool noWidthOverflow(list[Box] hv, Options opts) 
     = (0 | it + size(s) | /L(s) := hv) < opts.wrapAfter;
 
 @synopsis{Changes all HV boxes that do fit horizontally into hard H boxes.}
-Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
+private Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
     case HV(boxes, hs=h, is=i, vs=v) => H(boxes, hs=h, is=i, vs=v) 
         when noWidthOverflow(boxes, opts)
 };
 
 @synopsis{Changes all HOV boxes that do fit horizontally into hard H boxes,
 and the others into hard V boxes.}
-Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
+private Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
     case HOV(boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
         ? H(boxes, hs=h, is=i, vs=v)
         : V(boxes, hs=h, is=i, vs=v)      
 };
 
 @synopsis{Workhorse, that first applies hard HV and HOV limits and then starts the general algorithm}
-Text box2data(Box b, Options opts) {
+private Text box2data(Box b, Options opts) {
     b = applyHVconstraints(b, opts);
     b = applyHOVconstraints(b, opts);
     return O(b, V([]), options(), opts.maxWidth);
 }
     
-str convert2latex(str s) {
+private str convert2latex(str s) {
 	return visit (s) { 
 	  case /^\r\{/ => "\r{"
 	  case /^\r\}/ => "\r}"
@@ -483,7 +476,7 @@ str convert2latex(str s) {
 	}	
 }
 
-str text2latex(str t) {
+private str text2latex(str t) {
     t = convert2latex(t);
     return visit(t) {
        // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<text2latex(key)>}"
@@ -492,7 +485,7 @@ str text2latex(str t) {
     }
 }
 
-str selectBeginTag(str tg, str key) {
+private str selectBeginTag(str tg, str key) {
    if (tg=="KW") return "\<B\><key>";
    if (tg=="CT") return "\<I\><key>";
    if (tg=="SG") return "\<FONT color=\"blue\"\><key>";
@@ -501,7 +494,7 @@ str selectBeginTag(str tg, str key) {
    return key;
 }
 
-str selectEndTag(str tg) {
+private str selectEndTag(str tg) {
    if (tg=="KW") return "\</B\>";
    if (tg=="CT") return "\</I\>";
    if (tg=="SG") return "\</FONT\>";
@@ -510,7 +503,7 @@ str selectEndTag(str tg) {
    return "";
 }
    
-str convert2html(str s) {
+private str convert2html(str s) {
 	return visit (s) { 
 	  case /^\r\{/ => "\r{"
 	  case /^\r\}/ => "\r}"
@@ -523,7 +516,7 @@ str convert2html(str s) {
 	}	
 }
 
-str text2html(str t) {
+private str text2html(str t) {
     t = convert2html(t);
     return visit(t) {
        case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
@@ -531,15 +524,15 @@ str text2html(str t) {
     }
 }
     
-str text2txt(str t) {
+private str text2txt(str t) {
     return visit(t) {
        case /^\r\{../ => ""
        case /^\r\}../ => ""
     }
 }
     
-Text text2latex(Text t) = [text2latex(s)| s <- t];
+private Text text2latex(Text t) = [text2latex(s)| s <- t];
     
-Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
+private Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
     
-Text text2txt(Text t) = [text2txt(s) | s <- t];
+private Text text2txt(Text t) = [text2txt(s) | s <- t];
