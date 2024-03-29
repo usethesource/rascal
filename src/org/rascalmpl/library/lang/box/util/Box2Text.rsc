@@ -67,7 +67,6 @@ module lang::box::util::Box2Text
 
 import List;
 import String;
-import IO;
 import lang::box::util::Box;
 
 @synopsis{Global options for a single formatting run.}
@@ -121,31 +120,8 @@ public str format(Box b, Options opts = options())
     = "<for (line <- box2text(b, opts=opts)) {><line>
       '<}>";
 
-@synopsis{Converts boxes into latex}   
-// TODO: avoid file IO and read directly from constants    
-public Text box2latex(Box b, Options opts=options()) 
-    = [
-    *readFileLines(|std:///lang/box/util/Start.tex|),
-    *text2latex(box2text(b, opts=opts)),
-    *readFileLines(|std:///lang/box/util/End.tex|)
-    ];
-
-@synopsis{Converts Box to HTML}
-@description{
-This produces a <code>...</code> markup that wraps the formatted
-output of ((box2text)). Next to this all the FONT boxes are
-translated to their HTML markup representation to provide the
-proper highlighting.
-}       
-public Text box2html(Box b, Options opts=options()) 
-    = [
-    *readFileLines(|std:///lang/box/util/Start.html|),
-    *text2html(box2text(b, opts=opts)),
-    *readFileLines(|std:///lang/box/util/End.html|)
-]   ;
-
 @synopsis{Converts boxes into list of lines (ASCII)}      
-public Text box2text(Box b, Options opts=options()) = text2txt(box2data(b, opts));
+public Text box2text(Box b, Options opts=options()) = box2data(b, opts);
     
 @synopsis{simple vertical concatenation (every list element is a line)}
 private Text vv(Text a, Text b) = [*a, *b];
@@ -158,7 +134,7 @@ private Text wd([])             = [];
 private Text wd([*_, str x])    = wd([x]);
 
 @synopsis{Computes the length of unescaped string s}
-private int width(str s) = size(s); // replaceAll(s,"\r...",""); ??
+private int width(str s) = size(s); 
      
 @synopsis{Computes the maximum width of text t}
 private int twidth(Text t) = max([width(line) | line <- t]);
@@ -312,24 +288,6 @@ private Text HVHV(list[Box] b, Box _, Options opts, int m) {
     return HVHV(T, m - hwidth(T), tail(b), opts, m, H([]));
 }
 
-// TODO: use real ANSI escape codes here instead?
-private Text font(Text t, str tg) {
-    if (isEmpty(t)) return t;
-    str h = "\r{<tg>"+t[0];
-    int n = size(t)-1;
-    if (n==0) {
-        h += "\r}12";
-        return [h];
-    }
-    Text r = [];
-    r+=h;
-    for (int i <-[1, 2..n]) {
-        r+=t[i];
-    }
-    r+=(t[n]+"\r}<tg>");
-    return r;
-}
-
 private Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
 private Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m); 
 private Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(bl, c, opts, m);
@@ -341,14 +299,6 @@ private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
 private Text QQ(Box b:A(list[Box] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
-
-private Text QQ(Box b:KW(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "KW");
-private Text QQ(Box b:VAR(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "VR");
-private Text QQ(Box b:NM(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "NM");
-private Text QQ(Box b:STRING(Box a)    , Box c, Options opts, int m) = font(O(a, c, opts, m), "SG");
-private Text QQ(Box b:COMM(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "CT");
-private Text QQ(Box b:MATH(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "MT");
-private Text QQ(Box b:ESC(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "SC");
      
 @synopsis{Option inheritance layer.}
 @description{
@@ -459,84 +409,6 @@ private Text box2data(Box b, Options opts) {
     return O(b, V([]), options(), opts.maxWidth);
 }
     
-private str convert2latex(str s) {
-	return visit (s) { 
-	  case /^\r\{/ => "\r{"
-	  case /^\r\}/ => "\r}"
-	  case /^`/ => "{\\textasciigrave}"
-	  case /^\"/ => "{\\textacutedbl}"
-	  case /^\{/ => "\\{"
-	  case /^\}/ => "\\}"
-	  case /^\\/ => "{\\textbackslash}"
-	  case /^\</ => "{\\textless}"
-	  case /^\>/ => "{\\textgreater}"
-	  case /^\|/ => "{\\textbar}"
-	  case /^%/ => "\\%"
-	  // case /^-/ => "{\\textendash}"
-	}	
-}
-
-private str text2latex(str t) {
-    t = convert2latex(t);
-    return visit(t) {
-       // case /^\r\{<tg:..><key:[^\r]*>\r\}../ => "\\<tg>{<text2latex(key)>}"
-       case /^\r\{<tg:..><key:[^\r]*>/ => "\\<tg>{<key>"
-       case /^\r\}../ => "}"
-    }
-}
-
-private str selectBeginTag(str tg, str key) {
-   if (tg=="KW") return "\<B\><key>";
-   if (tg=="CT") return "\<I\><key>";
-   if (tg=="SG") return "\<FONT color=\"blue\"\><key>";
-   if (tg=="NM") return "\<FONT color=\"blue\"\><key>";
-   if (tg=="SC") return "\<I\><key>";
-   return key;
-}
-
-private str selectEndTag(str tg) {
-   if (tg=="KW") return "\</B\>";
-   if (tg=="CT") return "\</I\>";
-   if (tg=="SG") return "\</FONT\>";
-   if (tg=="NM") return "\</FONT\>";
-   if (tg=="SC") return "\</I\>";
-   return "";
-}
-   
-private str convert2html(str s) {
-	return visit (s) { 
-	  case /^\r\{/ => "\r{"
-	  case /^\r\}/ => "\r}"
-	  case /^ / => "&nbsp;"
-	  case /^\"/ => "&quot;"
-	  case /^&/ => "&amp;"
-	  case /^\</ => "&lt;"
-	  case /^\>/ => "&gt;"
-	  case /^%/ => "\\%"
-	}	
-}
-
-private str text2html(str t) {
-    t = convert2html(t);
-    return visit(t) {
-       case /^\r\{<tg:..><key:[^\r]*>/ =>  selectBeginTag(tg, key)
-       case /^\r\}<tg:..>/             => selectEndTag(tg)
-    }
-}
-    
-private str text2txt(str t) {
-    return visit(t) {
-       case /^\r\{../ => ""
-       case /^\r\}../ => ""
-    }
-}
-    
-private Text text2latex(Text t) = [text2latex(s)| s <- t];
-    
-private Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <- t];
-    
-private Text text2txt(Text t) = [text2txt(s) | s <- t];
-
 ///////////////// regression tests ////////////////////////////////
 
 test bool horizontalPlacement2()
