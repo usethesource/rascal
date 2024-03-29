@@ -9,29 +9,31 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::util::Box
 
-data Box(int hs=-1, int vs=-1, int is=-1, int ts=-1, int width=-1, int height=-1)
-    = H (list[Box] h)
+data Box(int hs=-1, int vs=-1, int is=-1, int width=-1, int height=-1, Alignment align=l())
+    = H(list[Box] h)
     | V(list[Box] v)
-    | HOV (list[Box] hov)
-    | HV (list[Box] hv)
+    | HOV(list[Box] hov)
+    | HV(list[Box] hv)
     | I(list[Box] i)
     | WD(list[Box] wd)
     | R(list[Box] r)
-    | A(list[Box] a)
+    | A(list[Box] a, list[Alignment] columns=[l() | _ <- a])
     | SPACE(int space)
     | L(str l)
     | KW(Box kw)
     | VAR(Box  var)
     | NM(Box nm)
-    | STRING(Box  string)
-    | COMM(Box  comm)
+    | STRING(Box string)
+    | COMM(Box comm)
     | MATH(Box math)
     | ESC(Box esc)
     | REF(int ref)
     | NULL()
     ;
-    
+
+data Alignment = l() | r() | c();  
 alias Text = list[str];
+
 
 
 

@@ -32,14 +32,15 @@ This demonstrates the semantics of the main hard constraints:
 
 ```rascal-shell
 import lang::box::util::Box2Text;
-format(H([L("A"), L("B"), L("C")], h=2))
-format(H([L("A"), L("B"), L("C")], h=1))
-format(H([L("A"), L("B"), L("C")], h=0))
-format(V([L("A"), L("B"), L("C")], h=2))
-format(V([L("A"), L("B"), L("C")], h=1))
-format(V([L("A"), L("B"), L("C")], h=0))
+format(H([L("A"), L("B"), L("C")], hs=2))
+format(H([L("A"), L("B"), L("C")], hs=1))
+format(H([L("A"), L("B"), L("C")], hs=0))
+format(V([L("A"), L("B"), L("C")], vs=2))
+format(V([L("A"), L("B"), L("C")], vs=1))
+format(V([L("A"), L("B"), L("C")], vs=0))
 format(H([L("A"), V([L("B"), L("C")])]))
 format(H([L("A"), I([L("B")]), L("C")]))
+format(H([L("A"), V([L("B"), H([L("C"), L("D")])])]))
 ```
 
 The "soft" constraints change their behavior based on available horizontal room:
@@ -51,15 +52,15 @@ format(HV([L("W<i>") | i <- [0..80]]));
 format(HV([L("W<i>") | i <- [0..100]]));
 format(HOV([L("W<i>") | i <- [0..10]]));
 format(HOV([L("W<i>") | i <- [0..20]]));
-format(HOV([L("W<i>") | i <- [0..40]]));
-format(HOV([L("W<i>") | i <- [0..80]]));
-format(HOV([L("W<i>") | i <- [0..100]]));
+format(HOV([L("W<i>") | i <- [0..30]]));
 ```
 
 By cleverly combining constraints, a specifically desired behavior is easy to achieve:
 ```rascal-shell,continue
-format(H([L("if"), H([L"(", L("true"), L(")")], h=0), HOV([L("doSomething")])]))
-format(H([L("if"), H([L"(", L("true"), L(")")], h=0), HOV([L("doSomething"), L("doSomethingElse"), L("yetAnotherThing"), L("andTheLastThing")])]))
+format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("doSomething")])]))
+format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("W<i>") | i <- [0..30]])]))
+format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HV([L("W<i>") | i <- [0..30]])]))
+format(V([H([L("if"), H([L("("), L("true"), L(")")], hs=0)]), I([V([L("W<i>") | i <- [0..30]])])]))
 ```
 }
 module lang::box::util::Box2Text
@@ -71,9 +72,9 @@ import lang::box::util::Box;
 
 @synopsis{Global options for a single formatting run.}
 @description{
-* `h` is the default separation between every horizontal element in H, HV and HOV boxes
-* `v` is the default separation between vertical elements in V, HV and HOV boxes
-* `i` is the default (additional) indentation for indented boxes
+* `hs` is the default separation between every horizontal element in H, HV and HOV boxes
+* `vs` is the default separation between vertical elements in V, HV and HOV boxes
+* `is` is the default (additional) indentation for indented boxes
 * `maxWidth` is the number of columns (characters) of a single line on screen or on paper
 * `hv2hCrit` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
 between horizontal and vertical for HOV boxes.
@@ -90,14 +91,15 @@ data Options = options(
     int v = 0, 
     int i = 2, 
     int maxWidth=80, 
-    int hv2hCrit=70
+    int hv2hCrit=70,
+    MarkupLanguage markup=ansi()
 );
 
 @synopsis{Option values for the highlighting markup features of the FONT and KW boxes, etc.}
 @description{
 (((TODO))) 
 }
-data Markup 
+data MarkupLanguage 
     = html()
     | ansi()
     | none()
@@ -143,18 +145,7 @@ public Text box2html(Box b, Options opts=options())
 ]   ;
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
-public Text box2text(Box b, Options opts=options()) {
-    Text q = [];
-    if (box2textmap[b]?) {
-        q = box2textmap[b];
-    }
-    else {
-        q = box2data(b, opts);
-        box2textmap+=(b:q);
-    }
-    Text t = text2txt(q);
-    return t;
-}
+public Text box2text(Box b, Options opts=options()) = text2txt(box2data(b, opts));
     
 alias   fOptions = map[str, list[str]];
 
@@ -183,13 +174,13 @@ int hwidth([*_, str last]) = width(last);
 
 @synopsis{Prepends str a before text b, all lines of b will be shifted}
 Text bar(str a, [])                = [a];
-Text bar(str a, [str bh, *str bt]) = vv([a+bh], prepend(blank(a), bt));
+Text bar(str a, [str bh, *str bt]) = vv(["<a><bh>"], prepend(blank(a), bt));
 
 @synopsis{Produce text consisting of a white line of length  n}
 Text hskip(int n) = [right("", n)];
     
 @synopsis{Produces text consisting of n white lines at length 0}
-Text vskip(int n) = ([] | vv(it, [""]) | _ <- [0..n]);
+Text vskip(int n) = ["" | _ <- [0..n]];
 
 @synopsis{Check if a string already consists of only blanks.}
 bool isBlank(str a) = (a == blank(a));
@@ -254,9 +245,9 @@ Text II([], Box c, Options opts, int m) = [];
 
 Text II(list[Box] b:[_,*_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
-Text II(list[Box] b:[_,*t], c:V(list[Box] _), Options opts, int m) {
-    Text t = O(b[0], c, opts, m - opts.i);
-    return rhh(hskip(opts.i),  hh(t, II(t, c, opts, m - opts.i - hwidth(t))));
+Text II(list[Box] b:[head,*tail], c:V(list[Box] _), Options opts, int m) {
+    Text t = O(head, c, opts, m - opts.i);
+    return rhh(hskip(opts.i),  hh(tail, II(t, c, opts, m - opts.i - hwidth(t))));
 }
 
 Text WDWD(list[Box] b, Box c , Options opts, int m) {
@@ -351,25 +342,25 @@ Text font(Text t, str tg) {
     return r;
 }
 
-Text QQ(Box b:L(str s)         , Box c, Options opts, fOptions f, int m) = LL(s);
-Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = HH(bl, c, opts, m); 
-Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = VV(bl, c, opts, m);
-Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = II(bl, c, opts, m);
-Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, fOptions f, int m) = WDWD(bl, c, opts, m);
-Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, fOptions f, int m) = HOVHOV(bl, c, opts, m);
-Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, fOptions f, int m) =  HVHV(bl, c, opts, m);
-Text QQ(Box b:SPACE(int n)     , Box c, Options opts, fOptions f, int m) =  hskip(n);
-Text QQ(Box b:A(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = AA(bl, c, opts, f, m);
+Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
+Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m); 
+Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(bl, c, opts, m);
+Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(bl, c, opts, m);
+Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(bl, c, opts, m);
+Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl, c, opts, m);
+Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
+Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
-@synsopsis{This is a degenerate case, since R's should have been nested in an A}
-Text QQ(Box b:R(list[Box] bl)  , Box c, Options opts, fOptions f, int m) = [ *lines | lines <- RR(bl, c, opts, m)]; 
-Text QQ(Box b:KW(Box a)        , Box c, Options opts, fOptions f, int m) = font(O(a, c, opts, m),"KW");
-Text QQ(Box b:VAR(Box a)       , Box c, Options opts, fOptions f, int m) =  font(O( a, c, opts, m),"VR");
-Text QQ(Box b:NM(Box a)        , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"NM");
-Text QQ(Box b:STRING(Box a)    , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SG");
-Text QQ(Box b:COMM(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"CT");
-Text QQ(Box b:MATH(Box a)      , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"MT");
-Text QQ(Box b:ESC(Box a)       , Box c, Options opts, fOptions f, int m) = font(O( a, c, opts, m),"SC");
+Text QQ(Box b:A(list[Box] bl)  , Box c, Options opts, int m) 
+    = AA([b[align=a] | <b, a> <- zip2(bl, b.columns)], c, opts, m);
+
+Text QQ(Box b:KW(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "KW");
+Text QQ(Box b:VAR(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "VR");
+Text QQ(Box b:NM(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "NM");
+Text QQ(Box b:STRING(Box a)    , Box c, Options opts, int m) = font(O(a, c, opts, m), "SG");
+Text QQ(Box b:COMM(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "CT");
+Text QQ(Box b:MATH(Box a)      , Box c, Options opts, int m) = font(O(a, c, opts, m), "MT");
+Text QQ(Box b:ESC(Box a)       , Box c, Options opts, int m) = font(O(a, c, opts, m), "SC");
      
 Text O(Box b, Box c, Options opts, int m) {
     int h = opts.h;
@@ -380,13 +371,7 @@ Text O(Box b, Box c, Options opts, int m) {
     if ((b.vs)?) {opts.v = b.vs;}
     if ((b.is)?) {opts.i = b.is;}
     
-    fOptions f =();
-    
-    if ((b.format)?) {
-        f["f"] = b.format;
-    }
-    
-    return QQ(b, c, opts, f, m);
+    return QQ(b, c, opts, m);
 }
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
@@ -399,8 +384,8 @@ Box boxSize(Box b, Box c, Options opts, int m) {
 }
 
 list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
-     list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
-     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
+    list[list[Box]] g = [ b |R(list[Box]  b)<-bl];
+    return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
 }
 
 int getMaxWidth(list[Box] b) = max([c.width| Box c <- b]);
@@ -421,39 +406,34 @@ list[int] Awidth(list[list[Box]] a) {
     return r;
 }
 
-Text AA(list[Box] bl, Box c ,Options opts, fOptions f, int m) {
-    list[list[Box]]  r=RR(bl, c, opts, m);
+Text AA(list[Box] bl, Box c , Options opts, int m) {
+    list[list[Box]] r = RR(bl, c, opts, m);
     list[int] mw0 = Awidth(r);
-    list[str] format0 = ((f["f"]?)?f["f"]:[]); // TODO: decipher this
     list[Box] vargs = [];
 
     for (list[Box] bl2 <- r) {
         list[int]  mw = mw0;
-        list[str] format =format0;
         list[Box] hargs = [];
         for (Box b <- bl2) {
             int width = b.width;
-            str f_str = !isEmpty(format)?head(format):"l";
-            if (!isEmpty(format)) {
-                format = tail(format);
-            }
+        
             max_width = head(mw);
             mw=tail(mw);
             int h= opts.h;
-            switch(f_str) {
-                case "l": {
-                     // b.hs=max_width - width+h; /*left alignment */  
-                         hargs+=b;
-                         hargs += SPACE(max_width - width);
-                }
-                case "r": {
-                     // b.hs=max_width - width+h; /*left alignment */
+            switch(b.align) {
+                case l(): {
+                    // b.hs=max_width - width+h; /*left alignment */  
+                    hargs+=b;
                     hargs += SPACE(max_width - width);
-                    hargs+=b;
                 }
-                case "c": {
+                case r(): {
+                    // b.hs=max_width - width+h; /*left alignment */
+                    hargs += SPACE(max_width - width);
+                    hargs +=b;
+                }
+                case c(): {
                     hargs += SPACE((max_width - width)/2);
-                    hargs+=b;
+                    hargs +=b;
                     hargs += SPACE((max_width - width)/2);
                 }
             }
@@ -465,52 +445,29 @@ Text AA(list[Box] bl, Box c ,Options opts, fOptions f, int m) {
     return O(V(vargs), c, opts, m);
 }
 
-bool changeHV2H(list[Box] hv, Options opts) {
-    int n = 0;
-    visit (hv) {
-        case L(str s): {
-            n+=size(s);
-        }
-    }
-    
-    return n < opts.hv2hCrit;
-}
+@synopsis{Check soft limit for HV and HOV boxes}
+// TODO this seems to ignore SPACE boxes?
+bool noWidthOverflow(list[Box] hv, Options opts) 
+    = (0 | it + size(s) | /L(s) := hv) < opts.hv2hCrit;
 
-Box removeHV(Box b, Options opts) {
-return innermost visit(b) {
-     case t:HV(list[Box] hv) => {
-            int h = (t.hs)?(-1);
-            int i =   (t.is)?(-1);
-            int v =   (t.vs)?(-1);
-            Box r = H(hv);
-            if (h>=0) r.hs = h;
-            if (i>=0)  r.is = i;
-            if (v>=0) r.vs = v;
-            r;                
-        }
-        when changeHV2H(hv, opts)
-    };
-}
+@synopsis{Changes all HV boxes that do fit horizontally into hard H boxes.}
+Box applyHVconstraints(Box b, Options opts) = innermost visit(b) {
+    case HV(boxes, hs=h, is=i, vs=v) => H(boxes, hs=h, is=i, vs=v) 
+        when noWidthOverflow(boxes, opts)
+};
 
-Box removeHOV(Box b, Options opts) {
-    return innermost visit(b) {
-        case t:HOV(list[Box] hov) => {
-            int h = (t.hs)?(-1);
-            int i =   (t.is)?(-1);
-            int v =   (t.vs)?(-1);
-            Box r = changeHV2H(hov, opts)?H(hov):V(hov);
-            if (h>=0) r.hs = h;
-            if (i>=0)  r.is = i;
-            if (v>=0) r.vs = v;
-            r;
-        }
-    };
-}
+@synopsis{Changes all HOV boxes that do fit horizontally into hard H boxes,
+and the others into hard V boxes.}
+Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
+    case HOV(boxes, hs=h, is=i, vs=v) => noWidthOverflow(boxes, opts) 
+        ? H(boxes, hs=h, is=i, vs=v)
+        : V(boxes, hs=h, is=i, vs=v)      
+};
 
-@synopsis{TODO: Don't understand this yet}
+@synopsis{Workhorse, that first applies hard HV and HOV limits and then starts the general algorithm}
 Text box2data(Box b, Options opts) {
-    b = removeHV(b, opts);
-    b = removeHOV(b, opts);
+    b = applyHVconstraints(b, opts);
+    b = applyHOVconstraints(b, opts);
     return O(b, V([]), options(), opts.maxWidth);
 }
     
