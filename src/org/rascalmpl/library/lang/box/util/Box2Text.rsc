@@ -233,9 +233,9 @@ private Text II([], Box c, Options opts, int m) = [];
 
 private Text II(list[Box] b:[_, *_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
-private Text II(list[Box] b:[head, *tail], c:V(list[Box] _), Options opts, int m) {
+private Text II(list[Box] b:[Box head, *Box tail], c:V(list[Box] _), Options opts, int m) {
     Text t = O(head, c, opts, m - opts.is);
-    return rhh(hskip(opts.is),  hh(tail, II(t, c, opts, m - opts.is - hwidth(t))));
+    return rhh(hskip(opts.is),  hh(t, II(tail, c, opts, m - opts.is - hwidth(t))));
 }
 
 private Text WDWD(list[Box] b, Box c , Options opts, int m) {
@@ -339,7 +339,7 @@ private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl
 private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
 private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
-private Text QQ(Box b:A(list[Box] rows)  , Box c, Options opts, int m) 
+private Text QQ(Box b:A(list[Box] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
 
 private Text QQ(Box b:KW(Box a)        , Box c, Options opts, int m) = font(O(a, c, opts, m), "KW");
@@ -537,6 +537,8 @@ private Text text2html(Text t) = ["\<NOBR\><text2html(s)>\</NOBR\>\<BR\>" | s <-
     
 private Text text2txt(Text t) = [text2txt(s) | s <- t];
 
+///////////////// regression tests ////////////////////////////////
+
 test bool horizontalPlacement2()
     = format(H([L("A"), L("B"), L("C")], hs=2))
     == "A  B  C
@@ -560,5 +562,12 @@ test bool verticalPlacement1()
        '
        'B
        '
+       'C
+       '";
+
+test bool verticalIndentation2()
+    = format(V([L("A"), I([L("B")]), L("C")]))
+    == "A
+       '  B
        'C
        '";
