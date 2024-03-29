@@ -31,7 +31,7 @@ data Box(int hs=-1, int vs=-1, int is=-1, int ts=-1, int width=-1, int height=-1
     | NULL()
     ;
     
-alias text = list[str];
+alias Text = list[str];
 
 
 
