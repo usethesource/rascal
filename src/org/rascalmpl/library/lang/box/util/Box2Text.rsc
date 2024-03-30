@@ -85,6 +85,17 @@ public str format(Box b, int maxWidth=80, int wrapAfter=70)
     = "<for (line <- box2text(b, maxWidth=maxWidth, wrapAfter=wrapAfter)) {><line>
       '<}>";
 
+@synopsis{Box2text uses list[str] as intermediate representation of the output during formatting}
+@benefits{
+* Helps with fast concatenation
+* Allows for measuring (max) width and height of intermediate results very quickly
+}
+@pitfalls{
+* Because of this representation, box2text does not recognize that unprintable characters have width 0. So,
+ANSI escape codes, and characters like \r and \n in `L` boxes _will break_ the accuracy of the algorithm.
+}
+alias Text = list[str];
+
 @synopsis{Converts boxes into list of lines (ASCII)}      
 public Text box2text(Box b, int maxWidth=80, int wrapAfter=70) 
     = box2data(b, options(maxWidth=maxWidth, wrapAfter=wrapAfter));
