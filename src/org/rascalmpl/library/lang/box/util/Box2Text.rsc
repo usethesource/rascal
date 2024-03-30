@@ -287,7 +287,7 @@ private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl
 private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
 private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
-private Text QQ(Box b:A(list[Box] rows), Box c, Options opts, int m) 
+private Text QQ(Box b:A(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
      
 @synopsis{Option inheritance layer. Deprecated}
@@ -311,7 +311,7 @@ private Box boxSize(Box b, Box c, Options opts, int m) {
     return b;
 }
 
-private list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
+private list[list[Box]] RR(list[Row] bl, Box c, Options opts, int m) {
     list[list[Box]] g = [b | R(list[Box] b) <- bl]; // only rows are considered, the other stuff is dropped!?
     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b <- g];
 }
@@ -321,7 +321,7 @@ list[int] Awidth([]) = [];
 list[int] Awidth(list[list[Box]] rows) 
     = [(0 | max([it, row[col].width]) | row <- rows ) | int col <- [0..size(head(rows))]];
 
-private Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
+private Text AA(list[Row] bl, Box c, list[Alignment] columns, Options opts, int m) {
     list[list[Box]] r = RR(bl, c, opts, m);
     list[int] mw0 = Awidth(r);
     list[Box] vargs = [];

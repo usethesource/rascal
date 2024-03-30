@@ -10,28 +10,18 @@
 module lang::box::util::Box
 
 data Box(int hs=1, int vs=0, int is=2)
-    = H(list[Box] h)
-    | V(list[Box] v)
-    | HOV(list[Box] hov)
-    | HV(list[Box] hv)
-    | I(list[Box] i)
-    | WD(list[Box] wd)
-    | R(list[Box] r)
-    | A(list[Box] a, list[Alignment] columns=[l() | [R(list[Box] cs), *_] := a, _ <- cs] /* learns the amount of columns from the first row */)
+    = H(list[Box] boxes)
+    | V(list[Box] boxes)
+    | HOV(list[Box] boxes)
+    | HV(list[Box] boxes)
+    | I(list[Box] boxes)
+    | WD(list[Box] boxes)
+    | A(list[Row] rows, list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
     | SPACE(int space)
-    | L(str l)
-    // These "syntax highlighting" features are no longer supported by Box2Text. You can directly 
-    // highlight any parse tree by unparsing it to HTML, ANSI or LaTex using other functions.
-    // | KW(Box kw)
-    // | VAR(Box  var)
-    // | NM(Box nm)
-    // | STRING(Box string)
-    // | COMM(Box comm)
-    // | MATH(Box math)
-    // | ESC(Box esc)
-    // | REF(int ref)
-    | NULL()
+    | L(str word)
     ;
+
+data Row = R(list[Box] cells);
 
 data Alignment = l() | r() | c();  
 alias Text     = list[str];
