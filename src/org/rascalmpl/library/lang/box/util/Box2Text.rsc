@@ -90,19 +90,8 @@ data Options = options(
     int vs = 0, 
     int is = 2, 
     int maxWidth=80, 
-    int wrapAfter=70,
-    MarkupLanguage markup=ansi()
+    int wrapAfter=70
 );
-
-@synopsis{Option values for the highlighting markup features of the FONT and KW boxes, etc.}
-@description{
-(((TODO))) 
-}
-data MarkupLanguage 
-    = html()
-    | ansi()
-    | none()
-    ;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -328,21 +317,10 @@ private list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b <- g];
 }
 
-private list[int] Awidth(list[list[Box]] a) {
-    if (isEmpty(a)) {
-        return [];
-    }
-    
-    int m = size(head(a));  // Rows have the same length
-
-    list[int] r = [];
-
-    for (int k<-[0..m]) {
-        r+=[max([b[k].width|b<-a])];
-    }
-    
-    return r;
-}
+@synopsis{Compute the maximum cell width for each column in an array}
+list[int] Awidth([]) = [];
+list[int] Awidth(list[list[Box]] rows) 
+    = [(0 | max([it, row[col].width]) | row <- rows ) | int col <- [0..size(head(rows))]];
 
 private Text AA(list[Box] bl, Box c, list[Alignment] columns, Options opts, int m) {
     list[list[Box]] r = RR(bl, c, opts, m);
@@ -444,10 +422,24 @@ test bool verticalIndentation2()
        'C
        '";
 
-test bool wrapping1IgnoreIndent()
+test bool blockIndent()
+    = format(V([L("A"), I([V([L("B"), L("C")])]), L("D")]))
+    == "A
+       '  B
+       '  C
+       'D
+       '";
+
+test bool wrappingIgnoreIndent()
     = format(HV([L("A"), I([L("B")]), L("C")], hs=0), opts=options(maxWidth=2, wrapAfter=2))
     == "AB
        'C
+       '";
+
+test bool wrappingWithIndent()
+    = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), opts=options(maxWidth=2, wrapAfter=2))
+    == "AB
+       '  C
        '";
 
 test bool flipping1NoIndent()
@@ -457,6 +449,20 @@ test bool flipping1NoIndent()
        'C
        '";
 
+test bool horizontalOfOneVertical()
+    = format(H([L("A"), V([L("B"), L("C")])]))
+    == "A B
+       '  C
+       '";
+
+test bool stairCase()
+    = format(H([L("A"), V([L("B"), H([L("C"), V([L("D"), H([L("E"), L("F")])])])])]))
+    == "A B
+       '  C D
+       '    E F
+       '";
+
+// TODO: there are extra spaces after every column. Looks like an off-by-one
 test bool simpleTable() 
     = format(A([R([L("1"),L("2"),L("3")]),R([L("4"), L("5"), L("6")]),R([L("7"), L("8"), L("9")])]))
     == "1  2  3 
@@ -464,10 +470,11 @@ test bool simpleTable()
        '7  8  9 
        '";
 
-@synopsis{this does not look right... the 66 is  not right aligned}
+// TODO: this does not look right... the 66 is  not right aligned}
 test bool simpleAlignedTable() 
     = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], columns=[l(),c(),r()]))
     == "1      2      3
        '44    55    66
        '777   888   999
        '";
+
