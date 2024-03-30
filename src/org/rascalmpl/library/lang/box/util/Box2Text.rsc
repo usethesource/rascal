@@ -196,7 +196,7 @@ private Text VV(list[Box] b, Box c, Options opts, int m) {
     Text r = [];
     b = reverse(b);
     for (a <- b) {
-        if (V(_)!:=c || L("")!:=a) {
+        if (V(_) !:= c || L("") !:= a) {
             Text t = O(a, V([]), opts, m);
             r = vv(t, rvv(vskip(opts.vs), r));
         }
@@ -217,7 +217,7 @@ private Text WDWD(list[Box] b, Box c , Options opts, int m) {
     if (isEmpty(b)) {
         return [];
     }
-    int h  = b[0].hs?opts.hs;
+    int h  = b[0].hs ? opts.hs;
     Text t = O(b[0], c, opts, m);
     int s  = hwidth(t);
     return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
@@ -227,8 +227,8 @@ private Text ifHOV(Text t, Box b,  Box c, Options opts, int m) {
     if (isEmpty(t)) {
         return [];
     }
-    if (size(t)==1) {
-        if (width(t[0])<=m) {
+    if (size(t) == 1) {
+        if (width(t[0]) <= m) {
             return t;
         }
         else {
@@ -263,7 +263,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
             return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
         }
         else { // Doesn't fit in both lines
-            Text T1 =O(A, V([]), opts, m-i);
+            Text T1 = O(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
         }
     }
@@ -282,7 +282,7 @@ private Text HVHV(list[Box] b, Box _, Options opts, int m) {
         return [];
     }
     Text T =  O(b[0], V([]), opts, m);  // Was H([])
-    if (size(b)==1) {
+    if (size(b )== 1) {
         return T;
     }
 
@@ -349,17 +349,17 @@ private Text AA(list[Row] bl, Box c, list[Alignment] columns, Options opts, int 
             switch(a) {
                 case l(): {
                     // b.hs=max_width - width+h; /*left alignment */  
-                    hargs +=b;
+                    hargs += b;
                     hargs += SPACE(max_width - width);
                 }
                 case r(): {
                     // b.hs=max_width - width+h; /*left alignment */
                     hargs += SPACE(max_width - width);
-                    hargs +=b;
+                    hargs += b;
                 }
                 case c(): {
                     hargs += SPACE((max_width - width)/2);
-                    hargs +=b;
+                    hargs += b;
                     hargs += SPACE((max_width - width)/2);
                 }
             }
