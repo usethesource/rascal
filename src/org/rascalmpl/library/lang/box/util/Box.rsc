@@ -24,7 +24,7 @@ data Box(int hs=1, int vs=0, int is=2)
 data Row = R(list[Box] cells);
 
 data Alignment = l() | r() | c();  
-alias Text     = list[str];
+
 
 
 
