@@ -69,30 +69,6 @@ import List;
 import String;
 import lang::box::util::Box;
 
-@synopsis{Global options for a single formatting run.}
-@description{
-* `hs` is the default separation between every horizontal element in H, HV and HOV boxes
-* `vs` is the default separation between vertical elements in V, HV and HOV boxes
-* `is` is the default (additional) indentation for indented boxes
-* `maxWidth` is the number of columns (characters) of a single line on screen or on paper
-* `wrapAfter` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
-between horizontal and vertical for HOV boxes.
-}
-@benefits{
-* if any of these options, with the same name and intent, are set on a Box constructor, the latter take precedence.
-}
-@pitfalls{
-* default options are also set on the Box constructors; they are not equal to these and set to `-1` to avoid
-any confusion. 
-}
-data Options = options(
-    int hs = 1, 
-    int vs = 0, 
-    int is = 2, 
-    int maxWidth=80, 
-    int wrapAfter=70
-);
-
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
 * This algorithm never changes the left-to-right order of the Boxes constituents, such that
@@ -105,13 +81,36 @@ fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 * HV and HOV are the soft constraints that allow for better solutions, so use them where you can to allow for 
 flexible layout that can handle deeply nested expressions and statements.
 } 
-public str format(Box b, Options opts = options())
-    = "<for (line <- box2text(b, opts=opts)) {><line>
+public str format(Box b, int maxWidth=80, int wrapAfter=70)
+    = "<for (line <- box2text(b, maxWidth=maxWidth, wrapAfter=wrapAfter)) {><line>
       '<}>";
 
 @synopsis{Converts boxes into list of lines (ASCII)}      
-public Text box2text(Box b, Options opts=options()) = box2data(b, opts);
-    
+public Text box2text(Box b, int maxWidth=80, int wrapAfter=70) 
+    = box2data(b, options(maxWidth=maxWidth, wrapAfter=wrapAfter));
+
+////////// private functions below implement the intermediate data-structures
+////////// and the constraint solver
+
+@synopsis{Configuration options for a single formatting run.}
+@description{
+This is used during the algorithm, not for external usage.
+
+* `hs` is the current separation between every horizontal element in H, HV and HOV boxes
+* `vs` is the current separation between vertical elements in V, HV and HOV boxes
+* `is` is the default (additional) indentation for indented boxes
+* `maxWidth` is the number of columns (characters) of a single line on screen or on paper
+* `wrapAfter` is the threshold criterium for line fullness, to go to the next line in a HV box and to switching 
+between horizontal and vertical for HOV boxes.
+}
+data Options = options(
+    int hs = 1, 
+    int vs = 0, 
+    int is = 2, 
+    int maxWidth=80, 
+    int wrapAfter=70
+);
+
 @synopsis{simple vertical concatenation (every list element is a line)}
 private Text vv(Text a, Text b) = [*a, *b];
 
@@ -166,7 +165,7 @@ private default Text rvv(Text a, Text b) = vv(a,b);
     
 private Text LL(str s ) = [s]; 
    
-private Text HH([], Box _, Options opts, int m) = [];
+private Text HH([], Box _, Options _opts, int _hs, int _m) = [];
 
 private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     Text r = [];
@@ -237,16 +236,18 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
     int v = opts.vs;
     int i= opts.is;
     int n = h + hwidth(a);
-    if (size(a)>1) { // Multiple lines 
+
+    if (size(a) > 1) { // Multiple lines 
         Text T1 = O(A, V([]), opts, m-i);
         return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
     }
+
     if (n <= s) {  // Box A fits in current line
         return HVHV(hh(lhh(T, hskip(h)), a), s-n, B, opts, m, H([]));
     }
     else {
         n -= h; // n == width(a)
-        if  ((i+n)<m) { // Fits in the next line, not in current line
+        if  (i + n < m) { // Fits in the next line, not in current line
             Text T1 =O(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
         }
@@ -289,22 +290,20 @@ private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 private Text QQ(Box b:A(list[Box] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
      
-@synopsis{Option inheritance layer.}
+@synopsis{Option inheritance layer. Deprecated}
 @description{
-The next box is either configured by itself, or it inherits the options from the context.
-Every recursive call to a nested box must go through this layer.
+The next box is either configured by itself. Options are transferred from the
+box to the opts parameter for easy passing on to recursive calls.
 }
 private Text O(Box b, Box c, Options opts, int m)
-    = QQ(b, c, opts[
-        hs=b.hs? ? b.hs : opts.hs][
-        vs=b.vs? ? b.vs : opts.vs][
-        is=b.is? ? b.is : opts.is], 
-        m
-    );
-
+    = QQ(b, c, opts[hs=b.hs][vs=b.vs][is=b.is], m);
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
+@synopsis{This is to store the result of the first pass of the algorithm over all the cells in an array/table}
+data Box(int width=0, int height=1);
+
+@synopsis{Completely layout a box and then measure its width and height, and annotate the result into the Box}
 private Box boxSize(Box b, Box c, Options opts, int m) {
     Text s = O(b, c, opts, m);
     b.width = twidth(s);
@@ -313,7 +312,7 @@ private Box boxSize(Box b, Box c, Options opts, int m) {
 }
 
 private list[list[Box]] RR(list[Box] bl, Box c, Options opts, int m) {
-    list[list[Box]] g = [b | R(list[Box] b) <- bl];
+    list[list[Box]] g = [b | R(list[Box] b) <- bl]; // only rows are considered, the other stuff is dropped!?
     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b <- g];
 }
 
@@ -431,19 +430,19 @@ test bool blockIndent()
        '";
 
 test bool wrappingIgnoreIndent()
-    = format(HV([L("A"), I([L("B")]), L("C")], hs=0), opts=options(maxWidth=2, wrapAfter=2))
+    = format(HV([L("A"), I([L("B")]), L("C")], hs=0), maxWidth=2, wrapAfter=2)
     == "AB
        'C
        '";
 
 test bool wrappingWithIndent()
-    = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), opts=options(maxWidth=2, wrapAfter=2))
+    = format(HV([L("A"), I([L("B")]), I([L("C")])], hs=0), maxWidth=2, wrapAfter=2)
     == "AB
        '  C
        '";
 
 test bool flipping1NoIndent()
-    = format(HOV([L("A"), L("B"), L("C")], hs=0, vs=0), opts=options(maxWidth=2, wrapAfter=2))
+    = format(HOV([L("A"), L("B"), L("C")], hs=0, vs=0), maxWidth=2, wrapAfter=2)
     == "A
        'B
        'C
