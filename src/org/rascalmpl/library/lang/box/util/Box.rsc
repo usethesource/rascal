@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::util::Box
 
-data Box(int hs=-1, int vs=-1, int is=-1, int width=-1, int height=-1, Alignment align=l())
+data Box(int hs=1, int vs=0, int is=2)
     = H(list[Box] h)
     | V(list[Box] v)
     | HOV(list[Box] hov)
