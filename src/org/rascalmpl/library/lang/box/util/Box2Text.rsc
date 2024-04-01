@@ -149,7 +149,7 @@ private Text bar(str a, [])                = [a];
 private Text bar(str a, [str bh, *str bt]) = vv(["<a><bh>"], prepend(blank(a), bt));
 
 @synopsis{Produce text consisting of a white line of length  n}
-private Text hskip(int n) = [right("", n)];
+Text hskip(int n) = [right("", n)];
     
 @synopsis{Produces text consisting of n white lines at length 0}
 private Text vskip(int n) = ["" | _ <- [0..n]];
@@ -348,30 +348,48 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts
     for (list[Box] row <- rows) {
         list[Box] hargs = [];
 
-        for (<cell, Alignment a, max_width> <- zip3(row, alignments, maxWidths)) {
+        for (<cell, Alignment a, maxWidth> <- zip3(row, alignments, maxWidths)) {
             int width=cell.width;
 
             // int h= opts.hs;
             switch(a) {
                 case l(): {
-                    // b.hs=max_width - width+h; /*left alignment */  
-                    hargs += cell;
-                    hargs += SPACE(max_width - width);
+                    // b.hs=maxWidth - width+h; /*left alignment */  
+                    if (maxWidth - width > 0) {
+                        hargs += H([cell, SPACE(maxWidth - width)], hs=0);
+                    }
+                    else {
+                        hargs += cell;
+                    }
                 }
                 case r(): {
-                    // b.hs=max_width - width+h; /*left alignment */
-                    hargs += SPACE(max_width - width);
-                    hargs += cell;
+                    // b.hs=maxWidth - width+h; /*left alignment */
+                    if (maxWidth - width > 0) {
+                        hargs += H([SPACE(maxWidth - width), cell], hs=0);
+                    }
+                    else {
+                        hargs += cell;
+                    }
                 }
                 case c(): {
-                    hargs += SPACE((max_width - width)/2);
-                    hargs += cell;
-                    hargs += SPACE((max_width - width)/2);
+                    if (maxWidth - width > 1) {
+                        hargs += H([
+                            SPACE((maxWidth - width) / 2), 
+                            cell, 
+                            SPACE((maxWidth - width) / 2)
+                        ], hs=0); 
+                    }
+                    else if (maxWidth - width == 1) {
+                        hargs += H([cell, SPACE(maxWidth - width)], hs=0);  
+                    }
+                    else {
+                        hargs += cell;
+                    }
                 }
             }
         }   
         
-        vargs += H(hargs);
+        vargs += H(hargs, hs=opts.hs);
     }
     
     return O(V(vargs), c, opts, m);
@@ -481,16 +499,17 @@ test bool stairCase()
 // TODO: there are extra spaces after every column. Looks like an off-by-one
 test bool simpleTable() 
     = format(A([R([L("1"),L("2"),L("3")]),R([L("4"), L("5"), L("6")]),R([L("7"), L("8"), L("9")])]))
-    == "1  2  3 
-       '4  5  6 
-       '7  8  9 
+    == "1 2 3
+       '4 5 6
+       '7 8 9
        '";
 
 // TODO: this does not look right... the 66 is  not right aligned}
 test bool simpleAlignedTable() 
-    = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], columns=[l(),c(),r()]))
-    == "1      2      3
-       '44    55    66
-       '777   888   999
+    = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], 
+                columns=[l(),c(),r()]))
+    == "1    2    3
+       '44  55   66
+       '777 888 999
        '";
 
