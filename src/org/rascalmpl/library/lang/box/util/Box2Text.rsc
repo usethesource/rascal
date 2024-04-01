@@ -340,34 +340,32 @@ private list[int] Awidth(list[list[Box]] rows)
 list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
     = [ R([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]]) | row <- rows];
 
-private Text AA(list[Row] bl, Box c, list[Alignment] columns, Options opts, int m) {
-    list[list[Box]] r = RR(AcompleteRows(bl), c, opts, m);
-    list[int] mw0 = Awidth(r);
+private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts, int m) {
+    list[list[Box]] rows = RR(AcompleteRows(table), c, opts, m);
+    list[int] maxWidths = Awidth(rows);
     list[Box] vargs = [];
 
-    for (list[Box] bl2 <- r) {
-        list[int]  mw = mw0;
+    for (list[Box] row <- rows) {
         list[Box] hargs = [];
-        for (<Box b, Alignment a> <- zip2(bl2, columns)) {
-            int width = b.width;
-        
-            max_width = head(mw);
-            mw        = tail(mw);
+
+        for (<cell, Alignment a, max_width> <- zip3(row, alignments, maxWidths)) {
+            int width=cell.width;
+
             // int h= opts.hs;
             switch(a) {
                 case l(): {
                     // b.hs=max_width - width+h; /*left alignment */  
-                    hargs += b;
+                    hargs += cell;
                     hargs += SPACE(max_width - width);
                 }
                 case r(): {
                     // b.hs=max_width - width+h; /*left alignment */
                     hargs += SPACE(max_width - width);
-                    hargs += b;
+                    hargs += cell;
                 }
                 case c(): {
                     hargs += SPACE((max_width - width)/2);
-                    hargs += b;
+                    hargs += cell;
                     hargs += SPACE((max_width - width)/2);
                 }
             }
