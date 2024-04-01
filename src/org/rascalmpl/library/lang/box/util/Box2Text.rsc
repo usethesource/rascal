@@ -68,7 +68,7 @@ module lang::box::util::Box2Text
 import util::Math;
 import List;
 import String;
-import lang::box::util::Box;
+import lang::box::\syntax::Box;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
