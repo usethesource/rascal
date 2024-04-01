@@ -9,6 +9,18 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::util::Box
 
+@synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
+@description{
+* `H` puts their elements next to each other one the same line separated by `hs` spaces.
+* `V` puts their elements below each other on their own line, separated by `vs` empty lines.
+* `HOV` acts like `H` as long as the elements all fit on one line, otherwise it becomes a `V`
+* `HV` acts like H until the line is full, and then continues on the next line like `V`.
+* `I` is a `V` box that indents every line in the output with `is` spaces
+* `WD` produces a number of spaces exactly as wide as the wides line of the constituent boxes
+* `A` is a table formatter. The list of Rows is formatted with `H` but each cell is aligned vertically with the rows above and below.
+* `SPACE` produces `space` spaces
+* `L` produces the literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
+}
 data Box(int hs=1, int vs=0, int is=2)
     = H(list[Box] boxes)
     | V(list[Box] boxes)
@@ -24,8 +36,4 @@ data Box(int hs=1, int vs=0, int is=2)
 data Row = R(list[Box] cells);
 
 data Alignment = l() | r() | c();  
-
-
-
-
 
