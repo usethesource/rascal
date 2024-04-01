@@ -13,7 +13,6 @@ module util::Highlight
 
 import ParseTree;
 import String;
-import IO;
 
 @synopsis{Yields the characters of a parse tree as the original input sentence in a <code>...</code> block, but with spans for highlighted segments in HTML}
 public str ToHTML(Tree t) {
