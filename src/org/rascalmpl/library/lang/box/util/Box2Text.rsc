@@ -496,7 +496,6 @@ test bool stairCase()
        '    E F
        '";
 
-// TODO: there are extra spaces after every column. Looks like an off-by-one
 test bool simpleTable() 
     = format(A([R([L("1"),L("2"),L("3")]),R([L("4"), L("5"), L("6")]),R([L("7"), L("8"), L("9")])]))
     == "1 2 3
@@ -504,12 +503,19 @@ test bool simpleTable()
        '7 8 9
        '";
 
-// TODO: this does not look right... the 66 is  not right aligned}
 test bool simpleAlignedTable() 
     = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], 
                 columns=[l(),c(),r()]))
     == "1    2    3
        '44  55   66
+       '777 888 999
+       '";
+
+test bool simpleAlignedTableDifferentAlignment() 
+    = format(A([R([L("1"),L("2"),L("3")]),R([L("44"), L("55"), L("66")]),R([L("777"), L("888"), L("999")])], 
+                columns=[r(),c(),l()]))
+    == "  1  2  3  
+       ' 44 55  66 
        '777 888 999
        '";
 
