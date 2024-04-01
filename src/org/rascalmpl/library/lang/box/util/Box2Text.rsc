@@ -345,10 +345,8 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts
     list[int] maxWidths = Awidth(rows);
     list[Box] vargs = [];
 
-    for (list[Box] row <- rows) {
-        list[Box] hargs = [];
-
-        for (<cell, Alignment a, maxWidth> <- zip3(row, alignments, maxWidths)) {
+    vargs = for (list[Box] row <- rows) {
+        hargs = for (<cell, Alignment a, maxWidth> <- zip3(row, alignments, maxWidths)) {
             int width=cell.width;
 
             // int h= opts.hs;
@@ -356,40 +354,40 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts
                 case l(): {
                     // b.hs=maxWidth - width+h; /*left alignment */  
                     if (maxWidth - width > 0) {
-                        hargs += H([cell, SPACE(maxWidth - width)], hs=0);
+                        append H([cell, SPACE(maxWidth - width)], hs=0);
                     }
                     else {
-                        hargs += cell;
+                        append cell;
                     }
                 }
                 case r(): {
                     // b.hs=maxWidth - width+h; /*left alignment */
                     if (maxWidth - width > 0) {
-                        hargs += H([SPACE(maxWidth - width), cell], hs=0);
+                        append H([SPACE(maxWidth - width), cell], hs=0);
                     }
                     else {
-                        hargs += cell;
+                        append cell;
                     }
                 }
                 case c(): {
                     if (maxWidth - width > 1) {
-                        hargs += H([
+                        append H([
                             SPACE((maxWidth - width) / 2), 
                             cell, 
                             SPACE((maxWidth - width) / 2)
                         ], hs=0); 
                     }
                     else if (maxWidth - width == 1) {
-                        hargs += H([cell, SPACE(maxWidth - width)], hs=0);  
+                        append H([cell, SPACE(maxWidth - width)], hs=0);  
                     }
                     else {
-                        hargs += cell;
+                        append cell;
                     }
                 }
             }
         }   
         
-        vargs += H(hargs, hs=opts.hs);
+        append H(hargs, hs=opts.hs);
     }
     
     return O(V(vargs), c, opts, m);
