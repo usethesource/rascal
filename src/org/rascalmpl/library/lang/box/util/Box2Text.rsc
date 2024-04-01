@@ -65,6 +65,7 @@ format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HV([L("W<i>") | i <- [0
 }
 module lang::box::util::Box2Text
 
+import util::Math;
 import List;
 import String;
 import lang::box::util::Box;
@@ -136,7 +137,8 @@ private Text wd([*_, str x])    = wd([x]);
 private int width(str s) = size(s); 
      
 @synopsis{Computes the maximum width of text t}
-private int twidth(Text t) = max([width(line) | line <- t]);
+private int twidth([]) = 0;
+private default int twidth(Text t) = max([width(line) | line <- t]);
      
 @synopsis{Computes the length of the last line of t}
 private int hwidth([])             = 0;
@@ -176,7 +178,7 @@ private default Text rvv(Text a, Text b) = vv(a,b);
     
 private Text LL(str s ) = [s]; 
    
-private Text HH([], Box _, Options _opts, int _hs, int _m) = [];
+private Text HH([], Box _, Options _opts, int _m) = [];
 
 private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     Text r = [];
@@ -323,17 +325,23 @@ private Box boxSize(Box b, Box c, Options opts, int m) {
 }
 
 private list[list[Box]] RR(list[Row] bl, Box c, Options opts, int m) {
-    list[list[Box]] g = [b | R(list[Box] b) <- bl]; // only rows are considered, the other stuff is dropped!?
+    list[list[Box]] g = [b | R(list[Box] b) <- bl]; 
     return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b <- g];
 }
 
+@synopsis{Compute the maximum number of columns of the rows in a table}
+private int Acolumns(list[Row] rows) = (0 | max(it, size(row.cells)) | row <- rows);
+
 @synopsis{Compute the maximum cell width for each column in an array}
-list[int] Awidth([]) = [];
-list[int] Awidth(list[list[Box]] rows) 
-    = [(0 | max([it, row[col].width]) | row <- rows ) | int col <- [0..size(head(rows))]];
+private list[int] Awidth(list[list[Box]] rows) 
+    = [(0 | max(it, row[col].width) | row <- rows ) | int col <- [0..size(head(rows))]];
+
+@synopsis{Adds empty cells to every row until every row has the same amount of columns.}
+list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
+    = [ R([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]]) | row <- rows];
 
 private Text AA(list[Row] bl, Box c, list[Alignment] columns, Options opts, int m) {
-    list[list[Box]] r = RR(bl, c, opts, m);
+    list[list[Box]] r = RR(AcompleteRows(bl), c, opts, m);
     list[int] mw0 = Awidth(r);
     list[Box] vargs = [];
 
