@@ -16,7 +16,6 @@ package org.rascalmpl.shell;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 
 import org.rascalmpl.debug.IRascalMonitor;
