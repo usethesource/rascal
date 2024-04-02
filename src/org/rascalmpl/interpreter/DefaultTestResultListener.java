@@ -20,7 +20,7 @@ import org.rascalmpl.repl.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class DefaultTestResultListener implements ITestResultListener{
+public class DefaultTestResultListener implements ITestResultListener {
 	private int successes;
 	private int failures;
 	private int errors;
