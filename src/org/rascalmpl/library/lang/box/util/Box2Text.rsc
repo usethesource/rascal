@@ -9,7 +9,7 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 @synopsis{Two-dimensional text layout algorithm}
 @description{
-The input to Box2Text is a hierarchy of "Boxes" represented by the ((data:Box)) algebraic data-type.
+The input to Box2Text is a hierarchy of "Boxes" represented by the Box algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
 there is the global soft constraints of the width of the screen (or the paper). Box2Text can also
 add markup for syntax highlighting in either ANSI plaintext encoding, HTML font tags or LaTex macros.
@@ -19,8 +19,8 @@ This implementation is a port from ASF+SDF to Rascal. The ASF+SDF implementation
 and Eelco Visser (June 30, 1994). The original Box concept was introduced by Joel Coutaz as this technical report:
 "The Box, A Layout Abstraction for User Interface Toolkits" (1984) Pittsburgh, PA: Carnegie Mellon University.
 
-The main function `format` maps a ((data:Box)) tree to a `str`:
-* To obtain ((data:Box)) terms people typically transform ASTs or ((ParseTree))s to ((data:Box)) using pattern matching in Rascal.
+The main function `format` maps a Box tree to a `str`:
+* To obtain Box terms people typically transform ASTs or ((ParseTree))s to Box using pattern matching in Rascal.
 * ((Options)) encode global default options for constraint parameters that only override local parameters if they were elided.
 * ((MarkupLanguage)) configures which markup language to use for syntax highlighting purposes.
 }

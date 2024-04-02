@@ -23,9 +23,9 @@ import List;
 * `SPACE` produces `space` spaces
 * `L` produces A literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
-* `((G))` is an additional group-by feature that reduces tot the above core features
-* `((SL))` is a convenience box for separated syntax lists based on ((G))
-* `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the ((U)) box.
+* `G` is an additional group-by feature that reduces tot the above core features
+* `SL` is a convenience box for separated syntax lists based on `G`
+* `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the `U` box.
 }
 @benefits{
 * Box expressions are a declarative mechanism to express formatting rules that are flexible enough to deal
