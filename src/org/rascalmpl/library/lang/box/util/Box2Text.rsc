@@ -123,6 +123,9 @@ data Options = options(
     int wrapAfter=70
 );
 
+@synopsis{Quickly splice in any nested U boxes}
+list[Box] u(list[Box] boxes) = [*((U(list[Box] nested) := b) ? nested : [b]) | b <- boxes];
+
 @synopsis{simple vertical concatenation (every list element is a line)}
 private Text vv(Text a, Text b) = [*a, *b];
 
@@ -284,12 +287,12 @@ private Text HVHV(list[Box] b:[Box head, Box next, *Box tail], Box _, Options op
 }
 
 private Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
-private Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m); 
-private Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(bl, c, opts, m);
-private Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(bl, c, opts, m);
-private Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(bl, c, opts, m);
-private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(bl, c, opts, m);
-private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(bl, c, opts, m);
+private Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
+private Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
+private Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(u(bl), c, opts, m);
+private Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl), c, opts, m);
+private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
+private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
 private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
 private Text QQ(Box b:A(list[Row] rows), Box c, Options opts, int m) 
@@ -330,7 +333,7 @@ private list[int] Awidth(list[list[Box]] rows)
 
 @synopsis{Adds empty cells to every row until every row has the same amount of columns.}
 list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
-    = [ R([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]]) | row <- rows];
+    = [ R(u([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]])) | row <- rows];
 
 private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts, int m) {
     list[list[Box]] rows = RR(AcompleteRows(table), c, opts, m);
