@@ -515,3 +515,14 @@ test bool simpleAlignedTableDifferentAlignment()
        '777 888 999
        '";
 
+test bool WDtest() {
+    L1 = H([L("aap")]           , hs=0);
+    L2 = H([WD([L1]), L("noot")], hs=0);
+    L3 = H([WD([L2]), L("mies")], hs=0);
+
+    return format(V([L1, L2, L3]))
+        == "aap
+           '   noot
+           '       mies
+           '";
+}
