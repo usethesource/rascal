@@ -309,7 +309,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public void warning(String message, ISourceLocation src) {
+        eraseBars();
         writer.println(("[WARNING] " + src + ": " + message));
+        printBars();
     }
 
     /**

@@ -15,12 +15,12 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.repl.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
 
 public class DefaultTestResultListener implements ITestResultListener{
-	private PrintWriter err;
 	private int successes;
 	private int failures;
 	private int errors;
@@ -28,15 +28,17 @@ public class DefaultTestResultListener implements ITestResultListener{
 	private int ignored;
     private String context;
     private final boolean verbose;
-	private static char[] roller = new char[] {'|', '/', '-', '\\', '|', '/', '-', '\\', '|'};
+	private final IRascalMonitor monitor;
+	private PrintWriter err;
 	
-	public DefaultTestResultListener(PrintWriter errorStream){
-	    this(errorStream, true);
+	public DefaultTestResultListener(PrintWriter err, IRascalMonitor monitor) {
+	    this(err, monitor, true);
 	}
-	public DefaultTestResultListener(PrintWriter errorStream, boolean verbose){
+	public DefaultTestResultListener(PrintWriter err, IRascalMonitor monitor, boolean verbose){
 		super();
 
-		this.err = errorStream;
+		this.err = err;
+		this.monitor = monitor;
 		this.verbose = verbose;
 		reset();
 	}
@@ -54,6 +56,9 @@ public class DefaultTestResultListener implements ITestResultListener{
 	
 	@Override
 	public void ignored(String test, ISourceLocation loc) {
+		if (verbose) {
+			monitor.jobStep(context, "Ignored " + test);
+		}
 	    this.ignored++;
 	}
 	
@@ -62,22 +67,14 @@ public class DefaultTestResultListener implements ITestResultListener{
 	    this.context = context;
 	    reset();
 	    if (count != 0 && verbose) {
-	        err.println("Running tests for " + context);
+	        monitor.jobStart(context, count);
 	    }
 		this.count = count;
-		progress();
 	}
-
-    private void progress() {
-        if (count > 0 && verbose) {
-            err.print(String.format("%s testing %d/%d ", 
-                    roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
-        }
-    }
 	
 	@Override
 	public void done() {
-	    progress();
+	    monitor.jobEnd(context, errors + failures == 0);
 	    if (count > 0) {
 	        if (!verbose) {
 	            // make sure results are reported on a newline
@@ -102,12 +99,10 @@ public class DefaultTestResultListener implements ITestResultListener{
 
 	@Override
 	public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
-		progress();
-		
 		if (successful) {
 		    successes++;
 		    if (verbose) {
-		        err.print("success                                                       \r");
+				monitor.jobStep(context, "success: " + test);
 		    }
 		}
 		else if (t != null) {
@@ -115,6 +110,7 @@ public class DefaultTestResultListener implements ITestResultListener{
 		    if (!verbose) {
 		        err.println();
 		    }
+			monitor.jobStep(context, "error: " + test);
 		    err.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
 		    err.println(message);
 		}
@@ -123,11 +119,10 @@ public class DefaultTestResultListener implements ITestResultListener{
 		    if (!verbose) {
 		        err.println();
 		    }
+			monitor.jobStep(context, "failure: " + test);
 		    err.println("failure: " + test + " @ " + ReplTextWriter.valueToString(loc));
 		    err.println(message);
 		}
-		
-	
 		
 		err.flush();
 	}
