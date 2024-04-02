@@ -28,6 +28,7 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -210,31 +211,31 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         private void runTests() {
             try {
                 if (waitForRunSignal()) {
-                    for (Description mod: testModules) {
-                        Listener trl = new Listener(mod, stderr);
-                        
-                        if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
-                            results.add(notifier -> {
-                                notifier.fireTestStarted(mod);
-                                notifier.fireTestFailure(new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had import/compilation errors")));
-                            });
-                            continue;
+                    evaluator.job("Test runner for " + testModules.size() + " modules...", testModules.size(), (String jn) ->  {
+                        for (Description mod: testModules) {
+                            evaluator.jobStep(jn, mod.getDisplayName(), 1);
+                            Listener trl = new Listener(mod, stderr, evaluator);
+                            
+                            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                                results.add(notifier -> {
+                                    notifier.fireTestStarted(mod);
+                                    notifier.fireTestFailure(new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had import/compilation errors")));
+                                });
+                                continue;
+                            }
+                            
+                
+                            TestEvaluator runner = new TestEvaluator(evaluator, trl);
+                            runner.test(mod.getDisplayName());
+                            
+                            stdout.flush();
+                            stderr.flush();
                         }
-                        
-                        long start = System.nanoTime();
-                        TestEvaluator runner = new TestEvaluator(evaluator, trl);
-                        runner.test(mod.getDisplayName());
-                        long stop = System.nanoTime();
-                        long duration = (stop - start) / 1000_000;
-                        if (duration > 10_000) {
-                            // longer that 10s
-                            System.err.println("Testing module " + mod.getClassName() + " took: " + duration + "ms");
-                            System.err.flush();
-                        }
-                        stdout.flush();
-                        stderr.flush();
-                    }
+
+                        return true;
+                    });
                 }
+            
             }
             finally {
                 workersCompleted.release();
@@ -314,10 +315,13 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     public class Listener implements ITestResultListener {
         private final PrintWriter stderr;
         private final Description module;
+        private final IRascalMonitor monitor;
+        private String context = "";
 
-        public Listener(Description module, PrintWriter stderr) {
+        public Listener(Description module, PrintWriter stderr, IRascalMonitor monitor) {
             this.module = module;
             this.stderr = stderr;
+            this.monitor = monitor;
         }
 
         private Description getDescription(String name, ISourceLocation loc) {
@@ -334,11 +338,13 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
         @Override
         public void start(String context, int count) {
-            // starting a module
+            this.context = context;
+            monitor.jobStart(context, count);
         }
+
         @Override
         public void done() {
-            // a module was done
+            monitor.jobEnd(context, true);
         }
 
         @Override
@@ -359,12 +365,15 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                     notifier.fireTestFinished(desc);
                 }
             });
+
+            monitor.jobStep(context, test);
         }
 
         @Override
         public void ignored(String test, ISourceLocation loc) {
             Description desc = getDescription(test, loc);
             results.add(notifier -> notifier.fireTestIgnored(desc));
+            monitor.jobStep(context, "Ignore " + test);
         }
     }
 }

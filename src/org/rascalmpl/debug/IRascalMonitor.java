@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -31,11 +32,22 @@ public interface IRascalMonitor {
 		jobStart(name, 1, totalWork);
 	}
 
-	default void job(String name, Supplier<Boolean> block) {
+	default void job(String name, int totalWork, Supplier<Boolean> block) {
 		boolean result = false;
 		try {
-			jobStart(name);
+			jobStart(name, totalWork);
 			result = block.get();
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
+
+	default void job(String name, int totalWork, Function<String, Boolean> block) {
+		boolean result = false;
+		try {
+			jobStart(name, totalWork);
+			result = block.apply(name);
 		}
 		finally {
 			jobEnd(name, result);
