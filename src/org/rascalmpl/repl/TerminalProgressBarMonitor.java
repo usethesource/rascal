@@ -61,12 +61,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * Represents one currently running progress bar
      */
     private class ProgressBar {
+        private final long threadId;
         private final String name;
         private int max;
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
+        private final int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -74,6 +75,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private final String[] clocks = new String[] {"🕐" , "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕛"};
 
         ProgressBar(String name, int max) {
+            this.threadId = Thread.currentThread().getId();
             this.name = name;
             this.max = max;
             this.startTime = Instant.now();
@@ -114,7 +116,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         void write() {
             previousWidth = doneWidth;
             doneWidth = newWidth();
-
                         
             // var overWidth = barWidth - doneWidth;
             var done = current >= max ? "☑ " : "☐ ";
@@ -156,12 +157,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         @Override
         public boolean equals(Object obj) {
-            return obj instanceof ProgressBar && ((ProgressBar) obj).name.equals(name);
+            return obj instanceof ProgressBar 
+                && ((ProgressBar) obj).name.equals(name)
+                && ((ProgressBar) obj).threadId == threadId
+                ;
         }
 
         @Override
         public int hashCode() {
-            return name.hashCode();
+            return name.hashCode() + 31 * (int) threadId;
         }
 
         public void done() {
@@ -243,11 +247,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * @return the current instance by that name
      */
     private ProgressBar findBarByName(String name) {
-        return bars.stream().filter(b -> b.name.equals(name)).findFirst().orElseGet(() -> null);
+        return bars.stream()
+            .filter(b -> b.threadId == Thread.currentThread().getId())
+            .filter(b -> b.name.equals(name)).findFirst().orElseGet(() -> null);
     }
     
     @Override
-    public void jobStart(String name, int workShare, int totalWork) {
+    public synchronized void jobStart(String name, int workShare, int totalWork) {
         var pb = findBarByName(name);
         
         eraseBars(); // to make room for the new bars
@@ -264,7 +270,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     @Override
-    public void jobStep(String name, String message, int workShare) {
+    public synchronized void jobStep(String name, String message, int workShare) {
         ProgressBar pb = findBarByName(name);
         
         if (pb != null) {
@@ -274,7 +280,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     @Override
-    public int jobEnd(String name, boolean succeeded) {
+    public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
 
         if (pb != null) {
@@ -292,13 +298,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     @Override
-    public boolean jobIsCanceled(String name) {
+    public synchronized boolean jobIsCanceled(String name) {
        // ? don't know what this should do
        return false;
     }
 
     @Override
-    public void jobTodo(String name, int work) {
+    public synchronized void jobTodo(String name, int work) {
         ProgressBar pb = findBarByName(name);
         
         if (pb != null) {
@@ -308,7 +314,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     @Override
-    public void warning(String message, ISourceLocation src) {
+    public synchronized void warning(String message, ISourceLocation src) {
         eraseBars();
         writer.println(("[WARNING] " + src + ": " + message));
         printBars();

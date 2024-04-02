@@ -241,50 +241,60 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void processModules() {
-            String module;
-            try {
-                while ((module = modules.poll()) != null) {
-                    try {
-                        evaluator.doImport(new NullRascalMonitor(), module);
-                    }
-                    catch (Throwable e) {
-                        synchronized(stdout) {
-                            evaluator.warning("Could not import " + module + " for testing...", null);
-                            evaluator.warning(e.getMessage(), null);
-                            e.printStackTrace(evaluator.getOutPrinter());
-                        } 
-                        
-                        // register a failing module to make sure we report failure later on. 
-                        
-                        Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return getClass();
-                            }
-                        });
+            evaluator.job("Importing test modules", 1, (jn) -> {
+                try {
+                    String module;
 
-                        testModules.add(testDesc);
-                        descriptions.add(testDesc);
-
-                        continue;
-                    }
-
-                    ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
-                    if (!moduleEnv.getTests().isEmpty()) {
-                        Description modDesc = Description.createSuiteDescription(module);
-                        for (AbstractFunction f : moduleEnv.getTests()) {
-                            modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
+                    while ((module = modules.poll()) != null) {
+                        evaluator.jobTodo(jn, 1);
+                       
+                        try {
+                            evaluator.doImport(new NullRascalMonitor(), module);
                         }
-                        descriptions.add(modDesc);
-                        testModules.add(modDesc);
+                        catch (Throwable e) {
+                            synchronized(stdout) {
+                                evaluator.warning("Could not import " + module + " for testing...", null);
+                                evaluator.warning(e.getMessage(), null);
+                                e.printStackTrace(evaluator.getOutPrinter());
+                            } 
+                            
+                            // register a failing module to make sure we report failure later on. 
+                            
+                            Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                                @Override
+                                public Class<? extends Annotation> annotationType() {
+                                    return getClass();
+                                }
+                            });
+
+                            testModules.add(testDesc);
+                            descriptions.add(testDesc);
+
+                            continue;
+                        }
+                        finally {
+                            evaluator.jobStep(jn, module);
+                        }
+
+                        ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
+                        if (!moduleEnv.getTests().isEmpty()) {
+                            Description modDesc = Description.createSuiteDescription(module);
+                            for (AbstractFunction f : moduleEnv.getTests()) {
+                                modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
+                            }
+                            descriptions.add(modDesc);
+                            testModules.add(modDesc);
+                        }
                     }
+                    // let's shuffle them
+                    Collections.shuffle(testModules); 
                 }
-                // let's shuffle them
-                Collections.shuffle(testModules); 
-            }
-            finally {
-                importsCompleted.release();
-            }
+                finally {
+                    importsCompleted.release();
+                }
+
+                return true;
+            });
         }
 
         private void initializeEvaluator() {
