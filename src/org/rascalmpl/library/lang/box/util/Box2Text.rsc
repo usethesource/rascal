@@ -361,57 +361,29 @@ private list[int] Awidth(list[list[Box]] rows)
 list[Row] AcompleteRows(list[Row] rows, int columns=Acolumns(rows))
     = [ R(u([*row.cells, *[H([]) | _ <- [0..columns - size(row.cells)]]])) | row <- rows];
 
+@synopsis{Helper function for aligning Text inside an array cell}
+private Box align(l(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
+    ? H([cell, SPACE(maxWidth - cell.width)], hs=0)
+    : cell;
+
+private Box align(r(), Box cell, int maxWidth) = maxWidth - cell.width > 0 
+    ? H([SPACE(maxWidth - cell.width), cell], hs=0)
+    : cell;
+
+private Box align(c(), Box cell, int maxWidth) = maxWidth - cell.width > 1 
+    ? H([SPACE((maxWidth - cell.width) / 2),  cell, SPACE((maxWidth - cell.width) / 2)], hs=0)
+    : maxWidth - cell.width == 1 ?
+        align(l(), cell, maxWidth)
+        : cell;
+
 private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts, int m) {
     list[list[Box]] rows = RR(AcompleteRows(table), c, opts, m);
-    list[int] maxWidths = Awidth(rows);
-    list[Box] vargs = [];
-
-    vargs = for (list[Box] row <- rows) {
-        hargs = for (<cell, Alignment a, maxWidth> <- zip3(row, alignments, maxWidths)) {
-            int width=cell.width;
-
-            // int h= opts.hs;
-            switch(a) {
-                case l(): {
-                    // b.hs=maxWidth - width+h; /*left alignment */  
-                    if (maxWidth - width > 0) {
-                        append H([cell, SPACE(maxWidth - width)], hs=0);
-                    }
-                    else {
-                        append cell;
-                    }
-                }
-                case r(): {
-                    // b.hs=maxWidth - width+h; /*left alignment */
-                    if (maxWidth - width > 0) {
-                        append H([SPACE(maxWidth - width), cell], hs=0);
-                    }
-                    else {
-                        append cell;
-                    }
-                }
-                case c(): {
-                    if (maxWidth - width > 1) {
-                        append H([
-                            SPACE((maxWidth - width) / 2), 
-                            cell, 
-                            SPACE((maxWidth - width) / 2)
-                        ], hs=0); 
-                    }
-                    else if (maxWidth - width == 1) {
-                        append H([cell, SPACE(maxWidth - width)], hs=0);  
-                    }
-                    else {
-                        append cell;
-                    }
-                }
-            }
-        }   
-        
-        append H(hargs, hs=opts.hs);
-    }
+    list[int] maxWidths  = Awidth(rows);
     
-    return \continue(V(vargs), c, opts, m);
+    return \continue(V([
+        H([align(al, cell, mw) | <cell, al, mw> <- zip3(row, alignments, maxWidths)]) 
+    | row <- rows
+    ]),c, opts, m);
 }
 
 @synopsis{Check soft limit for HV and HOV boxes}
