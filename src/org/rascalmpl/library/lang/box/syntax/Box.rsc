@@ -9,6 +9,8 @@
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 module lang::box::\syntax::Box
 
+import List;
+
 @synopsis{Every kind of boxes encodes one or more parameterized two-dimensional text constraints.}
 @description{
 * `H` puts their elements next to each other one the same line separated by `hs` spaces.
@@ -51,4 +53,39 @@ is done lazily and on demand during the layout algorithm.
 }
 Box U([*Box front, U([*Box middle]), *Box end])
   = U([*front, *middle, *end]);
- 
+
+@synopsis{General shape of a Box operator}
+alias BoxOp = Box(list[Box]);
+
+@synopsis{Group boxes by a certain group size, and splice the resulting groups in the context.} 
+@description{
+Grouping is a useful for formatting syntactical constructs such as separated lists.
+The G operator will create as many even groups of size `gs` as possible, and
+create a last shorter group if any elements are left. 
+
+The G operator eventually returns a `U` box such that the groups can flow into any surrounding
+context (typically `HV` or `HOV`) for improving paragraph flow.
+}
+Box G([],  BoxOp  op = H, int hs=1, int vs=0, int is=2, int gs=2) = U([]);
+
+Box G([*Box last], Box(list[Box]) op = H, int hs=1, int vs=0, int is=2, int gs=2)
+  = U([op(last)[hs=hs][vs=vs][is=is]])
+  when size(last) < gs;
+
+Box G([*Box heads, *Box tail], BoxOp op = H, int hs=1, int vs=0, int is=2, int gs=2 )
+  = U([op(heads)[hs=hs][vs=vs][is=is], G(tail, op=op, hs=hs, vs=vs, is=is, gs=gs)])
+  when size(heads) == gs;
+
+@synopsis{Short-hand for grouping separators after elements in separated lists}
+Box SL(list[Box] boxes) = G(boxes, op=H, gs=4, hs=0);
+
+@synopsis{NULL can be used to return a Box that will completely dissappear in the surrounding context.}
+@description{
+Consider `NULL()`` as an alternative to producing `H([])` when you see unexpected
+additional spaces generated.
+}
+@examples{
+* `H([L("A"), H([]),L("B")])` will produce `"A  B"` with two spaces;
+* `H([L("A"), NULL(),L("B")])` will produce `"A B"` with only one space.
+}
+Box NULL() = U([]);

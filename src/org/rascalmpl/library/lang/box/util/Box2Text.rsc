@@ -69,6 +69,7 @@ import util::Math;
 import List;
 import String;
 import lang::box::\syntax::Box;
+import Exception;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -294,6 +295,9 @@ private Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl
 private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
 private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
 private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
+
+// This is a degenerate case, an outermost U-Box without a wrapper around it.
+private Text QQ(Box b:U(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m);
 
 private Text QQ(Box b:A(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
