@@ -21,8 +21,22 @@ import List;
 * `WD` produces a number of spaces exactly as wide as the wides line of the constituent boxes
 * `A` is a table formatter. The list of Rows is formatted with `H` but each cell is aligned vertically with the rows above and below.
 * `SPACE` produces `space` spaces
-* `L` produces the literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
+* `L` produces A literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
 * `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
+* `((G))` is an additional group-by feature that reduces tot the above core features
+* `((SL))` is a convenience box for separated syntax lists based on ((G))
+* `NULL()` is the group that will dissappear from its context, useful for skipping content. It is based on the ((U)) box.
+}
+@benefits{
+* Box expressions are a declarative mechanism to express formatting rules that are flexible enough to deal
+with limited horizontal space, and satisfy the typical alignment and indentation principles found in 
+the coding standards for programming languages.
+* The parameters of Box expressions allow for full configuration. It is up to the code that produces Box
+expressions to present these parameters to the user or not. For example, indentation level `is` should be
+set on every `I` Box according to the current preferences of the user. 
+}
+@pitfalls{
+* `U(boxes)` is rendered as `H(boxes)` if it's the outermost Box.
 }
 data Box(int hs=1, int vs=0, int is=2)
     = H(list[Box] boxes)
@@ -83,9 +97,20 @@ Box SL(list[Box] boxes) = G(boxes, op=H, gs=4, hs=0);
 @description{
 Consider `NULL()`` as an alternative to producing `H([])` when you see unexpected
 additional spaces generated.
+
+Typical applications for NULL would be to produce it for layout nodes that contain
+only whitespace. If you encounter source code comments you can produce the appropriate `L` content,
+but if you want the position ignored, use `NULL`.
+
+`NULL`` depends on the splicing semantics of `U` to dissappear completely before the layout
+algorithm starts counting boxes and widths. 
 }
 @examples{
 * `H([L("A"), H([]),L("B")])` will produce `"A  B"` with two spaces;
 * `H([L("A"), NULL(),L("B")])` will produce `"A B"` with only one space.
+}
+@pitfalls{
+* Do not use `NULL` for empty Row cells, unless you do want your cells aligned to the left and filled up to the right with empty H boxes.
+* NULL will be formatted as `H([])` if it's the outermost Box.
 }
 Box NULL() = U([]);
