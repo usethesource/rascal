@@ -172,7 +172,7 @@ public class RascalJUnitTestRunner extends Runner {
             ISourceLocation currentDir = todo.poll();
 
             if (!URIResolverRegistry.getInstance().exists(currentDir)) {
-                 evaluator.warning("Skipping " + currentDir + ", does not exist.", currentDir);
+                // this happens due to searching in the entire classpath
                  continue;
             }
 

@@ -16,12 +16,15 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
+import jline.TerminalFactory;
 
 public class ParallelEvaluatorsTests {
-
+    private static final TerminalProgressBarMonitor monitor = new TerminalProgressBarMonitor(System.out, TerminalFactory.get());
+    
     private static final String[] testModules = new String[] {
         "lang::rascal::tests::library::ValueIO",
         "lang::rascal::tests::library::Map",
@@ -32,27 +35,38 @@ public class ParallelEvaluatorsTests {
         var heap = new GlobalEnvironment();
         var root = heap.addModule(new ModuleEnvironment("___test___", heap));
         
-        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
+        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, monitor,  root, heap);
+        evaluator.setMonitor(monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());        
         evaluator.setTestResultListener(new ITestResultListener() {
+            private String context;
+
             @Override
-            public void start(String context, int count) { }
+            public void start(String context, int count) { 
+                this.context = context;
+                monitor.jobStart(context, count);
+            }
 
             @Override
             public void report(boolean successful, String test, ISourceLocation loc, String message,
                 Throwable exception) {
-                    if (exception != null) {
-                        System.err.println("Got exception: " + exception);
-                        exception.printStackTrace(System.err);
-                        throw new RuntimeException(exception);
-                    }
+                monitor.jobStep(context, "Run " + test, 1);
+                if (exception != null) {
+                    evaluator.warning("Got exception: " + exception, loc);
+                    exception.printStackTrace(evaluator.getOutPrinter());
+                    throw new RuntimeException(exception);
+                }
             }
 
             @Override
-            public void ignored(String test, ISourceLocation loc) { }
+            public void ignored(String test, ISourceLocation loc) { 
+                monitor.jobStep(context,"Ignored " + test, 1);
+            }
 
             @Override
-            public void done() {}
+            public void done() {
+                monitor.jobEnd(context, true);
+            }
         });
         return evaluator;
     }
@@ -76,9 +90,9 @@ public class ParallelEvaluatorsTests {
                             return;
                         }
                         var currentTarget = currentModule.get();
-                        System.out.println("Testing module: " + currentTarget + " started");
-                        evaluator.doImport(null, currentTarget);
-                        if (!evaluator.runTests(null)) {
+                        
+                        evaluator.doImport(monitor, currentTarget);
+                        if (!evaluator.runTests(monitor)) {
                             result.set(false);
                         }
                         allDone.await();
