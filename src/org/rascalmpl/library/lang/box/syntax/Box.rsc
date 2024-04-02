@@ -80,6 +80,8 @@ create a last shorter group if any elements are left.
 The G operator eventually returns a `U` box such that the groups can flow into any surrounding
 context (typically `HV` or `HOV`) for improving paragraph flow.
 }
+// TODO: probably have to inline this into box2text to allow for U boxes to float up
+// _before_ we apply the G operator.
 Box G([],  BoxOp  op = H, int hs=1, int vs=0, int is=2, int gs=2) = U([]);
 
 Box G([*Box last], Box(list[Box]) op = H, int hs=1, int vs=0, int is=2, int gs=2)
