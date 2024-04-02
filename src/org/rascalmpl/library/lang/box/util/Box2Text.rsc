@@ -69,7 +69,6 @@ import util::Math;
 import List;
 import String;
 import lang::box::\syntax::Box;
-import Exception;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -98,7 +97,7 @@ ANSI escape codes, and characters like \r and \n in `L` boxes _will break_ the a
 }
 alias Text = list[str];
 
-@synopsis{Converts boxes into list of lines (ASCII)}      
+@synopsis{Converts boxes into list of lines (Unicode)}      
 public Text box2text(Box b, int maxWidth=80, int wrapAfter=70) 
     = box2data(b, options(maxWidth=maxWidth, wrapAfter=wrapAfter));
 
@@ -134,8 +133,8 @@ private Text vv(Text a, Text b) = [*a, *b];
 private str blank(str a) = right("", width(a));
 
 @synopsis{Computes a white line with the length of the last line of a}
-private Text wd([])             = [];
-private Text wd([*_, str x])    = wd([x]);
+ Text wd([])             = [];
+ Text wd([*_, str x])    = [blank(x)];
 
 @synopsis{Computes the length of unescaped string s}
 private int width(str s) = size(s); 
@@ -223,11 +222,11 @@ private Text II(list[Box] b:[Box head, *Box tail], c:V(list[Box] _), Options opt
 private Text WDWD([], Box _c , Options _opts, int _m) 
     = [];
 
-private Text WDWD(list[Box] b, Box c , Options opts, int m) {
-    int h  = b[0].hs ? opts.hs;
-    Text t = O(b[0], c, opts, m);
+private Text WDWD([Box head, *Box tail], Box c , Options opts, int m) {
+    int h  = head.hs ? opts.hs;
+    Text t = O(head, c, opts, m);
     int s  = hwidth(t);
-    return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
+    return  hh(wd(t), rhh(hskip(h) , WDWD(tail, c, opts, m - s - h)));
 }
 
 private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
