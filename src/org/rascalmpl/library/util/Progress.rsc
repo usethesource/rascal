@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jouke Stoel - jouke.stoel@cwi.nl - CWI}
+@deprecated{Use util::Monitor for the same effect with more support for different IDEs and commandline environments.}
 module util::Progress
 
 import String;
