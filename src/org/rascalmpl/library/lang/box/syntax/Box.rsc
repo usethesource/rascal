@@ -20,6 +20,7 @@ module lang::box::\syntax::Box
 * `A` is a table formatter. The list of Rows is formatted with `H` but each cell is aligned vertically with the rows above and below.
 * `SPACE` produces `space` spaces
 * `L` produces the literal word. This word may only contain printable characters and no spaces; this is a required property that the formatting algorithm depends on for correctness.
+* `U` splices its contents in the surrounding box, for automatic flattening of overly nested structures in syntax trees.
 }
 data Box(int hs=1, int vs=0, int is=2)
     = H(list[Box] boxes)
@@ -31,9 +32,23 @@ data Box(int hs=1, int vs=0, int is=2)
     | A(list[Row] rows, list[Alignment] columns=[l() | [R(list[Box] cs), *_] := rows, _ <- cs] /* learns the amount of columns from the first row */)
     | SPACE(int space)
     | L(str word)
+    | U(list[Box] boxes)
     ;
 
+@synopsis{A row is a list of boxes that go into an `A` array/table.}
+@description{
+Rows do not have parameters. These are set on the `A` level instead,
+or per cell Box. 
+}
 data Row = R(list[Box] cells);
 
 data Alignment = l() | r() | c();  
 
+@synopsis{U flattens by splicing itself into its context.}
+@description{
+For efficiency's sake the flattening of U into the other boxes
+is done lazily and on demand during the layout algorithm.
+}
+Box U([*Box front, U([*Box middle]), *Box end])
+  = U([*front, *middle, *end]);
+ 
