@@ -228,17 +228,11 @@ private Text WDWD(list[Box] b, Box c , Options opts, int m) {
 
 private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
 
-private Text ifHOV(Text t:[str head, *str_], Box b,  Box c, Options opts, int m) {
-    if (size(t) == 1) {
-        if (width(head) <= m) {
-            return t;
-        }
-        else {
-           return O(b, c, opts, m);
-        }
-    }
-    return O(b, c, opts, m);
-}
+private Text ifHOV(Text t:[str head], Box b,  Box c, Options opts, int m) 
+    = width(head) <= m ? t : O(b, c, opts, m);
+
+private Text ifHOV(Text t:[str head, str _, *str_], Box b,  Box c, Options opts, int m)
+    = O(b, c, opts, m);
 
 private Text HOVHOV(list[Box] b, Box c, Options opts, int m) 
     = ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
@@ -264,7 +258,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
             Text T1 =O(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
         }
-        else { // Doesn't fit in both lines
+        else { // Doesn't fit in either lines
             Text T1 = O(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
         }
@@ -281,13 +275,12 @@ private Text HVHV(Text T, int s, [Box head, *Box tail], Options opts,  int m, Bo
 private Text HVHV([], Box _, Options opts, int m) 
     = [];
 
-private Text HVHV(list[Box] b:[Box head, *Box tail], Box _, Options opts, int m) {
-    Text T =  O(head, V([]), opts, m);  
-    if (size(b )== 1) {
-        return T;
-    }
+private Text HVHV(list[Box] b:[Box head], Box _, Options opts, int m) 
+    = O(head, V([]), opts, m);
 
-    return HVHV(T, m - hwidth(T), tail, opts, m, H([]));
+private Text HVHV(list[Box] b:[Box head, Box next, *Box tail], Box _, Options opts, int m) {
+    Text T =  O(head, V([]), opts, m);  
+    return HVHV(T, m - hwidth(T), [next, *tail], opts, m, H([]));
 }
 
 private Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
