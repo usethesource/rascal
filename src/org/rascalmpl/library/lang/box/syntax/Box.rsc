@@ -49,6 +49,8 @@ data Box(int hs=1, int vs=0, int is=2)
     | SPACE(int space)
     | L(str word)
     | U(list[Box] boxes)
+    | G(list[Box] boxes, Box(list[Box]) op = H, int gs=2)
+    | NULL()
     ;
 
 @synopsis{A row is a list of boxes that go into an `A` array/table.}
@@ -59,41 +61,6 @@ or per cell Box.
 data Row = R(list[Box] cells);
 
 data Alignment = l() | r() | c();  
-
-@synopsis{U flattens by splicing itself into its context.}
-@description{
-For efficiency's sake the flattening of U into the other boxes
-is done lazily and on demand during the layout algorithm.
-}
-Box U([*Box front, U([*Box middle]), *Box end])
-  = U([*front, *middle, *end]);
-
-@synopsis{General shape of a Box operator}
-alias BoxOp = Box(list[Box]);
-
-@synopsis{Group boxes by a certain group size, and splice the resulting groups in the context.} 
-@description{
-Grouping is a useful for formatting syntactical constructs such as separated lists.
-The G operator will create as many even groups of size `gs` as possible, and
-create a last shorter group if any elements are left. 
-
-The G operator eventually returns a `U` box such that the groups can flow into any surrounding
-context (typically `HV` or `HOV`) for improving paragraph flow.
-}
-// TODO: probably have to inline this into box2text to allow for U boxes to float up
-// _before_ we apply the G operator.
-Box G([],  BoxOp  op = H, int hs=1, int vs=0, int is=2, int gs=2) = U([]);
-
-Box G([*Box last], Box(list[Box]) op = H, int hs=1, int vs=0, int is=2, int gs=2)
-  = U([op(last)[hs=hs][vs=vs][is=is]])
-  when size(last) < gs;
-
-Box G([*Box heads, *Box tail], BoxOp op = H, int hs=1, int vs=0, int is=2, int gs=2 )
-  = U([op(heads)[hs=hs][vs=vs][is=is], G(tail, op=op, hs=hs, vs=vs, is=is, gs=gs)])
-  when size(heads) == gs;
-
-@synopsis{Short-hand for grouping separators after elements in separated lists}
-Box SL(list[Box] boxes) = G(boxes, op=H, gs=4, hs=0);
 
 @synopsis{NULL can be used to return a Box that will completely dissappear in the surrounding context.}
 @description{

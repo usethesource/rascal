@@ -69,6 +69,7 @@ import util::Math;
 import List;
 import String;
 import lang::box::\syntax::Box;
+import IO;
 
 @synopsis{Converts boxes into a string by finding an "optimal" two-dimensional layout}
 @description{
@@ -124,7 +125,9 @@ data Options = options(
 );
 
 @synopsis{Quickly splice in any nested U boxes}
-list[Box] u(list[Box] boxes) = [*((U(list[Box] nested) := b) ? nested : [b]) | b <- boxes];
+list[Box] u(list[Box] boxes) {
+    return [*((U(list[Box] nested) := b) ? u(nested) : [b]) | b <- boxes];
+}
 
 @synopsis{simple vertical concatenation (every list element is a line)}
 private Text vv(Text a, Text b) = [*a, *b];
@@ -187,7 +190,7 @@ private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     Text r = [];
     b = reverse(b);
     for (a <- b) {
-        Text t = O(a, H([]), opts, m);
+        Text t = \continue(a, H([]), opts, m);
         int s = hwidth(t); 
         r = hh(t, rhh(hskip(opts.hs), r));
         m  = m - s - opts.hs;
@@ -203,7 +206,7 @@ private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
     b = reverse(b);
     for (a <- b) {
         if (V(_) !:= c || L("") !:= a) {
-            Text t = O(a, V([]), opts, m);
+            Text t = \continue(a, V([]), opts, m);
             r = vv(t, rvv(vskip(opts.vs), r));
         }
     }
@@ -215,7 +218,7 @@ private Text II([], Box _c, Options _opts, int _m) = [];
 private Text II(list[Box] b:[_, *_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
 private Text II(list[Box] b:[Box head, *Box tail], c:V(list[Box] _), Options opts, int m) {
-    Text t = O(head, c, opts, m - opts.is);
+    Text t = \continue(head, c, opts, m - opts.is);
     return rhh(hskip(opts.is),  hh(t, II(tail, c, opts, m - opts.is - hwidth(t))));
 }
 
@@ -224,7 +227,7 @@ private Text WDWD([], Box _c , Options _opts, int _m)
 
 private Text WDWD([Box head, *Box tail], Box c , Options opts, int m) {
     int h  = head.hs ? opts.hs;
-    Text t = O(head, c, opts, m);
+    Text t = \continue(head, c, opts, m);
     int s  = hwidth(t);
     return  hh(wd(t), rhh(hskip(h) , WDWD(tail, c, opts, m - s - h)));
 }
@@ -232,10 +235,10 @@ private Text WDWD([Box head, *Box tail], Box c , Options opts, int m) {
 private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
 
 private Text ifHOV(Text t:[str head], Box b,  Box c, Options opts, int m) 
-    = width(head) <= m ? t : O(b, c, opts, m);
+    = width(head) <= m ? t : \continue(b, c, opts, m);
 
 private Text ifHOV(Text t:[str head, str _, *str_], Box b,  Box c, Options opts, int m)
-    = O(b, c, opts, m);
+    = \continue(b, c, opts, m);
 
 private Text HOVHOV(list[Box] b, Box c, Options opts, int m) 
     = ifHOV(HH(b, c, opts, m), V(b), c, opts, m);
@@ -248,7 +251,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
     int n = h + hwidth(a);
 
     if (size(a) > 1) { // Multiple lines 
-        Text T1 = O(A, V([]), opts, m-i);
+        Text T1 = \continue(A, V([]), opts, m-i);
         return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
     }
 
@@ -258,11 +261,11 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
     else {
         n -= h; // n == width(a)
         if  (i + n < m) { // Fits in the next line, not in current line
-            Text T1 =O(A, V([]), opts, m-i);
+            Text T1 =\continue(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-n-i, B, opts, m, H([]))));
         }
         else { // Doesn't fit in either lines
-            Text T1 = O(A, V([]), opts, m-i);
+            Text T1 = \continue(A, V([]), opts, m-i);
             return vv(T, rvv(vskip(v), HVHV(T1, m-hwidth(T1), B, opts, m, H([]))));
         }
     }
@@ -271,7 +274,7 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
 private Text HVHV(Text T, int _s, [], Options _opts,  int _m, Box _c) = T;
     
 private Text HVHV(Text T, int s, [Box head, *Box tail], Options opts,  int m, Box c) {
-    Text T1 = O(head, c  , opts, s);  
+    Text T1 = \continue(head, c  , opts, s);  
     return HVHV(T, s, T1 , head,  tail, opts, m);
 }
 
@@ -279,35 +282,55 @@ private Text HVHV([], Box _, Options opts, int m)
     = [];
 
 private Text HVHV(list[Box] b:[Box head], Box _, Options opts, int m) 
-    = O(head, V([]), opts, m);
+    = \continue(head, V([]), opts, m);
 
 private Text HVHV(list[Box] b:[Box head, Box next, *Box tail], Box _, Options opts, int m) {
-    Text T =  O(head, V([]), opts, m);  
+    Text T =  \continue(head, V([]), opts, m);  
     return HVHV(T, m - hwidth(T), [next, *tail], opts, m, H([]));
 }
 
-private Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
-private Text QQ(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
-private Text QQ(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
-private Text QQ(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(u(bl), c, opts, m);
-private Text QQ(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl), c, opts, m);
-private Text QQ(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
-private Text QQ(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
-private Text QQ(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
+// empty lists do not need grouping
+private Text GG([], Box(list[Box]) op, int gs, Box c, Options opts, int m)
+    = \continue(U([]), c, opts, m);
+
+// the last elements are smaller than the group size, just wrap them up and finish
+private Text GG([*Box last], Box(list[Box]) op, int gs, Box c, Options opts, int m) 
+    = \continue(op(u(last))[hs=opts.hs][vs=opts.vs][is=opts.is], c, opts, m)
+    when size(last) < gs;
+
+// we pick the head of (size group size) and then continue with the rest
+private Text GG([*Box heads, *Box tail], Box(list[Box]) op, int gs, Box c, Options opts, int m) 
+    = \continue(op(heads)[hs=opts.hs][vs=opts.vs][is=opts.is], NULL(), opts, m)
+    + \continue(G(tail, op=op, hs=opts.hs, vs=opts.vs, is=opts.is, gs=gs), c, opts, m)
+    when size(heads) == gs;
+
+private Text continueWith(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
+private Text continueWith(Box b:H(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m); 
+private Text continueWith(Box b:V(list[Box] bl)  , Box c, Options opts, int m) = VV(u(bl), c, opts, m);
+private Text continueWith(Box b:I(list[Box] bl)  , Box c, Options opts, int m) = II(u(bl), c, opts, m);
+private Text continueWith(Box b:WD(list[Box] bl) , Box c, Options opts, int m) = WDWD(u(bl), c, opts, m);
+private Text continueWith(Box b:HOV(list[Box] bl), Box c, Options opts, int m) = HOVHOV(u(bl), c, opts, m);
+private Text continueWith(Box b:HV(list[Box] bl) , Box c, Options opts, int m) = HVHV(u(bl), c, opts, m);
+private Text continueWith(Box b:SPACE(int n)     , Box c, Options opts, int m) = hskip(n);
 
 // This is a degenerate case, an outermost U-Box without a wrapper around it.
-private Text QQ(Box b:U(list[Box] bl)  , Box c, Options opts, int m) = HH(bl, c, opts, m);
+private Text continueWith(Box b:U(list[Box] bl)  , Box c, Options opts, int m) = HH(u(bl), c, opts, m);
 
-private Text QQ(Box b:A(list[Row] rows), Box c, Options opts, int m) 
+private Text continueWith(Box b:A(list[Row] rows), Box c, Options opts, int m) 
     = AA(rows, c, b.columns, opts, m);
-     
-@synopsis{Option inheritance layer. Deprecated}
+
+private Text continueWith(Box b:G(list[Box] bl), Box c, Options opts, int m) = GG(u(bl), b.op, b.gs, c, opts, m);
+
+@synopsis{General shape of a Box operator, as a parameter to `G`}
+private alias BoxOp = Box(list[Box]);
+
+@synopsis{Option inheritance layer; then continue with the next box.}
 @description{
 The next box is either configured by itself. Options are transferred from the
 box to the opts parameter for easy passing on to recursive calls.
 }
-private Text O(Box b, Box c, Options opts, int m)
-    = QQ(b, c, opts[hs=b.hs][vs=b.vs][is=b.is], m);
+private Text \continue(Box b, Box c, Options opts, int m)
+    = continueWith(b, c, opts[hs=b.hs][vs=b.vs][is=b.is], m);
 
 /* ------------------------------- Alignment ------------------------------------------------------------*/
 
@@ -316,7 +339,7 @@ data Box(int width=0, int height=1);
 
 @synopsis{Completely layout a box and then measure its width and height, and annotate the result into the Box}
 private Box boxSize(Box b, Box c, Options opts, int m) {
-    Text s = O(b, c, opts, m);
+    Text s = \continue(b, c, opts, m);
     b.width = twidth(s);
     b.height = size(s);
     return b;
@@ -388,7 +411,7 @@ private Text AA(list[Row] table, Box c, list[Alignment] alignments, Options opts
         append H(hargs, hs=opts.hs);
     }
     
-    return O(V(vargs), c, opts, m);
+    return \continue(V(vargs), c, opts, m);
 }
 
 @synopsis{Check soft limit for HV and HOV boxes}
@@ -414,7 +437,7 @@ private Box applyHOVconstraints(Box b, Options opts) = innermost visit(b) {
 private Text box2data(Box b, Options opts) {
     b = applyHVconstraints(b, opts);
     b = applyHOVconstraints(b, opts);
-    return O(b, V([]), options(), opts.maxWidth);
+    return \continue(b, V([]), options(), opts.maxWidth);
 }
     
 ///////////////// regression tests ////////////////////////////////
@@ -525,4 +548,12 @@ test bool WDtest() {
            '   noot
            '       mies
            '";
+}
+
+test bool groupBy() {
+    lst  = [L("<i>") | i <- [0..10]];
+    g1   = G(lst, op=H, gs=3);
+    lst2 = [H([L("<i>"), L("<i+1>"), L("<i+2>")]) | i <- [0,3..7]] + [H([L("9")])];
+
+    return format(V([g1])) == format(V(lst2));
 }
