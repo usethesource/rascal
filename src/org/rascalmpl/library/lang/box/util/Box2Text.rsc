@@ -193,8 +193,9 @@ private Text HH(list[Box] b:[_, *_], Box _, Options opts, int m) {
     return r;
 }
 
-private Text VV(list[Box] b, Box c, Options opts, int m) {
-    if (isEmpty(b)) return [];
+private Text VV([], Box _c, Options _opts, int _m) = [];
+
+private Text VV(list[Box] b:[_, *_], Box c, Options opts, int m) {
     Text r = [];
     b = reverse(b);
     for (a <- b) {
@@ -206,7 +207,7 @@ private Text VV(list[Box] b, Box c, Options opts, int m) {
     return r;
    }
 
-private Text II([], Box c, Options opts, int m) = [];
+private Text II([], Box _c, Options _opts, int _m) = [];
 
 private Text II(list[Box] b:[_, *_], c:H(list[Box] _), Options opts, int m) = HH(b, c, opts, m);
 
@@ -215,22 +216,21 @@ private Text II(list[Box] b:[Box head, *Box tail], c:V(list[Box] _), Options opt
     return rhh(hskip(opts.is),  hh(t, II(tail, c, opts, m - opts.is - hwidth(t))));
 }
 
+private Text WDWD([], Box _c , Options _opts, int _m) 
+    = [];
+
 private Text WDWD(list[Box] b, Box c , Options opts, int m) {
-    if (isEmpty(b)) {
-        return [];
-    }
     int h  = b[0].hs ? opts.hs;
     Text t = O(b[0], c, opts, m);
     int s  = hwidth(t);
     return  hh(t , rhh(hskip(h) , WDWD(tail(b), c, opts, m - s - h)));
 }
 
-private Text ifHOV(Text t, Box b,  Box c, Options opts, int m) {
-    if (isEmpty(t)) {
-        return [];
-    }
+private Text ifHOV([], Box b,  Box c, Options opts, int m) = [];
+
+private Text ifHOV(Text t:[str head, *str_], Box b,  Box c, Options opts, int m) {
     if (size(t) == 1) {
-        if (width(t[0]) <= m) {
+        if (width(head) <= m) {
             return t;
         }
         else {
@@ -271,24 +271,23 @@ private Text HVHV(Text T, int s, Text a, Box A, list[Box] B, Options opts, int m
     }
 }
 
-private Text HVHV(Text T, int s, list[Box] b, Options opts,  int m, Box c) {
-    if (isEmpty(b)) {
-        return T;
-    }
-    Text T1 = O(b[0], c  , opts, s);  // Was H([])
-    return HVHV(T, s, T1 , b[0],  tail(b), opts, m);
+private Text HVHV(Text T, int _s, [], Options _opts,  int _m, Box _c) = T;
+    
+private Text HVHV(Text T, int s, [Box head, *Box tail], Options opts,  int m, Box c) {
+    Text T1 = O(head, c  , opts, s);  
+    return HVHV(T, s, T1 , head,  tail, opts, m);
 }
 
-private Text HVHV(list[Box] b, Box _, Options opts, int m) {
-    if (isEmpty(b)) {
-        return [];
-    }
-    Text T =  O(b[0], V([]), opts, m);  // Was H([])
+private Text HVHV([], Box _, Options opts, int m) 
+    = [];
+
+private Text HVHV(list[Box] b:[Box head, *Box tail], Box _, Options opts, int m) {
+    Text T =  O(head, V([]), opts, m);  
     if (size(b )== 1) {
         return T;
     }
 
-    return HVHV(T, m - hwidth(T), tail(b), opts, m, H([]));
+    return HVHV(T, m - hwidth(T), tail, opts, m, H([]));
 }
 
 private Text QQ(Box b:L(str s)         , Box c, Options opts, int m) = LL(s);
