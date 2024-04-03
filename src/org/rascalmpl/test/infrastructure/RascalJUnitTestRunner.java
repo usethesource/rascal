@@ -25,6 +25,7 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -66,10 +67,16 @@ public class RascalJUnitTestRunner extends Runner {
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 
             Terminal tm = TerminalFactory.get();
-            TerminalProgressBarMonitor monitor = new TerminalProgressBarMonitor(System.out, tm);
+            IRascalMonitor monitor = System.console() != null 
+                ? new TerminalProgressBarMonitor(System.out, tm)
+                : new NullRascalMonitor();
             
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, monitor, root, heap);
-            evaluator.setMonitor(monitor);
+            var outStream = System.console() != null 
+                ? (TerminalProgressBarMonitor) monitor
+                : System.out;
+
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, outStream, root, heap);
+            evaluator.setMonitor(System.console() != null ? monitor : new NullRascalMonitor());
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
         } 
