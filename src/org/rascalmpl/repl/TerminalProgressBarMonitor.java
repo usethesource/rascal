@@ -126,7 +126,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             var msg = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
             
             // fill up and cut off:
-            msg = threadLabel() + message;
+            msg = threadLabel() + msg;
             msg = (msg + " ".repeat(Math.max(0, barWidth - msg.length()))).substring(0, barWidth);
 
             // split
@@ -160,6 +160,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         private String threadLabel() {
             if (threadName.isEmpty()) {
+                return "";
+            }
+            else if ("main".equals(threadName)) {
                 return "";
             }
             
@@ -388,7 +391,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized void endAllJobs() {
-        // eraseBars();
+        for (var pb : bars) {
+            if (pb.nesting > 0) {
+                writer.println("[INFO] " + pb.name + " is still at nesting level " + pb.nesting);
+            }
+            if (pb.current < pb.max) {
+                writer.println("[INFO] " + pb.name + " has not done all the work (" + pb.current + " of " + pb.max + ")");
+            }
+        }
         bars.clear();
         writer.write(ANSI.showCursor());
         writer.flush();
