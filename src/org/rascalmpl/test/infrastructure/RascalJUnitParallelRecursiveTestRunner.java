@@ -199,7 +199,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         private void runTests() {
             try {
                 if (waitForRunSignal()) {
-                    evaluator.job("Test runner for " + testModules.size() + " modules...", testModules.size(), (String jn) ->  {
+                    evaluator.job("Testing modules", testModules.size(), (String jn) ->  {
                         for (Description mod: testModules) {
                             evaluator.jobStep(jn, mod.getDisplayName(), 1);
                             Listener trl = new Listener(mod, stdout);

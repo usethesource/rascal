@@ -61,6 +61,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private class ProgressBar {
         private final long threadId;
+        private final String threadName;
         private final String name;
         private int max;
         private int current = 0;
@@ -72,9 +73,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private String message = "";
         private int stepper = 0;
         private final String[] clocks = new String[] {"🕐" , "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕛"};
+        public int nesting = 0;
 
         ProgressBar(String name, int max) {
             this.threadId = Thread.currentThread().getId();
+            this.threadName = Thread.currentThread().getName();
             this.name = name;
             this.max = max;
             this.startTime = Instant.now();
@@ -155,12 +158,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         private String threadLabel() {
-            String name = Thread.currentThread().getName();
-            if (name.isEmpty()) {
+            if (threadName.isEmpty()) {
                 return "  ";
             }
             
-            char last = name.charAt(name.length() - 1);
+            char last = threadName.charAt(threadName.length() - 1);
             if (Character.isDigit(last)) {
                 return new String(Character.toChars(((last - '0') + "⑴ ".codePointAt(0))));
             }
@@ -277,6 +279,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         else {
             // Zeno-bar: we add the new work to the already existing work
             pb.max += totalWork;
+            pb.nesting++;
             pb.update();
         }
     }
@@ -295,7 +298,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
 
-        if (pb != null) {
+        if (pb != null && --pb.nesting == 0) {
             eraseBars();
             // write it one last time into the scrollback buffer (on top)
             pb.done();
