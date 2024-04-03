@@ -397,13 +397,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     @Override
     public synchronized void endAllJobs() {
         for (var pb : bars) {
-            if (pb.nesting > 0) {
+            if (pb.nesting >= 0) {
                 writer.println("[INFO] " + pb.name + " is still at nesting level " + pb.nesting);
             }
-            if (pb.current < pb.max) {
-                writer.println("[INFO] " + pb.name + " has not done all the work (" + pb.current + " of " + pb.max + ")");
-            }
         }
+
         bars.clear();
         writer.write(ANSI.showCursor());
         writer.flush();
