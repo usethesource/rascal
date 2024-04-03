@@ -71,7 +71,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private final Instant startTime;
         private Duration duration;
         private String message = "";
-        private int stepper = 0;
+        private int stepper = 1;
         private final String[] clocks = new String[] {"🕐" , "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕛"};
         public int nesting = 0;
 
@@ -79,7 +79,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             this.threadId = Thread.currentThread().getId();
             this.threadName = Thread.currentThread().getName();
             this.name = name;
-            this.max = max;
+            this.max = Math.max(1, max);
             this.startTime = Instant.now();
             this.duration = Duration.ZERO;
             this.message = name;
@@ -109,10 +109,16 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         int newWidth() {
-            current = Math.min(max, current); // for robustness sake
-            var partDone = (current * 1.0) / (max * 1.0);
-            return (int) Math.floor(barWidth * partDone);
+            if (max != 0) {
+                current = Math.min(max, current); // for robustness sake
+                var partDone = (current * 1.0) / (max * 1.0);
+                return (int) Math.floor(barWidth * partDone);
+            }
+            else {
+                return barWidth % stepper;
+            }
         }
+
         /**
          * Print the current state of the progress bar
          */
