@@ -104,6 +104,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 write();
                 writer.write(ANSI.moveDown(bars.size() - bars.indexOf(this)));
                 writer.write(ANSI.showCursor());
+                writer.flush();
             }
         }
 
@@ -297,7 +298,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
 
-        if (pb != null && --pb.nesting == 0) {
+        if (pb != null && --pb.nesting == -1) {
             eraseBars();
             // write it one last time into the scrollback buffer (on top)
             pb.done();
@@ -306,6 +307,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             // print the left over bars under this one.
             printBars();
             return pb.current;
+        }
+        else if (pb != null) {
+            pb.done();
+            pb.update();
         }
 
         return -1;

@@ -118,7 +118,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public ITree parseCommand(IRascalMonitor monitor, String command,
 			ISourceLocation location);
 
-	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException;
+	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 
