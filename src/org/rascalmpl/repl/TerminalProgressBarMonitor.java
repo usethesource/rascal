@@ -11,8 +11,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.tukaani.xz.check.SHA256;
-
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
 

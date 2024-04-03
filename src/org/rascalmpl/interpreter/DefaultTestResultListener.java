@@ -15,7 +15,6 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.repl.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -28,17 +27,16 @@ public class DefaultTestResultListener implements ITestResultListener {
 	private int ignored;
     private String context;
     private final boolean verbose;
-	private final IRascalMonitor monitor;
-	private PrintWriter err;
+	private PrintWriter out;
 	
-	public DefaultTestResultListener(PrintWriter err, IRascalMonitor monitor) {
-	    this(err, monitor, true);
+	public DefaultTestResultListener(PrintWriter out) {
+	    this(out, true);
 	}
-	public DefaultTestResultListener(PrintWriter err, IRascalMonitor monitor, boolean verbose){
+
+	public DefaultTestResultListener(PrintWriter out, boolean verbose){
 		super();
 
-		this.err = err;
-		this.monitor = monitor;
+		this.out = out;
 		this.verbose = verbose;
 		reset();
 	}
@@ -51,14 +49,11 @@ public class DefaultTestResultListener implements ITestResultListener {
     }
 	
 	public void setErrorStream(PrintWriter errorStream) {
-		this.err = errorStream;
+		this.out = errorStream;
 	}
 	
 	@Override
 	public void ignored(String test, ISourceLocation loc) {
-		if (verbose) {
-			monitor.jobStep(context, "Ignored " + test);
-		}
 	    this.ignored++;
 	}
 	
@@ -66,32 +61,28 @@ public class DefaultTestResultListener implements ITestResultListener {
 	public void start(String context, int count) {
 	    this.context = context;
 	    reset();
-	    if (count != 0 && verbose) {
-	        monitor.jobStart(context, count);
-	    }
 		this.count = count;
 	}
 	
 	@Override
 	public void done() {
-	    monitor.jobEnd(context, errors + failures == 0);
 	    if (count > 0) {
 	        if (!verbose) {
 	            // make sure results are reported on a newline
-	            err.println();
+	            out.println();
 	        }
-	        err.println("\rTest report for " + context);
+	        out.println("\rTest report for " + context);
 	        if (errors + failures == 0) {
-	            err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
+	            out.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
 	        }
 	        else {
-	            err.println("\t" + successes + "/" + count + " tests succeeded");
-	            err.println("\t" + failures + "/" + count + " tests failed");
-	            err.println("\t" + errors + "/" + count + " tests threw exceptions");
+	            out.println("\t" + successes + "/" + count + " tests succeeded");
+	            out.println("\t" + failures + "/" + count + " tests failed");
+	            out.println("\t" + errors + "/" + count + " tests threw exceptions");
 	        }
 
 	        if (ignored != 0) {
-	            err.println("\t" + ignored + "/" + count + " tests ignored");
+	            out.println("\t" + ignored + "/" + count + " tests ignored");
 	        }
 	    }
 	}
@@ -101,30 +92,25 @@ public class DefaultTestResultListener implements ITestResultListener {
 	public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
 		if (successful) {
 		    successes++;
-		    if (verbose) {
-				monitor.jobStep(context, "success: " + test);
-		    }
 		}
 		else if (t != null) {
 		    errors++;
 		    if (!verbose) {
-		        err.println();
+		        out.println();
 		    }
-			monitor.jobStep(context, "error: " + test);
-		    err.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
-		    err.println(message);
+		    out.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
+		    out.println(message);
 		}
 		else {
 		    failures++;
 		    if (!verbose) {
-		        err.println();
+		        out.println();
 		    }
-			monitor.jobStep(context, "failure: " + test);
-		    err.println("failure: " + test + " @ " + ReplTextWriter.valueToString(loc));
-		    err.println(message);
+		    out.println("failure: " + test + " @ " + ReplTextWriter.valueToString(loc));
+		    out.println(message);
 		}
 		
-		err.flush();
+		out.flush();
 	}
 
 

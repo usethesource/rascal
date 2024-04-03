@@ -119,17 +119,10 @@ public class ParserGenerator {
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
 		synchronized(evaluator) {
 			IConstructor g = getGrammarFromModules(monitor, main, definition);
-			String JOB = "Expanding Grammar";
-
-			monitor.jobStep(JOB, "Expanding keywords", 10);
 			g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
-			monitor.jobStep(JOB, "Adding regular productions",10);
 			g = (IConstructor) evaluator.call(monitor, "makeRegularStubs", g);
-			monitor.jobStep(JOB, "Expanding regulars", 10);
 			g = (IConstructor) evaluator.call(monitor, "expandRegularSymbols", g);
-			monitor.jobStep(JOB, "Expanding parametrized symbols");
 			g = (IConstructor) evaluator.call(monitor, "expandParameterizedSymbols", g);
-			monitor.jobStep(JOB, "Defining literals");
 			g = (IConstructor) evaluator.call(monitor, "literals", g);
 			return g;
 		}
@@ -186,25 +179,23 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-		String JOB = "Generating parser:" + name;
-		monitor.jobStart(JOB, 100, 130);
-		
 		Profiler profiler = evaluator.getConfiguration().getGeneratorProfilingProperty() ? new Profiler(evaluator) : null;
 
 		try {
-			monitor.jobStep(JOB, "Importing and normalizing grammar:" + name, 30);
 			if (profiler != null) {
 				profiler.start();
 			}
 			IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
-		} catch (ClassCastException e) {
+		} 
+		catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (Throw e) {
+		} 
+		catch (Throw e) {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
-		} finally {
-			monitor.jobEnd(JOB, true);
+		} 
+		finally {
 			if (profiler != null) {
 				profiler.pleaseStop();
 				evaluator.getOutPrinter().println("PROFILE:");
@@ -238,8 +229,6 @@ public class ParserGenerator {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
-		} finally {
-			monitor.jobEnd(JOB, true);
 		}
 	}
 
@@ -269,8 +258,6 @@ public class ParserGenerator {
 		throw new ImplementationError("parser generator:" + e.getMessage(), e);
 	} catch (Throw e) {
 		throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
-	} finally {
-		monitor.jobEnd(JOB, true);
 	}
 }
 

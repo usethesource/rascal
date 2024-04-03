@@ -304,7 +304,7 @@ public abstract class Import {
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
 	    try {
-          eval.getMonitor().jobStart("loading " + URIUtil.getLocationName(uri), 1); 
+          eval.getMonitor().jobStart("loading" + URIUtil.getLocationName(uri), 1); 
 
 	        if (uri == null) {
 	            throw new ModuleImport(name, "can not find in search path", x);

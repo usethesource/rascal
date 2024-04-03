@@ -30,7 +30,6 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -203,7 +202,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                     evaluator.job("Test runner for " + testModules.size() + " modules...", testModules.size(), (String jn) ->  {
                         for (Description mod: testModules) {
                             evaluator.jobStep(jn, mod.getDisplayName(), 1);
-                            Listener trl = new Listener(mod, stderr, evaluator);
+                            Listener trl = new Listener(mod, stdout);
                             
                             if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
                                 results.add(notifier -> {
@@ -273,7 +272,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             continue;
                         }
                         finally {
-                            evaluator.jobStep(jn, module);
+                            evaluator.jobStep(jn, "Imported " + module);
                         }
 
                         ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
@@ -314,13 +313,10 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     public class Listener implements ITestResultListener {
         private final PrintWriter stderr;
         private final Description module;
-        private String context = "";
-        private final IRascalMonitor monitor;
 
-        public Listener(Description module, PrintWriter stderr, IRascalMonitor monitor) {
+        public Listener(Description module, PrintWriter stderr) {
             this.module = module;
             this.stderr = stderr;
-            this.monitor = monitor;
         }
 
         private Description getDescription(String name, ISourceLocation loc) {
@@ -337,13 +333,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
         @Override
         public void start(String context, int count) {
-            this.context = context;
-            monitor.jobStart(context, count);
+            
         }
 
         @Override
         public void done() {
-            monitor.jobEnd(context, true);
+            
         }
 
         @Override
@@ -364,15 +359,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                     notifier.fireTestFinished(desc);
                 }
             });
-
-            monitor.jobStep(context, test);
         }
 
         @Override
         public void ignored(String test, ISourceLocation loc) {
             Description desc = getDescription(test, loc);
             results.add(notifier -> notifier.fireTestIgnored(desc));
-            monitor.jobStep(context, "Ignore " + test);
         }
     }
 }
