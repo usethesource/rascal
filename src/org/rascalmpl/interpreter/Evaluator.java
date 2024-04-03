@@ -1443,7 +1443,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
-            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter(), monitor);
+            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter());
 
             new TestEvaluator(this, new ITestResultListener() {
 

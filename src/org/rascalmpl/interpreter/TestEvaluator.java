@@ -94,7 +94,7 @@ public class TestEvaluator {
 
             QuickCheck qc = new QuickCheck(new Random(), eval.__getVf());  
             for (AbstractFunction test: theTests) {
-                eval.jobStep(jn, test.getName());
+                eval.jobStep(jn, "Running " + env.getName() + "::" + test.getName(), 1);
                 
                 if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
                     testResultListener.ignored(test.getName(), test.getAst().getLocation());
