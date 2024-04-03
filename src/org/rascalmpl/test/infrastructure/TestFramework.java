@@ -94,9 +94,7 @@ public class TestFramework {
             catch (IOException e) {
             }
 		}
-		generatedModules.clear();
-		
-		
+		generatedModules.clear();	
 		evaluator.getAccumulators().clear();
 	}
 	
@@ -138,7 +136,6 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-
 		}
 		catch (StaticError e) {
 			throw e;

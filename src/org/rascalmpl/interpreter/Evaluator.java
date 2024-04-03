@@ -1373,14 +1373,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * effect of declaring non-terminal types in the given environment.
      */
     @Override
-    public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException{
-        return parseModuleAndFragments(monitor, getResourceContent(location), location);
+    public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException{
+        return parseModuleAndFragments(monitor, jobName, getResourceContent(location), location);
     }
 
-    public ITree parseModuleAndFragments(IRascalMonitor monitor, char[] data, ISourceLocation location){
+    public ITree parseModuleAndFragments(IRascalMonitor monitor, String jobName, char[] data, ISourceLocation location){
         IRascalMonitor old = setMonitor(monitor);
         try {
-            return org.rascalmpl.semantics.dynamic.Import.parseModuleAndFragments(data, location, this);
+            return org.rascalmpl.semantics.dynamic.Import.parseModuleAndFragments(data, location, jobName, this);
         }
         finally{
             setMonitor(old);
