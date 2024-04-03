@@ -1150,7 +1150,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
         SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
-        monitor.jobStart("loading", affectedModules.size());
 
         try {
             Set<String> onHeap = new HashSet<>();
@@ -1158,7 +1157,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             PrintWriter errStream = getErrorPrinter();
  
             for (String mod : names) {
-                monitor.jobStep("loading", "cleaning " + mod, 1);
                 if (heap.existsModule(mod)) {
                     onHeap.add(mod);
                     if (recurseToExtending) {
@@ -1168,13 +1166,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
             }
             extendingModules.removeAll(names);
-            
-            monitor.jobTodo("loading", onHeap.size());
 
             for (String mod : onHeap) {
                 wrapped.clear();
                 if (!heap.existsModule(mod)) {
-                    monitor.jobStep("loading", mod, 1);
                     reloadModule(mod, errorLocation, affectedModules);
                     if (!heap.existsModule(mod)) {
                         // something went wrong with reloading, let's print that:
@@ -1193,12 +1188,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             dependingImports.addAll(getImportingModules(names));
             dependingExtends.addAll(getExtendingModules(names));
 
-            monitor.jobTodo("loading", dependingImports.size());
-
             for (String mod : dependingImports) {
                 ModuleEnvironment env = heap.getModule(mod);
                 Set<String> todo = new HashSet<>(env.getImports());
-                monitor.jobStep("loading", "re-importing for " + mod, 1);
+                
                 for (String imp : todo) {
                     if (names.contains(imp)) {
                         env.unImport(imp);
@@ -1215,12 +1208,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
             }
 
-            monitor.jobTodo("loading", dependingExtends.size());
-
             for (String mod : dependingExtends) {
                 ModuleEnvironment env = heap.getModule(mod);
                 Set<String> todo = new HashSet<>(env.getExtends());
-                monitor.jobStep("loading", "re-extending for " + mod, 1);
 
                 for (String ext : todo) {
                     if (names.contains(ext)) {
