@@ -62,6 +62,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         PrintWriter theWriter = new PrintWriter(out, true, Charset.forName(encoding));
         this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
+
+        assert System.console() != null: "interactive progress bar needs a terminal, and we should not print this into a file anyway.";
     }
 
     /**

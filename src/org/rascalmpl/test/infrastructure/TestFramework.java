@@ -28,7 +28,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
@@ -48,7 +51,10 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private final static TerminalProgressBarMonitor monitor = new TerminalProgressBarMonitor(System.out, TerminalFactory.get());
+	private final static IRascalMonitor monitor = System.console() != null 
+		? new TerminalProgressBarMonitor(System.out, TerminalFactory.get())
+		: new NullRascalMonitor();
+
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
 	private final static ModuleEnvironment root;
@@ -60,9 +66,9 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(monitor);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, monitor,  root, heap);
+		stderr = new PrintWriter(System.err, true);
+		stdout = System.console() != null ? new PrintWriter((TerminalProgressBarMonitor) monitor) : new PrintWriter(System.out, true);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.console() != null ? (TerminalProgressBarMonitor) monitor : System.out ,  root, heap);
 		evaluator.setMonitor(monitor);
 
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());

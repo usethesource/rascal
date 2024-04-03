@@ -69,12 +69,12 @@ public class RascalShell  {
                 }
 
                 IRascalMonitor monitor 
-                    = term.isAnsiSupported() 
+                    = System.console() != null
                     ? new TerminalProgressBarMonitor(System.out, term)
                     : new ConsoleRascalMonitor();
 
                 IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
-                runner = new REPLRunner(System.in, System.err, term.isAnsiSupported() ? (OutputStream) monitor : System.out, term, services);
+                runner = new REPLRunner(System.in, System.err, System.console() != null ? (OutputStream) monitor : System.out, term, services);
             }
             runner.run(args);
 
