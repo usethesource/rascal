@@ -68,7 +68,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private final int barWidth = lineWidth - "☐ ".length() - " ?🕐 00:00:00.000 ".length();
+        private final int barWidth = lineWidth - "☐ ".length() - "   🕐 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -148,7 +148,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + ANSI.lightBackground()
                 + backPart
                 + ANSI.noBackground()
-                + " " + threadLabel() + clock + " "
+                + " " + threadLabel() + " " + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
                 ;
@@ -159,15 +159,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private String threadLabel() {
             String name = Thread.currentThread().getName();
             if (name.isEmpty()) {
-                return "?";
+                return "  ";
             }
             
             char last = name.charAt(name.length() - 1);
             if (Character.isDigit(last)) {
-                return "" + last;
+                return new String(Character.toChars(((last - '0') + "⑴ ".codePointAt(0))));
             }
 
-            return "T";
+            return "  ";
         }
 
         @Override
@@ -330,9 +330,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized void warning(String message, ISourceLocation src) {
-        eraseBars();
+        if (bars.size() > 0) {
+            eraseBars();
+        }
         writer.println(("[WARNING] " + src + ": " + message));
-        printBars();
+        if (bars.size() > 0) {
+            printBars();
+        }
     }
 
     /**
@@ -359,7 +363,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     @Override
     public synchronized void write(byte[] b, int off, int len) throws IOException {
-        if (bars.size() > 0) {
+    if (bars.size() > 0) {
             eraseBars();
             out.write(b, off, len);
             printBars();

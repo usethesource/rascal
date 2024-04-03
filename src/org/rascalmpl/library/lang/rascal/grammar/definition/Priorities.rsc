@@ -14,6 +14,7 @@ import Set;
 import List;
 import IO;
 import util::Maybe;
+import util::Monitor;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
@@ -24,7 +25,6 @@ data Associativity = prio();
 
 public alias Extracted = rel[Production father, Associativity rule, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
-
 
 @synopsis{Extract which productions are not to be nested under which other productions, at given 
 recursive positions in the parents' defining symbols list.}
