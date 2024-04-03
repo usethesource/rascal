@@ -39,18 +39,15 @@ public class ParallelEvaluatorsTests {
         evaluator.setMonitor(monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());        
         evaluator.setTestResultListener(new ITestResultListener() {
-            private String context;
-
             @Override
             public void start(String context, int count) { 
-                this.context = context;
-                monitor.jobStart(context, count);
+                
             }
 
             @Override
             public void report(boolean successful, String test, ISourceLocation loc, String message,
                 Throwable exception) {
-                monitor.jobStep(context, "Run " + test, 1);
+                
                 if (exception != null) {
                     evaluator.warning("Got exception: " + exception, loc);
                     exception.printStackTrace(evaluator.getOutPrinter());
@@ -60,12 +57,12 @@ public class ParallelEvaluatorsTests {
 
             @Override
             public void ignored(String test, ISourceLocation loc) { 
-                monitor.jobStep(context,"Ignored " + test, 1);
+                
             }
 
             @Override
             public void done() {
-                monitor.jobEnd(context, true);
+                
             }
         });
         return evaluator;

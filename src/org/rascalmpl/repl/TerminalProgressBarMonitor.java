@@ -269,17 +269,16 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     public synchronized void jobStart(String name, int workShare, int totalWork) {
         var pb = findBarByName(name);
         
-        eraseBars(); // to make room for the new bars
-
         if (pb == null) {
+            eraseBars(); // to make room for the new bars
             bars.add(new ProgressBar(name, totalWork));
+            printBars(); // probably one line longer than before!
         }
         else {
             // Zeno-bar: we add the new work to the already existing work
             pb.max += totalWork;
+            pb.update();
         }
-
-        printBars(); // probably one line longer than before!
     }
 
     @Override

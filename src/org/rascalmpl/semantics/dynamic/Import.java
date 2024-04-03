@@ -304,7 +304,7 @@ public abstract class Import {
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
 	    try {
-          eval.getMonitor().jobStart("loading" + URIUtil.getLocationName(uri), 1); 
+          eval.getMonitor().jobStart("loading", 1); 
 
 	        if (uri == null) {
 	            throw new ModuleImport(name, "can not find in search path", x);
@@ -324,7 +324,7 @@ public abstract class Import {
 
 	            module.interpret(eval);
 
-              eval.jobStep("loading " + URIUtil.getLocationName(uri), URIUtil.getLocationName(uri) + " complete", 1);
+              eval.jobStep("loading", "loaded " + URIUtil.getLocationName(uri), 1);
 	            return env;
 	        }
 	    }
@@ -345,9 +345,6 @@ public abstract class Import {
 	        e.printStackTrace();
 	        throw new ModuleImport(name, e.getMessage(), x);
 	    } 
-      finally {
-        eval.getMonitor().jobEnd("loading " + URIUtil.getLocationName(uri), true);
-      }
 
 	    heap.removeModule(env);
 	    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
