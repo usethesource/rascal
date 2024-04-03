@@ -1,10 +1,14 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-public &T <: num max(&T <: num N, &T <: num M)
-{
-    return N > M ? N : M;
-}
-test bool max8() = max(3.5, 10) == 10;
+@javaClass{org.rascalmpl.library.util.Math}
+public java int round(num d);
+public (&T <: num) round(&T <: num r, &T <: num nearest) = 1.0 * nearest;
+
+//public &T <: num max(&T <: num N, &T <: num M)
+//{
+//    return N > M ? N : M;
+//}
+//test bool max8() = max(3.5, 10) == 10;
 
 //syntax Mapping[&T]
 //    = \default: &T!ifDefinedOtherwise from ":" &T to 
