@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.tukaani.xz.check.SHA256;
 
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
@@ -67,7 +68,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private final int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
+        private final int barWidth = lineWidth - "☐ ".length() - " ?🕐 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -147,12 +148,26 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + ANSI.lightBackground()
                 + backPart
                 + ANSI.noBackground()
-                + " " + clock + " "
+                + " " + threadLabel() + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
                 ;
 
             writer.println(line);
+        }
+
+        private String threadLabel() {
+            String name = Thread.currentThread().getName();
+            if (name.isEmpty()) {
+                return "?";
+            }
+            
+            char last = name.charAt(name.length() - 1);
+            if (Character.isDigit(last)) {
+                return "" + last;
+            }
+
+            return "T";
         }
 
         @Override
@@ -326,7 +341,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public void write(byte[] b) throws IOException {
+    public synchronized void write(byte[] b) throws IOException {
         if (bars.size() > 0) {
             eraseBars();
             out.write(b);
@@ -343,7 +358,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public synchronized void write(byte[] b, int off, int len) throws IOException {
         if (bars.size() > 0) {
             eraseBars();
             out.write(b, off, len);
@@ -360,7 +375,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public void write(int b) throws IOException {
+    public synchronized void write(int b) throws IOException {
         if (bars.size() > 0) {
             eraseBars();
             out.write(b);
@@ -372,7 +387,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     @Override
-    public void endAllJobs() {
+    public synchronized void endAllJobs() {
         // eraseBars();
         bars.clear();
         writer.write(ANSI.showCursor());
