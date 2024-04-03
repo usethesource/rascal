@@ -18,7 +18,7 @@ public /*const*/ str inAlternative = "inAlternative"; // used to mark top-level 
 public /*const*/ str typeContainer = "typeContainer";
 public /*const*/ str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
 
-private /*const*/ str key_useOrDeclareTypeParameters = "useOrDeclareTypeParameters";
+private /*const*/ str key_declareOrReuseTypeParameters = "declareOrReuseTypeParameters";
 private /*const*/ str key_useTypeParameters = "useTypeParameters";
 private /*const*/ str key_useBoundedTypeParameters = "useBoundedTypeParameters";
 
@@ -77,16 +77,16 @@ tuple[bool yes, bool closed] useTypeParameters(Collector c){
     }
 }
 
-void beginUseOrDeclareTypeParameters(Collector c, bool closed=false){
-    c.push(key_useOrDeclareTypeParameters, closed);
+void beginDeclareOrReuseTypeParameters(Collector c, bool closed=false){
+    c.push(key_declareOrReuseTypeParameters, closed);
 }
 
-void endUseOrDeclareTypeParameters(Collector c){
-    c.pop(key_useOrDeclareTypeParameters);
+void endDeclareOrReuseTypeParameters(Collector c){
+    c.pop(key_declareOrReuseTypeParameters);
 }
 
-tuple[bool yes, bool closed] useOrDeclareTypeParameters(Collector c){
-    if(!isEmpty(c.getStack(key_useOrDeclareTypeParameters)) && bool closed := c.top(key_useOrDeclareTypeParameters)){
+tuple[bool yes, bool closed] declareOrReuseTypeParameters(Collector c){
+    if(!isEmpty(c.getStack(key_declareOrReuseTypeParameters)) && bool closed := c.top(key_declareOrReuseTypeParameters)){
         return <true, closed>;
     } else {
         return <false, false>;

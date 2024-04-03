@@ -1,6 +1,15 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-alias Graph[&T] = rel[&T from, &T to];
+public &T <: num max(&T <: num N, &T <: num M)
+{
+    return N > M ? N : M;
+}
+test bool max8() = max(3.5, 10) == 10;
+
+//syntax Mapping[&T]
+//    = \default: &T!ifDefinedOtherwise from ":" &T to 
+//    ;
+//alias X[&T] = int;
 
 //data Maybe[&A] 
 //   = nothing() 
