@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -41,10 +42,13 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory;
+import jline.TerminalFactory;
+
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
+	private final static TerminalProgressBarMonitor monitor = new TerminalProgressBarMonitor(System.out, TerminalFactory.get());
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
 	private final static ModuleEnvironment root;
@@ -57,9 +61,10 @@ public class TestFramework {
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
 		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
-		
+		stdout = new PrintWriter(monitor);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, monitor,  root, heap);
+		evaluator.setMonitor(monitor);
+
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
 		

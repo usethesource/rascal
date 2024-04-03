@@ -43,7 +43,7 @@ default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
     str src = "";
-    job("Generating parser <package>.<name>", void (void (str m, int w) worked) { 
+    job("Generating <name>", void (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
@@ -85,7 +85,7 @@ public str newGenerate(str package, str name, Grammar gr) {
     //println("optimizing lookahead automaton", 1);
     //gr = compileLookaheads(gr);
    
-    worked("printing the source code of the parser class", 1);
+    worked("source code template", 1);
     
     src =  "package <package>;
            '

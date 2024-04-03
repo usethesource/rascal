@@ -11,19 +11,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.Test;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
-import jline.TerminalFactory;
 
 public class ParallelEvaluatorsTests {
-    private static final TerminalProgressBarMonitor monitor = new TerminalProgressBarMonitor(System.out, TerminalFactory.get());
+    private static final IRascalMonitor monitor = new NullRascalMonitor();
     
     private static final String[] testModules = new String[] {
         "lang::rascal::tests::library::ValueIO",
@@ -35,7 +35,7 @@ public class ParallelEvaluatorsTests {
         var heap = new GlobalEnvironment();
         var root = heap.addModule(new ModuleEnvironment("___test___", heap));
         
-        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, monitor,  root, heap);
+        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
         evaluator.setMonitor(monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());        
         evaluator.setTestResultListener(new ITestResultListener() {
@@ -107,7 +107,7 @@ public class ParallelEvaluatorsTests {
                     }
                 }
 
-            });
+            }, "Evaluator parallel stress test " + i);
             runner.setDaemon(true);
             runner.start();
         }
@@ -131,10 +131,8 @@ public class ParallelEvaluatorsTests {
         }
         finally {
             close.set(true);
+            monitor.endAllJobs();
         }
-
-
-
     }
     
 }
