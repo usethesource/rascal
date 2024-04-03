@@ -18,7 +18,10 @@ public /*const*/ str inAlternative = "inAlternative"; // used to mark top-level 
 public /*const*/ str typeContainer = "typeContainer";
 public /*const*/ str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
 
-public /*const*/ str inFormals = "inFormals";
+private /*const*/ str key_useOrDeclareTypeParameters = "useOrDeclareTypeParameters";
+private /*const*/ str key_useTypeParameters = "useTypeParameters";
+private /*const*/ str key_useBoundedTypeParameters = "useBoundedTypeParameters";
+
 
 // Some utilities on patterns
 
@@ -54,11 +57,57 @@ bool isTopLevelParameter(Collector c){
 
 data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 
-data ReturnInfo
-    = returnInfo(Type returnType)
+data SignatureInfo
+    = signatureInfo(Type returnType)
     ;
-
-bool insideFormals(Solver s){
-    return !isEmpty(s.getStack(inFormals));
+    
+void beginUseTypeParameters(Collector c, bool closed = false){
+    c.push(key_useTypeParameters, closed);
 }
+
+void endUseTypeParameters(Collector c){
+    c.pop(key_useTypeParameters);
+}
+
+tuple[bool yes, bool closed] useTypeParameters(Collector c){
+    if(!isEmpty(c.getStack(key_useTypeParameters)) && bool closed := c.top(key_useTypeParameters)){
+        return <true, closed>;
+    } else {
+        return <false, false>;
+    }
+}
+
+void beginUseOrDeclareTypeParameters(Collector c, bool closed=false){
+    c.push(key_useOrDeclareTypeParameters, closed);
+}
+
+void endUseOrDeclareTypeParameters(Collector c){
+    c.pop(key_useOrDeclareTypeParameters);
+}
+
+tuple[bool yes, bool closed] useOrDeclareTypeParameters(Collector c){
+    if(!isEmpty(c.getStack(key_useOrDeclareTypeParameters)) && bool closed := c.top(key_useOrDeclareTypeParameters)){
+        return <true, closed>;
+    } else {
+        return <false, false>;
+    }
+}
+
+void beginUseBoundedTypeParameters(rel[str, Type] tpbounds, Collector c){
+    c.push(key_useBoundedTypeParameters, tpbounds);
+}
+
+tuple[bool yes, rel[str, Type] tpbounds] useBoundedTypeParameters(Collector c){
+      tbl = c.getStack(key_useBoundedTypeParameters);
+      if([rel[str,Type] tpbounds,*_] := tbl){
+        return <true, tpbounds>;
+      } else {
+        return <false, {}>;
+      }
+}
+
+void endUseBoundedTypeParameters(Collector c){
+    c.pop(key_useBoundedTypeParameters);
+}
+
  

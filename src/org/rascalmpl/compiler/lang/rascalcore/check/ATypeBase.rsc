@@ -58,7 +58,7 @@ data AType (str alabel = "")
      | aprod(AProduction production)
      
      | amodule(str mname, str deprecationMessage="")
-     | aparameter(str pname, AType bound) 
+     | aparameter(str pname, AType bound, bool closed=false)
      | areified(AType atype)
      | avalue()
      ;

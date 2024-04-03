@@ -9,6 +9,7 @@ extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::BuiltinFields;
 extend lang::rascalcore::check::ScopeInfo;
 
+import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 
 //import IO;
@@ -644,27 +645,33 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
     return avalue();
 }
 
+bool isSameTypeParameter(aparameter(str n1, AType b1), aparameter(str n2, AType b2))
+    = n1 == n2 && b1 == b2;
+    
+default bool isSameTypeParameter(AType t1, AType t2) = false;
+
 @doc{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
-    if (isIntAType(l) && isIntAType(r)) return aint();
-    if (isIntAType(l) && isRatAType(r)) return arat();
-    if (isIntAType(l) && isRealAType(r)) return areal();
-    if (isIntAType(l) && isNumAType(r)) return anum();
+    if (isIntAType(l) && isIntAType(r))  return isSameTypeParameter(l, r) ? l : aint();
+    
+    if (isIntAType(l) && isRatAType(r)) return isTypeParameter(r) ? r : arat();
+    if (isIntAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
+    if (isIntAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
 
-    if (isRatAType(l) && isIntAType(r)) return arat();
-    if (isRatAType(l) && isRatAType(r)) return arat();
-    if (isRatAType(l) && isRealAType(r)) return areal();
-    if (isRatAType(l) && isNumAType(r)) return anum();
+    if (isRatAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : arat();
+    if (isRatAType(l) && isRatAType(r)) return isSameTypeParameter(l, r) ? l : arat();
+    if (isRatAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
+    if (isRatAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
 
-    if (isRealAType(l) && isIntAType(r)) return areal();
-    if (isRealAType(l) && isRatAType(r)) return areal();
-    if (isRealAType(l) && isRealAType(r)) return areal();
-    if (isRealAType(l) && isNumAType(r)) return anum();
+    if (isRealAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : areal();
+    if (isRealAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : areal();
+    if (isRealAType(l) && isRealAType(r)) return isSameTypeParameter(l, r) ? l : areal();
+    if (isRealAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
 
-    if (isNumAType(l) && isIntAType(r)) return anum();
-    if (isNumAType(l) && isRatAType(r)) return anum();
-    if (isNumAType(l) && isRealAType(r)) return anum();
-    if (isNumAType(l) && isNumAType(r)) return anum();
+    if (isNumAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : anum();
+    if (isNumAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : anum();
+    if (isNumAType(l) && isRealAType(r)) return isTypeParameter(l) ? l : anum();
+    if (isNumAType(l) && isNumAType(r)) return isSameTypeParameter(l, r) ? l : anum();
 
     throw rascalCheckerInternalError("Only callable for numeric types, given <l> and <r>");
 }
@@ -677,16 +684,16 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isStrAType(t1) && isStrAType(t2))
-        return astr();
+        return isSameTypeParameter(t1, t2) ? t1 : astr();
     if (isBoolAType(t1) && isBoolAType(t2))
-        return abool();
+        return isSameTypeParameter(t1, t2) ? t1 : abool();
     if (isLocAType(t1) && isLocAType(t2))
-        return aloc();
+        return isSameTypeParameter(t1, t2) ? t1 : aloc();
     if (isLocAType(t1) && isStrAType(t2))
-        return aloc();
+        return isTypeParameter(t1) ? t1 : aloc();
         
     if(isDateTimeAType(t1) && isDateTimeAType(t2))
-        return adatetime();
+        return isSameTypeParameter(t1, t2) ? t1 : adatetime();
         
      if (isTupleAType(t1) && isTupleAType(t2)) {
          if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
@@ -762,7 +769,7 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
         return numericArithTypes(t1, t2);
     }
     if(isDateTimeAType(t1) && isDateTimeAType(t2)){
-        return adatetime();
+        return isSameTypeParameter(t1, t2) ? t1 : adatetime();
     }
     if(isListAType(t1) && isListAType(t2)){
         s.requireComparable(getListElementType(t1), getListElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", 
@@ -1044,14 +1051,6 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
           texp = tp;
           s.fact(expression, tp);
        } else {
-        // TODO: assess whether this is needed
-          //if(insideFormals(s) && (size(overloads) > 1)){
-          //  if(any(tp <- bareArgTypes, !s.isFullyInstantiated(tp))){
-          //      defs = itemizeLocs(filteredOverloads<0>);
-          //      s.report(error(expression, "Constructor `%v` in formal parameter should be unique, found %t, defined at %v", "<expression>", expression, defs));
-          //      return avalue();
-          //  }
-          //}
          overloads = filteredOverloads;
          validReturnTypeOverloads = {};
          validOverloads = {};

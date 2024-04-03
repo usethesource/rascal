@@ -81,16 +81,16 @@ tuple[bool, TagString] getExpected(Tags tags){
 }
 
 
-set[TypeVar] getTypeParams(Tree t){
-    res = {};
+list[TypeVar] getTypeParams(Tree t){
+    res = [];
     top-down-break visit(t){
-        case TypeVar tp :
-            res += tp;
-        case Type tp: 
-            if(t is function) {
-                ;// do nothing, all type parameters inside the function type
-                // are not considered
+        case TypeVar tp : {
+                res += tp;
+                if(tp is bounded) res += getTypeParams(tp.bound);
             }
+        //case FunctionType tp: 
+        //    // only type parameters in return type of a function type will be considered
+        //    res += getTypeParams(tp.\type);
     }
         
     return res;
@@ -100,20 +100,20 @@ set[Name] getTypeParamNames(Tree t){
     return { tp.name | tp <- getTypeParams(t) };
 }
 
-tuple[set[TypeVar], set[Name]] getDeclaredAndUsedTypeVars(Tree t){
-    declared = {};
-    used = {};
-    // TODO function types!
-    top-down-break visit(t){
-        case TypeVar tv: if(tv is free){ declared += tv; } else { declared += tv; used += getTypeParamNames(tv.bound); }
-    }
-    
-    //top-down-break visit(t){
-    //    case tv: (TypeVar) `& <Name name>`: declared += tv;
-    //    case tv: (TypeVar) `& <Name name> \<: <Type bound>`: { declared += tv; used += getTypeVarNames(bound); }
-    //}
-    
-    return <declared, used>;
-}
+//tuple[set[TypeVar], set[Name]] getDeclaredAndUsedTypeVars(Tree t){
+//    declared = {};
+//    used = {};
+//    // TODO function types!
+//    top-down-break visit(t){
+//        case TypeVar tv: if(tv is free){ declared += tv; } else { declared += tv; used += getTypeParamNames(tv.bound); }
+//    }
+//    
+//    //top-down-break visit(t){
+//    //    case tv: (TypeVar) `& <Name name>`: declared += tv;
+//    //    case tv: (TypeVar) `& <Name name> \<: <Type bound>`: { declared += tv; used += getTypeVarNames(bound); }
+//    //}
+//    
+//    return <declared, used>;
+//}
 
 bool containsReturn(Tree t) = /(Statement) `return <Statement _>` := t;

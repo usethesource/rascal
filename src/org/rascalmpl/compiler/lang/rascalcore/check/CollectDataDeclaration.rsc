@@ -34,7 +34,6 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
         return;
     }
     
-    
     commonKeywordParameterList = getCommonKwFormals(current);
 
     typeParameters = getTypeParameters(userType);
@@ -48,15 +47,17 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
        
     adtParentScope = c.getScope();
     c.enterScope(current);
-        for(tp <- typeParameters){
-            c.define("<tp.name>", typeVarId(), tp.name, defType(tp));
-        }
+        //for(tp <- typeParameters){
+        //    c.define("<tp.name>", typeVarId(), tp.name, defType(tp));
+        //}
         
         c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
-            collect(typeParameters, c);
-            if(!isEmpty(commonKeywordParameterList)){
-                collect(commonKeywordParameterList, c);
-            }
+            beginUseOrDeclareTypeParameters(c, closed=true);
+                collect(typeParameters, c);
+                if(!isEmpty(commonKeywordParameterList)){
+                    collect(commonKeywordParameterList, c);
+                }
+            endUseOrDeclareTypeParameters(c);
        
             // visit all the variants in the parent scope of the data declaration
             collect(variants, c);
@@ -107,28 +108,29 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         c.enterScope(current);
             // Generate use/defs for type parameters occurring in the constructor signature
             
-            set[TypeVar] declaredTVs = {};
-            set[Name] usedTVNames = {};
-            for(t <- formals + kwFormals){
-                <d, u> = getDeclaredAndUsedTypeVars(t);
-                declaredTVs += d;
-                usedTVNames += u;
-            }
+            //set[TypeVar] declaredTVs = {};
+            //set[Name] usedTVNames = {};
+            //for(t <- formals + kwFormals){
+            //    <d, u> = getDeclaredAndUsedTypeVars(t);
+            //    declaredTVs += d;
+            //    usedTVNames += u;
+            //}
+            //
+            //seenTypeVars = {"<tv.name>" | tv <- dataTypeParameters};
+            //inboundTypeVars = {};
+            //for(tv <- declaredTVs){
+            //    tvname = "<tv.name>";
+            //    if(tvname in seenTypeVars){
+            //        c.use(tv.name, {typeVarId()});
+            //    } else {
+            //        seenTypeVars += tvname;
+            //        c.define(tvname, typeVarId(), tv.name, defType(tv));
+            //    }
+            //}
+            //for(tvName <- usedTVNames){
+            //    c.use(tvName, {typeVarId()});
+            //}
             
-            seenTypeVars = {"<tv.name>" | tv <- dataTypeParameters};
-            inboundTypeVars = {};
-            for(tv <- declaredTVs){
-                tvname = "<tv.name>";
-                if(tvname in seenTypeVars){
-                    c.use(tv.name, {typeVarId()});
-                } else {
-                    seenTypeVars += tvname;
-                    c.define(tvname, typeVarId(), tv.name, defType(tv));
-                }
-            }
-            for(tvName <- usedTVNames){
-                c.use(tvName, {typeVarId()});
-            }
            
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
@@ -138,9 +140,11 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
                 })[md5=md5Hash(current)]);
             c.fact(current, name);
-             // The standard rules would declare arguments and kwFormals as variableId();
-            for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) { c.fact(arg, arg.\type); } c.leaveScope(arg); }
-            for(kwa <- kwFormals) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); c.fact(kwa, kwa.\type); c.leaveScope(kwa); }
+            beginUseTypeParameters(c, closed=false);
+                 // The standard rules would declare arguments and kwFormals as variableId();
+                for(arg <- arguments) { c.enterScope(arg); collect(arg.\type, c); if(arg is named) { c.fact(arg, arg.\type); } c.leaveScope(arg); }
+                for(kwa <- kwFormals) { c.enterScope(kwa); collect(kwa.\type, kwa.expression, c); c.fact(kwa, kwa.\type); c.leaveScope(kwa); }
+            endUseTypeParameters(c);
         c.leaveScope(current);
     } else {
         throw "collect Variant: currentAdt not found";
