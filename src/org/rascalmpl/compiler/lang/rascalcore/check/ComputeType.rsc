@@ -740,17 +740,27 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     
     if (isStrAType(t1) && isStrAType(t2))
         return isSameTypeParameter(t1, t2) ? t1 : astr();
+
+    // TODO: what is `true + true`? probably should not exist here
     if (isBoolAType(t1) && isBoolAType(t2))
         return isSameTypeParameter(t1, t2) ? t1 : abool();
+
+    // TODO: what is |unknown:///| + |unknown:///|? probably should not exist here
     if (isLocAType(t1) && isLocAType(t2))
         return isSameTypeParameter(t1, t2) ? t1 : aloc();
+
+    // TODO: this does not make sense to me. The returning type is
+    // always a `loc`, which is more specific than the &T unless it were `void`.
+    // why are we propagating the &T here?    
     if (isLocAType(t1) && isStrAType(t2))
         return isTypeParameter(t1) ? t1 : aloc();
         
+    // TODO what is `now() + now()`? probably should not exist here.    
     if(isDateTimeAType(t1) && isDateTimeAType(t2))
         return isSameTypeParameter(t1, t2) ? t1 : adatetime();
         
-     if (isTupleAType(t1) && isTupleAType(t2)) {
+    // TODO: This re-encodes alub all over again, but maybe subtly different. 
+    if (isTupleAType(t1) && isTupleAType(t2)) {
          if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
             tflds1 = getTupleFields(t1);
             tflds2 = getTupleFields(t2);
@@ -766,7 +776,9 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
             return makeTupleType(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
          }
      } 
-       
+
+    // TODO: this is what all the cases should look like, IMHO, the addition always
+    // produces the lub of the types.   
     if (isListAType(t1) && isListAType(t2))
         return s.lub(t1,t2);
     if (isSetAType(t1) && isSetAType(t2))
@@ -795,11 +807,19 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     if (isBagAType(t1))
         return abag(s.lub(getBagElementType(t1),t2));
     
-    // TODO: Can we also add together constructor types?
+    // TODO: Can we also add together constructor types? 
+    // JV: constructor functions can be added like normal functions can.
+    // That's why the interpreter gives function types to constructor functions and
+    // not something special. Functions are constructor functions are completely interchangeable
+    // in the run-time, so they should not have different type kinds.
+
     // TODO: cloc is arbitrary, can we do better?
     cloc = getLoc(current);
+    // TODO: this is a re-implementation of `alub` don't know if it's exactly the same:
     if (isFunctionAType(t1)){
-        if(isFunctionAType(t2))
+        if (isFunctionAType(t2))
+        // TODO: in the interpreter we simply use the lub of the two function types. What is the use of the
+        // overloaded type if it can never be a result of a type computation?
             return overloadedAType({<cloc, functionId(), t1>, <cloc, functionId(), t2>});
         else if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
             return overloadedAType(overloads + <cloc, functionId(), t1>);
@@ -823,7 +843,9 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
     }
-    if(isDateTimeAType(t1) && isDateTimeAType(t2)){
+    if(isDateTimeAType(t1) && isDateTimeAType(t2)) {
+        // TODO JV: why are we promoting the type parameter here?
+        // BTW, the difference between two DateTime's is _NOT_ a datetime but an integer or something that represents a Duration.
         return isSameTypeParameter(t1, t2) ? t1 : adatetime();
     }
     if(isListAType(t1) && isListAType(t2)){
@@ -832,6 +854,8 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
        return t1;
     }
     
+    // TODO JV: this is weird, what if it's a list of lists and you want to subtract something? Then the previous case already
+    // complains about incomparability...
     if(isListAType(t1)){
         s.requireComparable(getListElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isListRelAType(t1) ? "List Relation" : "List", t1, t2));
         return t1;
@@ -840,6 +864,8 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
         s.requireComparable(getSetElementType(t1), getSetElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", isRelAType(t1) ? "Relation" : "Set", t1,isListRelAType(t2) ? "Relation" : "Set", t2));
         return t1;
     }
+
+    // TODO JV: same issue as with list
     if(isSetAType(t1)){
         s.requireComparable(getSetElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isRelAType(t1) ? "Relation" : "Set", t1, t2));
         return t1;
@@ -862,6 +888,7 @@ private AType _computeProductType(Tree current, AType t1, AType t2, Solver s){
     
     if (isListAType(t1) && isListAType(t2))
         return makeListType(atuple(atypeList([getListElementType(t1),getListElementType(t2)])));
+    // TODO: JV is a rel not a set of tuples?
     if (isRelAType(t1) && isRelAType(t2))
         return arel(atypeList([getRelElementType(t1),getRelElementType(t2)]));
     if (isListRelAType(t1) && isListRelAType(t2))
@@ -893,15 +920,21 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
          ( isSetAType(t1) && isSetAType(t2) ) || 
          ( isMapAType(t1) && isMapAType(t2) ) )
     {
-        if (!comparable(t1,t2))
+        // TODO: JV maybe: warning: intersection of incomparable sets always produces the empty set. It's not strictly a static error.
+        // Another way is to use the glb and warn if the result is set[void], list[void] or map[void,void].
+        if (!comparable(t1,t2)) 
             s.report(error(current, "Types %t and %t are not comparable", t1, t2));
-            
+
+        // TODO JV: this re-encodes what `glb` also does: if t1 <: t2 then glb(t1,t2) == t2,
+        // except it does not take care of the bounds of type parameters.
+        // Let's rewrite this using glb.
         if (asubtype(t2, t1))
             return t2;
-            
+        // TODO See above: 
         if (asubtype(t1, t2))
             return t1;
-            
+
+        // TODO: This is also a partial re-implementation of glb    
         if (isListRelAType(t1)) return makeListRelType(makeVoidType(),makeVoidType());
         if (isListAType(t1)) return makeListType(makeVoidType());
         if (isRelAType(t1)) return makeRelType(makeVoidType(), makeVoidType());

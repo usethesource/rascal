@@ -455,6 +455,8 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
     returnType  = signature.\type;
    
     typeParamsInReturn = getTypeParams(returnType);
+    // TODO: JV; I'm missing understanding here. Why is a variable of role typeVarId() not
+    // something we can look up in the current scope? Can't we list all variables of a certain role?
     typeParamsInParameters = [*getTypeParams(t) | t <- formals + kwFormals];
     
     rel[str,Type] typeParamBounds = {};
@@ -495,6 +497,10 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
             c.fact(tp, tp.name);
         }
     }
+
+    // TODO: JV: I'm still missing the understanding here. Why does the lookup of the parameter &T not
+    // fail by itself when we compute the return type from it's AST if it is not a previously declared type parameter?
+    // Do we not get two errors now? One for the undeclared type parameter and one like below?
     missing = seenInReturn - seenInParams;
     if(!isEmpty(missing)){
         missing = {"&<m>" | m <- missing };
