@@ -273,26 +273,20 @@ public class RascalJUnitTestRunner extends Runner {
         }
         notifier.fireTestRunStarted(desc);
 
-        evaluator.job("Running module tests", desc.getChildren().size(), (String jn) -> {
-            for (Description mod : desc.getChildren()) {
-                evaluator.jobStep(jn, "Running " + mod.getDisplayName());
-
-                // TODO: this will never match because we are on the level of module descriptions now.
-                // This the reason that modules with errors in them silently succeed with 0 tests run.
-                if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
-                    notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
-                    break;
-                }
-
-                // TODO: we lose the link here with the test Descriptors for specific test functions
-                // and this impacts the accuracy of the reporting (only module name, not test name which failed)
-                Listener listener = new Listener(notifier, mod);
-                TestEvaluator runner = new TestEvaluator(evaluator, listener);
-                runner.test(mod.getDisplayName());
+        for (Description mod : desc.getChildren()) {
+            // TODO: this will never match because we are on the level of module descriptions now.
+            // This the reason that modules with errors in them silently succeed with 0 tests run.
+            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
+                break;
             }
 
-            return true;
-        });
+            // TODO: we lose the link here with the test Descriptors for specific test functions
+            // and this impacts the accuracy of the reporting (only module name, not test name which failed)
+            Listener listener = new Listener(notifier, mod);
+            TestEvaluator runner = new TestEvaluator(evaluator, listener);
+            runner.test(mod.getDisplayName());
+        }
 
         notifier.fireTestRunFinished(new Result());
     }
