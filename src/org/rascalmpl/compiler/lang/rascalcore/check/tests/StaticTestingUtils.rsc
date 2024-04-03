@@ -123,7 +123,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Cannot instantiate formal parameter type _",
 	    "Bounds _ and _ are not comparable",
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
-	    "Returned type _ not always a subtype of _"
+	    "Returned type _ is not (or: not always) a subtype of expected return type _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.

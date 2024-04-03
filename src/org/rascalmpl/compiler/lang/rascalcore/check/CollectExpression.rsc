@@ -206,7 +206,7 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), returnInfo(returnType));
+        c.setScopeInfo(scope, functionScope(), signatureInfo(returnType));
         collect([returnType, parameters] + stats, c);
         
         clos_name = closureName(current);

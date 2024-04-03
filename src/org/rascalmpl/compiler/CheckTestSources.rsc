@@ -84,8 +84,8 @@ void checkTestSources(PathConfig pcfg) {
      total += d;
    }
      
-   testFolder = |std:///|;
-   //testFolder = |std:///lang/rascal/tests|;
+   //testFolder = |std:///|;
+   testFolder = |std:///lang/rascal/tests|;
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
