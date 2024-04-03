@@ -1,6 +1,7 @@
 package org.rascalmpl.repl;
 
 import java.io.FilterOutputStream;
+import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -49,11 +50,51 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private final String encoding;
 
+    /**
+     * Will make everything slow, but easier to spot mistakes
+     */
+    private final boolean debug = false;
+
+    @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(OutputStream out, Terminal tm) {
         super(out);
         this.encoding = tm.getOutputEncoding() != null ? tm.getOutputEncoding() : "UTF8";
-        this.writer = new PrintWriter(out, true, Charset.forName(encoding));
+        PrintWriter theWriter = new PrintWriter(out, true, Charset.forName(encoding));
+        this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
+    }
+
+    /**
+     * Use this for debugging terminal cursor movements, step by step.
+     */
+    private static class AlwaysFlushAlwaysShowCursor extends FilterWriter {
+
+        public AlwaysFlushAlwaysShowCursor(PrintWriter out) {
+            super(out);
+        }
+
+        @Override
+        public void write(int c) throws IOException {
+            out.write(c);
+            out.write(ANSI.showCursor());
+            out.flush();
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            out.write(cbuf, off, len);
+            out.write(ANSI.showCursor());
+            out.flush();
+        }
+
+        @Override
+        public void write(String str, int off, int len) throws IOException {
+            out.write(str, off, len);
+            out.write(ANSI.showCursor());
+            out.flush();
+        }
+
+       
     }
 
     /**
@@ -102,7 +143,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 writer.write(ANSI.hideCursor());
                 writer.write(ANSI.moveUp(bars.size() - bars.indexOf(this)));
                 write();
-                writer.write(ANSI.moveDown(bars.size() - bars.indexOf(this)));
+                writer.write(ANSI.moveDown(bars.size() - bars.indexOf(this) - 1 /* already wrote a \n */));
                 writer.write(ANSI.showCursor());
                 writer.flush();
             }
@@ -203,7 +244,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private void eraseBars() {
         if (bars.isEmpty()) {
-            writer.println();
+            // writer.println();
+            return;
         }
             
         writer.write(ANSI.hideCursor());
