@@ -67,7 +67,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private final int barWidth = lineWidth - "☐ ".length() - "   🕐 00:00:00.000 ".length();
+        private final int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -122,15 +122,16 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             // var overWidth = barWidth - doneWidth;
             var done = current >= max ? "☑ " : "☐ ";
 
-            // fill up and cut off:
-            message = (message + " ".repeat(Math.max(0, barWidth - message.length()))).substring(0, barWidth);
-
             // capitalize
-            message = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
+            var msg = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
             
+            // fill up and cut off:
+            msg = threadLabel() + message;
+            msg = (msg + " ".repeat(Math.max(0, barWidth - msg.length()))).substring(0, barWidth);
+
             // split
-            var frontPart = message.substring(0, doneWidth);
-            var backPart = message.substring(doneWidth, message.length());
+            var frontPart = msg.substring(0, doneWidth);
+            var backPart = msg.substring(doneWidth, msg.length());
             var clock = clocks[stepper % clocks.length];
 
             if (barWidth < 1) {
@@ -149,7 +150,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + ANSI.lightBackground()
                 + backPart
                 + ANSI.noBackground()
-                + " " + threadLabel() + " " + clock + " "
+                + " " + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
                 ;
@@ -159,15 +160,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         private String threadLabel() {
             if (threadName.isEmpty()) {
-                return "  ";
+                return "";
             }
             
-            char last = threadName.charAt(threadName.length() - 1);
-            if (Character.isDigit(last)) {
-                return new String(Character.toChars(((last - '0') + "⑴ ".codePointAt(0))));
-            }
-
-            return "  ";
+            return threadName + ": ";
         }
 
         @Override
