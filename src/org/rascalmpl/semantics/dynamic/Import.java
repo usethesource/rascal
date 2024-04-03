@@ -508,6 +508,9 @@ private static boolean isDeprecated(Module preModule){
       catch (URISyntaxException | ClassNotFoundException | IOException e) {
         eval.warning("reusing parsers failed during module import: " + e.getMessage(), env.getLocation());
       }
+      finally {
+        eval.jobEnd("loading", true);
+      }
       
       return result;
   } 
