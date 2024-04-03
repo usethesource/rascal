@@ -613,10 +613,6 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         append tp.typeVar;
     }
     
-    for(tp <- typeParams){
-        c.define("<tp.name>", typeVarId(), tp.name, defType(tp));
-    }
-    
     c.define(aliasName, aliasId(), name, defType(typeParams + base, AType(Solver s){ 
         bindings = ();
         params = for(int i <- index(typeParams)){
@@ -631,9 +627,10 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     })[md5 = md5Hash("<current>")]);
     
     collect(tags, c);
-    beginUseOrDeclareTypeParameters(c, closed=false);
+    
+    beginDeclareOrReuseTypeParameters(c, closed=false);
         collect(typeParams, c);
-    endUseOrDeclareTypeParameters(c);  
+    endDeclareOrReuseTypeParameters(c);  
      
     beginUseTypeParameters(c, closed=true);
         collect(base, c);

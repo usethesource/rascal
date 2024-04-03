@@ -52,12 +52,12 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
         //}
         
         c.push(currentAdt, <current, typeParameters, commonKeywordParameterList, adtParentScope>);
-            beginUseOrDeclareTypeParameters(c, closed=true);
+            beginDeclareOrReuseTypeParameters(c, closed=true);
                 collect(typeParameters, c);
                 if(!isEmpty(commonKeywordParameterList)){
                     collect(commonKeywordParameterList, c);
                 }
-            endUseOrDeclareTypeParameters(c);
+            endDeclareOrReuseTypeParameters(c);
        
             // visit all the variants in the parent scope of the data declaration
             collect(variants, c);
