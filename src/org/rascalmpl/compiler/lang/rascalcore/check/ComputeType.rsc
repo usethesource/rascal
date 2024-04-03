@@ -682,14 +682,24 @@ default AType coerce(AType t, t) = t;       // type preservation = closed algebr
 // sure the parameter is propagated over the operator application expression.
 // Since the operator always implements coercion at run-time, the bounds do not 
 // immediately shrink to the GLB, but rather to the coerced bounds. 
-AType coerce(aparameter(str name, AType boundL), aparameter(name, AType boundR)) 
-    = aparameter(name, coerce(boundL,boundR)); 
+AType coerce(aparameter(str name, AType boundL, closed=false), aparameter(name, AType boundR, closed=false)) 
+    = aparameter(name, coerce(boundL,boundR), closed=false); 
+
+AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, AType boundR, closed=true)) 
+    = aparameter(name, coerce(boundL, boundR), closed=true); 
 
 // Coercion also applies to type parameter bounds, but we do not get to keep
 // open parameters if the names are different.
 // must be `default` to avoid overlap with the equal-type-names case.
-default AType coerce(aparameter(str _, AType bound), AType r) = coerce(bound, r);
-default AType coerce(AType l, aparameter(str _, AType bound)) = coerce(l, bound);
+default AType coerce(aparameter(str _, AType bound, closed=false), AType r) = coerce(bound, r);
+default AType coerce(AType l, aparameter(str _, AType bound, closed=false)) = coerce(l, bound);
+
+// Here we have a closed parameter type, we do not know what it is but it is anything below the bound, 
+// We can defer to the coercion of the bounds again, because the run-time will guarantee such
+// coercion always. The cases for open parameters are the same, but we leave this here
+// for the sake of clarity and completeness.
+default AType coerce(aparameter(str _, AType bound, closed=true), AType r) = coerce(bound, r);
+default AType coerce(AType l, aparameter(str _, AType bound, closed=true)) = coerce(l, bound);
 
 @synopsis{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
