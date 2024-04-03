@@ -691,15 +691,15 @@ AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, A
 // Coercion also applies to type parameter bounds, but we do not get to keep
 // open parameters if the names are different.
 // must be `default` to avoid overlap with the equal-type-names case.
-default AType coerce(aparameter(str _, AType bound, closed=false), AType r) = coerce(bound, r);
-default AType coerce(AType l, aparameter(str _, AType bound, closed=false)) = coerce(l, bound);
+default AType coerce(aparameter(str name, AType bound, closed=false), AType r) = r is aparameter ? coerce(bound, r) : aparameter(name, coerce(bound, r), closed=false);
+default AType coerce(AType l, aparameter(str name, AType bound, closed=false)) = l is aparameter ? coerce(l, bound) : aparameter(name, coerce(l, bound), closed=false);
 
 // Here we have a closed parameter type, we do not know what it is but it is anything below the bound, 
 // We can defer to the coercion of the bounds again, because the run-time will guarantee such
 // coercion always. The cases for open parameters are the same, but we leave this here
 // for the sake of clarity and completeness.
-default AType coerce(aparameter(str _, AType bound, closed=true), AType r) = coerce(bound, r);
-default AType coerce(AType l, aparameter(str _, AType bound, closed=true)) = coerce(l, bound);
+default AType coerce(aparameter(str name, AType bound, closed=true), AType r) = r is aparameter ? coerce(bound, r) : aparameter(name, coerce(bound, r), closed=true);
+default AType coerce(AType l, aparameter(str name, AType bound, closed=true)) = l is aparameter ? coerce(l, bound) : aparameter(name, coerce(l, bound), closed=true);
 
 @synopsis{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
