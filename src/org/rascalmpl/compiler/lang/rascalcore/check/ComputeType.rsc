@@ -650,30 +650,75 @@ bool isSameTypeParameter(aparameter(str n1, AType b1), aparameter(str n2, AType 
     
 default bool isSameTypeParameter(AType t1, AType t2) = false;
 
-@doc{Calculate the arith type for the numeric types, taking account of coercions.}
-public AType numericArithTypes(AType l, AType r) {
-    if (isIntAType(l) && isIntAType(r))  return isSameTypeParameter(l, r) ? l : aint();
+@synopsis{Coerce acts like alub but for arithmetic opererand pairs that feature coercions}
+@description{
+The coercions in this dispatch table make it so that:
+* int escalates to rat, in presence of a rat
+* rat escalates to real, in the presence of a real
+* int also escalates to real, in the presence of a real
+
+Furthermore all arithmetic operators `op` in {`*`, `+`, `-`, `/`} are "type preserving":
+* int op int   => int
+* rat op rat   => rat
+* real op real => real
+* &T op &T     => &T, given that &T <: num
+* And so unequal type parameters, default to `num`: &T <: num op &Y <: num => num
     
-    if (isIntAType(l) && isRatAType(r)) return isTypeParameter(r) ? r : arat();
-    if (isIntAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
-    if (isIntAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
+Finally, the escalation mechanism through coercions also works in the bounds of type parameters:
+* &T <: rat op &U <: int => rat
+That is by forwarding the coercion to the bounds of type parameters if the type names are unequal.
+}
+AType coerce(aint(), arat())     = arat();  // int becomes rat
+AType coerce(arat(), aint())     = arat();  // int becomes rat
+AType coerce(aint(), areal())    = areal(); // int becomes real
+AType coerce(areal(), aint())    = areal(); // int becomes real
+AType coerce(arat(), areal())    = areal(); // rat becomes real
+AType coerce(areal(), arat())    = areal(); // rat becomes real
+AType coerce(anum(), AType r)    = anum();  // everything becomes anum
+AType coerce(AType l, anum())    = anum();  // everything becomes anum
+default AType coerce(AType t, t) = t;       // type preservation = closed algebras for int, rat and real
 
-    if (isRatAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : arat();
-    if (isRatAType(l) && isRatAType(r)) return isSameTypeParameter(l, r) ? l : arat();
-    if (isRatAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
-    if (isRatAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
+// Type preservation also holds if we don't know which type it is. This rule makes
+// sure the parameter is propagated over the operator application expression.
+// Since the operator always implements coercion at run-time, the bounds do not 
+// immediately shrink to the GLB, but rather to the coerced bounds. 
+AType coerce(aparameter(str name, AType boundL), aparameter(name, AType boundR)) 
+    = aparameter(name, coerce(boundL,boundR)); 
 
-    if (isRealAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : areal();
-    if (isRealAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : areal();
-    if (isRealAType(l) && isRealAType(r)) return isSameTypeParameter(l, r) ? l : areal();
-    if (isRealAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
+// Coercion also applies to type parameter bounds, but we do not get to keep
+// open parameters if the names are different.
+// must be `default` to avoid overlap with the equal-type-names case.
+default AType coerce(aparameter(str _, AType bound), AType r) = coerce(bound, r);
+default AType coerce(AType l, aparameter(str _, AType bound)) = coerce(l, bound);
 
-    if (isNumAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : anum();
-    if (isNumAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : anum();
-    if (isNumAType(l) && isRealAType(r)) return isTypeParameter(l) ? l : anum();
-    if (isNumAType(l) && isNumAType(r)) return isSameTypeParameter(l, r) ? l : anum();
+@synopsis{Calculate the arith type for the numeric types, taking account of coercions.}
+public AType numericArithTypes(AType l, AType r) {
+    // `coerce` implements a big number of combinations not covered by the commented code below,
+    // in particular when both or either are type parameters with bounds.
+    return coerce(l, r);
 
-    throw rascalCheckerInternalError("Only callable for numeric types, given <l> and <r>");
+    // if (isIntAType(l) && isIntAType(r))  return isSameTypeParameter(l, r) ? l : aint();
+    
+    // if (isIntAType(l) && isRatAType(r)) return isTypeParameter(r) ? r : arat();
+    // if (isIntAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
+    // if (isIntAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
+
+    // if (isRatAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : arat();
+    // if (isRatAType(l) && isRatAType(r)) return isSameTypeParameter(l, r) ? l : arat();
+    // if (isRatAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
+    // if (isRatAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
+
+    // if (isRealAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : areal();
+    // if (isRealAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : areal();
+    // if (isRealAType(l) && isRealAType(r)) return isSameTypeParameter(l, r) ? l : areal();
+    // if (isRealAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
+
+    // if (isNumAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : anum();
+    // if (isNumAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : anum();
+    // if (isNumAType(l) && isRealAType(r)) return isTypeParameter(l) ? l : anum();
+    // if (isNumAType(l) && isNumAType(r)) return isSameTypeParameter(l, r) ? l : anum();
+
+    // throw rascalCheckerInternalError("Only callable for numeric types, given <l> and <r>");
 }
 
 
