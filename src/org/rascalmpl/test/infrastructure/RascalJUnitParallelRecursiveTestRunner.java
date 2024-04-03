@@ -172,6 +172,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                 newResult.accept(notifier);
             }
         }
+
+        monitor.endAllJobs();
         assert results.isEmpty();
     }
 
@@ -240,7 +242,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void processModules() {
-            evaluator.job("Importing test modules", 1, (jn) -> {
+            evaluator.job("Importing test modules", 0, (jn) -> {
                 try {
                     String module;
 

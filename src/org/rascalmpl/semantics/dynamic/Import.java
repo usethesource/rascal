@@ -345,6 +345,9 @@ public abstract class Import {
 	        e.printStackTrace();
 	        throw new ModuleImport(name, e.getMessage(), x);
 	    } 
+      finally {
+        eval.jobEnd("loading", true);
+      }
 
 	    heap.removeModule(env);
 	    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
