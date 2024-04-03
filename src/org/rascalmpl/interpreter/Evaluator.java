@@ -99,6 +99,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalFunctionValueFactory;
@@ -812,7 +813,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
             synchronized (self) {
                 if (parserGenerator == null) {
-                    parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (OutputStream) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
                 }
             }
         }
