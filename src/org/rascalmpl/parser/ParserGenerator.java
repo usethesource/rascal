@@ -224,18 +224,15 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
-		String JOB = "Generating parser:" + name;
-		monitor.jobStart(JOB, 100, 60);
-
 		try {
 			String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
-			monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
+			
 			IString classString;
 			synchronized (evaluator) {
 				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 			}
 			debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
-			monitor.jobStep(JOB,"Compiling generated java code: " + name, 30);
+			
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
@@ -257,12 +254,8 @@ public class ParserGenerator {
 	 * @throws IOException
    */
   public void writeNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition, ISourceLocation target) throws IOException {
-	String JOB = "Generating parser:" + name;
-	monitor.jobStart(JOB, 100, 60);
-
 	try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
 		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
-		monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
 		IString classString;
 		IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
 
@@ -270,7 +263,6 @@ public class ParserGenerator {
 			classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 		}
 		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
-		monitor.jobStep(JOB,"Compiling generated java code: " + name, 30);
 		
 		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
 	} catch (ClassCastException e) {
