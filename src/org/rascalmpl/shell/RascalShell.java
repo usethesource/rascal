@@ -70,7 +70,7 @@ public class RascalShell  {
 
                 IRascalMonitor monitor 
                     = System.console() != null
-                    ? new TerminalProgressBarMonitor(System.out, term)
+                    ? new TerminalProgressBarMonitor(System.out, System.in, term)
                     : new ConsoleRascalMonitor();
 
                 IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
