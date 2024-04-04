@@ -230,6 +230,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     
     private static final Object dummy = new Object();	
 
+    /**
+     * Promotes the monitor to the outputstream automatically if so required.
+     */
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+        setMonitor(monitor);
+    }
+
     public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
         this(f, input, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
     }
@@ -304,6 +312,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
     }
 
+    /**
+     * This constructor detects if we are running a terminal or not and changes streams and monitors
+     * accordingly
+     * @param valueFactory
+     * @param root
+     * @param heap2
+     */
+    public Evaluator(IValueFactory vf, ModuleEnvironment root, GlobalEnvironment heap) {
+        this(vf, System.in, System.err, IRascalMonitor.buildConsoleMonitor(System.in, System.out), root, heap);
+        if (defStdout instanceof TerminalProgressBarMonitor) {
+            setMonitor((TerminalProgressBarMonitor) defStdout);
+        }
+    }
+
     public void resetJavaBridge() {
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
     }
@@ -317,6 +339,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         interrupt = false;
         IRascalMonitor old = this.monitor;
         this.monitor = monitor;
+
         return old;
     }
 

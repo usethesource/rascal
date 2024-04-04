@@ -6,14 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.fusesource.jansi.Ansi;
 import org.rascalmpl.debug.IRascalMonitor;
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;

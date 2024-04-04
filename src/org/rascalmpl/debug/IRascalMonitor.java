@@ -12,10 +12,18 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
+
 import io.usethesource.vallang.ISourceLocation;
+import jline.TerminalFactory;
 
 public interface IRascalMonitor {
 	/**
@@ -93,4 +101,25 @@ public interface IRascalMonitor {
 	 * Inform (about a warning
 	 */
 	public void warning(String message, ISourceLocation src);
+
+	/**
+	 * Convenience method will produce a monitor with ANSI progress bars if possible,
+	 * and otherwise default to a dumn terminal console progress logger.
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends IRascalMonitor> T buildConsoleMonitor(InputStream in, OutputStream out) {
+		return (T) ((System.console() != null) 
+			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
+			: new ConsoleRascalMonitor(new PrintStream(out))
+		);
+	}
+
+	/**
+	 * Convenience method will produce a monitor that eats up all events without logging
+	 * or reporting
+	 */
+	public default IRascalMonitor buildNullMonitor() {
+		return new NullRascalMonitor();
+	}
 }
