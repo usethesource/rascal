@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -31,10 +31,9 @@ public class ShellEvaluatorFactory {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap);
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, IRascalMonitor.buildConsoleMonitor(input, stdout));
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
-        evaluator.setMonitor(new ConsoleRascalMonitor());
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
@@ -51,10 +50,8 @@ public class ShellEvaluatorFactory {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap);
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, IRascalMonitor.buildConsoleMonitor(input, stdout));
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-
-        evaluator.setMonitor(new ConsoleRascalMonitor());
 
         ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);
         if (rootFolder != null) {
