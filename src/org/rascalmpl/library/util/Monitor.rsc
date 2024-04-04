@@ -16,11 +16,28 @@ import IO;
 
 @synopsis{Log the start of a job.}
 @description{
-jobStart registers a new current job on the job stack with an amount of
+((jobStart)) registers a new current job on the job stack with an amount of
 steps todo and how much work it contributes (when it ends) to its parent job (if any).
+* The `label` _identifies_ as running task, which could be presented in the UI with a specific progress bar (for example)
+* Using ((jobStep)) with the same label, you can advance the amount of work done for the task.
+* All tasks should eventually end with ((jobEnd)), but most UI's will clean up open left-over tasks at natural intervals as well.
+* Use ((jobTodo)) to register additional dynamically discovered work for a task. The `totalWork` constant for that
+specific task will be increased by the given amount.
+
+
+}
+@benefits{
+* It is adviced to use the "block" functions `job` instead of the raw `jobStart`, `jobStep` and `jobEnd`
+functions because these guarantee each started task is always ended, with and without exceptions. This improves
+the user experience for your users. Also these functions help by providing the job label in the scope of the task,
+such that this "magic constant" does not need to be repeated.
+}
+@pitfalls{
+* The job label is both an identity and a user facing string constant. Future versions of the API may
+split the identify from the label for better accuracy and better UI.
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-java void jobStart(str label, int work=1, int totalWork=0);
+java void jobStart(str label, int work=1, int totalWork=100);
 
 @synopsis{Log to the user that a certain event has happened under the currently registered Job.}
 @javaClass{org.rascalmpl.library.util.Monitor}
