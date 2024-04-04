@@ -138,9 +138,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private final Instant startTime;
         private Duration duration;
         private String message = "";
+
+        /**
+         * Stepper is incremented with every jobStep that has an visible effect on the progress bar.
+         * It is used to index into `clocks` or `twister` to create an animation effect.
+         */
         private int stepper = 1;
         private final String[] clocks = new String[] {"🕐" , "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕛"};
-        private final String[] twister = new String[] {"|" , "/", "-", "\\", "|", "/", "-", "\\"};
+        private final String[] twister = new String[] {"." , ".", "o", "o", "O","O", "O", "o", "o", ".", "."};
         public int nesting = 0;
 
         ProgressBar(String name, int max) {
@@ -154,7 +159,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         void worked(int amount, String message) {
-            this.current += Math.min(amount, max);
+            this.current = Math.min(current + amount, max);
             this.duration = Duration.between(startTime, Instant.now());
             this.message = message;
         }
