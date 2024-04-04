@@ -303,11 +303,11 @@ test bool selfApplyCurry() {
 
     func = curry(curry, addition);
 
-    //assert int(int)(int) _ := func;
+    assert int(int)(int) _ := func;
 
     func2 = func(1);
 
-    //assert int(int) _ := func2;
+    assert int(int) _ := func2;
 
     return func2(1) == 2;
 }
