@@ -30,13 +30,11 @@ import java.util.Set;
 import org.junit.After;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -44,15 +42,11 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.TypeFactory;
-import jline.TerminalFactory;
-
 import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private final static IRascalMonitor monitor = System.console() != null 
-		? new TerminalProgressBarMonitor(System.out, System.in, TerminalFactory.get())
-		: new NullRascalMonitor();
+	private final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
 
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
@@ -65,10 +59,10 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		stderr = new PrintWriter(System.err, true);
-		stdout = System.console() != null ? new PrintWriter((TerminalProgressBarMonitor) monitor) : new PrintWriter(System.out, true);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.console() != null ? (TerminalProgressBarMonitor) monitor : System.out ,  root, heap);
-		evaluator.setMonitor(monitor);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, monitor, root, heap);
+	
+		stdout = evaluator.getOutPrinter();
+		stderr = evaluator.getErrorPrinter();
 
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));

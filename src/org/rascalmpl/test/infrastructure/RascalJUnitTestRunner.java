@@ -25,7 +25,6 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -37,7 +36,6 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -48,8 +46,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import jline.Terminal;
-import jline.TerminalFactory;
 
 public class RascalJUnitTestRunner extends Runner {
     private static Evaluator evaluator;
@@ -65,18 +61,8 @@ public class RascalJUnitTestRunner extends Runner {
         try {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-
-            Terminal tm = TerminalFactory.get();
-            IRascalMonitor monitor = System.console() != null 
-                ? new TerminalProgressBarMonitor(System.out, System.in, tm)
-                : new NullRascalMonitor();
-            
-            var outStream = System.console() != null 
-                ? (TerminalProgressBarMonitor) monitor
-                : System.out;
-
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, outStream, root, heap);
-            evaluator.setMonitor(System.console() != null ? monitor : new NullRascalMonitor());
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), root, heap);
+        
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
         } 

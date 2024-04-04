@@ -23,8 +23,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import jline.TerminalFactory;
-
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -40,7 +38,6 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -56,9 +53,7 @@ import io.usethesource.vallang.ISourceLocation;
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
-    private final static  IRascalMonitor monitor = System.console() != null 
-        ? new TerminalProgressBarMonitor(System.out, System.in, TerminalFactory.get())
-        : new NullRascalMonitor();
+    private final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
 
     private final int numberOfWorkers;
     private final Semaphore importsCompleted = new Semaphore(0);
@@ -306,9 +301,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
 
-            var outStream = System.console() != null ? (TerminalProgressBarMonitor) monitor : System.out;
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, outStream,  root, heap);
-            evaluator.setMonitor(monitor);
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), root, heap);
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
 

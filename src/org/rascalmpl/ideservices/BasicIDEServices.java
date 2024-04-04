@@ -15,14 +15,12 @@ package org.rascalmpl.ideservices;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
