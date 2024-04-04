@@ -23,7 +23,7 @@ java str paste();
 @synopsis{Load the contents of a string value into the system clipboard.}
 @description{
 This will put the contents of the string value in into the system clipboard.
-So this is not the string value with quotes and escapes, but the pure String
+So this is not the string value with quotes and escapes, but the pure string
 data.
 
 If the system's clipboard is not accessible (say we are running in a headless environment),
