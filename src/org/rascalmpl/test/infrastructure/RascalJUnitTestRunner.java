@@ -68,7 +68,7 @@ public class RascalJUnitTestRunner extends Runner {
 
             Terminal tm = TerminalFactory.get();
             IRascalMonitor monitor = System.console() != null 
-                ? new TerminalProgressBarMonitor(System.out, tm)
+                ? new TerminalProgressBarMonitor(System.out, System.in, tm)
                 : new NullRascalMonitor();
             
             var outStream = System.console() != null 
