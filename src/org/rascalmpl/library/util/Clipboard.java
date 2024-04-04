@@ -31,7 +31,8 @@ public class Clipboard {
     }
 
     public void copy(IString arg) {
-		cp.setContents(new StringSelection(arg.getValue()), null);
+        var selection = new StringSelection(arg.getValue());
+		cp.setContents(selection, selection);
     }
 
     public IString paste() {
