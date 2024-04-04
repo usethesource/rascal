@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.fusesource.jansi.Ansi;
 import org.rascalmpl.debug.IRascalMonitor;
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
@@ -90,12 +91,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         catch (IOException e) {
            return false;
         } 
-        finally {
-            
-        }
     }
-
-   
 
     /**
      * Use this for debugging terminal cursor movements, step by step.
@@ -281,7 +277,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private void eraseBars() {
         if (bars.isEmpty()) {
-            // writer.println();
+            // we need room to move the cursor back later; if we don't make it now,
+            // there will be circumstances where the cursor is at the bottom row but
+            // still needs to go back "down" one. ANSI does not scroll automatically
+            // if you are on the last line. The cursor movement will be a no-op
+            // and the top line will not be erased next time we clean the bars.
+            writer.write(ANSI.scrollUp(1));
             return;
         }
             
@@ -308,6 +309,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             echo = echo.split(";")[1]; // take the column part
             echo = echo.substring(0, echo.length() - 1); // remove the last R
             return Integer.parseInt(echo);
+        }
+
+        public static String scrollUp(int i) {
+            return "\u001B[" + i + "S";
         }
 
         public static String delete() {
