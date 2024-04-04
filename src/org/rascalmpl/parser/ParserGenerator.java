@@ -55,7 +55,7 @@ public class ParserGenerator {
 	public ParserGenerator(IRascalMonitor monitor, OutputStream out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
-		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope,heap);
+		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope, heap, monitor);
 		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
 		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		
