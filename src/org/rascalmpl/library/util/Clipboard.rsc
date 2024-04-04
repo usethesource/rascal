@@ -13,14 +13,13 @@ then paste always returns the empty string.
 java str paste();
 
 @javaClass{org.rascalmpl.library.util.Clipboard}
-@synopsis{Load the pretty printed value as a string into the system clipboard.}
+@synopsis{Load the contents of a string value into the system clipboard.}
 @description{
-This will pretty print a value to a string and then load it into the clipboard.
-* top-level strings are unquoted and de-escaped first
-* top-level parse trees are yielded
-* structured values are pretty-printed with each indentation level `level` spaces deep.
+This will put the contents of the string value in into the system clipboard.
+So this is not the string value with quotes and escapes, but the pure String
+data.
 
 If the system's clipboard is not accessible (say we are running in a headless environment),
 then copy always has no effect.
 }
-java void copy(str content, bool indent=true, int level=2);
+java void copy(str content);
