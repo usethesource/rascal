@@ -40,6 +40,10 @@ public interface IRascalMonitor {
 		jobStart(name, 1, totalWork);
 	}
 
+	/**
+	 * This utility method is not to be implemented by clients. It's a convenience
+	 * function that helps to guarantee jobs that are started, are always ended.
+	 */
 	default void job(String name, int totalWork, Supplier<Boolean> block) {
 		boolean result = false;
 		try {
@@ -50,7 +54,13 @@ public interface IRascalMonitor {
 			jobEnd(name, result);
 		}
 	}
-
+	
+	/**
+	 * This utility method is not to be implemented by clients. It's a convenience
+	 * function that helps to guarantee jobs that are started, are always ended.
+	 * Also it provides easy access to the name of the current job, such that 
+	 * this "magic" constant does not need to be repeated or stored elsewhere.
+	 */
 	default void job(String name, int totalWork, Function<String, Boolean> block) {
 		boolean result = false;
 		try {
