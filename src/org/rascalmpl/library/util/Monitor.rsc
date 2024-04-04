@@ -71,7 +71,7 @@ with a parameterized workload and the same label as the job name.
 @pitfalls{
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
-void job(str label, void (void (str message, int worked) step) block, int totalWork=1) {
+void job(str label, void (void (str message, int worked) step) block, int totalWork=100) {
   try {
     jobStart(label, totalWork=totalWork);
     block((str message, int worked) { 
