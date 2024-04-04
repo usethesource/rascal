@@ -122,6 +122,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
+   
     private final RascalFunctionValueFactory vf; // sharable
     private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
     protected volatile Environment currentEnvt; // not sharable
@@ -1123,7 +1124,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             profilerRunning = true;
         }
         try {
-            return command.interpret(this);
+            if (command.isImport()) {
+                return job(LOADING_JOB_CONSTANT, 1, jobName -> {
+                    jobStep(jobName, "starting module load round");
+                    return command.interpret(this);
+                });
+            }
+            else {
+                return command.interpret(this);
+            }
         } finally {
             if (profiler != null) {
                 profiler.pleaseStop();
@@ -1195,80 +1204,85 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
             extendingModules.removeAll(names);
 
-            for (String mod : onHeap) {
-                wrapped.clear();
-                if (!heap.existsModule(mod)) {
-                    reloadModule(mod, errorLocation, affectedModules);
+            job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName) ->  {
+                for (String mod : onHeap) {
+                    jobStep(jobName, mod);
+                    wrapped.clear();
                     if (!heap.existsModule(mod)) {
-                        // something went wrong with reloading, let's print that:
-                        errStream.println("** Something went wrong while reloading module " + mod + ":");
-                        for (String s : wrapped.getWarnings()) {
-                            errStream.println(s);
+                        reloadModule(mod, errorLocation, affectedModules, jobName);
+                        if (!heap.existsModule(mod)) {
+                            // something went wrong with reloading, let's print that:
+                            errStream.println("** Something went wrong while reloading module " + mod + ":");
+                            for (String s : wrapped.getWarnings()) {
+                                errStream.println(s);
+                            }
+                            errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
+                            errStream.println("*** if the error persists, start a new console session.");
                         }
-                        errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
-                        errStream.println("*** if the error persists, start a new console session.");
-                    }
-                }          
-            }
+                    }          
+                }
 
-            Set<String> dependingImports = new HashSet<>();
-            Set<String> dependingExtends = new HashSet<>();
-            dependingImports.addAll(getImportingModules(names));
-            dependingExtends.addAll(getExtendingModules(names));
+                Set<String> dependingImports = new HashSet<>();
+                Set<String> dependingExtends = new HashSet<>();
+                dependingImports.addAll(getImportingModules(names));
+                dependingExtends.addAll(getExtendingModules(names));
 
-            for (String mod : dependingImports) {
-                ModuleEnvironment env = heap.getModule(mod);
-                Set<String> todo = new HashSet<>(env.getImports());
-                
-                for (String imp : todo) {
-                    if (names.contains(imp)) {
-                        env.unImport(imp);
-                        ModuleEnvironment imported = heap.getModule(imp);
-                        if (imported != null) {
-                            env.addImport(imp, imported);
-                            affectedModules.add(mod);
-                        }
-                        else {
-                            errStream.println("Could not reimport" + imp + " at " + errorLocation);
-                            warning("could not reimport " + imp, errorLocation);
+                for (String mod : dependingImports) {
+                    ModuleEnvironment env = heap.getModule(mod);
+                    Set<String> todo = new HashSet<>(env.getImports());
+                    
+                    for (String imp : todo) {
+                        if (names.contains(imp)) {
+                            env.unImport(imp);
+                            ModuleEnvironment imported = heap.getModule(imp);
+                            if (imported != null) {
+                                env.addImport(imp, imported);
+                                affectedModules.add(mod);
+                            }
+                            else {
+                                errStream.println("Could not reimport" + imp + " at " + errorLocation);
+                                warning("could not reimport " + imp, errorLocation);
+                            }
                         }
                     }
                 }
-            }
 
-            for (String mod : dependingExtends) {
-                ModuleEnvironment env = heap.getModule(mod);
-                Set<String> todo = new HashSet<>(env.getExtends());
+                for (String mod : dependingExtends) {
+                    ModuleEnvironment env = heap.getModule(mod);
+                    Set<String> todo = new HashSet<>(env.getExtends());
 
-                for (String ext : todo) {
-                    if (names.contains(ext)) {
-                        env.unExtend(ext);
-                        ModuleEnvironment extended = heap.getModule(ext);
-                        if (extended != null) {
-                            env.addExtend(ext);
-                        }
-                        else {
-                            errStream.println("Could not re-extend" + ext + " at " + errorLocation);
-                            warning("could not re-extend " + ext, errorLocation);
+                    for (String ext : todo) {
+                        if (names.contains(ext)) {
+                            env.unExtend(ext);
+                            ModuleEnvironment extended = heap.getModule(ext);
+                            if (extended != null) {
+                                env.addExtend(ext);
+                            }
+                            else {
+                                errStream.println("Could not re-extend" + ext + " at " + errorLocation);
+                                warning("could not re-extend " + ext, errorLocation);
+                            }
                         }
                     }
                 }
-            }
 
-            if (recurseToExtending && !extendingModules.isEmpty()) {
-                reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
-            }
+                if (recurseToExtending && !extendingModules.isEmpty()) {
+                    reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
+                }
 
-            if (!names.isEmpty()) {
-                notifyConstructorDeclaredListeners();
-            }
+                if (!names.isEmpty()) {
+                    notifyConstructorDeclaredListeners();
+                }
+
+                return true;
+            });
         }
         finally {
             setMonitor(old);
         }
     }
 
-    private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded) {
+    private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);

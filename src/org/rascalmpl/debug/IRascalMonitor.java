@@ -44,11 +44,11 @@ public interface IRascalMonitor {
 	 * This utility method is not to be implemented by clients. It's a convenience
 	 * function that helps to guarantee jobs that are started, are always ended.
 	 */
-	default void job(String name, int totalWork, Supplier<Boolean> block) {
+	default <T> T job(String name, int totalWork, Supplier<T> block) {
 		boolean result = false;
 		try {
 			jobStart(name, totalWork);
-			result = block.get();
+			return block.get();
 		}
 		finally {
 			jobEnd(name, result);
@@ -61,11 +61,11 @@ public interface IRascalMonitor {
 	 * Also it provides easy access to the name of the current job, such that 
 	 * this "magic" constant does not need to be repeated or stored elsewhere.
 	 */
-	default void job(String name, int totalWork, Function<String, Boolean> block) {
+	default <T> T job(String name, int totalWork, Function<String, T> block) {
 		boolean result = false;
 		try {
 			jobStart(name, totalWork);
-			result = block.apply(name);
+			return block.apply(name);
 		}
 		finally {
 			jobEnd(name, result);
@@ -75,6 +75,10 @@ public interface IRascalMonitor {
 	/**
 	 * Log the start of an event with the amount of work that will be done when it's finished.
 	 * An event is finished when the next event is logged, or when endJob() is called.
+	 * 
+	 * jobSteps should be _ignored_ for jobs that have not started. This helps with modularizing
+	 * the monitoring of steps acros complex reusable pieces algorithms. If the context registers
+	 * a job, progress is monitored, otherwise it is not shown. 
 	 */
 	public void jobStep(String name, String message, int workShare);
 	

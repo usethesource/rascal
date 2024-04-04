@@ -293,6 +293,7 @@ public abstract class Import {
 	
 	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
 	    GlobalEnvironment heap = eval.getHeap();
+      String jobName = IEvaluator.LOADING_JOB_CONSTANT;
 
 	    ModuleEnvironment m = heap.getModule(name);
 	    if (m == null) {
@@ -303,52 +304,48 @@ public abstract class Import {
 
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
-      eval.job("loading " + name, 1, (jobName) -> {
-        try {
-            if (uri == null) {
-                throw new ModuleImport(name, "can not find in search path", x);
-            }
-            Module module = buildModule(uri, env, eval, jobName);
+      try {
+          if (uri == null) {
+              throw new ModuleImport(name, "can not find in search path", x);
+          }
+          Module module = buildModule(uri, env, eval, jobName);
 
-            if (isDeprecated(module)) {
-                eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
-            }
+          if (isDeprecated(module)) {
+              eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+          }
 
-            if (module != null) {
-                String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
-                if (!internalName.equals(name)) {
-                    throw new ModuleNameMismatch(internalName, name, x);
-                }
-                heap.setModuleURI(name, module.getLocation().getURI());
+          if (module != null) {
+              String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
+              if (!internalName.equals(name)) {
+                  throw new ModuleNameMismatch(internalName, name, x);
+              }
+              heap.setModuleURI(name, module.getLocation().getURI());
 
-                module.interpret(eval);
+              module.interpret(eval);
 
-                eval.jobStep(jobName, "loaded " + URIUtil.getLocationName(uri), 1);
-            }
-
-            return true;
-        }
-        catch (SyntaxError e) {
-            handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-            throw e;
-        }
-        catch (StaticError e) {
-            handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-            throw e;
-        }
-        catch (Throw  e) {
-            handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-            throw e;
-        } 
-        catch (Throwable e) {
-            handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
-            e.printStackTrace();
-            throw new ModuleImport(name, e.getMessage(), x);
-        } 
-        finally {
-            eval.jobStep(jobName, name);
-        }
-      });
+              eval.jobStep(jobName, "loaded " + URIUtil.getLocationName(uri), 1);
+          }
+      }
+      catch (SyntaxError e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
+      }
+      catch (StaticError e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
+      }
+      catch (Throw  e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
+      } 
+      catch (Throwable e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
+          e.printStackTrace();
+          throw new ModuleImport(name, e.getMessage(), x);
+      } 
+      finally {
+          eval.jobStep(jobName, name);
+      }
 
       return env;
 	}
@@ -447,28 +444,28 @@ private static boolean isDeprecated(Module preModule){
           ISet rules = Modules.getSyntax(top);
           for (IValue rule : rules) {
               evalImport(eval, (IConstructor) rule);
-              eval.getMonitor().jobStep(jobName, "defining syntax", 1);
+              eval.getMonitor().jobStep(jobName, "defining syntax for " + name, 1);
           }
 
           ISet imports = Modules.getImports(top);
           eval.getMonitor().jobTodo(jobName, imports.size());
           for (IValue mod : imports) {
               evalImport(eval, (IConstructor) mod);
-              eval.getMonitor().jobStep(jobName, "importing", 1);
+              eval.getMonitor().jobStep(jobName, "importing for " + name, 1);
           }
 
           ISet extend = Modules.getExtends(top);
           eval.getMonitor().jobTodo(jobName, extend.size());
           for (IValue mod : extend) {
               evalImport(eval, (IConstructor) mod);
-              eval.getMonitor().jobStep(jobName, "extending", 1);
+              eval.getMonitor().jobStep(jobName, "extending for " + name, 1);
           }
 
           ISet externals = Modules.getExternals(top);
           eval.getMonitor().jobTodo(jobName, externals.size());
           for (IValue mod : externals) {
               evalImport(eval, (IConstructor) mod);
-              eval.getMonitor().jobStep(jobName, "external importing", 1);
+              eval.getMonitor().jobStep(jobName, "external importing for " + name, 1);
           }
       }
       finally {
@@ -524,7 +521,7 @@ private static boolean isDeprecated(Module preModule){
 public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
 	  try {
-		  imp.interpret(eval);
+		    imp.interpret(eval);
 	  }
 	  catch (Throw rascalException) {
 		  eval.getEvaluator().warning(rascalException.getMessage(), rascalException.getLocation());
