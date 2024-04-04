@@ -41,10 +41,6 @@ public class BasicIDEServices implements IDEServices {
     this.stderr = stderr;
     this.monitor = monitor;
   }
-  
-  public OutputStream getWrappedOutputStream() {
-    return monitor instanceof TerminalProgressBarMonitor ? ((OutputStream) monitor) : null;
-  }
 
   @Override
   public PrintWriter stderr() {
