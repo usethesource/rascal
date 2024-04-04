@@ -4,20 +4,9 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.io.StringWriter;
-
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.parsetrees.SymbolAdapter;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
-
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.StandardTextWriter;
 
 public class Clipboard {
     private final IValueFactory vf;
