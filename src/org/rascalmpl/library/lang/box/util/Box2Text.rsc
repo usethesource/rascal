@@ -22,7 +22,6 @@ and Eelco Visser (June 30, 1994). The original Box concept was introduced by Joe
 The main function `format` maps a Box tree to a `str`:
 * To obtain Box terms people typically transform ASTs or ((ParseTree))s to Box using pattern matching in Rascal.
 * ((Options)) encode global default options for constraint parameters that only override local parameters if they were elided.
-* ((MarkupLanguage)) configures which markup language to use for syntax highlighting purposes.
 }
 @examples{
 This demonstrates the semantics of the main hard constraints:
