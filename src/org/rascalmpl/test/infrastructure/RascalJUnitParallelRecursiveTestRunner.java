@@ -12,7 +12,6 @@
 package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     private final static  IRascalMonitor monitor = System.console() != null 
-        ? new TerminalProgressBarMonitor(System.out, TerminalFactory.get())
+        ? new TerminalProgressBarMonitor(System.out, System.in, TerminalFactory.get())
         : new NullRascalMonitor();
 
     private final int numberOfWorkers;

@@ -3,8 +3,10 @@ package org.rascalmpl.repl;
 import java.io.FilterOutputStream;
 import java.io.FilterWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
@@ -45,10 +47,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private final int lineWidth;
 
-    /**
-     * For portability it is important to encode according to the needs of the actual terminal.
-     */
-    private final String encoding;
+    private final boolean unicodeEnabled;
 
     /**
      * Will make everything slow, but easier to spot mistakes
@@ -56,15 +55,47 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     private final boolean debug = false;
 
     @SuppressWarnings("resource")
-    public TerminalProgressBarMonitor(OutputStream out, Terminal tm) {
+    public TerminalProgressBarMonitor(OutputStream out, InputStream in, Terminal tm) {
         super(out);
-        this.encoding = tm.getOutputEncoding() != null ? tm.getOutputEncoding() : "UTF8";
-        PrintWriter theWriter = new PrintWriter(out, true, Charset.forName(encoding));
+        PrintWriter theWriter = new PrintWriter(out, true, Charset.forName("UTF8"));
         this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
-
+        this.unicodeEnabled = testUnicodeEnabled(in, tm);
         assert System.console() != null: "interactive progress bar needs a terminal, and we should not print this into a file anyway.";
     }
+
+    private boolean testUnicodeEnabled(InputStream in, Terminal tm) {
+        try {
+            // print the current position
+            int pos = ANSI.getCursorPosition(writer, in);
+           
+            // now print a unicode character
+            writer.write("あ");
+
+            // get the new position
+            int newPos = ANSI.getCursorPosition(writer, in);
+
+            int diff = newPos - pos;
+            // should be only one character
+            boolean isUnicode = (diff == 2);
+
+            // clean up
+            while (diff-- > 0) {
+                writer.write(ANSI.delete());
+            }
+            writer.flush();
+
+            return isUnicode;
+        }
+        catch (IOException e) {
+           return false;
+        } 
+        finally {
+            
+        }
+    }
+
+   
 
     /**
      * Use this for debugging terminal cursor movements, step by step.
@@ -94,9 +125,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             out.write(str, off, len);
             out.write(ANSI.showCursor());
             out.flush();
-        }
-
-       
+        }  
     }
 
     /**
@@ -110,12 +139,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private final int barWidth = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
+        private final int barWidthUnicode = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
+        private final int barWidthAscii   = lineWidth - "? ".length() - " - 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
         private int stepper = 1;
         private final String[] clocks = new String[] {"🕐" , "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕛"};
+        private final String[] twister = new String[] {"|" , "/", "-", "\\", "|", "/", "-", "\\"};
         public int nesting = 0;
 
         ProgressBar(String name, int max) {
@@ -155,10 +186,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             if (max != 0) {
                 current = Math.min(max, current); // for robustness sake
                 var partDone = (current * 1.0) / (max * 1.0);
-                return (int) Math.floor(barWidth * partDone);
+                return (int) Math.floor(barWidthUnicode * partDone);
             }
             else {
-                return barWidth % stepper;
+                return barWidthUnicode % stepper;
             }
         }
 
@@ -170,19 +201,23 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             doneWidth = newWidth();
                         
             // var overWidth = barWidth - doneWidth;
-            var done = current >= max ? "☑ " : "☐ ";
+            var done = unicodeEnabled 
+                ? (current >= max ? "☑ " : "☐ ")
+                : (current >= max ? "X " : "O ")
+                ;
 
             // capitalize
             var msg = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
             
             // fill up and cut off:
             msg = threadLabel() + msg;
-            msg = (msg + " ".repeat(Math.max(0, barWidth - msg.length()))).substring(0, barWidth);
+            msg = (msg + " ".repeat(Math.max(0, barWidthUnicode - msg.length()))).substring(0, barWidthUnicode);
 
             // split
+            var barWidth = unicodeEnabled ? barWidthUnicode : barWidthAscii;
             var frontPart = msg.substring(0, doneWidth);
             var backPart = msg.substring(doneWidth, msg.length());
-            var clock = clocks[stepper % clocks.length];
+            var clock = unicodeEnabled ? clocks[stepper % clocks.length] : twister[stepper % twister.length];
 
             if (barWidth < 1) {
                 return; // robustness against very small screens. At least don't throw bounds exceptions
@@ -261,8 +296,30 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * ANSI escape codes convenience functions
      */
     private static class ANSI {
+        static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
+            writer.write(ANSI.printCursorPosition());
+            writer.flush();
+
+            byte[] col = new byte[32];
+            int len = in.read(col);
+            String echo = new String(col, 0, len, "UTF8");
+    
+            // terminal responds with ESC[n;mR, where n is the row and m is the column.
+            echo = echo.split(";")[1]; // take the column part
+            echo = echo.substring(0, echo.length() - 1); // remove the last R
+            return Integer.parseInt(echo);
+        }
+
+        public static String delete() {
+            return "\u001B[D\u001B[K";
+        }
+
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
+        }
+
+        public static String printCursorPosition() {
+            return "\u001B[6n";
         }
 
         public static String darkBackground() {

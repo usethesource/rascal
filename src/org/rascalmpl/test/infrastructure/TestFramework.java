@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.junit.After;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -52,7 +51,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TestFramework {
 	private final static IRascalMonitor monitor = System.console() != null 
-		? new TerminalProgressBarMonitor(System.out, TerminalFactory.get())
+		? new TerminalProgressBarMonitor(System.out, System.in, TerminalFactory.get())
 		: new NullRascalMonitor();
 
 	private final static Evaluator evaluator;
