@@ -30,7 +30,7 @@ public class Clipboard {
         this.monitor = monitor;
     }
 
-    public void copy(IString arg, IBool indent, IInteger level) {
+    public void copy(IString arg) {
 		cp.setContents(new StringSelection(arg.getValue()), null);
     }
 
