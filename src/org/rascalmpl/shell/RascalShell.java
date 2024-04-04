@@ -21,10 +21,7 @@ import java.io.PrintWriter;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
-
 import jline.Terminal;
 import jline.TerminalFactory;
 import jline.TerminalSupport;
@@ -68,13 +65,10 @@ public class RascalShell  {
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
 
-                IRascalMonitor monitor 
-                    = System.console() != null
-                    ? new TerminalProgressBarMonitor(System.out, System.in, term)
-                    : new ConsoleRascalMonitor();
+                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
 
                 IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
-                runner = new REPLRunner(System.in, System.err, System.console() != null ? (OutputStream) monitor : System.out, term, services);
+                runner = new REPLRunner(System.in, System.err, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, term, services);
             }
             runner.run(args);
 

@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.BaseREPL;
