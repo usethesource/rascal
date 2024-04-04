@@ -42,9 +42,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     private final PrintWriter writer;
 
     /**
-     * The entire width in character columns of the current terminal. We do not support resizing (yet).
+     * The entire width in character columns of the current terminal. Resizes everytime when we start
+     * the first job.
      */
-    private final int lineWidth;
+    private int lineWidth;
 
     private final boolean unicodeEnabled;
 
@@ -53,9 +54,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private final boolean debug = false;
 
+    /**
+     * Used to get updates to the width of the terminal
+     */
+    private final Terminal tm;
+
     @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(OutputStream out, InputStream in, Terminal tm) {
         super(out);
+        this.tm = tm;
         PrintWriter theWriter = new PrintWriter(out, true, Charset.forName("UTF8"));
         this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
@@ -384,6 +391,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     
     @Override
     public synchronized void jobStart(String name, int workShare, int totalWork) {
+        if (bars.size() == 0) {
+            // first new job, we take time to react to window resizing
+            lineWidth = tm.getWidth();
+        }
+
         var pb = findBarByName(name);
         
         if (pb == null) {
