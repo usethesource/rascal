@@ -10,6 +10,13 @@ the source to a string value.
 If the system's clipboard is not accessible (say we are running in a headless environment),
 then paste always returns the empty string.
 }
+@pitfalls{
+* the first time paste or copy are called the UI toolkit must boot up; it can take a few seconds.
+}
+@benefits{
+* copy/paste allow for interesting and useful user interactions, especially while experimenting on the REPL.
+* paste encodes and escapes all kinds of wild characters automatically.
+}
 java str paste();
 
 @javaClass{org.rascalmpl.library.util.Clipboard}
@@ -21,5 +28,12 @@ data.
 
 If the system's clipboard is not accessible (say we are running in a headless environment),
 then copy always has no effect.
+}
+@pitfalls{
+* the first time paste or copy are called the UI toolkit must boot up; it can take a few seconds.
+}
+@benefits{
+* copy/paste allow for interesting and useful user interactions, especially while experimenting on the REPL. 
+* copy transfers the pure content of the string, no quotes or escapes.
 }
 java void copy(str content);
