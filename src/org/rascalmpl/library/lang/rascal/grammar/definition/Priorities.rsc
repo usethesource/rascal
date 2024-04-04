@@ -14,7 +14,6 @@ import Set;
 import List;
 import IO;
 import util::Maybe;
-import util::Monitor;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
