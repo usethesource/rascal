@@ -235,11 +235,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      */
     public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
         this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    }
+
+    /**
+     * If your monitor should wrap stdout (like TerminalProgressBarMonitor) then you can use this constructor.
+     */
+    public <M extends OutputStream & IRascalMonitor> Evaluator(IValueFactory f, InputStream input, OutputStream stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
         setMonitor(monitor);
     }
 
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, input, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
+        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+        setMonitor(monitor);
     }
 
     public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
@@ -320,10 +328,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * @param heap2
      */
     public Evaluator(IValueFactory vf, ModuleEnvironment root, GlobalEnvironment heap) {
-        this(vf, System.in, System.err, IRascalMonitor.buildConsoleMonitor(System.in, System.out), root, heap);
-        if (defStdout instanceof TerminalProgressBarMonitor) {
-            setMonitor((TerminalProgressBarMonitor) defStdout);
-        }
+        this(vf, System.in, System.err, System.out, IRascalMonitor.buildConsoleMonitor(System.in, System.out), root, heap);
     }
 
     public void resetJavaBridge() {

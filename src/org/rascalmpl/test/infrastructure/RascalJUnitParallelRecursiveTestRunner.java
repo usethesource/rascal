@@ -181,8 +181,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         private GlobalEnvironment heap;
         private ModuleEnvironment root;
         
-        private PrintWriter stderr = new PrintWriter(System.err);
-        private PrintWriter stdout = new PrintWriter(System.out);
+        private PrintWriter stderr;
+        private PrintWriter stdout;
         private Evaluator evaluator;
         private final List<Description> testModules = new ArrayList<>();
 
@@ -300,8 +300,11 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         private void initializeEvaluator() {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
+            
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, monitor, root, heap);
+            stdout = new PrintWriter(evaluator.getStdOut());
+            stderr = new PrintWriter(evaluator.getStdErr());
 
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), root, heap);
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
 

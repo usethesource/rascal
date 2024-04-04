@@ -35,8 +35,8 @@ public class ParallelEvaluatorsTests {
         var heap = new GlobalEnvironment();
         var root = heap.addModule(new ModuleEnvironment("___test___", heap));
         
-        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
-        evaluator.setMonitor(monitor);
+        var evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap, monitor);
+        
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());        
         evaluator.setTestResultListener(new ITestResultListener() {
             @Override

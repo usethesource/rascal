@@ -107,12 +107,11 @@ public interface IRascalMonitor {
 	 * and otherwise default to a dumn terminal console progress logger.
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends IRascalMonitor> T buildConsoleMonitor(InputStream in, OutputStream out) {
-		return (T) ((System.console() != null) 
+	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
+		return System.console() != null
 			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
 			: new ConsoleRascalMonitor(new PrintStream(out))
-		);
+		;
 	}
 
 	/**

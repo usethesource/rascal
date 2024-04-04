@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -63,7 +64,8 @@ public class JavaToRascal {
 
 	public JavaToRascal(InputStream input, OutputStream stdout, OutputStream stderr) {
 		this.evaluator = new Evaluator(vf, input, stderr, stdout,
-				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap);
+				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap,
+				IRascalMonitor.buildConsoleMonitor(input, stdout));
 	}
 
 	public JavaToRascal(Evaluator evaluator) {
