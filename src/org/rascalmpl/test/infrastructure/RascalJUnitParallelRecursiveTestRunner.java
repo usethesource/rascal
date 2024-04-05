@@ -28,7 +28,6 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.NullRascalMonitor;
@@ -53,7 +52,6 @@ import io.usethesource.vallang.ISourceLocation;
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
-    private final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
 
     private final int numberOfWorkers;
     private final Semaphore importsCompleted = new Semaphore(0);
@@ -172,7 +170,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             }
         }
 
-        monitor.endAllJobs();
+        TestFramework.getCommonMonitor().endAllJobs();
         assert results.isEmpty();
     }
 
@@ -301,7 +299,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, monitor, root, heap);
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, TestFramework.getCommonMonitor());
             stdout = new PrintWriter(evaluator.getStdOut());
             stderr = new PrintWriter(evaluator.getStdErr());
 

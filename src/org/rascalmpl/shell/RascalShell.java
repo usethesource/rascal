@@ -48,7 +48,8 @@ public class RascalShell  {
                     return;
                 }
                 else {
-                    runner = new ModuleRunner(System.in, System.out, System.err);
+                    var monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+                    runner = new ModuleRunner(System.in, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, System.err, monitor);
                 }
             } 
             else {

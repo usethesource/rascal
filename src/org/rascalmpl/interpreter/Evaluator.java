@@ -321,17 +321,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
     }
 
-    /**
-     * This constructor detects if we are running a terminal or not and changes streams and monitors
-     * accordingly
-     * @param valueFactory
-     * @param root
-     * @param heap2
-     */
-    public Evaluator(IValueFactory vf, ModuleEnvironment root, GlobalEnvironment heap) {
-        this(vf, System.in, System.err, System.out, IRascalMonitor.buildConsoleMonitor(System.in, System.out), root, heap);
-    }
-
     public void resetJavaBridge() {
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
     }
