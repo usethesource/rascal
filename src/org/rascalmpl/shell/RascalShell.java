@@ -36,6 +36,7 @@ public class RascalShell  {
     }
     
     public static void main(String[] args) throws IOException {
+        System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
         printVersionNumber();
 
         try {
