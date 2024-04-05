@@ -46,7 +46,13 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+	private static class InstanceHolder {
+		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+    }
+   
+   	public static IRascalMonitor getCommonMonitor() {
+	   return InstanceHolder.monitor;
+   	}
 
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
@@ -59,7 +65,7 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, monitor, root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, getCommonMonitor(), root, heap);
 	
 		stdout = evaluator.getOutPrinter();
 		stderr = evaluator.getErrorPrinter();

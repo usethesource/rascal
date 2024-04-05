@@ -15,6 +15,7 @@ import java.util.List;
 import org.rascalmpl.debug.IRascalMonitor;
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
+import jline.internal.Configuration;
 
 /**
  * The terminal progress bar monitor wraps the standard output stream to be able to monitor
@@ -59,43 +60,29 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private final Terminal tm;
 
+    private final String encoding;
+
     @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(OutputStream out, InputStream in, Terminal tm) {
         super(out);
-        this.tm = tm;
-        PrintWriter theWriter = new PrintWriter(out, true, Charset.forName("UTF8"));
-        this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
-        this.lineWidth = tm.getWidth();
-        this.unicodeEnabled = testUnicodeEnabled(in, tm);
-        assert System.console() != null: "interactive progress bar needs a terminal, and we should not print this into a file anyway.";
-    }
-
-    private boolean testUnicodeEnabled(InputStream in, Terminal tm) {
         try {
-            // print the current position
-            int pos = ANSI.getCursorPosition(writer, in);
-           
-            // now print a unicode character
-            writer.write("あ");
-
-            // get the new position
-            int newPos = ANSI.getCursorPosition(writer, in);
-
-            int diff = newPos - pos;
-            // should be only one character
-            boolean isUnicode = (diff == 2);
-
-            // clean up
-            while (diff-- > 0) {
-                writer.write(ANSI.delete());
-            }
-            writer.flush();
-
-            return isUnicode;
+            out.write(("yo.. starting a progress bar monitor now\n".getBytes()));
+            Thread.dumpStack();
         }
         catch (IOException e) {
-           return false;
-        } 
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        this.encoding = Configuration.getEncoding();
+        this.tm = tm;
+        
+        PrintWriter theWriter = new PrintWriter(out, true, Charset.forName(encoding));
+        this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
+        this.lineWidth = tm.getWidth();
+        this.unicodeEnabled = encoding.startsWith("UTF-");
+        
+        assert tm.isSupported() && tm.isAnsiSupported(): "interactive progress bar needs a workin ANSI terminal";
+        assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
     }
 
     /**
@@ -307,35 +294,39 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * ANSI escape codes convenience functions
      */
     private static class ANSI {
-        static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
-            writer.write(ANSI.printCursorPosition());
-            writer.flush();
+        // static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
+        //     writer.write(ANSI.printCursorPosition());
+        //     writer.flush();
 
-            byte[] col = new byte[32];
-            int len = in.read(col);
-            String echo = new String(col, 0, len, "UTF8");
+        //     byte[] col = new byte[32];
+        //     int len = in.read(col);
+        //     String echo = new String(col, 0, len, Configuration.getEncoding());
     
-            // terminal responds with ESC[n;mR, where n is the row and m is the column.
-            echo = echo.split(";")[1]; // take the column part
-            echo = echo.substring(0, echo.length() - 1); // remove the last R
-            return Integer.parseInt(echo);
-        }
+        //     if (!echo.startsWith("\u001B[") || !echo.contains(";")) {
+        //         return -1;
+        //     }
+
+        //     // terminal responds with ESC[n;mR, where n is the row and m is the column.
+        //     echo = echo.split(";")[1]; // take the column part
+        //     echo = echo.substring(0, echo.length() - 1); // remove the last R
+        //     return Integer.parseInt(echo);
+        // }
 
         public static String scrollUp(int i) {
             return "\u001B[" + i + "S";
         }
 
-        public static String delete() {
-            return "\u001B[D\u001B[K";
-        }
+        // public static String delete() {
+        //     return "\u001B[D\u001B[K";
+        // }
 
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
         }
 
-        public static String printCursorPosition() {
-            return "\u001B[6n";
-        }
+        // public static String printCursorPosition() {
+        //     return "\u001B[6n";
+        // }
 
         public static String darkBackground() {
             return "\u001B[48;5;242m";
