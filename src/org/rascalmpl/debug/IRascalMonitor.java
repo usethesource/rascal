@@ -23,6 +23,7 @@ import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
+import jline.Terminal;
 import jline.TerminalFactory;
 
 public interface IRascalMonitor {
@@ -122,7 +123,9 @@ public interface IRascalMonitor {
 	 * @return
 	 */
 	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
-		return System.console() != null
+		Terminal tm = TerminalFactory.get();
+
+		return tm.isSupported() && tm.isAnsiSupported()
 			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
 			: new ConsoleRascalMonitor(new PrintStream(out))
 		;

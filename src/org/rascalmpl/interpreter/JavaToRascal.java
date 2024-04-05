@@ -64,8 +64,7 @@ public class JavaToRascal {
 
 	public JavaToRascal(InputStream input, OutputStream stdout, OutputStream stderr) {
 		this.evaluator = new Evaluator(vf, input, stderr, stdout,
-				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap,
-				IRascalMonitor.buildConsoleMonitor(input, stdout));
+				new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap), heap, IRascalMonitor.buildConsoleMonitor(input, stdout));
 	}
 
 	public JavaToRascal(Evaluator evaluator) {

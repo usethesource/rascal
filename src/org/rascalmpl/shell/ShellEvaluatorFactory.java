@@ -27,11 +27,11 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
+    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, IRascalMonitor.buildConsoleMonitor(input, stdout));
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -46,11 +46,11 @@ public class ShellEvaluatorFactory {
         return evaluator;
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr) {
+    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, IRascalMonitor.buildConsoleMonitor(input, stdout));
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
         ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);

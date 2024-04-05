@@ -17,10 +17,11 @@ import static org.junit.Assert.assertNotEquals;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.test.infrastructure.TestFramework;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
@@ -47,7 +48,7 @@ import junit.framework.TestCase;
 public class MatchFingerprintTest extends TestCase {
     private final GlobalEnvironment heap = new GlobalEnvironment();
     private final ModuleEnvironment root = new ModuleEnvironment("root", heap);
-    private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.err, System.out, root, heap, IRascalMonitor.buildConsoleMonitor(System.in, System.out));
+    private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), System.in, System.err, System.out, root, heap, TestFramework.getCommonMonitor());
     private final RascalFunctionValueFactory VF = eval.getFunctionValueFactory();
     private final TypeFactory TF = TypeFactory.getInstance();
 
