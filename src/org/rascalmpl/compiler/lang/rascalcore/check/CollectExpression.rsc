@@ -207,7 +207,16 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     c.enterLubScope(current);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), signatureInfo(returnType));
-        collect([returnType, parameters] + stats, c);
+        
+        beginUseTypeParameters(c, closed=true);
+            collect(returnType, c); // any type parameters in return type remain closed (closed=true);
+        endUseTypeParameters(c); 
+        
+        beginDefineOrReuseTypeParameters(c, closed=false);
+            collect(parameters, c);
+        beginDefineOrReuseTypeParameters(c);
+        
+        collect(stats, c); // TODO take parameter bounds into account!
         
         clos_name = closureName(current);
         bool returnsViaAll = returnsViaAllPath(stats, clos_name, c);

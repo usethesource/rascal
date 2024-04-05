@@ -691,46 +691,20 @@ AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, A
 // Coercion also applies to type parameter bounds, but we do not get to keep
 // open parameters if the names are different.
 // must be `default` to avoid overlap with the equal-type-names case.
-default AType coerce(aparameter(str name, AType bound, closed=false), AType r) = r is aparameter ? coerce(bound, r) : aparameter(name, coerce(bound, r), closed=false);
-default AType coerce(AType l, aparameter(str name, AType bound, closed=false)) = l is aparameter ? coerce(l, bound) : aparameter(name, coerce(l, bound), closed=false);
+default AType coerce(aparameter(str _, AType bound, closed=false), AType r) = coerce(bound, r);
+default AType coerce(AType l, aparameter(str _, AType bound, closed=false)) = coerce(l, bound);
 
 // Here we have a closed parameter type, we do not know what it is but it is anything below the bound, 
 // We can defer to the coercion of the bounds again, because the run-time will guarantee such
 // coercion always. The cases for open parameters are the same, but we leave this here
 // for the sake of clarity and completeness.
-default AType coerce(aparameter(str name, AType bound, closed=true), AType r) = r is aparameter ? coerce(bound, r) : aparameter(name, coerce(bound, r), closed=true);
-default AType coerce(AType l, aparameter(str name, AType bound, closed=true)) = l is aparameter ? coerce(l, bound) : aparameter(name, coerce(l, bound), closed=true);
+default AType coerce(aparameter(str _, AType bound, closed=true), AType r) = coerce(bound, r);
+default AType coerce(AType l, aparameter(str _, AType bound, closed=true)) = coerce(l, bound);
 
 @synopsis{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
-    // `coerce` implements a big number of combinations not covered by the commented code below,
-    // in particular when both or either are type parameters with bounds.
     return coerce(l, r);
-
-    // if (isIntAType(l) && isIntAType(r))  return isSameTypeParameter(l, r) ? l : aint();
-    
-    // if (isIntAType(l) && isRatAType(r)) return isTypeParameter(r) ? r : arat();
-    // if (isIntAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
-    // if (isIntAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
-
-    // if (isRatAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : arat();
-    // if (isRatAType(l) && isRatAType(r)) return isSameTypeParameter(l, r) ? l : arat();
-    // if (isRatAType(l) && isRealAType(r)) return isTypeParameter(r) ? r : areal();
-    // if (isRatAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
-
-    // if (isRealAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : areal();
-    // if (isRealAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : areal();
-    // if (isRealAType(l) && isRealAType(r)) return isSameTypeParameter(l, r) ? l : areal();
-    // if (isRealAType(l) && isNumAType(r)) return isTypeParameter(r) ? r : anum();
-
-    // if (isNumAType(l) && isIntAType(r)) return isTypeParameter(l) ? l : anum();
-    // if (isNumAType(l) && isRatAType(r)) return isTypeParameter(l) ? l : anum();
-    // if (isNumAType(l) && isRealAType(r)) return isTypeParameter(l) ? l : anum();
-    // if (isNumAType(l) && isNumAType(r)) return isSameTypeParameter(l, r) ? l : anum();
-
-    // throw rascalCheckerInternalError("Only callable for numeric types, given <l> and <r>");
 }
-
 
 AType computeAdditionType(Tree current, AType t1, AType t2, Solver s) 
     = binaryOp("addition", _computeAdditionType, current, t1, t2, s);
@@ -999,15 +973,7 @@ private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType s
     base = prettyPrintBaseName(name);
     if(!isWildCard(base)){
        nameType = s.getType(name);
-       if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
-          s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
-          s.fact(name, nameType); // <====
-          nameType = s.instantiate(nameType);
-          s.fact(name, nameType);
-          subjectType = s.instantiate(subjectType);
-          //clearBindings();
-       }
-       s.requireComparable(nameType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, nameType));
+       nameType = instantiateAndCompare(current, nameType, subjectType, s);
        return nameType[alabel=unescape("<name>")];
     } else
        return subjectType[alabel=unescape("<name>")];
@@ -1061,23 +1027,37 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
            } else if(isSetAType(inameType)){
                 elmType = getSetElementType(inameType);
            } else {
-            s.report(error(argument, "List or set type expected, found %t", inameType));
+                s.report(error(argument, "List or set type expected, found %t", inameType));
            }
              
-           if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
-              s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
-              elmType = s.instantiate(elmType);
-              //s.fact(argName, nameElementType);//<<
-              s.fact(current, elmType); // <<
-              subjectType = s.instantiate(elmType);
-           }
-           s.requireComparable(elmType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, elmType));
-           return elmType;
+           return instantiateAndCompare(current, elmType, subjectType, s);
         }
     } else {
         s.report(error(current, "Unsupported construct in splice pattern"));
         return subjectType;
     }
+}
+
+AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solver s){
+    if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
+      s.requireUnify(patType, subjectType, error(current, "Type of pattern could not be computed"));
+      s.fact(current, patType); // <====
+      patType = s.instantiate(patType);
+      s.fact(current, patType);
+      subjectType = s.instantiate(subjectType);
+   }
+  
+   bindings = ();
+   try   bindings = matchRascalTypeParams(patType, subjectType, bindings);
+   catch invalidMatch(str reason):
+         s.report(current, reason);
+   if(!isEmpty(bindings)){
+    try   patType = instantiateRascalTypeParameters(current, patType, bindings, s);
+    catch invalidInstantiation(str msg):
+        s.report(error(current, msg));
+   }
+   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
+   return patType;
 }
 
 // ---- splicePlus pattern: +Pattern ------------------------------------------

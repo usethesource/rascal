@@ -12,21 +12,12 @@ import lang::rascal::\syntax::Rascal;
 public /*const*/ str patternContainer = "patternContainer";
 public /*const*/ str patternNames     = "patternNames";
 
-
 public /*const*/ str currentAdt = "currentAdt";       // used to mark data declarations
 public /*const*/ str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
 public /*const*/ str typeContainer = "typeContainer";
 public /*const*/ str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
 
-private /*const*/ str key_declareOrReuseTypeParameters = "declareOrReuseTypeParameters";
-private /*const*/ str key_useTypeParameters = "useTypeParameters";
-private /*const*/ str key_useBoundedTypeParameters = "useBoundedTypeParameters";
-
-
 // Some utilities on patterns
-
-set[str] getAllNames(Pattern p)
-    = { "<name>" | /(Pattern) `<Type _><Name name>` := p, !isWildCard("<name>") } + { "<name>" | /QualifiedName name := p, !isWildCard("<name>") };
     
 void beginPatternScope(str name, Collector c){
     c.clearStack(patternNames);
@@ -57,10 +48,45 @@ bool isTopLevelParameter(Collector c){
 
 data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 
+// Information needed for checking return statement
 data SignatureInfo
     = signatureInfo(Type returnType)
     ;
-    
+
+// Determine how type parameters (TypeVar in Rascal grammar) will be treated:
+// defineOrReuseTypeParameters:
+//  - define type parameters unless they are already defined (= reused in same scope)
+//  - used for parameter lists
+// useTypeParameters:
+// - all type parameters should have been declared and each occurrence is treated as a use.
+// - used for return types of functions
+// useBoundedTypeParameters:
+// - given a table of computed bounds, turn each use in a use with the given bound.
+// - used for the body of functions
+//
+// IMPORTANT: the above states should be checked in the above order.
+// Case in point: a function type that is part of a return type.
+
+private /*const*/ str key_defineOrReuseTypeParameters = "defineOrReuseTypeParameters";
+
+void beginDefineOrReuseTypeParameters(Collector c, bool closed=false){
+    c.push(key_defineOrReuseTypeParameters, closed);
+}
+
+void endDefineOrReuseTypeParameters(Collector c){
+    c.pop(key_defineOrReuseTypeParameters);
+}
+
+tuple[bool yes, bool closed] defineOrReuseTypeParameters(Collector c){
+    if(!isEmpty(c.getStack(key_defineOrReuseTypeParameters)) && bool closed := c.top(key_defineOrReuseTypeParameters)){
+        return <true, closed>;
+    } else {
+        return <false, false>;
+    }
+}
+
+private /*const*/ str key_useTypeParameters = "useTypeParameters";
+
 void beginUseTypeParameters(Collector c, bool closed = false){
     c.push(key_useTypeParameters, closed);
 }
@@ -77,21 +103,7 @@ tuple[bool yes, bool closed] useTypeParameters(Collector c){
     }
 }
 
-void beginDeclareOrReuseTypeParameters(Collector c, bool closed=false){
-    c.push(key_declareOrReuseTypeParameters, closed);
-}
-
-void endDeclareOrReuseTypeParameters(Collector c){
-    c.pop(key_declareOrReuseTypeParameters);
-}
-
-tuple[bool yes, bool closed] declareOrReuseTypeParameters(Collector c){
-    if(!isEmpty(c.getStack(key_declareOrReuseTypeParameters)) && bool closed := c.top(key_declareOrReuseTypeParameters)){
-        return <true, closed>;
-    } else {
-        return <false, false>;
-    }
-}
+private /*const*/ str key_useBoundedTypeParameters = "useBoundedTypeParameters";
 
 void beginUseBoundedTypeParameters(rel[str, Type] tpbounds, Collector c){
     c.push(key_useBoundedTypeParameters, tpbounds);

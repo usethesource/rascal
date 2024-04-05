@@ -350,21 +350,23 @@ tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, 
 void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collector c) {
     targs = [ta | ta <- tas];
     
-    //resolvedArgTypes = [];
+    <inBody, tpbounds> = useBoundedTypeParameters(c);
     
-    beginDeclareOrReuseTypeParameters(c);
+    // When a function type occurs in a body, just use closed type parameters
+    if(inBody) beginUseTypeParameters(c, closed=true); else beginDefineOrReuseTypeParameters(c,closed=false);
         for(targ <- targs){
             collect(targ.\type, c);
-                c.fact(targ, targ.\type);
-                if(targ has name) {
-                    c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
-                    c.fact(targ, targ.name);
-                 }
-            //}
+            c.fact(targ, targ.\type);
+            if(targ has name) {
+                c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
+                c.fact(targ, targ.name);
+             }
         }
-        collect(t, c);
+    if(inBody) endUseTypeParameters(c, closed=true); else endDefineOrReuseTypeParameters(c,closed=false);
     
-    endDeclareOrReuseTypeParameters(c);
+    beginUseTypeParameters(c, closed=true);
+        collect(t, c);
+    endUseTypeParameters(c);
     
     c.calculate("function type", current, t + targs,
         AType(Solver s){
@@ -468,13 +470,7 @@ void collect(current:(Sym) `<Nonterminal n>`, Collector c){
 void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
     pname = prettyPrintName("<n>");
     
-    if(<true, bool _> := useTypeParameters(c)){
-        c.use(n, {typeVarId() });
-        //println("Use <pname> at <current@\loc>");
-        c.fact(current, n);
-        return;
-    } else 
-    if(<true, bool closed> := declareOrReuseTypeParameters(c)){
+    if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
             //println("Use <pname> at <current@\loc>");
@@ -484,7 +480,13 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
         }
         c.fact(current, n);
         return;
-    }       
+    }  else
+    if(<true, bool _> := useTypeParameters(c)){
+        c.use(n, {typeVarId() });
+        //println("Use <pname> at <current@\loc>");
+        c.fact(current, n);
+        return;
+    }     
     
     //c.use(n, {typeVarId()});
     ////c.fact(current, n);
@@ -504,9 +506,9 @@ void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collect
             base.parameters = [s.getType(p) | p <- params]; // TODO: what to do when base == start(...)?
             return base;
         });
-    beginDeclareOrReuseTypeParameters(c, closed=false);
+    beginDefineOrReuseTypeParameters(c, closed=false);
         collect(params, c);
-    endDeclareOrReuseTypeParameters(c);
+    endDefineOrReuseTypeParameters(c);
 }
 
 void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
@@ -746,13 +748,7 @@ void collect(Sym current, Collector c){
 void collect(current:(TypeVar) `& <Name n>`, Collector c){
     pname = prettyPrintName(n);
     
-    if(<true, bool _> := useTypeParameters(c)){
-        c.use(n, {typeVarId() });
-        //println("Use <pname> at <current@\loc>");
-        c.fact(current, n);
-        return;
-    } else 
-    if(<true, bool closed> := declareOrReuseTypeParameters(c)){
+    if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
             //println("Use <pname> at <current@\loc>");
@@ -760,6 +756,12 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
             c.define(pname, typeVarId(), n, defType(aparameter(pname,avalue(), closed=closed)));
             //println("Define <pname> at <current@\loc>");
         }
+        c.fact(current, n);
+        return;
+      
+    } else if(<true, bool _> := useTypeParameters(c)){
+        c.use(n, {typeVarId() });
+        //println("Use <pname> at <current@\loc>");
         c.fact(current, n);
         return;
     } else {        
@@ -783,35 +785,34 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     pname = prettyPrintName(n);
-    if(<true, bool _> := useTypeParameters(c)){
-        c.use(n, {typeVarId() });
-        //println("Use <pname> at <current@\loc>");
-        c.fact(current, n);
-        return;
-    } else 
-    if(<true, bool closed> := declareOrReuseTypeParameters(c)){
+    
+    if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
             //println("Use <pname> at <current@\loc>");
-        } else {
-            c.define(pname, typeVarId(), n, defType(aparameter(pname,avalue(), closed=closed)));
+        } else { 
+            c.define(pname, typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
             //println("Define <pname> at <current@\loc>");
         }
         c.fact(current, n);
-        return;
+    } else if(<true, bool closed> := useTypeParameters(c)){
+        c.use(n, {typeVarId() });
+        c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
+        //println("Use <pname> at <current@\loc>");
     } else if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
         if(tpbounds[pname]?){
             bnds = toList(tpbounds[pname]);
-            c.calculate("type parameter with bound", current, bnds, 
+            c.calculate("type parameter with bound", n, bnds, 
                 AType(Solver s){ 
                     new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                     return  aparameter(prettyPrintName(n), s.getType(new_bnd), closed=true);
                 });  
         } else {
-            c.calculate("type parameter with bound", current, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
-        }
+            c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
+        }  
+        c.fact(current, n);
     }
-
+    
     collect(tp, c);
  
 }
