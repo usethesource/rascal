@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.fusesource.jansi.internal.CLibrary;
 import org.rascalmpl.debug.IRascalMonitor;
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
@@ -50,7 +51,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     private final boolean unicodeEnabled;
 
-    /**
+    /**x    
      * Will make everything slow, but easier to spot mistakes
      */
     private final boolean debug = false;
@@ -65,6 +66,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(OutputStream out, InputStream in, Terminal tm) {
         super(out);
+       
         this.encoding = Configuration.getEncoding();
         this.tm = tm;
         
@@ -73,7 +75,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         this.lineWidth = tm.getWidth();
         this.unicodeEnabled = encoding.startsWith("UTF-");
         
-        assert tm.isSupported() && tm.isAnsiSupported(): "interactive progress bar needs a workin ANSI terminal";
+        assert tm.isSupported() && tm.isAnsiSupported(): "interactive progress bar needs a working ANSI terminal";
         assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
     }
 
