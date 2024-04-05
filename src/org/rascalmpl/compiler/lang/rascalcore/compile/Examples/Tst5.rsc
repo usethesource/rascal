@@ -1,31 +1,39 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-@javaClass{org.rascalmpl.library.util.Math}
-public java int round(num d);
-public (&T <: num) round(&T <: num r, &T <: num nearest) = 1.0 * nearest;
+//&S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+//      return f(t, u); 
+//    };
+test bool selfApplyCurry() {
+    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
+    };
 
-//public &T <: num max(&T <: num N, &T <: num M)
-//{
-//    return N > M ? N : M;
-//}
-//test bool max8() = max(3.5, 10) == 10;
+    int addition(int i, int j) = i + j;
 
-//syntax Mapping[&T]
-//    = \default: &T!ifDefinedOtherwise from ":" &T to 
+    func = curry(curry, addition);
+
+    assert int(int)(int) _ := func;
+
+    func2 = func(1);
+
+    assert int(int) _ := func2;
+
+    return func2(1) == 2;
+}
+
+//lexical Num = \int: [0-9]+;
+//syntax Exp 
+//    =  \num: Num n
 //    ;
-//alias X[&T] = int;
-
-//data Maybe[&A] 
-//   = nothing() 
-//   | just(&A val)
+//
+//lexical Number = \int: [0-9]+;
+//syntax Expr 
+//    = number: Number n
 //   ;
-//   
-//value main() = just(v) := nothing();
-   
-//@javaClass{org.rascalmpl.library.Prelude}
-//java &U (type[&U] nonterminal) parsers(int grammar); 
-
-                            
+//public data Num = \int(str n);
+//public data Exp = number(Num n);
+//public Exp number(Num::\int("0")) = Exp::\num(Num::\int("01"));
+                      
  //(&T <:num) sum([ /(&T <: num) hd, *(&T <: num) tl]) = (hd | it + i | i <- tl);
  
 //value main(){

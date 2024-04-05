@@ -288,7 +288,8 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
 
 void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, Collector c){
     c.calculate("product", current, [lhs, rhs],  
-       AType(Solver s){ return computeProductType(current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s){ 
+            return computeProductType(current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
@@ -576,17 +577,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
             }
             patType = getPatternType(pat, subjectType, scope, s);
             s.instantiate(subjectType);
-            if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
-                s.requireUnify(patType, subjectType, error(pat, "Type of pattern could not be computed"));
-                ipatType = s.instantiate(patType);
-                if(tvar(src) := patType) s.fact(src, ipatType);
-                patType = ipatType;
-                isubjectType = s.instantiate(subjectType);
-                //if(tvar(src) := subjectType) fact(src, isubjectType);
-                subjectType = isubjectType;
-                //s.keepBindings(getLoc(pat)); // <===
-            }
-            s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
+            instantiateAndCompare(current, patType, subjectType, s);
             return abool();
         });
     c.push(patternContainer, "match");

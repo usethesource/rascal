@@ -62,7 +62,7 @@ default bool asubtype(AType l, AType r){
                 if(l is aparameter){
                     res = asubtypeParam(l, r);
                 } else {
-                    res = p2.closed ? l is avoid : asubtype(l, b2);     // [S6, S8]
+                    res = p2.closed ? (equivalent(l, b2) || l is avoid) : asubtype(l, b2);     // [S6, S8]
                 }
                 //println("asubtype(<l>, <r>) =\> <res>");
                 return res;

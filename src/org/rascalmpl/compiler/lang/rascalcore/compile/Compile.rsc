@@ -31,7 +31,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     pcfg = ms.pathConfig;
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
    
-    iprintln(tm, lineLimit=10000);
+    //iprintln(tm, lineLimit=10000);
     if(errorsPresent(tm)){
         return tm.messages;
     }

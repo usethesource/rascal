@@ -62,9 +62,9 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             //for(tp <- typeParameters){
             //    c.define("<tp.nonterminal>", typeVarId(), tp.nonterminal, defType(aparameter("<tp.nonterminal>", treeType)));
             //}
-            beginDeclareOrReuseTypeParameters(c,closed=false);
+            beginDefineOrReuseTypeParameters(c,closed=false);
                 collect(defined, c);
-            endDeclareOrReuseTypeParameters(c);
+            endDefineOrReuseTypeParameters(c);
             
             // visit all the productions in the parent scope of the syntax declaration
             c.push(currentAdt, <current, [], adtParentScope>);

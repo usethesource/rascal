@@ -357,28 +357,29 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
     parameters  = signature.parameters;
     kwFormals   = getKwFormals(parameters);
     
-    collect(returnType, c); // any type parameters in return type remain closed (closed=true);
-    //c.push(inSignature, true);
-        exceptions = [];
-        
-        if(signature is withThrows){
-             exceptions = [ except | except <- signature.exceptions ];
-             for(Type except <- exceptions){
-                if(except is user){
-                    c.use(except, {constructorId()});
-                } else {
-                    exceptions = [];
-                    c.report(error(except, "User defined data type expected, found `<except>`"));
-                }
+    beginUseTypeParameters(c, closed=true);
+        collect(returnType, c); // any type parameters in return type remain closed (closed=true);
+    endUseTypeParameters(c);  
+    
+    exceptions = [];
+    
+    if(signature is withThrows){
+         exceptions = [ except | except <- signature.exceptions ];
+         for(Type except <- exceptions){
+            if(except is user){
+                c.use(except, {constructorId()});
+            } else {
+                exceptions = [];
+                c.report(error(except, "User defined data type expected, found `<except>`"));
             }
         }
-        
+    }
+    beginDefineOrReuseTypeParameters(c, closed=false);
         collect(parameters, c);
-        
-        <tpnames, tpbounds> = computeBoundsAndDefineTypeParams(signature, c);
-        
-    //c.pop(inSignature);
+    beginDefineOrReuseTypeParameters(c);
     
+    <tpnames, tpbounds> = computeBoundsAndDefineTypeParams(signature, c);
+        
     c.calculate("signature", signature, [returnType, parameters, *exceptions],
         AType(Solver s){
             tformals = s.getType(parameters);
@@ -535,7 +536,7 @@ void collect(Parameters parameters, Collector c){
                         formalTypes[last] = alist(unset(formalTypes[last], "alabel"), alabel=formalTypes[last].alabel);
                     }
                     for(int i <- index(formals)){
-                        checkNonVoid(formals[i], formalTypes[i], c, "Formal parameter");
+                        checkNonVoid(formals[i], formalTypes[i], s, "Formal parameter");
                     }
                     return atypeList(formalTypes);  //TODO: what happened to the kw parameters in this type?
                 });
@@ -634,9 +635,9 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     
     collect(tags, c);
     
-    beginDeclareOrReuseTypeParameters(c, closed=false);
+    beginDefineOrReuseTypeParameters(c, closed=false);
         collect(typeParams, c);
-    endDeclareOrReuseTypeParameters(c);  
+    endDefineOrReuseTypeParameters(c);  
      
     beginUseTypeParameters(c, closed=true);
         collect(base, c);
