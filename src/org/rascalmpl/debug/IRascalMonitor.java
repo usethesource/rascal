@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
+import org.rascalmpl.repl.IsTTY;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -123,7 +124,7 @@ public interface IRascalMonitor {
 	 * @return
 	 */
 	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
-		return System.console() != null
+		return IsTTY.isTTY()
 			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
 			: new ConsoleRascalMonitor(new PrintStream(out))
 		;

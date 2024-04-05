@@ -73,7 +73,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         PrintWriter theWriter = new PrintWriter(out, true, Charset.forName(encoding));
         this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
-        this.unicodeEnabled = encoding.startsWith("UTF-");
+        this.unicodeEnabled = ANSI.isUTF8enabled(theWriter, in);
         
         assert tm.isSupported() && tm.isAnsiSupported(): "interactive progress bar needs a working ANSI terminal";
         assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
@@ -288,39 +288,62 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * ANSI escape codes convenience functions
      */
     private static class ANSI {
-        // static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
-        //     writer.write(ANSI.printCursorPosition());
-        //     writer.flush();
+        static boolean isUTF8enabled(PrintWriter writer, InputStream in) {
+            try {
+                int pos = getCursorPosition(writer, in);
+                writer.write("あ");
+                writer.flush();
+                int newPos = getCursorPosition(writer, in);
+                int diff = newPos - pos;
 
-        //     byte[] col = new byte[32];
-        //     int len = in.read(col);
-        //     String echo = new String(col, 0, len, Configuration.getEncoding());
+                try {
+                    return diff == 2;
+                }
+                finally {
+                    while (--diff >= 0) {
+                        writer.write(ANSI.delete());
+                    }
+                    writer.flush();
+                }
+            }
+            catch (IOException e) {
+               return false;
+            }
+        }
+
+        static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
+            writer.write(ANSI.printCursorPosition());
+            writer.flush();
+
+            byte[] col = new byte[32];
+            int len = in.read(col);
+            String echo = new String(col, 0, len, Configuration.getEncoding());
     
-        //     if (!echo.startsWith("\u001B[") || !echo.contains(";")) {
-        //         return -1;
-        //     }
+            if (!echo.startsWith("\u001B[") || !echo.contains(";")) {
+                return -1;
+            }
 
-        //     // terminal responds with ESC[n;mR, where n is the row and m is the column.
-        //     echo = echo.split(";")[1]; // take the column part
-        //     echo = echo.substring(0, echo.length() - 1); // remove the last R
-        //     return Integer.parseInt(echo);
-        // }
+            // terminal responds with ESC[n;mR, where n is the row and m is the column.
+            echo = echo.split(";")[1]; // take the column part
+            echo = echo.substring(0, echo.length() - 1); // remove the last R
+            return Integer.parseInt(echo);
+        }
 
         public static String scrollUp(int i) {
             return "\u001B[" + i + "S";
         }
 
-        // public static String delete() {
-        //     return "\u001B[D\u001B[K";
-        // }
+        public static String delete() {
+            return "\u001B[D\u001B[K";
+        }
 
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
         }
 
-        // public static String printCursorPosition() {
-        //     return "\u001B[6n";
-        // }
+        public static String printCursorPosition() {
+            return "\u001B[6n";
+        }
 
         public static String darkBackground() {
             return "\u001B[48;5;242m";
