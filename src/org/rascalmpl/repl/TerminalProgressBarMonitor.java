@@ -65,14 +65,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(OutputStream out, InputStream in, Terminal tm) {
         super(out);
-        try {
-            out.write(("yo.. starting a progress bar monitor now\n".getBytes()));
-            Thread.dumpStack();
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
         this.encoding = Configuration.getEncoding();
         this.tm = tm;
         
