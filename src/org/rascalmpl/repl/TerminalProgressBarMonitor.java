@@ -160,11 +160,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             // to avoid flicker we only print if there is a new bar character to draw
             if (newWidth() != previousWidth) {
                 stepper++;
-                writer.write(ANSI.hideCursor());
                 writer.write(ANSI.moveUp(bars.size() - bars.indexOf(this)));
                 write();
                 writer.write(ANSI.moveDown(bars.size() - bars.indexOf(this) - 1 /* already wrote a \n */));
-                writer.write(ANSI.showCursor());
                 writer.flush();
             }
         }
@@ -274,13 +272,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             // if you are on the last line. The cursor movement will be a no-op
             // and the top line will not be erased next time we clean the bars.
             writer.write(ANSI.scrollUp(1));
+            writer.write(ANSI.moveUp(1));
             return;
         }
-            
-        writer.write(ANSI.hideCursor());
-        writer.write(ANSI.moveUp(bars.size())); 
-        writer.write(ANSI.clearToEndOfScreen()); 
-        writer.write(ANSI.showCursor());
+        else {
+            writer.write(ANSI.moveUp(bars.size())); 
+            writer.write(ANSI.clearToEndOfScreen()); 
+        }
         writer.flush();
     }
 
@@ -378,11 +376,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * Simply print the bars. No cursor movement here. Hiding the cursor prevents flickering.
      */
     private void printBars() {
-        writer.write(ANSI.hideCursor());
+        if (bars.isEmpty()) {
+            // no more bars to show, so cursor goes back.
+            writer.write(ANSI.showCursor());
+        }
+
         for (var pb : bars) {
             pb.write();
         }
-        writer.write(ANSI.showCursor());
+        
         writer.flush();
     }
 
@@ -402,6 +404,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         if (bars.size() == 0) {
             // first new job, we take time to react to window resizing
             lineWidth = tm.getWidth();
+            // remove the cursor
+            writer.write(ANSI.hideCursor());
         }
 
         var pb = findBarByName(name);
