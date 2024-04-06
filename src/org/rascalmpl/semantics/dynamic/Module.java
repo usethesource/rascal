@@ -64,8 +64,12 @@ public abstract class Module {
 			  eval.getMonitor().jobTodo(jobName, decls.size());
 
 			  for (Toplevel l : decls) {
-			    l.interpret(eval);
-				eval.getMonitor().jobStep(jobName, "toplevel", 1);
+				try  {
+			    	l.interpret(eval);
+				}
+				finally {
+					eval.getMonitor().jobStep(jobName, "toplevel", 1);
+				}
 			  }
 			}
 			catch (RuntimeException e) {

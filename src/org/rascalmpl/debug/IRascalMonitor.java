@@ -15,6 +15,9 @@ package org.rascalmpl.debug;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -68,6 +71,40 @@ public interface IRascalMonitor {
 		try {
 			jobStart(name, totalWork);
 			return block.apply(name);
+		}
+		finally {
+			jobEnd(name, result);
+		}
+	}
+
+	/**
+	 * This utility method is not to be implemented by clients. It's a convenience
+	 * function that helps to guarantee jobs that are started, are always ended.
+	 * Also it provides easy access to the name of the current job, such that 
+	 * this "magic" constant does not need to be repeated or stored elsewhere.
+	 * @param <T>        return type for the entire job
+	 * @param name       name of the job to identify the progress bar
+	 * @param totalWork  total work to be done
+	 * @param block      lambda to execute. It will get the name as a parameter 
+	 *                   and a `step` function to call with the current message and
+	 *                   the amount of work that has been done.
+	 * 
+	 * Example:
+	 * ```
+	 * job("loading", 100, (n, step) -> {
+	 *   for (int i = 0; i < 100; i+= 10) 
+	 *     doSomething()
+	 *     step("did " + i, 10);
+	 *   }
+	 * });
+	 * 
+	 * @return whatever the block returns is returned by the job
+	 */
+	default <T> T job(String name, int totalWork, BiFunction<String, BiConsumer<String, Integer>, T> block) {
+		boolean result = false;
+		try {
+			jobStart(name, totalWork);
+			return block.apply(name, (msg, worked) -> jobStep(name, msg, worked));
 		}
 		finally {
 			jobEnd(name, result);
