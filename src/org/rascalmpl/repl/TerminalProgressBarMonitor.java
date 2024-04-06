@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -147,6 +148,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         void worked(int amount, String message) {
+            if (current + amount > max) {
+                warning("Progress bar \"" + name + "\" went over the max (" + max + ") by " + (current + amount - max) + "; there are either too few jobTodos or too many jobSteps.", null);
+                Arrays.stream(new Exception().getStackTrace())
+                    .limit(10)
+                    .forEach(frame -> {
+                        warning("\t" + frame.toString(), null);
+                    });
+                    
+            }
             this.current = Math.min(current + amount, max);
             this.duration = Duration.between(startTime, Instant.now());
             this.message = message;
@@ -476,7 +486,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         if (bars.size() > 0) {
             eraseBars();
         }
-        writer.println(("[WARNING] " + src + ": " + message));
+        writer.println(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
         if (bars.size() > 0) {
             printBars();
         }

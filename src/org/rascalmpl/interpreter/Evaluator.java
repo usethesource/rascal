@@ -1114,9 +1114,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
         try {
             if (command.isImport()) {
-                return job(LOADING_JOB_CONSTANT, 1, jobName -> {
-                    jobStep(jobName, "starting module load round");
-                    return command.interpret(this);
+                return job(LOADING_JOB_CONSTANT, 1, (jobName, step) -> {
+                    try {
+                        return command.interpret(this);
+                    }
+                    finally{
+                        step.accept(jobName, 1);
+                    }
                 });
             }
             else {
@@ -1193,22 +1197,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
             extendingModules.removeAll(names);
 
-            job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName) ->  {
+            job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName, step) ->  {
                 for (String mod : onHeap) {
-                    jobStep(jobName, mod);
-                    wrapped.clear();
-                    if (!heap.existsModule(mod)) {
-                        reloadModule(mod, errorLocation, affectedModules, jobName);
+                    try {
+                        wrapped.clear();
                         if (!heap.existsModule(mod)) {
-                            // something went wrong with reloading, let's print that:
-                            errStream.println("** Something went wrong while reloading module " + mod + ":");
-                            for (String s : wrapped.getWarnings()) {
-                                errStream.println(s);
+                            reloadModule(mod, errorLocation, affectedModules, jobName);
+                            if (!heap.existsModule(mod)) {
+                                // something went wrong with reloading, let's print that:
+                                errStream.println("** Something went wrong while reloading module " + mod + ":");
+                                for (String s : wrapped.getWarnings()) {
+                                    errStream.println(s);
+                                }
+                                errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
+                                errStream.println("*** if the error persists, start a new console session.");
                             }
-                            errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
-                            errStream.println("*** if the error persists, start a new console session.");
-                        }
-                    }          
+                        }    
+                    } finally {
+                        step.accept(mod, 1);
+                    }      
                 }
 
                 Set<String> dependingImports = new HashSet<>();

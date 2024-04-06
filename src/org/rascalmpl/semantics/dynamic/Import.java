@@ -305,6 +305,7 @@ public abstract class Import {
       ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
       try {
+          eval.jobTodo(jobName, 1);
           if (uri == null) {
               throw new ModuleImport(name, "can not find in search path", x);
           }
@@ -322,8 +323,6 @@ public abstract class Import {
               heap.setModuleURI(name, module.getLocation().getURI());
 
               module.interpret(eval);
-
-              eval.jobStep(jobName, "loaded " + URIUtil.getLocationName(uri), 1);
           }
       }
       catch (SyntaxError e) {
@@ -344,7 +343,7 @@ public abstract class Import {
           throw new ModuleImport(name, e.getMessage(), x);
       } 
       finally {
-          eval.jobStep(jobName, name);
+          eval.jobStep(jobName, name, 1);
       }
 
       return env;
@@ -401,9 +400,8 @@ private static boolean isDeprecated(Module preModule){
       IActionExecutor<ITree> actions = new NoActionExecutor();
       ITree tree;
 
-      eval.jobTodo(jobName, 1);
-         
       try {
+        eval.jobTodo(jobName, 1);
         tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
       } 
       catch (ParseError e) {
@@ -442,6 +440,7 @@ private static boolean isDeprecated(Module preModule){
           
           eval.getCurrentModuleEnvironment().clearProductions();
           ISet rules = Modules.getSyntax(top);
+          eval.getMonitor().jobTodo(jobName, rules.size());
           for (IValue rule : rules) {
               evalImport(eval, (IConstructor) rule);
               eval.getMonitor().jobStep(jobName, "defining syntax for " + name, 1);
@@ -479,7 +478,6 @@ private static boolean isDeprecated(Module preModule){
             RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
             ISourceLocation parserCacheFile = URIUtil.changeExtension(location, "parsers");
-            eval.jobStep(jobName, "parsing concrete fragment in " + name);
 
             IFunction parsers = null;
             
@@ -500,9 +498,13 @@ private static boolean isDeprecated(Module preModule){
               parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
             }
         
-            eval.getMonitor().jobTodo(jobName, 1);
-            result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
-            eval.getMonitor().jobStep(jobName, "parsed concrete fragments", 1);
+            try {
+              eval.getMonitor().jobTodo(jobName, 1);
+              result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
+            }
+            finally {
+              eval.getMonitor().jobStep(jobName, "parsed concrete fragments", 1);
+            }
         }
       }
       catch (URISyntaxException | ClassNotFoundException | IOException e) {
