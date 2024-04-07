@@ -294,7 +294,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 int diff = newPos - pos;
 
                 try {
-                    return diff == 2;
+                    return diff < 3;
                 }
                 finally {
                     while (--diff >= 0) {
