@@ -9,11 +9,9 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.fusesource.jansi.internal.CLibrary;
 import org.rascalmpl.debug.IRascalMonitor;
 import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
@@ -153,7 +151,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 // a more accurate depiction of the progress of the computation.
                 warning("Monitor of " + name + " is over max (" + max + ") by " + (current + amount - max), null);    
             }
-            
+
             this.current = Math.min(current + amount, max);
             this.duration = Duration.between(startTime, Instant.now());
             this.message = message;
@@ -328,10 +326,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             return Integer.parseInt(echo);
         }
 
-        public static String scrollUp(int i) {
-            return "\u001B[" + i + "S";
-        }
-
         public static String delete() {
             return "\u001B[D\u001B[K";
         }
@@ -370,10 +364,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         static String showCursor() {
             return "\u001B[?25h";
-        }
-
-        static String reset() {
-            return "\u001B[c";
         }
     }
 
