@@ -15,9 +15,13 @@
 package org.rascalmpl.shell;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-
 import jline.Terminal;
 import jline.TerminalFactory;
 import jline.TerminalSupport;
@@ -32,6 +36,7 @@ public class RascalShell  {
     }
     
     public static void main(String[] args) throws IOException {
+        System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
         printVersionNumber();
 
         try {
@@ -44,7 +49,8 @@ public class RascalShell  {
                     return;
                 }
                 else {
-                    runner = new ModuleRunner(System.in, System.out, System.err);
+                    var monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+                    runner = new ModuleRunner(System.in, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, System.err, monitor);
                 }
             } 
             else {
@@ -60,7 +66,11 @@ public class RascalShell  {
                     }
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
-                runner = new REPLRunner(System.in, System.err, System.out, term);
+
+                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+
+                IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
+                runner = new REPLRunner(System.in, System.err, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, term, services);
             }
             runner.run(args);
 

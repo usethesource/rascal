@@ -105,7 +105,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
         try {
-            return getParserGenerator().getNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
+            return getParserGenerator().getNewParser(ctx.getEvaluator().getMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
         } 
         catch (ExceptionInInitializerError e) {
             throw new ImplementationError(e.getMessage(), e);
@@ -118,7 +118,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
     protected void writeParserClass(IMap grammar, ISourceLocation target) throws IOException {
         getParserGenerator().writeNewParser(
-            new NullRascalMonitor(), 
+            ctx.getEvaluator().getMonitor(), 
             URIUtil.rootLocation("parser-generator"), 
             "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), 
             grammar, 
