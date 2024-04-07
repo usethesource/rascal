@@ -149,14 +149,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         void worked(int amount, String message) {
             if (current + amount > max) {
-                warning("Progress bar \"" + name + "\" went over the max (" + max + ") by " + (current + amount - max) + "; there are either too few jobTodos or too many jobSteps.", null);
-                Arrays.stream(new Exception().getStackTrace())
-                    .limit(10)
-                    .forEach(frame -> {
-                        warning("\t" + frame.toString(), null);
-                    });
-                    
+                // Fixing this warning helps avoiding to flicker the tick sign on and off, and also makes the progress bar
+                // a more accurate depiction of the progress of the computation.
+                warning("Monitor of " + name + " is over max (" + max + ") by " + (current + amount - max), null);    
             }
+            
             this.current = Math.min(current + amount, max);
             this.duration = Duration.between(startTime, Instant.now());
             this.message = message;
@@ -171,8 +168,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             if (newWidth() != previousWidth) {
                 stepper++;
                 writer.write(ANSI.moveUp(bars.size() - bars.indexOf(this)));
-                write();
-                writer.write(ANSI.moveDown(bars.size() - bars.indexOf(this) - 1 /* already wrote a \n */));
+                write(); // this moves the cursor already one line down due to `println`
+                int distance = bars.size() - bars.indexOf(this) - 1;
+                if (distance > 0) {
+                    // ANSI will move 1 line even if the parameter is 0
+                    writer.write(ANSI.moveDown(distance));
+                }
                 writer.flush();
             }
         }
@@ -235,7 +236,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + " "
                 ;
 
-            writer.println(line);
+            writer.println(line); // note this puts us one line down
         }
 
         private String threadLabel() {
@@ -275,17 +276,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * of the bars
      */
     private void eraseBars() {
-        if (bars.isEmpty()) {
-            // we need room to move the cursor back later; if we don't make it now,
-            // there will be circumstances where the cursor is at the bottom row but
-            // still needs to go back "down" one. ANSI does not scroll automatically
-            // if you are on the last line. The cursor movement will be a no-op
-            // and the top line will not be erased next time we clean the bars.
-            writer.write(ANSI.scrollUp(1));
-            writer.write(ANSI.moveUp(1));
-            return;
-        }
-        else {
+        if (!bars.isEmpty()) {
             writer.write(ANSI.moveUp(bars.size())); 
             writer.write(ANSI.clearToEndOfScreen()); 
         }
@@ -379,6 +370,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         static String showCursor() {
             return "\u001B[?25h";
+        }
+
+        static String reset() {
+            return "\u001B[c";
         }
     }
 
