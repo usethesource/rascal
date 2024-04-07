@@ -288,7 +288,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         static boolean isUTF8enabled(PrintWriter writer, InputStream in) {
             try {
                 int pos = getCursorPosition(writer, in);
-                writer.write("あ");
+                // Japanese A (あ) is typically 3 bytes in most encodings, but should be less than 3 ANSI columns
+                // on screen if-and-only-if unicode is supported.
+                writer.write("あ"); 
                 writer.flush();
                 int newPos = getCursorPosition(writer, in);
                 int diff = newPos - pos;
