@@ -23,8 +23,8 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -69,10 +69,12 @@ import io.usethesource.vallang.type.Type;
 
 public class Reflective {
 	protected final IValueFactory values;
+	private final IRascalMonitor monitor;
 
-	public Reflective(IValueFactory values){
+	public Reflective(IValueFactory values, IRascalMonitor monitor) {
 		super();
 		this.values = values;
+		this.monitor = monitor;
 	}
 	
 	public IString getRascalVersion() {
@@ -101,9 +103,8 @@ public class Reflective {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		Evaluator evaluator = new Evaluator(vf, System.in, stderr, stdout, root, heap);
+		Evaluator evaluator = new Evaluator(vf, System.in, stderr, stdout, root, heap, monitor);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		evaluator.setMonitor(new ConsoleRascalMonitor());
 		return evaluator;
 	}
     
