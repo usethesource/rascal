@@ -52,6 +52,7 @@ import io.usethesource.vallang.ISourceLocation;
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
+
     private final int numberOfWorkers;
     private final Semaphore importsCompleted = new Semaphore(0);
     private final Semaphore waitForRunning = new Semaphore(0);
@@ -65,7 +66,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     private Description rootDesc;
     
     private final ISourceLocation projectRoot;
-
 
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
         System.err.println("Rascal JUnit uses Rascal version " + RascalManifest.getRascalVersionNumber());
@@ -95,17 +95,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     @Override
     public Description getDescription() {
         if (rootDesc == null) {
-            long start = System.nanoTime();
             fillModuleWorkList();
-            long stop = System.nanoTime();
-            reportTime("Iterating modules", start, stop);
             startModuleTesters();
 
-            start = System.nanoTime();
             rootDesc = Description.createSuiteDescription(projectRoot.toString());
             processIncomingModuleDescriptions(rootDesc);
-            stop = System.nanoTime();
-            reportTime("Importing modules, looking for tests", start, stop);
+
             assert descriptions.isEmpty();
         }
         return rootDesc;
@@ -115,16 +110,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     public void run(RunNotifier notifier) {
         assert rootDesc != null;
         notifier.fireTestRunStarted(rootDesc);
-        long start = System.nanoTime();
         runTests(notifier);
-        long stop = System.nanoTime();
-        reportTime("Testing modules", start, stop);
         notifier.fireTestRunFinished(new Result());
-    }
-
-    private void reportTime(String job, long start, long stop) {
-        System.out.println(job + ": " + ((stop-start)/1000_000) + "ms");
-        System.out.flush();
     }
 
     private void processIncomingModuleDescriptions(Description rootDesc) {
@@ -144,7 +131,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             }
         }
     }
-
 
     private void startModuleTesters() {
         for (int i = 0; i < numberOfWorkers; i++) {
@@ -183,16 +169,18 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                 newResult.accept(notifier);
             }
         }
+
+        TestFramework.getCommonMonitor().endAllJobs();
         assert results.isEmpty();
     }
 
 
     public class ModuleTester extends Thread {
-
         private GlobalEnvironment heap;
         private ModuleEnvironment root;
-        private PrintWriter stderr = new PrintWriter(System.err);
-        private PrintWriter stdout = new PrintWriter(System.out);
+        
+        private PrintWriter stderr;
+        private PrintWriter stdout;
         private Evaluator evaluator;
         private final List<Description> testModules = new ArrayList<>();
 
@@ -210,31 +198,30 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         private void runTests() {
             try {
                 if (waitForRunSignal()) {
-                    for (Description mod: testModules) {
-                        Listener trl = new Listener(mod, stderr);
-                        
-                        if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
-                            results.add(notifier -> {
-                                notifier.fireTestStarted(mod);
-                                notifier.fireTestFailure(new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had import/compilation errors")));
-                            });
-                            continue;
+                    evaluator.job("Testing modules", testModules.size(), (String jn) ->  {
+                        for (Description mod: testModules) {
+                            evaluator.jobStep(jn, mod.getDisplayName(), 1);
+                            Listener trl = new Listener(mod, stdout);
+                            
+                            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                                results.add(notifier -> {
+                                    notifier.fireTestStarted(mod);
+                                    notifier.fireTestFailure(new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had import/compilation errors")));
+                                });
+                                continue;
+                            }
+                            
+                            TestEvaluator runner = new TestEvaluator(evaluator, trl);
+                            runner.test(mod.getDisplayName());
+                            
+                            stdout.flush();
+                            stderr.flush();
                         }
-                        
-                        long start = System.nanoTime();
-                        TestEvaluator runner = new TestEvaluator(evaluator, trl);
-                        runner.test(mod.getDisplayName());
-                        long stop = System.nanoTime();
-                        long duration = (stop - start) / 1000_000;
-                        if (duration > 10_000) {
-                            // longer that 10s
-                            System.err.println("Testing module " + mod.getClassName() + " took: " + duration + "ms");
-                            System.err.flush();
-                        }
-                        stdout.flush();
-                        stderr.flush();
-                    }
+
+                        return true;
+                    });
                 }
+            
             }
             finally {
                 workersCompleted.release();
@@ -252,57 +239,70 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void processModules() {
-            String module;
-            try {
-                while ((module = modules.poll()) != null) {
-                    try {
-                        evaluator.doImport(new NullRascalMonitor(), module);
-                    }
-                    catch (Throwable e) {
-                        synchronized(stderr) {
-                            stderr.println("Could not import " + module + " for testing...");
-                            stderr.println(e.getMessage());
-                            e.printStackTrace(stderr);
-                        } 
-                        
-                        // register a failing module to make sure we report failure later on. 
-                        
-                        Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
-                            @Override
-                            public Class<? extends Annotation> annotationType() {
-                                return getClass();
-                            }
-                        });
+            evaluator.job("Importing test modules", 0, (jn) -> {
+                try {
+                    String module;
 
-                        testModules.add(testDesc);
-                        descriptions.add(testDesc);
-
-                        continue;
-                    }
-
-                    ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
-                    if (!moduleEnv.getTests().isEmpty()) {
-                        Description modDesc = Description.createSuiteDescription(module);
-                        for (AbstractFunction f : moduleEnv.getTests()) {
-                            modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
+                    while ((module = modules.poll()) != null) {
+                        evaluator.jobTodo(jn, 1);
+                       
+                        try {
+                            evaluator.doImport(new NullRascalMonitor(), module);
                         }
-                        descriptions.add(modDesc);
-                        testModules.add(modDesc);
+                        catch (Throwable e) {
+                            synchronized(stdout) {
+                                evaluator.warning("Could not import " + module + " for testing...", null);
+                                evaluator.warning(e.getMessage(), null);
+                                e.printStackTrace(evaluator.getOutPrinter());
+                            } 
+                            
+                            // register a failing module to make sure we report failure later on. 
+                            
+                            Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                                @Override
+                                public Class<? extends Annotation> annotationType() {
+                                    return getClass();
+                                }
+                            });
+
+                            testModules.add(testDesc);
+                            descriptions.add(testDesc);
+
+                            continue;
+                        }
+                        finally {
+                            evaluator.jobStep(jn, "Imported " + module);
+                        }
+
+                        ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
+                        if (!moduleEnv.getTests().isEmpty()) {
+                            Description modDesc = Description.createSuiteDescription(module);
+                            for (AbstractFunction f : moduleEnv.getTests()) {
+                                modDesc.addChild(Description.createTestDescription(getClass(), RascalJUnitTestRunner.computeTestName(f.getName(), f.getAst().getLocation())));
+                            }
+                            descriptions.add(modDesc);
+                            testModules.add(modDesc);
+                        }
                     }
+                    // let's shuffle them
+                    Collections.shuffle(testModules); 
                 }
-                // let's shuffle them
-                Collections.shuffle(testModules); 
-            }
-            finally {
-                importsCompleted.release();
-            }
+                finally {
+                    importsCompleted.release();
+                }
+
+                return true;
+            });
         }
 
         private void initializeEvaluator() {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
+            
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, TestFramework.getCommonMonitor());
+            stdout = new PrintWriter(evaluator.getStdOut());
+            stderr = new PrintWriter(evaluator.getStdErr());
 
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
 
@@ -334,11 +334,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
         @Override
         public void start(String context, int count) {
-            // starting a module
+            
         }
+
         @Override
         public void done() {
-            // a module was done
+            
         }
 
         @Override
