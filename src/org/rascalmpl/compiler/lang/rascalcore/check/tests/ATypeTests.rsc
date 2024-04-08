@@ -17,10 +17,9 @@ AType aglbClean(AType x, AType y) = aglb(clean(x), clean(y));
 
 // asubtype
 
-//test bool asubtypeMax(AType x) = asubtypeClean(x, \avalue());
-//test bool asubtypeMin(AType x) = asubtypeClean(\avoid(), x);
+test bool asubtypeMax(AType x) = asubtypeClean(x, \avalue());
+test bool asubtypeMin(AType x) = asubtypeClean(\avoid(), x);
 //test bool asubtypeReflexive(AType x) = asubtypeClean(x, x);
-value main() = asubtype(avalue(), iter(avalue()));
 
 //test bool asubtypeAntisymmetric(AType x, AType y) { 
 //    x1 = clean(x); y1 = clean(y);

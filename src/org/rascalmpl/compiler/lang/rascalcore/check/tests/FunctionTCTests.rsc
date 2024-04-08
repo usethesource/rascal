@@ -10,15 +10,15 @@ test bool returnNotOK1() = unexpectedType("int f() = false;");
 test bool returnNotOK2() = unexpectedType("list[int] f() = {1,2,3};");
 
 // Type parameters without bounds
-// test bool returnSumOK()       = checkOK("(&T \<:num) sum([(&T \<: num) hd, *(&T \<: num) tl]) = (hd | it + i | i \<- tl);");
+test bool returnSumOK()       = checkOK("(&T \<:num) sum([(&T \<: num) hd, *(&T \<: num) tl]) = (hd | it + i | i \<- tl);");
 test bool returnDomainOK()    = checkOK("set[&T0] domain (rel[&T0,&T1] R){ return R\<0\>; }");
-// test bool returnGOK()         = checkOK("&T g(Maybe[&T] _, value x) = x;", initialDecls= ["import util::Maybe;"]);
+test bool returnGOK()         = checkOK("&T g(Maybe[&T] _, value x) = x;", initialDecls= ["import util::Maybe;"]);
 test bool returnEmptyListOK() = checkOK("list[&T] emptyList(type[&T] _) = [];");
 test bool returnEmptyMapOK()  = checkOK("map[&K, &V] emptyMap(type[map[&K,&V]] _) = ();");
 test bool typeParamsOK1()     = checkOK("&T add(&T x, &T y) = y;");
 test bool typeParamsOK2()     = checkOK("num sub(num x, num y) = x - y;");
 
-test bool typeParamNotBound1() = unexpectedType("list[&T] f(int _) = [];");
+test bool typeParamVoidOK() = checkOK("list[&T] f(int _) = [];");
 test bool typeParamNotBound2() = unexpectedType("rel[&T, &V] f(&T x) = {\<x,x\>};");
 @ignore{Depends on correct definition of S8}
 test bool returnNotOK3()       = unexpectedType("&T get(list[&T] _) = 1;");

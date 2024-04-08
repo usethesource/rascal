@@ -213,8 +213,8 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
         endUseTypeParameters(c); 
         
         beginDefineOrReuseTypeParameters(c, closed=false);
-            collect(parameters, c);
-        beginDefineOrReuseTypeParameters(c);
+            collect(parameters, c); // any type parameters in the parameter list remain open (closed=false);
+        endDefineOrReuseTypeParameters(c);
         
         collect(stats, c); // TODO take parameter bounds into account!
         

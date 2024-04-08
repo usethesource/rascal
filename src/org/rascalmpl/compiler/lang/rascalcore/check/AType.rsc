@@ -584,8 +584,8 @@ AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([
 AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
 
 // From "Exploring Type Parameters (adapted to keep aparamater as long as possible)
-AType alub(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2); // let op commutativiteit
-AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2)) // simulatie kon alles zijn
+AType alub(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2);
+AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2)) 
                                                               : lb == b ? p : lb when lb := alub(b1, b2);
 
 AType alub(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && lb == b1 ? p1 : lb when lb := alub(b1, p2);
@@ -600,11 +600,23 @@ AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(l:\achar-class(_), r:\achar-class(_)) = union(l, r);
-AType alub(l:aadt("Tree", _, _), \achar-class(_)) = l;
-AType alub(\achar-class(_), r:aadt("Tree", _, _)) = r;
- 
-// TODO: missing lub of iter/iter-plus relation here.
-// TODO: missing lub of aadt("Tree", _, _) with all non-terminal types such as seq, opt, iter
+
+AType alub(\iter(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax());
+
+AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
+
+AType alub(\iter-seps(_, _), \iter-seps(_,_)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-seps(_,_), \iter-star-seps(AType r)) = aadt("Tree", [], dataSyntax());
+
+AType alub(\iter-star-seps(AType l), \iter-star-seps(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star-seps(AType l), \iter-seps(AType r)) = aadt("Tree", [], dataSyntax());
+
+AType alub(l:aadt("Tree", _, _), AType r) = l
+    when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
+AType alub(AType l, r:aadt("Tree", _, _)) = r
+    when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
 
 // because functions _match_ their parameters, parameter types may be comparable (co- and contra-variant) and not
 // only contra-variant. We choose the lub here over aglb (both would be correct), to
@@ -710,11 +722,11 @@ public AType aglb(AType l, aalias(str _, list[AType] _, AType aliased)) = aglb(l
 
 // From "Exploring Type Parameters (adapted to keep aparamater as long as possible)
 
-AType aglb(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == nb2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2); // let op commutativiteit
+AType aglb(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2);
 AType aglb(aparameter(n1, b1,closed=true), aparameter(n2, b2,closed=true)) = n1 == n2 ? aparameter(n1,aglb(b1, b2),closed=true)
                                                               : avoid();
 
-AType aglb(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, p2); // let op recursie
+AType aglb(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, p2);
 AType aglb(p1:aparameter(n1, b1,closed=true), aparameter(n2, b2,closed=false)) = n1 == n2 && b2 == gl ? p2 : gl when gl := aglb(p1, b2);
 
 AType aglb(p:aparameter(n, b,closed=false), AType r)  = b == gl ? p : gl when !(r is aparameter), gl := aglb(b, r);
