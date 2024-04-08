@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 
 import io.usethesource.vallang.IInteger;
@@ -14,8 +15,8 @@ public class ModuleRunner implements ShellRunner {
 
   private final Evaluator eval;
 
-  public ModuleRunner(InputStream input, OutputStream stdout, OutputStream stderr) {
-    eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
+  public ModuleRunner(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
+      eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, monitor);
   }
 
   @Override

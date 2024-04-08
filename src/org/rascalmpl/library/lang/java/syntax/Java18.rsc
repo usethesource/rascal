@@ -844,12 +844,13 @@ lexical DeciNumeral =
   | [1-9] [0-9 _]* [0-9];
  
  
-keyword HexaSignificandKeywords =
-  [0] [X x] "." 
+keyword HexaSignificandKeywords 
+  = "0X."
+  | "0x."
   ;
 
 lexical BinaryNumeral =
-  "0" [b B] [0-1] [0-1 _]* !>> [0-1]*
+  "0" [b B] [0-1] [0-1 _]* !>> [0-1]
   ;
 
 lexical StringChars =
@@ -876,7 +877,7 @@ lexical Comment =
 
 syntax FloatingPointLiteral =
    float: HexaFloatLiteral !>> [D F d f] 
-  |  float: DeciFloatLiteral \ DeciFloatLiteralKeywords !>> [D F d f] 
+  |  float: DeciFloatLiteral !>> [D F d f] 
   ;
 
 lexical OctaLiteral =
@@ -929,7 +930,7 @@ lexical EscapeSeq =
   ;
 
 layout LAYOUTLIST  =
-  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> (  [/]  [*]  ) !>> (  [/]  [/]  ) !>> "/*" !>> "//"
+  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> "/*" !>> "//"
   ;
 
 lexical NamedEscape =
@@ -1009,10 +1010,6 @@ lexical StringPart =
   |  chars: StringChars !>> ![\n \a0D \" \\]  !>> [\a00]
   ;
 
-keyword FieldAccessKeywords =
-  ExpressionName "." ID 
-  ;
-
 lexical EOLCommentChars =
   ![\n \a0D]* 
   ;
@@ -1021,26 +1018,16 @@ lexical SingleChar =
   ![\n \a0D \' \\] 
   ;
 
-keyword ElemValKeywords =
-  LeftHandSide "=" Expression 
-  ;
-
-lexical CommentPart =
-  UnicodeEscape 
+lexical CommentPart 
+  = UnicodeEscape 
   | BlockCommentChars !>> ![* \\] 
   | EscChar !>> [\\ u] 
   | Asterisk !>> [/] 
   | EscEscChar 
   ;
 
-syntax Identifier =
-   id: [$ A-Z _ a-z] !<< ID \ IDKeywords !>> [$ 0-9 A-Z _ a-z] 
-  ;
+syntax Identifier = id: [$ A-Z _ a-z] !<< ID \ IDKeywords !>> [$ 0-9 A-Z _ a-z];
   
-keyword ArrayAccessKeywords =
-  ArrayCreationExpression ArrayAccess 
-  ;
-
 syntax BooleanLiteral
   = \false: "false" 
   | \true: "true" 
@@ -1048,14 +1035,6 @@ syntax BooleanLiteral
 
 lexical DeciFloatExponentPart =
   [E e] SignedInteger !>> [0-9] 
-  ;
-
-lexical EndOfFile =
-  
-  ;
-
-keyword DeciFloatLiteralKeywords =
-  [0-9]+ 
   ;
 
 keyword DeciFloatDigitsKeywords =
@@ -1086,7 +1065,7 @@ lexical UnicodeEscape =
 
 lexical LineTerminator =
   [\n] 
-  | EndOfFile !>> ![] 
+  | () !>> ![] 
   | [\a0D] [\n] 
   | CarriageReturn !>> [\n] 
   ;

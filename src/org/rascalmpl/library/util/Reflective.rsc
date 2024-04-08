@@ -113,16 +113,23 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
-loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
-    fileName = makeFileName(qualifiedModuleName, extension=extension);
+@synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
+loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
-            //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
             return fileLoc;
         }
     }
-    throw "Module <qualifiedModuleName> not found, <pcfg>";
+    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    for(loc dir <- pcfg.libs){
+        fileLoc = dir + fileName;
+        if(exists(fileLoc)){
+            return fileLoc;
+        }
+    }
+    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
 tuple[str,str] splitFileExtension(str path){
@@ -131,11 +138,12 @@ tuple[str,str] splitFileExtension(str path){
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
-str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", "tpl"}){
+@synopsis{Get the name of a Rascal module given its (src or tpl) location}
+str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
+    if(moduleLoc.extension notin {"rsc", "tpl"}){
+        throw "Not a Rascal source or tpl file: <moduleLoc>";
     }
    
     for(loc dir <- pcfg.srcs){
@@ -150,22 +158,19 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
         }
     }
     
-     for(loc dir <- pcfg.libs){
+    for(loc dir <- pcfg.libs){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
            moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(ext in extensions){
-               if(moduleName[0] == "/"){
-                  moduleName = moduleName[1..];
-               }
-               moduleName = replaceAll(moduleName, "/", "::");
-               return moduleName;
+           moduleName = replaceLast(moduleName, ".tpl", "");
+           if(moduleName[0] == "/"){
+              moduleName = moduleName[1..];
            }
+           moduleName = replaceAll(moduleName, "/", "::");
+           return moduleName;
         }
     }
     
-    
-    throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
+    throw "No module name found for `<moduleLoc>`;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
 

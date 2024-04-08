@@ -85,65 +85,69 @@ public class TestEvaluator {
         }
     }
 
-    
-
     private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
         testResultListener.start(env.getName(), tests.size());
-        // first, let's shuffle the tests
-        tests = new ArrayList<>(tests); // just to be sure, clone the list
-        Collections.shuffle(tests);
+        eval.job("Testing " + env.getName(), tests.size(), (String jn) -> {
+            // first, let's shuffle the tests
+            var theTests = new ArrayList<>(tests); // just to be sure, clone the list
+            Collections.shuffle(theTests);
 
-        QuickCheck qc = new QuickCheck(new Random(), eval.__getVf());  
-        for (AbstractFunction test: tests) {
-            if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
-                testResultListener.ignored(test.getName(), test.getAst().getLocation());
-                continue;
-            }
+            QuickCheck qc = new QuickCheck(new Random(), eval.__getVf());  
+            for (AbstractFunction test: theTests) {
+                eval.jobStep(jn, "Running " + env.getName() + "::" + test.getName(), 1);
+                
+                if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
+                    testResultListener.ignored(test.getName(), test.getAst().getLocation());
+                    continue;
+                }
 
-            try{
-                int maxDepth = readIntTag(test, QuickCheck.MAXDEPTH, 5);
-                int maxWidth = readIntTag(test, QuickCheck.MAXWIDTH, 5);
-                int tries = readIntTag(test, QuickCheck.TRIES, 500);
-                String expected = null;
-                if(test.hasTag(QuickCheck.EXPECT_TAG)){
-                    expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
-                } 
-                TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
-                    try {
-                        IValue testResult = test.call(actuals, args, null).getValue();
-                        if ((testResult instanceof IBool) && ((IBool)testResult).getValue()) {
-                            return QuickCheck.SUCCESS;
+                try{
+                    int maxDepth = readIntTag(test, QuickCheck.MAXDEPTH, 5);
+                    int maxWidth = readIntTag(test, QuickCheck.MAXWIDTH, 5);
+                    int tries = readIntTag(test, QuickCheck.TRIES, 500);
+                    String expected = null;
+                    if(test.hasTag(QuickCheck.EXPECT_TAG)){
+                        expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
+                    } 
+                    TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
+                        try {
+                            IValue testResult = test.call(actuals, args, null).getValue();
+                            if ((testResult instanceof IBool) && ((IBool)testResult).getValue()) {
+                                return QuickCheck.SUCCESS;
+                            }
+                            else {
+                                return new TestResult(false, null);
+                            }
                         }
-                        else {
-                            return new TestResult(false, null);
+                        catch (Throwable e) {
+                            // TODO: add bound type parameters
+                            return new UnExpectedExceptionThrownResult(test.getEnv().getName() + "::" + test.getName(), actuals, Map.of(), args, e);
                         }
+                    }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
+                    
+                    eval.getOutPrinter().flush();
+                    eval.getErrorPrinter().flush();
+                    
+                    if (!result.succeeded()) {
+                        StringWriter sw = new StringWriter();
+                        PrintWriter out = new PrintWriter(sw);
+                        result.writeMessage(out);
+                        out.flush();
+                        testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer().toString(), result.thrownException());
+                    } else {
+                        testResultListener.report(true, test.getName(), test.getAst().getLocation(), "test succeeded", null);
                     }
-                    catch (Throwable e) {
-                        // TODO: add bound type parameters
-                        return new UnExpectedExceptionThrownResult(test.getEnv().getName() + "::" + test.getName(), actuals, Map.of(), args, e);
-                    }
-                }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
+                }
+                catch (Throwable e) {
+                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
+                }
                 
                 eval.getOutPrinter().flush();
                 eval.getErrorPrinter().flush();
-                
-                if (!result.succeeded()) {
-                    StringWriter sw = new StringWriter();
-                    PrintWriter out = new PrintWriter(sw);
-                    result.writeMessage(out);
-                    out.flush();
-                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer().toString(), result.thrownException());
-                } else {
-                    testResultListener.report(true, test.getName(), test.getAst().getLocation(), "test succeeded", null);
-                }
             }
-            catch(Throwable e){
-                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-            }
-            
-            eval.getOutPrinter().flush();
-            eval.getErrorPrinter().flush();
-        }
+
+            return true;
+        });
         testResultListener.done();
     }
 }
