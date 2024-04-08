@@ -159,7 +159,7 @@ public interface IRascalMonitor {
 	 * @return
 	 */
 	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
-		return IsTTY.isTTY()
+		return System.console() != null
 			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
 			: new ConsoleRascalMonitor(new PrintStream(out))
 		;
