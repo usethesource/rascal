@@ -16,7 +16,7 @@ import util::Maybe;
 @synopsis{adds an attribute to all productions it can find}
 Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
-set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) := mod2attr(m)};
+set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(Attr x) := mod2attr(m)};
 
 Maybe[Attr] mod2attr(ProdModifier m) {
   switch (m) { 
@@ -41,7 +41,7 @@ Maybe[Attr] mod2attr(ProdModifier m) {
 
 public Maybe[Associativity] testAssoc(str m) = mod2assoc([ProdModifier] m);
 
-Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
+Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(Associativity x) := mod2assoc(m));
 
 Maybe[Associativity] mod2assoc(ProdModifier _:\associativity(\left()))           = just(Associativity::\left());
 Maybe[Associativity] mod2assoc(ProdModifier _:\associativity(\right()))          = just(Associativity::\right());

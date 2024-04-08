@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -45,6 +46,14 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
+	private static class InstanceHolder {
+		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+    }
+   
+   	public static IRascalMonitor getCommonMonitor() {
+	   return InstanceHolder.monitor;
+   	}
+
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
 	private final static ModuleEnvironment root;
@@ -56,10 +65,11 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
-		
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, getCommonMonitor(), root, heap);
+	
+		stdout = evaluator.getOutPrinter();
+		stderr = evaluator.getErrorPrinter();
+
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
 		
@@ -89,9 +99,7 @@ public class TestFramework {
             catch (IOException e) {
             }
 		}
-		generatedModules.clear();
-		
-		
+		generatedModules.clear();	
 		evaluator.getAccumulators().clear();
 	}
 	
@@ -133,7 +141,6 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-
 		}
 		catch (StaticError e) {
 			throw e;
@@ -163,7 +170,7 @@ public class TestFramework {
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		reset();
         try {
-            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("test-modules", null, "/" + name.replace("::", "/") + ".rsc");
+            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("memory", "test-modules", "/" + name.replace("::", "/") + ".rsc");
             generatedModules.add(moduleLoc);
             try (OutputStream target = URIResolverRegistry.getInstance().getOutputStream(moduleLoc, false)) {
                 target.write(module.getBytes(StandardCharsets.UTF_8));

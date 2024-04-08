@@ -20,7 +20,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -32,15 +32,14 @@ import io.usethesource.vallang.ISourceLocation;
  *
  */
 public class BasicIDEServices implements IDEServices {
-  
-  private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
-  private PrintWriter stderr;
+  private final IRascalMonitor monitor;
+  private final PrintWriter stderr;
 
-  public BasicIDEServices(PrintWriter stderr){
+  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor){
     this.stderr = stderr;
-    monitor = new ConsoleRascalMonitor();
+    this.monitor = monitor;
   }
-  
+
   @Override
   public PrintWriter stderr() {
     return stderr;
@@ -120,6 +119,11 @@ public class BasicIDEServices implements IDEServices {
   }
   
   @Override
+  public void endAllJobs() {
+      monitor.endAllJobs();
+  }
+
+  @Override
   public boolean jobIsCanceled(String name) {
       return monitor.jobIsCanceled(name);
   }
@@ -133,6 +137,4 @@ public class BasicIDEServices implements IDEServices {
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
   }
-
-  
 }

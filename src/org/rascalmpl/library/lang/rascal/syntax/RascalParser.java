@@ -4351,7 +4351,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class RealLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4445,7 +4445,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Tags {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4478,7 +4478,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class start__EvalCommand {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4501,7 +4501,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ModuleActuals {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4538,7 +4538,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Renamings {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4573,7 +4573,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class KeywordFormal {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4624,7 +4624,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class MidPathChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4659,7 +4659,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class OptionalExpression {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4700,7 +4700,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class layouts_$default$ {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4721,7 +4721,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PathPart {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4766,7 +4766,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Signature {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -4823,7 +4823,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Expression {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -5722,7 +5722,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Class {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -5817,7 +5817,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ShellCommand {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -5940,7 +5940,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class DataTarget {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -5983,7 +5983,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class KeywordFormals {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6026,7 +6026,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Renaming {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6075,7 +6075,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Catch {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6138,7 +6138,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Tag {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6211,7 +6211,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class FunctionBody {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6248,7 +6248,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class start__Module {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6271,7 +6271,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Field {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6324,7 +6324,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Type {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6437,7 +6437,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class LocationLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6472,7 +6472,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Declaration {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6625,7 +6625,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Range {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6682,7 +6682,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class OptionalComma {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6715,7 +6715,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class start__Command {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6738,7 +6738,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PrePathChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6772,7 +6772,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StringConstant {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6807,7 +6807,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Variable {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6864,7 +6864,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class TypeArg {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6931,7 +6931,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Bound {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -6974,7 +6974,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class DateAndTime {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7024,7 +7024,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StringLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7081,7 +7081,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Backslash {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7114,7 +7114,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Char {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7164,7 +7164,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class start__Commands {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7187,7 +7187,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class CaseInsensitiveStringConstant {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7222,7 +7222,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class JustTime {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7268,7 +7268,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Declarator {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7303,7 +7303,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Target {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7344,7 +7344,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class IntegerLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7393,7 +7393,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Pattern {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7658,7 +7658,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PostPathChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7693,7 +7693,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StringCharacter {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7765,7 +7765,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ConcretePart {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7860,7 +7860,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ImportedModule {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7925,7 +7925,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PathChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -7959,7 +7959,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Case {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8113,7 +8113,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Strategy {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8186,7 +8186,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class LocalVariableDeclaration {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8229,7 +8229,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Visibility {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8278,7 +8278,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class JustDate {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8313,7 +8313,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class FunctionType {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8352,7 +8352,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Replacement {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8397,7 +8397,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class NamedBackslash {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8430,7 +8430,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Assoc {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8487,7 +8487,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PathTail {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8532,7 +8532,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class MidProtocolChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8567,7 +8567,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class OctalIntegerLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8601,7 +8601,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class DateTimeLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8650,7 +8650,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Kind {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -8747,7 +8747,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class RascalKeywords {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9336,7 +9336,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Label {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9379,7 +9379,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Prod {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9476,7 +9476,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class layouts_LAYOUTLIST {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9497,7 +9497,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Comment {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9541,7 +9541,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class UnicodeEscape {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9604,7 +9604,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class SyntaxDefinition {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9697,7 +9697,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ModuleParameters {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9734,7 +9734,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class DatePart {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9791,7 +9791,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Assignable {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -9964,7 +9964,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Mapping_W3NvcnQoIlBhdHRlcm4iKV000 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10013,7 +10013,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Output {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10068,7 +10068,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class RationalLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10115,7 +10115,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class BasicType {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10292,7 +10292,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ProtocolTail {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10337,7 +10337,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Commands {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10370,7 +10370,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class RegExpModifier {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10403,7 +10403,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class CommonKeywordParameters {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10448,7 +10448,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Command {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10515,7 +10515,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StringTemplate {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10674,7 +10674,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Visit {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10741,7 +10741,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StructuredType {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10780,7 +10780,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ProtocolPart {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10825,7 +10825,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Parameters {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10880,7 +10880,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class KeywordArguments_W3NvcnQoIlBhdHRlcm4iKV000 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10923,7 +10923,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class DecimalIntegerLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -10965,7 +10965,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class NamedRegExp {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11037,7 +11037,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PreProtocolChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11072,7 +11072,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Header {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11127,7 +11127,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ProtocolChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11162,7 +11162,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Assignment {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11251,7 +11251,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class TypeVar {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11312,7 +11312,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PostProtocolChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11347,7 +11347,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Concrete {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11388,7 +11388,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PatternWithAction {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11437,7 +11437,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Module {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11472,7 +11472,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class MidStringChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11507,7 +11507,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Toplevel {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11552,7 +11552,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Statement {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -11973,7 +11973,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class TimePartNoTZ {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12028,7 +12028,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class EvalCommand {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12097,7 +12097,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class FunctionModifier {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12158,7 +12158,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class BooleanLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12199,7 +12199,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class KeywordArgument_W3NvcnQoIkV4cHJlc3Npb24iKV000 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12248,7 +12248,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Literal {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12337,7 +12337,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ProdModifier {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12398,7 +12398,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class RegExpLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12434,7 +12434,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class KeywordArgument_W3NvcnQoIlBhdHRlcm4iKV000 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12483,7 +12483,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Nonterminal {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12516,7 +12516,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PreStringChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12551,7 +12551,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StringTail {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12608,7 +12608,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class RegExp {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12692,7 +12692,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class DataTypeSelector {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12729,7 +12729,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class TagString {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12764,7 +12764,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class NonterminalLabel {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12798,7 +12798,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Name {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12853,7 +12853,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class FunctionDeclaration {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12946,7 +12946,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Start {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -12987,7 +12987,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class LAYOUT {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13040,7 +13040,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Body {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13073,7 +13073,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Import {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13158,7 +13158,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class ConcreteHole {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13197,7 +13197,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class UserType {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13244,7 +13244,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Variant {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13297,7 +13297,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class FunctionModifiers {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13330,7 +13330,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class TimeZonePart {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13398,7 +13398,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class PostStringChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13433,7 +13433,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class HexIntegerLiteral {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13468,7 +13468,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class KeywordArguments_W3NvcnQoIkV4cHJlc3Npb24iKV000 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13511,7 +13511,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Formals {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13544,7 +13544,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Comprehension {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13621,7 +13621,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Mapping_W3NvcnQoIkV4cHJlc3Npb24iKV000 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -13670,7 +13670,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class Sym {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -14029,7 +14029,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class QualifiedName {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -14074,7 +14074,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class StringMiddle {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -14131,7 +14131,7 @@ public class RascalParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
   protected static class URLChars {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
