@@ -22,7 +22,6 @@ import java.util.function.Supplier;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
-import org.rascalmpl.repl.IsTTY;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
