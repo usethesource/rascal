@@ -4,7 +4,14 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.io.Reader;
+import java.util.Arrays;
+
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.library.Prelude;
+
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 
@@ -26,8 +33,10 @@ public class Clipboard {
 
     public IString paste() {
         try {
-            if (cp.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
-                return vf.string(cp.getData(DataFlavor.stringFlavor).toString());
+            DataFlavor flavor = DataFlavor.getTextPlainUnicodeFlavor();
+
+            try (Reader data = flavor.getReaderForText(cp.getContents(null))) {
+                return vf.string(Prelude.consumeInputStream(data));
             }
         }
         catch (UnsupportedFlavorException | IOException e) {
@@ -35,5 +44,39 @@ public class Clipboard {
         }
         
         return vf.string("");
+    }
+
+    public IString paste(IString mimetype) {
+        try {
+            DataFlavor flavor = new DataFlavor(mimetype.getValue());
+            
+            try (Reader data = flavor.getReaderForText(cp.getContents(null))) {
+                return vf.string(Prelude.consumeInputStream(data));
+            }
+        }
+        catch (ClassNotFoundException e) {
+           throw RuntimeExceptionFactory.illegalArgument(vf.string("Unsupported clipboard mimetype: " + mimetype));
+        }
+        catch (UnsupportedFlavorException e) {
+            throw RuntimeExceptionFactory.illegalArgument(vf.string("Unsupported clipboard mimetype: " + e.getMessage()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(e.getMessage());
+        }
+    }
+
+    public ISet availableTextMimetypes() {
+        return Arrays.stream(cp.getAvailableDataFlavors())
+            .filter(flavor -> flavor.isFlavorTextType())
+            .map(flavor -> vf.tuple(vf.string(flavor.getHumanPresentableName()), vf.string(flavor.getMimeType())))
+            .collect(vf.setWriter());
+    }
+
+    public ISet availableTextMimetypesFor(IString shortMimetype) {
+        return Arrays.stream(cp.getAvailableDataFlavors())
+            .filter(flavor -> flavor.isFlavorTextType())
+            .filter(flavor -> flavor.isMimeTypeEqual(shortMimetype.getValue()))
+            .map(flavor -> vf.tuple(vf.string(flavor.getHumanPresentableName()), vf.string(flavor.getMimeType())))
+            .collect(vf.setWriter());
     }
 }
