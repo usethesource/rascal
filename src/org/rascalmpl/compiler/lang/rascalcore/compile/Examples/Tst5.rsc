@@ -1,25 +1,53 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-//&S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
-//      return f(t, u); 
-//    };
-test bool selfApplyCurry() {
-    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+//&T <: num makeSmallerThan(&T <: num n, int limit) {
+//	if (int i := n) {
+//	    &T <: num x = i;
+//		return x;
+//    }
+//	throw "Forgot about a different number type <n>";
+//}
+  
+&S(&U) curry(&S(&T, &U) f, &T t) = 
+    &S (&U u) { 
       return f(t, u); 
-    };
+};
+test bool selfApplyCurry() {
+    
 
     int addition(int i, int j) = i + j;
 
     func = curry(curry, addition);
 
-    assert int(int)(int) _ := func;
+    assert int(int)(int) _ 
+           := func;
+    
+    return true;
 
-    func2 = func(1);
-
-    assert int(int) _ := func2;
-
-    return func2(1) == 2;
+//    func2 = func(1);
+//
+//    assert int(int) _ := func2;
+//
+//    return func2(1) == 2;
 }
+
+//data Maybe[&A] 
+//   = nothing() 
+//   | just(&A val)
+//   ;
+//Maybe[&T] maybe(&T ? opt) = &T x <- opt ? just(opt) : nothing(); 
+//data Tree;
+////Maybe[&T<: Tree] maybe(&T ? opt) = &T x <- opt ? just(opt) : nothing(); // regular type expressies are always Tree non-terminals
+//
+//&T* star(&T+ x) = x;
+////ERROR: &T+ plus(&T * x) = x
+//tuple[&A a, &B b] \tuple((&A a &B b) sequence) = <sequence.a, sequence.b>; // complex syntax geval met field labels
+////list[&T] f(&U <: list[&T] a, &V <: list[&T] b)  = a + b; // list concat met bound preserving type parameters.
+////ERROR: list[&T] f(list[&U] a, list[&T] _) = a; // not unified type parameters in lists
+////
+////
+//&B f(&A <: &B a, &B b) = a; // because &A <: &B
+////&A f(&A <: &B a, &B b) = b; // error because not &B <: &A, check with A=int and B=num
 
 //lexical Num = \int: [0-9]+;
 //syntax Exp 

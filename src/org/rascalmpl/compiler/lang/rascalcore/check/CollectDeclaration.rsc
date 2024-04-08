@@ -275,7 +275,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                     ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
                 }
              }
-             return ft[alabel=unescape("<fname>")];
+             res = ft[alabel=unescape("<fname>")];
+             //println("collect FunctionDeclaration <fname>: <ft>");
+             return res;
          });
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
@@ -375,8 +377,8 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
         }
     }
     beginDefineOrReuseTypeParameters(c, closed=false);
-        collect(parameters, c);
-    beginDefineOrReuseTypeParameters(c);
+        collect(parameters, c); // any type parameters in parameter list remain open (closed=false);
+    endDefineOrReuseTypeParameters(c);
     
     <tpnames, tpbounds> = computeBoundsAndDefineTypeParams(signature, c);
         
