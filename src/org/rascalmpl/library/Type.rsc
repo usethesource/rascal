@@ -507,7 +507,11 @@ public java &T make(type[&T] typ, str name, list[value] args);
  
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
- 
+
+@javaClass{org.rascalmpl.library.Type}
+@synopsis{Instantiate a constructor value by first declaring the given constructor and then applying it to the given parameters}
+public java &T make(Production cons, list[value] args, map[str,value] keywordArgs);
+
 @synopsis{Returns the dynamic type of a value as a ((Type-Symbol)).}
 @description{
 As opposed to the # operator, which produces the type of a value statically, this

@@ -734,7 +734,7 @@ syntax Type
 	| modifier: SyntaxRoleModifier modifier
 	;
 
-syntax SyntaxRoleModifier
+syntax SyntaxRoleModifier // TODO @rodin zegt dat dit Type moet zijn en niet TypeArg
 	= \syntax: "syntax" "[" TypeArg arg "]"
 	| \lexical: "lexical" "[" TypeArg arg "]"
 	| \layout: "layout" "[" TypeArg arg "]"

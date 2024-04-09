@@ -297,6 +297,14 @@ Symbol \data(\lexical(Symbol s)) = \data(s);
 Symbol \data(\keyword(Symbol s)) = \data(s);
 Symbol \data(\layout(Symbol s))  = \data(s);
 
+Symbol \data(a:adt(n, ps))               = a;
+Symbol \data(sort(n))                    = \adt(n, []);
+Symbol \data(\parameterized-sort(n, ps)) = \adt(n, ps);
+Symbol \data(lex(n))                     = \adt(n, []);
+Symbol \data(\parameterized-lex(n, ps))  = \adt(n, ps);
+Symbol \data(\keywords(n))               = \adt(n, []);
+Symbol \data(\layouts(n))                = \adt(n, []);
+
 Symbol \syntax(\data(Symbol s))    = \syntax(s);
 Symbol \syntax(\syntax(Symbol s))  = \syntax(s);
 Symbol \syntax(\lexical(Symbol s)) = \syntax(s);
@@ -775,7 +783,6 @@ data Exp = add(Exp, Exp);
 ```
 }
 java &T<:value implode(type[&T<:value] t, Tree tree);
-
 
 @synopsis{Annotate a parse tree node with an (error) message.}
 anno Message Tree@message;

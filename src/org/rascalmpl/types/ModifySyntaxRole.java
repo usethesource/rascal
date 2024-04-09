@@ -97,7 +97,7 @@ public abstract class ModifySyntaxRole extends RascalType {
         assert false  : "can not modify " + arg + " to " + this; 
         
         // `data[int] => int`
-        return arg;
+        return arg; // TODO @rodin @jurgen moet dit niet een throw zijn? de type-checker mag dit niet toelaten
     }
 
     protected abstract Type applyToRole(ModifySyntaxRole role);
@@ -457,7 +457,6 @@ public abstract class ModifySyntaxRole extends RascalType {
             }
             else if (type instanceof Layout) {
                 return TF.modifyToLayout(((ModifySyntaxRole) type).arg.lub(arg));
-                
             }
             else if (type instanceof Keyword) {
                 return RascalValueFactory.Tree;
@@ -491,7 +490,7 @@ public abstract class ModifySyntaxRole extends RascalType {
             NonTerminalType nt = (NonTerminalType) type;
             IConstructor sym = nt.getSymbol();
 
-            return SymbolAdapter.isLayouts(sym);
+            return SymbolAdapter.isLayouts(sym);  
         }
 
         @Override

@@ -47,7 +47,7 @@ syntax[&T] explode(data[&T] ast) {
    }
 
    throw "unexpected problem while exploding <ast>";
-}
+}r
 
 // singleton str nodes are lexical identifiers
 Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
@@ -124,7 +124,7 @@ private Symbol unlabel(conditional(Symbol s, set[Condition] _)) = unlabel(s);
 private default Symbol unlabel(Symbol s)                        = s;
 
 @synopsis{Give every element a true location for later processing.}
-private list[loc] position(loc span, list[value] l) = infer(span, [pos(span, x) | x <- l]);
+private list[loc] positions(loc span, list[value] l) = infer(span, [pos(span, x) | x <- l]);
 
 @synopsis{Replaces all |empty:///| with a correct loc inferred from the surroundings}
 private list[loc] infer(loc span, [loc l, *loc rest])                       = infer(span, [span[length=0], *rest]) when l == |empty:///|;
