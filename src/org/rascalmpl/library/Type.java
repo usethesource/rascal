@@ -120,5 +120,45 @@ public class Type {
 			throw RuntimeExceptionFactory.illegalArgument(type, null, null);
 		}
 	}
+
+	public IValue make(IConstructor cons, IList args, IMap keywordParameters) {
+		io.usethesource.vallang.type.Type constructor = new TypeReifier(vf).productionToConstructorType(cons);
+
+		assert constructor != null;
+		
+		IValue[] children = new IValue[args.length()];
+		io.usethesource.vallang.type.Type[] argsTypes = new io.usethesource.vallang.type.Type[args.length()];
+
+		for (int i = 0; i < args.length(); i++) {
+			children[i] = args.get(i);
+			argsTypes[i] = children[i].getType();
+		}
+		
+		Map<String, IValue> kwmap;
+		
+		if(keywordParameters.size() == 0){
+			kwmap = Collections.emptyMap();
+		} else {
+			Iterator<Entry<IValue, IValue>> iter = keywordParameters.entryIterator();
+			kwmap = new HashMap<String, IValue>();
+			while(iter.hasNext()){
+				Entry<IValue, IValue> entry = iter.next();
+				kwmap.put(((IString) entry.getKey()).getValue(), entry.getValue());
+			}
+		}
+		
+		try {
+			if (constructor == null) {
+				// TODO: improve error messaging, using specialized exception
+				throw RuntimeExceptionFactory.illegalArgument(cons, null, null);
+			}
+			return vf.constructor(constructor, children, kwmap);
+
+		}
+		catch (FactTypeUseException e) {
+			// TODO: improve error messaging, using specialized exception
+			throw RuntimeExceptionFactory.illegalArgument(cons, null, null);
+		}
+	}
 	
 }
