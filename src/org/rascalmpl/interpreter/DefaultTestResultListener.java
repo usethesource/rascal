@@ -84,6 +84,8 @@ public class DefaultTestResultListener implements ITestResultListener {
 	        if (ignored != 0) {
 	            out.println("\t" + ignored + "/" + count + " tests ignored");
 	        }
+			
+			out.flush();
 	    }
 	}
 	
