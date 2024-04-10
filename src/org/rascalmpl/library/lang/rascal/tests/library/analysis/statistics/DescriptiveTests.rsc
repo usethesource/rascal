@@ -1,5 +1,6 @@
 module lang::rascal::tests::library::analysis::statistics::DescriptiveTests
 
+import IO;
 import List;
 import util::Math;
 import analysis::statistics::Descriptive;
@@ -14,6 +15,7 @@ bool leq(num a, num b) = a < b ? true : eq(a,b);
 test bool geometricLessThanArithmeticMean(list[num] nums) {
 	if (nums == []) return true;
 	nums = abs(nums);
+	println(nums);
 	nums = assureRange(nums, 0.1, 30); 
 	return leq(geometricMean(nums), mean(nums));
 }
@@ -39,6 +41,7 @@ test bool percentileRelation(list[num] nums, int a, int b) {
 
 test bool varianceIsPositive(list[num] nums) {
 	if (nums == []) return true;
+	println("varianceIsPositive: <nums>");
 	nums = assureRange(nums, 0.0001, 400);
 	return variance(nums) >= 0;
 }
