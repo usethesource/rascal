@@ -2,6 +2,7 @@
 module lang::rascal::tests::library::analysis::statistics::RangeUtils
 
 import util::Math;
+import IO;
 
 @synopsis{list of absolute numbers for every list element.}
 list[&T <: num] abs(list[&T <: num] nums) = [abs(n) | n <- nums]; 
@@ -20,12 +21,12 @@ best if `y - x >= high - low`, otherwise parts of the target range may be unreac
 	window = high - low;
 
 	// jump above the lower bound into the range with steps sized `window`
-	if (target < low) {
+	while (target < low) {
 		target += ceil(low / window - target / window) * window;
 	}
 
 	// or jump below the high bound into the range with steps sized `window`	
-	if (high < target) {
+	while (high < target) {
 		target -= ceil(target / window - high / window) * window;
 	}
 
