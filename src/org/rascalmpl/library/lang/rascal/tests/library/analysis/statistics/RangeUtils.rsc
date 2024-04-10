@@ -43,5 +43,7 @@ is limited to a given range, between `low` and `high` inclusive bounds.
 The target numbers are the same if they already fit, and we try to keep a uniform distribution
 within the range as much as possible.
 }
-list[&T <: num] assureRange(list[&T <: num] nums, num low, num high)
+list[&T <: num] assureRange(list[&T <: num] nums, &T <: num low, &T <: num high)
 	= [assureRange(n, low, high) | n <- nums];
+
+test bool assureRangeListTest() = assureRange([0..10], 100, 110) == [100..110];
