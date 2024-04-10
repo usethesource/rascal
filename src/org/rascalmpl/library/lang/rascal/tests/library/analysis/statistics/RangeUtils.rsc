@@ -47,3 +47,4 @@ list[&T <: num] assureRange(list[&T <: num] nums, &T <: num low, &T <: num high)
 	= [assureRange(n, low, high) | n <- nums];
 
 test bool assureRangeListTest() = assureRange([0..10], 100, 110) == [100..110];
+test bool assureRangeListTestNeg() = assureRange([0..-10], 100, 110) == [100, *[109,108,107,106,105,104,103,102,101]];
