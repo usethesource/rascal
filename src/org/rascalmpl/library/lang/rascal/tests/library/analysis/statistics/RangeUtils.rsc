@@ -21,12 +21,12 @@ best if `y - x >= high - low`, otherwise parts of the target range may be unreac
 
 	// jump above the lower bound into the range with steps sized `window`
 	if (target < low) {
-		target += (floor(low / window) - floor(target / window)) * window;
+		target += ceil(low / window - target / window) * window;
 	}
 
 	// or jump below the high bound into the range with steps sized `window`	
 	if (high < target) {
-		target -= (ceil(target / window) - ceil(high / window)) * window;
+		target -= ceil(target / window - high / window) * window;
 	}
 
 	assert low <= target && target <= high;
