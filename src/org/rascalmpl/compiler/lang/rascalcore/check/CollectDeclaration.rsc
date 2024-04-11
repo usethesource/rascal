@@ -120,7 +120,10 @@ void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){
     
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type varType> <{Variable ","}+ variables> ;`, Collector c){
     tagsMap = getTags(tags);
-    if(ignoreCompiler(tagsMap)) { println("*** ignore <current>"); return; }
+    if(ignoreCompiler(tagsMap)) { 
+        c.report(info(current, "Ignoring variable declaration"));
+        return; 
+    }
     scope = c.getScope();
     c.enterScope(current); // wrap in extra scope to isolate variables declared in complex (function) types
         for(var <- variables){
