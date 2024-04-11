@@ -586,7 +586,7 @@ AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
 // From "Exploring Type Parameters (adapted to keep aparamater as long as possible)
 AType alub(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2);
 AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2)) 
-                                                              : lb == b ? p : lb when lb := alub(b1, b2);
+                                                              : lb == b1 ? p : lb when lb := alub(b1, b2);
 
 AType alub(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && lb == b1 ? p1 : lb when lb := alub(b1, p2);
 AType alub(p1:aparameter(n1, b1, closed=true), aparameter(n2, b2, closed=false)) = n1 == n2 && lb == b2 ? p2 : lb when lb := alub(p1, b2);
