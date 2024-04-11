@@ -509,8 +509,29 @@ public java &T make(type[&T] typ, str name, list[value] args);
 public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
 
 @javaClass{org.rascalmpl.library.Type}
-@synopsis{Instantiate a constructor value by first declaring the given constructor and then applying it to the given parameters}
-public java &T make(Production cons, list[value] args, map[str,value] keywordArgs);
+@synopsis{Instantiate a constructor value by first declaring the given constructor and then applying it to the given parameters.}
+@description{
+The grammar rules for data constructors in a reified type can inversely be applied
+again to construct constructor instances, dynamically.
+
+This "reflection" feature is dynamically typed, so we don't know statically which type
+of ADT will come out.
+}
+of this function. So where:
+}
+@examples{
+This is the value-ified represention of `data Exp = constant(int n)`:
+```rascal-shell
+import Type;
+rule = cons(label("constant",adt("Exp",[])),[label("n",\int())],[],{});
+// we can use it to instantiate a constructor value that uses that rule:
+example = make(rule, [1]);
+// to illustrate we now construct it the normal way and test for equivalence:
+data Exp = constant(int n);
+example == constant(1);
+```
+}
+public java node make(Production cons, list[value] args, map[str,value] keywordArgs=());
 
 @synopsis{Returns the dynamic type of a value as a ((Type-Symbol)).}
 @description{
