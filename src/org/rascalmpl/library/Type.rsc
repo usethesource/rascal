@@ -517,8 +517,6 @@ again to construct constructor instances, dynamically.
 This "reflection" feature is dynamically typed, so we don't know statically which type
 of ADT will come out.
 }
-of this function. So where:
-}
 @examples{
 This is the value-ified represention of `data Exp = constant(int n)`:
 ```rascal-shell
