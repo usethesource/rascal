@@ -156,7 +156,7 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
-                    <!-- <execution>
+                    <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
                         <goals>
@@ -168,6 +168,7 @@
                             <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
                             <license>${project.basedir}/LICENSE</license>
+                            <release-notes>${project.basedir}/RELEASE-NOTES.md</release-notes>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
                             <srcs>
@@ -177,7 +178,7 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             </ignores>
                         </configuration>
-                    </execution>  -->
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
