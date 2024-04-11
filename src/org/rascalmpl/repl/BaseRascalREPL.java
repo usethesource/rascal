@@ -155,7 +155,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             output.put("text/plain", stringStream("ok\n"));
             return;
         }
-        else if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content) && !result.getStaticType().isBottom()) {
+        else if (result.getStaticType().isSubtypeOf(RascalValueFactory.Content) && !result.getStaticType().isBottom() && !result.getStaticType().isParameter()) {
             // we have interactive output in HTML form to serve
             serveContent(result, output, metadata);
             return;
