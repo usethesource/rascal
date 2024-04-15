@@ -879,6 +879,21 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
+    public boolean visit(SwitchExpression node) {
+        IValue expression = visitChild(node.getExpression());
+
+        IValueList statements = new IValueList(values);
+        for (Iterator it = node.statements().iterator(); it.hasNext();) {
+            Statement s = (Statement) it.next();
+            statements.add(visitChild(s));
+        }
+
+        ownValue = constructExpressionNode("switch", expression, statements.asList());
+
+        return false;
+    }
+
     public boolean visit(SuperConstructorInvocation node) {
 
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
@@ -941,9 +956,8 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    // TODO: add suppor for multiple expressions, and the -> arrow
     public boolean visit(SwitchCase node) {
-
-
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
         String constructorName = "case";
 
