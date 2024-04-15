@@ -75,6 +75,7 @@ data Expression
     | \postfix(Expression operand, str operator)
     | \prefix(str operator, Expression operand)
     | \simpleName(str name)
+    | \switch(Expression expression, list[Statement] cases)
     | \markerAnnotation(str typeName)
     | \normalAnnotation(str typeName, list[Expression] memberValuePairs)
     | \memberValuePair(str name, Expression \value)
