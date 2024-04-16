@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.dom.*;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -999,8 +1000,11 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(TypeMethodReference node) {
-        // TODO Auto-generated method stub
-        return super.visit(node);
+        IValue type = visitChild(node.getType())
+        IList args = node.typeArguments().stream().map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
+        IString name = values.string(node.getName().getIdentifier());
+
+        return constructExpressionNode("methodReference", type, args, name);
     }
 
     @Override
