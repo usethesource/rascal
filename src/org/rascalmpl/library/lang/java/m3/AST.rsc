@@ -144,6 +144,7 @@ data Type
     | qualifiedType(Type qualifier, Expression simpleName)
     | simpleType(Expression typeName)
     | unionType(list[Type] types)
+    | intersectionType(list[Type] types)
     | wildcard()
     | upperbound(Type \type)
     | lowerbound(Type \type)
