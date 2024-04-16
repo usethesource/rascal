@@ -1009,8 +1009,11 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(ExpressionMethodReference node) {
-        // TODO Auto-generated method stub
-        return super.visit(node);
+        IValue type = visitChild(node.getExpression())
+        IList args = node.typeArguments().stream().map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
+        IString name = values.string(node.getName().getIdentifier());
+
+        return constructExpressionNode("methodReference", type, args, name);
     }
 
     public boolean visit(SwitchStatement node) {
