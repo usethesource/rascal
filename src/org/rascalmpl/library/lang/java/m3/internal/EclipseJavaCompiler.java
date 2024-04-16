@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -39,6 +40,7 @@ import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -89,11 +91,11 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
-    public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+    public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
         return createM3sFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
 
-    protected IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
+    protected IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
         try {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
@@ -112,11 +114,11 @@ public class EclipseJavaCompiler {
         //   throw new InterruptException("Java compiler interrupted", URIUtil.rootLocation("java"));
         // }
     }
-    public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+    public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
         return createM3sAndAstsFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
     
-    protected IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
+    protected IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
         try {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter m3s = VF.setWriter();
@@ -133,12 +135,12 @@ public class EclipseJavaCompiler {
         
     }
 
-    public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+    public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
         return createM3FromString(loc, contents, errorRecovery, sourcePath, classPath, javaVersion, getM3Store()); 
     }
     
     
-    protected IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store) {
+    protected IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
             return convertToM3(store, new HashMap<>(), loc, cu);
@@ -147,11 +149,11 @@ public class EclipseJavaCompiler {
         }
     }
     
-    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
         return createAstsFromFiles(files, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
 
-    protected IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
+    protected IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
         try {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
@@ -166,11 +168,11 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion) {
+    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
         return createAstFromString(loc, contents, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store());
     }
     
-    protected IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store) {
+    protected IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
             return convertToAST(collectBindings, new HashMap<>(), loc, cu, store);
@@ -192,7 +194,7 @@ public class EclipseJavaCompiler {
         return converter.getModel(true);
     }
     
-    protected void buildCompilationUnits(ISet files, boolean resolveBindings, boolean errorRecovery, IList sourcePath, IList classPath, IString javaVersion, BiConsumer<ISourceLocation, CompilationUnit> buildNotifier) throws IOException {
+    protected void buildCompilationUnits(ISet files, boolean resolveBindings, boolean errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, BiConsumer<ISourceLocation, CompilationUnit> buildNotifier) throws IOException {
         boolean fastPath = true;
         for (IValue f : files) {
             fastPath &= safeResolve((ISourceLocation)f).getScheme().equals("file");
@@ -276,7 +278,7 @@ public class EclipseJavaCompiler {
         }
     }
 
-    protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, boolean errorRecovery, IString javaVersion, String[] sourcePath, String[] classPath) 
+    protected CompilationUnit getCompilationUnit(String unitName, char[] contents, boolean resolveBindings, boolean errorRecovery, IConstructor javaVersion, String[] sourcePath, String[] classPath) 
             throws IOException {
         ASTParser parser = constructASTParser(resolveBindings, errorRecovery, javaVersion, sourcePath, classPath);
         parser.setUnitName(unitName);
@@ -292,17 +294,17 @@ public class EclipseJavaCompiler {
         return converter.getValue();
     }
     
-    protected ASTParser constructASTParser(boolean resolveBindings, boolean errorRecovery, IString javaVersion, String[] sourcePath, String[] classPath) {
+    protected ASTParser constructASTParser(boolean resolveBindings, boolean errorRecovery, IConstructor javaVersion, String[] sourcePath, String[] classPath) {
         ASTParser parser = ASTParser.newParser(AST.JLS13);
         parser.setResolveBindings(resolveBindings);
         parser.setBindingsRecovery(true);
         parser.setStatementsRecovery(errorRecovery);
-        parser.setCompilerOptions(Map.of("org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures", "true"));
 
         Hashtable<String, String> options = new Hashtable<String, String>();
 
-        options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
-        options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
+        options.put(JavaCore.COMPILER_SOURCE, ((IString) javaVersion.get("version")).getValue());
+        options.put(JavaCore.COMPILER_COMPLIANCE, ((IString) javaVersion.get("version")).getValue());
+        options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, ((IBool) javaVersion.get("preview")).toString());
         options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 
         parser.setCompilerOptions(options);
