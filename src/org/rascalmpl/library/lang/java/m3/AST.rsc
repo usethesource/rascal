@@ -94,6 +94,7 @@ data Expression
     | \simpleName(str name)
     | \switch(Expression expression, list[Statement] cases)
     | \markerAnnotation(str typeName)
+    | \methodReference(Type \type, list[Type] typeArguments, str name)
     | \normalAnnotation(str typeName, list[Expression] memberValuePairs)
     | \memberValuePair(str name, Expression \value)
     | \singleMemberAnnotation(str typeName, Expression \value)
