@@ -983,13 +983,16 @@ public class ASTConverter extends JavaToRascalConverter {
                 .map(e -> visitChild(e)).collect(values.listWriter());
         
         if (node.isSwitchLabeledRule()) {
-            constructorName = "switchLabeledRule";
+            constructorName = "caseRule";
+            ownValue = constructStatementNode(constructorName, exprs);
         }
         else if (node.isDefault()) {
             constructorName = "defaultCase";
+            ownValue = constructStatementNode(constructorName);
         }
-
-        ownValue = constructStatementNode(constructorName, exprs);			
+        else {
+            ownValue = constructStatementNode(constructorName, exprs);
+        }
 
         return false;
     }
