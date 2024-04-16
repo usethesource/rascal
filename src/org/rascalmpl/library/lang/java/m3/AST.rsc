@@ -11,6 +11,23 @@ import IO;
 import String;
 import List;
 
+@synopsis{Datatype to configure the Java Language Standard compliance level of the parser.}
+data JavaVersion = javaVersion(int level, str version, bool preview=true);
+
+JavaVersion JLS1()  = javaVersion(1, "1.1");
+JavaVersion JLS2()  = javaVersion(2, "1.2");
+JavaVersion JLS3()  = javaVersion(3, "1.3");
+JavaVersion JLS4()  = javaVersion(4, "1.4");
+JavaVersion JLS5()  = javaVersion(5, "1.5");
+JavaVersion JLS6()  = javaVersion(6, "1.6");
+JavaVersion JLS7()  = javaVersion(7, "1.7");
+JavaVersion JLS8()  = javaVersion(8, "1.8");
+JavaVersion JLS9()  = javaVersion(9, "9");
+JavaVersion JLS10() = javaVersion(10, "10");
+JavaVersion JLS11() = javaVersion(11, "11");
+JavaVersion JLS12() = javaVersion(12, "12");
+JavaVersion JLS13() = javaVersion(13, "13");
+
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
     | \compilationUnit(Declaration package, list[Declaration] imports, list[Declaration] types)
@@ -205,7 +222,7 @@ set[loc] findRoots(set[loc] folders) {
 @description{
 Wrapper around ((createAstsFromFiles)) to call it on a single file.
 }
-public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7") {
+public Declaration createAstFromFile(loc file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], JavaVersion javaVersion = JLS13()) {
     result = createAstsFromFiles({file}, collectBindings, errorRecovery = errorRecovery, sourcePath = sourcePath, classPath = classPath, javaVersion = javaVersion);
     if ({oneResult} := result) {
         return oneResult;
@@ -219,11 +236,11 @@ public Declaration createAstFromFile(loc file, bool collectBindings, bool errorR
   Meaning, that it analyzes the whole file and not just the part that the positional information describes.
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
+public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], JavaVersion javaVersion = JLS13());
 
 @synopsis{Creates AST from a string using Eclipse JDT compiler.}
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
-public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], str javaVersion = "1.7");
+public java Declaration createAstFromString(loc fileName, str source, bool collectBinding, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], JavaVersion javaVersion = JLS13());
 
 @synopsis{Creates a set ASTs for all Java source files in a project using Eclipse's JDT compiler}
 @description{
@@ -231,7 +248,7 @@ public java Declaration createAstFromString(loc fileName, str source, bool colle
   The function also looks for the dependencies (`.jar` files) to include them.
   Wraps around ((createAstsFromFiles)).
 }
-public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
+public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, JavaVersion javaVersion = JLS13() ) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
@@ -250,7 +267,7 @@ is expected to be at `project + "pom.xml"`.
 
 Wraps around ((createAstsFromFiles)).
 }
-public set[Declaration] createAstsFromMavenProject(loc project, bool collectBindings, bool errorRecovery = false, str javaVersion = "1.7" ) {
+public set[Declaration] createAstsFromMavenProject(loc project, bool collectBindings, bool errorRecovery = false, JavaVersion javaVersion = JLS13() ) {
     if (!exists(project + "pom.xml")) {
       throw IO("pom.xml not found");
     }
