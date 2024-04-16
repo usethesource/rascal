@@ -1016,6 +1016,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return constructExpressionNode("methodReference", type, args, name);
     }
 
+    
     public boolean visit(SwitchStatement node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -1180,6 +1181,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(UnionType node) {
 
         IValueList typesValues = new IValueList(values);
@@ -1189,6 +1191,20 @@ public class ASTConverter extends JavaToRascalConverter {
         }
 
         ownValue = constructTypeNode("unionType", typesValues.asList());
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(IntersectionType node) {
+
+        IValueList typesValues = new IValueList(values);
+        for(Iterator types = node.types().iterator(); types.hasNext();) {
+            Type type = (Type) types.next();
+            typesValues.add(visitChild(type));
+        }
+
+        ownValue = constructTypeNode("intersectionType", typesValues.asList());
 
         return false;
     }
