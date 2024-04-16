@@ -218,6 +218,7 @@ public class EclipseJavaCompiler {
             }
 
             ASTParser parser = constructASTParser(resolveBindings, errorRecovery, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+            
             parser.createASTs(absolutePaths, encodings, new String[0], new FileASTRequestor() {
                 @Override
                 public void acceptAST(String sourceFilePath, CompilationUnit ast) {
@@ -292,11 +293,11 @@ public class EclipseJavaCompiler {
     }
     
     protected ASTParser constructASTParser(boolean resolveBindings, boolean errorRecovery, IString javaVersion, String[] sourcePath, String[] classPath) {
-        @SuppressWarnings("deprecation")
-        ASTParser parser = ASTParser.newParser(AST.JLS4);
+        ASTParser parser = ASTParser.newParser(AST.JLS13);
         parser.setResolveBindings(resolveBindings);
         parser.setBindingsRecovery(true);
         parser.setStatementsRecovery(errorRecovery);
+        parser.setCompilerOptions(Map.of("org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures", "true"));
 
         Hashtable<String, String> options = new Hashtable<String, String>();
 
