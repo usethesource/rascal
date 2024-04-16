@@ -32,12 +32,12 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -300,11 +300,16 @@ public class EclipseJavaCompiler {
         parser.setBindingsRecovery(true);
         parser.setStatementsRecovery(errorRecovery);
 
+        IBool previewParameter = (IBool) javaVersion.asWithKeywordParameters().getParameter("preview");
+        if (previewParameter == null) {
+            previewParameter = IRascalValueFactory.getInstance().bool(true);
+        }
+
         Hashtable<String, String> options = new Hashtable<String, String>();
 
         options.put(JavaCore.COMPILER_SOURCE, ((IString) javaVersion.get("version")).getValue());
         options.put(JavaCore.COMPILER_COMPLIANCE, ((IString) javaVersion.get("version")).getValue());
-        options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, ((IBool) javaVersion.get("preview")).toString());
+        options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, previewParameter.getValue() ?  JavaCore.ENABLED :  JavaCore.DISABLED);
         options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 
         parser.setCompilerOptions(options);
