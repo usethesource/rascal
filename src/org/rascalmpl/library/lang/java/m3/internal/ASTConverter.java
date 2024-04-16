@@ -1,10 +1,12 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.*;
 
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -604,12 +606,23 @@ public class ASTConverter extends JavaToRascalConverter {
             parameters.append(visitChild(v));
         }
 
-        IValueList possibleExceptions = new IValueList(values);
-        if (!node.thrownExceptions().isEmpty()) {
+        IListWriter possibleExceptions = values.listWriter();
 
-            for (Iterator it = node.thrownExceptions().iterator(); it.hasNext();) {
-                Name n = (Name) it.next();
-                possibleExceptions.add(visitChild(n));
+        var apiLevel = node.getAST().apiLevel();
+        if (apiLevel == AST.JLS2 || apiLevel == AST.JLS3 || apiLevel == AST.JLS4) {
+            if (!node.thrownExceptions().isEmpty()) {
+                for (Iterator it = node.thrownExceptions().iterator(); it.hasNext();) {
+                    Name n = (Name) it.next();
+                    possibleExceptions.append(visitChild(n));
+                }
+            }
+        }
+        else {
+            if (!node.thrownExceptionTypes().isEmpty()) {
+                ((List<?>) node.thrownExceptionTypes()).stream()
+                    .map(o -> ((ASTNode) o))
+                    .map((ASTNode n) -> visitChild(n))
+                    .collect(possibleExceptions);
             }
         }
 
@@ -618,7 +631,7 @@ public class ASTConverter extends JavaToRascalConverter {
             body = constructStatementNode("empty");
         }
 
-        ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.done(), possibleExceptions.asList(), body);
+        ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.done(), possibleExceptions.done(), body);
         setKeywordParameters("modifiers", extendedModifiers);
         // FIXME: this doesn't seem to be in use anymore
         //setKeywordParameters("typeParameters", genericTypes);
@@ -956,17 +969,41 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
-    // TODO: add suppor for multiple expressions, and the -> arrow
+
     public boolean visit(SwitchCase node) {
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
+        List<?> expressions = node.expressions();
+
         String constructorName = "case";
 
-        if (node.isDefault())
+        IList exprs = expression == null 
+            ? values.list(expression)
+            : expressions.stream()
+                .map(o -> (Expression) o)
+                .map(e -> visitChild(e)).collect(values.listWriter());
+        
+        if (node.isSwitchLabeledRule()) {
+            constructorName = "switchLabeledRule";
+        }
+        else if (node.isDefault()) {
             constructorName = "defaultCase";
+        }
 
-        ownValue = constructStatementNode(constructorName, expression);			
+        ownValue = constructStatementNode(constructorName, exprs);			
 
         return false;
+    }
+
+    @Override
+    public boolean visit(TypeMethodReference node) {
+        // TODO Auto-generated method stub
+        return super.visit(node);
+    }
+
+    @Override
+    public boolean visit(ExpressionMethodReference node) {
+        // TODO Auto-generated method stub
+        return super.visit(node);
     }
 
     public boolean visit(SwitchStatement node) {
