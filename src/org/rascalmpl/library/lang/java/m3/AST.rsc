@@ -61,8 +61,7 @@ data Expression
     | \null()
     | \number(str numberValue)
     | \booleanLiteral(bool boolValue)
-    | \stringLiteral(str stringValue, str literal=stringValue)
-    | \textBlock(str stringValue, str literal=stringValue)
+    | \stringLiteral(str stringValue)
     | \type(Type \type)
     | \variable(str name, int extraDimensions)
     | \variable(str name, int extraDimensions, Expression \initializer)
@@ -79,8 +78,6 @@ data Expression
     | \normalAnnotation(str typeName, list[Expression] memberValuePairs)
     | \memberValuePair(str name, Expression \value)
     | \singleMemberAnnotation(str typeName, Expression \value)
-    | \lambda(list[Declaration] parameters, Statement block)
-    | \lambda(list[Declaration] parameters, Expression body)
     ;
 
 data Statement
@@ -114,7 +111,6 @@ data Statement
     | \expressionStatement(Expression stmt)
     | \constructorCall(bool isSuper, Expression expr, list[Expression] arguments)
     | \constructorCall(bool isSuper, list[Expression] arguments)
-    | \yield(Expression argument)
     ;
 
 data Type
