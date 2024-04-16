@@ -121,7 +121,7 @@ data Statement
     | \return()
     | \switch(Expression expression, list[Statement] statements)
     | \case(list[Expression] expressions)
-    | \switchLabeledRule(list[Expression] expressions)
+    | \caseRule(list[Expression] expressions)
     | \defaultCase()
     | \synchronizedStatement(Expression lock, Statement body)
     | \throw(Expression expression)
