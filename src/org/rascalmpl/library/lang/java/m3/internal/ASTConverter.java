@@ -1096,7 +1096,8 @@ public class ASTConverter extends JavaToRascalConverter {
         ownValue = constructExpressionNode("superMethodReference", args, name);
         return false;
     }
-        @Override
+        
+    @Override
     public boolean visit(SwitchStatement node) {
 
         IValue expression = visitChild(node.getExpression());
