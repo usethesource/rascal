@@ -1166,6 +1166,15 @@ public class ASTConverter extends JavaToRascalConverter {
     }
 
     @Override
+    public boolean visit(ExportsDirective node) {
+        IString name = values.string(node.getName().getFullyQualifiedName());
+
+        ownValue = constructDeclarationNode("exports", name);
+        return false;
+    }
+   
+
+    @Override
     public boolean visit(SuperMethodReference node) {
         IList args = ((List<?>) node.typeArguments())
             .stream().map(o -> (Type) o)
