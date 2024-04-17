@@ -60,8 +60,9 @@ data Declaration
     = \module(list[Modifier] open, str name, list[Declaration] directives)
     | \opensPackage(str name, list[Expression] modules)
     | \providesImplementations(str name, list[Expression] implementations)
-    | \requires(list[Modifier] modifiers, list[Expression] modules)
+    | \requires(list[Modifier] mods, list[Expression] modules)
     | \uses(Expression interface)
+    | \exports(Expression interface)
     ;
 
 
