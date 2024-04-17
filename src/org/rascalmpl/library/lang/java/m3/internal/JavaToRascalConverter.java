@@ -1,7 +1,7 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -169,32 +169,28 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     }
 
     protected IValue[] removeNulls(IValue... withNulls) {
-        List<IValue> withOutNulls = new ArrayList<IValue>();
-        for (IValue child : withNulls) {
-            if (!(child == null)) {
-                withOutNulls.add(child);
-            }
-        }
-        return withOutNulls.toArray(new IValue[withOutNulls.size()]);
+        return Arrays.stream(withNulls)
+            .filter(e -> e != null)
+            .toArray(IValue[]::new);
     }
 
-    protected IValueList parseModifiers(int modifiers) {
-        IValueList extendedModifierList = new IValueList(values);
+    protected IList parseModifiers(int modifiers) {
+        IListWriter extendedModifierList = values.listWriter();
 
 
         for (String constructor: java.lang.reflect.Modifier.toString(modifiers).split(" ")) {
             Set<io.usethesource.vallang.type.Type> exConstr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor);
             for (io.usethesource.vallang.type.Type con: exConstr) {
-                extendedModifierList.add(values.constructor(con));
+                extendedModifierList.append(values.constructor(con));
             }
         }
 
-        return extendedModifierList;
+        return extendedModifierList.done();
     }
 
     @SuppressWarnings({"rawtypes"})
-    protected IValueList parseExtendedModifiers(List<?> ext) {
-        IValueList extendedModifierList = new IValueList(values);
+    protected IList parseExtendedModifiers(List<?> ext) {
+        IListWriter extendedModifierList = values.listWriter();
 
         for (Iterator it = ext.iterator(); it.hasNext();) {
             ASTNode p = (ASTNode) it.next();
@@ -202,12 +198,12 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
             if (p instanceof Annotation) {
                 val = constructModifierNode("annotation", val);
             }
-            extendedModifierList.add(val);
+            extendedModifierList.append(val);
         }
-        return extendedModifierList;
+        return extendedModifierList.done();
     }
 
-    protected IValueList parseExtendedModifiers(BodyDeclaration node) {
+    protected IList parseExtendedModifiers(BodyDeclaration node) {
         if (node.getAST().apiLevel() == AST.JLS2) {
             return parseModifiers(node.getModifiers());
         } else {
@@ -239,12 +235,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         }
     }
 
-    protected void setKeywordParameters(String label, IValueList valueList) {
-        IList values = (IList) valueList.asList();
-        if(this.ownValue == null) {
+    protected void setKeywordParameters(String label, IList values) {
+        if (this.ownValue == null) {
             return ;
         }
-        if (valueList != null && !values.isEmpty()) {
+        if (values != null && !values.isEmpty()) {
             this.ownValue = ((IConstructor) this.ownValue).asWithKeywordParameters().setParameter(label, values);
         }
     }
@@ -284,11 +279,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected void insertCompilationUnitMessages(boolean insertErrors, IList otherMessages) {
         io.usethesource.vallang.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
 
-        IValueList result = new IValueList(values);
+        IListWriter result = values.listWriter();
 
         if (otherMessages != null) {
             for (IValue message : otherMessages) {
-                result.add(message);
+                result.append(message);
             }
         }
 
@@ -307,10 +302,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                 } else {
                     constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
                 }
-                result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
+                result.append(values.constructor(constr, values.string(problems[i].getMessage()), pos));
             }
         }
-        setKeywordParameter("messages", result.asList());
+        setKeywordParameter("messages", result.done());
     }
 
     public void insert(IListWriter listW, IValue message) {
