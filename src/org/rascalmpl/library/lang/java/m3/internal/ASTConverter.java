@@ -72,6 +72,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return null;
     }
 
+    
     @Override
     public boolean visit(AnnotationTypeDeclaration node) {
         IList extendedModifiers = parseExtendedModifiers(node.modifiers());
@@ -505,7 +506,6 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(ImportDeclaration node) {
-
         String name = node.getName().getFullyQualifiedName();
 
         IListWriter importModifiers = values.listWriter();
@@ -848,7 +848,6 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(QualifiedType node) {
-
         IValue qualifier = visitChild(node.getQualifier());
 
 
@@ -935,6 +934,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+
     @Override
     public boolean visit(YieldStatement node) {
         IValue exp = visitChild(node.getExpression());
@@ -942,6 +942,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    
     @Override
     public boolean visit(LambdaExpression node) {
         IListWriter parameters = values.listWriter();
@@ -1087,6 +1088,84 @@ public class ASTConverter extends JavaToRascalConverter {
     }
 
     @Override
+    public boolean visit(ModuleDeclaration node) {
+        IList mod = node.isOpen() ? values.list(constructModifierNode("open")) : values.list();
+        IString name = node.getName().isSimpleName() 
+            ? values.string(((SimpleName) node.getName()).getIdentifier()) 
+            : values.string(node.getName().getFullyQualifiedName());
+
+        IList stats
+            = ((List<?>) node.moduleStatements())
+                .stream()
+                .map(o -> (ASTNode) o)
+                .map(s -> visitChild(s))
+                .collect(values.listWriter());
+
+        ownValue = constructDeclarationNode("module", mod, name, stats);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ModuleModifier node) {
+        if (node.isStatic()) {
+            ownValue = constructModifierNode("static");
+        }
+        else if (node.isTransitive()) {
+            ownValue = constructModifierNode("static");
+        }
+        else {
+            // unknown module requirement modifier?
+            assert false;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(OpensDirective node) {
+        IString name = values.string(node.getName().getFullyQualifiedName());
+        IList modules = ((List<?>) node.modules()).stream()
+            .map(e -> ((ASTNode) e)) 
+            .map(n -> visitChild(n)) // TODO: check what type of AST node is used for the module names
+            .collect(values.listWriter());
+        
+        ownValue = constructDeclarationNode("opensPackage", name, modules);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ProvidesDirective node) {
+        IString name = values.string(node.getName().getFullyQualifiedName());
+        IList implementations = ((List<?>) node.implementations()).stream()
+            .map(e -> ((ASTNode) e)) 
+            .map(n -> visitChild(n)) // TODO: check what type of AST node is used for the module names
+            .collect(values.listWriter());
+        
+        ownValue = constructDeclarationNode("providesImplementations", name, implementations);
+        return false;
+    }
+
+    @Override
+    public boolean visit(RequiresDirective node) {
+        IList modifiers = ((List<?>) node.modifiers()).stream()
+            .map(e -> ((ASTNode) e)) 
+            .map(n -> visitChild(n)) 
+            .collect(values.listWriter());
+        IString name = values.string(node.getName().getFullyQualifiedName());
+
+        ownValue = constructDeclarationNode("requires", modifiers, name);
+        return false;
+    }
+
+    @Override
+    public boolean visit(UsesDirective node) {
+        IString name = values.string(node.getName().getFullyQualifiedName());
+
+        ownValue = constructDeclarationNode("uses", name);
+        return false;
+    }
+
+    @Override
     public boolean visit(SuperMethodReference node) {
         IList args = ((List<?>) node.typeArguments())
             .stream().map(o -> (Type) o)
@@ -1099,7 +1178,6 @@ public class ASTConverter extends JavaToRascalConverter {
         
     @Override
     public boolean visit(SwitchStatement node) {
-
         IValue expression = visitChild(node.getExpression());
 
         IListWriter statements = values.listWriter();
