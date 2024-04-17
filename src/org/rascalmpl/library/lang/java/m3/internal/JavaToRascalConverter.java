@@ -193,7 +193,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     }
 
     @SuppressWarnings({"rawtypes"})
-    protected IValueList parseExtendedModifiers(List ext) {
+    protected IValueList parseExtendedModifiers(List<?> ext) {
         IValueList extendedModifierList = new IValueList(values);
 
         for (Iterator it = ext.iterator(); it.hasNext();) {
@@ -207,7 +207,6 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         return extendedModifierList;
     }
 
-    @SuppressWarnings("deprecation")
     protected IValueList parseExtendedModifiers(BodyDeclaration node) {
         if (node.getAST().apiLevel() == AST.JLS2) {
             return parseModifiers(node.getModifiers());

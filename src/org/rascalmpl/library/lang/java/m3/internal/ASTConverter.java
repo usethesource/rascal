@@ -1126,13 +1126,13 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(TagElement node) {
-
+        // TODO: what should be added here?
         return false;
     }
 
     @Override
     public boolean visit(TextElement node) {
-
+        // TODO: what should happen here?
         return false;
     }
 
