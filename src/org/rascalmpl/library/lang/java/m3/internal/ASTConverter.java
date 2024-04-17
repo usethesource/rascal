@@ -24,6 +24,7 @@ public class ASTConverter extends JavaToRascalConverter {
         super(typeStore, cache, collectBindings);
     }
 
+    @Override
     public void postVisit(ASTNode node) {
         if (getAdtType() == DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE || getAdtType() == DATATYPE_RASCAL_AST_TYPE_NODE_TYPE) {
             return;
@@ -72,6 +73,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return null;
     }
 
+    @Override
     public boolean visit(AnnotationTypeDeclaration node) {
         IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
         IValue name = values.string(node.getName().getFullyQualifiedName());
@@ -87,6 +89,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(AnnotationTypeMemberDeclaration node) {
         IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
         IValue typeArgument = visitChild(node.getType());
@@ -99,6 +102,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(AnonymousClassDeclaration node) {
         IValueList bodyDeclarations = new IValueList(values);
 
@@ -111,6 +115,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ArrayAccess node) {
         IValue array = visitChild(node.getArray());
         IValue index = visitChild(node.getIndex());
@@ -120,6 +125,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ArrayCreation node) {
         IValue type = visitChild(node.getType().getElementType());
 
@@ -136,6 +142,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ArrayInitializer node) {
         IValueList expressions = new IValueList(values);
         for (Iterator it = node.expressions().iterator(); it.hasNext();) {
@@ -148,6 +155,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ArrayType node) {
         IValue type = visitChild(node.getComponentType());
 
@@ -156,6 +164,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(AssertStatement node) {
         IValue expression = visitChild(node.getExpression());
         IValue message = node.getMessage() == null ? null : visitChild(node.getMessage());
@@ -165,6 +174,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(Assignment node) {
         IValue leftSide = visitChild(node.getLeftHandSide());
         IValue rightSide = visitChild(node.getRightHandSide());
@@ -174,6 +184,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(Block node) {
         IValueList statements = new IValueList(values);
         for (Iterator it = node.statements().iterator(); it.hasNext();) {
@@ -185,11 +196,13 @@ public class ASTConverter extends JavaToRascalConverter {
 
         return false;
     }
-
+    
+    @Override
     public boolean visit(BlockComment node) {
         return false;
     }
 
+    @Override
     public boolean visit(BooleanLiteral node) {
         IValue booleanValue = values.bool(node.booleanValue());
 
@@ -198,6 +211,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(BreakStatement node) {
         IValue label = node.getLabel() == null ? values.string("") : values.string(node.getLabel().getFullyQualifiedName());
         ownValue = constructStatementNode("break", label);
@@ -205,6 +219,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(CastExpression node) {
         IValue type = visitChild(node.getType());
         IValue expression = visitChild(node.getExpression());
@@ -214,6 +229,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(CatchClause node) {
         IValue exception = visitChild(node.getException());
         IValue body = visitChild(node.getBody());
@@ -223,6 +239,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(CharacterLiteral node) {
         IValue value = values.string(node.getEscapedValue()); 
 
@@ -231,6 +248,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ClassInstanceCreation node) {
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
@@ -263,6 +281,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(CompilationUnit node) {
         IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
 
@@ -282,6 +301,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ConditionalExpression node) {
         IValue expression = visitChild(node.getExpression());
         IValue thenBranch = visitChild(node.getThenExpression());
@@ -292,6 +312,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ConstructorInvocation node) {
         IValueList types = new IValueList(values);
         if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -316,6 +337,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ContinueStatement node) {
 
         IValue label = node.getLabel() == null ? null : values.string(node.getLabel().getFullyQualifiedName());
@@ -324,6 +346,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(DoStatement node) {
 
         IValue body = visitChild(node.getBody());
@@ -334,6 +357,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(EmptyStatement node) {
 
         ownValue = constructStatementNode("empty");
@@ -341,6 +365,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(EnhancedForStatement node) {
 
         IValue parameter = visitChild(node.getParameter());
@@ -352,6 +377,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(EnumConstantDeclaration node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
@@ -372,6 +398,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(EnumDeclaration node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
@@ -404,6 +431,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ExpressionStatement node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -412,6 +440,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(FieldAccess node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -422,6 +451,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(FieldDeclaration node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node);
@@ -438,6 +468,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ForStatement node) {
 
         IValueList initializers = new IValueList(values);
@@ -461,6 +492,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(IfStatement node) {
 
         IValue booleanExpression = visitChild(node.getExpression());
@@ -472,6 +504,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ImportDeclaration node) {
 
         String name = node.getName().getFullyQualifiedName();
@@ -491,6 +524,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(InfixExpression node) {
 
         IValue operator = values.string(node.getOperator().toString());
@@ -508,6 +542,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(Initializer node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node);
@@ -518,6 +553,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(InstanceofExpression node) {
 
         IValue leftSide = visitChild(node.getLeftOperand());
@@ -528,11 +564,13 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(Javadoc node) {
 
         return false;
     }
 
+    @Override
     public boolean visit(LabeledStatement node) {
 
         IValue label = values.string(node.getLabel().getFullyQualifiedName());
@@ -543,11 +581,13 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(LineComment node) {
 
         return false;
     }
 
+    @Override
     public boolean visit(MarkerAnnotation node) {
 
         IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
@@ -556,10 +596,12 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(MemberRef node) {
         return false;
     }
 
+    @Override
     public boolean visit(MemberValuePair node) {
 
         IValue name = values.string(node.getName().getFullyQualifiedName());
@@ -570,6 +612,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(MethodDeclaration node) {
         String constructorName = "method";
         IValueList extendedModifiers = parseExtendedModifiers(node);
@@ -639,6 +682,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(MethodInvocation node) {
 
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
@@ -666,14 +710,17 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(MethodRef node) {
         return false;
     }
 
+    @Override
     public boolean visit(MethodRefParameter node) {
         return false;
     }
 
+    @Override
     public boolean visit(Modifier node) {
         String modifier = node.getKeyword().toString();
         ownValue = constructModifierNode(modifier);
@@ -681,6 +728,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(NormalAnnotation node) {
 
         IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
@@ -696,6 +744,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(NullLiteral node) {
 
         ownValue = constructExpressionNode("null");
@@ -703,6 +752,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(NumberLiteral node) {
 
         IValue number = values.string(node.getToken());
@@ -712,6 +762,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(PackageDeclaration node) {
         IValueList annotations = new IValueList(values);
 
@@ -731,6 +782,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ParameterizedType node) {
 
         IValue type = visitChild(node.getType());
@@ -746,6 +798,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ParenthesizedExpression node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -754,6 +807,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(PostfixExpression node) {
 
         IValue operand = visitChild(node.getOperand());
@@ -764,6 +818,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(PrefixExpression node) {
 
         IValue operand = visitChild(node.getOperand());
@@ -774,12 +829,14 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(PrimitiveType node) {
         ownValue = constructTypeNode(node.toString());
 
         return false;
     }
 
+    @Override
     public boolean visit(QualifiedName node) {
 
         IValue qualifier = visitChild(node.getQualifier());
@@ -792,6 +849,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(QualifiedType node) {
 
         IValue qualifier = visitChild(node.getQualifier());
@@ -804,6 +862,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ReturnStatement node) {
 
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
@@ -812,6 +871,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SimpleName node) {
 
         IValue value = values.string(node.getFullyQualifiedName());
@@ -821,6 +881,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SimpleType node) {
         IValue value = visitChild(node.getName());
         ownValue = constructTypeNode("simpleType", value);
@@ -828,6 +889,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SingleMemberAnnotation node) {
 
         IValue name = values.string(node.getTypeName().getFullyQualifiedName());
@@ -838,6 +900,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SingleVariableDeclaration node) {
 
         IValue name = values.string(node.getName().getFullyQualifiedName());
@@ -856,6 +919,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(StringLiteral node) {
 
         IString escaped = values.string(node.getEscapedValue());		
@@ -908,6 +972,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SuperConstructorInvocation node) {
 
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
@@ -933,6 +998,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SuperFieldAccess node) {
 
         IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
@@ -943,6 +1009,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SuperMethodInvocation node) {
 
         IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
@@ -970,7 +1037,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
-
+    @Override
     public boolean visit(SwitchCase node) {
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
         List<?> expressions = node.expressions();
@@ -1009,14 +1076,27 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(ExpressionMethodReference node) {
-        IValue type = visitChild(node.getExpression())
-        IList args = node.typeArguments().stream().map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
+        IValue type = visitChild(node.getExpression());
+        IList args = ((List<?>) node.typeArguments())
+            .stream()
+            .map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
         IString name = values.string(node.getName().getIdentifier());
 
-        return constructExpressionNode("methodReference", type, args, name);
+        ownValue = constructExpressionNode("methodReference", type, args, name);
+        return false;
     }
 
-    
+    @Override
+    public boolean visit(SuperMethodReference node) {
+        IList args = ((List<?>) node.typeArguments())
+            .stream().map(o -> (Type) o)
+            .map(t -> visitChild(t)).collect(values.listWriter());
+        IString name = values.string(node.getName().getIdentifier());
+
+        ownValue = constructExpressionNode("superMethodReference", args, name);
+        return false;
+    }
+        @Override
     public boolean visit(SwitchStatement node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -1032,6 +1112,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SynchronizedStatement node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -1042,16 +1123,19 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TagElement node) {
 
         return false;
     }
 
+    @Override
     public boolean visit(TextElement node) {
 
         return false;
     }
 
+    @Override
     public boolean visit(ThisExpression node) {
 
         IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
@@ -1061,6 +1145,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ThrowStatement node) {
 
         IValue expression = visitChild(node.getExpression());
@@ -1070,6 +1155,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TryStatement node) {
 
         IValue body = visitChild(node.getBody());
@@ -1087,6 +1173,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TypeDeclaration node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node);
@@ -1140,6 +1227,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TypeDeclarationStatement node) {
 
         IValue typeDeclaration;
@@ -1155,6 +1243,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TypeLiteral node) {
 
         IValue type = visitChild(node.getType());
@@ -1164,6 +1253,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TypeParameter node) {
 
         IValue name = values.string(node.getName().getFullyQualifiedName());
@@ -1209,6 +1299,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(VariableDeclarationExpression node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
@@ -1231,6 +1322,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(VariableDeclarationFragment node) {
 
         IValue name = values.string(node.getName().getFullyQualifiedName());
@@ -1243,6 +1335,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(VariableDeclarationStatement node) {
 
         IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
@@ -1264,8 +1357,8 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(WhileStatement node) {
-
         IValue expression = visitChild(node.getExpression());
         IValue body = visitChild(node.getBody());
 
@@ -1274,6 +1367,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(WildcardType node) {
         //FIXME: upperbound/lowerbound that should have been type annotation are replaced by TypeSymbol
         IValue type = null;
@@ -1283,8 +1377,8 @@ public class ASTConverter extends JavaToRascalConverter {
             type = visitChild(node.getBound());
             if (node.isUpperBound()) {
                 name = "upperbound";
-
-            } else {
+            } 
+            else {
                 name = "lowerbound";
             }
         }
