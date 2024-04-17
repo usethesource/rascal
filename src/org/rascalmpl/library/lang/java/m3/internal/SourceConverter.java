@@ -49,6 +49,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 
 @SuppressWarnings("rawtypes")
@@ -193,14 +194,14 @@ public class SourceConverter extends M3Converter {
 	public boolean visit(EnumDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		
-		IValueList implementedInterfaces = new IValueList(values);
+		IListWriter implementedInterfaces = values.listWriter();
 		if (!node.superInterfaceTypes().isEmpty()) {
 			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 				Type t = (Type) it.next();
-				implementedInterfaces.add(resolveBinding(t));
+				implementedInterfaces.append(resolveBinding(t));
 			}
 		}
-		insert(implementsRelations, ownValue, implementedInterfaces);
+		insert(implementsRelations, ownValue, implementedInterfaces.done());
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
@@ -424,37 +425,37 @@ public class SourceConverter extends M3Converter {
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		
-		IValueList extendsClass = new IValueList(values);
-		IValueList implementsInterfaces = new IValueList(values);
+		IListWriter extendsClass = values.listWriter();
+		IListWriter implementsInterfaces = values.listWriter();
 		
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			if (node.getSuperclass() != null) {
-				extendsClass.add(resolveBinding(node.getSuperclass()));
+				extendsClass.append(resolveBinding(node.getSuperclass()));
 			}
 			if (!node.superInterfaces().isEmpty()) {
 				for (Iterator it = node.superInterfaces().iterator(); it.hasNext();) {
 					Name n = (Name) it.next();
-					implementsInterfaces.add(resolveBinding(n));
+					implementsInterfaces.append(resolveBinding(n));
 				}
 			}
 		} 
 		else if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.getSuperclassType() != null) {
-				extendsClass.add(resolveBinding(node.getSuperclassType()));
+				extendsClass.append(resolveBinding(node.getSuperclassType()));
 			}
 			if (!node.superInterfaceTypes().isEmpty()) {
 				for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					implementsInterfaces.add(resolveBinding(t));
+					implementsInterfaces.append(resolveBinding(t));
 				}
 			}
 		}
 		
 		if (node.isInterface()) {
-			insert(extendsRelations, ownValue, implementsInterfaces);
+			insert(extendsRelations, ownValue, implementsInterfaces.done());
 		} else {
-			insert(extendsRelations, ownValue, extendsClass);
-			insert(implementsRelations, ownValue, implementsInterfaces);
+			insert(extendsRelations, ownValue, extendsClass.done());
+			insert(implementsRelations, ownValue, implementsInterfaces.done());
 		}
 		
 		return true;
@@ -467,11 +468,11 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	public boolean visit(TypeParameter node) {
-		IValueList extendsList = new IValueList(values);
+		IListWriter extendsList = values.listWriter();
 		if (!node.typeBounds().isEmpty()) {
 			for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
 				Type t = (Type) it.next();
-				extendsList.add(resolveBinding(t));
+				extendsList.append(resolveBinding(t));
 			}
 		}
 		
