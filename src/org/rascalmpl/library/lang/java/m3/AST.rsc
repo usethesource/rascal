@@ -55,6 +55,15 @@ data Declaration
     | \vararg(Type \type, str name)
     ;
 
+@synopsis{These declarations types are related to the Java 9 module system}
+data Declaration
+    = \module(list[Modifier] open, str name, list[Declaration] directives)
+    | \opensPackage(str name, list[Expression] modules)
+    | \providesImplementations(str name, list[Expression] implementations)
+    | \requires(list[Modifier] modifiers, list[Expression] modules)
+    | \uses(Expression interface)
+    ;
+
 
 data Expression
     = \arrayAccess(Expression array, Expression index)
@@ -177,6 +186,8 @@ data Modifier
     | \annotation(Expression \anno)
     | \onDemand()
     | \default()
+    | \open()  // for modules only
+    | \transitive() // for module requirements only
     ;
 
 @memo
