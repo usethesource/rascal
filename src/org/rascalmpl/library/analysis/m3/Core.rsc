@@ -88,6 +88,10 @@ function implements such a union.
    * Composition can be used to easily construct project-level models from file-level models.
    * Composition can be used to simulate (dynamic) linkage between projects.
    * Composition can be used to start simulating remote-procedure calls and shared memory, and other inter-programming language composition like _JNI_.
+* M3 models can be cached (efficiently) on disk using functions from ((util::ValueIO)). A single stored M3 model simulates an _object file_,
+while a composed M3 model is more like an `.a` archive or a `.jar` archive. 
+   * Integrating M3 model caching during a build process (e.g ANT, Makefiles or Maven) is a smart way to make whole program analysis fast and incremental.
+   * Integrating M3 model caching in Integrated Development Environments (e.g. the Language Server Protocol) enables fast and incremental IDE features based on whole program indexing that M3 provides.
 }
 @pitfalls{
 * Initial M3 models should not contain _inferred_ information, only ground truth data as extracted from parse trees or abstract syntax trees, and facts from the static name and type resolution stages of a compiler or interpreter. 
@@ -107,15 +111,15 @@ also having _many-to-many_ tuples in it. **Be careful how you count**, for examp
 are literally already over-approximating the reality of the running program.
 }
 data M3(
-  set[Language] languages = {},
-	rel[loc name, loc src] declarations = {},	            
-  set[loc] implicitDeclarations = {},                   
-	rel[loc name, TypeSymbol typ] types = {},	            
-	rel[loc src, loc name] uses = {},			                
-	rel[loc from, loc to] containment = {},		            
-	list[Message] messages = [],				                  
-	rel[str simpleName, loc qualifiedName] names = {},		
-	rel[loc definition, loc comments] documentation = {},	
+  set[Language] languages                          = {},
+	rel[loc name, loc src] declarations              = {},	            
+  set[loc] implicitDeclarations                    = {},                   
+	rel[loc name, TypeSymbol typ] types              = {},	            
+	rel[loc src, loc name] uses                      = {},			                
+	rel[loc from, loc to] containment                = {},		            
+	list[Message] messages                           = [],				                  
+	rel[str simpleName, loc qualifiedName] names     = {},		
+	rel[loc definition, loc comments] documentation  = {},	
 	rel[loc definition, Modifier modifier] modifiers = {}	
 ) = m3(loc id);
              
@@ -143,28 +147,44 @@ to collect the elements of all relations and lists.
 * If the quality of the qualified names in the original models is lacking, than this is the moment that different
 declarations might be conflated with the same fully qualified name. All downstream analysis is broken then.
 * This function does not compose the extended facts for specific programming languages yet.
+* If extended M3 models use something other than sets, lists or relations, this composition function ignores them completely.
+* Composed models can be huge in memory. Make sure to allocate enough heap for the JVM. Real world programs of real world product
+can take gigabytes of memory, even when compressed and optimized as M3 models. 
 }
 @benefits{
 * Composition satisfies the requirements for many downstream analyses:
    * Composition can be used to easily construct project-level models from file-level models, e.g. for open-source project analysis.
    * Composition can be used to simulate (dynamic) linkage between projects, e.g. for whole-program analysis.
    * Composition can be used to start simulating remote-procedure calls and shared memory, and other inter-programming language composition like _JNI_.
+* Transitive closure on composed models leads to effective (and fast) reachability analysis.
+* This function is rather memory-efficient by iterating over the already in-memory keyword parameter sets and lists, and
+splicing the unions into an incremental transiently growing set or list via the comprehension. This avoids a lot of copying
+and intermediate memory allocation which can be detrimental when doing large whole program analyses.
 }
 @memo
 M3 composeM3(loc id, set[M3] models) {
 	M3 comp = m3(id);
+  fields = (m:getKeywordParameters(m) | m <- models);
+  keys   = {*domain(getKeywordParameters(m)) | m <- models };
+  result = ();
 
-	comp.declarations = {*model.declarations | model <- models};
-  comp.implicitDeclarations = {*model.implicitDeclarations | model <- models};
-	comp.types = {*model.types | model <- models};
-	comp.uses = {*model.uses | model <- models};
-	comp.containment = {*model.containment | model <- models};
-	comp.messages = [*model.messages | model <- models];
-	comp.names = {*model.names | model <- models};
-	comp.documentation = {*model.documentation | model <- models};
-	comp.modifiers = {*model.modifiers | model <- models};
+  // first we do only the sets, to use efficient set union/splicing
+  for (k <- keys) {
+    newSet = {*elems | m <- models, set[value] elems := fields[m][k]};
+    if (newSet != {}) { // don't set anything if the result is empty (it could be a list!)
+      result[k] = newSet;
+    }
+  }
 
-	return comp;
+  // then we do only the lists, to use efficient list splicing
+  for (k <- keys) {
+    newList = [*elems | m <- models, list[value] elems := fields[m][k]];
+    if (newList != []) { // don't set anything if the result is empty (it could be a set!)
+      result[k] = newList;
+    }
+  }
+
+  return setKeywordParameters(comp, result);
 }
 
 @synopsis{Generic function to apply a difference over the annotations of a list of M3s.}
