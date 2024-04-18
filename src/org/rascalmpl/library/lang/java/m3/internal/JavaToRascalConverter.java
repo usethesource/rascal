@@ -36,6 +36,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected final LimitedTypeStore typeStore;
 
     protected IValue ownValue;
+    protected IList  ownAnnotations;
+    protected IList  ownModifiers;
+
     private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
     private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifier";
     private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
@@ -78,6 +81,34 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         messages = values.listWriter();
     }
 
+    /**
+     * The JDT's AST format stores list of modifiers separately from lists of annotations, even though
+     * syntactically they may occur in arbitrary order before most declaration kinds in Java. To recreate
+     * a properly ordered AST, this helper functions merges the lists again in order of appearance
+     */
+    protected IList mergeModifiersAndAnnotationsInOrderOfAppearance(IList modifiers, IList annotations) {
+        if (modifiers == null && annotations == null) {
+            return values.list();
+        }
+        else if (modifiers == null) {
+            return annotations;
+        }
+        else if (annotations == null) {
+            return modifiers;
+        }
+
+        var everything = modifiers.concat(annotations);
+
+        return everything.stream()
+            .map(v -> (IConstructor) v)
+            .sorted((IConstructor a, IConstructor b) -> Integer.compare(location(a).getOffset(), location(b).getOffset()))
+            .collect(values.listWriter());
+    }
+
+    private ISourceLocation location(IValue ast) {
+        return (ISourceLocation) ((IConstructor) ast).asWithKeywordParameters().getParameter("src");
+    }
+
     protected ISourceLocation resolveBinding(String packageComponent) {
         ISourceLocation packageBinding = new BindingsResolver(typeStore, locationCache, this.collectBindings) {
             public ISourceLocation resolveBinding(String packageC) {
@@ -98,7 +129,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         return packageBinding;
     }
 
-    protected ISourceLocation resolveBinding(CompilationUnit node) {
+     protected final ISourceLocation resolveBinding(CompilationUnit node) {
         ISourceLocation compilationUnit = new BindingsResolver(typeStore, locationCache, true) {
             public ISourceLocation resolveBinding(CompilationUnit node) {
                 return makeBinding("java+compilationUnit", null, loc.getPath());
