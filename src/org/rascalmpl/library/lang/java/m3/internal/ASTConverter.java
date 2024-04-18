@@ -1096,9 +1096,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(ModuleDeclaration node) {
         IList mod = node.isOpen() ? values.list(constructModifierNode("open")) : values.list();
-        IString name = node.getName().isSimpleName() 
-            ? values.string(((SimpleName) node.getName()).getIdentifier()) 
-            : values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
         IList stats
             = ((List<?>) node.moduleStatements())
@@ -1129,10 +1127,10 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(OpensDirective node) {
-        IString name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
         IList modules = ((List<?>) node.modules()).stream()
             .map(e -> ((ASTNode) e)) 
-            .map(n -> visitChild(n)) // TODO: check what type of AST node is used for the module names
+            .map(n -> visitChild(n))
             .collect(values.listWriter());
         
         ownValue = constructDeclarationNode("opensPackage", name, modules);
@@ -1141,10 +1139,10 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(ProvidesDirective node) {
-        IString name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
         IList implementations = ((List<?>) node.implementations()).stream()
             .map(e -> ((ASTNode) e)) 
-            .map(n -> visitChild(n)) // TODO: check what type of AST node is used for the module names
+            .map(n -> visitChild(n)) 
             .collect(values.listWriter());
         
         ownValue = constructDeclarationNode("providesImplementations", name, implementations);
@@ -1157,7 +1155,7 @@ public class ASTConverter extends JavaToRascalConverter {
             .map(e -> ((ASTNode) e)) 
             .map(n -> visitChild(n)) 
             .collect(values.listWriter());
-        IString name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
         ownValue = constructDeclarationNode("requires", modifiers, name);
         return false;
@@ -1165,15 +1163,15 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(UsesDirective node) {
-        IString name = values.string(node.getName().getFullyQualifiedName());
-
+        IValue name = visitChild(node.getName());
+        
         ownValue = constructDeclarationNode("uses", name);
         return false;
     }
 
     @Override
     public boolean visit(ExportsDirective node) {
-        IString name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
         ownValue = constructDeclarationNode("exports", name);
         return false;
