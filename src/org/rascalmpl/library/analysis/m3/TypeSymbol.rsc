@@ -30,5 +30,7 @@ because the subtype and lub functions of the two languages will merge.
 }
 module analysis::m3::TypeSymbol
 
-data TypeSymbol;
+data TypeSymbol
+    = unresolved()
+    ;
 
