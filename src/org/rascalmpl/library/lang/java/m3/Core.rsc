@@ -36,21 +36,7 @@ data Language(str version="") = java();
 
 @synopsis{Combines a set of Java meta models by merging their relations.}
 @memo
-M3 composeJavaM3(loc id, set[M3] models) {
-  // Compose the generic M3 relations first
-  M3 comp = composeM3(id, models);
-
-  // Then the Java-specific ones
-  comp.extends = {*model.extends | model <- models};
-  comp.implements = {*model.implements | model <- models};
-  comp.methodInvocation = {*model.methodInvocation | model <- models};
-  comp.fieldAccess = {*model.fieldAccess | model <- models};
-  comp.typeDependency = {*model.typeDependency | model <- models};
-  comp.methodOverrides = {*model.methodOverrides | model <- models};
-  comp.annotations = {*model.annotations | model <- models};
-
-  return comp;
-}
+M3 composeJavaM3(loc id, set[M3] models) = composeM3(id, models);
 
 @synopsis{Returns the difference between the first model and the others.}
 @description{
