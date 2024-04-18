@@ -60,19 +60,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
 
 public class ASMNodeResolver implements NodeResolver {
-    
-    //---------------------------------------------
-    // Fields
-    //---------------------------------------------
-    
-    /**
-     * Supports the creation of Rascal values.
-     */
     private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-    
-    /**
-     * Supports the creation of Rascal types.
-     */
     private static final TypeFactory typeFactory = TypeFactory.getInstance();
     
     /**
@@ -106,10 +94,6 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private final SourceLocationClassLoader loader;
     
-    
-    //---------------------------------------------
-    // Methods
-    //---------------------------------------------
     
     /**
      * ASMNodeResolver constructor

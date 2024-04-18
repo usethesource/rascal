@@ -8,11 +8,13 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class M3Converter extends JavaToRascalConverter {
-	private static final String DATATYPE_M3_NODE							= "M3";
+	private static final String DATATYPE_M3_NODE = "M3";
 	private final io.usethesource.vallang.type.Type DATATYPE_M3_NODE_TYPE;
+	private final io.usethesource.vallang.type.Type DATATYPE_M3_LANGUAGE_TYPE;
 	
 	protected final Stack<ISourceLocation> scopeManager = new Stack<ISourceLocation>();
 	
@@ -31,12 +33,16 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected ISetWriter types;
 	protected ISetWriter annotations;
 	protected final io.usethesource.vallang.type.Type CONSTRUCTOR_M3;
+	protected final Type JAVA_LANGUAGE_M3;
+	protected ISetWriter languages;
 	
 	M3Converter(final LimitedTypeStore typeStore, java.util.Map<String, ISourceLocation> cache) {
 		super(typeStore, cache, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
+		this.DATATYPE_M3_LANGUAGE_TYPE = this.typeStore.lookupAbstractDataType("Language");
 		TypeFactory tf = TypeFactory.getInstance();
 		this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));
+		this.JAVA_LANGUAGE_M3 = this.typeStore.lookupConstructor(DATATYPE_M3_LANGUAGE_TYPE, "java", tf.tupleEmpty());
 		uses = values.setWriter();
 		declarations = values.setWriter();
 		containment = values.setWriter();
@@ -51,6 +57,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		methodOverrides = values.setWriter();
 		annotations = values.setWriter();
 		types = values.setWriter();
+		languages = values.setWriter();
 	}
 	
 	public IValue getModel(boolean insertErrors) {

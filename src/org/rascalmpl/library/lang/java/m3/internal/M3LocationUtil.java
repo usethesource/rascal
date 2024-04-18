@@ -22,19 +22,9 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 
 public class M3LocationUtil {
-
-    //---------------------------------------------
-    // Fields
-    //---------------------------------------------
+     private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
     
-    private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-    
-    
-    //---------------------------------------------
-    // Methods
-    //---------------------------------------------
-    
-    /**
+     /**
      * Creates a location. Existing exceptions are captured as a 
      * RuntimeException.
      * @param scheme - location scheme
