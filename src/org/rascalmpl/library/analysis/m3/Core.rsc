@@ -34,22 +34,79 @@ import List;
 import Relation;
 extend analysis::m3::TypeSymbol;
  
+@synopsis{Modifier's are abstract syntax trees of type and declaration modifiers found in programming languages}
+@description{
+In ((data::M3)) models the modifiers of each definition are collected for easy lookup.
+} 
 data Modifier;
 
 
-@synopsis{m3 model constructor}
+@synopsis{An _M3_ model is a composable database of ground-truth facts about a specific set of source code artifacts}
 @description{
-This constructor holds all information to an m3 model. It is identified by the _id_ field,
-which should be a unique name for the project or file that the m3 model was constructor for.
+This `m3` data constructor holds all information to an M3 model. It is identified by the _id_ field,
+which should be a unique name for the project or file or composition that the M3 model was constructed for.
 
-Attached to this m3 model will be annotations with the specific information.
+Practically all relations in an M3 model relate source locations of the `loc` type:
+1. _Name_ locations are logical locations that represent fully qualified names of declared artefacts. 
+   * For example: `|java+method:///java/util/List/toString()|`
+   * Name locations are always indicated with the column name `name` in any relation below.
+2. _Source_ location are physical locations that point to an exact (part of) a source code file:
+   * For example: `|project://jre13/src/main/java/java/util/List.java|(100,350,<20,0>,<25,10>)`
+   * Source locations are always indicated with the column name `src` in any relation below.
+
+These are the _core_ facts stored in M3 models because 90% of all programming languages have
+these core features:
+* `rel[loc name, loc src] declarations` maps qualified names of relations to their original source location in the current model, if any.
+*	`rel[loc src, loc name] uses` as the _inverse_ of `declarations` this maps every source location where a declared artefact is used to its fully qualified name.
+* `set[loc] implicitDeclarations` provides a set of qualified names of things that are present no matter what in a programming language, for completeness sake.
+* `rel[loc from, loc to] containment` links the qualified name of the outer (from) declaration to the names of everything that is declared inside of it (to).
+* `rel[loc name, TypeSymbol typ] types` akin to the classical symbol table, this relation maps fully qualified names to a TypeSymbol representation of their static type.
+* `rel[str simpleName, loc qualifiedName] names` is for producing human/user readable messages about declared artefacts; everu fully qualified name {c,sh,w}ould have one.
+* `list[Message] messages` collects the errors and warnings produced the parser/compiler that populated this model. 
+* `rel[loc definition, loc comments]` documentation` links documentation strings (comments) inside the source code to specific declarations. A typical example would be _JavaDoc_ comments to a class definition.
+*	`rel[loc definition, Modifier modifier] modifiers` links modifiers to fully qualified declarations (typically access modifiers like `public` or `private` or storage modifiers such as `static`)
+
+
+}
+@benefits{
+* Logical name locations are both a readable and optimally accurate references to specific source code artefacts. No accidental confusion by mixing namespaces.
+* Binary relations on locations are easily composed to infer new and interesting facts. 
+   * In particular the composition operator and comprehensions can be used to easily deduce or infer more facts;
+   * Composing `declarations o uses` immediately generates a detailed dependency graph 
+   * Composing `uses o declarations` immediately produces a _jump-to-definition_ graph, while its inverse `(uses o declarations)<1,0>` produces a _references_ graph.
+* Specific programming paradigms and languages may add new facts to the M3 relation. 
+   * For Java and C++ there would be class extension and interface implementation relations, for example.
+   * PHP would add a relation to link classes to traits, etc. etc.  
+* Every relation, set, list of facts in an M3 model is _composable_ by union or concatenation.
+This makes an entire model composable by composing every item, respectively. The ((composeM3))
+function implements such a union. 
+   * Composition can be used to easily construct project-level models from file-level models.
+   * Composition can be used to simulate (dynamic) linkage between projects.
+   * Composition can be used to start simulating remote-procedure calls and shared memory, and other inter-programming language composition like _JNI_.
+}
+@pitfalls{
+* Initial M3 models should not contain _inferred_ information, only ground truth data as extracted from parse trees or abstract syntax trees, and facts from the static name and type resolution stages of a compiler or interpreter. 
+   * Inference is certainly possible (say to construct an over-approximated call graph), but that is not what we call an ```M3''' model.
+   * The reason is that _metrics_ of over- and under-approximated abstract interpretations of programs quickly loose their tractability and understandability, and also in 
+   (the education of) empirical scientific methods it is of grave importance to separate facts from heuristic inference. 
+* Simply calling ((composeM3)) does not immediately represent the full static semantics of program composition. Namely. what the union of facts, as implemented by ((composeM3)) _means_ depends on programming language
+semantics. Sometimes to connect the merged models also new connections must be made programmatically to complete the connections. Such analyses are static simulations of the `linking` and `loading` stages of programming languages. 
+When we simulate static composition, these analyses are ground truth, but when we simulate dynamic loading we have to treat the results as heuristic inferences.
+* Not every programming language front-end that creates M3 models has to have implemented all the above relations (yet). Constructing
+such a front-end may take time and incrementally growing models can already be very useful.
+* Even though M3 models can have errors and be partially populated, please be aware that partially correct programs lead to partically correct models and all downstream analysis is correspondingly inaccurate.
+* In statically types programming languages the `declarations` relation is typically one-to-one and the `uses` relation is `many-to-one`,
+which means that name resolution is _unique_ at _compile-time_. However this is not required for other more dynamic languages, and this is fine.
+You will see that one qualified name could potentionally resolve to different artefacts at run-time. This will be reflected by the `uses` relation
+also having _many-to-many_ tuples in it. **Be careful how you count**, for example, _dependencies_ or _coupling_ in such cases since we
+are literally already over-approximating the reality of the running program.
 }
 data M3(
-	rel[loc name, loc src] declarations = {},	            // maps declarations to where they are declared. contains any kind of data or type or code declaration (classes, fields, methods, variables, etc. etc.)
-  set[loc] implicitDeclarations = {},                   // some languages provide builtin implicit declarations, e.g. |java+class:///java/lang/Object| may not have a source location but still exist.
-	rel[loc name, TypeSymbol typ] types = {},	            // assigns types to declared source code artifacts
-	rel[loc src, loc name] uses = {},			                // maps source locations of usages to the respective declarations
-	rel[loc from, loc to] containment = {},		            // what inner declaration (to) is logically contained in what outer declaration (`from`) (not necessarily physically, but usually also)
+	rel[loc name, loc src] declarations = {},	            
+  set[loc] implicitDeclarations = {},                   
+	rel[loc name, TypeSymbol typ] types = {},	            
+	rel[loc src, loc name] uses = {},			                
+	rel[loc from, loc to] containment = {},		            
 	list[Message] messages = [],				                  // error messages and warnings produced while constructing a single m3 model
 	rel[str simpleName, loc qualifiedName] names = {},		// convenience mapping from logical names to end-user readable (GUI) names, and vice versa
 	rel[loc definition, loc comments] documentation = {},	// comments and javadoc attached to declared things
