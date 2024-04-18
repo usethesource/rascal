@@ -2,8 +2,8 @@
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
-extend analysis::m3::Core; // necessary for initializing EclipseJavaCompiler class
-extend lang::java::m3::TypeSymbol; // necessary for initializing EclipseJavaCompiler class to express type annotations
+extend analysis::m3::Core; // NB! contains necessary declarations for initializing EclipseJavaCompiler object even if unused here
+extend lang::java::m3::TypeSymbol; // NB! necessary for initializing EclipseJavaCompiler object even if unused here
 
 import util::FileSystem;
 import util::Reflective;
@@ -34,6 +34,7 @@ Language JLS13() = \java(level=13, version="13");
 
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
+    | \compilationUnit(Declaration \module)
     | \compilationUnit(Declaration package, list[Declaration] imports, list[Declaration] types)
     | \enum(str name, list[Type] implements, list[Declaration] constants, list[Declaration] body)
     | \enumConstant(str name, list[Expression] arguments, Declaration class)
@@ -64,13 +65,13 @@ data Declaration
     = \module(list[Modifier] open, str name, list[Declaration] directives)
     | \opensPackage(str name, list[Expression] modules)
     | \providesImplementations(str name, list[Expression] implementations)
-    | \requires(list[Modifier] mods, list[Expression] modules)
-    | \uses(Expression interface)
-    | \exports(Expression interface)
+    | \requires(list[Modifier] mods, str name)
+    | \uses(str interface)
+    | \exports(str interface)
     ;
 
 
-data Expression
+data Expression(TypeSymbol typ=\unresolved())
     = \arrayAccess(Expression array, Expression index)
     | \newArray(Type \type, list[Expression] dimensions, Expression init)
     | \newArray(Type \type, list[Expression] dimensions)

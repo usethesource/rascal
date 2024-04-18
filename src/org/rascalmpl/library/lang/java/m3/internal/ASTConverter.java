@@ -283,22 +283,28 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(CompilationUnit node) {
-        IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
-
-        IListWriter imports = values.listWriter();
-        for (Iterator it = node.imports().iterator(); it.hasNext();) {
-            ImportDeclaration d = (ImportDeclaration) it.next();
-            imports.append(visitChild(d));
+        if (node.getModule() != null) {
+            ownValue = constructDeclarationNode("compilationUnit", visitChild(node.getModule()));
+            return false;
         }
+        else {
+            IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
 
-        IListWriter typeDeclarations = values.listWriter();
-        for (Iterator it = node.types().iterator(); it.hasNext();) {
-            AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
-            typeDeclarations.append(visitChild(d));
+            IListWriter imports = values.listWriter();
+            for (Iterator it = node.imports().iterator(); it.hasNext();) {
+                ImportDeclaration d = (ImportDeclaration) it.next();
+                imports.append(visitChild(d));
+            }
+
+            IListWriter typeDeclarations = values.listWriter();
+            for (Iterator it = node.types().iterator(); it.hasNext();) {
+                AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
+                typeDeclarations.append(visitChild(d));
+            }
+
+            ownValue = constructDeclarationNode("compilationUnit", packageOfUnit, imports.done(), typeDeclarations.done());		
+            return false;
         }
-
-        ownValue = constructDeclarationNode("compilationUnit", packageOfUnit, imports.done(), typeDeclarations.done());		
-        return false;
     }
 
     @Override
