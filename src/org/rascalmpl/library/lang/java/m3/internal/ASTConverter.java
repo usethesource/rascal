@@ -1075,7 +1075,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IList args = ((List<?>) node.typeArguments())
             .stream()
             .map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
-        IString name = values.string(node.getName().getIdentifier());
+        IValue name = visitChild(node.getName());
 
         ownValue = constructExpressionNode("methodReference", type, args, name);
         return false;
@@ -1087,7 +1087,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IList args = ((List<?>) node.typeArguments())
             .stream()
             .map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
-        IString name = values.string(node.getName().getIdentifier());
+        IValue name = visitChild(node.getName());
 
         ownValue = constructExpressionNode("methodReference", type, args, name);
         return false;
@@ -1182,7 +1182,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IList args = ((List<?>) node.typeArguments())
             .stream().map(o -> (Type) o)
             .map(t -> visitChild(t)).collect(values.listWriter());
-        IString name = values.string(node.getName().getIdentifier());
+        IValue name = visitChild(node.getName());
 
         ownValue = constructExpressionNode("superMethodReference", args, name);
         return false;
