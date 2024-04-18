@@ -62,6 +62,8 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	
 	public IValue getModel(boolean insertErrors) {
 		ownValue = values.constructor(CONSTRUCTOR_M3, loc);
+
+		setKeywordParameter("languages", languages.done());
 		setKeywordParameter("declarations", declarations.done());
 		setKeywordParameter("uses", uses.done());
 		setKeywordParameter("containment", containment.done());
@@ -77,6 +79,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setKeywordParameter("types", types.done());
 		setKeywordParameter("annotations", annotations.done());
 		insertCompilationUnitMessages(insertErrors, messages.done());
+		
 		return ownValue;
 	}
 	
@@ -108,6 +111,10 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		if (isValid((ISourceLocation) lhs) && rhs != null) {
 			relW.insert(values.tuple(lhs, rhs));
 		}
+	}
+
+	public void insert(ISetWriter setW, IValue elem) {
+		setW.insert(elem);
 	}
 	
 	protected boolean isValid(ISourceLocation binding) {

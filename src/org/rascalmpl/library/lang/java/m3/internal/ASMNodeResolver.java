@@ -51,6 +51,7 @@ import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -492,6 +493,76 @@ public class ASMNodeResolver implements NodeResolver {
     public String resolveClassScheme(ClassNode node) {
         typeSchemes.computeIfAbsent(node.name, k -> resolveClassScheme(node.access));
         return resolveClassScheme(node.access);
+    }
+
+    @Override
+    public IConstructor resolveLanguageVersion(ClassNode node) {
+        var classToVersions = Map.of(
+            3 << 16 | 45, "1.1",
+            0 << 16 | 46, "1.2",
+            0 << 16 | 47, "1.3",
+            0 << 16 | 48, "1.4",
+            0 << 16 | 49, "1.5",
+            0 << 16 | 50, "1.6",
+            0 << 16 | 51, "1.7",
+            0 << 16 | 52, "1.8");
+
+        classToVersions.putAll(Map.of(
+          0 << 16 | 53, "9",
+          0 << 16 | 54, "10",
+          0 << 16 | 55, "11",
+          0 << 16 | 56, "12",
+          0 << 16 | 57, "13",
+          0 << 16 | 58, "14",
+          0 << 16 | 59, "15",
+          0 << 16 | 60, "16",
+          0 << 16 | 61, "17",
+          0 << 16 | 62, "18"));
+
+        classToVersions.putAll(Map.of(
+          0 << 16 | 63, "19",
+          0 << 16 | 64, "20",
+          0 << 16 | 65, "21",
+          0 << 16 | 66, "22"));
+
+        var classToLevels = Map.of(
+            3 << 16 | 45, 1,
+            0 << 16 | 46, 2,
+            0 << 16 | 47, 3,
+            0 << 16 | 48, 4,
+            0 << 16 | 49, 5,
+            0 << 16 | 50, 6,
+            0 << 16 | 51, 7,
+            0 << 16 | 52, 8);
+
+        classToLevels.putAll(Map.of(
+          0 << 16 | 53, 9,
+          0 << 16 | 54, 10,
+          0 << 16 | 55, 11,
+          0 << 16 | 56, 12,
+          0 << 16 | 57, 13,
+          0 << 16 | 58, 14,
+          0 << 16 | 59, 15,
+          0 << 16 | 60, 16,
+          0 << 16 | 61, 17,
+          0 << 16 | 62, 18));
+
+        classToLevels.putAll(Map.of(
+          0 << 16 | 63, 19,
+          0 << 16 | 64, 20,
+          0 << 16 | 65, 21,
+          0 << 16 | 66, 22));
+        
+        IInteger classFileLevel = valueFactory.integer(classToLevels.get(node.version));
+        IString classFileVersion = valueFactory.string(classToVersions.get(node.version));
+
+        var Lang = typeStore.lookupAbstractDataType("Language");
+        var javaCons = typeStore.lookupConstructor(Lang, "java", typeFactory.tupleEmpty());
+        var langCons = valueFactory.constructor(javaCons);
+        langCons = langCons.asWithKeywordParameters().setParameter("version", classFileVersion);
+        langCons = langCons.asWithKeywordParameters().setParameter("level", classFileLevel);
+
+        return langCons;
     }
     
     @Override
