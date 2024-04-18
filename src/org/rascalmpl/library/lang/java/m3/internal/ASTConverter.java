@@ -1172,7 +1172,6 @@ public class ASTConverter extends JavaToRascalConverter {
         ownValue = constructDeclarationNode("exports", name);
         return false;
     }
-   
 
     @Override
     public boolean visit(SuperMethodReference node) {
