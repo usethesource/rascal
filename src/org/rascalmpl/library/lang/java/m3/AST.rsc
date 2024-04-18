@@ -62,12 +62,12 @@ data Declaration
 
 @synopsis{These declarations types are related to the Java 9 module system}
 data Declaration
-    = \module(list[Modifier] open, str name, list[Declaration] directives)
-    | \opensPackage(str name, list[Expression] modules)
-    | \providesImplementations(str name, list[Expression] implementations)
-    | \requires(list[Modifier] mods, str name)
-    | \uses(str interface)
-    | \exports(str interface)
+    = \module(list[Modifier] open, Expression \moduleName, list[Declaration] directives)
+    | \opensPackage(Expression package, list[Expression] openedToModules)
+    | \providesImplementations(Expression interface, list[Expression] implementations)
+    | \requires(list[Modifier] mods, Expression \moduleName)
+    | \uses(Expression interface)
+    | \exports(Expression interface)
     ;
 
 
