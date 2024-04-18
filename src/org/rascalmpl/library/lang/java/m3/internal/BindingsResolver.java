@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -243,17 +244,24 @@ public class BindingsResolver {
 	
 	public ISourceLocation resolveBinding(IBinding binding) {
 		if (binding == null) {
-	      return makeBinding("unresolved", null, null);
+			return makeBinding("unresolved", null, null);
 	    }
 		if (binding instanceof ITypeBinding) {
-	      return resolveBinding((ITypeBinding) binding);
-	    } else if (binding instanceof IMethodBinding) {
-	      return resolveBinding((IMethodBinding) binding);
-	    } else if (binding instanceof IPackageBinding) {
-	      return resolveBinding((IPackageBinding) binding);
-	    } else if (binding instanceof IVariableBinding) {
-	      return resolveBinding((IVariableBinding) binding);
+			return resolveBinding((ITypeBinding) binding);
+		} 
+		else if (binding instanceof IMethodBinding) {
+			return resolveBinding((IMethodBinding) binding);
+	    } 
+		else if (binding instanceof IPackageBinding) {
+			return resolveBinding((IPackageBinding) binding);
+	    } 
+		else if (binding instanceof IVariableBinding) {
+			return resolveBinding((IVariableBinding) binding);
 	    }
+		else if (binding instanceof IModuleBinding) {
+			return makeBinding("java+module", "", ((IModuleBinding) binding).getName());
+		}
+
 		return makeBinding("unknown", null, null);
 	}
 	
@@ -265,12 +273,17 @@ public class BindingsResolver {
 		if (binding != null) {
 			ISourceLocation uri = resolveBinding(binding);
 		    if (binding instanceof ITypeBinding) {
-		      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
-		    } else if (binding instanceof IMethodBinding) {
-		      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
-		    } else if (binding instanceof IVariableBinding) {
-		      return resolveType(((IVariableBinding) binding).getType(), isDeclaration);
+				return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
+		    } 
+			else if (binding instanceof IMethodBinding) {
+				return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
+		    } 
+			else if (binding instanceof IVariableBinding) {
+				return resolveType(((IVariableBinding) binding).getType(), isDeclaration);
 		    }
+			else if (binding instanceof IModuleBinding) {
+				return computeTypeSymbol(uri);
+			}
 		}
 	    return result;
 	}
@@ -340,7 +353,11 @@ public class BindingsResolver {
 
   private Set<ITypeBinding> wildCardBoundsVisited = new HashSet<>();
   
-   private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
+    private IConstructor computeTypeSymbol(ISourceLocation decl) {
+		return moduleSymbol(decl);
+	}
+
+	private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
     if (binding.isPrimitive()) {
       return primitiveSymbol(binding.getName());
     }
@@ -465,6 +482,11 @@ private IConstructor nullSymbol() {
   private IConstructor primitiveSymbol(String name) {
     io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), name, tf.voidType());
     return values.constructor(cons);
+  }
+
+  private IConstructor moduleSymbol(ISourceLocation name) {
+    io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), "module", tf.sourceLocationType());
+    return values.constructor(cons, name);
   }
 
   private IConstructor arraySymbol(IConstructor elem, int dimensions) {

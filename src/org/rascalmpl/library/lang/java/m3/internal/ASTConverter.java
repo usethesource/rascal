@@ -65,6 +65,10 @@ public class ASTConverter extends JavaToRascalConverter {
                 IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
                 return bindingsResolver.resolveType(binding.getType(), false);
             }
+            else if (node instanceof ModuleDeclaration) {
+                IModuleBinding binding = ((ModuleDeclaration) node).resolveBinding();
+                return bindingsResolver.resolveType(binding, true);
+            }
         } catch (NullPointerException e) {
             System.err.println("Got NPE for node " + node + ((e.getStackTrace().length > 0) ? ("\n\t" + e.getStackTrace()[0]) : ""));
         }
