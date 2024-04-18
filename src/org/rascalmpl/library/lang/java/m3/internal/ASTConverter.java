@@ -208,7 +208,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(BooleanLiteral node) {
-        IValue booleanValue = values.bool(node.booleanValue());
+        IValue booleanValue = values.string(Boolean.toString(node.booleanValue()));
 
         ownValue = constructExpressionNode("booleanLiteral", booleanValue);
 
