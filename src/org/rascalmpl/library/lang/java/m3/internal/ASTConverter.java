@@ -445,9 +445,9 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(FieldAccess node) {
         IValue expression = visitChild(node.getExpression());
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
-        ownValue = constructExpressionNode("fieldAccess", values.bool(false), expression, name);
+        ownValue = constructExpressionNode("fieldAccess", expression, name);
 
         return false;
     }
@@ -973,9 +973,9 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(SuperFieldAccess node) {
         IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
-        IValue name = values.string((node.getName().getFullyQualifiedName()));
+        IValue name = visitChild(node.getName());
 
-        ownValue = constructExpressionNode("fieldAccess", values.bool(true), qualifier, name);
+        ownValue = constructExpressionNode("fieldAccess", qualifier, name);
 
         return false;
     }
