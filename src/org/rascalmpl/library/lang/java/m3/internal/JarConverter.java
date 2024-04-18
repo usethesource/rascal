@@ -183,6 +183,8 @@ public class JarConverter extends M3Converter {
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);
+
+        
     } 
     
     /**
@@ -284,6 +286,7 @@ public class JarConverter extends M3Converter {
             setInnerClassRelations(classNode, classLogical); 
             setFieldRelations(classNode, classLogical);
             setMethodRelations(classNode, classLogical);
+            setLanguages(resolver.resolveLanguageVersion(classNode));
         }
     }
 
@@ -348,6 +351,10 @@ public class JarConverter extends M3Converter {
                 }
             }
         }
+    }
+
+    private void setLanguages(IConstructor version) {
+       addToLanguages(version);
     }
 
     /**
@@ -698,6 +705,10 @@ public class JarConverter extends M3Converter {
      */
     private void addToTypes(ISourceLocation logical, IConstructor cons) {
         insert(types, logical, cons);
+    }
+
+    private void addToLanguages(IConstructor lang) {
+        insert(languages, lang);
     }
 
     /**
