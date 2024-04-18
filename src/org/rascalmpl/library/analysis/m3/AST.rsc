@@ -16,7 +16,9 @@ The concept of _declaration_ is also relevant. A `decl` annotation points from a
 Finally, the concept of a _type_ is relevant for ASTs. In particular an `Expression` may have a `typ` annotation, or a variable declaration, etc.
 }
 @benefits{
-*  Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as patterns, comprehensions and visit.
+* Symbolic abstract syntax trees can be analyzed and transformed easily using Rascal primitives such as patterns, comprehensions and visit.
+* By re-using recognizable names for different programming languages, it's easier to switch between languages to analyze.
+* Some algorithms made be reusable on different programming languages, but please be aware of the _pitfalls_.
 }
 @pitfalls{
 *  Even though different languages may map to the same syntactic construct, this does not mean that the semantics is the same. Downstream
@@ -28,41 +30,86 @@ import Message;
 import Node;
 import analysis::m3::TypeSymbol;
 
+@synopsis{For metric purposes we can use a true AST declaration tree, a simple list of lines for generic metrics, or the reason why we do not have an AST.}
 data \AST(loc file = |unknown:///|)
   = declaration(Declaration declaration)
   | lines(list[str] contents)
   | noAST(Message msg)
   ;
-  
-loc unknownSource = |unknown:///|;
-loc unresolvedDecl = |unresolved:///|;
-loc unresolvedType = |unresolved:///|;  
 
+@synopsis{Uniform name for everything that is declared in programming languages: variables, functions, classes, etc.}
+@description{
+Instances of the Declaration type represent the _syntax_ of declarations in programming languages.
+
+| field name | description |
+| ---------- | ----------- |
+| `src`      | the exact source location of the declaration in a source file |
+| `decl`     | the resolved fully qualified name of the artefact that is being declared here |
+| `typ`      | a symbolic representation of the static type of the declared artefact here (not the syntax of the type) |
+} 
 data Declaration(
 	loc src = |unknown:///|,
-	loc decl = |unresolved:///|, //unresolvedDecl
-	TypeSymbol typ = \any(),
-	list[Modifier] modifiers = [],
-	list[Message] messages = []
+	loc decl = |unresolved:///|,
+	TypeSymbol typ = unresolved()
 );
 
+@synopsis{Uniform name for everything that is typicall a _statement_ programming languages: assignment, loops, conditionals, jumps}
+@description{
+Instances of the Statement type represent the _syntax_ of statements in programming languages.
+
+| field name | description |
+| ---------- | ----------- |
+| `src`      | the exact source location of the statement in a source file |
+| `decl`     | if the statement directly represent a usage of a declared artefact, then this points to the fully qualified name of the used artifact.
+}
 data Statement(
 	loc src = |unknown:///|,
-	loc decl = |unresolved:///| //unresolvedDecl
+	loc decl = |unresolved:///| 
 );
 
+@synopsis{Uniform name for everything that is an _expression_ in programming languages: arithmetic, comparisons, function invocations, ...}
+@description{
+Instances of the Expression type represent the _syntax_ of expressions in programming languages.
+
+| field name | description |
+| ---------- | ----------- |
+| `src`      | the exact source location of the expression in a source file |
+| `decl`     | if this expression represents a usage, decl is the resolved fully qualified name of the artefact that is being used here |
+| `typ`      | a symbolic representation of the static type of the _result_ of the expression |
+} 
 data Expression(
 	loc src = |unknown:///|,
-	loc decl = |unresolved:///|, //unresolvedDecl,
-	TypeSymbol typ = \any()
+	loc decl = |unresolved:///|, 
+	TypeSymbol typ = \unresolved()
 );
 
+@synopsis{Uniform name for everything that is an _type_ in programming languages syntax: int, void, List<Expression>, ...}
+@description{
+Instances of the Type type represent the _syntax_ of types in programming languages.
+
+| field name | description |
+| ---------- | ----------- |
+| `src`      | the exact source location of the expression in a source file |
+| `decl`     | the fully qualified name of the type, if resolved and if well-defined |
+| `typ`      | a symbolic representation of the static type that is the meaning of this type expression |
+} 
 data Type(
-	loc name = |unresolved:///|, //unresolvedType,              
-	TypeSymbol typ = \any()
+	loc src = |unknown:///|,
+	loc decl = |unresolved:///|, 
+	TypeSymbol typ = \unresolved()
 );
 
-data Modifier;
+@synopsis{Uniform name for everything that is a _modifier_ in programming languages syntax: public, static, final, etc.}
+@description{
+Instances of the Modifer type represent the _syntax_ of modifiers in programming languages.
+
+| field name | description |
+| ---------- | ----------- |
+| `src`      | the exact source location of the expression in a source file |
+} 
+data Modifier(
+	loc src = |unknown:///|
+);
 
 @synopsis{Test for the consistency characteristics of an M3 annotated abstract syntax tree}
 bool astNodeSpecification(node n, str language = "java", bool checkNameResolution=false, bool checkSourceLocation=true) {
