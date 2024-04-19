@@ -149,7 +149,7 @@ public class JarConverter extends M3Converter {
             try (JarInputStream jarStream = new JarInputStream(registry.getInputStream(loc))) {
                 JarEntry entry = jarStream.getNextJarEntry();
                 while (entry != null) {
-                    compUnitPhysical = M3LocationUtil.extendPath(loc, entry.getName());
+                    compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), entry.getName() + ".class");
                     
                     if (entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
