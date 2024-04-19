@@ -107,7 +107,7 @@ java M3 createM3FromSingleClass(loc jarClass, str className, list[loc] classPath
 java M3 createM3FromJarFile(loc jarLoc, list[loc] classPath = []);
 
 @synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
-M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7", list[loc] classPath = []) {
+M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJarModels=false, Language javaVersion = JLS13(), list[loc] classPath = []) {
     if (!(isDirectory(project))) {
       throw "<project> is not a valid directory";
     }
@@ -134,7 +134,7 @@ M3 createM3FromDirectory(loc project, bool errorRecovery = false, bool includeJa
 }
 
 @synopsis{Globs for jars, class files and java files in a directory and tries to compile all source files into an M3 model}
-M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includeJarModels=false, str javaVersion = "1.7") {
+M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includeJarModels=false, Language javaVersion = JLS13()) {
     if (!exists(project + "pom.xml")) {
       throw IO("pom.xml not found");
     }
