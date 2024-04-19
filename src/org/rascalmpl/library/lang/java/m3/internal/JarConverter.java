@@ -42,7 +42,9 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -177,9 +179,10 @@ public class JarConverter extends M3Converter {
             resolver = new ASMNodeResolver(loc, classpath, typeStore);
         }
 
-        String compUnit = className;
+        String compUnit = className.replaceAll("\\.", "/");
         ClassReader classReader = resolver.buildClassReader(className);
 
+        this.compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), compUnit + ".class");
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);
@@ -269,6 +272,7 @@ public class JarConverter extends M3Converter {
             
             IString className = M3LocationUtil.getLocationName(classNode.name);
             ISourceLocation compUnitLogical = M3LocationUtil.makeLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
+            
             ISourceLocation classLogical = resolver.resolveBinding(classNode, null);
             ISourceLocation classPhysical = M3LocationUtil.makeLocation(compUnitPhysical, classReader.header, classReader.b.length);
             IConstructor cons = resolver.resolveType(classNode, null);
