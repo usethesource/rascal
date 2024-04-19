@@ -497,62 +497,55 @@ public class ASMNodeResolver implements NodeResolver {
 
     @Override
     public IConstructor resolveLanguageVersion(ClassNode node) {
-        var classToVersions = Map.of(
-            3 << 16 | 45, "1.1",
-            0 << 16 | 46, "1.2",
-            0 << 16 | 47, "1.3",
-            0 << 16 | 48, "1.4",
-            0 << 16 | 49, "1.5",
-            0 << 16 | 50, "1.6",
-            0 << 16 | 51, "1.7",
-            0 << 16 | 52, "1.8");
+        var classToVersions = Map.ofEntries(
+            Map.entry(Opcodes.V1_1, "1.1"),
+            Map.entry(Opcodes.V1_2, "1.2"),
+            Map.entry(Opcodes.V1_3, "1.3"),
+            Map.entry(Opcodes.V1_4, "1.4"),
+            Map.entry(Opcodes.V1_5, "1.5"),
+            Map.entry(Opcodes.V1_6, "1.6"),
+            Map.entry(Opcodes.V1_7, "1.7"),
+            Map.entry(Opcodes.V1_8, "1.8"),
+            Map.entry(Opcodes.V9, "9"),
+            Map.entry(Opcodes.V10, "10"),
+            Map.entry(Opcodes.V11, "11"),
+            Map.entry(Opcodes.V12, "12"),
+            Map.entry(Opcodes.V13, "13"),
+            Map.entry(Opcodes.V14, "14"),
+            Map.entry(Opcodes.V15, "15"),
+            Map.entry(Opcodes.V16, "16"),
+            Map.entry(Opcodes.V17, "17"),
+            Map.entry(Opcodes.V18, "18"),
+            Map.entry(Opcodes.V19, "19"),
+            Map.entry(Opcodes.V20, "20"),
+            Map.entry(Opcodes.V21, "21"),
+            Map.entry(Opcodes.V22, "22"));
 
-        classToVersions.putAll(Map.of(
-          0 << 16 | 53, "9",
-          0 << 16 | 54, "10",
-          0 << 16 | 55, "11",
-          0 << 16 | 56, "12",
-          0 << 16 | 57, "13",
-          0 << 16 | 58, "14",
-          0 << 16 | 59, "15",
-          0 << 16 | 60, "16",
-          0 << 16 | 61, "17",
-          0 << 16 | 62, "18"));
+        var classToLevels = Map.ofEntries(
+            Map.entry(Opcodes.V1_1, 1),
+            Map.entry(Opcodes.V1_2, 2),
+            Map.entry(Opcodes.V1_3, 3),
+            Map.entry(Opcodes.V1_4, 4),
+            Map.entry(Opcodes.V1_5, 5),
+            Map.entry(Opcodes.V1_6, 6),
+            Map.entry(Opcodes.V1_7, 7),
+            Map.entry(Opcodes.V1_8, 8),
+            Map.entry(Opcodes.V9, 9),
+            Map.entry(Opcodes.V10, 10),
+            Map.entry(Opcodes.V11, 11),
+            Map.entry(Opcodes.V12, 12),
+            Map.entry(Opcodes.V13, 13),
+            Map.entry(Opcodes.V14, 14),
+            Map.entry(Opcodes.V15, 15),
+            Map.entry(Opcodes.V16, 16),
+            Map.entry(Opcodes.V17, 17),
+            Map.entry(Opcodes.V18, 18),
+            Map.entry(Opcodes.V19, 19),
+            Map.entry(Opcodes.V20, 20),
+            Map.entry(Opcodes.V21, 21),
+            Map.entry(Opcodes.V22, 22));
 
-        classToVersions.putAll(Map.of(
-          0 << 16 | 63, "19",
-          0 << 16 | 64, "20",
-          0 << 16 | 65, "21",
-          0 << 16 | 66, "22"));
-
-        var classToLevels = Map.of(
-            3 << 16 | 45, 1,
-            0 << 16 | 46, 2,
-            0 << 16 | 47, 3,
-            0 << 16 | 48, 4,
-            0 << 16 | 49, 5,
-            0 << 16 | 50, 6,
-            0 << 16 | 51, 7,
-            0 << 16 | 52, 8);
-
-        classToLevels.putAll(Map.of(
-          0 << 16 | 53, 9,
-          0 << 16 | 54, 10,
-          0 << 16 | 55, 11,
-          0 << 16 | 56, 12,
-          0 << 16 | 57, 13,
-          0 << 16 | 58, 14,
-          0 << 16 | 59, 15,
-          0 << 16 | 60, 16,
-          0 << 16 | 61, 17,
-          0 << 16 | 62, 18));
-
-        classToLevels.putAll(Map.of(
-          0 << 16 | 63, 19,
-          0 << 16 | 64, 20,
-          0 << 16 | 65, 21,
-          0 << 16 | 66, 22));
-        
+       
         IInteger classFileLevel = valueFactory.integer(classToLevels.get(node.version));
         IString classFileVersion = valueFactory.string(classToVersions.get(node.version));
 
