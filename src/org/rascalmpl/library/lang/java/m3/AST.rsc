@@ -1,4 +1,56 @@
 @synopsis{AST node declarations for Java}
+@description{
+It helps to start reading in ((analysis::m3::AST)) to find out what we use to model abstract syntax trees 
+in Rascal, namely algebraic data types with specific properties.
+
+The "M3" label stands for a standardized set of names of types and their fields that are used similarly
+for different programming languages.
+
+This M3 AST model of Java features:
+* For Java the model below contains Declarations, Statements, Expressions, Types and Modifiers. The abstract grammar
+below describes an _over approximation_ of the abstract syntax of Java. This means that you could construct
+more kinds of syntax trees programmatically than there are stictly exist Java sentences. It also means that every
+Java program in existence can be mapped to this simplified tree format, for downstream analysis.
+* Java 1 to 13 support
+* Name analysis, where every definition of a name and every use of a name are annotated with a fully qualified logical source location, e.g. `decl=|java+interface:///java/util/List<T>`
+* Type analysis, where every definition of a type and every expression that produces a type is annotated with `typ=TypeSymbol`
+* Annotations, all available in the syntax tree.
+
+For a more global overview, a database, of what is declarared in Java and what related to what, see the ((lang::java::m3::Core)) model.
+There you will also find fact extractors from bytecode and jar files with .class files in them.
+}
+@benefits{
+* Every AST modelled using M3-style is usually recognizable, even if you are an expert in a different language;
+* **HiFi**: This Java AST format is _complete_ and completely informative about Java. For every language construct in existence
+there is a node in the tree. Also every node has a `src` attribute to point at the exact location in the source file
+where every node originated.
+* You can use handy pattern matching primitives like constructor matching, list matching and deep matching for fast analysis.
+* `src` and `decl` fields on AST nodes correspond to the M3 Core model's `declarations` and `uses` relations, and others. Combining
+AST analysis with lookups in an M3 core model is usually very handy.
+* One AST format for all kinds of Java versions.
+}
+@pitfalls{
+* Confusing the AST type for `Type` syntax with the symbolic representation of types in M3: `TypeSymbol`.
+* Writing algorithms that "should" work for any programming language: **don't do it**. Although Rascal M3 ASTs are a _uniform_ format for abstract Syntax
+trees, they are _not_ a _unified_ abstract syntax tree formalism. In other words an `\if` statement could have a different semantic in
+one language than in another. Frequently this is the case. AST nodes have the same name (between different programming languages) if they have the same 
+general intention, but their _semantics_ is typically different.
+* Abstracting from abstract syntax. (Abstract) Syntax is the bread and butter of (static) code analysis algorithms. If you
+introduce functional or object-oriented abstraction layers to hide this intrinsic complexity, the entire algorithm becomes harder to understand
+and harder to maintain. 
+   * It's almost always best to _repeat syntactic constructs_ in patterns for pattern matching, and to repeat cases
+several times in different contexts, than to introduce ``reusable''
+boolean predicates yourself. 
+   * Such reuse is typically accidentally possible and not intrinsic to the language or the algorithm. Rascal will also help with maintenance if the constructors change over time, by providing warnings and errors.
+   * If find yourself writing many case distinctions over and over again, it's time to consider using or introducing a new intermediate language like `TypeSymbol`.
+* AST instances for older version of Java may contain empty list nodes in locations where a feature was added later (say type parameters of generics).
+Analysis algorithms must ignore those values, and probably should know which version they are analysing for. Example:
+   * Before Java 6 there were no generics and `List` with an empty list of non-existent type parameters just means the list type.
+   * After Java 6 there were generics and now `List` with an empty list of type-parameters means the "raw type" for List.
+   * Conclusion: Type compatibility rules are subtly different, while the abstract syntax for both instances is the same.
+   * Just like between programming languages, between programming language versions: just because two things look the same, 
+     does not mean they mean the same thing.
+}
 module lang::java::m3::AST
 
 extend analysis::m3::AST;
@@ -32,6 +84,7 @@ Language JLS11() = \java(level=11, version="11");
 Language JLS12() = \java(level=12, version="12");
 Language JLS13() = \java(level=13, version="13");
 
+@synopsis{All kind of declarations in Java}
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
     | \compilationUnit(Declaration \module)
@@ -70,6 +123,7 @@ data Declaration
     ;
 
 
+@synopsis{Java Expressions all have a `typ`.}
 data Expression(TypeSymbol typ=\unresolved())
     = \arrayAccess(Expression array, Expression index)
     | \newArray(Type \type, list[Expression] dimensions, Expression init)
@@ -118,6 +172,7 @@ data Expression(TypeSymbol typ=\unresolved())
     | \lambda(list[Declaration] parameters, Expression body)
     ;
 
+@synopsis{These are the Statement types of Java}
 data Statement
     = \assert(Expression expression)
     | \assert(Expression expression, Expression message)
