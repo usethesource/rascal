@@ -386,7 +386,13 @@ public class ASTConverter extends JavaToRascalConverter {
                 typeDeclarations.append(visitChild(d));
             }
 
-            ownValue = constructDeclarationNode("compilationUnit", packageOfUnit, imports.done(), typeDeclarations.done());		
+            if (packageOfUnit != null) {
+                ownValue = constructDeclarationNode("compilationUnit", packageOfUnit, imports.done(), typeDeclarations.done());		
+            }
+            else {
+                ownValue = constructDeclarationNode("compilationUnit", imports.done(), typeDeclarations.done());		
+            }
+
             return false;
         }
     }
@@ -480,9 +486,13 @@ public class ASTConverter extends JavaToRascalConverter {
             }
         }
 
-        IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
-
-        ownValue = constructDeclarationNode("enumConstant", modifiers, name, arguments.done(), anonymousClassDeclaration);
+        if (node.getAnonymousClassDeclaration() != null) {
+            IValue anonymousClassDeclaration = visitChild(node.getAnonymousClassDeclaration());
+            ownValue = constructDeclarationNode("enumConstant", modifiers, name, arguments.done(), anonymousClassDeclaration);
+        }
+        else {
+            ownValue = constructDeclarationNode("enumConstant", modifiers, name, arguments.done());
+        }
         
         return false;
     }
@@ -571,11 +581,17 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IValue body = visitChild(node.getBody());
 
-        ownValue = constructStatementNode("for", initializers.done(), booleanExpression, updaters.done(), body);
+        if (booleanExpression != null) {
+            ownValue = constructStatementNode("for", initializers.done(), booleanExpression, updaters.done(), body);
+        }
+        else {
+            ownValue = constructStatementNode("for", initializers.done(), updaters.done(), body);
+        }
 
         return false;
     }
 
+    // TODO: Jurgen was here while removing null passing to construct methods
     @Override
     public boolean visit(IfStatement node) {
         IValue booleanExpression = visitChild(node.getExpression());

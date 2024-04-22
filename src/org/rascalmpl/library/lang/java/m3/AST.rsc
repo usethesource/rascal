@@ -87,8 +87,8 @@ Language JLS13() = \java(level=13, version="13");
 @synopsis{All kind of declarations in Java}
 data Declaration
     = \compilationUnit(list[Declaration] imports, list[Declaration] types)
-    | \compilationUnit(Declaration \module)
     | \compilationUnit(Declaration package, list[Declaration] imports, list[Declaration] types)
+    | \compilationUnit(Declaration \module)
     | \enum(list[Modifier] modifiers, Expression name, list[Type] implements, list[Declaration] constants, list[Declaration] body)
     | \enumConstant(list[Modifier] modifiers, Expression name, list[Expression] arguments, Declaration class)
     | \enumConstant(list[Modifier] modifiers, Expression name, list[Expression] arguments)
