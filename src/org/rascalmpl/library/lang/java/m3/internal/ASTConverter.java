@@ -99,7 +99,7 @@ public class ASTConverter extends JavaToRascalConverter {
             System.err.println("Got NPE for node " + node + ((e.getStackTrace().length > 0) ? ("\n\t" + e.getStackTrace()[0]) : ""));
         }
 
-        assert false;
+        // some nodes do not have a type
         return null;
     }
 
@@ -114,10 +114,15 @@ public class ASTConverter extends JavaToRascalConverter {
             IAnnotatable annotable = (IAnnotatable) node;
             
             try {
-                ownAnnotations = Arrays.stream(annotable.getAnnotations())
-                    .map(o -> (ASTNode) o)
-                    .map(a -> visitChild(a))
-                    .collect(values.listWriter());
+                if (annotable.getAnnotations() == null) {
+                    ownAnnotations = values.list();
+                }
+                else {
+                    ownAnnotations = Arrays.stream(annotable.getAnnotations())
+                        .map(o -> (ASTNode) o)
+                        .map(a -> visitChild(a))
+                        .collect(values.listWriter());
+                }
             }
             catch (JavaModelException e) {
                 // TODO: log this in a better way
@@ -893,9 +898,19 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(PackageDeclaration node) {
         IValue name = visitChild(node.getName());
-        ownValue = constructDeclarationNode("package", ownAnnotations, name);
+        IList annotations = mapAnnotations(node.annotations());
+                        
+        ownValue = constructDeclarationNode("package", annotations, name);
 
         return false;
+    }
+
+    private IList mapAnnotations(List<?> annotations) {
+        return annotations
+            .stream()
+            .map(o -> (ASTNode) o)
+            .map(a -> visitChild(a))
+            .collect(values.listWriter());
     }
 
     @Override
