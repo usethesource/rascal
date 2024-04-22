@@ -44,8 +44,8 @@ data Declaration
     | \interface(list[Modifier] modifiers, Expression name, list[Type] typeParameters, list[Type] extends, list[Type] implements, list[Declaration] body)
     | \field(list[Modifier] modifiers, Type \type, list[Expression] fragments)
     | \initializer(list[Modifier] modifiers, Statement initializerBody)
-    | \method(list[Modifier] modifiers, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
-    | \method(list[Modifier] modifiers, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions)
+    | \method(list[Modifier] modifiers, list[Type] typeParameters, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
+    | \method(list[Modifier] modifiers, list[Type] typeParameters, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions)
     | \constructor(list[Modifier] modifiers, Expression name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
     | \import(Expression name)
     | \package(list[Modifier] modifiers, Expression name)
@@ -55,7 +55,7 @@ data Declaration
     | \annotationTypeMember(list[Modifier] modifiers, Type \type, Expression name)
     | \annotationTypeMember(list[Modifier] modifiers, Type \type, Expression name, Expression defaultBlock)
     // initializers missing in parameter, is it needed in vararg?
-    | \parameter(list[Modifier] modifiers, Type \type, Expression name, int extraDimensions)
+    | \parameter(list[Modifier] modifiers, Type \type, Expression name, int extraDimensions) // TODO: int is not syntax
     | \vararg(list[Modifier] modifiers, Type \type, Expression name)
     ;
 

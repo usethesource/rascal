@@ -705,13 +705,13 @@ public class ASTConverter extends JavaToRascalConverter {
             body = constructStatementNode("empty");
         }
 
-        ownValue = constructDeclarationNode(constructorName, modifiers, returnType, name, parameters.done(), possibleExceptions.done(), body);
+        ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done(), body);
         
-        // FIXME: this doesn't seem to be in use anymore
-        //setKeywordParameters("typeParameters", genericTypes);
         return false;
     }
-
+    public static final <T> T getT() {
+        return null;
+    }
     @Override
     public boolean visit(MethodInvocation node) {
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
