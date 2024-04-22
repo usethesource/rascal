@@ -1270,12 +1270,6 @@ public class ASTConverter extends JavaToRascalConverter {
         String objectType = node.isInterface() ? "interface" : "class";
         IValue name = visitChild(node.getName());
 
-        IList typeParams = ((List<?>) node.typeParameters())
-            .stream()
-            .map(o -> (ASTNode) o)
-            .map(t -> visitChild(t))
-            .collect(values.listWriter());
-
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeParameters().isEmpty()) {			
@@ -1317,9 +1311,8 @@ public class ASTConverter extends JavaToRascalConverter {
             bodyDeclarations.append(visitChild(d));
         }
 
-        ownValue = constructDeclarationNode(objectType, modifiers, name, extendsClass.done(), implementsInterfaces.done(), bodyDeclarations.done());
+        ownValue = constructDeclarationNode(objectType, modifiers, name, genericTypes.done(), extendsClass.done(), implementsInterfaces.done(), bodyDeclarations.done());
         
-        //setKeywordParameters("typeParameters", genericTypes);
         return false;
     }
 
