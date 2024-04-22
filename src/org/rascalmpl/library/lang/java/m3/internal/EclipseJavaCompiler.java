@@ -101,7 +101,7 @@ public class EclipseJavaCompiler {
             ISetWriter result = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
                 interruptChecker.run();
-                result.insert(convertToM3(store, cache, loc, cu));
+                result.insert(convertToM3(store, cache, loc, javaVersion, cu));
             });
             return result.done();
         } catch (IOException e) {
@@ -125,8 +125,8 @@ public class EclipseJavaCompiler {
             ISetWriter asts = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
                 interruptChecker.run();
-                m3s.insert(convertToM3(store, cache, loc, cu));
-                asts.insert(convertToAST(VF.bool(true), cache, loc, cu, store));
+                m3s.insert(convertToM3(store, cache, loc, javaVersion, cu));
+                asts.insert(convertToAST(VF.bool(true), cache, loc, javaVersion, cu, store));
             });
             return VF.tuple(m3s.done(), asts.done());
         } catch (IOException e) {
@@ -143,7 +143,7 @@ public class EclipseJavaCompiler {
     protected IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-            return convertToM3(store, new HashMap<>(), loc, cu);
+            return convertToM3(store, new HashMap<>(), loc, javaVersion, cu);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
@@ -160,7 +160,7 @@ public class EclipseJavaCompiler {
 
             buildCompilationUnits(files, collectBindings.getValue(), errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
                 interruptChecker.run();
-                result.insert(convertToAST(collectBindings, cache, loc, cu, store));
+                result.insert(convertToAST(collectBindings, cache, loc, javaVersion, cu, store));
             });
             return result.done();
         } catch (IOException e) {
@@ -175,13 +175,13 @@ public class EclipseJavaCompiler {
     protected IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-            return convertToAST(collectBindings, new HashMap<>(), loc, cu, store);
+            return convertToAST(collectBindings, new HashMap<>(), loc, javaVersion, cu, store);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
     }
 
-    protected IValue convertToM3(LimitedTypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,   CompilationUnit cu) {
+    protected IValue convertToM3(LimitedTypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,  IConstructor javaVersion, CompilationUnit cu) {
         SourceConverter converter = new SourceConverter(store, cache);
         converter.convert(cu, cu, loc);
         for (Object cm: cu.getCommentList()) {
@@ -286,7 +286,7 @@ public class EclipseJavaCompiler {
         return (CompilationUnit) parser.createAST(null);
     }
 
-    protected IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
+    protected IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc, IConstructor javaVersion,
             CompilationUnit cu, LimitedTypeStore store) {
         ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
         converter.convert(cu, cu, loc);

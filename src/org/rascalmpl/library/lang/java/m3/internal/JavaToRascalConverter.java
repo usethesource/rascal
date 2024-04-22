@@ -63,7 +63,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 
     protected IListWriter messages;
     protected final Map<String, ISourceLocation> locationCache;
-
+    
     JavaToRascalConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
         super(true);
         this.typeStore = typeStore;
