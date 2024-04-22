@@ -15,7 +15,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
-@SuppressWarnings({"rawtypes"})
 public class ASTConverter extends JavaToRascalConverter {
     /* 
      * TODO:
@@ -132,7 +131,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue name = visitChild(node.getName());
 
         IListWriter bodyDeclarations = values.listWriter();
-        for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
             BodyDeclaration d = (BodyDeclaration) it.next();
             bodyDeclarations.append(visitChild(d));
         }
@@ -164,7 +163,7 @@ public class ASTConverter extends JavaToRascalConverter {
     public boolean visit(AnonymousClassDeclaration node) {
         IListWriter bodyDeclarations = values.listWriter();
 
-        for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
             BodyDeclaration b = (BodyDeclaration) it.next();
             bodyDeclarations.append(visitChild(b));
         }
@@ -188,7 +187,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue type = visitChild(node.getType().getElementType());
 
         IListWriter dimensions = values.listWriter();
-        for (Iterator it = node.dimensions().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.dimensions().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             dimensions.append(visitChild(e));
         }
@@ -207,7 +206,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(ArrayInitializer node) {
         IListWriter expressions = values.listWriter();
-        for (Iterator it = node.expressions().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.expressions().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             expressions.append(visitChild(e));
         }
@@ -254,7 +253,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(Block node) {
         IListWriter statements = values.listWriter();
-        for (Iterator it = node.statements().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.statements().iterator(); it.hasNext();) {
             Statement s = (Statement) it.next();
             statements.append(visitChild(s));
         }
@@ -337,7 +336,7 @@ public class ASTConverter extends JavaToRascalConverter {
             type = visitChild(node.getType()); 
 
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
                     genericTypes.append(visitChild(t));
                 }
@@ -345,7 +344,7 @@ public class ASTConverter extends JavaToRascalConverter {
         }
 
         IListWriter arguments = values.listWriter();
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
         }
@@ -382,13 +381,13 @@ public class ASTConverter extends JavaToRascalConverter {
             IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
 
             IListWriter imports = values.listWriter();
-            for (Iterator it = node.imports().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.imports().iterator(); it.hasNext();) {
                 ImportDeclaration d = (ImportDeclaration) it.next();
                 imports.append(visitChild(d));
             }
 
             IListWriter typeDeclarations = values.listWriter();
-            for (Iterator it = node.types().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.types().iterator(); it.hasNext();) {
                 AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
                 typeDeclarations.append(visitChild(d));
             }
@@ -420,7 +419,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter types = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
                     types.append(visitChild(t));
                 }
@@ -428,7 +427,7 @@ public class ASTConverter extends JavaToRascalConverter {
         }
 
         IListWriter arguments = values.listWriter();
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
         }
@@ -486,7 +485,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IListWriter arguments = values.listWriter();
         if (!node.arguments().isEmpty()) {
-            for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
                 Expression e = (Expression) it.next();
                 arguments.append(visitChild(e));
             }
@@ -510,21 +509,21 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IListWriter implementedInterfaces = values.listWriter();
         if (!node.superInterfaceTypes().isEmpty()) {
-            for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.superInterfaceTypes().iterator(); it.hasNext();) {
                 Type t = (Type) it.next();
                 implementedInterfaces.append(visitChild(t));
             }
         }
 
         IListWriter enumConstants = values.listWriter();
-        for (Iterator it = node.enumConstants().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.enumConstants().iterator(); it.hasNext();) {
             EnumConstantDeclaration d = (EnumConstantDeclaration) it.next();
             enumConstants.append(visitChild(d));
         }
 
         IListWriter bodyDeclarations = values.listWriter();
         if (!node.bodyDeclarations().isEmpty()) {
-            for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
                 BodyDeclaration d = (BodyDeclaration) it.next();
                 bodyDeclarations.append(visitChild(d));
             }
@@ -559,7 +558,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue type = visitChild(node.getType());
 
         IListWriter fragments = values.listWriter();
-        for (Iterator it = node.fragments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.fragments().iterator(); it.hasNext();) {
             VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
             fragments.append(visitChild(f));
         }
@@ -572,7 +571,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(ForStatement node) {
         IListWriter initializers = values.listWriter();
-        for (Iterator it = node.initializers().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.initializers().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             initializers.append(visitChild(e));
         }
@@ -580,7 +579,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue booleanExpression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
         IListWriter updaters = values.listWriter();
-        for (Iterator it = node.updaters().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.updaters().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             updaters.append(visitChild(e));
         }
@@ -640,7 +639,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue rightSide = visitChild(node.getRightOperand());
 
         IValue intermediateExpression = constructExpressionNode("infix", leftSide, operator, rightSide);
-        for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.extendedOperands().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             intermediateExpression = constructExpressionNode("infix", intermediateExpression, operator, visitChild(e));
         }
@@ -721,7 +720,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeParameters().isEmpty()) {
-                for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeParameters().iterator(); it.hasNext();) {
                     TypeParameter t = (TypeParameter) it.next();
                     genericTypes.append(visitChild(t));
                 }
@@ -745,7 +744,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue name = visitChild(node.getName());
 
         IListWriter parameters = values.listWriter();
-        for (Iterator it = node.parameters().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
             SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
             parameters.append(visitChild(v));
         }
@@ -755,7 +754,7 @@ public class ASTConverter extends JavaToRascalConverter {
         var apiLevel = node.getAST().apiLevel();
         if (apiLevel == AST.JLS2 || apiLevel == AST.JLS3 || apiLevel == AST.JLS4) {
             if (!node.thrownExceptions().isEmpty()) {
-                for (Iterator it = node.thrownExceptions().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.thrownExceptions().iterator(); it.hasNext();) {
                     Name n = (Name) it.next();
                     possibleExceptions.append(visitChild(n));
                 }
@@ -793,7 +792,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
                     genericTypes.append(visitChild(t));
                 }
@@ -803,7 +802,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue name = visitChild(node.getName());
 
         IListWriter arguments = values.listWriter();
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
         }		
@@ -842,7 +841,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue typeName = visitChild(node.getTypeName());
 
         IListWriter memberValuePairs = values.listWriter();
-        for (Iterator it = node.values().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.values().iterator(); it.hasNext();) {
             MemberValuePair p = (MemberValuePair) it.next();
             memberValuePairs.append(visitChild(p));
         }
@@ -881,7 +880,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue type = visitChild(node.getType());
 
         IListWriter genericTypes = values.listWriter();
-        for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
             Type t = (Type) it.next();
             genericTypes.append(visitChild(t));
         }
@@ -930,7 +929,6 @@ public class ASTConverter extends JavaToRascalConverter {
     public boolean visit(QualifiedName node) {
         IValue qualifier = visitChild(node.getQualifier());
 
-
         IValue name = visitChild(node.getName());
 
         ownValue = constructExpressionNode("qualifiedName", qualifier, name);
@@ -941,7 +939,6 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(QualifiedType node) {
         IValue qualifier = visitChild(node.getQualifier());
-
 
         IValue name = visitChild(node.getName());
 
@@ -1056,7 +1053,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(LambdaExpression node) {
         IListWriter parameters = values.listWriter();
-        for (Iterator it = node.parameters().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
             SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
             parameters.append(visitChild(v));
         }
@@ -1070,7 +1067,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue expression = visitChild(node.getExpression());
 
         IListWriter statements = values.listWriter();
-        for (Iterator it = node.statements().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.statements().iterator(); it.hasNext();) {
             Statement s = (Statement) it.next();
             statements.append(visitChild(s));
         }
@@ -1087,7 +1084,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter genericTypes = values.listWriter();	
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
                     genericTypes.append(visitChild(t));
                 }
@@ -1095,7 +1092,7 @@ public class ASTConverter extends JavaToRascalConverter {
         }
 
         IListWriter arguments = values.listWriter();
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
         }
@@ -1132,7 +1129,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
                     genericTypes.append(visitChild(t));
                 }
@@ -1142,7 +1139,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue name = visitChild(node.getName());
 
         IListWriter arguments = values.listWriter();
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
         }
@@ -1309,7 +1306,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue expression = visitChild(node.getExpression());
 
         IListWriter statements = values.listWriter();
-        for (Iterator it = node.statements().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.statements().iterator(); it.hasNext();) {
             Statement s = (Statement) it.next();
             statements.append(visitChild(s));
         }
@@ -1371,7 +1368,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue body = visitChild(node.getBody());
 
         IListWriter catchClauses = values.listWriter();
-        for (Iterator it = node.catchClauses().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.catchClauses().iterator(); it.hasNext();) {
             CatchClause cc = (CatchClause) it.next();
             catchClauses.append(visitChild(cc));
         }
@@ -1398,7 +1395,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeParameters().isEmpty()) {			
-                for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeParameters().iterator(); it.hasNext();) {
                     TypeParameter t = (TypeParameter) it.next();
                     genericTypes.append(visitChild(t));			
                 }
@@ -1413,7 +1410,7 @@ public class ASTConverter extends JavaToRascalConverter {
                 extendsClass.append(visitChild(node.getSuperclass()));
             }
             if (!node.superInterfaces().isEmpty()) {
-                for (Iterator it = node.superInterfaces().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.superInterfaces().iterator(); it.hasNext();) {
                     Name n = (Name) it.next();
                     implementsInterfaces.append(visitChild(n));
                 }
@@ -1423,7 +1420,7 @@ public class ASTConverter extends JavaToRascalConverter {
                 extendsClass.append(visitChild(node.getSuperclassType()));
             }
             if (!node.superInterfaceTypes().isEmpty()) {
-                for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.superInterfaceTypes().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
                     implementsInterfaces.append(visitChild(t));
                 }
@@ -1431,7 +1428,7 @@ public class ASTConverter extends JavaToRascalConverter {
         }
 
         IListWriter bodyDeclarations = values.listWriter();
-        for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
             BodyDeclaration d = (BodyDeclaration) it.next();
             bodyDeclarations.append(visitChild(d));
         }
@@ -1472,7 +1469,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IListWriter extendsList = values.listWriter();
         if (!node.typeBounds().isEmpty()) {
-            for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.typeBounds().iterator(); it.hasNext();) {
                 Type t = (Type) it.next();
                 extendsList.append(visitChild(t));
             }
@@ -1486,7 +1483,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(UnionType node) {
         IListWriter typesValues = values.listWriter();
-        for(Iterator types = node.types().iterator(); types.hasNext();) {
+        for(Iterator<?> types = node.types().iterator(); types.hasNext();) {
             Type type = (Type) types.next();
             typesValues.append(visitChild(type));
         }
@@ -1499,7 +1496,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(IntersectionType node) {
         IListWriter typesValues = values.listWriter();
-        for(Iterator types = node.types().iterator(); types.hasNext();) {
+        for(Iterator<?> types = node.types().iterator(); types.hasNext();) {
             Type type = (Type) types.next();
             typesValues.append(visitChild(type));
         }
@@ -1516,7 +1513,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue type = visitChild(node.getType());
 
         IListWriter fragments = values.listWriter();
-        for (Iterator it = node.fragments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.fragments().iterator(); it.hasNext();) {
             VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
             fragments.append(visitChild(f));
         }
@@ -1524,7 +1521,6 @@ public class ASTConverter extends JavaToRascalConverter {
         // intented nesting; we're reusing the Declaration AST node here.
         ownValue = constructDeclarationNode("variables", modifiers, type, fragments.done());
         ownValue = constructExpressionNode("declarationExpression", ownValue);
-
 
         return false;
     }
@@ -1558,7 +1554,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue type = visitChild(node.getType());
 
         IListWriter fragments = values.listWriter();
-        for (Iterator it = node.fragments().iterator(); it.hasNext();) {
+        for (Iterator<?> it = node.fragments().iterator(); it.hasNext();) {
             VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
             fragments.append(visitChild(f));
         }
