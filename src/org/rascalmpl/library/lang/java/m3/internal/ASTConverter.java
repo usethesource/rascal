@@ -886,8 +886,8 @@ public class ASTConverter extends JavaToRascalConverter {
             genericTypes.append(visitChild(t));
         }
 
-        ownValue = constructTypeNode("parameterizedType", type);
-        //setKeywordParameters("typeParameters", genericTypes);
+        ownValue = constructTypeNode("parameterizedType", type, genericTypes.done());
+    
         return false;
     }
 
