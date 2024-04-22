@@ -142,8 +142,13 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IValue name = visitChild(node.getName());
 
-        IValue defaultBlock = node.getDefault() == null ? null : visitChild(node.getDefault());
-        ownValue = constructDeclarationNode("annotationTypeMember", modifiers, typeArgument, name, defaultBlock);
+        if (node.getDefault() != null)  {
+            IValue defaultBlock = visitChild(node.getDefault());
+            ownValue = constructDeclarationNode("annotationTypeMember", modifiers, typeArgument, name, defaultBlock);
+        }
+        else {
+            ownValue = constructDeclarationNode("annotationTypeMember", modifiers, typeArgument, name);
+        }
         
         return false;
     }
@@ -217,9 +222,14 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(AssertStatement node) {
         IValue expression = visitChild(node.getExpression());
-        IValue message = node.getMessage() == null ? null : visitChild(node.getMessage());
 
-        ownValue = constructStatementNode("assert", expression, message);
+        if (node.getMessage() != null) {
+            IValue message = visitChild(node.getMessage());
+            ownValue = constructStatementNode("assert", expression, message);
+        }
+        else {
+            ownValue = constructStatementNode("assert", expression);
+        }
 
         return false;
     }
@@ -263,8 +273,17 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(BreakStatement node) {
-        IValue label = node.getLabel() == null ? values.string("") : values.string(node.getLabel().getFullyQualifiedName());
-        ownValue = constructStatementNode("break", label);
+        if (node.getLabel() != null) {
+            IValue label = visitChild(node.getLabel());
+            ownValue = constructStatementNode("break", label);
+        }
+        else if (node.getExpression() != null) {
+            IValue label = visitChild(node.getExpression());
+            ownValue = constructStatementNode("break", label);
+        }
+        else {
+            ownValue = constructStatementNode("break");
+        }
 
         return false;
     }
@@ -326,7 +345,22 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
 
-        ownValue = constructExpressionNode("newObject", expression, type, arguments.done(), anonymousClassDeclaration);
+        if (expression != null) {
+            if (anonymousClassDeclaration != null) {
+                ownValue = constructExpressionNode("newObject", expression, type, genericTypes.done(), arguments.done(), anonymousClassDeclaration);
+            }
+            else {
+                ownValue = constructExpressionNode("newObject", expression, type, genericTypes.done(), arguments.done());
+            }
+        }
+        else {
+            if (anonymousClassDeclaration != null) {
+                ownValue = constructExpressionNode("newObject", type, genericTypes.done(), arguments.done(), anonymousClassDeclaration);
+            }
+            else {
+                ownValue = constructExpressionNode("newObject", type, genericTypes.done(), arguments.done());
+            }
+        }
         //setKeywordParameters("typeParameters", genericTypes);
         return false;
     }
@@ -394,8 +428,13 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(ContinueStatement node) {
-        IValue label = node.getLabel() == null ? null : values.string(node.getLabel().getFullyQualifiedName());
-        ownValue = constructStatementNode("continue", label);
+        if (node.getLabel() != null) {
+            IValue label = visitChild(node.getLabel());
+            ownValue = constructStatementNode("continue", label);
+        }
+        else {
+            ownValue = constructStatementNode("continue");
+        }
 
         return false;
     }
