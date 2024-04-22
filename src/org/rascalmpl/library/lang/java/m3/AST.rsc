@@ -210,13 +210,14 @@ data Statement
     | \yield(Expression argument)
     ;
 
+@synopsis{These are the literal types you can find in Java programs.}
 data Type
     = arrayType(Type \type)
     | parameterizedType(Type \type)
     | qualifiedType(Type qualifier, Expression simpleName)
     | simpleType(Expression typeName)
     | unionType(list[Type] types)
-    | intersectionType(list[Type] types)
+    | intersectionType(list[Type] types) // TODO: aren't union types also sometimes present in catch clauses?
     | wildcard()
     | super(Type \type)
     | extends(Type \type)
@@ -232,6 +233,10 @@ data Type
     | \boolean()
     ;
 
+@synopsis{Modifiers are additional pieces of information attached to (typically) declarations.}
+@description{
+This also includes "user-defined" modifers such as so called "Java Annotations".
+}
 data Modifier
     = \private()
     | \public()
@@ -259,6 +264,23 @@ set[loc] getPaths(loc dir, str suffix) {
 }
 
 @memo
+@synopsis{Utility to help configuring the `createAstFromFile` function.}
+@description{
+The ((createAstFromFile)) works well if the source roots and library classpath parameters are
+configured correctly.
+
+This helper function crawls the file system from bottom to top. Starting with a potentially
+interesting set of Java files or folders for analysis, it finds the "root" of the class path by inspecting
+the package declarations all `.java` files and subtracting each package name from their
+source location to arrive at a set of root folders.
+}
+@benefits{
+* Robust way of configuring the source getPaths
+}
+@pitfalls{
+* Typically projects have dependencies which are not found using this function. 
+* This function does a lot of IO for just a little fact extraction.
+}
 set[loc] findRoots(set[loc] folders) {
   set[loc] result = {};
   for (folder <- folders) {
@@ -309,8 +331,8 @@ public Declaration createAstFromFile(loc file, bool collectBindings, bool errorR
 
 @synopsis{Creates ASTs for a set of files using Eclipse JDT compiler.}
 @pitfalls{
-  While the function takes a set of locations, it ignores the positional information of the location.
-  Meaning, that it analyzes the whole file and not just the part that the positional information describes.
+* While the function takes a set of locations, it ignores the positional information of the location.
+Meaning, that it analyzes the whole file and not just the part that the positional information describes.
 }
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 public java set[Declaration] createAstsFromFiles(set[loc] file, bool collectBindings, bool errorRecovery = false, list[loc] sourcePath = [], list[loc] classPath = [], Language javaVersion = JLS13());
@@ -321,9 +343,8 @@ public java Declaration createAstFromString(loc fileName, str source, bool colle
 
 @synopsis{Creates a set ASTs for all Java source files in a project using Eclipse's JDT compiler}
 @description{
-  The function recursively looks for the `.java` files in the directory.
-  The function also looks for the dependencies (`.jar` files) to include them.
-  Wraps around ((createAstsFromFiles)).
+Recursively looks for the `.java` files in the directory, and also looks for the dependencies (`.jar` files) to include them.
+Wraps around ((createAstsFromFiles)).
 }
 public set[Declaration] createAstsFromDirectory(loc project, bool collectBindings, bool errorRecovery = false, Language javaVersion = JLS13() ) {
     if (!(isDirectory(project))) {
