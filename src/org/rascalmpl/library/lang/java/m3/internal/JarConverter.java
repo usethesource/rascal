@@ -56,12 +56,7 @@ import io.usethesource.vallang.IString;
 //TODO: check offset + length in physical locations.
 //TODO: change when JarInputStream problem is solved.
 public class JarConverter extends M3Converter {
-    
-    //---------------------------------------------
-    // Fields
-    //---------------------------------------------
-    
-    /**
+     /**
      * Physical source location of the current compilation unit. 
      * A .class file is considered as a computational unit.
      */
@@ -186,8 +181,6 @@ public class JarConverter extends M3Converter {
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);
-
-        
     } 
     
     /**
