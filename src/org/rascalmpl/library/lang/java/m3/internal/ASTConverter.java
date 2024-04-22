@@ -77,6 +77,7 @@ public class ASTConverter extends JavaToRascalConverter {
             System.err.println("Got NPE for node " + node + ((e.getStackTrace().length > 0) ? ("\n\t" + e.getStackTrace()[0]) : ""));
         }
 
+        assert false;
         return null;
     }
 
@@ -102,7 +103,10 @@ public class ASTConverter extends JavaToRascalConverter {
             }
         }
         else {
-            ownAnnotations = null;
+            // This {sh,w}ould trigger downstream non-null assertions if someone tries
+            // to include annotations into a non-annotable syntax node.
+            // Otherwise this field should not be referenced until it is set here above again.
+            ownAnnotations = null; 
         }
 
         // many nodes also have modifiers
@@ -114,6 +118,9 @@ public class ASTConverter extends JavaToRascalConverter {
                 .collect(values.listWriter());
         }
         else {
+            // This {sh,w}ould trigger downstream non-null assertions if someone tries
+            // to include modifiers into a non-modifiable syntax node.
+            // Otherwise this field should not be referenced until it is set here above again.
             ownModifiers = null;
         }
     }
@@ -361,7 +368,7 @@ public class ASTConverter extends JavaToRascalConverter {
                 ownValue = constructExpressionNode("newObject", type, genericTypes.done(), arguments.done());
             }
         }
-        //setKeywordParameters("typeParameters", genericTypes);
+        
         return false;
     }
 
@@ -426,8 +433,7 @@ public class ASTConverter extends JavaToRascalConverter {
             arguments.append(visitChild(e));
         }
 
-        ownValue = constructStatementNode("constructorCall",  arguments.done());
-        //setKeywordParameters("typeParameters", types);
+        ownValue = constructStatementNode("constructorCall",  types.done(), arguments.done());
 
         return false;
     }
@@ -1527,14 +1533,14 @@ public class ASTConverter extends JavaToRascalConverter {
     public boolean visit(VariableDeclarationFragment node) {
         IValue name = values.string(node.getName().getFullyQualifiedName());
 
-        IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
         IList dimensions = ((List<?>) node.extraDimensions())
             .stream()
             .map(o -> (ASTNode) o) 
             .map(d -> visitChild(d))
             .collect(values.listWriter());
 
-        if (initializer != null) {
+        if (node.getInitializer() != null) {
+            IValue initializer = visitChild(node.getInitializer());
             ownValue = constructExpressionNode("variable", name, dimensions, initializer);
         }
         else {
@@ -1576,20 +1582,22 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(WildcardType node) {
-        //FIXME: upperbound/lowerbound that should have been type annotation are replaced by TypeSymbol
-        IValue type = null;
         String name = "wildcard";
 
         if (node.getBound() != null) {
-            type = visitChild(node.getBound());
+            var bound = visitChild(node.getBound());
             if (node.isUpperBound()) {
                 name = "extends";
             } 
             else {
                 name = "super";
             }
+
+            ownValue = constructTypeNode(name, ownAnnotations, bound);
         }
-        ownValue = constructTypeNode(name, type);
+        else {
+            ownValue = constructTypeNode(name, ownAnnotations);
+        }
 
         return false;
     }
