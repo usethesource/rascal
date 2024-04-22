@@ -15,12 +15,20 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
+/**
+ * This big visitor class has a case for every type of AST node in the JDT's core DOM model.
+ * Each visit method maps the JDT DOM model to the M3 AST model as defined in lang::java::m3::AST.
+ * 
+ * If names can be resolved, they will be, and lead to `decl=` parameters on the declarations and uses.
+ * If types can be resolved, they will be interpreted as TypeSymbol's and stored on the AST nodes as `typ=` parameters.
+ * All nodes get `src=` parameters pointing to their exact location in the source file.
+ * 
+ * Otherwise the goal of this code is to satisfy the "AST correctness" specification in analysis::m3::AST,
+ * and the documentation written in lang::java::m3::AST. This means that the recovery is complete and completely
+ * specific, and all node src locations point to exactly the the right input subsentences. 
+ */
 public class ASTConverter extends JavaToRascalConverter {
-    /* 
-     * TODO:
-     * Type parameters need to come out of annotations
-     * calls may need to be broken up into superconstructor, constructor, supermethod, method calls or separate them in bindings
-     */
+    
     public ASTConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
         super(typeStore, cache, collectBindings);
     }

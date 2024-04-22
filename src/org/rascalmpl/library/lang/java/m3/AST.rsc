@@ -218,7 +218,7 @@ data Type
     | qualifiedType(Type qualifier, Expression simpleName)
     | simpleType(Expression typeName)
     | unionType(list[Type] types)
-    | intersectionType(list[Type] types) // TODO: aren't union types also sometimes present in catch clauses?
+    | intersectionType(list[Type] types) 
     | wildcard(list[Modifier] annotations)
     | super(list[Modifier] annotations, Type \type)
     | extends(list[Modifier] annotations, Type \type)
