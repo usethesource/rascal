@@ -181,9 +181,13 @@ public class ASTConverter extends JavaToRascalConverter {
             dimensions.append(visitChild(e));
         }
 
-        IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
-
-        ownValue = constructExpressionNode("newArray", type, dimensions.done(), initializer);
+        if (node.getInitializer() != null) {
+            IValue initializer = visitChild(node.getInitializer());
+            ownValue = constructExpressionNode("newArray", type, dimensions.done(), initializer);
+        }
+        else {
+            ownValue = constructExpressionNode("newArray", type, dimensions.done()); 
+        }
 
         return false;
     }
