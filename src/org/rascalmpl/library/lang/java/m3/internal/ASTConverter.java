@@ -1482,10 +1482,10 @@ public class ASTConverter extends JavaToRascalConverter {
         if (node.getBound() != null) {
             type = visitChild(node.getBound());
             if (node.isUpperBound()) {
-                name = "upperbound";
+                name = "extends";
             } 
             else {
-                name = "lowerbound";
+                name = "super";
             }
         }
         ownValue = constructTypeNode(name, type);
