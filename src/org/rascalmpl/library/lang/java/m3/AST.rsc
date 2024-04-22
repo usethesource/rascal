@@ -54,8 +54,8 @@ data Declaration
     | \annotationType(list[Modifier] modifiers, Expression name, list[Declaration] body)
     | \annotationTypeMember(list[Modifier] modifiers, Type \type, Expression name)
     | \annotationTypeMember(list[Modifier] modifiers, Type \type, Expression name, Expression defaultBlock)
-    // initializers missing in parameter, is it needed in vararg?
-    | \parameter(list[Modifier] modifiers, Type \type, Expression name, int extraDimensions) // TODO: int is not syntax
+    | \parameter(list[Modifier] modifiers, Type \type, Expression name, list[Declaration] dimensions)
+    | \dimension(list[Modifier] annotations)
     | \vararg(list[Modifier] modifiers, Type \type, Expression name)
     ;
 
@@ -95,8 +95,8 @@ data Expression(TypeSymbol typ=\unresolved())
     | \stringLiteral(str stringValue, str literal=stringValue)
     | \textBlock(str stringValue, str literal=stringValue)
     | \type(Type \type)
-    | \variable(str identifier, int extraDimensions) // TODO: an int is not syntax
-    | \variable(str identifier, int extraDimensions, Expression \initializer) // TODO: an int is not syntax
+    | \variable(str identifier, list[Declaration] dimensions) 
+    | \variable(str identifier, list[Declaration] dimensions, Expression \initializer) 
     | \bracket(Expression expression)
     | \this()
     | \this(Expression thisExpression)
