@@ -910,20 +910,34 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(SingleVariableDeclaration node) {
         IValue name = visitChild(node.getName());
-
         IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
 
         IValue type = visitChild(node.getType());
         IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
-        
+        IList dimensions = ((List<?>) node.extraDimensions())
+            .stream()
+            .map(o -> (ASTNode) o) 
+            .map(d -> visitChild(d))
+            .collect(values.listWriter());
+
         if (node.getAST().apiLevel() >= AST.JLS3 && node.isVarargs()) {
             ownValue = constructDeclarationNode("vararg", modifiers, type, name);
         }
         else {
-            ownValue = constructDeclarationNode("parameter", modifiers, type, name, values.integer(node.getExtraDimensions()), initializer);
+            ownValue = constructDeclarationNode("parameter", modifiers, type, name, dimensions, initializer);
         }
 
         return false;
+    }
+    
+    @Override
+    public boolean visit(Dimension node) {
+        ownValue = constructDeclarationNode("dimension", ownAnnotations);
+        return false;
+    }
+
+    int f(int a[][][]) {
+        return 0;
     }
 
     @Override
@@ -1409,8 +1423,18 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue name = values.string(node.getName().getFullyQualifiedName());
 
         IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
+        IList dimensions = ((List<?>) node.extraDimensions())
+            .stream()
+            .map(o -> (ASTNode) o) 
+            .map(d -> visitChild(d))
+            .collect(values.listWriter());
 
-        ownValue = constructExpressionNode("variable", name, values.integer(node.getExtraDimensions()), initializer);
+        if (initializer != null) {
+            ownValue = constructExpressionNode("variable", name, dimensions, initializer);
+        }
+        else {
+            ownValue = constructExpressionNode("variable", name, dimensions);
+        }
 
 
         return false;
