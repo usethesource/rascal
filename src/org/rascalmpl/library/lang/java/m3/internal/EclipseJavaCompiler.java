@@ -308,7 +308,7 @@ public class EclipseJavaCompiler {
         Hashtable<String, String> options = new Hashtable<String, String>();
 
         options.put(JavaCore.COMPILER_SOURCE, ((IString) javaVersion.asWithKeywordParameters().getParameter("version")).getValue());
-        options.put(JavaCore.COMPILER_COMPLIANCE, ((IString) javaVersion.get("version")).getValue());
+        options.put(JavaCore.COMPILER_COMPLIANCE, ((IString) javaVersion.asWithKeywordParameters().getParameter("version")).getValue());
         options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, previewParameter.getValue() ?  JavaCore.ENABLED :  JavaCore.DISABLED);
         options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 
