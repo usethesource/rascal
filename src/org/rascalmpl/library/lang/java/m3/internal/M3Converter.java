@@ -36,6 +36,11 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected final Type JAVA_LANGUAGE_M3;
 	protected ISetWriter languages;
 	
+	M3Converter(final LimitedTypeStore typeStore, java.util.Map<String, ISourceLocation> cache, IConstructor javaVersion) {
+		this(typeStore, cache);
+		languages.insert(javaVersion);
+	}
+
 	M3Converter(final LimitedTypeStore typeStore, java.util.Map<String, ISourceLocation> cache) {
 		super(typeStore, cache, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
