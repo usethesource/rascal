@@ -214,7 +214,7 @@ data Statement
 @synopsis{These are the literal types you can find in Java programs.}
 data Type
     = arrayType(Type \type)
-    | parameterizedType(Type \type)
+    | parameterizedType(Type \type, list[Type] typeArguments)
     | qualifiedType(Type qualifier, Expression simpleName)
     | simpleType(Expression typeName)
     | unionType(list[Type] types)
