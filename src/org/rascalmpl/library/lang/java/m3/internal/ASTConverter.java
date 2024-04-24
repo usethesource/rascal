@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -643,17 +644,71 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(InfixExpression node) {
-        IValue operator = values.string(node.getOperator().toString());
+        Operator op = node.getOperator();
         IValue leftSide = visitChild(node.getLeftOperand());
         IValue rightSide = visitChild(node.getRightOperand());
 
-        IValue intermediateExpression = constructExpressionNode("infix", leftSide, operator, rightSide);
-        for (Iterator<?> it = node.extendedOperands().iterator(); it.hasNext();) {
-            Expression e = (Expression) it.next();
-            intermediateExpression = constructExpressionNode("infix", intermediateExpression, operator, visitChild(e));
+        switch (op.toString()) {
+            case "*":
+                ownValue = constructExpressionNode("times", leftSide, rightSide);
+                break;
+            case "/":
+                ownValue = constructExpressionNode("divide", leftSide, rightSide);
+                break;
+            case "%":
+                ownValue = constructExpressionNode("remainder", leftSide, rightSide);
+                break;
+            case "+":
+                ownValue = constructExpressionNode("plus", leftSide, rightSide);
+                break;
+            case "-":
+                ownValue = constructExpressionNode("minus", leftSide, rightSide);
+                break;
+            case "<<":
+                ownValue = constructExpressionNode("leftShift", leftSide, rightSide);
+                break;
+            case ">>":
+                ownValue = constructExpressionNode("rightShift", leftSide, rightSide);
+                break;
+            case ">>>":
+                ownValue = constructExpressionNode("rightShiftSigned", leftSide, rightSide);
+                break;
+            case "<":
+                ownValue = constructExpressionNode("less", leftSide, rightSide);
+                break;
+            case ">":
+                ownValue = constructExpressionNode("greater", leftSide, rightSide);
+                break;
+            case "<=":
+                ownValue = constructExpressionNode("lessEquals", leftSide, rightSide);
+                break;
+            case ">=":
+                ownValue = constructExpressionNode("greaterEquals", leftSide, rightSide);
+                break;
+            case "==":
+                ownValue = constructExpressionNode("equals", leftSide, rightSide);
+                break;
+            case "!=":
+                ownValue = constructExpressionNode("notEquals", leftSide, rightSide);
+                break;
+            case "^":
+                ownValue = constructExpressionNode("xor", leftSide, rightSide);
+                break;
+            case "|":
+                ownValue = constructExpressionNode("or", leftSide, rightSide);
+                break;
+            case "&":
+                ownValue = constructExpressionNode("and", leftSide, rightSide);
+                break;
+            case "||":
+                ownValue = constructExpressionNode("conditionalOr", leftSide, rightSide);
+                break;
+            case "&&":
+                ownValue = constructExpressionNode("conditionalAnd", leftSide, rightSide);
+                break;
+            default:   
+            throw new IllegalArgumentException(node.getOperator().getClass().getCanonicalName());
         }
-
-        ownValue = intermediateExpression;
 
         return false;
     }
