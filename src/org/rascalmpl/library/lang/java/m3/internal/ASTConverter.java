@@ -985,10 +985,19 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(PostfixExpression node) {
+        org.eclipse.jdt.core.dom.PostfixExpression.Operator op = node.getOperator();
         IValue operand = visitChild(node.getOperand());
-        IValue operator = values.string(node.getOperator().toString());
-
-        ownValue = constructExpressionNode("postfix", operand, operator);
+        
+        switch (op.toString()) {
+            case "++":
+                ownValue = constructExpressionNode("postIncrement", operand);
+                break;
+            case "--":
+                ownValue = constructExpressionNode("postDecrement", operand);
+                break;
+            default:
+                throw new IllegalArgumentException(op.toString());
+        }
 
         return false;
     }
@@ -996,9 +1005,30 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(PrefixExpression node) {
         IValue operand = visitChild(node.getOperand());
-        IValue operator = values.string(node.getOperator().toString());
+        org.eclipse.jdt.core.dom.PrefixExpression.Operator operator = node.getOperator();
 
-        ownValue = constructExpressionNode("prefix", operator, operand);
+        switch (operator.toString()) {
+            case "++":
+                ownValue = constructExpressionNode("preIncrement", operand);
+                break;
+            case "--":
+                ownValue = constructExpressionNode("preDecrement", operand);
+                break;
+            case "+":
+                ownValue = constructExpressionNode("prePlus", operand);
+                break;
+            case "-":
+                ownValue = constructExpressionNode("preMinus", operand);
+                break;
+            case "~":
+                ownValue = constructExpressionNode("preComplement", operand);
+                break;
+            case "!":
+                ownValue = constructExpressionNode("preNot", operand);
+                break;
+            default:
+                throw new IllegalArgumentException(operator.toString());
+        }
 
         return false;
     }
@@ -1144,27 +1174,11 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
-    
     @Override
     public boolean visit(LambdaExpression node) {
-        IListWriter parameters = values.listWriter();
-        boolean noTypes = true;
-
-        for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
-            ASTNode next = (ASTNode) it.next();
-            if (next instanceof VariableDeclarationFragment) {
-                // no types
-                VariableDeclarationFragment v = (VariableDeclarationFragment) next;
-                parameters.append(visitChild(v));
-            }
-            else {
-                // with type
-                noTypes = false;
-                parameters.append(visitChild(next));
-            }
-        }
+        IList parameters = visitChildren(node.parameters());
         
-        ownValue = constructExpressionNode("lambda", parameters.done(), visitChild(node.getBody()));
+        ownValue = constructExpressionNode("lambda", parameters, visitChild(node.getBody()));
         return false;
     }
 
