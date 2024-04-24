@@ -562,7 +562,8 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){  
     returnExprType = s.getType(returnExpr);
-
+//println("returnRequirement:");
+//iprintln(returnExprType);
     msg = p:/aparameter(_,_) := declaredReturnType
           ? error(returnExpr, "Returned type %t is not (or: not always) a subtype of expected return type %t", returnExprType, declaredReturnType)
           : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);

@@ -811,7 +811,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
         catch invalidMatch(str reason):
               s.report(error(i < size(actuals)  ? actuals[i] : current, reason));
     }
-  
+    //println("bindings:"); iprintln(bindings);
     iformalTypes = formalTypes;
     if(!isEmpty(bindings)){
        iformalTypes =
@@ -831,10 +831,23 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
            if(identicalFormals[i]){
               s.requireUnify(ai, iformalTypes[i], error(current, "Cannot unify %t with %t", ai, iformalTypes[i]));
               ai = s.instantiate(ai);
-              //clearBindings();
            } else
               continue;
         }
+        //ai = visit(ai){ case p:aparameter(_,_) => p[closed=true] };
+        //iformalTypes[i] = visit(iformalTypes[i]) { case p:aparameter(_,_) => p[closed=true] };
+        //println("requireComparable: <i>, <ai> and "); iprintln(iformalTypes[i]);
+        
+        try
+            bindings = matchRascalTypeParams(iformalTypes[i], ai, bindings);
+        catch invalidMatch(str reason):
+              s.report(error(i < size(actuals)  ? actuals[i] : current, reason));
+        
+        try {   
+            iformalTypes[i] = instantiateRascalTypeParameters(current, ai, bindings, s); // changed
+        } catch invalidInstantiation(str msg):
+          s.report(error(current, msg));
+          
         s.requireComparable(ai, iformalTypes[i], error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, iformalTypes[i], ai));     
     }
     
@@ -848,8 +861,11 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     if(isEmpty(bindings))
        return retType;
        
-    try   return instantiateRascalTypeParameters(current, retType, bindings, s); // changed
-    catch invalidInstantiation(str msg):
+    try {   
+        res = instantiateRascalTypeParameters(current, retType, bindings, s); // changed
+        //res = visit(res) { case p:aparameter(_,_) => p[closed=true] };
+        return res;
+    } catch invalidInstantiation(str msg):
           s.report(error(current, msg));
 
     return avalue();

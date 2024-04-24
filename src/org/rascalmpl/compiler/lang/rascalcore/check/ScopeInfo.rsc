@@ -64,8 +64,11 @@ data SignatureInfo
 // - given a table of computed bounds, turn each use in a use with the given bound.
 // - used for the body of functions
 //
-// IMPORTANT: the above states should be checked in the above order.
 // Case in point: a function type that is part of a return type.
+
+//FUN = resultType inParameters BODY;
+//BODY = (useBoundedTP | FUN)*
+
 
 data TypeParamHandler
     = defineOrReuseTP(bool closed)
@@ -93,16 +96,18 @@ tuple[bool yes, bool closed] defineOrReuseTypeParameters(Collector c){
     stck = c.getStack(key_TypeParameterHandling);
      if(debugTP)println("defineOrReuseTypeParameters: <stck>");
     switch(stck){
-       case [useTP(bool closed), defineOrReuseTP(closed), *_]:
-                    return <true, closed>;
-       case [defineOrReuseTP(bool closed), defineOrReuseTP(closed), *_]:
-                    return <true, closed>;
-       case [defineOrReuseTP(bool closed), useBoundedTP(_)]:
-                    return <false, closed>;
-        case [defineOrReuseTP(bool closed), useTP(_)]:
-                    return <true, closed>;
-       case [defineOrReuseTP(bool closed)]:
-                    return <true, closed>;
+        case [defineOrReuseTP(bool closed), *_]:
+            return <true, closed>;
+       //case [useTP(bool closed), defineOrReuseTP(closed), *_]:
+       //             return <true, closed>;
+       //case [defineOrReuseTP(bool closed), defineOrReuseTP(closed), *_]:
+       //             return <true, closed>;
+       //case [defineOrReuseTP(bool closed), useBoundedTP(_)]:
+       //             return <false, closed>;
+       // case [defineOrReuseTP(bool closed), useTP(_)]:
+       //             return <true, closed>;
+       //case [defineOrReuseTP(bool closed)]:
+       //             return <true, closed>;
     }
     return <false, false>;
 }
@@ -123,16 +128,18 @@ tuple[bool yes, bool closed] useTypeParameters(Collector c){
     stck = c.getStack(key_TypeParameterHandling);
     if(debugTP)println("useTypeParameters: <stck>");
     switch(stck){ 
-        case [useTP(bool closed), useTP(_), *_]:
-                    return <true, closed>;
-        case [useTP(bool closed), defineOrReuseTP(_), *_]:
-                    return <true, closed>;
-        case [useTP(bool closed), useBoundedTP(_)]:
-                    return <true, true>;
-        case [useTP(bool closed)]:
-                    return <true, closed>;
-        case [defineOrReuseTP(bool closed), useBoundedTP(_)]:
-                    return <true, true>;
+        case [useTP(bool closed), *_]:
+            return <true, closed>;
+        //case [useTP(bool closed), useTP(_), *_]:
+        //            return <true, closed>;
+        //case [useTP(bool closed), defineOrReuseTP(_), *_]:
+        //            return <true, closed>;
+        //case [useTP(bool closed), useBoundedTP(_)]:
+        //            return <true, true>;
+        //case [useTP(bool closed)]:
+        //            return <true, closed>;
+        //case [defineOrReuseTP(bool closed), useBoundedTP(_)]:
+        //            return <true, true>;
     }
     return <false, false>;
 }
