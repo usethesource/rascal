@@ -110,6 +110,8 @@ public class ASTConverter extends JavaToRascalConverter {
         // out the AST construction code of all of those visit methods.
         // Still every such method must put the ownAnnotations list at the right place in their constructor.
 
+        System.err.println("Now converting: " + getSourceLocation(node));
+        
         if (node instanceof IAnnotatable) {
             IAnnotatable annotable = (IAnnotatable) node;
             
@@ -815,8 +817,6 @@ public class ASTConverter extends JavaToRascalConverter {
     
     @Override
     public boolean visit(MethodInvocation node) {
-        IValue expression = visitChild(node.getExpression());
-        
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
@@ -835,7 +835,13 @@ public class ASTConverter extends JavaToRascalConverter {
             arguments.append(visitChild(e));
         }		
 
-        ownValue = constructExpressionNode("methodCall", expression, genericTypes.done(), name, arguments.done());
+        if (node.getExpression() != null) {
+            IValue expression = visitChild(node.getExpression());
+            ownValue = constructExpressionNode("methodCall", expression, genericTypes.done(), name, arguments.done());
+        }
+        else {
+            ownValue = constructExpressionNode("methodCall", genericTypes.done(), name, arguments.done());
+        }
         
         return false;
     }
@@ -898,19 +904,11 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(PackageDeclaration node) {
         IValue name = visitChild(node.getName());
-        IList annotations = mapAnnotations(node.annotations());
+        IList annotations = visitChildren(node.annotations());
                         
         ownValue = constructDeclarationNode("package", annotations, name);
 
         return false;
-    }
-
-    private IList mapAnnotations(List<?> annotations) {
-        return annotations
-            .stream()
-            .map(o -> (ASTNode) o)
-            .map(a -> visitChild(a))
-            .collect(values.listWriter());
     }
 
     @Override
@@ -1425,7 +1423,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(TypeDeclaration node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
 
         String objectType = node.isInterface() ? "interface" : "class";
         IValue name = visitChild(node.getName());

@@ -15,6 +15,8 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -228,6 +230,18 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         return this.getValue();
     }
 
+    protected IList visitChildren(List<?> childrenList) {
+        if (childrenList == null) {
+            return values.list();
+        }
+
+        return childrenList
+            .stream()
+            .map(o -> (ASTNode) o)
+            .map(a -> visitChild(a))
+            .collect(values.listWriter());
+    }
+
     public IValue getValue() {
         return this.ownValue;
     }
@@ -259,24 +273,28 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected IValue constructDeclarationNode(String constructor, IValue... children) {
         io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE, constructor, args);
+        assert constr != null : "No constructor " + constructor + " for " + args;
         return values.constructor(constr, children);
     }
 
     protected IValue constructExpressionNode(String constructor, IValue... children) {
         io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE, constructor, args);
+        assert constr != null : "No constructor " + constructor + " for " + args;
         return values.constructor(constr, children);
     }
 
     protected IValue constructStatementNode(String constructor, IValue... children) {
         io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE, constructor, args);
+        assert constr != null : "No constructor " + constructor + " for " + args;
         return values.constructor(constr, children);
     }
 
     protected IValue constructTypeNode(String constructor, IValue... children) {
         io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
+        assert constr != null : "No constructor " + constructor + " for " + args;
         return values.constructor(constr, children);
     }
 
