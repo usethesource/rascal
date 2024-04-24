@@ -14,13 +14,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.core.IAnnotatable;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 
 import io.usethesource.vallang.IList;
@@ -28,6 +25,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * This big visitor class has a case for every type of AST node in the JDT's core DOM model.
@@ -106,58 +104,13 @@ public class ASTConverter extends JavaToRascalConverter {
     
     @Override
     public void preVisit(ASTNode node) {
-        // since many many nodes have annotatable possibilities, this factors
-        // out the AST construction code of all of those visit methods.
-        // Still every such method must put the ownAnnotations list at the right place in their constructor.
-
         System.err.println("Now converting: " + node.getClass().getCanonicalName() + "@ " + getSourceLocation(node));
-
-        if (node instanceof IAnnotatable) {
-            IAnnotatable annotable = (IAnnotatable) node;
-            
-            try {
-                if (annotable.getAnnotations() == null) {
-                    ownAnnotations = values.list();
-                }
-                else {
-                    ownAnnotations = Arrays.stream(annotable.getAnnotations())
-                        .map(o -> (ASTNode) o)
-                        .map(a -> visitChild(a))
-                        .collect(values.listWriter());
-                }
-            }
-            catch (JavaModelException e) {
-                // TODO: log this in a better way
-               System.err.println("Unhandled internal error: " + e.getMessage());
-            }
-        }
-        else {
-            // This {sh,w}ould trigger downstream non-null assertions if someone tries
-            // to include annotations into a non-annotable syntax node.
-            // Otherwise this field should not be referenced until it is set here above again.
-            ownAnnotations = null; 
-        }
-
-        // many nodes also have modifiers
-        List<?> modifiers = (List<?>) node.getProperty("modifiers");
-        if (modifiers != null) {
-            ownModifiers = modifiers.stream()
-                .map(o -> (ASTNode) o)
-                .map(a -> visitChild(a))
-                .collect(values.listWriter());
-        }
-        else {
-            // This {sh,w}ould trigger downstream non-null assertions if someone tries
-            // to include modifiers into a non-modifiable syntax node.
-            // Otherwise this field should not be referenced until it is set here above again.
-            ownModifiers = null;
-        }
     }
     
     
     @Override
     public boolean visit(AnnotationTypeDeclaration node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
         IValue name = visitChild(node.getName());
 
         IListWriter bodyDeclarations = values.listWriter();
@@ -173,7 +126,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(AnnotationTypeMemberDeclaration node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
         IValue typeArgument = visitChild(node.getType());
 
         IValue name = visitChild(node.getName());
@@ -526,7 +479,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(EnumConstantDeclaration node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
         IValue name = visitChild(node.getName());
 
         IListWriter arguments = values.listWriter();
@@ -550,7 +503,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(EnumDeclaration node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
         IValue name = visitChild(node.getName());
 
         IListWriter implementedInterfaces = values.listWriter();
@@ -600,7 +553,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(FieldDeclaration node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
         IValue type = visitChild(node.getType());
 
         IListWriter fragments = values.listWriter();
@@ -697,7 +650,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(Initializer node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
         IValue body = visitChild(node.getBody());
 
         ownValue = constructDeclarationNode("initializer", modifiers, body);
@@ -738,7 +691,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(MarkerAnnotation node) {
         IValue typeName = visitChild(node.getTypeName());
-        ownValue = constructExpressionNode("markerAnnotation", typeName);
+        ownValue = constructModifierNode("markerAnnotation", typeName);
 
         return false;
     }
@@ -750,7 +703,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(MemberValuePair node) {
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
         IValue value = visitChild(node.getValue());
 
         ownValue = constructExpressionNode("memberValuePair", name, value);
@@ -761,7 +714,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(MethodDeclaration node) {
         String constructorName = "method";
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
 
         IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
@@ -826,6 +779,9 @@ public class ASTConverter extends JavaToRascalConverter {
                 ownValue = constructDeclarationNode(constructorName, modifiers, name, parameters.done(), possibleExceptions.done(), body);
             }
             else {
+                if (modifiers.getElementType() == TypeFactory.getInstance().nodeType()) {
+                    System.err.println(modifiers);
+                }
                 ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done(), body);
             }
         }
@@ -908,7 +864,7 @@ public class ASTConverter extends JavaToRascalConverter {
             memberValuePairs.append(visitChild(p));
         }
 
-        ownValue = constructExpressionNode("normalAnnotation", typeName, memberValuePairs.done());
+        ownValue = constructModifierNode("normalAnnotation", typeName, memberValuePairs.done());
 
         return false;
     }
@@ -1046,7 +1002,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IValue name = visitChild(node.getTypeName());
         IValue value = visitChild(node.getValue());
 
-        ownValue = constructExpressionNode("singleMemberAnnotation", name, value);
+        ownValue = constructModifierNode("singleMemberAnnotation", name, value);
 
         return false;
     }
@@ -1054,7 +1010,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(SingleVariableDeclaration node) {
         IValue name = visitChild(node.getName());
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
 
         IValue type = visitChild(node.getType());
         IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
@@ -1083,7 +1039,8 @@ public class ASTConverter extends JavaToRascalConverter {
     
     @Override
     public boolean visit(Dimension node) {
-        ownValue = constructDeclarationNode("dimension", ownAnnotations);
+        var annos = visitChildren(node.annotations());
+        ownValue = constructDeclarationNode("dimension", annos);
         return false;
     }
 
@@ -1573,7 +1530,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(VariableDeclarationExpression node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
 
         IValue type = visitChild(node.getType());
 
@@ -1614,7 +1571,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(VariableDeclarationStatement node) {
-        IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
+        IList modifiers = visitChildren(node.modifiers());
 
         IValue type = visitChild(node.getType());
 

@@ -15,7 +15,6 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -48,9 +47,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected final LimitedTypeStore typeStore;
 
     protected IValue ownValue;
-    protected IList  ownAnnotations;
-    protected IList  ownModifiers;
-
+    
     private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
     private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifier";
     private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
@@ -249,6 +246,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected IConstructor constructModifierNode(String constructor, IValue... children) {
         io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
+        assert constr != null : "No constructor " + constructor + " for " + args;
         return values.constructor(constr, children);
     }
 
