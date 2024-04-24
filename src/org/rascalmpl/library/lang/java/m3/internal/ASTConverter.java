@@ -88,19 +88,24 @@ public class ASTConverter extends JavaToRascalConverter {
             }
             else if (node instanceof VariableDeclaration) {
                 IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
-                return bindingsResolver.resolveType(binding.getType(), false);
+                if (binding != null && binding.getType() != null) { // some variables have inferred types
+                    return bindingsResolver.resolveType(binding.getType(), false);
+                }
             }
+            
             else if (node instanceof ModuleDeclaration) {
                 IModuleBinding binding = ((ModuleDeclaration) node).resolveBinding();
                 return bindingsResolver.resolveType(binding, true);
             }
         } 
         catch (NullPointerException e) {
-            // TODO: log this in a better way
-            System.err.println("Got NPE for node " + node + ((e.getStackTrace().length > 0) ? ("\n\t" + e.getStackTrace()[0]) : ""));
+            e.printStackTrace();
+            // This happens sometime with type incorrect Java programs, but can also be due to an error in the mapping code.
+            assert false : "Resolving type for " + node.getClass().getCanonicalName() + " @ " + getSourceLocation(node);
+            
         }
 
-        // some nodes do not have a type
+        // some nodes do not have a type, or type resolution has failed and then we simply do not store the type in the tree.
         return null;
     }
 
