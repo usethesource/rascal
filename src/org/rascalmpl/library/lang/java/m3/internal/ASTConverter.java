@@ -551,7 +551,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(EnumDeclaration node) {
         IList modifiers = mergeModifiersAndAnnotationsInOrderOfAppearance(ownModifiers, ownAnnotations);
-        IValue name = values.string(node.getName().getFullyQualifiedName()); 
+        IValue name = visitChild(node.getName());
 
         IListWriter implementedInterfaces = values.listWriter();
         if (!node.superInterfaceTypes().isEmpty()) {
