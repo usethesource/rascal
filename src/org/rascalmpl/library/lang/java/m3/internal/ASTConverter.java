@@ -40,7 +40,9 @@ import io.usethesource.vallang.type.TypeFactory;
  * specific, and all node src locations point to exactly the the right input subsentences. 
  */
 public class ASTConverter extends JavaToRascalConverter {
-    
+    // prints a clickable trace while converting for easier diagnostics
+    private final boolean debug = true;
+
     public ASTConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
         super(typeStore, cache, collectBindings);
     }
@@ -104,7 +106,9 @@ public class ASTConverter extends JavaToRascalConverter {
     
     @Override
     public void preVisit(ASTNode node) {
-        System.err.println("Now converting: " + node.getClass().getCanonicalName() + "@ " + getSourceLocation(node));
+        if (debug) {
+            System.err.println("Now converting: " + node.getClass().getCanonicalName() + "@ " + getSourceLocation(node));
+        }
     }
     
     
@@ -1074,10 +1078,20 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(LambdaExpression node) {
         IListWriter parameters = values.listWriter();
+        boolean noTypes = true;
 
         for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
-            VariableDeclarationFragment v = (VariableDeclarationFragment) it.next();
-            parameters.append(visitChild(v));
+            ASTNode next = (ASTNode) it.next();
+            if (next instanceof VariableDeclarationFragment) {
+                // no types
+                VariableDeclarationFragment v = (VariableDeclarationFragment) next;
+                parameters.append(visitChild(v));
+            }
+            else {
+                // with type
+                noTypes = false;
+                parameters.append(visitChild(next));
+            }
         }
         
         ownValue = constructExpressionNode("lambda", parameters.done(), visitChild(node.getBody()));
@@ -1559,10 +1573,10 @@ public class ASTConverter extends JavaToRascalConverter {
 
         if (node.getInitializer() != null) {
             IValue initializer = visitChild(node.getInitializer());
-            ownValue = constructExpressionNode("variable", name, dimensions, initializer);
+            ownValue = constructDeclarationNode("variable", name, dimensions, initializer);
         }
         else {
-            ownValue = constructExpressionNode("variable", name, dimensions);
+            ownValue = constructDeclarationNode("variable", name, dimensions);
         }
 
 
