@@ -152,8 +152,9 @@ data Expression(TypeSymbol typ=\unresolved())
     | \stringLiteral(str stringValue, str literal=stringValue)
     | \textBlock(str stringValue, str literal=stringValue)
     | \type(Type \type)
-    | \variable(str identifier, list[Declaration] dimensionTypes) 
-    | \variable(str identifier, list[Declaration] dimensionTypes, Expression \initializer) 
+    | \lambdaParameter(Type \type, Expression variable) // for parenthesized lambdas
+    | \variable(Expression name, list[Declaration] dimensionTypes) 
+    | \variable(Expression name, list[Declaration] dimensionTypes, Expression \initializer) 
     | \bracket(Expression expression)
     | \this()
     | \this(Expression qualifier)
@@ -171,8 +172,8 @@ data Expression(TypeSymbol typ=\unresolved())
     | \normalAnnotation(Expression name, list[Expression] memberValuePairs)
     | \memberValuePair(Expression name, Expression \value)
     | \singleMemberAnnotation(str typeName, Expression \value)
-    | \lambda(list[Declaration] parameters, Statement block)
-    | \lambda(list[Declaration] parameters, Expression body)
+    | \lambda(list[Expression] parameters, Statement block)
+    | \lambda(list[Expression] parameters, Expression body)
     ;
 
 @synopsis{These are the Statement types of Java}

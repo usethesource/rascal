@@ -845,7 +845,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IListWriter arguments = values.listWriter();
         for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
-            Expression e = (Expression) it.next();
+            ASTNode e = (ASTNode) it.next();
             arguments.append(visitChild(e));
         }		
 
@@ -1103,9 +1103,20 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(LambdaExpression node) {
         IListWriter parameters = values.listWriter();
-        for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
-            SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-            parameters.append(visitChild(v));
+
+        if (!node.hasParentheses()) {
+            // without types for the parameters
+            for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
+                VariableDeclarationFragment v = (VariableDeclarationFragment) it.next();
+                parameters.append(visitChild(v));
+            }
+        }
+        else {
+            // with types for the parameters
+            for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
+                VariableDeclaration v = (VariableDeclaration) it.next();
+                parameters.append(constructExpressionNode("lambdaParameter", visitChild(v)));
+            }
         }
 
         ownValue = constructExpressionNode("lambda", parameters.done(), visitChild(node.getBody()));
@@ -1577,7 +1588,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(VariableDeclarationFragment node) {
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
         IList dimensions = ((List<?>) node.extraDimensions())
             .stream()
