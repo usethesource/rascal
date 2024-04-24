@@ -1629,6 +1629,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(WildcardType node) {
         String name = "wildcard";
+        IList annos = visitChildren(node.annotations());
 
         if (node.getBound() != null) {
             var bound = visitChild(node.getBound());
@@ -1637,12 +1638,12 @@ public class ASTConverter extends JavaToRascalConverter {
             } 
             else {
                 name = "super";
-            }
+            }    
 
-            ownValue = constructTypeNode(name, ownAnnotations, bound);
+            ownValue = constructTypeNode(name, annos, bound);
         }
         else {
-            ownValue = constructTypeNode(name, ownAnnotations);
+            ownValue = constructTypeNode(name, annos);
         }
 
         return false;
