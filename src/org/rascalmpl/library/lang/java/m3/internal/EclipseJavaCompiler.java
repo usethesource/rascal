@@ -229,11 +229,19 @@ public class EclipseJavaCompiler {
             }, null);
         }
         else {
-            for (IValue file: files) {
-                ISourceLocation loc = (ISourceLocation) file;
-                CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc), resolveBindings, errorRecovery, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-                buildNotifier.accept(loc, cu);
+            monitor.jobStart("Mapping syntax trees", files.size());
+            try {
+                for (IValue file: files) {
+                    monitor.jobStep("Mapping syntax trees", file.toString(), 1);
+                    ISourceLocation loc = (ISourceLocation) file;
+                    CompilationUnit cu = getCompilationUnit(loc.getPath(), getFileContents(loc), resolveBindings, errorRecovery, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
+                    buildNotifier.accept(loc, cu);
+                }
             }
+            finally {
+                monitor.jobEnd("Mapping syntax trees", true);
+            }
+            
         }
     }
 
