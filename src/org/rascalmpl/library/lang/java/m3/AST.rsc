@@ -165,16 +165,13 @@ data Expression(TypeSymbol typ=\unresolved())
     | \prefix(str operator, Expression operand)
     | \simpleName(str identifier)
     | \switch(Expression expression, list[Statement] cases)
-    | \markerAnnotation(Expression name)
     | \methodReference(Type \type, list[Type] typeArguments, Expression name)
     | \methodReference(Expression expression, list[Type] typeArguments, Expression name)
     | \creationReference(Type \type, list[Type] typeArguments)
     | \superMethodReference(list[Type] typeArguments, Expression name)
-    | \normalAnnotation(Expression name, list[Expression] memberValuePairs)
-    | \memberValuePair(Expression name, Expression \value)
-    | \singleMemberAnnotation(str typeName, Expression \value)
     | \lambda(list[Expression] parameters, Statement block)
     | \lambda(list[Expression] parameters, Expression body)
+    | \memberValuePair(Expression name, Expression \value)
     ;
 
 @synopsis{These are the Statement types of Java}
@@ -254,11 +251,13 @@ data Modifier
     | \native()
     | \volatile()
     | \strictfp()
-    | \annotation(Expression \anno)
     | \onDemand()
     | \default()
     | \open()  // for modules only
     | \transitive() // for module requirements only
+    | \markerAnnotation(Expression name)
+    | \normalAnnotation(Expression name, list[Expression] memberValuePairs)
+    | \singleMemberAnnotation(Expression typeName, Expression \value)
     ;
 
 @memo
