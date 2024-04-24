@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.dom.*;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -41,7 +42,7 @@ import io.usethesource.vallang.type.TypeFactory;
  */
 public class ASTConverter extends JavaToRascalConverter {
     // prints a clickable trace while converting for easier diagnostics
-    private final boolean debug = true;
+    private final boolean debug = false;
 
     public ASTConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
         super(typeStore, cache, collectBindings);
@@ -59,7 +60,7 @@ public class ASTConverter extends JavaToRascalConverter {
             if (!decl.getScheme().equals("unknown")) {
                 setKeywordParameter("decl", decl); 
             }
-            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE) {
+            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE && !decl.getScheme().equals("java+package")) {
                 IValue type = resolveType(node);
 
                 setKeywordParameter("typ", type);
@@ -951,11 +952,20 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(QualifiedName node) {
-        IValue qualifier = visitChild(node.getQualifier());
-
+        IConstructor qualifier = (IConstructor) visitChild(node.getQualifier());
         IValue name = visitChild(node.getName());
 
-        ownValue = constructExpressionNode("qualifiedName", qualifier, name);
+        IListWriter names = values.listWriter();
+        if (qualifier.getConstructorType().getName().equals("qualifiedName")) {
+            // flatten
+            names.appendAll((IList) qualifier.get("identifiers"));
+        }
+        else {
+            names.append(qualifier);
+        }
+        names.append(name);
+
+        ownValue = constructExpressionNode("qualifiedName", names.done());
 
         return false;
     }
@@ -988,7 +998,7 @@ public class ASTConverter extends JavaToRascalConverter {
     public boolean visit(SimpleName node) {
         IValue value = values.string(node.getFullyQualifiedName());
 
-        ownValue = constructExpressionNode("simpleName", value);
+        ownValue = constructExpressionNode("id", value);
 
         return false;
     }
