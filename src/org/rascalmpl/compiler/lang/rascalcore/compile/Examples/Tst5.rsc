@@ -1,35 +1,61 @@
 module lang::rascalcore::compile::Examples::Tst5
 
-//&T <: num makeSmallerThan(&T <: num n, int limit) {
-//	if (int i := n) {
-//	    &T <: num x = i;
-//		return x;
-//    }
-//	throw "Forgot about a different number type <n>";
-//}
-  
-&S(&U) curry(&S(&T, &U) f, &T t) = 
-    &S (&U u) { 
-      return f(t, u); 
-};
 test bool selfApplyCurry() {
-    
+    &S(&U) curry(&S(&T, &U) f, &T t) = &S (&U u) { 
+      return f(t, u); 
+    };
 
     int addition(int i, int j) = i + j;
 
     func = curry(curry, addition);
 
-    assert int(int)(int) _ 
-           := func;
-    
-    return true;
+    assert int(int)(int) _ := func;
 
-//    func2 = func(1);
-//
-//    assert int(int) _ := func2;
-//
-//    return func2(1) == 2;
+    func2 = func(1);
+
+    assert int(int) _ := func2;
+
+    return func2(1) == 2;
 }
+
+//&S(&U) curry(&S(&T, &U) f, &T t) = 
+//    &S (&U u) { 
+//      return f(t, u); 
+//};
+//
+//int addition(int i, int j) = i + j;
+//
+//value main(){
+//    res = 
+//            curry(curry, addition);
+//    return res;
+//}
+
+//int(int)(int) main(){
+//    /*int(int)(int)*/ res = curry(curry, addition);
+//    return res;  // OK
+//    //return curry(curry, addition); //"Return type `int(int)(int)` expected, found `&S(&U)(&T)`",
+//}
+
+//test bool selfApplyCurry() {
+//    
+//
+//    int addition(int i, int j) = i + j;
+//
+//    func = 
+//        curry(curry, addition);
+//
+//    //assert int(int)(int) _ 
+//    //       := func;
+//    
+//    return true;
+//
+////    func2 = func(1);
+////
+////    assert int(int) _ := func2;
+////
+////    return func2(1) == 2;
+//}
 
 //data Maybe[&A] 
 //   = nothing() 

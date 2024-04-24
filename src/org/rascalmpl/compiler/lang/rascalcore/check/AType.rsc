@@ -111,6 +111,7 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
 bool asubtype(overloadedAType(overloads), AType r) = isEmpty(overloads) ? asubtype(avoid(), r) : any(<_, _, tp> <- overloads, asubtype(tp, r));
 
 bool asubtype(avoid(), AType _) = true;
+bool asubtype(AType _, avalue()) = true;
  
 bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
@@ -305,13 +306,19 @@ bool asubtype(abag(AType s), abag(AType t)) = asubtype(s, t);
 bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2)) 
     = asubtype(from1, from2) && asubtype(to1, to2);
 
-bool asubtype(afunc(AType a, list[AType] ap, list[Keyword] _), AType r){
+bool asubtype(AType l:afunc(AType a, list[AType] ap, list[Keyword] _), AType r){
     switch(r){
         case acons(b,list[AType] bp, list[Keyword] _):
             return asubtype(a, b) && comparableList(ap, bp);
-        case afunc(AType b, list[AType] bp, list[Keyword] _):
-            // note that comparability is enough for function argument sub-typing due to pattern matching semantics
-            return asubtype(a, b) && comparableList(ap, bp);
+        case afunc(AType b, list[AType] bp, list[Keyword] _): {
+                // note that comparability is enough for function argument sub-typing due to pattern matching semantics
+                ares = asubtype(a,b);
+                bres  = comparableList(ap, bp);
+                //println("asubtype(<l>, <r>) =\> <ares>, <bres>");
+                return ares && bres;
+            }
+         case avalue():
+            return true;
     }
     fail;
 }
@@ -404,6 +411,10 @@ bool comparableList(list[AType] l, list[AType] r) {
     if(size(l) == 0){
         return size(r) == 0;
     }
+    //for(i <- index(l)){
+    //    b = comparable(l[i], r[i]);
+    //    println("comparableList <i>: <l[i]>, <r[i]> =\> <b>");
+    //}
     return size(l) == size(r) && all(i <- index(l), comparable(l[i], r[i]));
 }
 

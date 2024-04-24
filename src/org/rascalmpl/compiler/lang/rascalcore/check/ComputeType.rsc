@@ -1048,14 +1048,15 @@ AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solv
    }
   
    bindings = ();
-   try   bindings = matchRascalTypeParams(patType, subjectType, bindings);
+   try   bindings = unifyRascalTypeParams(patType, subjectType, bindings);
    catch invalidMatch(str reason):
          s.report(current, reason);
    if(!isEmpty(bindings)){
-    try   patType = instantiateRascalTypeParameters(current, patType, bindings, s);
+    try   <patType, subjectType> = instantiateRascalTypeParameters(current, patType, subjectType, bindings, s);
     catch invalidInstantiation(str msg):
         s.report(error(current, msg));
    }
+   
    s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
    return patType;
 }

@@ -27,6 +27,11 @@ import Node;
 
 public alias Bindings = map[str varName, AType varType];
 
+public Bindings unifyRascalTypeParams(AType r, AType s, Bindings b){
+    b2 = matchRascalTypeParams(r, s, b);
+    return matchRascalTypeParams(s, r, b2);
+
+}
 // TODO: Add support for bags if we ever get around to supporting them...
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
@@ -175,4 +180,10 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
                                   }
                                }
                         };
+}
+
+tuple[AType left, AType right] instantiateRascalTypeParameters(Tree selector, AType ltype, AType rtype, Bindings bindings, Solver s){
+    return <instantiateRascalTypeParameters(selector, ltype, bindings, s),
+            instantiateRascalTypeParameters(selector, rtype, bindings, s)
+           >;
 }
