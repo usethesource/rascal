@@ -93,7 +93,7 @@ data Declaration
     | \enumConstant(list[Modifier] modifiers, Expression name, list[Expression] arguments, Declaration class)
     | \enumConstant(list[Modifier] modifiers, Expression name, list[Expression] arguments)
     | \class(list[Modifier] modifiers, Expression name, list[Declaration] typeParameters, list[Type] extends, list[Type] implements, list[Declaration] body)
-    | \class(list[Modifier] modifiers, list[Declaration] body)
+    | \class(list[Declaration] body)
     | \interface(list[Modifier] modifiers, Expression name, list[Declaration] typeParameters, list[Type] extends, list[Type] implements, list[Declaration] body)
     | \field(list[Modifier] modifiers, Type \type, list[Expression] fragments)
     | \initializer(list[Modifier] modifiers, Statement initializerBody)
