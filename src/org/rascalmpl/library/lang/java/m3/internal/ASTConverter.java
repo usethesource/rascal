@@ -845,9 +845,11 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IListWriter arguments = values.listWriter();
         for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
-            ASTNode e = (ASTNode) it.next();
+            Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
-        }		
+            // this sometimes procudes Type instead of Expression nodes?
+        }	
+        
 
         if (node.getExpression() != null) {
             IValue expression = visitChild(node.getExpression());
