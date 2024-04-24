@@ -329,7 +329,7 @@ public class ASTConverter extends JavaToRascalConverter {
             IValue label = visitChild(node.getLabel());
             ownValue = constructStatementNode("break", label);
         }
-        else if (node.getExpression() != null) {
+        else if (node.getAST().apiLevel() == AST.JLS12 && node.getExpression() != null) {
             IValue label = visitChild(node.getExpression());
             ownValue = constructStatementNode("break", label);
         }
@@ -1118,21 +1118,11 @@ public class ASTConverter extends JavaToRascalConverter {
     public boolean visit(LambdaExpression node) {
         IListWriter parameters = values.listWriter();
 
-        if (!node.hasParentheses()) {
-            // without types for the parameters
-            for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
-                VariableDeclarationFragment v = (VariableDeclarationFragment) it.next();
-                parameters.append(visitChild(v));
-            }
+        for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
+            VariableDeclarationFragment v = (VariableDeclarationFragment) it.next();
+            parameters.append(visitChild(v));
         }
-        else {
-            // with types for the parameters
-            for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
-                VariableDeclaration v = (VariableDeclaration) it.next();
-                parameters.append(constructExpressionNode("lambdaParameter", visitChild(v)));
-            }
-        }
-
+        
         ownValue = constructExpressionNode("lambda", parameters.done(), visitChild(node.getBody()));
         return false;
     }
