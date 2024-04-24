@@ -111,7 +111,7 @@ public class ASTConverter extends JavaToRascalConverter {
         // Still every such method must put the ownAnnotations list at the right place in their constructor.
 
         System.err.println("Now converting: " + getSourceLocation(node));
-        
+
         if (node instanceof IAnnotatable) {
             IAnnotatable annotable = (IAnnotatable) node;
             
@@ -248,9 +248,16 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public boolean visit(ArrayType node) {
-        IValue type = visitChild(node.getComponentType());
+        int apiLevel = node.getAST().apiLevel();
 
-        ownValue = constructTypeNode("arrayType", type);
+        if (AST.JLS2 <= apiLevel && apiLevel <= AST.JLS4) {
+            IValue type = visitChild(node.getComponentType());
+            ownValue = constructTypeNode("arrayType", type);
+        }
+        else {
+            IValue type = visitChild(node.getElementType());
+            ownValue = constructTypeNode("arrayType", type);
+        }
 
         return false;
     }
@@ -805,10 +812,17 @@ public class ASTConverter extends JavaToRascalConverter {
         }
 
         if (body != null) {
-            ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done(), body);
+            if ("constructor".equals(constructorName)) {
+                // constructors do not have return types or additional generic types
+                ownValue = constructDeclarationNode(constructorName, modifiers, name, parameters.done(), possibleExceptions.done(), body);
+            }
+            else {
+                ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done(), body);
+            }
         }
         else {
             assert !constructorName.equals("constructor"); // constructors must have a body
+            //| \method(list[Modifier] modifiers, list[Declaration] typeParameters, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions)
             ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done());
         }
         
