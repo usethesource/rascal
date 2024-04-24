@@ -53,7 +53,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class EclipseJavaCompiler {
     protected final IValueFactory VF;
     protected final LimitedTypeStore definitions;
-    private IRascalMonitor monitor;
+    private final IRascalMonitor monitor;
 
     public EclipseJavaCompiler(IValueFactory vf, TypeStore definitions, IRascalMonitor monitor) {
         this.VF = vf;
@@ -196,37 +196,55 @@ public class EclipseJavaCompiler {
     
     protected void buildCompilationUnits(ISet files, boolean resolveBindings, boolean errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, BiConsumer<ISourceLocation, CompilationUnit> buildNotifier) throws IOException {
         boolean fastPath = true;
+        
         for (IValue f : files) {
             fastPath &= safeResolve((ISourceLocation)f).getScheme().equals("file");
         }
         if (fastPath) {
+            monitor.jobStart("Mapping syntax trees", files.size());
+
             Map<String, ISourceLocation> reversePathLookup = new HashMap<>();
             String[] absolutePaths = new String[files.size()];
             String[] encodings = new String[absolutePaths.length];
             int i = 0;
-            for (IValue p : files) {
-                ISourceLocation loc = (ISourceLocation)p;
-                if (!URIResolverRegistry.getInstance().isFile(loc)) {
-                    throw RuntimeExceptionFactory.io(VF.string("" + loc  + " is not a file"), null, null);
-                }
-                if (!URIResolverRegistry.getInstance().exists(loc)) {
-                    throw RuntimeExceptionFactory.io(VF.string("" + loc  + " doesn't exist"), null, null);
-                }
+            try {
+                monitor.jobStart("Resolving source files", files.size());
 
-                absolutePaths[i] = new File(safeResolve(loc).getPath()).getAbsolutePath();
-                reversePathLookup.put(absolutePaths[i], loc);
-                encodings[i] = guessEncoding(loc);
-                i++;
+                for (IValue p : files) {
+                    monitor.jobStep("Resolving source files", p.toString(), 1);
+                    ISourceLocation loc = (ISourceLocation)p;
+                    if (!URIResolverRegistry.getInstance().isFile(loc)) {
+                        throw RuntimeExceptionFactory.io(VF.string("" + loc  + " is not a file"), null, null);
+                    }
+                    if (!URIResolverRegistry.getInstance().exists(loc)) {
+                        throw RuntimeExceptionFactory.io(VF.string("" + loc  + " doesn't exist"), null, null);
+                    }
+
+                    absolutePaths[i] = new File(safeResolve(loc).getPath()).getAbsolutePath();
+                    reversePathLookup.put(absolutePaths[i], loc);
+                    encodings[i] = guessEncoding(loc);
+                    i++;
+                }
+            }
+            finally {
+                monitor.jobEnd("Resolving source files", true);
             }
 
             ASTParser parser = constructASTParser(resolveBindings, errorRecovery, javaVersion, translatePaths(sourcePath), translatePaths(classPath));
             
-            parser.createASTs(absolutePaths, encodings, new String[0], new FileASTRequestor() {
-                @Override
-                public void acceptAST(String sourceFilePath, CompilationUnit ast) {
-                    buildNotifier.accept(reversePathLookup.get(sourceFilePath), ast);
-                }
-            }, null);
+            try {
+                monitor.jobStart("Mapping syntax trees", files.size());
+                parser.createASTs(absolutePaths, encodings, new String[0], new FileASTRequestor() {
+                    @Override
+                    public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+                        monitor.jobStep("Mapping syntax trees", sourceFilePath, 1);
+                        buildNotifier.accept(reversePathLookup.get(sourceFilePath), ast);
+                    }
+                }, null);
+            }
+            finally {
+                monitor.jobEnd("Mapping syntax trees", true);
+            }
         }
         else {
             monitor.jobStart("Mapping syntax trees", files.size());
@@ -241,7 +259,6 @@ public class EclipseJavaCompiler {
             finally {
                 monitor.jobEnd("Mapping syntax trees", true);
             }
-            
         }
     }
 
