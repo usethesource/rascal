@@ -110,7 +110,7 @@ public class ASTConverter extends JavaToRascalConverter {
         // out the AST construction code of all of those visit methods.
         // Still every such method must put the ownAnnotations list at the right place in their constructor.
 
-        System.err.println("Now converting: " + getSourceLocation(node));
+        System.err.println("Now converting: " + node.getClass().getCanonicalName() + "@ " + getSourceLocation(node));
 
         if (node instanceof IAnnotatable) {
             IAnnotatable annotable = (IAnnotatable) node;
@@ -209,6 +209,15 @@ public class ASTConverter extends JavaToRascalConverter {
 
         ownValue = constructExpressionNode("arrayAccess", array, index);
 
+        return false;
+    }
+
+    @Override
+    public boolean visit(CreationReference node) {
+        IValue type = visitChild(node.getType());
+        IValue typeArguments = visitChildren(node.typeArguments());
+
+        ownValue = constructExpressionNode("creationReference", type, typeArguments);
         return false;
     }
 
@@ -848,6 +857,9 @@ public class ASTConverter extends JavaToRascalConverter {
             Expression e = (Expression) it.next();
             arguments.append(visitChild(e));
             // this sometimes procudes Type instead of Expression nodes?
+            if (!arguments.get(0).getType().getName().equals("Expression")) {
+                System.err.println(arguments.done());
+            }
         }	
         
 
