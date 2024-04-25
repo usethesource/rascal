@@ -71,10 +71,10 @@ with a parameterized workload and the same label as the job name.
 @pitfalls{
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
-void job(str label, void (void (str message, int worked) step) block, int totalWork=100) {
+&T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
   try {
     jobStart(label, totalWork=totalWork);
-    block((str message, int worked) { 
+    return block((str message, int worked) { 
       jobStep(label, message, work=worked);
     });
   }
@@ -98,10 +98,10 @@ with a parameterized workload and the same label as the job name.
 @pitfalls{
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
-void job(str label, void (void (int worked) step) block, int totalWork=1) {
+&T job(str label, &T (void (int worked) step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    block((int worked) { 
+    return block((int worked) { 
       jobStep(label, label, work=worked);
     });
   }
@@ -125,10 +125,10 @@ with workload `1` and the same label as the job name.
 @pitfalls{
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
-void job(str label, void (void () step) block, int totalWork=1) {
+&T job(str label, &T (void () step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    block(() {
+    return block(() {
       jobStep(label, label, work=1);
     });
   }
@@ -145,10 +145,10 @@ void job(str label, void (void () step) block, int totalWork=1) {
 * the block code does not need to remember to end the job with the same job name.
 * the job is always properly ended, even when exceptions are thrown
 }
-void job(str label, void () block, int totalWork=1) {
+&T job(str label, &T () block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    block();
+    return block();
   }
   catch x: {
     throw x;
