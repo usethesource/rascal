@@ -243,6 +243,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         return this.ownValue;
     }
 
+    protected IConstructor constructModifierNode(ISourceLocation src, String constructor, IValue... children) {
+        return constructModifierNode(constructor, children)
+            .asWithKeywordParameters().setParameter("src", src);
+    }
+    
     protected IConstructor constructModifierNode(String constructor, IValue... children) {
         io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
