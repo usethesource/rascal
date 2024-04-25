@@ -188,8 +188,11 @@ bool astNodeSpecification(node n, str language = "java", bool checkNameResolutio
 		//TODO: for the benefit of the compiler, changed
 		//    assert all(/node m := n, m.decl?, /^<language>/ := decl(m).scheme);
 		//to:
-		for(/node m := n){
-		  assert m.decl? && /^<language>/ := decl(m).scheme;
+		for (/node m := n, m.decl?) {
+		  if (/^<language>/ !:= decl(m).scheme) {
+			println("<m.decl> has a strange loc scheme at <m.src>");
+			return false;
+		  }
 		}
 	}
 	
@@ -198,7 +201,7 @@ bool astNodeSpecification(node n, str language = "java", bool checkNameResolutio
 
 @synopsis{Check the AST node specification on a (large) set of ASTs and monitor the progress.}
 bool astNodeSpecification(set[node] toCheck, str language = "java", bool checkNameResolution=false, bool checkSourceLocation=true) 
-	= job("AST specification checker", (void (str, int) step) {
+	= job("AST specification checker", bool (void (str, int) step) {
        for (node ast <- toCheck) {
 		  step(loc l := ast.src ? l.path : "AST without src location", 1);
 		  if (!astNodeSpecification(ast, language=language, checkNameResolution=checkNameResolution, checkSourceLocation=checkSourceLocation)) {
