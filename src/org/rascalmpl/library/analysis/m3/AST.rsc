@@ -29,6 +29,8 @@ module analysis::m3::AST
 import Message;
 import Node;
 import IO;
+import Set;
+import util::Monitor;
 import analysis::m3::TypeSymbol;
 
 @synopsis{For metric purposes we can use a true AST declaration tree, a simple list of lines for generic metrics, or the reason why we do not have an AST.}
@@ -194,6 +196,18 @@ bool astNodeSpecification(node n, str language = "java", bool checkNameResolutio
 	return true;
 }
 
+@synopsis{Check the AST node specification on a (large) set of ASTs and monitor the progress.}
+bool astNodeSpecification(set[node] toCheck, str language = "java", bool checkNameResolution=false, bool checkSourceLocation=true) 
+	= job("AST specification checker", (void (str, int) step) {
+       for (node ast <- toCheck) {
+		  step(loc l := ast.src ? l.path : "AST without src location", 1);
+		  if (!astNodeSpecification(ast, language=language, checkNameResolution=checkNameResolution, checkSourceLocation=checkSourceLocation)) {
+			 return false;
+		  }
+	   }
+
+	   return true;
+	}, totalWork=size(toCheck));
 
 
 
