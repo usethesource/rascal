@@ -62,12 +62,7 @@ public class M3LocationUtil {
      * @return extended location
      */
     public static ISourceLocation extendPath(ISourceLocation uri, String path) {
-        try {
-            return URIUtil.changePath(uri, uri.getPath() + "/" + path);
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("Extending path error with URIUtil", e);
-        }
+        return URIUtil.getChildLocation(uri, path);
     }
     
     /**

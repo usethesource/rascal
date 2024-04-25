@@ -81,12 +81,12 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	private void addTypeDependency(ISourceLocation dependency) {
-	  if (!scopeManager.isEmpty()) {
-	    ISourceLocation parent = getParent();
-	    if (!parent.equals(dependency)) {
-	      insert(typeDependency, parent, dependency);
-	    }
-	  }
+		if (!scopeManager.isEmpty()) {
+	    	ISourceLocation parent = getParent();
+			if (!parent.equals(dependency)) {
+				insert(typeDependency, parent, dependency);
+			}
+	  	}
 	}
 	
 	public void preVisit(ASTNode node) {
@@ -97,29 +97,34 @@ public class SourceConverter extends M3Converter {
 		ownValue = resolveBinding(node);
 	}
 	
+	@Override
 	public boolean visit(AnnotationTypeDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(AnnotationTypeDeclaration node) {
 		ownValue = scopeManager.pop();
 		computeTypeSymbol(node);
 	}
 	
+	@Override
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
 		ownValue = scopeManager.pop();
 		IConstructor type = bindingsResolver.resolveType(node.getType().resolveBinding(), true);
 	    insert(types, ownValue, type);
 	}
 	
+	@Override
 	public boolean visit(AnonymousClassDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		// enum constant declaration and classinstancecreation gives types for anonymousclasses
@@ -151,47 +156,57 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(AnonymousClassDeclaration node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(BlockComment node) {
 		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return true;
 	}
 	
+	@Override
 	public boolean visit(ClassInstanceCreation node) {
 		insert(methodInvocation, getParent(), ownValue);
 	  	insert(uses, getSourceLocation(node), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(CompilationUnit node) {
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(CompilationUnit node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(ConstructorInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(EnumConstantDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(EnumConstantDeclaration node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(EnumDeclaration node) {
+		// TODO: enums can have methods that override as well
 		insert(containment, getParent(), ownValue);
 		
 		IListWriter implementedInterfaces = values.listWriter();
@@ -207,26 +222,30 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(EnumDeclaration node) {
 		ownValue = scopeManager.pop();
-	  computeTypeSymbol(node);
+	  	computeTypeSymbol(node);
 	}
 
-  private void computeTypeSymbol(AbstractTypeDeclaration node) {
-    IConstructor type = bindingsResolver.resolveType(node.resolveBinding(), true);
-    insert(types, ownValue, type);
-  }
+	private void computeTypeSymbol(AbstractTypeDeclaration node) {
+		IConstructor type = bindingsResolver.resolveType(node.resolveBinding(), true);
+		insert(types, ownValue, type);
+	}
 	
+	@Override
 	public boolean visit(FieldAccess node) {
 		insert(fieldAccess, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(FieldDeclaration node) {
 		visitFragments(node.fragments());
 		return false;
 	}
 	
+	@Override
 	public boolean visit(Initializer node) {
 		insert(containment, getParent(), ownValue);
 		insert(declarations, ownValue, getSourceLocation(node));
@@ -234,10 +253,12 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(Initializer node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(Javadoc node) {
 		ASTNode parent = node.getParent();
 		if (parent == null) {
@@ -260,17 +281,20 @@ public class SourceConverter extends M3Converter {
 		return false;
 	}
 	
+	@Override
 	public boolean visit(LineComment node) {
 		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return true;
 	}
 	
+	@Override
 	public boolean visit(MethodDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(MethodDeclaration node) {
 		ownValue = scopeManager.pop();
 		ASTNode parent = node.getParent();
@@ -311,12 +335,14 @@ public class SourceConverter extends M3Converter {
 		}
 	}
 	
+	@Override
 	public boolean visit(MethodInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		//TODO: add to uses as well
 		return true;
 	}
 	
+	@Override
 	public boolean visit(Modifier node) {
 		String modifier = node.getKeyword().toString();
 		insert(modifiers, getParent(), constructModifierNode(modifier));
@@ -327,9 +353,9 @@ public class SourceConverter extends M3Converter {
 	    insert(declarations, pkg, folder);
 	  
 	    if (!(parent == null)) {
-	      insert(containment, parent, pkg);
-	      pkg = parent;
-	      generatePackageDecls(getParent(pkg), pkg, getParent(folder));
+			insert(containment, parent, pkg);
+	      	pkg = parent;
+	      	generatePackageDecls(getParent(pkg), pkg, getParent(folder));
 	    }
     }
 	
@@ -341,13 +367,15 @@ public class SourceConverter extends M3Converter {
 	    return result;
 	}
 	
+	@Override
 	public boolean visit(PackageDeclaration node) {
 		IPackageBinding binding = node.resolveBinding();
 		
 		if (binding != null) {
 		  generatePackageDecls(getParent((ISourceLocation) ownValue), (ISourceLocation) ownValue, getParent(loc));
 		  insert(containment, ownValue, getParent());
-		} else {
+		} 
+		else {
 			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
 					values.string("Unresolved binding for: " + node),
 					values.sourceLocation(loc, 0, 0)));
@@ -357,10 +385,12 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(PackageDeclaration node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(QualifiedName node) {
 		if (((ISourceLocation) ownValue).getScheme().equals("java+field")) {
 			insert(fieldAccess, getParent(), ownValue);
@@ -368,6 +398,7 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public boolean visit(SimpleName node) {
 		insert(names, values.string(node.getIdentifier()), ownValue);
 		
@@ -381,6 +412,7 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(SimpleName node) {
 		if ((node.isDeclaration() || simpleNameIsConstructorDecl(node))) {
 			insert(declarations, ownValue, getSourceLocation(compilUnit.findDeclaringNode(node.resolveBinding())));
@@ -393,33 +425,39 @@ public class SourceConverter extends M3Converter {
 		}
 	}
 
+	@Override
 	public boolean visit(SingleVariableDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
 	    IConstructor type = bindingsResolver.resolveType(node.getType().resolveBinding(), false);
         insert(types, ownValue, type);
 	}
 	
+	@Override
 	public boolean visit(SuperConstructorInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(SuperFieldAccess node) {
 		insert(fieldAccess, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(SuperMethodInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(TypeDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		
@@ -453,7 +491,8 @@ public class SourceConverter extends M3Converter {
 		
 		if (node.isInterface()) {
 			insert(extendsRelations, ownValue, implementsInterfaces.done());
-		} else {
+		} 
+		else {
 			insert(extendsRelations, ownValue, extendsClass.done());
 			insert(implementsRelations, ownValue, implementsInterfaces.done());
 		}
@@ -461,12 +500,13 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
-	
+	@Override
 	public void endVisit(TypeDeclaration node) {
 		ownValue = scopeManager.pop();
 		computeTypeSymbol(node);
 	}
 	
+	@Override
 	public boolean visit(TypeParameter node) {
 		IListWriter extendsList = values.listWriter();
 		if (!node.typeBounds().isEmpty()) {
@@ -481,11 +521,13 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public boolean visit(VariableDeclarationExpression node) {
 		visitFragments(node.fragments());
 		return false;
 	}
 	
+	@Override
 	public boolean visit(VariableDeclarationFragment node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
@@ -524,6 +566,7 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 
+	@Override
 	public boolean visit(VariableDeclarationStatement node) {
 		visitFragments(node.fragments());
 		return false;

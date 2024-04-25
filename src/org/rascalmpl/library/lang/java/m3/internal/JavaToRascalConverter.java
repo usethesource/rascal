@@ -90,34 +90,6 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         messages = values.listWriter();
     }
 
-    /**
-     * The JDT's AST format stores list of modifiers separately from lists of annotations, even though
-     * syntactically they may occur in arbitrary order before most declaration kinds in Java. To recreate
-     * a properly ordered AST, this helper functions merges the lists again in order of appearance
-     */
-    protected IList mergeModifiersAndAnnotationsInOrderOfAppearance(IList modifiers, IList annotations) {
-        if (modifiers == null && annotations == null) {
-            return values.list();
-        }
-        else if (modifiers == null) {
-            return annotations;
-        }
-        else if (annotations == null) {
-            return modifiers;
-        }
-
-        var everything = modifiers.concat(annotations);
-
-        return everything.stream()
-            .map(v -> (IConstructor) v)
-            .sorted((IConstructor a, IConstructor b) -> Integer.compare(location(a).getOffset(), location(b).getOffset()))
-            .collect(values.listWriter());
-    }
-
-    private ISourceLocation location(IValue ast) {
-        return (ISourceLocation) ((IConstructor) ast).asWithKeywordParameters().getParameter("src");
-    }
-
     protected ISourceLocation resolveBinding(String packageComponent) {
         ISourceLocation packageBinding = new BindingsResolver(typeStore, locationCache, this.collectBindings) {
             public ISourceLocation resolveBinding(String packageC) {
@@ -203,24 +175,14 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                     // TODO: only adding 1 at the end seems to work, need to test.
                     compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end) + 1);
             }
-        } catch (IllegalArgumentException e) {
+        } 
+        catch (IllegalArgumentException e) {
             insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
                 values.string("Most probably missing dependency"),
                 values.sourceLocation(loc, 0, 0)));
         }
         return values.sourceLocation(loc, 0, 0, 0, 0, 0, 0);
     }
-
-    /* unused */
-    /*
-    protected IList parseExtendedModifiers(BodyDeclaration node) {
-        if (node.getAST().apiLevel() == AST.JLS2) {
-            return parseModifiers(node.getModifiers());
-        } else {
-            return parseExtendedModifiers(node.modifiers());
-        }
-    }
-    */
 
     protected IValue visitChild(ASTNode node) {
         node.accept(this);
