@@ -122,7 +122,7 @@ data Declaration
     | \providesImplementations(Expression interface, list[Expression] implementations)
     | \requires(list[Modifier] mods, Expression \moduleName)
     | \uses(Expression interface)
-    | \exports(Expression interface)
+    | \exports(Expression interface, list[Expression] to)
     ;
 
 

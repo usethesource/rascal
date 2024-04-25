@@ -115,6 +115,12 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		}
 	}
 
+	public void insert(ISetWriter relW, IValue lhs, IValue middle, IValue rhs) {
+		if ((isValid((ISourceLocation) lhs) && isValid((ISourceLocation) middle) && isValid((ISourceLocation) rhs))) {
+			relW.insert(values.tuple(lhs, middle, rhs));
+		}
+	}
+
 	public void insert(ISetWriter relW, IValue lhs, IList rhs) {
 		for (IValue oneRHS: rhs) {
 			if (lhs.getType().isString() || (isValid((ISourceLocation) lhs) && isValid((ISourceLocation) oneRHS))) {

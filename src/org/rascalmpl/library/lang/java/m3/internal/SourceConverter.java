@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.ExportsDirective;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -31,9 +32,13 @@ import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.OpensDirective;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ProvidesDirective;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.RequiresDirective;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -42,6 +47,7 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.UsesDirective;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -181,6 +187,94 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		insert(declarations, ownValue, getSourceLocation(node));
+		scopeManager.push(getSourceLocation(node));
+		return true;
+	}
+
+	@Override
+	public void endVisit(ModuleDeclaration node) {
+		scopeManager.pop();
+	}
+
+	@Override
+	public boolean visit(RequiresDirective node) {
+		var parent = scopeManager.peek();
+		var name = resolveBinding(node.getName());
+		// TODO: encode static and transitive modifiers somehow in the modifiers relation, or in the moduleRequires relation
+		insert(moduleRequiresModule, parent, name);
+		return true;
+	}
+
+	@Override
+	public boolean visit(ExportsDirective node) {
+		var parent = scopeManager.peek();
+		var targets = ((List<?>) node.modules())
+			.stream()
+			.map(o -> ((ASTNode) o))
+			.map(n -> resolveBinding(n)).collect(values.listWriter());
+		var name = resolveBinding(node.getName());
+
+		if (targets.isEmpty()) {
+			// this encodes unqualified exports to all other modules
+			insert(moduleExportsInterface, parent, name, URIUtil.rootLocation("java+module"));
+		}
+		else {
+			for (var target : targets) {
+				insert(moduleExportsInterface, parent, name , target);
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean visit(ProvidesDirective node) {
+		var parent = scopeManager.peek();
+		var implementations = ((List<?>) node.implementations())
+			.stream()
+			.map(o -> ((ASTNode) o))
+			.map(n -> resolveBinding(n)).collect(values.listWriter());
+		var name = resolveBinding(node.getName());
+
+		for (var impl : implementations) {
+			insert(moduleProvidesImplementation, parent, name, impl);
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean visit(UsesDirective node) {
+		var parent = scopeManager.peek();
+		insert(moduleUsesInterface, parent, resolveBinding(node.getName()));
+		return true;
+	}
+
+	@Override
+	public boolean visit(OpensDirective node) {
+		var parent = scopeManager.peek();
+		var name = resolveBinding(node.getName());
+		var modules = ((List<?>) node.modules())
+			.stream()
+			.map(o -> ((ASTNode) o))
+			.map(n -> resolveBinding(n)).collect(values.listWriter());
+		
+		if (modules.isEmpty()) {
+			// this encodes unqualified opening to all other modules
+			insert(moduleOpensPackage, parent, name, URIUtil.rootLocation("java+module"));
+		}
+		else {
+			for (var module : modules) {
+				insert(moduleOpensPackage, parent, name, module);
+			}
+		}
+
+		return true;
+	}
+
 	@Override
 	public void endVisit(CompilationUnit node) {
 		ownValue = scopeManager.pop();
