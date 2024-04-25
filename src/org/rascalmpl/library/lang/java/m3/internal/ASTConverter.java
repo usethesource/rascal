@@ -51,7 +51,7 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public void postVisit(ASTNode node) {
-        if (getAdtType() == DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE || getAdtType() == DATATYPE_RASCAL_AST_TYPE_NODE_TYPE) {
+        if (getAdtType() == DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE) {
             return;
         }
         setKeywordParameter("src", getSourceLocation(node));
@@ -93,10 +93,13 @@ public class ASTConverter extends JavaToRascalConverter {
                     return bindingsResolver.resolveType(binding.getType(), false);
                 }
             }
-            
             else if (node instanceof ModuleDeclaration) {
                 IModuleBinding binding = ((ModuleDeclaration) node).resolveBinding();
                 return bindingsResolver.resolveType(binding, true);
+            }
+            else if (node instanceof Type) {
+                ITypeBinding binding = ((Type) node).resolveBinding();
+                return bindingsResolver.resolveType(binding, false);
             }
         } 
         catch (NullPointerException e) {
