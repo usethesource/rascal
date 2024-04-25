@@ -28,6 +28,7 @@ module analysis::m3::AST
 
 import Message;
 import Node;
+import IO;
 import analysis::m3::TypeSymbol;
 
 @synopsis{For metric purposes we can use a true AST declaration tree, a simple list of lines for generic metrics, or the reason why we do not have an AST.}
@@ -111,6 +112,8 @@ data Modifier(
 	loc src = |unknown:///|
 );
 
+data Bound;
+
 @synopsis{Test for the consistency characteristics of an M3 annotated abstract syntax tree}
 bool astNodeSpecification(node n, str language = "java", bool checkNameResolution=false, bool checkSourceLocation=true) {
 	// get a loc from any node if there is any.
@@ -122,20 +125,60 @@ bool astNodeSpecification(node n, str language = "java", bool checkNameResolutio
 	int  end(loc l) = l.offset + l.length;
 	bool leftToRight(loc l, loc r) = end(l) <= begin(r);
 	bool leftToRight(node a, node b) = leftToRight(pos(a), pos(b));
+	bool included(node parent, node child) = begin(parent) <= begin(child) && end(child) <= end(parent);
 
 	if (checkSourceLocation) {
-		// all nodes have src annotations
-		assert all(/node x := n, x.src?);
+		// all AST nodes have src annotations
+		for (/node x := n, TypeSymbol _ !:= x, Message _ !:= x, Bound _ !:= x) {
+			if (!(x.src?)) {
+				println("No .src annotation on:
+				        '   <x>");
+				return false;
+			}
 
-		// siblings are sorted in the input, even if some of them are lists
-		assert all(/node x := n, [*_, node a, node b, *_] := getChildren(x), leftToRight(a,b));
-		assert all(/node x := n, [*_, node a, [node b, *_], *_] := getChildren(x), leftToRight(a,b));
-		assert all(/node x := n, [*_, [*_, node a], node b, *_] := getChildren(x), leftToRight(a,b));
-		assert all(/node x := n, [*_, [*_, node a], [node b, *_], *_] := getChildren(x), leftToRight(a,b));
-		assert all(/[*_, node a, node b, *_] := n, leftToRight(a,b));
+			// Note that by removing all the (unannotated) empty lists here, we cover many more complex situations 
+			// below in detecting adjacent nodes in syntax trees.
+			children = [ e | e <- getChildren(x), e != []]; 
 
-		// children positions are included in the parent input scope
-		assert all(/node parent := n, /node child := parent, begin(parent) <= begin(child), end(child) <= end(parent));
+			// Here we collect all the possible ways nodes can be direct siblings in an abstract syntax tree:
+			siblings = [
+				*[<a,b> | [*_, node a, node b, *_]             := children], // adjacent nodes
+				*[<a,b> | [*_, node a, [node b, *_], *_]       := children], // node followed by non-empty list
+				*[<a,b> | [*_, [*_, node a], node b, *_]       := children], // non-empty list followed by node
+				*[<a,b> | [*_, [*_, node a], [node b, *_], *_] := children], // adjacent non-empty lists
+				*[<a,b> | [*_, [*_, node a, node b, *_], *_]   := children]  // nodes inside a list (elements can not be lists again)
+			];
+
+			// Note that by induction: if all the pairwise adjacent siblings are in-order, then all siblings are in order
+
+			// siblings are sorted in the input, even if some of them are lists
+			for (<a,b> <- siblings) {
+				if (!leftToRight(a, b)) {
+					println("Siblings are out of order:
+							'a     : <a.src> is <a>
+							'b     : <b.src> is <b>");
+					return false;
+				}
+				if (ab <- [a,b], !included(n, ab)) {
+					println("Child location not is not covered by the parent location:
+					        '    parent: <n.src>
+							'    child : <ab.src>, is <ab>");
+					return false;
+				}
+			}
+
+			// if ([*_, [*_, [*_], *_], *_] := getChildren(x)) {
+			// 	println("Node contains a directly nested list:
+			// 		    '   <n.src> : <n>");
+			// 	return false;
+			// }
+
+			// if ([_, *_, str _, *_] := children || [*_, str _, *_, _] := children) {
+			// 	println("Literals and identifiers must be singletons:
+			// 	        '   <n>");
+			// 	return false;
+			// }
+		}
 	}
 	
 	if (checkNameResolution) {
