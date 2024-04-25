@@ -37,6 +37,12 @@ requires an additional analysis step with its own design choices.
 | `rel[loc from, loc to] fieldAccess`                | which method (or static block or field initializer) accesss which fields from which classes |
 | `rel[loc from, loc to] typeDependency`             | uses of types (literally!) in methods, static blocks and field initializers. |
 | `rel[loc from, loc to] methodOverrides`            | captures which methods override which other methods from their parents in the inheritance/implements hierarchy. Useful for approximating call graphs. |
+| `rel[loc from, loc to] annotations`                | logs which declarations (classes, interfaces, parameters, methods, variables, etc.) are tagged with which annotation classes or interfaces |
+
+These are the kinds of logical names that can be found in a Java M3 model:
+* `|java+class:///|` is a fully resolved and qualified class name
+* `|java+interface:///|` is a fully resolved and qualified class name
+* (((TODO)))
 }
 data M3(
 	rel[loc from, loc to] extends = {},            
@@ -44,7 +50,38 @@ data M3(
 	rel[loc from, loc to] methodInvocation = {},   
 	rel[loc from, loc to] fieldAccess = {},        
 	rel[loc from, loc to] typeDependency = {},     
-	rel[loc from, loc to] methodOverrides = {}
+	rel[loc from, loc to] methodOverrides = {},
+  rel[loc from, loc to] annotations = {}
+);
+
+@synopsis{Extensions for modelling the Java module system}
+@description{
+The Java module system was introduced with Java 9. A "module" is a group of related
+packages, what is typically called a "component" in general programming terms. A module
+definition explains:
+* what other modules the current module depends on: `moduleRequiresModule`
+* what packages are open to reflection by other modules: `moduleOpensPackage`
+* what interfaces are available to other modules (the rest is unavailable by default): `moduleExportsInterface`
+* the "services" it uses from other modules: `moduleUsesInterface`
+* the "services" it offers to other modules: `moduleProvidesImplementation`
+
+And so each of these aspects has their own set of facts in the extended M3 model for Java.
+}
+@benefits{
+* M3 models with the Module system extensions are composable to generate large queriable databases for entire software ecosystems.
+* The same module definitions can be extracted from both bytecode (in jar files) and source code.
+}
+@pitfalls{
+* modules, although they semantically encapsulate packages, interfaces and classes, do not appear in the `containment` relation of the core M3 model.
+That is because `containment` represents the static scoping relation of declared source code elements. The relation between modules and what 
+is inside them is yet another form of encapsulation; so to avoid conflating them they are stored in different relations.   
+}
+data M3(
+  rel[loc from, loc to] moduleOpensPackage = {},
+  rel[loc from, loc to] moduleProvidesImplementation = {},
+  rel[loc from, loc to] moduleRequiresModule = {},
+  rel[loc from, loc to] moduleUsesInterface = {},
+  rel[loc from, loc to] moduleExportsInterface = {}
 );
 
 @synopsis{Combines a set of Java meta models by merging their relations.}
@@ -73,6 +110,7 @@ M3 diffJavaM3(loc id, list[M3] models) {
 	diff.fieldAccess = first.fieldAccess - others.fieldAccess;
 	diff.typeDependency = first.typeDependency - others.typeDependency;
 	diff.methodOverrides = first.methodOverrides - others.methodOverrides;
+  diff.annotations = first.annotations - others.annotations;
 
 	return diff;
 }
