@@ -32,6 +32,12 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected ISetWriter methodOverrides;
 	protected ISetWriter types;
 	protected ISetWriter annotations;
+	protected ISetWriter moduleOpensPackage;
+	protected ISetWriter moduleProvidesImplementation;
+	protected ISetWriter moduleRequiresModule;
+	protected ISetWriter moduleUsesInterface;
+	protected ISetWriter moduleExportsInterface;
+
 	protected final io.usethesource.vallang.type.Type CONSTRUCTOR_M3;
 	protected final Type JAVA_LANGUAGE_M3;
 	protected ISetWriter languages;
@@ -63,6 +69,11 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		annotations = values.setWriter();
 		types = values.setWriter();
 		languages = values.setWriter();
+		moduleOpensPackage = values.setWriter();
+		moduleProvidesImplementation = values.setWriter();
+		moduleRequiresModule = values.setWriter();
+		moduleUsesInterface = values.setWriter();
+		moduleExportsInterface = values.setWriter();
 	}
 	
 	public IValue getModel(boolean insertErrors) {
@@ -82,7 +93,12 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setKeywordParameter("names", names.done());
 		setKeywordParameter("methodOverrides", methodOverrides.done());
 		setKeywordParameter("types", types.done());
-		setKeywordParameter("annotations", annotations.done());
+		setKeywordParameter("moduleOpensPackage", moduleOpensPackage.done());
+		setKeywordParameter("moduleProvidesImplementation", moduleProvidesImplementation.done());
+		setKeywordParameter("moduleRequiresModule", moduleRequiresModule.done());
+		setKeywordParameter("moduleUsesInterface", moduleUsesInterface.done());
+		setKeywordParameter("moduleExportsInterface", moduleExportsInterface.done());
+
 		insertCompilationUnitMessages(insertErrors, messages.done());
 		
 		return ownValue;
