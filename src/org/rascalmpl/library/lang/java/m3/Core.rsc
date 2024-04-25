@@ -68,11 +68,11 @@ definition explains:
 And so each of these aspects has their own set of facts in the extended M3 model for Java:
 | Facts about Java modules                             | Description                                             |
 | ---------------------------------------------------- | ------------------------------------------------------- |
-| `rel[loc from, loc to] moduleOpensPackage`           | what packages are open for reflection in a given module |
-| `rel[loc from, loc to] moduleProvidesImplementation` | what services are implemented by this module            |
-| `rel[loc from, loc to] moduleRequiresModule`         | which modules each module requires                      |
-| `rel[loc from, loc to] moduleUsesInterface`          | which services are used by every module                 |
-| `rel[loc from, loc to] moduleExportsInterface`       | which interfaces are exported by every module           |
+| `rel[loc module, loc package, loc to] moduleOpensPackage` | what packages are open for reflection in a given module |
+| `rel[loc module, loc service, loc implementation] moduleProvidesImplementation` | what services are implemented by this module            |
+| `rel[loc module, loc requiredModule] moduleRequiresModule`         | which modules each module requires                      |
+| `rel[loc module, loc service] moduleUsesInterface`          | which services are used by every module                 |
+| `rel[loc module, loc service, loc to] moduleExportsInterface`       | which interfaces are exported by every module           |
 }
 @benefits{
 * M3 models with the Module system extensions are composable to generate large queriable databases for entire software ecosystems.

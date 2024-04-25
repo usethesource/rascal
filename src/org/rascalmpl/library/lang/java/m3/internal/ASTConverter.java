@@ -1418,7 +1418,7 @@ public class ASTConverter extends JavaToRascalConverter {
     public boolean visit(ExportsDirective node) {
         IValue name = visitChild(node.getName());
 
-        ownValue = constructDeclarationNode("exports", name);
+        ownValue = constructDeclarationNode("exports", name, visitChildren(node.modules()));
         return false;
     }
 
