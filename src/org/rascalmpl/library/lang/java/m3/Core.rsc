@@ -20,19 +20,32 @@ import util::Reflective;
 
 @synopsis{Java extensions to the generic M3 model.}
 @description{
-  Notice that this model also contains the attributes from ((Library:analysis::m3::Core::M3)).
+Notice that this model also contains the core attributes from ((Library:analysis::m3::Core::M3));
+in particular `containment`, `declarations`, `modifiers`, `uses`, `types`, and `messages`
+are _hot_ for the Java M3 model.
+
+The additional relations represent specifically static semantic links from the object-oriented
+programming paradigm that Java belongs to. However, this only contains facts extracted directly
+from source code. The actual static semantic interpretation (type hierarchies, call graphs)
+requires an additional analysis step with its own design choices.
+
+| Ground truth fact kind about source code           | Description |                
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rel[loc from, loc to] extends`                    | captures class and interface inheritance, classes extend classes and interfaces extend interfaces. Implicit inheritance (i.e. from java.lang.Object) is _not_ included. |
+| `rel[loc from, loc to] implements`                 | which class implements which interfaces (directly, transitive implementation via de extends relation must be derived)
+| `rel[loc from, loc to] methodInvocation`           | which method potentially invokes which (virtual) method. For a call graph this must be composed with `methodOverrides` |
+| `rel[loc from, loc to] fieldAccess`                | which method (or static block or field initializer) accesss which fields from which classes |
+| `rel[loc from, loc to] typeDependency`             | uses of types (literally!) in methods, static blocks and field initializers. |
+| `rel[loc from, loc to] methodOverrides`            | captures which methods override which other methods from their parents in the inheritance/implements hierarchy. Useful for approximating call graphs. |
 }
 data M3(
-	rel[loc from, loc to] extends = {},            // classes extending classes and interfaces extending interfaces
-	rel[loc from, loc to] implements = {},         // classes implementing interfaces
-	rel[loc from, loc to] methodInvocation = {},   // methods calling each other (including constructors)
-	rel[loc from, loc to] fieldAccess = {},        // code using data (like fields)
-	rel[loc from, loc to] typeDependency = {},     // using a type literal in some code (types of variables, annotations)
-	rel[loc from, loc to] methodOverrides = {},    // which method override which other methods
-	rel[loc declaration, loc annotation] annotations = {}
+	rel[loc from, loc to] extends = {},            
+	rel[loc from, loc to] implements = {},         
+	rel[loc from, loc to] methodInvocation = {},   
+	rel[loc from, loc to] fieldAccess = {},        
+	rel[loc from, loc to] typeDependency = {},     
+	rel[loc from, loc to] methodOverrides = {}
 );
-
-data Language(str version="") = java();
 
 @synopsis{Combines a set of Java meta models by merging their relations.}
 @memo
@@ -40,10 +53,10 @@ M3 composeJavaM3(loc id, set[M3] models) = composeM3(id, models);
 
 @synopsis{Returns the difference between the first model and the others.}
 @description{
-  Combines `models[1..]` into a single model and then calculates
-  the difference between `model[0]` and this new joined model.
+Combines `models[1..]` into a single model and then calculates
+the difference between `model[0]` and this new joined model.
 
-  The `id` is the identifier for the returned model.
+The `id` is the identifier for the returned model.
 }
 @memo
 M3 diffJavaM3(loc id, list[M3] models) {
@@ -60,7 +73,6 @@ M3 diffJavaM3(loc id, list[M3] models) {
 	diff.fieldAccess = first.fieldAccess - others.fieldAccess;
 	diff.typeDependency = first.typeDependency - others.typeDependency;
 	diff.methodOverrides = first.methodOverrides - others.methodOverrides;
-	diff.annotations = first.annotations - others.annotations;
 
 	return diff;
 }
