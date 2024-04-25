@@ -100,7 +100,8 @@ data Declaration
     | \method(list[Modifier] modifiers, list[Declaration] typeParameters, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
     | \method(list[Modifier] modifiers, list[Declaration] typeParameters, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions)
     | \constructor(list[Modifier] modifiers, Expression name, list[Declaration] parameters, list[Expression] exceptions, Statement impl)
-    | \import(Expression name)
+    | \import(list[Modifier] modifiers, Expression name)
+    | \importOnDemand(list[Modifier] modifiers, Expression name)
     | \package(list[Modifier] modifiers, Expression name)
     | \variables(list[Modifier] modifiers, Type \type, list[Declaration] \fragments)
     | \variable(Expression name, list[Declaration] dimensionTypes) 
@@ -287,7 +288,6 @@ data Modifier
     | \native()
     | \volatile()
     | \strictfp()
-    | \onDemand()
     | \default()
     | \open()  // for modules only
     | \transitive() // for module requirements only
