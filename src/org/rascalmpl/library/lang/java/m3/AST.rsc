@@ -235,7 +235,20 @@ data Statement
     ;
 
 @synopsis{These are the literal types you can find in Java programs.}
-data Type
+@description{
+* The constructors of Type represent the syntax of types in Java.
+* Their `typ` keyword field maps the syntax to the symbolic type representation as ((TypeSymbol))s.  
+}
+@pitfalls{
+* ((Type)) and ((TypeSymbol)) are easy to confuse because they are very similar in name, structure and intent. It is good to remember
+that there can be more TypeSymbols while analyzing types for Java than one can type in. Namely, ((TypeSymbol)) is used to
+compute with and analyze the Java type system, while ((Type)) is only meant to represent the syntax of types in Java source code.
+* ((Type)) closely follows the syntactic structure, while ((TypeSymbol)) follows the logical structure.
+For example: `Node<Cons>[]` in Java syntax becomes `arrayType(parameterizedType(simpleType(id("Node")),[simpleType(id("Cons"))]))` as 
+an abstract syntax tree ((Type)), which becomes this ((TypeSymbol)): `array(class(|class:///Node|,[interface(|interface:///Cons|,[])]),1))`
+* ((TypeSymbol)) reduces different ways of writing types to one core canonical
+}
+data Type(TypeSymbol typ=unresolved())
     = arrayType(Type \type)
     | parameterizedType(Type \type, list[Type] typeArguments)
     | qualifiedType(Type qualifier, Expression simpleName)
