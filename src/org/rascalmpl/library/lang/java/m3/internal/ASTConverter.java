@@ -51,9 +51,6 @@ public class ASTConverter extends JavaToRascalConverter {
 
     @Override
     public void postVisit(ASTNode node) {
-        if (getAdtType() == DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE) {
-            return;
-        }
         setKeywordParameter("src", getSourceLocation(node));
 
         if (collectBindings) {
@@ -855,7 +852,6 @@ public class ASTConverter extends JavaToRascalConverter {
         }
         else {
             assert !constructorName.equals("constructor"); // constructors must have a body
-            //| \method(list[Modifier] modifiers, list[Declaration] typeParameters, Type \return, Expression name, list[Declaration] parameters, list[Expression] exceptions)
             ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done());
         }
         
@@ -1643,6 +1639,8 @@ public class ASTConverter extends JavaToRascalConverter {
 
         // intented nesting; we're reusing the Declaration AST node here.
         ownValue = constructDeclarationNode("variables", modifiers, type, fragments.done());
+        postVisit(node);
+        
         ownValue = constructExpressionNode("declarationExpression", ownValue);
 
         return false;
@@ -1684,6 +1682,8 @@ public class ASTConverter extends JavaToRascalConverter {
 
         // intented nesting; we reuse the declaration node inside a statement node
         ownValue = constructDeclarationNode("variables", modifiers, type, fragments.done());
+        postVisit(node);
+
         ownValue = constructStatementNode("declarationStatement", ownValue);
 
         return false;
