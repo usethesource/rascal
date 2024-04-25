@@ -139,7 +139,6 @@ public class EclipseJavaCompiler {
         return createM3FromString(loc, contents, errorRecovery, sourcePath, classPath, javaVersion, getM3Store()); 
     }
     
-    
     protected IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));

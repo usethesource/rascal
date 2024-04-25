@@ -407,7 +407,8 @@ public class JarConverter extends M3Converter {
             List<MethodNode> superMethods = classNode.methods;
             
             if (superMethods != null) {
-                for (MethodNode superMethodNode : superMethods) {    
+                for (MethodNode superMethodNode : superMethods) {   
+                    // TODO: equals is to strict, methods can be overridden even if the parameters have different types. 
                     if (superMethodNode.name.equals(methodNode.name) 
                         && superMethodNode.desc.equals(methodNode.desc)) {  
                         

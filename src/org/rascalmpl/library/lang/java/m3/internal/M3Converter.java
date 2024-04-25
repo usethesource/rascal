@@ -41,6 +41,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected final io.usethesource.vallang.type.Type CONSTRUCTOR_M3;
 	protected final Type JAVA_LANGUAGE_M3;
 	protected ISetWriter languages;
+	protected ISourceLocation currentModule = null;
 	
 	M3Converter(final LimitedTypeStore typeStore, java.util.Map<String, ISourceLocation> cache, IConstructor javaVersion) {
 		this(typeStore, cache);
