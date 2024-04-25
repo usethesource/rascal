@@ -629,15 +629,28 @@ public class ASTConverter extends JavaToRascalConverter {
 
         IListWriter importModifiers = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
-            if (node.isStatic())
-                importModifiers.append(constructModifierNode("static"));
+            if (node.isStatic()) {
+                var entireNode = getSourceLocation(node);
+                var namePosition = getSourceLocation(node.getName());
+                // we assume the following positioning:
+                // import static class
+                //       ^^^^^^^^
+                //       position of the static keyword can be anything between the import keyword and the imported class or method.
+                int staticStart = entireNode.getOffset() + "import".length();
+                var staticPos = values.sourceLocation(entireNode.top(),
+                    staticStart,
+                    namePosition.getOffset() - staticStart);
 
-            if (node.isOnDemand())
-                importModifiers.append(constructModifierNode("onDemand"));
+                importModifiers.append(constructModifierNode(staticPos, "static"));
+}
         }
 
-        ownValue = constructDeclarationNode("import", name);
-        setKeywordParameters("modifiers", importModifiers.done());
+        if (node.isOnDemand()) {
+            ownValue = constructDeclarationNode("import", importModifiers.done(), name);
+        }
+        else {
+            ownValue = constructDeclarationNode("importOnDemand", importModifiers.done(), name);
+        }
 
         return false;
     }
