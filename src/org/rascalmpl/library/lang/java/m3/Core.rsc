@@ -68,11 +68,11 @@ definition explains:
 And so each of these aspects has their own set of facts in the extended M3 model for Java:
 | Facts about Java modules                             | Description                                             |
 | ---------------------------------------------------- | ------------------------------------------------------- |
-| `rel[loc module, loc package, loc to] moduleOpensPackage` | what packages are open for reflection in a given module |
-| `rel[loc module, loc service, loc implementation] moduleProvidesImplementation` | what services are implemented by this module            |
-| `rel[loc module, loc requiredModule] moduleRequiresModule`         | which modules each module requires                      |
-| `rel[loc module, loc service] moduleUsesInterface`          | which services are used by every module                 |
-| `rel[loc module, loc service, loc to] moduleExportsInterface`       | which interfaces are exported by every module           |
+| `rel[loc \module, loc package, loc to] moduleOpensPackage` | what packages are open for reflection in a given module |
+| `rel[loc \module, loc service, loc implementation] moduleProvidesImplementation` | what services are implemented by this module            |
+| `rel[loc \module, loc requiredModule] moduleRequiresModule`         | which modules each module requires                      |
+| `rel[loc \module, loc service] moduleUsesInterface`          | which services are used by every module                 |
+| `rel[loc \module, loc service, loc to] moduleExportsInterface`       | which interfaces are exported by every module           |
 }
 @benefits{
 * M3 models with the Module system extensions are composable to generate large queriable databases for entire software ecosystems.
@@ -84,12 +84,11 @@ That is because `containment` represents the static scoping relation of declared
 is inside them is yet another form of encapsulation; so to avoid conflating them they are stored in different relations.   
 }
 data M3(
-  rel[loc from, loc to] moduleOpensPackage = {},
-  rel[loc from, loc to] moduleProvidesImplementation = {},
-  rel[loc from, loc to] moduleRequiresModule = {},
-  rel[loc from, loc to] moduleUsesInterface = {},
-  rel[loc from, loc to] moduleExportsInterface = {},
-  rel[loc from, loc to] moduleHidesInterface = {}
+  rel[loc \module, loc package, loc to] moduleOpensPackage = {},
+  rel[loc \module, loc service, loc implementation] moduleProvidesImplementation = {},
+  rel[loc \module, loc requiredModule]  moduleRequiresModule = {},
+  rel[loc \module, loc service]         moduleUsesInterface = {},
+  rel[loc \module, loc service, loc to] moduleExportsInterface = {}
 );
 
 @synopsis{Combines a set of Java meta models by merging their relations.}
