@@ -191,7 +191,7 @@ public class SourceConverter extends M3Converter {
 	@Override
 	public boolean visit(ModuleDeclaration node) {
 		insert(declarations, ownValue, getSourceLocation(node));
-		scopeManager.push(getSourceLocation(node));
+		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 

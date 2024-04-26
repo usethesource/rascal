@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -81,51 +82,77 @@ public class BindingsResolver {
 	    if (collectBindings) {
 	        if (node instanceof TypeDeclaration) {
 	            return resolveBinding(((TypeDeclaration) node).resolveBinding());
-	        } else if (node instanceof EnumDeclaration) {
+	        } 
+			else if (node instanceof ModuleDeclaration) {
+				return resolveBinding(((ModuleDeclaration) node).resolveBinding());
+			}
+			else if (node instanceof EnumDeclaration) {
 	            return resolveBinding(((EnumDeclaration) node).resolveBinding());
-	        } else if (node instanceof AnnotationTypeDeclaration) {
+	        } 
+			else if (node instanceof AnnotationTypeDeclaration) {
 	            return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
-	        } else if (node instanceof AnnotationTypeMemberDeclaration) {
+	        } 
+			else if (node instanceof AnnotationTypeMemberDeclaration) {
 	            return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-	        } else if (node instanceof AnonymousClassDeclaration) {
+	        } 
+			else if (node instanceof AnonymousClassDeclaration) {
 	            return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
-	        } else if (node instanceof EnumConstantDeclaration) {
+	        } 
+			else if (node instanceof EnumConstantDeclaration) {
 	            return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
-	        } else if (node instanceof ClassInstanceCreation) {
+	        } 
+			else if (node instanceof ClassInstanceCreation) {
 	            return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
-	        } else if (node instanceof FieldAccess) {
+	        }
+			else if (node instanceof FieldAccess) {
 	            return resolveFieldAccess((FieldAccess) node);
-	        } else if (node instanceof MethodInvocation) {
+	        } 
+			else if (node instanceof MethodInvocation) {
 	            return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
-	        } else if (node instanceof QualifiedName) {
+	        } 
+			else if (node instanceof QualifiedName) {
 	            return resolveQualifiedName((QualifiedName) node);
-	        } else if (node instanceof SimpleName) {
+	        } 
+			else if (node instanceof SimpleName) {
 	            return resolveSimpleName(node, tryHard);
-	        } else if (node instanceof SuperFieldAccess) {
+	        } 
+			else if (node instanceof SuperFieldAccess) {
 	            return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
-	        } else if (node instanceof SuperMethodInvocation) {
+	        } 
+			else if (node instanceof SuperMethodInvocation) {
 	            return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-	        } else if (node instanceof MemberRef) {
+	        } 
+			else if (node instanceof MemberRef) {
 	            return resolveBinding(((MemberRef) node).resolveBinding());
-	        } else if (node instanceof MethodDeclaration) {
+	        } 
+			else if (node instanceof MethodDeclaration) {
 	            return resolveBinding(((MethodDeclaration) node).resolveBinding());
-	        } else if (node instanceof MethodRef) {
+	        } 
+			else if (node instanceof MethodRef) {
 	            return resolveBinding(((MethodRef) node).resolveBinding());
-	        } else if (node instanceof PackageDeclaration) {
+	        } 
+			else if (node instanceof PackageDeclaration) {
 	            return resolveBinding(((PackageDeclaration) node).resolveBinding());
-	        } else if (node instanceof Type) {
+	        } 
+			else if (node instanceof Type) {
 	            return resolveBinding(((Type) node).resolveBinding());
-	        } else if (node instanceof TypeParameter) {
+	        } 
+			else if (node instanceof TypeParameter) {
 	            return resolveBinding(((TypeParameter) node).resolveBinding());
-	        } else if (node instanceof VariableDeclaration) {
+	        } 
+			else if (node instanceof VariableDeclaration) {
 	            return resolveVariable(node);
-	        } else if (node instanceof ConstructorInvocation) {
+	        } 
+			else if (node instanceof ConstructorInvocation) {
 	            return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
-	        } else if (node instanceof SuperConstructorInvocation) {
+	        } 
+			else if (node instanceof SuperConstructorInvocation) {
 	            return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
-	        } else if (node instanceof TypeDeclarationStatement) {
+	        } 
+			else if (node instanceof TypeDeclarationStatement) {
 	            return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
-	        } else if (node instanceof Initializer) {
+	        } 
+			else if (node instanceof Initializer) {
 	            return resolveInitializer((Initializer) node);
 	        } 
 	    }

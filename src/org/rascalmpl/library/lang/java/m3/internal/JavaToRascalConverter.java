@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -152,6 +153,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         if (node instanceof CompilationUnit) {
             return resolveBinding((CompilationUnit) node);
         }
+    
         return bindingsResolver.resolveBinding(node, true);
     }
 
