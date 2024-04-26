@@ -164,13 +164,13 @@ and intermediate memory allocation which can be detrimental when doing large who
 @memo
 M3 composeM3(loc id, set[M3] models) {
 	M3 comp = m3(id);
-  flds = (m:getKeywordParameters(m) | m <- models);
-  keys   = {*domain(getKeywordParameters(m)) | m <- models };
-  result = ();
+  map[M3, map[str,value]] fields = (m:getKeywordParameters(m) | m <- models);
+  set[str] keys                  = {*domain(getKeywordParameters(m)) | m <- models };
+  map[str, value] result         = ();
 
   // first we do only the sets, to use efficient set union/splicing
   for (k <- keys) {
-    newSet = {*elems | m <- models, set[value] elems := flds[m][k]};
+    newSet = {*elems | M3 m <- models, set[value] elems := fields[m][k]};
     if (newSet != {}) { // don't set anything if the result is empty (it could be a list!)
       result[k] = newSet;
     }
@@ -178,7 +178,7 @@ M3 composeM3(loc id, set[M3] models) {
 
   // then we do only the lists, to use efficient list splicing
   for (k <- keys) {
-    newList = [*elems | m <- models, list[value] elems := flds[m][k]];
+    newList = [*elems | m <- models, list[value] elems := fields[m][k]];
     if (newList != []) { // don't set anything if the result is empty (it could be a set!)
       result[k] = newList;
     }
