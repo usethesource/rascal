@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -406,7 +407,7 @@ public class SourceConverter extends M3Converter {
 	
 	private void fillOverrides(IMethodBinding node, ITypeBinding parent) {
 		if (node == null || parent == null) {
-			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
 					values.string("parent or method binding is null, not proceeding with fillOverrides"),
 					getSourceLocation(compilUnit.findDeclaringNode(node))));
 			return;
@@ -470,7 +471,7 @@ public class SourceConverter extends M3Converter {
 		  insert(containment, ownValue, getParent());
 		} 
 		else {
-			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
 					values.string("Unresolved binding for: " + node),
 					values.sourceLocation(loc, 0, 0)));
 		}
@@ -632,7 +633,7 @@ public class SourceConverter extends M3Converter {
 		  insert(types, ownValue, type);
 		}
 		else {
-			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
 					values.string("No binding for: " + node),
 					values.sourceLocation(loc, 0, 0)));
 		}
@@ -651,6 +652,9 @@ public class SourceConverter extends M3Converter {
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		} 
+		else if (parentASTNode instanceof LambdaExpression) {
+			// skip, there is nothing to extract in terms of modifiers from lambda's
+		}
 		else {
 			VariableDeclarationStatement parent = (VariableDeclarationStatement)parentASTNode;
 			parent.getType().accept(this);

@@ -62,7 +62,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_AST_TYPE_NODE_TYPE;
     protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
     protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_DATA_TYPE;
-    protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE;
+    protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE1;
+    protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2;
 
     protected CompilationUnit compilUnit;
     protected ISourceLocation loc;
@@ -84,7 +85,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         this.DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXPRESSION_NODE);
         this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
         DATATYPE_RASCAL_MESSAGE_DATA_TYPE          = typeStore.lookupAbstractDataType(DATATYPE_RASCAL_MESSAGE);
-        DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR).iterator().next();
+        TypeFactory tf = TypeFactory.getInstance();
+        DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE1    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR, tf.tupleType(tf.stringType()));
+        DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR, tf.tupleType(tf.stringType(), tf.sourceLocationType()));
         this.locationCache = cache;
 
         messages = values.listWriter();
@@ -161,7 +164,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                 int end = start + nodeLength -1;
 
                 if (end < start && ((node.getFlags() & 9) > 0)) {
-                    insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+                    insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
                         values.string("Recovered/Malformed node, guessing the length"),
                         values.sourceLocation(loc, 0, 0)));
 
@@ -177,7 +180,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
             }
         } 
         catch (IllegalArgumentException e) {
-            insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+            insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
                 values.string("Most probably missing dependency"),
                 values.sourceLocation(loc, 0, 0)));
         }

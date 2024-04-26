@@ -14,8 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,8 +27,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.TypeFactory;
 
 /**
