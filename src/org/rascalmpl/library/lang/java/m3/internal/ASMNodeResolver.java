@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ARRAY_METHOD_SCHEME;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_CONSTRUCTOR_NAME;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_STATIC_CONSTRUCTOR_NAME;
@@ -347,8 +348,15 @@ public class ASMNodeResolver implements NodeResolver {
         String typeName = ((IString) M3LocationUtil.getLocationName(typePath)).getValue();
         String signature = getMethodSignature(name, desc, typeName);
         String path = typePath + "/" + signature;
-        
-        return M3LocationUtil.makeLocation(getMethodScheme(name), "", path);
+        String methodScheme = getMethodScheme(name, typeName);
+
+        if (methodScheme.equals(ARRAY_METHOD_SCHEME)) {
+            // the array type is not consequential since we only have the Object methods in Array (hashCode, equals, clone).
+            return M3LocationUtil.makeLocation(methodScheme, "", getMethodScheme(name, "java.lang.Object"));
+        }
+        else {
+            return M3LocationUtil.makeLocation(methodScheme, "", path);
+        }
     }
     
     /**
@@ -394,10 +402,17 @@ public class ASMNodeResolver implements NodeResolver {
      * @param name - method name
      * @return method's scheme
      */
-    private String getMethodScheme(String name) {
-        return (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME 
-            : (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) ? INITIALIZER_SCHEME 
-            : METHOD_SCHEME;
+    private String getMethodScheme(String name, String typeName) {
+        switch(name) {
+            case COMPILED_CONSTRUCTOR_NAME : return CONSTRUCTOR_SCHEME;
+            case COMPILED_STATIC_CONSTRUCTOR_NAME: return INITIALIZER_SCHEME;    
+        }
+
+        if (typeName.endsWith("[]")) {
+            return ARRAY_METHOD_SCHEME;
+        }
+
+        return METHOD_SCHEME;
     }
 
     /**
