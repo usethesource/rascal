@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -46,7 +47,8 @@ public interface IBindingsResolver {
 	public ISourceLocation resolveBinding(MethodDeclaration node);
 	public ISourceLocation resolveBinding(MethodRef node); // Java doc
 	public ISourceLocation resolveBinding(Name node); // Expression
-	public ISourceLocation resolveBinding(PackageDeclaration node);
+	public ISourceLocation resolveBinding(PackageDeclaration node); 
+	public ISourceLocation resolveBinding(ModuleDeclaration node); 
 	public ISourceLocation resolveBinding(Type node); // type
 	public ISourceLocation resolveBinding(TypeParameter node); // type
 	public ISourceLocation resolveBinding(VariableDeclaration node); // declaration

@@ -14,6 +14,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,8 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.TypeFactory;
 
 /**
@@ -58,7 +62,10 @@ public class ASTConverter extends JavaToRascalConverter {
             if (!decl.getScheme().equals("unknown")) {
                 setKeywordParameter("decl", decl); 
             }
-            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE && !decl.getScheme().equals("java+package")) {
+            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 
+                && !decl.getScheme().equals("java+package")
+                && !decl.getScheme().equals("java+module")
+                && !(node instanceof ModuleDeclaration)) {
                 IValue type = resolveType(node);
 
                 setKeywordParameter("typ", type);
@@ -565,6 +572,7 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(FieldDeclaration node) {
         IList modifiers = visitChildren(node.modifiers());
+
         IValue type = visitChild(node.getType());
 
         IListWriter fragments = values.listWriter();
@@ -726,6 +734,18 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
+    public boolean visit(NameQualifiedType node) {
+        IValue qualifier = visitChild(node.getQualifier());
+        IList annos = visitChildren(node.annotations());
+
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructTypeNode("qualifiedType", annos, qualifier, name);
+
+        return false;
+    }
+    
     @Override
     public boolean visit(Initializer node) {
         IList modifiers = visitChildren(node.modifiers());
@@ -1075,10 +1095,11 @@ public class ASTConverter extends JavaToRascalConverter {
     @Override
     public boolean visit(QualifiedType node) {
         IValue qualifier = visitChild(node.getQualifier());
+        IList annos = visitChildren(node.annotations());
 
         IValue name = visitChild(node.getName());
 
-        ownValue = constructTypeNode("qualifiedType", qualifier, name);
+        ownValue = constructTypeNode("qualifiedType", annos, qualifier, name);
 
         return false;
     }

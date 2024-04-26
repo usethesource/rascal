@@ -199,9 +199,8 @@ public class EclipseJavaCompiler {
         for (IValue f : files) {
             fastPath &= safeResolve((ISourceLocation)f).getScheme().equals("file");
         }
+        
         if (fastPath) {
-            monitor.jobStart("Mapping syntax trees", files.size());
-
             Map<String, ISourceLocation> reversePathLookup = new HashMap<>();
             String[] absolutePaths = new String[files.size()];
             String[] encodings = new String[absolutePaths.length];
