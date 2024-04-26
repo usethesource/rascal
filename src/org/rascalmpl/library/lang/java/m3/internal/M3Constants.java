@@ -27,6 +27,7 @@ public final class M3Constants {
     public final static String INITIALIZER_SCHEME = "java+initializer";
     public final static String INTERFACE_SCHEME = "java+interface";
     public final static String METHOD_SCHEME = "java+method";
+    public final static String ARRAY_METHOD_SCHEME = "java+arrayMethod";
     public final static String PACKAGE_SCHEME = "java+package";
     public final static String PARAMETER_SCHEME = "java+parameter";
     public final static String PRIMITIVE_TYPE_SCHEME = "java+primitiveType";
