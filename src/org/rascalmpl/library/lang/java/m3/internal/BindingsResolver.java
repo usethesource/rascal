@@ -268,7 +268,7 @@ public class BindingsResolver {
 		initializerLookUp.put(node, result);
 		return result;
 	}
-	
+
 	public ISourceLocation resolveBinding(IBinding binding) {
 		if (binding == null) {
 			return makeBinding("unresolved", null, null);
@@ -618,7 +618,7 @@ private IConstructor nullSymbol() {
 	        }
 
 	        if (binding.isWildcardType()) {
-	            return makeBinding("unknown", null, null);
+	            return makeBinding("java+wildcardType", null, null);
 	        }
 
 	        if (binding.isLocal()) {
