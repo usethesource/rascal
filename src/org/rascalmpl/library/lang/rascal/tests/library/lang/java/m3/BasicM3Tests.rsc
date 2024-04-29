@@ -63,10 +63,10 @@ public M3 getSnakesM3(loc root)
 
 
 set[Declaration] buildASTs(loc root, list[loc] classPath, list[loc] sourcePath) 
-    = createAstsFromFiles(find(root, "java"), true, sourcePath = sourcePath, classPath = classPath, javaVersion ="1.7");
+    = createAstsFromFiles(find(root, "java"), true, sourcePath = sourcePath, classPath = classPath, javaVersion = JSL13());
 
 private M3 buildM3(loc projectName, loc root, list[loc] classPath, list[loc] sourcePath) 
-    = composeJavaM3(projectName, createM3sFromFiles(find(root, "java"),sourcePath = sourcePath, classPath = classPath, javaVersion ="1.7"));
+    = composeJavaM3(projectName, createM3sFromFiles(find(root, "java"),sourcePath = sourcePath, classPath = classPath, javaVersion = JLS13()));
 
 
 // unpackExampleProject("snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"));
