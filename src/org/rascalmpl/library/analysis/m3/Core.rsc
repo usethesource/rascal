@@ -88,7 +88,7 @@ function implements such a union.
    * Composition can be used to easily construct project-level models from file-level models.
    * Composition can be used to simulate (dynamic) linkage between projects.
    * Composition can be used to start simulating remote-procedure calls and shared memory, and other inter-programming language composition like _JNI_.
-* M3 models can be cached (efficiently) on disk using functions from ((util::ValueIO)). A single stored M3 model simulates an _object file_,
+* M3 models can be cached (efficiently) on disk using functions from ((ValueIO)). A single stored M3 model simulates an _object file_,
 while a composed M3 model is more like an `.a` archive or a `.jar` archive. 
    * Integrating M3 model caching during a build process (e.g ANT, Makefiles or Maven) is a smart way to make whole program analysis fast and incremental.
    * Integrating M3 model caching in Integrated Development Environments (e.g. the Language Server Protocol) enables fast and incremental IDE features based on whole program indexing that M3 provides.
