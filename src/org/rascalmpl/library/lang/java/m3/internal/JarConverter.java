@@ -41,6 +41,8 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.ModuleNode;
+import org.objectweb.asm.tree.ModuleOpenNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -248,6 +250,17 @@ public class JarConverter extends M3Converter {
         return M3LocationUtil.makeLocation(PACKAGE_SCHEME, "", path);
     }
     
+    private ISourceLocation resolveInternalTypeName(String name) {
+        ClassReader classReader = resolver.buildClassReader(name);
+
+        if (classReader != null) {
+            ClassNode classNode = new ClassNode();
+            classReader.accept(classNode, ClassReader.SKIP_DEBUG);
+            return resolver.resolveBinding(classNode, null);
+        }
+
+        return bindingsResolver.makeBinding("java+classOrInterface", name, name);
+    }
     /**
      * Sets class M3 relations. The creation of relations associated
      * to inner classes, fields, and methods is triggered.
@@ -259,6 +272,12 @@ public class JarConverter extends M3Converter {
             ClassNode classNode = new ClassNode();
             classReader.accept(classNode, ClassReader.SKIP_DEBUG);
             
+            if (classNode.module != null) {
+                addModuleRelations(classNode.module);
+                // TODO: check if this is ok; we are skipping everything else here!
+                return;
+            }
+
             IString className = M3LocationUtil.getLocationName(classNode.name);
             ISourceLocation compUnitLogical = M3LocationUtil.makeLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
             
@@ -281,6 +300,63 @@ public class JarConverter extends M3Converter {
             setMethodRelations(classNode, classLogical);
             setLanguages(resolver.resolveLanguageVersion(classNode));
         }
+    }
+
+    private void addModuleRelations(ModuleNode module) {
+        ISourceLocation modLoc = resolveBinding(module);
+        String version = module.version;
+        addToDeclarations(modLoc, compUnitPhysical);
+
+        // TODO: what to do about the respective module _versions_?
+
+        for (var export : module.exports) {
+            var pkgLoc = resolveBinding(export.packaze);
+
+            if (export.modules.isEmpty()) {
+                 // export to all
+                 insert(moduleExportsPackage, pkgLoc, URIUtil.rootLocation("java+module"));
+            }
+            else {
+                // export to specific modules
+                for (var to : export.modules) {
+                    insert(moduleExportsPackage, modLoc, pkgLoc, M3LocationUtil.makeLocation("java+module", "", to));
+                }
+            }
+        }
+
+        for (var provides : module.provides) {
+            var service = resolveInternalTypeName(provides.service);
+            for (var to : provides.providers) {
+                insert(moduleProvidesService, modLoc, service, resolveInternalTypeName(to));
+            }
+        }
+
+        for (var uses : module.uses) {
+            var service = resolveInternalTypeName(uses);
+            insert(moduleProvidesService, modLoc, service);
+        }
+
+        for (var requires : module.requires) {
+            var required = M3LocationUtil.makeLocation("java+module", "", requires.module)
+            insert(moduleRequiresModule, modLoc, required);
+        }
+
+        for (ModuleOpenNode opens : module.opens) {
+            var pkg = resolveBinding(opens.packaze);
+            
+            if (opens.modules.isEmpty()) {
+                // open to all
+                insert(moduleOpensPackage, pkg, URIUtil.rootLocation("java+module"));
+            }
+            else {
+                // open to specific 
+                for (var to : opens.modules) {
+                    insert(moduleOpensPackage, modLoc, pkg, resolveInternalTypeName(to));
+                }
+            }
+        }
+
+        return;
     }
 
     /**

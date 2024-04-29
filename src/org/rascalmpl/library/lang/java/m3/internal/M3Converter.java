@@ -33,10 +33,10 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected ISetWriter types;
 	protected ISetWriter annotations;
 	protected ISetWriter moduleOpensPackage;
-	protected ISetWriter moduleProvidesImplementation;
+	protected ISetWriter moduleProvidesService;
 	protected ISetWriter moduleRequiresModule;
-	protected ISetWriter moduleUsesInterface;
-	protected ISetWriter moduleExportsInterface;
+	protected ISetWriter moduleUsesService;
+	protected ISetWriter moduleExportsPackage;
 
 	protected final io.usethesource.vallang.type.Type CONSTRUCTOR_M3;
 	protected final Type JAVA_LANGUAGE_M3;
@@ -71,10 +71,10 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		types = values.setWriter();
 		languages = values.setWriter();
 		moduleOpensPackage = values.setWriter();
-		moduleProvidesImplementation = values.setWriter();
+		moduleProvidesService = values.setWriter();
 		moduleRequiresModule = values.setWriter();
-		moduleUsesInterface = values.setWriter();
-		moduleExportsInterface = values.setWriter();
+		moduleUsesService = values.setWriter();
+		moduleExportsPackage = values.setWriter();
 	}
 	
 	public IValue getModel(boolean insertErrors) {
@@ -95,10 +95,10 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setKeywordParameter("methodOverrides", methodOverrides.done());
 		setKeywordParameter("types", types.done());
 		setKeywordParameter("moduleOpensPackage", moduleOpensPackage.done());
-		setKeywordParameter("moduleProvidesImplementation", moduleProvidesImplementation.done());
+		setKeywordParameter("moduleProvidesService", moduleProvidesService.done());
 		setKeywordParameter("moduleRequiresModule", moduleRequiresModule.done());
-		setKeywordParameter("moduleUsesInterface", moduleUsesInterface.done());
-		setKeywordParameter("moduleExportsInterface", moduleExportsInterface.done());
+		setKeywordParameter("moduleUsesInterface", moduleUsesService.done());
+		setKeywordParameter("moduleExportsInterface", moduleExportsPackage.done());
 
 		insertCompilationUnitMessages(insertErrors, messages.done());
 		

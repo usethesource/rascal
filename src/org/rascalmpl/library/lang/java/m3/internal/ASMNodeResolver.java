@@ -45,6 +45,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.ModuleNode;
 import org.objectweb.asm.tree.ParameterNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -223,6 +224,9 @@ public class ASMNodeResolver implements NodeResolver {
             else if (node instanceof ClassNode) {
                 return resolveBinding((ClassNode) node);
             }
+            else if (node instanceof ModuleNode) {
+                return resolveBinding((ModuleNode) node);
+            }
             // FieldInsNode represents a field loading or storing instruction.
             else if (node instanceof FieldInsnNode) {
                 return resolveBinding((FieldInsnNode) node);
@@ -268,6 +272,15 @@ public class ASMNodeResolver implements NodeResolver {
         return M3LocationUtil.makeLocation(resolveClassScheme(node), "", node.name);
     }
     
+    /**
+     * Returns the location of a module node.
+     * @param node - module node
+     * @return logical location
+     */
+    private ISourceLocation resolveBinding(ModuleNode node) {
+        return M3LocationUtil.makeLocation("java+module", "", node.name);
+    }
+
     /**
      * Returns the location of a field store/access node.
      * @param node - field instruction node

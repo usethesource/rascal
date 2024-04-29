@@ -220,11 +220,11 @@ public class SourceConverter extends M3Converter {
 
 		if (targets.isEmpty()) {
 			// this encodes unqualified exports to all other modules
-			insert(moduleExportsInterface, parent, name, URIUtil.rootLocation("java+module"));
+			insert(moduleExportsPackage, parent, name, URIUtil.rootLocation("java+module"));
 		}
 		else {
 			for (var target : targets) {
-				insert(moduleExportsInterface, parent, name , target);
+				insert(moduleExportsPackage, parent, name , target);
 			}
 		}
 
@@ -241,7 +241,7 @@ public class SourceConverter extends M3Converter {
 		var name = resolveBinding(node.getName());
 
 		for (var impl : implementations) {
-			insert(moduleProvidesImplementation, parent, name, impl);
+			insert(moduleProvidesService, parent, name, impl);
 		}
 
 		return true;
@@ -250,7 +250,7 @@ public class SourceConverter extends M3Converter {
 	@Override
 	public boolean visit(UsesDirective node) {
 		var parent = scopeManager.peek();
-		insert(moduleUsesInterface, parent, resolveBinding(node.getName()));
+		insert(moduleUsesService, parent, resolveBinding(node.getName()));
 		return true;
 	}
 
