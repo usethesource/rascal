@@ -123,6 +123,7 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
 
@@ -936,7 +937,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter parameters = values.listWriter();
         for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
             SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-            parameters.add(visitChild(v));
+            parameters.insert(visitChild(v));
         }
 
         IListWriter possibleExceptions = values.listWriter();
