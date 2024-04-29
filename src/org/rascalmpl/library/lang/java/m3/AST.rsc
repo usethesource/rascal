@@ -237,17 +237,17 @@ data Statement
 
 @synopsis{These are the literal types you can find in Java programs.}
 @description{
-* The constructors of Type represent the syntax of types in Java.
-* Their `typ` keyword field maps the syntax to the symbolic type representation as ((TypeSymbol))s.  
+* The constructors of ((lang::java::m3::AST::Type)) represent the syntax of types in Java.
+* Their `typ` keyword field maps the syntax to the symbolic type representation as ((lang::java::m3::TypeSymbol::TypeSymbol))s.  
 }
 @pitfalls{
-* ((Type)) and ((TypeSymbol)) are easy to confuse because they are very similar in name, structure and intent. It is good to remember
-that there can be more TypeSymbols while analyzing types for Java than one can type in. Namely, ((TypeSymbol)) is used to
-compute with and analyze the Java type system, while ((Type)) is only meant to represent the syntax of types in Java source code.
-* ((Type)) closely follows the syntactic structure, while ((TypeSymbol)) follows the logical structure.
+* ((lang::java::m3::AST::Type)) and ((lang::java::m3::TypeSymbol::TypeSymbol)) are easy to confuse because they are very similar in name, structure and intent. It is good to remember
+that there can be more TypeSymbols while analyzing types for Java than one can type in. Namely, ((lang::java::m3::TypeSymbol::TypeSymbol)) is used to
+compute with and analyze the Java type system, while ((lang::java::m3::AST::Type)) is only meant to represent the syntax of types in Java source code.
+* ((lang::java::m3::AST::Type)) closely follows the syntactic structure, while ((lang::java::m3::TypeSymbol::TypeSymbol)) follows the logical structure.
 For example: `Node<Cons>[]` in Java syntax becomes `arrayType(parameterizedType(simpleType(id("Node")),[simpleType(id("Cons"))]))` as 
-an abstract syntax tree ((Type)), which becomes this ((TypeSymbol)): `array(class(|class:///Node|,[interface(|interface:///Cons|,[])]),1))`
-* ((TypeSymbol)) reduces different ways of writing types to one core canonical
+an abstract syntax tree ((lang::java::m3::AST::Type)), which becomes this ((lang::java::m3::TypeSymbol::TypeSymbol)): `array(class(|class:///Node|,[interface(|interface:///Cons|,[])]),1))`
+* ((lang::java::m3::TypeSymbol::TypeSymbol)) reduces different ways of writing types to one core canonical
 }
 data Type(TypeSymbol typ=unresolved())
     = arrayType(Type \type)
