@@ -304,10 +304,7 @@ public class JarConverter extends M3Converter {
 
     private void addModuleRelations(ModuleNode module) {
         ISourceLocation modLoc = resolveBinding(module);
-        String version = module.version;
         addToDeclarations(modLoc, compUnitPhysical);
-
-        // TODO: what to do about the respective module _versions_?
 
         for (var export : module.exports) {
             var pkgLoc = resolveBinding(export.packaze);
