@@ -43,10 +43,10 @@ These are the kinds of logical names that can be found in a Java M3 model:
 * `unknown:///` is from general M3 and means a name has not even been tried to be resolved. It usually the default for the keyword parameters `decl` and `typ`.
 * `unresolved:///` is from general M3 and means a name was tried to be resolved, but this was unsuccessful. Typically this means either the Java source code was statically incorrect, or the _classpath_ for configuring AST or M3 extraction was incomplete.
 * `java+class:///` is a fully resolved and qualified class name
-* `java+interface:///` is a fully resolved and qualified class name
+* `java+interface:///` is a fully resolved and qualified interface name
 * `java+classOrInterface:///` is the fully qualified name of an external class or interface that has not been resolved (since it is not on the classpath but it is used).
 * `java+module:///` the root scheme points to _any or all_ modules and when it has a qualified name it is a specific module (a la Java 9's module system).
-* `java+compilationUnit:///`
+* `java+compilationUnit:///` is the name of a file that contains an entire Java compilationUnit. The path name starts from the root of the source path for the current analysis run, or from the jar file that contains the .class bytecode currently under analysis. Typically a source compilation unit has one class member in the `containment` relation, but this is not required. There could be more private or protected classes in the same unit.
 * `java+constructor:///` is the fully qualified constructor method of class (including parameter types to distinguish it from the other constructors)
 * `java+method:///` is the fully qualified constructor method of class (including parameter types to distinguish it from the other constructors)
 * `java+initializer:///` unique address of an initializer expression for a field or variable.
@@ -68,8 +68,7 @@ as elements of other schemes, for example to uniquel encode parameter types of m
 * Java M3 is an _immutable_ database, which is implemented using advanced persistent hash-tries under the hood. This makes analysis fast,
 and if you compute new M3 models from earlier models your source data can never be influenced by the later stages. This is very good
 for research purposes where the provenance of every data point is essential for the sake of validity. 
-* Java M3 is complete in the sense that all notions of programmable artefacts that exist in Java are represented. If the M3 database does not
-provide enough information, then the AST model is the next source to use.
+* Java M3 is complete in the sense that all notions of programmable artefacts that exist in Java are represented. However, every piece of information is local and static: intra-procedural, flow and path insensitive. If the M3 database does not provide enough information, then the AST model is the next source to use. There is also a flow analysis module: ((JavaToObjectFlow)).
 * Java M3 is aligned with the AST model for Java:
    * every `decl=` parameter on Declarations nodes corresponds to an entry in the `declarations` relation in M3
    * every `decl=` parameter on other nodes (Expressions, Types, Statements), corresponds to an entry in the `uses` relation in M3.
