@@ -337,7 +337,7 @@ public class JarConverter extends M3Converter {
         }
 
         for (var requires : module.requires) {
-            var required = M3LocationUtil.makeLocation("java+module", "", requires.module)
+            var required = M3LocationUtil.makeLocation("java+module", "", requires.module);
             insert(moduleRequiresModule, modLoc, required);
         }
 
