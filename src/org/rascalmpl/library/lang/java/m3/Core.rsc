@@ -40,9 +40,67 @@ requires an additional analysis step with its own design choices.
 | `rel[loc from, loc to] annotations`                | logs which declarations (classes, interfaces, parameters, methods, variables, etc.) are tagged with which annotation classes or interfaces |
 
 These are the kinds of logical names that can be found in a Java M3 model:
-* `|java+class:///|` is a fully resolved and qualified class name
-* `|java+interface:///|` is a fully resolved and qualified class name
-* (((TODO)))
+* `unknown:///` is from general M3 and means a name has not even been tried to be resolved. It usually the default for the keyword parameters `decl` and `typ`.
+* `unresolved:///` is from general M3 and means a name was tried to be resolved, but this was unsuccessful. Typically this means either the Java source code was statically incorrect, or the _classpath_ for configuring AST or M3 extraction was incomplete.
+* `java+class:///` is a fully resolved and qualified class name
+* `java+interface:///` is a fully resolved and qualified class name
+* `java+classOrInterface:///` is the fully qualified name of an external class or interface that has not been resolved (since it is not on the classpath but it is used).
+* `java+module:///` the root scheme points to _any or all_ modules and when it has a qualified name it is a specific module (a la Java 9's module system).
+* `java+compilationUnit:///`
+* `java+constructor:///` is the fully qualified constructor method of class (including parameter types to distinguish it from the other constructors)
+* `java+method:///` is the fully qualified constructor method of class (including parameter types to distinguish it from the other constructors)
+* `java+initializer:///` unique address of an initializer expression for a field or variable.
+* `java+parameter:///` unique address for method, constructor and lambda parameters.
+* `java+variable:///` unique address for local variables in methods, constructors and lambdas.
+* `java+field:///` unique address for fields of classes and interfaces.
+* `java+enum:///` is a fully resolved and qualified name of an enum class.
+* `java+array:///` is the name of an array type
+* `java+typeVariable:///` is the unique address of an open type variable (of a class or method)
+* `java+wildcardType:///` is the address of an anonymous type variable.
+* `java+enumConstant:///` is the unique address of one of the constants of an `enum` type.
+* `java+field:///` is the unique address of a field in a class, interface or enum.
+* `java+arrayLength:///` is the singleton address for the length field of all arrays in Java.
+* `java+primitiveType:///` is used when type resolution points to a builtin primitive in Java. These names also often occur
+* `java+anonymousClass:///` uniquely labels anonymous classes, however since indexing is used the names are not stable between different versions of the same code, or between binary and source extractions.
+as elements of other schemes, for example to uniquel encode parameter types of methods.
+}
+@benefits{
+* Java M3 is an _immutable_ database, which is implemented using advanced persistent hash-tries under the hood. This makes analysis fast,
+and if you compute new M3 models from earlier models your source data can never be influenced by the later stages. This is very good
+for research purposes where the provenance of every data point is essential for the sake of validity. 
+* Java M3 is complete in the sense that all notions of programmable artefacts that exist in Java are represented. If the M3 database does not
+provide enough information, then the AST model is the next source to use.
+* Java M3 is aligned with the AST model for Java:
+   * every `decl=` parameter on Declarations nodes corresponds to an entry in the `declarations` relation in M3
+   * every `decl=` parameter on other nodes (Expressions, Types, Statements), corresponds to an entry in the `uses` relation in M3.
+   * every `src` parameter on AST nodes can be looked up in the `declarations` or `uses` relations. Although not all nodes lead to
+declarations or uses of declarations, if they do their source locations line up between the AST and the M3 model.
+   * The `typ` parameters on nodes is a distributed version of the generic `types` relation in de M3 model.
+   * scope nesting in the AST is represented one-to-one by the `containment` relation in the M3 model.
+   * The `modifiers` relation in M3 collects all the modifiers for every Declaration node that may have modifiers in Java.
+* Java M3 is freely composable using the ((composeM3)) function, to create larger databases of measurable and analyzable software artefacts.
+* Java M3 has been used in countless education and research projects.
+* Java M3 can be composed with M3 models of other languages (C++, C) for cross language analysis.
+* Java M3 represents only exact and accurate facts, and no analysis results (yet). You can write a simple call graph analysis 
+in one line of Rascal; but it is good to realize that such analyses are inaccurate by their very nature.
+* Java M3 has all the basic facts to build basic and advanced static analyses (such as call graphs)
+* Using ((diffJavaM3)) software evolution can be tracked over syntactic and semantic objects, instead of just line of text.
+* M3 models can be extracted from source code, but also from .class files in jars and folders.
+}
+@pitfalls{
+* with `|unresolved:///|`'s or `unknown:///`'s in the model, counting elements for the sake of software metrics is dubious. The reason
+is that the counts will simply be off (both over- and under-approximated). Typically it is better to iterate a better _classpath_
+until the list of error `messages` from the compiler is empty and all names and types have been resolved, and then start measuring
+or running downstream analyses.
+* Composition via ((composeM3)) is _dumb_; it simply unions all the sets of tuples. For a meaningful link, there are specific
+analyses to run.
+* Models extracted for the _same project_ from source or from .class files can be slightly different:
+   * If _classpath_ parameters were different between the different extractors, then names and types can be resolved differently or not at all.
+   * Some artefacts on the source code level are compiled away on the bytecode level (lambdas are a fine example). If you need to line up
+facts from source and binary, an additional analysis is required using heuristics that "decompile" JVM bytecode back to the Java level.
+   * Anonymous entities such as lambdas and anonymous nested classes may be labeled by a different counter, accidentally.
+* The intersection of the generic `modifiers` relation in M3 and the Java-specific `annotations` is not empty. All annotations
+are also modifiers in Java M3, but no non-annotation modifiers end up in the `annotations`` relation.
 }
 data M3(
 	rel[loc from, loc to] extends = {},            
@@ -68,11 +126,12 @@ definition explains:
 And so each of these aspects has their own set of facts in the extended M3 model for Java:
 | Facts about Java modules                             | Description                                             |
 | ---------------------------------------------------- | ------------------------------------------------------- |
-| `rel[loc \module, loc package, loc to] moduleOpensPackage` | what packages are open for reflection in a given module |
-| `rel[loc \module, loc service, loc implementation] moduleProvidesImplementation` | what services are implemented by this module            |
 | `rel[loc \module, loc requiredModule] moduleRequiresModule`         | which modules each module requires                      |
-| `rel[loc \module, loc service] moduleUsesInterface`          | which services are used by every module                 |
-| `rel[loc \module, loc service, loc to] moduleExportsInterface`       | which interfaces are exported by every module           |
+| `rel[loc \module, loc package, loc to] moduleOpensPackage` | what packages are open for reflection in a given module |
+| `rel[loc \module, loc service, loc to] moduleExportsPackage`       | which packages (the public and protected classes therein) are exported by every module           |
+| `rel[loc \module, loc service, loc implementation] moduleProvidesService` | what services are implemented by this module            |
+| `rel[loc \module, loc service] moduleUsesService`          | which services are used by every module                 |
+
 }
 @benefits{
 * M3 models with the Module system extensions are composable to generate large queriable databases for entire software ecosystems.
@@ -82,13 +141,18 @@ And so each of these aspects has their own set of facts in the extended M3 model
 * modules, although they semantically encapsulate packages, interfaces and classes, do not appear in the `containment` relation of the core M3 model.
 That is because `containment` represents the static scoping relation of declared source code elements. The relation between modules and what 
 is inside them is yet another form of encapsulation; so to avoid conflating them they are stored in different relations.   
+* modules information extracted from .class files in jars can be different from the information extracted from source. The matching
+cause of this is a different `classpath` at M3-model-extraction-time. Some classes or interfaces from external projects may be
+resolved as `java+classOrInterface:///examplePackage/exampleClassOrInterface` in the one, while the exact type is visible as
+`java+interface:///examplePackage/exampleClassOrInterface` in the other. After linking all available models using ((composeM3)) you could write a simple analysis
+that resolves the unresolved references, or perhaps this information is not consequential to your analysis task. 
 }
 data M3(
-  rel[loc \module, loc package, loc to] moduleOpensPackage = {},
-  rel[loc \module, loc service, loc implementation] moduleProvidesImplementation = {},
   rel[loc \module, loc requiredModule]  moduleRequiresModule = {},
-  rel[loc \module, loc service]         moduleUsesInterface = {},
-  rel[loc \module, loc service, loc to] moduleExportsInterface = {}
+  rel[loc \module, loc package, loc to] moduleOpensPackage = {},
+  rel[loc \module, loc service, loc to] moduleExportsPackage = {},
+  rel[loc \module, loc service, loc implementation] moduleProvidesService = {},
+  rel[loc \module, loc service]         moduleUsesService = {}
 );
 
 @synopsis{Combines a set of Java meta models by merging their relations.}
@@ -243,7 +307,7 @@ M3 createM3FromJar(loc jarFile, list[loc] classPath = []) {
 }
 
 void unregisterJavaProject(loc project) {
-  unregisterProjectSchemes(project, {"java+compilationUnit", "java+compilationUnit", "java+class", "java+constructor", "java+initializer", "java+parameter","java+variable","java+field" , "java+interface" , "java+enum", "java+class" , "java+interface","java+enum"});
+  unregisterProjectSchemes(project, {"java+compilationUnit", "java+compilationUnit", "java+class", "java+constructor", "java+initializer", "java+parameter","java+variable","java+field" , "java+interface" , "java+enum", "java+class" , "java+interface","java+enum","java+module"});
 }
 
 @deprecated{
