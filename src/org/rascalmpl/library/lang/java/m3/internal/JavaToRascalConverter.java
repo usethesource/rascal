@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.objectweb.asm.tree.ModuleNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -155,6 +156,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     
         return bindingsResolver.resolveBinding(node, true);
     }
+
+    protected ISourceLocation resolveBinding(ModuleNode module) {
+		return bindingsResolver.makeBinding("java+module", "", ((ModuleNode) module).name);
+	}
 
     protected ISourceLocation getSourceLocation(ASTNode node) {
         try {
