@@ -9,7 +9,7 @@ syntax Aas
   ;
   
 &T <:Tree ambFilter(amb(set[&T <:Tree] alternatives)) {
-  set[&T <:Tree] result = {a | Aas a <- alternatives, !(a is nil)};
+  set[&T <:Tree] result = {a | &T a <- alternatives, !(a is nil)};
   if ({&T <: Tree oneTree} := result) {
     return oneTree;
   }
