@@ -98,7 +98,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		setKeywordParameter("moduleProvidesService", moduleProvidesService.done());
 		setKeywordParameter("moduleRequiresModule", moduleRequiresModule.done());
 		setKeywordParameter("moduleUsesInterface", moduleUsesService.done());
-		setKeywordParameter("moduleExportsInterface", moduleExportsPackage.done());
+		setKeywordParameter("moduleExportsPackage", moduleExportsPackage.done());
 
 		insertCompilationUnitMessages(insertErrors, messages.done());
 		

@@ -145,13 +145,14 @@ cause of this is a different `classpath` at M3-model-extraction-time. Some class
 resolved as `java+classOrInterface:///examplePackage/exampleClassOrInterface` in the one, while the exact type is visible as
 `java+interface:///examplePackage/exampleClassOrInterface` in the other. After linking all available models using ((composeM3)) you could write a simple analysis
 that resolves the unresolved references, or perhaps this information is not consequential to your analysis task. 
+* the Java module system does not pertain projects and project dependencies and their versions.
 }
 data M3(
-  rel[loc \module, loc requiredModule]  moduleRequiresModule = {},
-  rel[loc \module, loc package, loc to] moduleOpensPackage = {},
-  rel[loc \module, loc service, loc to] moduleExportsPackage = {},
+  rel[loc \module, loc requiredModule]              moduleRequiresModule = {},
+  rel[loc \module, loc package, loc to]             moduleOpensPackage = {},
+  rel[loc \module, loc service, loc to]             moduleExportsPackage = {},
   rel[loc \module, loc service, loc implementation] moduleProvidesService = {},
-  rel[loc \module, loc service]         moduleUsesService = {}
+  rel[loc \module, loc service]                     moduleUsesService = {}
 );
 
 @synopsis{Combines a set of Java meta models by merging their relations.}

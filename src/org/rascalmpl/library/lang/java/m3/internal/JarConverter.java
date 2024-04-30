@@ -137,13 +137,12 @@ public class JarConverter extends M3Converter {
      * Jar scheme is not supported.
      */
     private void createM3() {
-        try {
-                       
+        try {                 
             try (JarInputStream jarStream = new JarInputStream(registry.getInputStream(loc))) {
                 JarEntry entry = jarStream.getNextJarEntry();
                 while (entry != null) {
                     compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), entry.getName() + ".class");
-                    
+            
                     if (entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
                         ClassReader classReader = resolver.buildClassReader(jarStream);
@@ -306,49 +305,59 @@ public class JarConverter extends M3Converter {
         ISourceLocation modLoc = resolveBinding(module);
         addToDeclarations(modLoc, compUnitPhysical);
 
-        for (var export : module.exports) {
-            var pkgLoc = resolveBinding(export.packaze);
+        if (module.exports != null) {
+            for (var export : module.exports) {
+                var pkgLoc = resolveBinding(export.packaze);
 
-            if (export.modules.isEmpty()) {
-                 // export to all
-                 insert(moduleExportsPackage, pkgLoc, URIUtil.rootLocation("java+module"));
-            }
-            else {
-                // export to specific modules
-                for (var to : export.modules) {
-                    insert(moduleExportsPackage, modLoc, pkgLoc, M3LocationUtil.makeLocation("java+module", "", to));
+                if (export.modules.isEmpty()) {
+                    // export to all
+                    insert(moduleExportsPackage, modLoc, pkgLoc, URIUtil.rootLocation("java+module"));
+                }
+                else {
+                    // export to specific modules
+                    for (var to : export.modules) {
+                        insert(moduleExportsPackage, modLoc, pkgLoc, M3LocationUtil.makeLocation("java+module", "", to));
+                    }
                 }
             }
         }
 
-        for (var provides : module.provides) {
-            var service = resolveInternalTypeName(provides.service);
-            for (var to : provides.providers) {
-                insert(moduleProvidesService, modLoc, service, resolveInternalTypeName(to));
+        if (module.provides != null) {
+            for (var provides : module.provides) {
+                var service = resolveInternalTypeName(provides.service);
+                for (var to : provides.providers) {
+                    insert(moduleProvidesService, modLoc, service, resolveInternalTypeName(to));
+                }
             }
         }
 
-        for (var uses : module.uses) {
-            var service = resolveInternalTypeName(uses);
-            insert(moduleProvidesService, modLoc, service);
-        }
-
-        for (var requires : module.requires) {
-            var required = M3LocationUtil.makeLocation("java+module", "", requires.module);
-            insert(moduleRequiresModule, modLoc, required);
-        }
-
-        for (ModuleOpenNode opens : module.opens) {
-            var pkg = resolveBinding(opens.packaze);
-            
-            if (opens.modules.isEmpty()) {
-                // open to all
-                insert(moduleOpensPackage, pkg, URIUtil.rootLocation("java+module"));
+        if (module.uses != null) {
+            for (var uses : module.uses) {
+                var service = resolveInternalTypeName(uses);
+                insert(moduleProvidesService, modLoc, service);
             }
-            else {
-                // open to specific 
-                for (var to : opens.modules) {
-                    insert(moduleOpensPackage, modLoc, pkg, resolveInternalTypeName(to));
+        }
+
+        if (module.requires != null) {
+            for (var requires : module.requires) {
+                var required = M3LocationUtil.makeLocation("java+module", "", requires.module);
+                insert(moduleRequiresModule, modLoc, required);
+            }
+        }
+
+        if (module.opens != null) {
+            for (ModuleOpenNode opens : module.opens) {
+                var pkg = resolveBinding(opens.packaze);
+                
+                if (opens.modules.isEmpty()) {
+                    // open to all
+                    insert(moduleOpensPackage, pkg, URIUtil.rootLocation("java+module"));
+                }
+                else {
+                    // open to specific 
+                    for (var to : opens.modules) {
+                        insert(moduleOpensPackage, modLoc, pkg, resolveInternalTypeName(to));
+                    }
                 }
             }
         }
