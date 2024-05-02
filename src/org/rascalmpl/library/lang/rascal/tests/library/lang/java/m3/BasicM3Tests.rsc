@@ -12,7 +12,7 @@ import String;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 
-private loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
+public loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
 
 public loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
@@ -63,7 +63,7 @@ public M3 getSnakesM3(loc root)
 
 
 set[Declaration] buildASTs(loc root, list[loc] classPath, list[loc] sourcePath) 
-    = createAstsFromFiles(find(root, "java"), true, sourcePath = sourcePath, classPath = classPath, javaVersion = JSL13());
+    = createAstsFromFiles(find(root, "java"), true, sourcePath = sourcePath, classPath = classPath, javaVersion = JLS13());
 
 private M3 buildM3(loc projectName, loc root, list[loc] classPath, list[loc] sourcePath) 
     = composeJavaM3(projectName, createM3sFromFiles(find(root, "java"),sourcePath = sourcePath, classPath = classPath, javaVersion = JLS13()));
@@ -129,8 +129,10 @@ private loc getAndCopyToTemp(str jar) {
 public test bool hamcrestJarM3RemainedTheSame()
 	= compareJarM3s(get("m3/hamcrest-library-1.3-m3.bin"), getAndCopyToTemp("m3/hamcrest-library-1.3.jar"), getHamcrestM3);
 	
+
 // TODO: think if this can be replaced by the generic diff function.
 public bool compareM3s(M3 a, M3 b) {
+	ok = true;
 	aKeys = getKeywordParameters(a);
 	bKeys = getKeywordParameters(b);
 	for (ak <- aKeys) {
@@ -169,13 +171,17 @@ public bool compareM3s(M3 a, M3 b) {
 					}
 				}
 			}
-			throw "<ak> has different value";
+
+			ok = false;
+			println("<ak> has different value");
 		}
 	}
+
 	for (bk <- bKeys) {
 		if (!(bk in aKeys)) {
-			throw "<bk> missing in result";
+			ok = false;
+		  	println("<bk> missing in result");
 		}
 	}
-	return true;
+	return ok;
 }
