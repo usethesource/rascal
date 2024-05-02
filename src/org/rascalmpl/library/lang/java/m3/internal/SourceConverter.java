@@ -191,6 +191,8 @@ public class SourceConverter extends M3Converter {
 	@Override
 	public boolean visit(ModuleDeclaration node) {
 		insert(declarations, ownValue, getSourceLocation(node));
+		insert(names, values.string(node.getName().getFullyQualifiedName()), ownValue);
+
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
@@ -487,6 +489,9 @@ public class SourceConverter extends M3Converter {
 	
 	@Override
 	public boolean visit(QualifiedName node) {
+		insert(names, values.string(node.getFullyQualifiedName()), ownValue);
+
+		// TODO: this seems brittle. 
 		if (((ISourceLocation) ownValue).getScheme().equals("java+field")) {
 			insert(fieldAccess, getParent(), ownValue);
 		}
