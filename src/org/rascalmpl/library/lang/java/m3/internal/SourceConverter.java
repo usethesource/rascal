@@ -501,6 +501,7 @@ public class SourceConverter extends M3Converter {
 	@Override
 	public boolean visit(SimpleName node) {
 		insert(names, values.string(node.getIdentifier()), ownValue);
+		insert(names, values.string(node.getFullyQualifiedName()), ownValue);
 		
 		if (!simpleNameIsConstructorDecl(node)) {
 			addTypeDependency(resolveBinding(node.resolveTypeBinding()));
