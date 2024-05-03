@@ -6,6 +6,7 @@ import List;
 import Message;
 import IO;
 import util::FileSystem;
+import util::Math;
 import ValueIO;
 import Node;
 import String;
@@ -143,17 +144,17 @@ public bool compareM3s(M3 a, M3 b) {
 		if (aKeys[ak] != bKeys[ak]) {
 			if (set[value] aks := aKeys[ak] && set[value] bks := bKeys[ak]) {
 				println("<ak>: Missing in relation to reference: ");
-				iprintln(aks - bks);
+				iprintln(aks - bks, lineLimit=5);
 				println("<ak> More than reference:");
-				iprintln(bks - aks);
+				iprintln(bks - aks, lineLimit=5);
 			}
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
 				// In case of different size tell the difference.
 				if (size(akl) != size(bkl)) {
 					println("Missing messages with regards to original relation: ");
-					iprintln(bkl - akl);
+					iprintln(bkl - akl, lineLimit=5);
 					println("Additional messages with regards to original relation: ");
-					iprintln(akl - bkl);
+					iprintln(akl - bkl, lineLimit=5);
 				}
 				//Otherwise, check if all values remain the same.
 				else {
@@ -163,10 +164,10 @@ public bool compareM3s(M3 a, M3 b) {
 						//No worries, just sorting!;
 						continue;
 					}
-					for (i <- [0..size(akl)]) {
+					for (i <- [0..min(size(akl), 5)]) {
 						if (akl[i] != bkl[i]) {
 							println("<i> differs");
-							iprintln([(akl[i]), (bkl[i])]);
+							iprintln([(akl[i]), (bkl[i])], lineLimit=5);
 						}
 					}
 				}
