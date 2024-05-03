@@ -87,6 +87,10 @@ public class TestEvaluator {
 
     private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
         testResultListener.start(env.getName(), tests.size());
+        if (tests.size() <= 0) {
+            return;
+        }
+        
         eval.job("Testing " + env.getName(), tests.size(), (String jn) -> {
             // first, let's shuffle the tests
             var theTests = new ArrayList<>(tests); // just to be sure, clone the list
