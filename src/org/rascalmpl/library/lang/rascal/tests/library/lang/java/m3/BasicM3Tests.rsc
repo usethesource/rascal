@@ -37,7 +37,7 @@ public list[loc] junitSourcePath  = [junitProject + "/src/main/java/", junitProj
 // Static data for regression testing against the Snakes and Ladders project
 public loc snakesAndLaddersSource      = getResource("m3/snakes-and-ladders-project-source.zip");
 public loc snakesAndLaddersBinaryM3    = getResource("m3/snakes-and-ladders-m3s.bin");
-public loc snamesAndLaddersBinaryAST   = getResource("m3/snakes-and-ladders-asts.bin");
+public loc snakesAndLaddersBinaryAST   = getResource("m3/snakes-and-ladders-asts.bin");
 public loc snakesAndLaddersProject     = unpackExampleProject("snakes-and-ladders", snakesAndLaddersSource);
 public list[loc] snakesClassPath       = [snakesAndLaddersProject + "jexample-4.5-391.jar"];
 public list[loc] snakesSourcePath      = [snakesAndLaddersProject + "/src/"];
@@ -90,7 +90,7 @@ test bool junitASTsRemainedTheSame()  {
 
 @synopsis{regression testing ASTs on the Snakes and Ladders project}  	    
 test bool snakesASTsRemainedTheSame() {
-	reference = readBinaryValueFile(#set[Declaration], junitBinaryASTs);
+	reference = readBinaryValueFile(#set[Declaration], snakesAndLaddersBinaryAST);
 	
 	root = snakesAndLaddersProject;
 
