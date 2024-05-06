@@ -13,9 +13,8 @@ import String;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 
-public loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
-
-public loc unpackExampleProject(str name, loc projectZip) {
+@synopsis{Unpack a test source zip in a temporary folder for downstream analysis.}
+private loc unpackExampleProject(str name, loc projectZip) {
     targetRoot = |tmp:///<name>|;
     sourceRoot = projectZip[scheme = "jar+<projectZip.scheme>"][path = projectZip.path + "!/"];
     copy(sourceRoot, targetRoot, recursive=true, overwrite=true);
@@ -23,116 +22,102 @@ public loc unpackExampleProject(str name, loc projectZip) {
 	return targetRoot;
 }
 
-private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
-    = compareM3s(
-        readBinaryValueFile(#M3, reference),
-        builder(jar)
-   );
+@synopsis{Utility to get access to test data in the current execution context.}
+public loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
 
+// Static data for regression testing against the Hamcrest project
+public loc hamcrestJar      = get("m3/hamcrest-library-1.3.jar");
+public loc hamcrestBinaryM3 = get("m3/hamcrest-library-1.3-m3.bin");
 
-private list[loc] junitClassPath(loc root)
-    = [
-        root + "/lib/hamcrest-hamcrest-core-1.3.jar", 
-        root + "/lib/hamcrest-library-1.3.jar"
-    ];
+// Static data for regression testing against the JUnit4 project
+public loc junitSourceZip         = get("m3/junit4-project-source.zip");
+public loc junitBinaryM3          = get("m3/junit4-m3s.bin");
+public loc junitBinaryASTs        = get("m3/junit4-asts.bin");
+public loc junitProject           = unpackExampleProject("junit4", junitSourceZip);
+public list[loc] junitClassPath   = [junitProject + "/lib/hamcrest-hamcrest-core-1.3.jar", junitProject + "/lib/hamcrest-library-1.3.jar"];
+public list[loc] junitSourcePath  = [junitProject + "/src/main/java/", junitProject + "/src/test/java/" ];
 
-private list[loc] junitSourcePath(loc root) 
-    = [
-        root + "/src/main/java/", 
-        root + "/src/test/java/"
-    ];
+// Static data for regression testing against the Snakes and Ladders project
+public loc snakesAndLaddersSource      = get("m3/snakes-and-ladders-project-source.zip");
+public loc snakesAndLaddersBinaryM3    = get("m3/snakes-and-ladders-m3s.bin");
+public loc snamesAndLaddersBinaryAST   = get("m3/snakes-and-ladders-asts.bin");
+public loc snakesAndLaddersProject     = unpackExampleProject("snakes-and-ladders", snakesAndLaddersSource);
+public list[loc] snakesClassPath       = [snakesAndLaddersProject + "jexample-4.5-391.jar"];
+public list[loc] snakesSourcePath      = [snakesAndLaddersProject + "/src/"];
 
-public set[Declaration] getJunitASTs(loc root) 
-    = buildASTs(root + "/src/", junitClassPath(root), junitSourcePath(root));
+@synopsis{regression testing M3 on the JUnit project}
+test bool junitM3RemainedTheSame() {
+	reference = readBinaryValueFile(#M3, junitBinaryM3);
+	
+	root = junitProject;
 
-public M3 getJunitM3(loc root) 
-    = buildM3(|project://junit4|, root + "/src/", junitClassPath(root), junitSourcePath(root));
+	models = createM3sFromFiles(find(root + "src", "java"),
+		sourcePath = junitSourcePath, 
+		classPath = junitClassPath, 
+		javaVersion = JLS13());
 
+	result = composeJavaM3(|project://junit4|, models);
 
-private list[loc] snakesClassPath(loc root)
-    = [root + "jexample-4.5-391.jar"];
-
-private list[loc] snakesSourcePath(loc root)
-    = [root + "/src/"];
-    
-
-public set[Declaration] getSnakesASTs(loc root) 
-    = buildASTs(root + "/src/", snakesClassPath(root), snakesSourcePath(root));
-
-public M3 getSnakesM3(loc root) 
-    = buildM3(|project://snakes-and-ladders|, root + "/src/", snakesClassPath(root), snakesSourcePath(root));
-
-
-set[Declaration] buildASTs(loc root, list[loc] classPath, list[loc] sourcePath) 
-    = createAstsFromFiles(find(root, "java"), true, sourcePath = sourcePath, classPath = classPath, javaVersion = JLS13());
-
-private M3 buildM3(loc projectName, loc root, list[loc] classPath, list[loc] sourcePath) 
-    = composeJavaM3(projectName, createM3sFromFiles(find(root, "java"),sourcePath = sourcePath, classPath = classPath, javaVersion = JLS13()));
-
-
-// unpackExampleProject("snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"));
-
-private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) builder)
-    = compareM3s(
-        readBinaryValueFile(#M3, reference),
-        builder(unpackExampleProject(projectName, sourceZip)) 
-   );
-
-@ignoreCompiler{M3 not yet supported}
-public test bool junitM3RemainedTheSame() 
-    = compareM3s(get("m3/junit4-m3s.bin"), "junit4", get("m3/junit4-project-source.zip"), getJunitM3); 
-
-@ignoreCompiler{M3 not yet supported}
-public test bool snakesM3RemainedTheSame() 
-    = compareM3s(get("m3/snakes-and-ladders-m3s.bin"), "snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"), getSnakesM3); 
- 
- 
-private bool compareASTs(loc reference, str projectName, loc sourceZip, set[Declaration] (loc) builder) 
-    = compareASTs(
-        readBinaryValueFile(#set[Declaration], reference),
-        builder(unpackExampleProject(projectName, sourceZip)) 
-    );
- 
-@ignoreCompiler{M3 not yet supported}
-public test bool junitASTsRemainedTheSame() 
-    = compareASTs(get("m3/junit4-asts.bin"), "junit4", get("m3/junit4-project-source.zip"), getJunitASTs);
-        
-@ignoreCompiler{M3 not yet supported}
-public test bool snakesASTsRemainedTheSame() 
-    = compareASTs(get("m3/snakes-and-ladders-asts.bin"), "snakes-and-ladders", get("m3/snakes-and-ladders-project-source.zip"), getSnakesASTs);    
-
-	 
-private bool compareASTs(set[Declaration] a, set[Declaration] b) = a == b;
-
-private bool compareMessages(Message a, Message b) {
-	return "<a>" < "<b>";
-} 
-
-private M3 buildM3FromJar(loc jar) 
-    = createM3FromJar(jar);
-    
-public M3 getHamcrestM3(loc root) 
-    = buildM3FromJar(root);
-    
-private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
-    = compareM3s(
-        readBinaryValueFile(#M3, reference),
-        builder(jar) 
-   );
-
-private loc getAndCopyToTemp(str jar) {
-	loc source = get(jar);
-	loc target = |tmp:///| + jar;
-	copy(source, target);
-	return target;
+	return compareM3s(reference, result);
 }
 
-public test bool hamcrestJarM3RemainedTheSame()
-	= compareJarM3s(get("m3/hamcrest-library-1.3-m3.bin"), getAndCopyToTemp("m3/hamcrest-library-1.3.jar"), getHamcrestM3);
+@synopsis{regression testing M3 on the Snakes-and-ladders project}
+test bool snakesM3RemainedTheSame() {
+	reference = readBinaryValueFile(#M3, snakesAndLaddersBinaryM3);
 	
+	root = snakesAndLaddersProject;
 
-// TODO: think if this can be replaced by the generic diff function.
+	models = createM3sFromFiles(find(root + "src", "java"),
+		sourcePath = snakesSourcePath, 
+		classPath = snakesClassPath, 
+		javaVersion = JLS13());
+
+	result = composeJavaM3(|project://snakes-and-ladders/|, models);
+
+	return compareM3s(reference, result);
+}
+  
+@synopsis{regression testing ASTs on the Junit4 project}  
+test bool junitASTsRemainedTheSame()  {
+	reference = readBinaryValueFile(#set[Declaration], junitBinaryASTs);
+	
+	root = junitProject;
+
+	asts = createAstsFromFiles(find(root + "src", "java"), true, 
+		sourcePath = junitSourcePath, 
+		classPath = junitClassPath, 
+		javaVersion = JLS13());
+
+	return reference == asts;
+}
+
+@synopsis{regression testing ASTs on the Snakes and Ladders project}  	    
+test bool snakesASTsRemainedTheSame() {
+	reference = readBinaryValueFile(#set[Declaration], junitBinaryASTs);
+	
+	root = snakesAndLaddersProject;
+
+	asts = createAstsFromFiles(find(root + "src", "java"), true, 
+		sourcePath = junitSourcePath, 
+		classPath = junitClassPath, 
+		javaVersion = JLS13());
+
+	return reference == asts;
+}
+
+@synopsis{Regression testing M3 extraction from .class files from a Hamcrest Jar file}
+test bool hamcrestJarM3RemainedTheSame() {
+	reference = readBinaryValueFile(#M3, hamcrestBinaryM3);
+	result = createM3FromJar(hamcrestJar);
+	return compareM3s(reference, result);
+}
+	
+@synopsis{Comparison and simplistic differential diagnosis between two M3 models}
 public bool compareM3s(M3 a, M3 b) {
+	bool compareMessages(Message a, Message b) {
+		return "<a>" < "<b>";
+	}
+
 	ok = true;
 	aKeys = getKeywordParameters(a);
 	bKeys = getKeywordParameters(b);
