@@ -100,6 +100,36 @@ is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an examp
 java set[loc] findResources(str fileName);
 set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
 
+@synopsis{Search for a single resource instance, and fail if no or multiple instances are found}
+@description{
+This is a utility wrapper around ((findResources)).
+It processes the result set of ((findResources)) to:
+* return a singleton location if the `fileName`` was found.
+* throw an IO exception if no instances of `fileName` was found.
+* throw an IO exception if multiple instances of `fileName` were found.
+}
+@benefits{
+* Save some code to unpack of the set that ((findResources)) produces.
+}
+@pitfalls{
+* ((getResource)) searches for all instances in the entire run-time context of the current 
+module. So if the search path (classpath) grows, new similar files may be added that match and this
+function will start throwing IO exceptions. If you can influence the `fileName`, then make sure
+to pick a name that is always going to be unique for the current project. 
+}
+loc getResource(str fileName) throws IO {
+  result = findResources(fileName);
+
+  switch (result) {
+    case {}: 
+      throw IO("<fileName> not found");
+    case {loc singleton}: 
+      return singleton;
+    default:
+      throw IO("<fileName> found more than once: <result>");
+  }
+}
+ 
 @synopsis{Append a value to a file.}
 @description{
 Append a textual representation of some values to an existing or a newly created file:
