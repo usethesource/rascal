@@ -22,25 +22,22 @@ private loc unpackExampleProject(str name, loc projectZip) {
 	return targetRoot;
 }
 
-@synopsis{Utility to get access to test data in the current execution context.}
-public loc get(str path) = {l} := findResources(path) ? l : |not-found:///| + path;
-
 // Static data for regression testing against the Hamcrest project
-public loc hamcrestJar      = get("m3/hamcrest-library-1.3.jar");
-public loc hamcrestBinaryM3 = get("m3/hamcrest-library-1.3-m3.bin");
+public loc hamcrestJar      = getResource("m3/hamcrest-library-1.3.jar");
+public loc hamcrestBinaryM3 = getResource("m3/hamcrest-library-1.3-m3.bin");
 
 // Static data for regression testing against the JUnit4 project
-public loc junitSourceZip         = get("m3/junit4-project-source.zip");
-public loc junitBinaryM3          = get("m3/junit4-m3s.bin");
-public loc junitBinaryASTs        = get("m3/junit4-asts.bin");
+public loc junitSourceZip         = getResource("m3/junit4-project-source.zip");
+public loc junitBinaryM3          = getResource("m3/junit4-m3s.bin");
+public loc junitBinaryASTs        = getResource("m3/junit4-asts.bin");
 public loc junitProject           = unpackExampleProject("junit4", junitSourceZip);
 public list[loc] junitClassPath   = [junitProject + "/lib/hamcrest-hamcrest-core-1.3.jar", junitProject + "/lib/hamcrest-library-1.3.jar"];
 public list[loc] junitSourcePath  = [junitProject + "/src/main/java/", junitProject + "/src/test/java/" ];
 
 // Static data for regression testing against the Snakes and Ladders project
-public loc snakesAndLaddersSource      = get("m3/snakes-and-ladders-project-source.zip");
-public loc snakesAndLaddersBinaryM3    = get("m3/snakes-and-ladders-m3s.bin");
-public loc snamesAndLaddersBinaryAST   = get("m3/snakes-and-ladders-asts.bin");
+public loc snakesAndLaddersSource      = getResource("m3/snakes-and-ladders-project-source.zip");
+public loc snakesAndLaddersBinaryM3    = getResource("m3/snakes-and-ladders-m3s.bin");
+public loc snamesAndLaddersBinaryAST   = getResource("m3/snakes-and-ladders-asts.bin");
 public loc snakesAndLaddersProject     = unpackExampleProject("snakes-and-ladders", snakesAndLaddersSource);
 public list[loc] snakesClassPath       = [snakesAndLaddersProject + "jexample-4.5-391.jar"];
 public list[loc] snakesSourcePath      = [snakesAndLaddersProject + "/src/"];
