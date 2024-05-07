@@ -195,17 +195,12 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         }
         
         definedLayout = aadt("$default$", [], layoutSyntax());
-       //syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
         if(isEmpty(allLayouts)){
-        
             syntaxDefinitions += (AType::layouts("$default$"): choice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
-        //    syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
         } else 
         if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
-        } 
-        
-        //syntaxDefinitions += (definedLayout : choice(definedLayout, {prod(definedLayout, [])}));
+        }
         
         // Add start symbols
         
@@ -216,17 +211,34 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
         facts = tm.facts;
         allADTs = { unset(adt, "alabel") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }; 
+        //println("ADTandGrammar, allADTs:"); iprintln(allADTs);
         
-        instantiated_in_grammar = { unset(adt, "alabel") | /adt:aadt(str _, list[AType] parameters, SyntaxRole _) := syntaxDefinitions,
-                                          !isEmpty(parameters), all(p <- parameters, !isTypeParameter(p)) 
-                                  };
+        instantiated_in_grammar =
+            { unset(adt, "alabel") 
+            | /adt:aadt(str _, list[AType] parameters, SyntaxRole _) := syntaxDefinitions,
+              !isEmpty(parameters), 
+              all(p <- parameters, !isTypeParameter(p)) 
+            };
+         //println("ADTandGrammar, instantiated_in_grammar:"); iprintln(instantiated_in_grammar);
         
-        instantiated = { unset(adt, "alabel") | AType adt <- allADTs, !isEmpty(adt.parameters), all(p <- adt.parameters, !isTypeParameter(p))  
-                       };
+        instantiated =
+            { unset(adt, "alabel") 
+            | AType adt <- allADTs, 
+              !isEmpty(adt.parameters), 
+              all(p <- adt.parameters, !isTypeParameter(p))  
+            };
+        //println("ADTandGrammar, instantiated:"); iprintln(instantiated);
         instantiated_outside = instantiated - instantiated_in_grammar;
-        parameterized_uninstantiated_ADTs = { unset(adt, "alabel") | adt <- allADTs, adt.syntaxRole != dataSyntax(), params := getADTTypeParameters(adt), 
-                                                  !isEmpty(params), all(p <- params, isTypeParameter(p)) 
-                                          };
+        //println("ADTandGrammar, instantiated_outside:"); iprintln(instantiated_outside);
+        parameterized_uninstantiated_ADTs =
+            { unset(adt, "alabel") 
+            | adt <- allADTs, 
+              adt.syntaxRole != dataSyntax(), 
+              params := getADTTypeParameters(adt), 
+              !isEmpty(params), 
+              all(p <- params, isTypeParameter(p)) 
+            };
+        //println("ADTandGrammar, parameterized_uninstantiated_ADTs:"); iprintln(parameterized_uninstantiated_ADTs);
        
         AType uninstantiate(AType t){
             iparams = getADTTypeParameters(t);
@@ -253,6 +265,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         g = grammar(allStarts, syntaxDefinitions);
         g = layouts(g, definedLayout, allManualLayouts);
+        //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         //g = expandKeywords(g);
         g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);

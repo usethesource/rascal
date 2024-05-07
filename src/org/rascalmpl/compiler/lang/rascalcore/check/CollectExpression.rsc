@@ -704,6 +704,9 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
 }
 
 private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){  
+    if(current is qualifiedName){
+        return;
+    }
     coverloads = [  ovl  | ovl <- overloads, isConstructorAType(ovl.atype) ];
     if(size(coverloads) > 1){
         ovl1 = coverloads[0];
@@ -806,65 +809,63 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     //println("computeReturnType: retType=<retType>, formalTypes=<formalTypes>, actualTypes=<actualTypes>");
     index_formals = index(formalTypes);
     Bindings bindings = ();
-    for(int i <- index_formals){
-        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings);
-        catch invalidMatch(str reason):
-              s.report(error(i < size(actuals)  ? actuals[i] : current, reason));
-    }
-    //println("bindings:"); iprintln(bindings);
-    iformalTypes = formalTypes;
+    fsuffix = "f";
+    asuffix = "a";
+    
+    retTypeU = makeUniqueTypeParams(retType, fsuffix);
+    formalTypesU = makeUniqueTypeParams(formalTypes, fsuffix);
+    actualTypesU = makeUniqueTypeParams(actualTypes, asuffix);
+    try   bindings = matchRascalTypeParams(formalTypesU, actualTypesU, bindings);
+    catch invalidMatch(str reason):
+          s.report(error(/*i < size(actuals)  ? actuals[i] :*/ current, reason));
+   
+    iformalTypesU = formalTypesU;
     if(!isEmpty(bindings)){
-       iformalTypes =
-            for(int i <- index_formals){
-                try {
-                    append instantiateRascalTypeParameters(current, formalTypes[i], bindings, s); // changed
-                } catch invalidInstantiation(str msg): {
-                    s.report(error(current, "Cannot instantiate formal parameter type `<prettyAType(formalTypes[i])>`: " + msg));
-                }
-            };
+        for(int i <- index_formals){
+            try {
+                iformalTypesU[i] = instantiateRascalTypeParameters(current, formalTypesU[i], bindings, s); // changed
+            } catch invalidInstantiation(str msg): {
+                s.report(error(current, "Cannot instantiate formal parameter type `<prettyAType(formalTypes[i])>`: " + msg));
+            }
+        };
     }
-    
+    iactualTypesU = actualTypesU;
     for(int i <- index_formals){
-        ai = actualTypes[i];
-        ai = s.instantiate(ai);
-        if(tvar(loc _) := ai || !s.isFullyInstantiated(ai)){
+        actual_i = actualTypesU[i];
+        actual_i = s.instantiate(actual_i);
+        if(tvar(loc _) := actual_i || !s.isFullyInstantiated(actual_i)){
            if(identicalFormals[i]){
-              s.requireUnify(ai, iformalTypes[i], error(current, "Cannot unify %t with %t", ai, iformalTypes[i]));
-              ai = s.instantiate(ai);
-           } else
+              s.requireUnify(actual_i, iformalTypes[i], error(current, "Cannot unify %t with %t", actual_i, iformalTypesU[i]));
+              actual_i = s.instantiate(actual_i);
+           } else {
               continue;
+            }
         }
-        //ai = visit(ai){ case p:aparameter(_,_) => p[closed=true] };
-        //iformalTypes[i] = visit(iformalTypes[i]) { case p:aparameter(_,_) => p[closed=true] };
-        //println("requireComparable: <i>, <ai> and "); iprintln(iformalTypes[i]);
-        
-        try
-            bindings = matchRascalTypeParams(iformalTypes[i], ai, bindings);
-        catch invalidMatch(str reason):
-              s.report(error(i < size(actuals)  ? actuals[i] : current, reason));
-        
-        try {   
-            iformalTypes[i] = instantiateRascalTypeParameters(current, ai, bindings, s); // changed
-        } catch invalidInstantiation(str msg):
-          s.report(error(current, msg));
-          
-        s.requireComparable(ai, iformalTypes[i], error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, iformalTypes[i], ai));     
+        iactualTypesU[i] = actual_i;
     }
+        
+    try
+        bindings = unifyRascalTypeParams(iformalTypesU, iactualTypesU, bindings);
+    catch invalidMatch(str reason):
+        s.report(error(current, reason));
+          //s.report(error(i < size(actuals)  ? actuals[i] : current, reason))
+
+    for(int i <- index_formals){
+        try {   
+            iformalTypesU[i] = instantiateRascalTypeParameters(current, iformalTypesU[i], bindings, s); // changed
+        } catch invalidInstantiation(str msg):
+              s.report(error(current, msg));
     
+        s.requireComparable(deUnique(iactualTypesU[i]), deUnique(iformalTypesU[i]), error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, deUnique(iformalTypesU[i]), deUnique(iactualTypesU[i])));     
+    }
     checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
     
-    //// Artificially bind unbound type parameters in the return type
-    //for(rparam <- collectAndUnlabelRascalTypeParams(retType)){
-    //    pname = rparam.pname;
-    //    if(!bindings[pname]?) bindings[pname] = rparam;
-    //}
     if(isEmpty(bindings))
        return retType;
        
     try {   
-        res = instantiateRascalTypeParameters(current, retType, bindings, s); // changed
-        //res = visit(res) { case p:aparameter(_,_) => p[closed=true] };
-        return res;
+        res = instantiateRascalTypeParameters(current, retTypeU, bindings, s);
+        return deUnique(res);
     } catch invalidInstantiation(str msg):
           s.report(error(current, msg));
 

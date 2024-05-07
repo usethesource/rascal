@@ -83,11 +83,11 @@ bool asubtype(p1:aparameter(str n1, AType b1), AType r)
 // aparameter, open
 bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
      res = false;
-     if(aparameter(str _, AType _, closed=false) := r){                // [S1]
+     if(aparameter(str _, AType _, closed=false) := r){                 // [S1]
         res = true;
      } else if(aparameter(str _, AType b2, closed=true) := r){          // [S3]
         res = asubtype(p1, b2); 
-      } else {                                                              // [S5]
+      } else {                                                          // [S5]
         res = asubtype(b1, r);   
      }
      //println("asubtype(<p1>, <r>) =\> <res>");
@@ -97,11 +97,11 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
 // aparameter, closed
 bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
     res = false;
-    if(aparameter(str n2, AType _, closed=true) := r ){                // [S2]
+    if(aparameter(str n2, AType _, closed=true) := r ){                  // [S2]
         res = n1 == n2;
     } else if(p2:aparameter(str _, AType _,closed=false) := r){// [S4]
         res = asubtype(b1, p2);  
-    } else {                                                               // [S7]
+    } else {                                                              // [S7]
         res = asubtype(b1, r);  
     }
     //println("asubtype(<p1>, <r>) =\> <res>");
@@ -154,7 +154,7 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
         case aadt(n, list[AType] r, _):
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
-            if(isConcreteSyntaxRole(sr)) return true;
+            /*if(isConcreteSyntaxRole(sr))*/ return true;
         case \start(AType t):
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
     }
@@ -594,9 +594,9 @@ AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([
 
 AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
 
-// From "Exploring Type Parameters (adapted to keep aparamater as long as possible)
+// From "Exploring Type Parameters (adapted to keep aparameter as long as possible)
 AType alub(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2);
-AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2)) 
+AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2),closed=true) 
                                                               : lb == b1 ? p : lb when lb := alub(b1, b2);
 
 AType alub(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && lb == b1 ? p1 : lb when lb := alub(b1, p2);

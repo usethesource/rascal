@@ -562,13 +562,27 @@ void(Solver) makeReturnRequirement(Tree returnExpr, AType returnAType)
 
 void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){  
     returnExprType = s.getType(returnExpr);
-//println("returnRequirement:");
-//iprintln(returnExprType);
     msg = p:/aparameter(_,_) := declaredReturnType
-          ? error(returnExpr, "Returned type %t is not (or: not always) a subtype of expected return type %t", returnExprType, declaredReturnType)
+          ? error(returnExpr, "Returned type %t is not always a subtype of expected return type %t", returnExprType, declaredReturnType)
           : error(returnExpr, "Return type %t expected, found %t", declaredReturnType, returnExprType);
           
-    s.requireSubType(returnExprType, declaredReturnType, msg);
+    bindings = ();
+    rsuffix = "r";
+    dsuffix = "d";
+    returnExprTypeU = makeUniqueTypeParams(returnExprType, rsuffix);
+    declaredReturnTypeU  = makeUniqueTypeParams(declaredReturnType, dsuffix);
+    try {
+        bindings = matchRascalTypeParams(returnExprTypeU, declaredReturnTypeU, bindings);
+    } catch invalidMatch(str reason):
+        s.report(error(returnExpr, reason));
+    
+    try {
+        returnExprTypeU = instantiateRascalTypeParameters(returnExpr, returnExprTypeU, bindings, s);
+    } catch invalidInstantiation(str msg): {
+        s.report(error(current, "Cannot instantiate return type `<prettyAType(returnExprType)>`: " + msg));
+    }
+    
+    s.requireSubType(deUnique(returnExprTypeU), deUnique(declaredReturnTypeU), msg);
  }
 
 // ---- return statement (closely interacts with function declaration) --------

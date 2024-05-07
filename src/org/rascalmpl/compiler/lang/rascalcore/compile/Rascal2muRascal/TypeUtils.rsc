@@ -323,6 +323,7 @@ void extractScopes(TModel tm){
                  consType = def.defInfo.atype;
                  consName = consType.alabel;
                  consAdtType = consType.adt;
+                 requireClosedTypeParams(consAdtType);
                  adt_uses_type +=   { <consName, consAdtType, unsetRec(fieldType)> | /AType fieldType := consType.fields }
                                   + { <consName, consAdtType, unsetRec(kwFieldType)> | /AType kwFieldType := consType.kwFields };
                  if(adt_constructors[consAdtType]?){
@@ -349,6 +350,7 @@ void extractScopes(TModel tm){
     }
     for(/consType: acons(AType adt, list[AType] _fields, list[Keyword] _kwFields) := facts){
         consName = consType.alabel;
+        adt = makeClosedTypeParams(adt);
         if(adt_constructors[adt]?){
            adt_constructors[adt] = adt_constructors[adt] + consType;
         } else {
@@ -742,10 +744,19 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         }
         return t;
     }
-      
-    my_definitions = ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
-                  | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, adt1 := unset(uninstantiate(adt), "alabel")
-                  );             
+    
+    for(d <- domain(adt_constructors) + domain(my_grammar_rules)){
+        if(/par:aparameter(_,_) := d, !par.closed){
+            println("NOT CLOSED: <par> in <d>");
+        }
+    }
+    
+    my_definitions =
+        ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
+        | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, 
+          adt0 := unset(uninstantiate(adt), "alabel"),
+          adt1 := visit(adt0) {case par:aparameter(_,_) => par[closed=true]}
+        );             
     
     if(syntax_type){
      // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explicitly    
@@ -769,13 +780,17 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         //     }
         // }
 
-        my_definitions = my_definitions + ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])} : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
-                                    | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
-                                      adt1 := uninstantiate(unsetRec(adt)),
-                                      syntax_type ? syntaxRole != dataSyntax() : true,
-                                      !my_definitions[adt1]?,
-                                      !my_grammar_rules[adt1]?
-                                );
+        my_definitions =
+            my_definitions +
+            ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])}
+                                 : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
+            | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
+              adt0 := uninstantiate(unsetRec(adt)),
+              adt1 := visit(adt0) {case par:aparameter(_,_) => par[closed=true]},
+              syntax_type ? syntaxRole != dataSyntax() : true,
+              !my_definitions[adt1]?,
+              !my_grammar_rules[adt1]?
+            );
     }
     
     return my_definitions;

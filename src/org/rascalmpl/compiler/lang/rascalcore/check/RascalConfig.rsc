@@ -157,9 +157,6 @@ AType rascalInstantiateTypeParameters(Tree selector,
     } else {
         return act;
     }
-    //return visit(act) { case aparameter(str pname, AType bound):
-    //                        if(asubtype(bindings[pname], bound)) insert bindings[pname]; else s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
-    //                  };
 }
 
 default AType rascalInstantiateTypeParameters(Tree selector, AType formalType, AType actualType, AType toBeInstantiated, Solver s)
@@ -421,6 +418,18 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      }
      return def.defined;
 }
+
+private str currentRascalTplVersion = "2.0.0";
+
+bool isValidRascalTplVersion(str version){
+    return equalVersion(version, currentRascalTplVersion);
+}
+
+str getCurrentRascalTplVersion() = currentRascalTplVersion;
+
+data TModel (
+    str rascalTplVersion = "0.0.0"
+);
 
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         // Control message levels

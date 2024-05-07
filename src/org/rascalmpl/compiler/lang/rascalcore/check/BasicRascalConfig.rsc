@@ -115,6 +115,8 @@ alias RascalCompilerConfig = TypePalConfig;
 // Also see lang::rascalcore::check::RascalConfig
 
 data TypePalConfig(
+    str rascalTplVersion            = "0.0.0",
+    
     // Control message level
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,

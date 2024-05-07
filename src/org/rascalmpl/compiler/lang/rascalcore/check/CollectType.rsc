@@ -78,12 +78,16 @@ default void collectBasicType(BasicType bt, Collector c) { c.report(error(bt, "I
 // ---- TypeArgs -------------------------------------------------------------
 
 void collect(current: (TypeArg) `<Type tp>`, Collector c){
-    collect(tp, c);
+    //c.push(currentAdt, <current, [tp], c.getScope()>);
+        collect(tp, c);
+    //c.pop(currentAdt);
     c.fact(current, tp);
 }
 
 void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
-    collect(tp, c);
+    //c.push(currentAdt, <current, [tp], c.getScope()>);
+        collect(tp, c);
+    //c.pop(currentAdt);
     try {
         c.fact(name, c.getType(tp)[alabel=unescape("<name>")]);
     } catch TypeUnavailable(): {
@@ -178,7 +182,9 @@ void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
         c.fact(current, amap(avalue(), avalue()));
         return;
     }
-    collect(targs, c);
+    //c.push(currentAdt, <current, targs, c.getScope()>);
+        collect(targs, c);
+    //c.pop(currentAdt);
    
     try {
         <msgs, result> = handleMapFields(tas, c.getType(targs[0]), c.getType(targs[1]));
@@ -478,7 +484,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
             c.use(n, {typeVarId() });
             //println("Use <pname> at <current@\loc>");
         } else {
-            c.define(pname, typeVarId(), n, defType(aparameter(pname,avalue(), closed=closed)));
+            c.define(pname, typeVarId(), n, defType(aparameter(pname,treeType, closed=closed)));
             //println("Define <pname> at <current@\loc>");
         }
         c.fact(current, n);
@@ -494,7 +500,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
     //c.use(n, {typeVarId()});
     ////c.fact(current, n);
     //closed = !insideSignature(c);
-    c.fact(current, aparameter(prettyPrintName("<n>"),avalue(),closed=false));
+    c.fact(current, aparameter(prettyPrintName("<n>"),treeType(),closed=true));
 }
 
 void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
@@ -757,7 +763,15 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
             c.use(n, {typeVarId() });
             if(debugTP)println("Use <pname> at <current@\loc>");
         } else {
-            c.define(pname, typeVarId(), n, defType(aparameter(pname,avalue(), closed=closed)));
+            bound = avalue();
+            if(isEmpty(c.getStack(currentAdt))){
+                ;
+             } else if(<Tree adt, _, _, _> := c.top(currentAdt)){
+                bound = SyntaxDefinition _ := adt ? treeType : avalue();
+            } else {
+                throw "collect TypeVar: currentAdt not found";
+            }
+            c.define(pname, typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
             if(debugTP)println("Define <pname> at <current@\loc>, closed=<closed>");
         }
         c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });

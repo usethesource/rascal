@@ -120,6 +120,7 @@ tuple[str, int]  safeCompile(str \module, RascalCompilerConfig compilerConfig) {
        ModuleStatus result = rascalTModelForNames([\module], 
                                                   compilerConfig,
                                                   dummy_compile1);
+       //iprintln(result.tmodels[\module].facts);
        if(!isEmpty(result.tmodels[\module].messages)){
             iprintln(result.tmodels[\module].messages);
        }
