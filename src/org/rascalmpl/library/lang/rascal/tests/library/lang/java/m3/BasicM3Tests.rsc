@@ -31,7 +31,7 @@ public loc junitSourceZip         = getResource("m3/junit4-project-source.zip");
 public loc junitBinaryM3          = getResource("m3/junit4-m3s.bin");
 public loc junitBinaryASTs        = getResource("m3/junit4-asts.bin");
 public loc junitProject           = unpackExampleProject("junit4", junitSourceZip);
-public list[loc] junitClassPath   = [junitProject + "/lib/hamcrest-hamcrest-core-1.3.jar", junitProject + "/lib/hamcrest-library-1.3.jar"];
+public list[loc] junitClassPath   = [junitProject + "/lib/hamcrest-core-1.3.jar", junitProject + "/lib/hamcrest-library-1.3.jar"];
 public list[loc] junitSourcePath  = [junitProject + "/src/main/java/", junitProject + "/src/test/java/" ];
 
 // Static data for regression testing against the Snakes and Ladders project
