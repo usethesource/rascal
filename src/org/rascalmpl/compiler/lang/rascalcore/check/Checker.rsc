@@ -395,7 +395,11 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
             if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
                 <found, tm, ms> = getTModelForModule(imp, ms);
-                c.addTModel(tm);
+                try {
+                    c.addTModel(tm);
+                } catch wrongTplVersion(str reason): {
+                    ms.messages[imp] ? [] += [ Message::error(reason, ms.moduleLocs[imp]) ];
+                }
             }
         }
     }

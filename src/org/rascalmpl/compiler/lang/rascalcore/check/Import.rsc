@@ -186,14 +186,20 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
-            tpl = convertTModel2PhysicalLocs(tpl);
-            
-            ms.tmodels[qualifiedModuleName] = tpl;
-            ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
-            return <true, tpl, ms>;
+            if(isValidRascalTplVersion(tpl.rascalTplVersion)){
+                tpl = convertTModel2PhysicalLocs(tpl);
+                
+                ms.tmodels[qualifiedModuleName] = tpl;
+                ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
+                return <true, tpl, ms>;
+             } else {
+                println("INFO: <tplLoc> has outdated Rascal TPL version <tpl.rascalTplVersion> (required: <getCurrentRascalTplVersion()>)");
+                return <false, tmodel(modelName=qualifiedModuleName, 
+                        messages=[error("<tplLoc> has outdated Rascal TPL version <tpl.rascalTplVersion>", tplLoc)]), ms>; 
+             }
         } catch e: {
             //ms.status[qualifiedModuleName] ? {} += not_found();
-            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read .tpl for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
+            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
         }
     }
@@ -201,7 +207,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
     //}
     //ms.status[qualifiedModuleName] ? {} += not_found();
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read tpl", |unknown:///|)]), ms>;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL", |unknown:///|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
 
@@ -493,6 +499,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
             
             TModel m1 = tmodel();
+            m1.rascalTplVersion = getCurrentRascalTplVersion();
             m1.modelName = qualifiedModuleName;
             m1.moduleLocs = (qualifiedModuleName : mscope);
             

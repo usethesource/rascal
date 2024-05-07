@@ -369,7 +369,7 @@ JCode transPrim("slice", AType r, [\iter(aadt(_,[], lexicalSyntax()))], [str x, 
 JCode transPrim("slice", AType r, [\iter(aadt(_,[], contextFreeSyntax()))], [str x,  str first, str second, str end], JGenie jg)  
                                                                                          = "$concrete_slice(<x>,<first>, <second>, <end>)";
 
-JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators), aint()], [str x, str first, str second, str end], JGenie jg)  
+JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], lexicalSyntax()), list[AType] separators)], [str x, str first, str second, str end], JGenie jg)  
                                                                                          = "$lexical_slice_seps(<x>,<first>, <second>, <end>)";
 JCode transPrim("slice", AType r, [\iter-seps(aadt(_,[], contextFreeSyntax()), list[AType] separators)], [str x, str first, str second, str end], JGenie jg)  
                                                                                          = "$concrete_slice_seps(<x>,<first>, <second>, <end>)";

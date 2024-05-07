@@ -64,28 +64,21 @@ data SignatureInfo
 // - given a table of computed bounds, turn each use in a use with the given bound.
 // - used for the body of functions
 //
-// Case in point: a function type that is part of a return type.
-
-//FUN = resultType inParameters BODY;
-//BODY = (useBoundedTP | FUN)*
-
+//Note neasting of types, e.g., a function type that is part of a return type.
 
 data TypeParamHandler
-    = defineOrReuseTP(bool closed)
-    | useTP(bool closed)
+    = useTP(bool closed)
+    | defineOrReuseTP(bool closed)
     | useBoundedTP(rel[str, Type] tpbounds)
     ;
     
 private /*const*/ str key_TypeParameterHandling = "typeParameterHandling";
-bool debugTP = false;
 
 void beginDefineOrReuseTypeParameters(Collector c, bool closed=false){
-    if(debugTP)println("beginDefineOrReuseTypeParameters, closed = <closed>, <c.getStack(key_TypeParameterHandling)>");
     c.push(key_TypeParameterHandling, defineOrReuseTP(closed));
 }
 
 void endDefineOrReuseTypeParameters(Collector c){
-    if(debugTP)println("endDefineOrReuseTypeParameters");
     handler = c.pop(key_TypeParameterHandling);
     if(defineOrReuseTP(_) !:= handler){
         throw "beginDefineOrReuseTypeParameters/endDefineOrReuseTypeParameters not properly nested";
@@ -94,20 +87,8 @@ void endDefineOrReuseTypeParameters(Collector c){
 
 tuple[bool yes, bool closed] defineOrReuseTypeParameters(Collector c){
     stck = c.getStack(key_TypeParameterHandling);
-     if(debugTP)println("defineOrReuseTypeParameters: <stck>");
-    switch(stck){
-        case [defineOrReuseTP(bool closed), *_]:
-            return <true, closed>;
-       //case [useTP(bool closed), defineOrReuseTP(closed), *_]:
-       //             return <true, closed>;
-       //case [defineOrReuseTP(bool closed), defineOrReuseTP(closed), *_]:
-       //             return <true, closed>;
-       //case [defineOrReuseTP(bool closed), useBoundedTP(_)]:
-       //             return <false, closed>;
-       // case [defineOrReuseTP(bool closed), useTP(_)]:
-       //             return <true, closed>;
-       //case [defineOrReuseTP(bool closed)]:
-       //             return <true, closed>;
+    if([defineOrReuseTP(bool closed), *_] := stck){
+        return <true, closed>;
     }
     return <false, false>;
 }
@@ -118,7 +99,6 @@ void beginUseTypeParameters(Collector c, bool closed = false){
 }
 
 void endUseTypeParameters(Collector c){
-    if(debugTP)println("endUseTypeParameters");
     handler = c.pop(key_TypeParameterHandling);
     if(useTP(_) !:= handler)
         throw "beginUseTypeParameters/endUseTypeParameters not properly nested";
@@ -126,42 +106,25 @@ void endUseTypeParameters(Collector c){
 
 tuple[bool yes, bool closed] useTypeParameters(Collector c){
     stck = c.getStack(key_TypeParameterHandling);
-    if(debugTP)println("useTypeParameters: <stck>");
-    switch(stck){ 
-        case [useTP(bool closed), *_]:
-            return <true, closed>;
-        //case [useTP(bool closed), useTP(_), *_]:
-        //            return <true, closed>;
-        //case [useTP(bool closed), defineOrReuseTP(_), *_]:
-        //            return <true, closed>;
-        //case [useTP(bool closed), useBoundedTP(_)]:
-        //            return <true, true>;
-        //case [useTP(bool closed)]:
-        //            return <true, closed>;
-        //case [defineOrReuseTP(bool closed), useBoundedTP(_)]:
-        //            return <true, true>;
+    if([useTP(bool closed), *_] := stck){
+        return <true, closed>;
     }
     return <false, false>;
 }
 
 void beginUseBoundedTypeParameters(rel[str, Type] tpbounds, Collector c){
-    if(debugTP)println("beginUseBoundedTypeParameters, <c.getStack(key_TypeParameterHandling)>");
     c.push(key_TypeParameterHandling, useBoundedTP(tpbounds));
 }
 
 tuple[bool yes, rel[str, Type] tpbounds] useBoundedTypeParameters(Collector c){
     stck = c.getStack(key_TypeParameterHandling);
-    if(debugTP)println("useBoundedTypeParameters: <stck>");
-    switch(stck){
-        case [useBoundedTP(rel[str, Type] tpbounds), *_]:
-                    return <true, tpbounds>;
+    if([useBoundedTP(rel[str, Type] tpbounds), *_] := stck){
+        return <true, tpbounds>;
     }
     return <false, {}>;
 }
 
-
 void endUseBoundedTypeParameters(Collector c){
-    if(debugTP) println("endUseBoundedTypeParameters");
     handler = c.pop(key_TypeParameterHandling);
     if(useBoundedTP(_) !:= handler)
         throw "beginUseBoundedTypeParameters/endUseBoundedTypeParameters not properly nested";

@@ -60,18 +60,22 @@ void(Solver) makeVarInitRequirement(Variable var)
             initialType = s.getType(var.initial);
             varType = s.getType(var.name);
             checkNonVoid(var, varType, s, "Variable declaration");
-            try   bindings = matchRascalTypeParams(initialType, varType, bindings);
+            isuffix = "i";
+            vsuffix = "v";
+            initialTypeU = makeUniqueTypeParams(initialType, isuffix);
+            varTypeU = makeUniqueTypeParams(varType, vsuffix);
+            try   bindings = unifyRascalTypeParams(initialTypeU, varTypeU, bindings);
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
             
-            initialType = instantiateRascalTypeParameters(var, initialType, bindings, s);  
-            if(s.isFullyInstantiated(initialType)){
-                s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
+            initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);  
+            if(s.isFullyInstantiated(initialTypeU)){
+                s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
             } else if(!s.unify(initialType, varType)){
-                s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
+                s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
             }
-            checkNonVoid(var.initial, initialType, s, "Variable initialization");
-            s.fact(var, varType);
+            checkNonVoid(var.initial, initialTypeU, s, "Variable initialization");
+            s.fact(var, deUnique(varType));
        };
        
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
@@ -228,32 +232,32 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
 
 AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] formalTypes, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression, Solver s){
     Bindings bindings = ();
+    fsuffix = "f";
+    asuffix = "a";
     index_formals = index(formalTypes);
+    formalTypesU = makeUniqueTypeParams(formalTypes, fsuffix);
+    actualTypesU = makeUniqueTypeParams(actualTypes, asuffix);
     for(int i <- index_formals, !dontCare[i]){
-        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings);
+        try   bindings = matchRascalTypeParams(formalTypesU[i], actualTypesU[i], bindings);
         catch invalidMatch(str reason): 
               s.report(error(current, reason));   
     }
-    iformals = formalTypes;
+    iformalsU = formalTypesU;
     if(!isEmpty(bindings)){
-        try   iformals = [instantiateRascalTypeParameters(current, formalTypes[i], bindings, s) | int i <- index_formals]; // changed
+        try   iformalsU = [instantiateRascalTypeParameters(current, formalTypesU[i], bindings, s) | int i <- index_formals]; // changed
         catch invalidInstantiation(str msg):
               s.report(error(current, msg));
     }
     for(int i <- index_formals, !dontCare[i]){
-        ai = actualTypes[i];
-       //println("<i>: <ai>");
-        if(!s.isFullyInstantiated(ai) && isExpression){
+        aiU = actualTypesU[i];
+        if(!s.isFullyInstantiated(aiU) && isExpression){
             if(identicalFormals[i]){
-               s.requireUnify(ai, iformals[i], error(current, "Cannot unify %t with %t", ai, iformals[i]));
-               ai = s.instantiate(ai);
-               //println("instantiated <actuals[i]>: <ai>");
+               s.requireUnify(aiU, iformalsU[i], error(current, "Cannot unify %t with %t", ai, iformals[i]));
+               aiU = s.instantiate(aiU);
             } else
                 continue;
         }
-        //println("comparable?: <ai>, <iformals[i]>");
-        //actuals_i = (list[Expression] actualsExp := actuals) ? actualsExp[i] : ((list[Pattern] actualsPat := actuals) ? actualsPat[i] : current);
-        s.requireComparable(ai, iformals[i], error(current, "Argument %v should have type %t, found %t", i, formalTypes[i], ai));
+        s.requireComparable(aiU, iformalsU[i], error(current, "Argument %v should have type %t, found %t", i, formalTypesU[i], aiU));
     }
     adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
     
@@ -278,11 +282,13 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         parameters = getADTTypeParameters(adtType);
     }
     for(p <- parameters){
-        if(!bindings[p.pname]?) bindings[p.pname] = avoid();
+        if(!bindings[p.pname]?){
+            bindings[p.pname] = avalue(); // was: avoid()
+        }
     }
     if(!isEmpty(bindings)){
         try {
-            ctype_old = s.getType(current);
+            ctype_old = makeUniqueTypeParams(s.getType(current), fsuffix);
             ctype_new = instantiateRascalTypeParameters(current, ctype_old, bindings, s); // changed
             if(ctype_new != ctype_old){
                 s.specializedFact(current, ctype_new);
@@ -290,11 +296,16 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         } catch TypeUnavailable(): /* ignore */ ;
           catch invalidInstantiation(str _msg): /* nothing to instantiate */ ;
         try {
-            return instantiateRascalTypeParameters(current, s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings, s); // changed
+            res = deUnique(instantiateRascalTypeParameters(current, makeUniqueTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), fsuffix), bindings, s));
+            res = visit(res){ case ap:aparameter(_,_) => unset(ap, "closed") };
+            return res;
         } catch invalidInstantiation(str msg):
                s.report(error(current, msg));
     }
-   
+    try {
+        return deUnique(instantiateRascalTypeParameters(current, makeUniqueTypeParams(adtType, fsuffix), bindings, s));
+    } catch invalidInstantiation(str msg):
+        s.report(error(current, msg));
     return adtType;
 }
 
@@ -310,14 +321,14 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
            ft = k.fieldType;
            fn = ft.alabel;
            if(kwName == fn){
-              ift = ft;
+              ift = makeUniqueTypeParams(ft, "f");
               if(!isEmpty(bindings)){
-                  try   ift = instantiateRascalTypeParameters(kwa, ft, bindings, s); // changed
+                  try   ift = instantiateRascalTypeParameters(kwa, ift, bindings, s); // changed
                   catch invalidInstantiation(str msg):
                         s.report(error(kwa, msg));
               }
               kwType = s.getType(kwa.expression);
-              s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
+              s.requireComparable(kwType, deUnique(ift), error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, deUnique(ift)));
               continue next_arg;
            } 
         }
@@ -683,7 +694,7 @@ default AType coerce(AType t, t) = t;       // type preservation = closed algebr
 // Since the operator always implements coercion at run-time, the bounds do not 
 // immediately shrink to the GLB, but rather to the coerced bounds. 
 AType coerce(aparameter(str name, AType boundL, closed=false), aparameter(name, AType boundR, closed=false)) 
-    = aparameter(name, coerce(boundL,boundR), closed=false); 
+    = aparameter(name, coerce(boundL,boundR)/*, closed=false*/); 
 
 AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, AType boundR, closed=true)) 
     = aparameter(name, coerce(boundL, boundR), closed=true); 
@@ -1048,16 +1059,21 @@ AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solv
    }
   
    bindings = ();
-   try   bindings = unifyRascalTypeParams(patType, subjectType, bindings);
+   lsuffix = "l";
+   rsuffix = "r";
+   patTypeU = makeUniqueTypeParams(patType, lsuffix);
+   subjectTypeU = makeUniqueTypeParams(subjectType, rsuffix);
+   try   bindings = unifyRascalTypeParams(patTypeU, subjectTypeU, bindings);
    catch invalidMatch(str reason):
-         s.report(current, reason);
+         s.report(error(current, reason));
    if(!isEmpty(bindings)){
-    try   <patType, subjectType> = instantiateRascalTypeParameters(current, patType, subjectType, bindings, s);
+    try   <patTypeU, subjectTypeU> = instantiateRascalTypeParameters(current, patTypeU, subjectTypeU, bindings, s);
     catch invalidInstantiation(str msg):
         s.report(error(current, msg));
    }
-   
-   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
+   patType = deUnique(patTypeU);
+   subjectType = deUnique(subjectTypeU);
+   s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patTypeU));
    return patType;
 }
 

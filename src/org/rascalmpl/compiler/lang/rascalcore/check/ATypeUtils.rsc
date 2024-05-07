@@ -8,6 +8,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
+@contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
 @contributor{Anastasia Izmaylova - Anastasia.Izmaylova@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
@@ -78,7 +79,9 @@ str prettyAType(t: acons(AType adt, /*str consName,*/
                  = "<prettyAType(adt)>::<t.alabel>(<intercalate(", ", ["<prettyAType(ft)><ft.alabel? ? " <ft.alabel>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(kw.fieldType)> <kw.fieldName>=..." | Keyword kw <- kwFields])>)";
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
-str prettyAType(aparameter(str pn, AType t)) = avalue() := t ? "&<pn>" : "&<pn> \<: <prettyAType(t)>";
+str prettyAType(aparameter(str pn, AType t, closed=c)) =
+    ((avalue() := t) ? "&<pn>" : "&<pn> \<: <prettyAType(t)>") 
+    + (c ? "[closed]" : "[open]");
 str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities

@@ -14,7 +14,8 @@
 module lang::rascalcore::check::ATypeInstantiation
 
 /*
-    Implement instantiation of type parameters
+    Implement matching and instantiation of type parameters
+    Note: it is assumed that the type parameters in receiver and sender AType have already been properly renamed
 */
 
 extend lang::rascalcore::check::ATypeUtils;
@@ -22,7 +23,6 @@ extend lang::rascalcore::check::NameUtils;
 
 import Map;
 import Set;
-//import IO;
 import Node;
 
 public alias Bindings = map[str varName, AType varType];
@@ -30,13 +30,31 @@ public alias Bindings = map[str varName, AType varType];
 public Bindings unifyRascalTypeParams(AType r, AType s, Bindings b){
     b2 = matchRascalTypeParams(r, s, b);
     return matchRascalTypeParams(s, r, b2);
+}
 
+public Bindings unifyRascalTypeParams(list[AType] r, list[AType] s, Bindings b){
+    if(size(r) != size(s))
+        throw rascalCheckerInternalError("unifyRascalTypeParams: length unequal");
+    idx = index(r);
+    for(int i <- idx){
+        b = matchRascalTypeParams(r[i], s[i], b);
+        b = matchRascalTypeParams(s[i], r[i], b);
+    }
+    return b;
+}
+
+public Bindings matchRascalTypeParams(list[AType] r, list[AType] s, Bindings b){
+    if(size(r) != size(s))
+        throw rascalCheckerInternalError("matchRascalTypeParams: length unequal");
+    idx = index(r);
+    for(int i <- idx){
+        b = matchRascalTypeParams(r[i], s[i], b);
+    }
+    return b;
 }
 // TODO: Add support for bags if we ever get around to supporting them...
-// TODO: Add support for overloaded types if they can make it to here (this is
-// usually invoked on specific types that are inside overloads)
+
 public Bindings matchRascalTypeParams(AType r, AType s, Bindings b) {
-    //println("matchRascalTypeParams: <r>, <s>");
     if(tvar(_) := r) throw TypeUnavailable();
     if(tvar(_) := s) throw TypeUnavailable();
     if (!typeContainsRascalTypeParams(r)) return b;
@@ -49,8 +67,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b) {
         return matchRascalTypeParams0(r, lb, b);
     }
     
-    res = matchRascalTypeParams0(r,s,b);
-    return res;
+    return matchRascalTypeParams0(r,s,b);
 }
 
 public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
@@ -62,25 +79,33 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
 
     // Another simple case: if the receiver has no type vars, then just return the current bindings.
     if (!typeContainsRascalTypeParams(r)) return b;
-        
-    // Handle type parameters
-    //if (isRascalTypeParam(r) && isRascalTypeParam(s) && getRascalTypeParamName(r) == getRascalTypeParamName(s) && getRascalTypeParamBound(r) == getRascalTypeParamBound(s) && !bindIdenticalVars) {
-    //    return b;
-    //}
     
     if (isRascalTypeParam(r)) {
         str varName = getRascalTypeParamName(r);
         AType varBound = getRascalTypeParamBound(r);
-        
-        if (varName in b) {
-            lubbed = alub(s, b[varName]);
-            if (!asubtype(lubbed, varBound))
-                throw invalidMatch("Type parameter `<varName>` should be less than <prettyAType(varBound)>, but is bound to <prettyAType(lubbed)>");
-            b[varName] = lubbed;
+        if(isRascalTypeParam(s)){
+            if (varName in b) {
+                lubbed = alub(s, b[varName]);
+                if (!asubtype(lubbed, varBound))
+                    throw invalidMatch("Type parameter `<deUnique(varName)>` should be less than <prettyAType(varBound)>, but is bound to <prettyAType(lubbed)>");
+                b[varName] = lubbed;
+            } else {
+                b[varName] = s;
+            }
         } else {
-            b[varName] = s;
+            if (varName in b) {
+                if(!isRascalTypeParam(b[varName])){
+                    b = matchRascalTypeParams0(b[varName], s, b);
+                    r1 = instantiateRascalTypeParameters(b[varName], b);
+                    lubbed = alub(s, r1);
+                    if (!asubtype(lubbed, varBound))
+                        throw invalidMatch("Type parameter `<deUnique(varName)>` should be less than <prettyAType(varBound)>, but is bound to <prettyAType(lubbed)>");
+                    b[varName] = lubbed;
+                 }
+            } else {
+                b[varName] = s;
+            }
         }
-        
         return b;
     }
         
@@ -89,8 +114,6 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isSetAType(r) && isSetAType(s) ) {
         if ( isRelAType(r) && isVoidAType(getSetElementType(s)) ) {
             return matchRascalTypeParams0(getSetElementType(r), atuple(atypeList([avoid() | _ <- index(getRelFields(r))])), b);
-        //} else if ( isVoidAType(getSetElementType(s)) ) {
-        //    return b;
         } else {    
             return matchRascalTypeParams0(getSetElementType(r), getSetElementType(s), b);
         }
@@ -101,8 +124,6 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     if ( isListAType(r) && isListAType(s) ) {
         if ( isListRelAType(r) && isVoidAType(getListElementType(s)) ) {
             return matchRascalTypeParams0(getListElementType(r), atuple(atypeList([avoid() | _ <- index(getListRelFields(r))])), b);
-        //} else if ( isVoidAType(getListElementType(s)) ) {
-        //    return b;
         } else {
             return matchRascalTypeParams0(getListElementType(r), getListElementType(s), b);
         }
@@ -135,6 +156,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
     }
     
     // For functions, match the return types and the parameter types
+    // TODO: kewyword params?
     if ( isFunctionAType(r) && isFunctionAType(s) ) {
         b = matchRascalTypeParams0(getFunctionArgumentTypesAsTuple(r), getFunctionArgumentTypesAsTuple(s), b);
         return matchRascalTypeParams0(getFunctionReturnType(r), getFunctionReturnType(s), b);
@@ -145,9 +167,7 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
         rfields = getTupleFieldTypes(r);
         sfields = getTupleFieldTypes(s);
         for (idx <- index(rfields)) {
-            //if (!isVoidAType(sfields[idx])) {
-                b = matchRascalTypeParams0(rfields[idx], sfields[idx], b);
-            //}
+            b = matchRascalTypeParams0(rfields[idx], sfields[idx], b);
         }
         return b;
     }
@@ -160,8 +180,72 @@ public Bindings matchRascalTypeParams0(AType r, AType s, Bindings b) {
 AType invalidInstantiation(str pname, AType bound, AType actual){
     throw invalidInstantiation("Type parameter `<pname>` should be less than `<prettyAType(bound)>`, but is bound to `<prettyAType(actual)>`");  
 }
-    
-@doc{Instantiate type parameters found inside an atype.}
+
+AType makeClosedTypeParams(AType t){
+    return visit(t) { case par:aparameter(_,_) => par[closed=true] };
+}
+
+void requireClosedTypeParams(AType t){
+    if(hasOpenTypeParams(t)){
+        throw "requireClosedTypeParams: <t>";
+    }
+}
+
+bool hasOpenTypeParams(AType t){
+    return /aparameter(_,_,closed=false) := t;
+}
+
+// Make all type parameters unique with given suffix
+AType makeUniqueTypeParams(AType t, str suffix){
+    return visit(t) { case param:aparameter(str pname, AType bound): {
+                                if(findLast(pname, ".") < 0){
+                                    repl = param.pname = param.pname + "." + suffix;
+                                    insert repl;
+                                }
+                          }
+                     };
+}
+
+// Make all type parameters unique with given suffix
+list[AType] makeUniqueTypeParams(list[AType] ts, str suffix){
+    return [ makeUniqueTypeParams(t, suffix) | t <- ts ];
+}
+
+// Reverse the makeUnique operation
+str deUnique(str s) {
+    i = findLast(s, ".");
+    return i > 0 ? s[0..i] : s;
+}
+
+AType deUnique(AType t){
+    return visit(t) { case param:aparameter(str pname, AType bound): {
+                                repl = param.pname = deUnique(pname);
+                                insert repl;
+                       }
+                    };
+}
+
+Bindings deUniqueTypeParams(Bindings b){ 
+    return (deUnique(key) : deUnique(b[key]) | key <- b);
+}
+
+// NOTE used during match, no bounds check is needed since that is already done during the match
+AType instantiateRascalTypeParameters(AType t, Bindings bindings){
+    if(isEmpty(bindings))
+        return t;
+    else
+        return visit(t) { case param:aparameter(str pname, AType bound): {
+                                if(bindings[pname]?){
+                                    repl = param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname]; //TODO simplified for compiler
+                                    insert repl;
+                                  } else {
+                                    insert param;
+                                  }
+                               }
+                        };
+}
+
+@doc{Instantiate type parameters found inside one atype.}
 AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings, Solver s){
     if(isEmpty(bindings))
         return t;
@@ -173,7 +257,7 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
                                         insert repl;
                                     }
                                     else {
-                                        s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
+                                        s.report(error(selector, "Type parameter %q should be less than %t, found %t", deUnique(pname), bound, bindings[pname]));
                                     }
                                   } else {
                                         insert param;
@@ -182,6 +266,7 @@ AType instantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings,
                         };
 }
 
+@doc{Instantiate type parameters found inside two atypes.}
 tuple[AType left, AType right] instantiateRascalTypeParameters(Tree selector, AType ltype, AType rtype, Bindings bindings, Solver s){
     return <instantiateRascalTypeParameters(selector, ltype, bindings, s),
             instantiateRascalTypeParameters(selector, rtype, bindings, s)
