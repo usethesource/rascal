@@ -126,8 +126,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 
     protected ISourceLocation resolveBinding(IBinding binding) {
         ISourceLocation resolvedBinding = bindingsResolver.resolveBinding(binding);
-        if (binding != null)
+        if (binding != null) {
             locationCache.put(binding.getKey(), resolvedBinding);
+        }
         return resolvedBinding;
     }
 
@@ -181,7 +182,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                 return values.sourceLocation(loc, 
                     start, nodeLength, 
                     compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
-                    // TODO: only adding 1 at the end seems to work, need to test.
+                    // our end columns are exclusive
                     compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end) + 1);
             }
         } 
