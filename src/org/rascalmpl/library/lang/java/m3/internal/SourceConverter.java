@@ -22,10 +22,12 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.ExportsDirective;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LambdaExpression;
@@ -53,6 +55,9 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.rascalmpl.ast.Command.Import;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
@@ -95,12 +100,13 @@ public class SourceConverter extends M3Converter {
 			}
 	  	}
 	}
-	
+
 	public void preVisit(ASTNode node) {
 		if (node instanceof Annotation) {
 			insert(annotations, getParent(), resolveBinding(((Annotation) node).getTypeName()));
 			return;
 		}
+
 		ownValue = resolveBinding(node);
 	}
 	
@@ -495,6 +501,7 @@ public class SourceConverter extends M3Converter {
 		if (((ISourceLocation) ownValue).getScheme().equals("java+field")) {
 			insert(fieldAccess, getParent(), ownValue);
 		}
+
 		return true;
 	}
 	
@@ -505,6 +512,7 @@ public class SourceConverter extends M3Converter {
 		
 		if (!simpleNameIsConstructorDecl(node)) {
 			addTypeDependency(resolveBinding(node.resolveTypeBinding()));
+
 			if (!node.isDeclaration()) {
 				addTypeDependency(resolveDeclaringClass(node.resolveBinding()));
 			}

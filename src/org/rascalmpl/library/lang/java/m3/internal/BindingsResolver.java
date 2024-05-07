@@ -48,6 +48,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -547,11 +548,14 @@ private IConstructor nullSymbol() {
 		}
 		signature = signature.concat(binding.getMethodDeclaration().getName() + "(" + params + ")");
 		String scheme = "unknown";
+		
 		if (binding.isConstructor()) {
 	      scheme = "java+constructor";
-	    } else {
+	    } 
+		else {
 	      scheme = "java+method";
 	    }
+
 		ISourceLocation result = makeBinding(scheme, null, signature);
 		locationCache.put(binding.getKey(), result);
 		return result;
