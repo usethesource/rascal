@@ -125,17 +125,17 @@ public bool compareM3s(M3 a, M3 b) {
 		}
 		if (aKeys[ak] != bKeys[ak]) {
 			if (set[value] aks := aKeys[ak] && set[value] bks := bKeys[ak]) {
-				println("<ak>: Missing in relation to reference: ");
+				println("<ak>: Missing elements in relation to reference: ");
 				iprintln(aks - bks, lineLimit=5);
-				println("<ak> More than reference:");
+				println("<ak>: Additional elements in relation to reference:");
 				iprintln(bks - aks, lineLimit=5);
 			}
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
 				// In case of different size tell the difference.
 				if (size(akl) != size(bkl)) {
-					println("Missing messages with regards to original relation: ");
+					println("Missing messages in relation to reference: ");
 					iprintln(bkl - akl, lineLimit=5);
-					println("Additional messages with regards to original relation: ");
+					println("Additional messages in relation to reference:: ");
 					iprintln(akl - bkl, lineLimit=5);
 				}
 				//Otherwise, check if all values remain the same.
@@ -148,7 +148,7 @@ public bool compareM3s(M3 a, M3 b) {
 					}
 					for (i <- [0..min(size(akl), 5)]) {
 						if (akl[i] != bkl[i]) {
-							println("<i> differs");
+							println("The <i>th element differs.");
 							iprintln([(akl[i]), (bkl[i])], lineLimit=5);
 						}
 					}
@@ -156,7 +156,7 @@ public bool compareM3s(M3 a, M3 b) {
 			}
 
 			ok = false;
-			println("<ak> has different value");
+			println("<ak> has a different value.");
 		}
 	}
 
