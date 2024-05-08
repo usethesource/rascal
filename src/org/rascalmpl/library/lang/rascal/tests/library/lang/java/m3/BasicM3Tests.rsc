@@ -45,14 +45,11 @@ public list[loc] snakesSourcePath      = [snakesAndLaddersProject + "/src/"];
 @synopsis{regression testing M3 on the JUnit project}
 test bool junitM3RemainedTheSame() {
 	reference = readBinaryValueFile(#M3, junitBinaryM3);
-	
 	root = junitProject;
-
 	models = createM3sFromFiles(find(root + "src", "java"),
 		sourcePath = junitSourcePath, 
 		classPath = junitClassPath, 
 		javaVersion = JLS13());
-
 	result = composeJavaM3(|project://junit4|, models);
 
 	return compareM3s(reference, result);
@@ -121,7 +118,9 @@ public bool compareM3s(M3 a, M3 b) {
 	for (ak <- aKeys) {
 	
 		if (!(ak in bKeys)) {
-			throw "<ak>  missing in reference";
+			ok = false;
+			println("<ak>  missing in reference");
+			continue;
 		}
 		if (aKeys[ak] != bKeys[ak]) {
 			if (set[value] aks := aKeys[ak] && set[value] bks := bKeys[ak]) {
