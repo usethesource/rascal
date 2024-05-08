@@ -111,6 +111,8 @@ test bool snakesASTsRemainedTheSame() {
 		classPath = junitClassPath, 
 		javaVersion = JLS13());
 
+	astNodeSpecification(asts, checkNameResolution=true, checkSourceLocation=true);
+
 	if (OVERWRITE) {
 		writeBinaryValueFile(snakesAndLaddersBinaryAST, asts);
 	}
