@@ -8,11 +8,13 @@ syntax Aas
   | aas: [a][a][a]*
   ;
   
-&T <:Tree ambFilter(amb(set[&T <:Tree] alternatives)) {
-  set[&T <:Tree] result = {a | &T a <- alternatives, !(a is nil)};
-  if ({&T <: Tree oneTree} := result) {
+Aas ambFilter(amb(set[Aas] alternatives)) {
+  set[Aas] result = {a | Aas a <- alternatives, !(a is nil)};
+  
+  if ({oneTree} := result) {
     return oneTree;
   }
+  
   return ParseTree::amb(result);
 } 
 
