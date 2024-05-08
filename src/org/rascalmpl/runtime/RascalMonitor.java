@@ -42,4 +42,10 @@ public class RascalMonitor implements IRascalMonitor {
 
 	}
 
+	@Override
+	public void endAllJobs() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
