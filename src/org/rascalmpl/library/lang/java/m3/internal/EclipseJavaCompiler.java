@@ -66,22 +66,36 @@ public class EclipseJavaCompiler {
     }
 
     public IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath) {
+        checkClassPath(classPath);
         return createM3FromJarClass(jarLoc, classPath, getM3Store());
     }
     
+    private void checkClassPath(IList classPath) {
+        classPath.stream()
+            .map(elem -> (ISourceLocation) elem)
+            .forEach(l -> {
+                if (!URIResolverRegistry.getInstance().exists(l)) {
+                    throw RuntimeExceptionFactory.io("Path element does not exist: " + l);
+                }
+            });
+    }
+
     public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className, IList classpath) {
+        checkClassPath(classpath);
         JarConverter converter = new JarConverter(getM3Store(), new HashMap<>());
         converter.convertJarFile(classLoc, ((IString) className).getValue(), classpath);
         return converter.getModel(false);
     }
     
     protected IValue createM3FromJarClass(ISourceLocation jarLoc, IList classPath, LimitedTypeStore store) {
+        checkClassPath(classPath);
         JarConverter converter = new JarConverter(store, new HashMap<>());
         converter.convertJar(jarLoc, classPath);
         return converter.getModel(false);
     }
     
     public IValue createM3FromJarFile(ISourceLocation jarLoc, IList classPath) {
+        checkClassPath(classPath);
         return createM3FromJarFile(jarLoc, classPath, getM3Store());
     }
     
@@ -92,10 +106,14 @@ public class EclipseJavaCompiler {
     }
     
     public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
+        checkClassPath(classPath);
+        checkClassPath(sourcePath);
         return createM3sFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(), () -> checkInterrupted(monitor));
     }
 
     protected IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
+        checkClassPath(classPath);
+        checkClassPath(sourcePath);
         try {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
@@ -119,6 +137,9 @@ public class EclipseJavaCompiler {
     }
     
     protected IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
+        checkClassPath(sourcePath);
+        checkClassPath(classPath);
+
         try {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter m3s = VF.setWriter();
@@ -136,10 +157,16 @@ public class EclipseJavaCompiler {
     }
 
     public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion) {
+        checkClassPath(sourcePath);
+        checkClassPath(classPath);
+
         return createM3FromString(loc, contents, errorRecovery, sourcePath, classPath, javaVersion, getM3Store()); 
     }
     
     protected IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store) {
+        checkClassPath(sourcePath);
+        checkClassPath(classPath);
+
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
             return convertToM3(store, new HashMap<>(), loc, javaVersion, cu);
@@ -153,6 +180,9 @@ public class EclipseJavaCompiler {
     }
 
     protected IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IConstructor javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
+        checkClassPath(sourcePath);
+        checkClassPath(classPath);
+
         try {
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();

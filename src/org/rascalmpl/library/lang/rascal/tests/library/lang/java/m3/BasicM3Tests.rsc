@@ -89,6 +89,8 @@ test bool junitASTsRemainedTheSame()  {
 		classPath = junitClassPath, 
 		javaVersion = JLS13());
 
+	astNodeSpecification(asts, checkNameResolution=true, checkSourceLocation=true);
+	
 	if (OVERWRITE) {
 		writeBinaryValueFile(junitBinaryASTs, asts);
 	}
