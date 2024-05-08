@@ -123,7 +123,12 @@ test bool snakesASTsRemainedTheSame() {
 @synopsis{Regression testing M3 extraction from .class files from a Hamcrest Jar file}
 test bool hamcrestJarM3RemainedTheSame() {
 	reference = readBinaryValueFile(#M3, hamcrestBinaryM3);
-	result = createM3FromJar(hamcrestJar);
+
+	// move to a location that is the same on all build machines
+	targetJar = |tmp:///| + hamcrestJar.file;
+	copy(hamcrestJar, targetJar, overwrite=true);
+
+	result = createM3FromJar(targetJar);
 	if (OVERWRITE) {
 		writeBinaryValueFile(hamcrestBinaryM3, result);
 	}
