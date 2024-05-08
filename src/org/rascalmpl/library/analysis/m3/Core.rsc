@@ -281,34 +281,87 @@ list[Message] checkM3(M3 model) {
   return result;
 }
 
-@synopsis{Helper function to test the quality of what specific language front-ends produce.}
+@synopsis{Specification to test the quality of M3 models that specific language front-ends produce.}
+@description{
+Based on the language agnostic relations in the M3 model, this function tries to validate the
+_internal_ consistency of an M3 model. 
+
+If an M3 instance is a `closedWorld` model, this means that there are no `uses` in the model that 
+are not declared in the current model in `declarations`. A closed world model allows for more
+stringent consistenct checks than a model that depends on external declarations. By selecting
+`closedWorld=true` those additional checks are enabled, otherwise these are ignored or weakened
+accordingly. It is advisable to provide at least one closed model per programming language front-end,
+while testing against this spec.
+
+By `covering` we mean that everything that is declared in the model is also used at least once.
+This is a simple check for knowing if the test covers the language in some form.
+}
 @benefits{
-* Front-end construction is tricky business. This test provides a basic sanity check.
+* Front-end construction is tricky business. This test provides a sanity check before users start depending
+on fawlty models. 
 }
 @pitfalls{
-* This specification assumes a _closed world_ perspective; so test only on models that include
-the facts for all the things that are depended on.
+* In `closedWorld` many things can be strictly checked, but in an open world with dependencies outside
+of the current model the validation is much weaker.
 }
-bool testM3ModelConsistency(M3 m) {
-    decls = m.declarations<name>;
+bool m3SpecificationTest(M3 m, bool closedWorld=false, bool covering=false) {
+    decls     = m.declarations<name>;
+    uses      = m.uses<name>;
+    externals = uses - decls;
 
-    // nothing that is contained here does not not have a declaration, except the outermost translationUnit
-    assert m.declarations<name> - m.containment<to> - top(m.containment) == {};
+    // At least one language is represented
+    assert m.languages != {};
+
+    // What `closedWorld` means:
+    assert closedWorld ==> externals == {};
+
+    // We now merge the implicitDeclarations with the externals for the sake of brevity
+    externals += m.implicitDeclarations;
+
+    // Nothing that is contained here does not not have a declaration, except the outermost translationUnit
+    assert decls - m.containment<to> - top(m.containment) == {};
    
-    // everything in the containment relation has been declared somewhere
-    assert carrier(m.containment) - decls - m.implicitDeclarations == {};
+    // Note that one declaration may occur twice ore more in the m.declarations relation.
+    // this is because of _overloading_ of names in programming languages, or because
+    // of dynamic name resolution (for languages where static name resolution is inherently inaccurate).
+    overloadedDeclarations = { d | d <- decls, {_,_,*_} := m.declarations[d]};
 
-    // everything in the declarations relation is contained somewhere
+    // Containment is 1-to-many, so a reverse lookup always produces a singleton.
+    // An exception must be made for the overloaded declarations that might be contained in different elements at the same time.
+    rel[loc inner, loc outer] reverseContainment = m.containment<to,from>;
+    assert {inner | inner <- reverseContainment<inner>, {_} !:= reverseContainment[inner]} - overloadedDeclarations == {};
+
+    // Everything in the containment relation has been declared somewhere
+    assert carrier(m.containment) - decls - externals  == {};
+
+    // Everything in the declarations relation is contained somewhere
     assert decls - carrier(m.containment) == {};
 
-    // all uses point to actual declarations
-    assert m.uses<name> - m.declarations<name> - m.implicitDeclarations == {};
+    // All uses point to actual declarations
+    assert uses - decls - externals == {};
 
-    // in this example, all declarations are used at least once
-    assert m.declarations<name> - m.uses<name> == {};
+    // In this example, all declarations are used at least once
+    if (covering) {
+      assert decls - uses == {};
+    }
 
-    // m.declarations is one-to-one
-    assert size(m.declarations<name>) == size(m.declarations);
+    // M.declarations is one-to-one
+    assert size(decls) == size(m.declarations);
+
+    // documentation is on names, not sources
+    assert m.documentation<definition> - decls == {};
+
+    // modifiers is on names, not sources
+    assert m.modifiers<definition> - decls == {};
+
+     // types is on names, not sources
+    assert m.types<name> - decls - externals == {};
+
+    // names is for the declared artefacts
+    assert m.names<qualifiedName> - decls - externals == {};
+
+    // simple names are indeed simple, meant for UI purposes
+    assert all(/^[$A-Za-z0-9_\-]+$/ <- m.names<simpleName>);
 
    return true;
 }
