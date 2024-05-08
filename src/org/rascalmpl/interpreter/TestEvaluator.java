@@ -86,12 +86,13 @@ public class TestEvaluator {
     }
 
     private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
-        testResultListener.start(env.getName(), tests.size());
         if (tests.size() <= 0) {
             return;
         }
         
         eval.job("Testing " + env.getName(), tests.size(), (String jn) -> {
+            testResultListener.start(env.getName(), tests.size());
+
             // first, let's shuffle the tests
             var theTests = new ArrayList<>(tests); // just to be sure, clone the list
             Collections.shuffle(theTests);
@@ -150,8 +151,8 @@ public class TestEvaluator {
                 eval.getErrorPrinter().flush();
             }
 
+            testResultListener.done();
             return true;
         });
-        testResultListener.done();
     }
 }
