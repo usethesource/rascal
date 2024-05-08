@@ -31,7 +31,7 @@ private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
 
 private list[loc] junitClassPath(loc root)
     = [
-        root + "/lib/hamcrest-hamcrest-core-1.3.jar", 
+        root + "/lib/hamcrest-core-1.3.jar", 
         root + "/lib/hamcrest-library-1.3.jar"
     ];
 
