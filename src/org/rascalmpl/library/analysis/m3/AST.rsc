@@ -184,15 +184,14 @@ bool astNodeSpecification(node n, str language = "java", bool checkNameResolutio
 	}
 	
 	if (checkNameResolution) {
-		// all resolved names have the language as schema prefix
-		//TODO: for the benefit of the compiler, changed
-		//    assert all(/node m := n, m.decl?, /^<language>/ := decl(m).scheme);
-		//to:
 		for (/node m := n, m.decl?) {
-		  if (/^<language>/ !:= decl(m).scheme) {
-			println("<m.decl> has a strange loc scheme at <m.src>");
-			return false;
-		  }
+			if (decl(m).scheme == "unresolved") {
+				println("Use decl has remained unresolved at <m.src>.");
+			}
+		  	else if (/^<language>/ !:= decl(m).scheme) {
+				println("<m.decl> has a strange loc scheme at <m.src>");
+				return false;
+		  	}
 		}
 	}
 	

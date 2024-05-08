@@ -49,6 +49,7 @@ import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -176,9 +177,14 @@ public class BindingsResolver {
         IBinding resolveBinding = n.resolveBinding();
         ISourceLocation result = resolveBinding(resolveBinding);
         // Have to move towards parent to make the binding unique
-        if (result.getScheme() == "unresolved" && tryHard) {
+
+		if (result.getScheme().equals("unresolved") && n.getIdentifier().equals("java") && node.getParent() instanceof QualifiedName) {
+			result = makeBinding("java+package", "", "java");
+		}
+		else if (result.getScheme().equals("unresolved") && tryHard) {
         	result = resolveBinding(n.getParent(), resolveBinding, n);
         }
+
         return result;
     }
 
@@ -563,10 +569,12 @@ private IConstructor nullSymbol() {
 	
 	private ISourceLocation resolveBinding(IPackageBinding binding) {
 		if (binding == null) {
-	      return makeBinding("unresolved", null, null);
+			return makeBinding("unresolved", null, null);
 	    }
-		if (locationCache.containsKey(binding.getKey()))
+		if (locationCache.containsKey(binding.getKey())) {
 			return locationCache.get(binding.getKey());
+		}
+		
 		ISourceLocation result = makeBinding("java+package", null, binding.getName().replaceAll("\\.", "/"));
 		locationCache.put(binding.getKey(), result);
 		return result;

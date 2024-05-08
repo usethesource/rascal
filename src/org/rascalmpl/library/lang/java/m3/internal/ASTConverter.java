@@ -156,6 +156,7 @@ public class ASTConverter extends JavaToRascalConverter {
             if (!decl.getScheme().equals("unknown")) {
                 setKeywordParameter("decl", decl); 
             }
+            
             if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 
                 && !decl.getScheme().equals("java+package")
                 && !decl.getScheme().equals("java+module")
@@ -937,7 +938,7 @@ public class ASTConverter extends JavaToRascalConverter {
         IListWriter parameters = values.listWriter();
         for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
             SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-            parameters.insert(visitChild(v));
+            parameters.append(visitChild(v));
         }
 
         IListWriter possibleExceptions = values.listWriter();
