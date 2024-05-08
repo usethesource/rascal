@@ -89,8 +89,10 @@ test bool junitASTsRemainedTheSame()  {
 		classPath = junitClassPath, 
 		javaVersion = JLS13());
 
+	// Because java.lang.SecurityManager no longer exists in JLS13 and we are compiling
+	// an older version of Junit4, we get unresolved decl's for all things related to SecurityManager.
 	astNodeSpecification(asts, checkNameResolution=true, checkSourceLocation=true);
-	
+
 	if (OVERWRITE) {
 		writeBinaryValueFile(junitBinaryASTs, asts);
 	}
