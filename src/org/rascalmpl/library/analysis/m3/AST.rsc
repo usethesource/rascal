@@ -56,7 +56,7 @@ data Declaration(
 	TypeSymbol typ = unresolved()
 );
 
-@synopsis{Uniform name for everything that is typicall a _statement_ programming languages: assignment, loops, conditionals, jumps}
+@synopsis{Uniform name for everything that is typically a _statement_ programming languages: assignment, loops, conditionals, jumps}
 @description{
 Instances of the Statement type represent the _syntax_ of statements in programming languages.
 
