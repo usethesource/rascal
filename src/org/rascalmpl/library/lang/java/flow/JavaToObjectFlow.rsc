@@ -260,22 +260,22 @@ set[FlowStm] translate(loc base, loc target, m:methodCall(_, r, n, a)) {
   return newStms + { FlowStm::call(target, emptyId, recv, m.decl, args) };
 }
 
-private Expression newObject(Type t, list[Expression] args, Expression original) {
+private Expression newObject(Type t, list[Declaration] targs, list[Expression] args, Expression original) {
   assert original is newObject;
-  return newObject(t, args)
+  return newObject(t, targs, args)
     [typ = original.typ]
     [src = original.src]
     [decl = original.decl];
 }
 
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Expression _, Type t, list[Expression] a))
-  = translate(base, target, newObject(t, a, ob));
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Expression _, Type t, list[Declaration] targs, list[Expression] a))
+  = translate(base, target, newObject(t, targs, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, list[Expression] a, Declaration _))
-  = translate(base, target, newObject(t, a, ob));
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t,  list[Declaration] targs, list[Expression] a, Declaration _))
+  = translate(base, target, newObject(t, targs, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, list[Expression] a, Declaration _))
-  = translate(base, target, newObject(t, a, ob));
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t,  list[Declaration] targs, list[Expression] a, Declaration _))
+  = translate(base, target, newObject(t, targs, a, ob));
   
 set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a)) {
   assert target != emptyId;
