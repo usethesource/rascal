@@ -42,6 +42,8 @@ public loc snakesAndLaddersProject     = unpackExampleProject("snakes-and-ladder
 public list[loc] snakesClassPath       = [snakesAndLaddersProject + "jexample-4.5-391.jar"];
 public list[loc] snakesSourcePath      = [snakesAndLaddersProject + "/src/"];
 
+public bool OVERWRITE = false;
+
 @synopsis{regression testing M3 on the JUnit project}
 test bool junitM3RemainedTheSame() {
 	reference = readBinaryValueFile(#M3, junitBinaryM3);
@@ -52,21 +54,27 @@ test bool junitM3RemainedTheSame() {
 		javaVersion = JLS13());
 	result = composeJavaM3(|project://junit4|, models);
 
+	if (OVERWRITE) {
+		writeBinaryValueFile(junitBinaryM3, result);
+	}
+
 	return compareM3s(reference, result);
 }
 
 @synopsis{regression testing M3 on the Snakes-and-ladders project}
 test bool snakesM3RemainedTheSame() {
 	reference = readBinaryValueFile(#M3, snakesAndLaddersBinaryM3);
-	
 	root = snakesAndLaddersProject;
 
 	models = createM3sFromFiles(find(root + "src", "java"),
 		sourcePath = snakesSourcePath, 
 		classPath = snakesClassPath, 
 		javaVersion = JLS13());
-
 	result = composeJavaM3(|project://snakes-and-ladders/|, models);
+
+	if (OVERWRITE) {
+		writeBinaryValueFile(snakesAndLaddersBinaryM3, result);
+	}
 
 	return compareM3s(reference, result);
 }
@@ -74,13 +82,16 @@ test bool snakesM3RemainedTheSame() {
 @synopsis{regression testing ASTs on the Junit4 project}  
 test bool junitASTsRemainedTheSame()  {
 	reference = readBinaryValueFile(#set[Declaration], junitBinaryASTs);
-	
 	root = junitProject;
 
 	asts = createAstsFromFiles(find(root + "src", "java"), true, 
 		sourcePath = junitSourcePath, 
 		classPath = junitClassPath, 
 		javaVersion = JLS13());
+
+	if (OVERWRITE) {
+		writeBinaryValueFile(junitBinaryASTs, asts);
+	}
 
 	return reference == asts;
 }
@@ -96,6 +107,10 @@ test bool snakesASTsRemainedTheSame() {
 		classPath = junitClassPath, 
 		javaVersion = JLS13());
 
+	if (OVERWRITE) {
+		writeBinaryValueFile(snakesAndLaddersBinaryAST, asts);
+	}
+
 	return reference == asts;
 }
 
@@ -103,6 +118,9 @@ test bool snakesASTsRemainedTheSame() {
 test bool hamcrestJarM3RemainedTheSame() {
 	reference = readBinaryValueFile(#M3, hamcrestBinaryM3);
 	result = createM3FromJar(hamcrestJar);
+	if (OVERWRITE) {
+		writeBinaryValueFile(hamcrestBinaryM3, result);
+	}
 	return compareM3s(reference, result);
 }
 	
