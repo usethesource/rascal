@@ -65,7 +65,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.errwriter = new PrintWriter(errstream);
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter) : ideServices;
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, ideServices) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$VF = ValueFactoryFactory.getValueFactory();
 		$TF = TypeFactory.getInstance();
@@ -214,4 +214,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	        
 	        return null;
 	    }
+
+	@Override
+	public void endAllJobs() {
+		// TODO Auto-generated method stub
+		
+	}
 }

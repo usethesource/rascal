@@ -15,9 +15,9 @@ import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes2|,
-                                        generatedSources = |project://rascal-core/target/generated-test-sources2|,
-                                        resources = |project://rascal-core/target/generated-test-resources2|
+PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|,
+                                        generatedSources = |project://rascal-core/target/generated-test-sources|,
+                                        resources = |project://rascal-core/target/generated-test-resources|
                                        );
 
 void main() = compileTestSources(manualTestConfig);

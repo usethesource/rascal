@@ -186,16 +186,20 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
-            if(isValidRascalTplVersion(tpl.rascalTplVersion)){
+            if(tpl.rascalTplVersion? && isValidRascalTplVersion(tpl.rascalTplVersion)){
                 tpl = convertTModel2PhysicalLocs(tpl);
                 
                 ms.tmodels[qualifiedModuleName] = tpl;
                 ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
                 return <true, tpl, ms>;
              } else {
-                println("INFO: <tplLoc> has outdated Rascal TPL version <tpl.rascalTplVersion> (required: <getCurrentRascalTplVersion()>)");
-                return <false, tmodel(modelName=qualifiedModuleName, 
-                        messages=[error("<tplLoc> has outdated Rascal TPL version <tpl.rascalTplVersion>", tplLoc)]), ms>; 
+                println("INFO: <tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)");
+                msg = error("<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)", tplLoc);
+                
+                ms.tmodels[qualifiedModuleName] = 
+                    tmodel(modelName=qualifiedModuleName, 
+                           messages=[msg]);
+                return <true, tpl, ms>; 
              }
         } catch e: {
             //ms.status[qualifiedModuleName] ? {} += not_found();
@@ -316,7 +320,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         if(!ms.moduleLastModified[qualifiedModuleName]?){
             ms.moduleLastModified[qualifiedModuleName] = getLastModified(qualifiedModuleName, ms.moduleLastModified, pcfg);
         }
-        imported_messages = [];
         
         if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
            //println("BOM <qualifiedModuleName>:"); iprintln(bom);
@@ -328,16 +331,13 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
-               //if(!ms.moduleLastModified[m]?){
-                    ms.moduleLastModified[m] = lm;
-               //}
-               //TODO: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
+               ms.moduleLastModified[m] = lm;
+               //NOTE: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
                if(decrementMilliseconds(/*getLastModified(m, ms.moduleLastModified, pcfg)*/ lm, 1000) > timestampInBom) {
                     allImportsAndExtendsValid = false;
                     if(tpl_uptodate() notin ms.status[m] ){
                         println("--- using <lm /*getLastModified(m, ms.moduleLastModified, pcfg)*/> (most recent) version of <m>, 
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
-                        //ms.status[m] += tpl_invalid();
                     }
                }
            }
@@ -369,7 +369,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     
     else {
         allImportsAndExtendsValid = false;
-        //ms.status[qualifiedModuleName] += not_found();
     }
     
     <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms);
@@ -383,7 +382,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
     } else {
         if(not_found() notin ms.status[qualifiedModuleName]){
-            //ms.messages[qualifiedModuleName] ? [] += [ error("Cannot get parse tree for module `<qualifiedModuleName>`", ms.moduleLocs[qualifiedModuleName]) ];
             ms.status[qualifiedModuleName] += not_found();
         }
     }
