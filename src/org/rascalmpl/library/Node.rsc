@@ -65,6 +65,18 @@ setKeywordParameters("f"(10, "abc"), ("height":0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
 
+// @synopsis{Adds new keyword parameters to a node, keeping the existing ones unless there is an entry in the new map.}
+// @examples{
+// ```rascal-shell
+// import Node;
+// mergeKeywordParameters("f"(10, "abc", width=10), ("height":0));
+// ```
+// }
+// @javaClass{org.rascalmpl.library.Prelude}
+// TODO: uncomment after bootstrap
+// public java &T <: node mergeKeywordParameters(&T <: node x, map[str,value] keywordParameters);
+
+
 @deprecated{
 Use setKeywordParameters(x, keywordParameters)
 }
