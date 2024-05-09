@@ -2201,6 +2201,12 @@ public class Prelude {
 		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
 		return node.asWithKeywordParameters().setParameters(map);
 	}
+
+	public INode mergeKeywordParameters(INode node, IMap kwargs) {
+		Map<String,IValue> map = node.asWithKeywordParameters().getParameters();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	}
 	
 	public INode unset(INode node, IString label) {
         return node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetParameter(label.getValue()) : node;

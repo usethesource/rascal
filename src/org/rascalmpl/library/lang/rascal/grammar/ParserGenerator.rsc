@@ -42,8 +42,7 @@ str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
-    str src = "";
-    job("Generating <name>", void (void (str m, int w) worked) { 
+    return job("Generating <name>", str (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
@@ -87,7 +86,7 @@ public str newGenerate(str package, str name, Grammar gr) {
    
     worked("source code template", 1);
     
-    src =  "package <package>;
+    return "package <package>;
            '
            'import java.io.IOException;
            'import java.io.StringReader;
@@ -238,8 +237,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
-    }, totalWork=9);
-    return src;       
+    }, totalWork=9);      
 }  
 
 rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
