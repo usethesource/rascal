@@ -71,10 +71,11 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -142,8 +143,9 @@ public class Prelude {
     private final PrintWriter out;
 	private final TypeStore store;
 	private final IRascalMonitor monitor;
+	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
@@ -152,6 +154,8 @@ public class Prelude {
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
+		this.resourceProvider = resourceProvider;
+
 		random = new Random();
 	}
 
@@ -915,19 +919,19 @@ public class Prelude {
 		try {
 		    w.write(arg, output);
 		} 
-	    catch (IOLimitReachedException e) {
+	    catch (/*IOLimitReachedException*/ RuntimeException e) {
 	        // ignore, it's what we wanted
 	    }
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"));
+			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"));
 		}
 		finally {
-		    try {
-		        output.flush();
-		        output.close();
-		    }
-		    catch (IOException e) {
-		    }
+			try {
+				output.flush();
+			}
+			catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 	
@@ -1149,6 +1153,16 @@ public class Prelude {
 		}
 		return res.toString();
 	}
+
+	public static byte[] consumeInputStream(InputStream in) throws IOException {
+		ByteArrayOutputStream res = new ByteArrayOutputStream();
+		byte[] chunk = new byte[FILE_BUFFER_SIZE];
+		int read;
+		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
+		    res.write(chunk, 0, read);
+		}
+		return res.toByteArray();
+	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
         try {
@@ -1327,8 +1341,8 @@ public class Prelude {
 					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					  TreeAdapter.yield((IConstructor) elem, out);
 					}
-					else{
-						out.append(elem.toString());
+					else {
+						new StandardTextWriter().write(elem, out);
 					}
 				}
 				if (postfix != null) {
@@ -1700,6 +1714,16 @@ public class Prelude {
 	{
 	   if(lst.length() > 0){
 	      return lst.get(0);
+	   }
+	   
+	   throw RuntimeExceptionFactory.emptyList();
+	}
+
+	public IValue last(IList lst)
+	// @doc{head -- get the last element of a list}
+	{
+	   if(lst.length() > 0){
+	      return lst.get(lst.length() - 1);
 	   }
 	   
 	   throw RuntimeExceptionFactory.emptyList();
@@ -2177,6 +2201,12 @@ public class Prelude {
 		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
 		return node.asWithKeywordParameters().setParameters(map);
 	}
+
+	public INode mergeKeywordParameters(INode node, IMap kwargs) {
+		Map<String,IValue> map = node.asWithKeywordParameters().getParameters();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	}
 	
 	public INode unset(INode node, IString label) {
         return node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetParameter(label.getValue()) : node;
@@ -2319,13 +2349,51 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
     }
+
+	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+    }
+
+	public void storeParsers(IValue start, ISourceLocation saveLocation) {
+		try {
+			rascalValues.storeParsers(start, saveLocation);
+		}
+		catch (JavaCompilation e) {
+			throw RuntimeExceptionFactory.javaCompilerException(e);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+		try {
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+		try {
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
@@ -2766,6 +2834,23 @@ public class Prelude {
 		
 		throw RuntimeExceptionFactory.emptySet();
 	}
+	
+	public IValue getFirstFrom(ISet st)
+    // @doc{getOneFrom -- pick the "first" element from a set}
+    {
+        int sz = st.size();
+
+        if (sz == 0) {
+            throw RuntimeExceptionFactory.emptySet();
+        }
+
+        for (IValue v : st) {
+                return v;
+        }
+        
+        throw RuntimeExceptionFactory.emptySet();
+    }
+
 
 	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
@@ -3521,6 +3606,10 @@ public class Prelude {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
+	}
+
+	public ISet findResources(IString fileName) {
+		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
 	}
 
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {

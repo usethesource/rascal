@@ -9,31 +9,20 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Jimi van der Woning - Jimi.vanderWoning@student.uva.nl}
-@doc{
-#### Synopsis
 
-Library functions for maps.
-
-#### Description
-
-For operators on maps see [Map]((Rascal:Values-Map)) in the Rascal Language Reference.
-
-The following functions are defined for maps:
+@synopsis{Library functions for maps.}
+@description{
+The following library functions are defined for maps:
 (((TOC)))
 }
 module Map
 
-@doc{
-#### Synopsis
 
-Delete a key from a map.
-
-#### Description
-
+@synopsis{Delete a key from a map.}
+@description{
 Returns the map `m` minus the key `k`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 delete(("apple":1,"pear":2), "apple");
@@ -43,17 +32,12 @@ delete(("apple":1,"pear":2), "apple");
 public java map[&K,&V] delete(map[&K,&V] m, &K k);
   
 
-@doc{
-#### Synopsis
 
-Determine the domain (set of keys) of a map.
-
-#### Description
-
+@synopsis{Determine the domain (set of keys) of a map.}
+@description{
 Returns the domain (set of keys) of map `M`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 domain(("apple": 1, "pear": 2));
@@ -62,17 +46,12 @@ domain(("apple": 1, "pear": 2));
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[&K] domain(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Map restricted to certain keys.
-
-#### Description
-
+@synopsis{Map restricted to certain keys.}
+@description{
 Return the map `M` restricted to pairs with key in `S`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 domainR(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
@@ -81,17 +60,12 @@ domainR(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
 public map[&K, &V] domainR(map[&K, &V] M, set[&K] S)
 	= isEmpty(M) ? M : (k:M[k] | &K k <- M, k in S);
 
-@doc{
-#### Synopsis
 
-Map with certain keys excluded.
-
-#### Description
-
+@synopsis{Map with certain keys excluded.}
+@description{
 Return the map `M` restricted to pairs with key not in `S`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 domainX(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
@@ -100,17 +74,12 @@ domainX(("apple": 1, "pear": 2, "orange": 3), {"apple", "pear"});
 public map[&K, &V] domainX(map[&K, &V] M, set[&K] S)
 	= isEmpty(M) ? M : (k:M[k] | &K k <- M, k notin S);
 
-@doc{
-#### Synopsis
 
-Get a n arbitrary key from a map.
-
-#### Description
-
+@synopsis{Get a n arbitrary key from a map.}
+@description{
 Returns an arbitrary key of map `M`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
@@ -121,18 +90,13 @@ getOneFrom(("apple": 1, "pear": 2, "pineapple": 3));
 @javaClass{org.rascalmpl.library.Prelude}
 public java &K getOneFrom(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Invert the (key,value) pairs in a map.
-
-#### Description
-
+@synopsis{Invert the (key,value) pairs in a map.}
+@description{
 Returns inverted map in which each value in the old map `M` is associated with a set of key values from the old map.
 Also see ((invertUnique)).
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 invert(("apple": 1, "pear": 2, "orange": 1));
@@ -141,13 +105,9 @@ invert(("apple": 1, "pear": 2, "orange": 1));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&V, set[&K]] invert(map[&K, &V] M)  ;
 
-@doc{
-#### Synopsis
 
-Invert the (key,value) pairs in a map.
-
-#### Description
-
+@synopsis{Invert the (key,value) pairs in a map.}
+@description{
 Returns a map with key and value inverted; the result should be a map.
 If the initial map contains duplicate values,
 the `MultipleKey` exception is raised since
@@ -155,10 +115,9 @@ an attempt is made to create a map where more than one
 value would be associated with the same key.
 
 Also see ((Map-invert)) and ((module:Exception)).
-
-#### Examples
-
-```rascal-shell,error
+}
+@examples{
+```rascal-shell
 import Map;
 invertUnique(("apple": 1, "pear": 2, "orange": 3));
 ```
@@ -170,17 +129,12 @@ invertUnique(("apple": 1, "pear": 2, "orange": 1));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[&V, &K] invertUnique(map[&K, &V] M)  ;
 
-@doc{
-#### Synopsis
 
-Test whether a map is empty.
-
-#### Description
-
+@synopsis{Test whether a map is empty.}
+@description{
 Returns `true` if map `M` is empty, and `false` otherwise.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 isEmpty(());
@@ -190,17 +144,12 @@ isEmpty(("apple": 1, "pear": 2, "orange": 3));
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isEmpty(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Apply a function to all (key, value) pairs in a map.
-
-#### Description
-
+@synopsis{Apply a function to all (key, value) pairs in a map.}
+@description{
 Apply the functions `F` and `G` to each key/value pair in a map and return the transformed map.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 str prefix(str s) { return "X" + s; }
@@ -208,21 +157,16 @@ int incr(int x) { return x + 1; }
 mapper(("apple": 1, "pear": 2, "orange": 3), prefix, incr);
 ```
 }
-public map[&K, &V] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
+public map[&L, &W] mapper(map[&K, &V] M, &L (&K) F, &W (&V) G)
  = (F(key) : G(M[key]) | &K key <- M);
 
 
-@doc{
-#### Synopsis
 
-The range (set of values that correspond to its keys) of a map.
-
-#### Description
-
+@synopsis{The range (set of values that correspond to its keys) of a map.}
+@description{
 Returns the range (set of values) of map `M`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 range(("apple": 1, "pear": 2));
@@ -231,17 +175,12 @@ range(("apple": 1, "pear": 2));
 @javaClass{org.rascalmpl.library.Prelude}
 public java set[&V] range(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Map restricted to certain values in (key,values) pairs.
-
-#### Description
-
+@synopsis{Map restricted to certain values in (key,values) pairs.}
+@description{
 Returns the map restricted to pairs with values in `S`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 rangeR(("apple": 1, "pear": 2, "orange": 3), {2, 3});
@@ -250,17 +189,12 @@ rangeR(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 public map[&K, &V] rangeR(map[&K, &V] M, set[&V] S)
 	= isEmpty(M) ? M : (k:M[k] | &K k <- M, M[k] in S);
 
-@doc{
-#### Synopsis
 
-Map with certain values in (key,value) pairs excluded.
-
-#### Description
-
+@synopsis{Map with certain values in (key,value) pairs excluded.}
+@description{
 Returns the map restricted to pairs with values not in `S`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 rangeX(("apple": 1, "pear": 2, "orange": 3), {2, 3});
@@ -269,17 +203,12 @@ rangeX(("apple": 1, "pear": 2, "orange": 3), {2, 3});
 public map[&K, &V] rangeX(map[&K, &V] M, set[&V] S)
 	= isEmpty(M) ? M : (k:M[k] | &K k <- M, M[k] notin S);
 
-@doc{
-#### Synopsis
 
-Number of (key, value) pairs in a map.
-
-#### Description
-
+@synopsis{Number of (key, value) pairs in a map.}
+@description{
 Returns the number of pairs in map `M`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import Map;
 size(("apple": 1, "pear": 2, "orange": 3));
@@ -288,13 +217,9 @@ size(("apple": 1, "pear": 2, "orange": 3));
 @javaClass{org.rascalmpl.library.Prelude}
 public java int size(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Convert a map to a list of tuples.
-
-#### Examples
-
+@synopsis{Convert a map to a list of tuples.}
+@examples{
 ```rascal-shell
 import Map;
 toList(("apple": 1, "pear": 2, "orange": 3));
@@ -303,13 +228,9 @@ toList(("apple": 1, "pear": 2, "orange": 3));
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[tuple[&K, &V]] toList(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Convert a map to a relation.
-
-#### Examples
-
+@synopsis{Convert a map to a relation.}
+@examples{
 ```rascal-shell
 import Map;
 toRel(("apple": 1, "pear": 2, "orange": 3));
@@ -320,13 +241,9 @@ public rel[&K,&V] toRel(map[&K, list[&V]] M) = {<k,v> | &K k <- M, &V v <- M[k]}
 @javaClass{org.rascalmpl.library.Prelude}
 public default java rel[&K, &V] toRel(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Convert a map to a string.
-
-#### Examples
-
+@synopsis{Convert a map to a string.}
+@examples{
 ```rascal-shell
 import Map;
 toString(("apple": 1, "pear": 2, "orange": 3));
@@ -335,13 +252,9 @@ toString(("apple": 1, "pear": 2, "orange": 3));
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toString(map[&K, &V] M);
 
-@doc{
-#### Synopsis
 
-Convert a map to a indented string.
-
-#### Examples
-
+@synopsis{Convert a map to a indented string.}
+@examples{
 ```rascal-shell
 import Map;
 itoString(("apple": 1, "pear": 2, "orange": 3));

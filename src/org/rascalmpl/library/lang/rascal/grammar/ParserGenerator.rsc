@@ -42,27 +42,26 @@ str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
-    JOB = "Generating parser <package>.<name>";
-    jobStart("Generating parser <package>.<name>");
+    return job("Generating <name>", str (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   
-    jobStep(JOB, "expanding parameterized symbols");
+    worked("expanding parameterized symbols", 1);
     gr = expandParameterizedSymbols(gr);
     
-    jobStep(JOB, "generating stubs for regular");
+    worked("generating stubs for regular", 1);
     gr = makeRegularStubs(gr);
     
-    jobStep(JOB, "generating syntax for holes");
+    worked("generating syntax for holes", 1);
     gr = addHoles(gr);
  
-    jobStep(JOB, "generating literals");
+    worked("generating literals", 1);
     gr = literals(gr);
     
-    jobStep(JOB, "establishing production set");
+    worked("establishing production set", 1);
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
-    jobStep(JOB, "assigning unique ids to symbols");
+    worked("assigning unique ids to symbols", 1);
     Production rewrite(Production p) = 
       visit (p) { 
         case Symbol s => s[id=newItem()] 
@@ -70,24 +69,24 @@ public str newGenerate(str package, str name, Grammar gr) {
     beforeUniqueGr = gr;   
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
         
-    jobStep(JOB, "generating item allocations");
+    worked("generating item allocations", 1);
     newItems = generateNewItems(gr);
     
-    jobStep(JOB, "computing priority and associativity filter");
+    worked("computing priority and associativity filter", 1);
     rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
    
-    //println("computing lookahead sets");
+    //println("computing lookahead sets", 1);
     //gr = computeLookaheads(gr, extraLookaheads);
     
-    //println("optimizing lookahead automaton");
+    //println("optimizing lookahead automaton", 1);
     //gr = compileLookaheads(gr);
    
-    jobStep(JOB, "printing the source code of the parser class");
+    worked("source code template", 1);
     
-    src =  "package <package>;
+    return "package <package>;
            '
            'import java.io.IOException;
            'import java.io.StringReader;
@@ -216,7 +215,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  protected static class <value2id(s)> {
            '    public final static AbstractStackNode\<IConstructor\>[] EXPECTS;
            '    static{
-           '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_resultStoreIdMappings);
+           '      ExpectBuilder\<IConstructor\> builder = new ExpectBuilder\<IConstructor\>(_dontNest, _resultStoreIdMappings);
            '      init(builder);
            '      EXPECTS = builder.buildExpectArray();
            '    }
@@ -238,8 +237,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
-   jobEnd(JOB);
-   return src;
+    }, totalWork=9);      
 }  
 
 rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
@@ -269,8 +267,8 @@ int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set
     case Symbol::\seq(ss) : return ss[pos].id;
     // note the use of the label l from the third function parameter:
     case Symbol::\alt(aa) : if (a:conditional(_,{*_,except(l)}) <- aa) return a.id; 
-    default: return s.id; // this should never happen, but let's make this robust
   }
+  return s.id; // this should never happen, but let's make this robust
 }
 
 
@@ -281,7 +279,7 @@ Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
 default Symbol getType(Symbol s) = unsetRec(s);
 
 
-@doc{This function generates Java code to allocate a new item for each position in the grammar.
+@synopsis{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
 map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
@@ -349,7 +347,7 @@ str split(str x) {
   }
 }
 
-@doc{this function selects all symbols for which a parse method should be generated}
+@synopsis{this function selects all symbols for which a parse method should be generated}
 bool isNonterminal(Symbol s) {
   switch (s) {
     case Symbol::\label(_,x) : return isNonterminal(x);

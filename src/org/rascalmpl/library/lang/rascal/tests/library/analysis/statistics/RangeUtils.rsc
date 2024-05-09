@@ -1,59 +1,51 @@
+@synopsis{Conversions and assertions on numerical ranges, for testing and sampling purposes.}
 module lang::rascal::tests::library::analysis::statistics::RangeUtils
 
 import util::Math;
+import IO;
 
+@synopsis{list of absolute numbers for every list element.}
+list[&T <: num] abs(list[&T <: num] nums) = [abs(n) | n <- nums]; 
 
-list[&T <: num] abs(list[&T <: num] nums) 
-	= [abs(n) | n <- nums]; 
+@synopsis{Returns `n` if low <= n <= high, or any other number that is guaranteed between the `low` and `high` bounds.}
+@description{
+This function is used to _map_ randomly generated numbers _into_ a range. The goal
+is to achieve a more-or-less **uniform distribution** inside of the range `[low, high]`, given a more
+ore less uniformly distributed value for `n` over any other unknown range `[x,y]`. This works
+best if `y - x >= high - low`, otherwise parts of the target range may be unreachable. 
+}
+&T <: num assureRange(&T <: num n, &T <: num low, &T <: num high) {
+	assert low < high;
 
-(&T<:num) assureRange(&T <: num n, num low, num high) {
-	ab = abs(n);
-	if (ab >= low && ab <= high) {
-		return n;	
+	target = n;
+	window = high - low;
+
+	// jump above the lower bound into the range with steps sized `window`
+	while (target < low) {
+		target += ceil(low / window - target / window) * window;
 	}
-	if (ab <= high) {
-		if (n < 0) {
-			return n - low;
-		}
-		return n + low;	
+
+	// or jump below the high bound into the range with steps sized `window`	
+	while (high < target) {
+		target -= ceil(target / window - high / window) * window;
 	}
-	return makeSmallerThan(n, toInt(high));
+
+	assert low <= target && target <= high;
+
+	return target;
 }
 
+test bool assureRangeTest(num x) = 0 <= target && target <= 10 when target := assureRange(x, 0, 10);
 
-list[&T <: num] assureRange(list[&T <: num] nums, num low, num high)
-	= [ assureRange(n, low, high) | n <- nums];
-
-
-
-int makeSmallerThanInt(int n, int limit) = n % limit;
-real makeSmallerThanReal(real n, int limit) {
-	if (abs(n) < limit) {
-		return n;
-	}
-	f = toInt(n);
-	r = n - f;
-	return (f % limit) + r;
+@synopsis{Change a list of numbers into a list of numbers that all fit into a range.}
+@description{
+The goal of this function is to make sure an otherwise randomly generated list of numbers
+is limited to a given range, between `low` and `high` inclusive bounds.
+The target numbers are the same if they already fit, and we try to keep a uniform distribution
+within the range as much as possible.
 }
-rat makeSmallerThanRat(rat n, int limit) {
-	if (abs(n) < limit) {
-		return n;
-	}
-	return toRat(1, denominator(n));
-}
+list[&T <: num] assureRange(list[&T <: num] nums, &T <: num low, &T <: num high)
+	= [assureRange(n, low, high) | n <- nums];
 
-&T <: num makeSmallerThan(&T <: num n, int limit) {
-	if (int i := n) {
-		return makeSmallerThanInt(i, limit);	
-	}
-	if (real r := n) {
-		return makeSmallerThanReal(r, limit);	
-	}
-	if (rat r := n) {
-		return makeSmallerThanRat(r, limit);	
-	}
-	throw "Forgot about a different number type <n>";
-}
-
-list[&T <: num] makeSmallerThan(list[&T <: num] nums, int limit) 
-	= [ makeSmallerThan(n, limit) | n <- nums];
+test bool assureRangeListTest() = assureRange([0..10], 100, 110) == [100..110];
+test bool assureRangeListTestNeg() = assureRange([0..-10], 100, 110) == [100, *[109,108,107,106,105,104,103,102,101]];

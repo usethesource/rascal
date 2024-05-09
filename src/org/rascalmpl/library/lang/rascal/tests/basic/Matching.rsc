@@ -15,7 +15,9 @@ test bool tstQNameInPatternInt(){
     return T1::\int() := t1 && T2::\int() := t2;
 }
 
-@expect{UnexpectedType}
+@expect{
+UnexpectedType
+}
 test bool prefixShouldHaveEffect() {
   value term = T2::string("x");
   

@@ -5,7 +5,7 @@ import lang::json::IO;
 import util::UUID;
 import IO;
 
-loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
+loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
 bool jsonFeaturesSupported(value v) {
     for (/num r := v, size("<r>") > 10) {
@@ -62,10 +62,10 @@ test bool originTracking() {
 
    poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
-   for (<loc p, str line> <- poss) {
+   for (<loc p, int line> <- poss) {
       assert content[p.offset] == "{";                // all nodes start with a {
       assert content[p.offset + p.length - 1] == "}"; // all nodes end with a }
-      assert "<p.begin.line>" == line;
+      assert p.begin.line == line;
    }
 
    return true;

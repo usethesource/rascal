@@ -21,6 +21,7 @@ This module is quite new and may undergo some tweaks in the coming time.
 module vis::Graphs
 
 import lang::html::IO;
+import lang::html::AST;
 import util::IDEServices;
 import Content;
 import ValueIO;
@@ -39,9 +40,9 @@ import vis::Graphs;
 import IO;
 d = [<|std:///|, e> | e <- |std:///|.ls];
 d += [<e,f> | <_, e> <- d, isDirectory(e), f <- e.ls];
-graph(d, \layout=defaultCoseLayout());
+graph(d, \layout=defaultDagreLayout());
 // here we adapt the node labeler to show only the last file name in the path of the location:
-graph(d, \layout=defaultCoseLayout(), nodeLabeler=str (loc l) { return l.file; });
+graph(d, \layout=defaultDagreLayout(), nodeLabeler=str (loc l) { return l.file; });
 ```
 }
 Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
@@ -78,11 +79,13 @@ Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeL
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 alias NodeLinker[&T] = loc (&T _id1);
-loc defaultNodeLinker(loc l) = l;
+loc defaultNodeLinker(/loc l) = l;
 default loc defaultNodeLinker(&T _) = |nothing:///|;
 
 alias NodeLabeler[&T]= str (&T _id2);
-str defaultNodeLabeler(&T v) = "<v>";
+str defaultNodeLabeler(/str s) = s;
+str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
+default str defaultNodeLabeler(&T v) = "<v>";
 
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
 str defaultEdgeLabeler(&T _source, &T _target)  = "";
@@ -181,6 +184,51 @@ data CytoElement
   | \edge(str source, str target, str id="<source>-<target>", str label="")
   ;
 
+data CytoHorizontalAlign
+    = left()
+    | center()
+    | right()
+    | auto()
+    ;
+
+data CytoVerticalAlign
+    = top()
+    | center()
+    | bottom()
+    | auto()
+    ;
+
+data CytoArrowHeadStyle
+    = triangle()
+    | \triangle-tee()
+    | \circle-triangle()
+    | \triangle-cross()
+    | \triangle-backcurve()
+    | vee()
+    | tee()
+    | square()
+    | circle()
+    | diamond()
+    | chevron()
+    | none()
+    ;
+
+data CytoTextWrap
+    = none()
+    | wrap()
+    | ellipses()
+    ;
+
+data CytoCurveStyle
+    = bezier()
+    | \unbundled-bezier()
+    | straight()
+    | segments()
+    | \straight-triangle()
+    | taxi()
+    | haystack()
+    ;
+
 data CytoStyleOf
     = cytoNodeStyleOf(
         CytoSelector selector = \node(),
@@ -203,7 +251,7 @@ CytoStyle defaultNodeStyle()
         \font-size        = "20pt",
         \font-weight      = bold(),
         label             = "data(label)",
-        shape             =  \round-rectangle(),
+        shape             = \round-rectangle(),
         \text-halign      = CytoHorizontalAlign::\center(),
         \text-valign      = CytoVerticalAlign::\center()
     );
@@ -215,7 +263,7 @@ CytoStyle defaultEdgeStyle()
         \line-color         = "black",
         \target-arrow-color = "black",
         \source-arrow-color = "black",
-        \target-arrow-shape = triangle(),
+        \target-arrow-shape = CytoArrowHeadStyle::triangle(),
         \source-arrow-shape = CytoArrowHeadStyle::none(),
         \curve-style        = bezier(),
         \label              = "data(label)"
@@ -227,21 +275,6 @@ data CytoFontWeight
     | bold()
     | bolder()
     ;
-
-data CytoHorizontalAlign
-    = left()
-    | center()
-    | right()
-    | auto()
-    ;
-
-data CytoVerticalAlign
-    = top()
-    | center()
-    | bottom()
-    | auto()
-    ;
-
 
 data CytoStyle
     = cytoNodeStyle(
@@ -255,9 +288,9 @@ data CytoStyle
         CytoFontWeight \font-weight = normal(),
         str \background-color   = "blue",
         str label               = "data(label)",
-        CytoNodeShape shape     = circle(),
-        CytoHorizontalAlign \text-halign = center(),
-        CytoVerticalAlign \text-valign = \top(),
+        CytoNodeShape shape     = CytoNodeShape::ellipse(),
+        CytoHorizontalAlign \text-halign = CytoHorizontalAlign::center(),
+        CytoVerticalAlign \text-valign = CytoVerticalAlign::\top(),
         CytoTextWrap \text-wrap = CytoTextWrap::none(),
         str \text-max-width     = "100px",
         CytoHorizontalAlign \text-justification = CytoHorizontalAlign::center(),
@@ -269,44 +302,13 @@ data CytoStyle
         str color               = "red",
         str \target-arrow-color = "black",
         str \source-arrow-color = "black",
-        CytoArrowHeadStyle \target-arrow-shape = triangle(),
-        CytoArrowHeadStyle \source-arrow-shape = none(),
-        CytoCurveStyle \curve-style = bezier(),
+        CytoArrowHeadStyle \target-arrow-shape = CytoArrowHeadStyle::triangle(),
+        CytoArrowHeadStyle \source-arrow-shape = CytoArrowHeadStyle::none(),
+        CytoCurveStyle \curve-style            = CytoCurveStyle::bezier(),
         int \source-text-offset = 1,
         int \target-text-offset = 1,
         str label               = "data(label)"
     )
-    ;
-
-data CytoTextWrap
-    = none()
-    | wrap()
-    | ellipses()
-    ;
-
-data CytoCurveStyle
-    = bezier()
-    | \unbundled-bezier()
-    | straight()
-    | segments()
-    | \straight-triangle()
-    | taxi()
-    | haystack()
-    ;
-    
-data CytoArrowHeadStyle
-    = triangle()
-    | \triangle-tee()
-    | \circle-triangle()
-    | \triangle-cross()
-    | \triangle-backcurve()
-    | vee()
-    | tee()
-    | square()
-    | circle()
-    | diamond()
-    | chevron()
-    | none()
     ;
     
 data CytoSelector
@@ -314,7 +316,21 @@ data CytoSelector
     | \edge()
     ; 
 
-data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
+data CytoLayoutName
+    = grid()
+    | circle()
+    | breadthfirst()
+    | cose()
+    | dagre()
+    ;
+
+@synopsis{An alias for dagre layout for documentation purposes.}
+@description{
+Dagre is a hierarchical graph layout.
+}
+CytoLayoutName hierarchical() = dagre();
+
+data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     = cytolayout()
     | breadthfirstLayout(
         CytoLayoutName name = CytoLayoutName::breadthfirst(),
@@ -329,26 +345,30 @@ data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
         int rows=2,
         int cols=2,
         bool avoidOverlap=true,
-        num spacingFactor=1
+        num spacingFactor=.1
     )
     | circleLayout(
         CytoLayoutName name = CytoLayoutName::circle(),
         bool avoidOverlap=true,
-        num spacingFactor=1
+        num spacingFactor=.1
     )
     | coseLayout(
-        CytoLayoutName name = CytoLayoutName::cose()
+        CytoLayoutName name = cose()
+    )
+    | dagreLayout(
+        CytoLayoutName name = dagre(),
+        num spacingFactor = .1
     )
     ;
 
 CytoLayout defaultCoseLayout()
     = coseLayout(
-        name=CytoLayoutName::cose(),
+        name=cose(),
         animate=false
     )
     ;
 
-CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
+CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=.1)
     = circleLayout(
         name = CytoLayoutName::circle(),
         animate=false,
@@ -356,7 +376,7 @@ CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
         spacingFactor=spacingFactor
     );
 
-CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=1)
+CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=.1)
     = gridLayout(
         name=CytoLayoutName::grid(),
         animate=false,
@@ -367,7 +387,7 @@ CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, 
     )
     ;
 
-CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, bool grid=!circle, bool directed=false)
+CytoLayout defaultBreadthfirstLayout(num spacingFactor=.1, bool circle=false, bool grid=!circle, bool directed=false)
     = 
     breadthfirstLayout(
         name=CytoLayoutName::breadthfirst(),
@@ -378,12 +398,13 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, boo
         directed=directed
     );
 
-data CytoLayoutName
-    = grid()
-    | circle()
-    | breadthfirst()
-    | cose()
-    ;
+CytoLayout defaultDagreLayout(num spacingFactor=1)
+    = dagreLayout(
+        name=CytoLayoutName::dagre(),
+        animate=false,
+        spacingFactor=spacingFactor
+    );
+
 
 @synopsis{this is the main server generator for any graph value}
 @description{
@@ -416,7 +437,9 @@ Response (Request) graphServer(Cytoscape ch) {
 private HTMLElement plotHTML()
     = html([
         head([ 
-            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.umd.js"),
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;

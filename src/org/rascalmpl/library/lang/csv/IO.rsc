@@ -7,13 +7,9 @@
 }
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
-@doc{
-#### Synopsis
 
-Functions for reading and writing Comma-Separated Values (CSV) files.
-
-#### Description
-
+@synopsis{Functions for reading and writing Comma-Separated Values (CSV) files.}
+@description{
 The http://tools.ietf.org/html/rfc4180[CSV format] is used for exchanging
 information between spreadsheets and databases. A CSV file has the following structure:
 
@@ -23,9 +19,8 @@ information between spreadsheets and databases. A CSV file has the following str
 The following functions are provided:
 
 (((TOC)))
-
-#### Examples
-
+}
+@examples{
 * CSV file with headers
 ```csv
 field_name1,field_name2,field_name3
@@ -41,13 +36,9 @@ import lang::csv::ast::Implode;
 import Map;
 import List;
 
-@doc{
-#### Synopsis
 
-Read a relation from a CSV (Comma Separated Values) file.
-
-#### Description
-
+@synopsis{Read a relation from a CSV (Comma Separated Values) file.}
+@description{
 Read a CSV file and return a value of a required type.
 
 The `result` argument is the required type of the value that is produced by reading the CSV
@@ -81,9 +72,8 @@ Reading the values in fields is straightforward, except for the case that the te
 
 *  the text may include line breaks which are represented as `\n` in the resulting string value of the field.
 *  the text may contain escaped double quotes (`""`) which are represented as `\"` in the resulting string value.
-
-#### Examples
-
+}
+@examples{
 Given is the follwing file `ex1.csv`:
 
 ```rascal
@@ -110,7 +100,9 @@ R1 = readCSV(|lib://rascal/org/rascalmpl/library/lang/csv/examples/ex1.csv|, sep
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@deprecated{use the readCSV with keyword parameters}
+@deprecated{
+use the readCSV with keyword parameters
+}
 public value readCSV(loc location, map[str,str] options) {
 	return readCSV(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");
 }
@@ -121,21 +113,16 @@ public java &T readCSV(type[&T] result, loc location, bool header = true, str se
 @javaClass{org.rascalmpl.library.lang.csv.IO}
 public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
-@doc{
-#### Synopsis
 
-Write a relation to a CSV (Comma Separated Values) file.
-
-#### Description
-
+@synopsis{Write a relation to a CSV (Comma Separated Values) file.}
+@description{
 Write `relation` to a CSV file at `location`.
 The options influence the way the actrual CSV file is written:
 
 *  `header`: add or omit a header (based on the labels of the relation).
 *  `separator`: defines the separator character between fields (default is `,`).
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import lang::csv::IO;
 rel[int position, str artist, str title, int year] R1 = {
@@ -170,7 +157,9 @@ public lang::csv::ast::CSV::Table loadCSV(loc l) = implodeCSV(parseCSV(l));
 public lang::csv::ast::CSV::Table loadNormalizedCSV(loc l) = unquote(loadCSV(l));
 
 @synopsis{Generator for CSV resources}
-@resource{csv}
+@resource{
+csv
+}
 public str generate(str moduleName, loc uri) {
     map[str,str] options = uri.params;
 	

@@ -5,29 +5,20 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-#### Synopsis
 
-Statistical inference methods.
-
-#### Description
-
+@synopsis{Statistical inference methods.}
+@description{
 The following functions are provided:
 (((TOC)))
 }
 module analysis::statistics::Inference
 
-@doc{
-#### Synopsis
 
-Chi-square coefficient of data values.
-
-#### Description
-
+@synopsis{Chi-square coefficient of data values.}
+@description{
 Compute the [ChiSquare statistic](http://en.wikipedia.org/wiki/Chi-square_statistic) comparing observed and expected frequency counts.
-
-#### Examples
-
+}
+@examples{
 Consider an example from the web page mentioned above.
 To test the hypothesis that a random sample of 100 people has been drawn from a population in which men and women are equal in frequency, the observed number of men and women would be compared to the theoretical frequencies of 50 men and 50 women. If there were 44 men in the sample and 56 women, then we have the following:
 
@@ -35,18 +26,13 @@ To test the hypothesis that a random sample of 100 people has been drawn from a 
 import analysis::statistics::Inference;
 chiSquare([<50, 44>, <50, 56>])
 ```
-
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num chiSquare(lrel[num expected, int observed] values);
 
-@doc{
-#### Synopsis
 
-Chi-square test on data values.
-
-#### Description
-
+@synopsis{Chi-square test on data values.}
+@description{
 Perform a [chi-square test](http://en.wikipedia.org/wiki/Pearson%27s_chi-squared_test) comparing
 expected and observed frequency counts. There are two forms of this test:
 
@@ -62,13 +48,9 @@ public java num chiSquareTest(lrel[num expected, int observed] values);
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java bool chiSquareTest(lrel[num expected, int observed] values, real alpha);
 
-@doc{
-#### Synopsis
 
-T-test on sample data.
-
-#### Description
-
+@synopsis{T-test on sample data.}
+@description{
 Perform [student's t-test](http://en.wikipedia.org/wiki/Student's_t-test)
 The test is provided in three variants:
 
@@ -89,9 +71,8 @@ Returns true iff the null hypothesis that the means are equal can be rejected wi
 
 *  Performs a two-sided t-test evaluating the null hypothesis that the mean of the population from which sample is drawn equals `mu`.
 Returns true iff the null hypothesis can be rejected with confidence 1 - `alpha`. To perform a 1-sided test, use `alpha` * 2.
-
-#### Examples
-
+}
+@examples{
 We use the data from the following http://web.mst.edu/~psyworld/texample.htm#1[example] to illustrate the t-test.
 First, we compute the t-statistic using the formula given above.
 ```rascal-shell
@@ -115,7 +96,6 @@ Finally, we perform the test around the significance level we just obtained:
 tTest(s1,s2,0.40);
 tTest(s1,s2,0.50);
 ```
-
 }
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num tTest(list[num] sample1, list[num] sample2);
@@ -128,13 +108,9 @@ public java bool tTest(num mu, list[num] sample, num alpha);
 
 
 
-@doc{
-#### Synopsis
 
-Analysis of Variance (ANOVA) f-value.
-
-#### Description
-
+@synopsis{Analysis of Variance (ANOVA) f-value.}
+@description{
 Perform [Analysis of Variance test](http://en.wikipedia.org/wiki/Analysis_of_variance)
 also described [here](http://www.statsoft.com/textbook/anova-manova/)
 
@@ -151,13 +127,9 @@ are as defined [here](http://faculty.vassar.edu/lowry/ch13pt1.html)
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num anovaFValue(list[list[num]] categoryData);
 
-@doc{
-#### Synopsis
 
-Analysis of Variance (ANOVA) p-value.
-
-#### Description
-
+@synopsis{Analysis of Variance (ANOVA) p-value.}
+@description{
 Perform [Analysis of Variance test](http://en.wikipedia.org/wiki/Analysis_of_variance)
 also described [here](http://www.statsoft.com/textbook/anova-manova/)
 
@@ -167,13 +139,9 @@ where `F` is the ((anovaFValue)).
 @javaClass{org.rascalmpl.library.analysis.statistics.Inferences}
 public java num anovaPValue(list[list[num]] categoryData);
 
-@doc{
-#### Synopsis
 
-Analysis of Variance (ANOVA) test.
-
-#### Description
-
+@synopsis{Analysis of Variance (ANOVA) test.}
+@description{
 Perform [Analysis of Variance](http://en.wikipedia.org/wiki/Analysis_of_variance)
 also described [here](http://www.statsoft.com/textbook/anova-manova/)
 
@@ -186,22 +154,17 @@ where `F` is the ((anovaFValue)).
 public java bool anovaTest(list[list[num]] categoryData, num alpha);
 
 
-@doc{
-#### Synopsis
 
-Gini coefficient.
-
-#### Description
-
+@synopsis{Gini coefficient.}
+@description{
 Computes the [Gini Coefficient](http://en.wikipedia.org/wiki/Gini_coefficient)
 that measures the inequality among values in a frequency distribution.
 
 The Gini coefficient is computed using Deaton's formula and returns a
 value between 0 (completely equal distribution) and
 1 (completely unequal distribution).
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import analysis::statistics::Inference;
 ```

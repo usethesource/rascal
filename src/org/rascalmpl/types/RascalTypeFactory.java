@@ -11,9 +11,12 @@
 *******************************************************************************/
 package org.rascalmpl.types;
 
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
@@ -27,6 +30,12 @@ public class RascalTypeFactory {
 	}
 	 
 	public Type nonTerminalType(IConstructor cons) {
+		if (SymbolAdapter.isADT(cons)) {
+			// TODO: what if the ADT has parameters?
+			return TypeFactory.getInstance().abstractDataType(
+				new TypeStore(), 
+				SymbolAdapter.getName(cons));
+		}
 		return tf.externalType(new NonTerminalType(cons));
 	}
 	

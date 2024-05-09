@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
@@ -39,6 +38,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
@@ -103,6 +103,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             if (currentCommand == null) {
                 // we are still at a new command so let's see if the line is a full command
                 if (isStatementComplete(line)) {
+                
                     printResult(evalStatement(line, line), output, metadata);
                 }
                 else {
@@ -209,7 +210,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         // now we need some HTML to show
         String URL = "http://localhost:" + server.getListeningPort() + "/";
         
+        IWithKeywordParameters<? extends IConstructor> kp = provider.asWithKeywordParameters();
+
         metadata.put("url", URL);
+        metadata.put("title", kp.hasParameter("title") ? ((IString) kp.getParameter("title")).getValue() : id);
+        metadata.put("viewColumn", kp.hasParameter("viewColumn") ? kp.getParameter("title").toString() : "1");
 
         output.put("text/plain", stringStream("Serving \'" + id + "\' at |" + URL + "|\n"));
         output.put("text/html", stringStream("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>"));
@@ -233,15 +238,19 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     indentedPrettyPrinter.write(value, wrt);
                 }
-                catch (IOLimitReachedException e) {
+                catch (/*IOLimitReachedException*/ RuntimeException e) {
                     // ignore since this is what we wanted
+                    // if we catch IOLimitReachedException we get an IllegalArgument exception instead
+                    // "Self-suppression not permitted"
                 }
                 w.write("\n---\n");
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     ((IString) value).write(wrt);
                 }
-                catch (IOLimitReachedException e) {
+                catch (/*IOLimitReachedException*/ RuntimeException e) {
                     // ignore since this is what we wanted
+                    // if we catch IOLimitReachedException we get an IllegalArgument exception instead
+                    // "Self-suppression not permitted"
                 }
                 w.write("\n---");
             });
@@ -252,8 +261,10 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     indentedPrettyPrinter.write(value, wrt);
                 }
-                catch (IOLimitReachedException e) {
+                catch (/*IOLimitReachedException*/ RuntimeException e) {
                     // ignore since this is what we wanted
+                    // if we catch IOLimitReachedException we get an IllegalArgument exception instead
+                    // "Self-suppression not permitted"
                 }
             });
         }

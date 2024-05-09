@@ -19,11 +19,9 @@ import lang::smtlib2::command::Ast;
 import lang::smtlib2::command::response::Implode;
 import lang::smtlib2::command::response::Ast;
 
-@doc{
-	Starts the Z3 solver.
+@synopsis{Starts the Z3 solver.
 	To run the solver the path to Z3 needs to be configure either by adding the `-Dsolver.z3.path=<local.path.to.z3>` to your eclipse.ini configuration or by supplying it 
-	when you call the solver using the keyword parameter 'pathToZ3'
-}
+	when you call the solver using the keyword parameter 'pathToZ3'}
 PID startZ3(str pathToZ3 = getSystemProperty("solver.z3.path")) { 
 	pid = createProcess("<pathToZ3>/bin/z3", args = ["-smt2", "-in"]);
 	// The print-success option is needed so that each entered statement returns a result. This way we have a predictable inputstream that we can read

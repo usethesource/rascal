@@ -11,13 +11,15 @@
 module util::ShellExec
 
 @synopsis{Start a new external process.}
-@deprecrated{Use the createProcess function that takes `loc` for processCommand for better portability behavior between operating systems.}
+@deprecrated{
+Use the createProcess function that takes `loc` for processCommand for better portability behavior between operating systems.
+}
 @javaClass{org.rascalmpl.library.util.ShellExec}
 java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
 
 @synopsis{Start a new external process.}
 @description{
-The file schemes that are allowed for the `processCommand`` are limited to the `file:///` schemes
+The file schemes that are allowed for the `processCommand` are limited to the `file:///` schemes
 and all logical schemes that directly resolve to `file:///` such as `cwd:///` and `tmp:///`.
 `PATH:///` is also a handy scheme for `processCommand` since it searches for the binary/script
 in the underlying system's search path.
@@ -31,8 +33,10 @@ For environment variables in `envVars` the same treatment is given to convert va
 @javaClass{org.rascalmpl.library.util.ShellExec}
 java PID createProcess(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] envVars = ());
 
-@synopis{start, run and kill an external process returning its output as a string.}
-@deprecrated{Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.}
+@synopsis{start, run and kill an external process returning its output as a string.}
+@deprecrated{
+Use the `exec`` function that takes `loc` for processCommand for better portability behavior between operating systems.
+}
 str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
@@ -40,7 +44,7 @@ str exec(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[
    return result;
 }
 
-@synopis{start, run and kill an external process returning its output as a string.}
+@synopsis{start, run and kill an external process returning its output as a string.}
 str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
    pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
    result = readEntireStream(pid);
@@ -48,7 +52,9 @@ str exec(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], ma
    return result;
 }
 
-@deprecrated{Use the `execWithCode` function that takes `loc` for processCommand for better portability behavior between operating systems.}
+@deprecrated{
+Use the `execWithCode` function that takes `loc` for processCommand for better portability behavior between operating systems.
+}
 tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str, str] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);
@@ -58,7 +64,7 @@ tuple[str output, int exitCode] execWithCode(str processCommand, loc workingDir=
     return <result, exitCode(pid)>;
 }
 
-@synopis{start, run and kill an external process returning its output as a string with an exit code.}
+@synopsis{start, run and kill an external process returning its output as a string with an exit code.}
 tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=|cwd:///|, list[value] args = [], map[str, value] env = ()) {
     pid = createProcess(processCommand, workingDir=workingDir, args=args, envVars=env);
     result = readEntireStream(pid);

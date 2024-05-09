@@ -12,7 +12,7 @@
 
 module lang::aterm::IO
 
-@doc{read an ATerm from a text file}
+@synopsis{read an ATerm from a text file}
 @javaClass{org.rascalmpl.library.lang.aterm.IO}
 public java &T readTextATermFile(type[&T] begin, loc location);
 
@@ -20,16 +20,12 @@ public value readTextATermFile(loc location) {
   return readTextATermFile(#value, location);
 }
 
-@doc{
-#### Synopsis
 
-Read an ATerm from a named file.
-
-}
+@synopsis{Read an ATerm from a named file.}
 
 @javaClass{org.rascalmpl.library.lang.aterm.IO}
 public java value readATermFromFile(str fileName);
 
-@doc{write an ATerm to a text file}
+@synopsis{write an ATerm to a text file}
 @javaClass{org.rascalmpl.library.lang.aterm.IO}
 public java void writeTextATermFile(loc location, value v);

@@ -160,10 +160,23 @@ public class SourceLocationClassLoader extends ClassLoader {
     public Enumeration<URL> getResources(String name) throws IOException {
         List<URL> result = new ArrayList<>(path.size());
         
+
         for (ClassLoader l : path) {
-            Enumeration<URL> e = l.getResources(name);
-            while (e.hasMoreElements()) {
-                result.add(e.nextElement());
+            SearchItem item = new SearchItem(l, name);
+
+            if (stack.contains(item)) {
+                continue;
+            }
+            try {
+                stack.push(item);
+                
+                Enumeration<URL> e = l.getResources(name);
+                while (e.hasMoreElements()) {
+                    result.add(e.nextElement());
+                }
+            }
+            finally {
+                stack.pop();
             }
         }
         

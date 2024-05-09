@@ -45,7 +45,7 @@ may expect problems. The registry is not automatically invalidated.
 @javaClass{org.rascalmpl.library.Prelude}
 java void registerLocations(str scheme, str authority, map[loc logical, loc physical] m);
 
-@doc{Undo the effect of ((registerLocations))}
+@synopsis{Undo the effect of ((registerLocations))}
 @description{
 For debugging or for memory management you may wish to remove a lookup table.
 }
@@ -55,6 +55,81 @@ java void unregisterLocations(str scheme, str authority);
 @javaClass{org.rascalmpl.library.Prelude}
 java loc resolveLocation(loc l);
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Finds files in the deployment locations of the configuration of the current runtime}
+@description{
+* For the interpreter this looks at the source path and finds any file in there.
+* For the compiler this looks at the classpath and finds resources in there.  
+
+The goal of `findResources` is to access additional files that are distributed
+with a Rascal program. For example, the `index.html` file that comes with a server implemented
+using ((util::Webserver)) would be located using this function. Such an additional file is
+essential to the functioning of the given Rascal code.
+
+There is a difference between Rascal programs under development and Rascal programs deployed
+(in a jar file). The idea is that calls to this function _behave the same_ regardless of this 
+mode. To make this true, the implementation of `findResources` makes the following
+assumptions:
+* In interpreter mode, the additional files are stored relative to the source roots of the current project. 
+This means that all source roots are searched as configured for the current interpreter. It is possible
+that multiple files match the query, hence the result set. Because jar files and target folders are typically
+added to the source roots by the configuration code for Rascal's IDEs, this works out smoothly also for deployed projects.
+* In compiled mode, the additional files are stored relative to the roots of the classpath. This 
+means they are jar files and target folders of active projects. Your Maven project configuration should
+take care to _copy_ all relevant resources from source folders to target folders and to package those
+relative to the root of the jar for this to work in development mode. For deployment mode, the setup 
+works through the resources API of the JVM that uses the Java ClassLoader API.
+}
+@benefits{
+By satisfying the above two assumptions it is possible to write Rascal code that uses `findResources` that
+is portable between interpreter and compiled mode, _and_ does not change between development
+and deployed mode either.
+}
+@pitfalls{
+* Avoid nesting resources in sub-folders in jar files (see Maven resources plugin) since nested files will not be found.
+* Inside jar files the root for module names should be the same as for resources
+* Inside source folders, the names of resources should be relative to the same root as the Rascal module names
+* `findResources` searches exhaustively for all files with the given name; which may come at an expensive for projects with
+large search paths. It makes sense to keep this in a constant module variable that is initialized only once.
+* Name clashes are bound to happen. Prepare to, at least, throw a meaningful error message in the case of name clashes. E.g. `findResources("index.html")`
+is _very_ likely to produce more than one result. Either choose more unique names, or filter the result in a meaningful manner,
+or throw an exception that explains the situation to the user of your code. Specifically library project maintainers have to consider
+this happenstance. The recommendation is to nest resources next to qualified module names, like so: if `lang/x/myLanguage/Syntax.rsc` 
+is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an example resource location.
+}
+java set[loc] findResources(str fileName);
+set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
+
+@synopsis{Search for a single resource instance, and fail if no or multiple instances are found}
+@description{
+This is a utility wrapper around ((findResources)).
+It processes the result set of ((findResources)) to:
+* return a singleton location if the `fileName`` was found.
+* throw an IO exception if no instances of `fileName` was found.
+* throw an IO exception if multiple instances of `fileName` were found.
+}
+@benefits{
+* Save some code to unpack of the set that ((findResources)) produces.
+}
+@pitfalls{
+* ((getResource)) searches for all instances in the entire run-time context of the current 
+module. So if the search path (classpath) grows, new similar files may be added that match and this
+function will start throwing IO exceptions. If you can influence the `fileName`, then make sure
+to pick a name that is always going to be unique for the current project. 
+}
+loc getResource(str fileName) throws IO {
+  result = findResources(fileName);
+
+  switch (result) {
+    case {}: 
+      throw IO("<fileName> not found");
+    case {loc singleton}: 
+      return singleton;
+    default:
+      throw IO("<fileName> found more than once: <result>");
+  }
+}
+ 
 @synopsis{Append a value to a file.}
 @description{
 Append a textual representation of some values to an existing or a newly created file:
@@ -85,7 +160,9 @@ Append a textual representation of some values to an existing or a newly created
 
 Files are encoded using the charset provided.
 }
-@deprecated{Use `appendToFile(file, V, charset=DEFAULT_CHARSET)` instead.}
+@deprecated{
+Use `appendToFile(file, V, charset=DEFAULT_CHARSET)` instead.
+}
 public void appendToFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
   = appendToFile(file, V, charset=charset, inferCharset=false);
 
@@ -115,9 +192,10 @@ public bool bprintln(value arg)
 }
 
 @synopsis{Check whether a given location exists.}
-@description{Check whether a certain location exists, i.e., whether an actual file is associated with it.}
+@description{
+Check whether a certain location exists, i.e., whether an actual file is associated with it.
+}
 @examples{
-
 ```rascal-shell
 import IO;
 ```
@@ -188,17 +266,12 @@ public java void iprintToFile(loc file, value arg, str charset=DEFAULT_CHARSET);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str iprintToString(value arg);
 
-@doc{
-#### Synopsis
 
-Print an indented representation of a value and returns the value as result.
-
-#### Description
-
+@synopsis{Print an indented representation of a value and returns the value as result.}
+@description{
 See ((IO-iprintlnExp)) for a version that adds a newline.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 iprintExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -209,17 +282,12 @@ public &T iprintExp(&T v) {
 	return v;
 }
 
-@doc{
-#### Synopsis
 
-Print an indented representation of a value followed by a newline and returns the value as result.
-
-#### Description
-
+@synopsis{Print an indented representation of a value followed by a newline and returns the value as result.}
+@description{
 See ((IO-iprintExp)) for a version that does not add a newline.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 iprintlnExp(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -231,21 +299,16 @@ public &T iprintlnExp(&T v) {
 }
 
 
-@doc{
-#### Synopsis
 
-Print a indented representation of a value and add a newline at the end.
-
-#### Description
-
+@synopsis{Print a indented representation of a value and add a newline at the end.}
+@description{
 See ((IO-iprintlnExp)) for a version that returns its argument as result
 and ((IO-iprint)) for a version that does not add a newline.
 
 By default we only print the first 1000 lines, if you want to print larger values, either 
 use ((ValueIO-writeTextValueFile)) or change the limit with the lineLimit parameter.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
@@ -255,30 +318,21 @@ iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintln(value arg, int lineLimit = 1000); 
 
-@doc{
-#### Synopsis
 
-Check whether a given location is actually a file (and not a directory).
-
-#### Description
-
+@synopsis{Check whether a given location is actually a file (and not a directory).}
+@description{
 Check whether location `file` is actually a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java bool isFile(loc file);
 
 
-@doc{
-#### Synopsis
 
-Last modification date of a location.
-
-#### Description
-
+@synopsis{Last modification date of a location.}
+@description{
 Returns last modification time of the file at location `file`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 ```
@@ -290,17 +344,12 @@ lastModified(|std:///IO.rsc|);
 @javaClass{org.rascalmpl.library.Prelude}
 public java datetime lastModified(loc file);
 
-@doc{
-#### Synopsis
 
-Creation datetime of a location.
-
-#### Description
-
+@synopsis{Creation datetime of a location.}
+@description{
 Returns the creation time of the file at location `file`.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 ```
@@ -313,38 +362,27 @@ created(|std:///IO.rsc|);
 public java datetime created(loc file);
 
 
-@doc{
-#### Synopsis
 
-Set the modification date of a file to `now` or create the file if it did not exist yet
- }
+@synopsis{Set the modification date of a file to `now` or create the file if it did not exist yet}
 @javaClass{org.rascalmpl.library.Prelude}
 java void touch(loc file);
 
-@doc{ 
-#### Synopsis
 
-Set the modification date of a file to the timestamp
- }
+@synopsis{Set the modification date of a file to the timestamp}
 @javaClass{org.rascalmpl.library.Prelude}
 java void setLastModified(loc file, datetime timestamp);
 
-@doc{
-#### Synopsis
 
-List the entries in a directory.
-
-#### Description
-
+@synopsis{List the entries in a directory.}
+@description{
 List the entries in directory `file`.
-
-#### Examples
-
-```rascal-shell,error
+}
+@examples{
+```rascal-shell
 import IO;
 ```
 List all entries in the standard library:
-```rascal-shell,continue,error
+```rascal-shell,continue
 listEntries(|std:///|);
 ```
 }
@@ -352,33 +390,23 @@ listEntries(|std:///|);
 public java list[str] listEntries(loc file);
 
 
-@doc{
-#### Synopsis
 
-Create a new directory.
-
-#### Description
-
+@synopsis{Create a new directory.}
+@description{
 Create a directory at location `file`.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void mkDirectory(loc file)
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
 
-Print a value without subsequent newline.
-
-#### Description
-
+@synopsis{Print a value without subsequent newline.}
+@description{
 Print a value on the output stream.
 See ((IO-println)) for a version that adds a newline
 and ((IO-printExp)) for a version that returns its argument as value.
-
-
-#### Examples
-
+}
+@examples{
 Note that the only difference with ((IO-println)) is that no newline is added after the value is printed
 ```rascal-shell
 import IO;
@@ -392,13 +420,9 @@ glued to the output of `print`.
 @javaClass{org.rascalmpl.library.Prelude}
 public java void print(value arg);
 
-@doc{
-#### Synopsis
 
-Print a value and return it as result.
-
-#### Examples
-
+@synopsis{Print a value and return it as result.}
+@examples{
 ```rascal-shell
 import IO;
 printExp(3.14);
@@ -415,19 +439,14 @@ public &T printExp(str msg, &T v) {
 	return v;
 }
 
-@doc{
-#### Synopsis
 
-Print a value to the output stream and add a newline.
-
-#### Description
-
+@synopsis{Print a value to the output stream and add a newline.}
+@description{
 Print a value on the output stream followed by a newline.
 See ((IO-print)) for a version that does not add a newline
 and ((IO-printlnExp)) for a version that returns its argument as value.
-
-#### Examples
-
+}
+@examples{
 ```rascal-shell
 import IO;
 println("Hello World");
@@ -457,13 +476,9 @@ public java void println(value arg);
 @javaClass{org.rascalmpl.library.Prelude}
 public java void println();
 
-@doc{
-#### Synopsis
 
-Print a value followed by a newline and return it as result.
-
-#### Examples
-
+@synopsis{Print a value followed by a newline and return it as result.}
+@examples{
 ```rascal-shell
 import IO;
 printlnExp(3.14);
@@ -482,53 +497,41 @@ public &T printlnExp(str msg, &T v) {
 	return v;
 }
 
-@doc{
-#### Synopsis
 
-Raw print of a value.
+@synopsis{Raw print of a value.}
+@description{
 
-#### Description
-
-
-#### Pitfalls
-
+}
+@pitfalls{
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void rprint(value arg);
 
     
-@doc{
-#### Synopsis
 
-Raw print of a value followed by newline.
+@synopsis{Raw print of a value followed by newline.}
+@description{
 
-#### Description
-
-#### Pitfalls
-
+}
+@pitfalls{
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void rprintln(value arg);
 
-@doc{
-#### Synopsis
 
-Read the contents of a location and return it as string value.
-
-#### Description
-
+@synopsis{Read the contents of a location and return it as string value.}
+@description{
 Return the contents of a file location as a single string.
 Also see ((readFileLines)).
-
-#### Encoding
-
+}
+@encoding{
 A text file can be encoded in many different character sets, most common are UTF8, ISO-8859-1, and ASCII.
 If you know the encoding of the file, please use the ((readFileEnc)) and ((readFileLinesEnc)) overloads.
 If you do not know, we try to detect this. This detection is explained below:
 
-*  If the implementation of the used scheme in the [location]((Rascal:Values-Location)) 
+*  If the implementation of the used scheme in the location
    (e.g.,`|project:///|`) defines the charset of the file then this is used.
 *  Otherwise if the file contains a UTF8/16/32 [BOM](http://en.wikipedia.org/wiki/Byte_order_mark),
    then this is used.
@@ -537,15 +540,13 @@ If you do not know, we try to detect this. This detection is explained below:
    **  Are the first 32 bytes valid UTF-32? Then use UTF-32.
 *  Finally, we fall back to the system default (as given by the Java Runtime Environment).
 
-*To summarize*, we use UTF-8 by default, except if the [location]((Rascal:Values-Location)) has available meta-data, the file contains a BOM, or
+*To summarize*, we use UTF-8 by default, except if the text that the location points to has available meta-data, the file contains a BOM, or
 the first 32 bytes of the file are not valid UTF-8.
-
-#### Pitfalls
-
+}
+@pitfalls{
 *  In case encoding is not known, we try to estimate as best as we can.
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters.
-
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str readFile(loc file, str charset=DEFAULT_CHARSET, bool inferCharset=!(charset?))
@@ -556,7 +557,9 @@ throws PathNotFound, IO;
 Return the contents (decoded using the Character set supplied) of a file location as a single string.
 Also see ((readFileLinesEnc)).
 }
-@deprecated{Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.}
+@deprecated{
+Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
+}
 public str readFileEnc(loc file, str charset) throws PathNotFound, IO
   = readFile(file, inferCharset=false, charset=charset);
 
@@ -564,42 +567,37 @@ public str readFileEnc(loc file, str charset) throws PathNotFound, IO
 public java str readBase64(loc file)
 throws PathNotFound, IO;
 
-@deprecated{Use readBase64 instead. Uuencode was a misnomer.}
+@deprecated{
+Use readBase64 instead. Uuencode was a misnomer.
+}
 public str uuencode(loc file) = readBase64(file);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
-@deprecated{Use writeBase65 instead. Uudecode was a misnomer.}
+@deprecated{
+Use writeBase65 instead. Uudecode was a misnomer.
+}
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
-@doc{
-#### Synopsis
 
-Read the contents of a file and return it as a list of bytes.
-}
+@synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[int] readFileBytes(loc file)
 throws PathNotFound, IO;
 
 
-@doc{
-#### Synopsis
 
-Read the contents of a file location and return it as a list of strings.
-
-#### Description
-
+@synopsis{Read the contents of a file location and return it as a list of strings.}
+@description{
 Return the contents of a file location as a list of lines.
 Also see ((readFile)).
-
-#### Encoding
-
+}
+@encoding{
 Look at ((readFile)) to understand how this function chooses the character set. If you know the character set used, please use ((readFileLinesEnc)).
-
-#### Pitfalls
-
+}
+@pitfalls{
 *  In case encoding is not known, we try to estimate as best as we can (see [readFile]).
 *  We default to UTF-8, if the file was not encoded in UTF-8 but the first characters were valid UTF-8, 
   you might get an decoding error or just strange looking characters (see ((readFile))).
@@ -610,10 +608,10 @@ throws PathNotFound, IO;
 
 @synopsis{Writes a list of strings to a file, where each separate string is ended with a newline}
 @benefits{
-  * mirrors ((readFileLines)) in its functionality
+* mirrors ((readFileLines)) in its functionality
 }
 @pitfalls{
-  * if the individual elements of the list also contain newlines, the output may have more lines than list elements
+* if the individual elements of the list also contain newlines, the output may have more lines than list elements
 }
 public void writeFileLines(loc file, list[str] lines, str charset=DEFAULT_CHARSET) {
   writeFile(file, "<for (str line <- lines) {><line>
@@ -626,7 +624,9 @@ public void writeFileLines(loc file, list[str] lines, str charset=DEFAULT_CHARSE
 Return the contents (decoded using the Character set supplied) of a file location as a list of lines.
 Also see ((readFileLines)).
 }
-@deprecated{Use `readFileLines(file, charset=DEFAULT_CHARSET)` instead.}
+@deprecated{
+Use `readFileLines(file, charset=DEFAULT_CHARSET)` instead.
+}
 public list[str] readFileLinesEnc(loc file, str charset)
 throws PathNotFound, IO
   = readFileLines(file, charset=charset);
@@ -635,13 +635,9 @@ throws PathNotFound, IO
 @javaClass{org.rascalmpl.library.Prelude}
 public java void remove(loc file, bool recursive=true) throws IO;
 
-@doc{
-#### Synopsis
 
-Write values to a file.
-
-#### Description
-
+@synopsis{Write values to a file.}
+@description{
 Write a textual representation of some values to a file:
 
 *  If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -660,13 +656,9 @@ throws PathNotFound, IO;
 public java void writeFileBytes(loc file, list[int] bytes)
 throws PathNotFound, IO;
 
-@doc{
-#### Synopsis
 
-Write values to a file.
-
-#### Description
-
+@synopsis{Write values to a file.}
+@description{
 Write a textual representation of some values to a file:
 
 *  If a value is a simple string, the quotes are removed and the contents are de-escaped.
@@ -676,17 +668,15 @@ Write a textual representation of some values to a file:
 
 Files are encoded using the charset provided.
 }
-@deprecated{Use `writeFile(file, charset=...)` instead.}
+@deprecated{
+Use `writeFile(file, charset=...)` instead.
+}
 public void writeFileEnc(loc file, str charset, value V...) throws PathNotFound, IO
   = writeFile(file, V, charset=charset);
 
-@doc{
-#### Synopsis
 
-Read the contents of a location and return its MD5 hash.
-
-#### Description
-
+@synopsis{Read the contents of a location and return its MD5 hash.}
+@description{
 MD5 hash the contents of a file location.
 }
 
@@ -708,12 +698,16 @@ throws PathNotFound, IO;
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
-@deprecated{use the `copy` function instead}
+@deprecated{
+use the `copy` function instead
+}
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
-@deprecated{use the `copy` function instead}
+@deprecated{
+use the `copy` function instead
+}
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);
 }

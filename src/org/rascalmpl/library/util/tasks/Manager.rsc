@@ -9,7 +9,9 @@
 module util::tasks::Manager
 
 alias Task[&T,&N] = bool (Transaction tr, type[&T] key, &N name);
-@reflect{Needs access to context in order to reify types when calling producer.}
+@reflect{
+Needs access to context in order to reify types when calling producer.
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void registerProducer(Task[&T,&N] producer, set[value] keys);
 //public void registerProducer(&T (Transaction tr, type[&T] key, &N name) producer, set[value] keys) {
@@ -19,9 +21,9 @@ public java void registerProducer(Task[&T,&N] producer, set[value] keys);
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void unregisterProducer(Task[&T,&N] producer);
 
-@doc{Lock the producer registry ‚Äì use this before adding/removing a
+@synopsis{Lock the producer registry ‚Äì use this before adding/removing a
 	set of related producers. Remember to enclose the critical section in
-	try { ...¬†} finally { unlockProducerRegistry(); } }
+	try { ...¬†} finally { unlockProducerRegistry(); }}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 private java void lockProducerRegistry();
 
@@ -41,11 +43,15 @@ public void registryTransaction(void() f) {
 alias Transaction = value;
 alias Fact = value;
 
-@reflect{Access to evaluator's error stream}
+@reflect{
+Access to evaluator's error stream
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java Transaction startTransaction();
 
-@reflect{Access to evaluator's error stream}
+@reflect{
+Access to evaluator's error stream
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java Transaction startTransaction(Transaction parent);
 
@@ -56,11 +62,15 @@ public java void endTransaction(Transaction tr);
 public java void abandonTransaction(Transaction tr);
 
 
-@reflect{For producing exceptions with stack traces}
+@reflect{
+For producing exceptions with stack traces
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java &T getFact(Transaction tr, type[&T] key, value name);
 
-@reflect{For producing exceptions with stack traces}
+@reflect{
+For producing exceptions with stack traces
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java &T queryFact(Transaction tr, type[&T] key, value name);
 
@@ -74,11 +84,15 @@ public bool hasFact(Transaction tr, type[&T] key, value name) {
     
 }
 
-@reflect{For producing exceptions with stack traces}
+@reflect{
+For producing exceptions with stack traces
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java void removeFact(Transaction tr, type[&T] key, value name);
 
-@reflect{For producing exceptions with stack traces}
+@reflect{
+For producing exceptions with stack traces
+}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java Fact setFact(Transaction tr, type[&T] key, value name, &T val);
 

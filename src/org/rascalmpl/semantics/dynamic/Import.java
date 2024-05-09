@@ -58,6 +58,7 @@ import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
@@ -65,6 +66,7 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -88,7 +90,7 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 
 public abstract class Import {
-	
+	private static final ThreadLocal<ASTBuilder> builder = ThreadLocal.withInitial(() -> new ASTBuilder());
 	static public class External extends org.rascalmpl.ast.Import.External {
 
 		public External(ISourceLocation src, IConstructor node, QualifiedName name,
@@ -291,55 +293,60 @@ public abstract class Import {
 	
 	public static ModuleEnvironment loadModule(ISourceLocation x, String name, IEvaluator<Result<IValue>> eval) {
 	    GlobalEnvironment heap = eval.getHeap();
+      String jobName = IEvaluator.LOADING_JOB_CONSTANT;
 
-	    ModuleEnvironment env = heap.getModule(name);
-	    if (env == null) {
-	        env = new ModuleEnvironment(name, heap);
-	        heap.addModule(env);
+	    ModuleEnvironment m = heap.getModule(name);
+	    if (m == null) {
+	        m = new ModuleEnvironment(name, heap);
+	        heap.addModule(m);
 	    }
+      final ModuleEnvironment env = m;
 
-	    try {
-	        ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
-	        if (uri == null) {
-	            throw new ModuleImport(name, "can not find in search path", x);
-	        }
-	        Module module = buildModule(uri, env, eval);
+      ISourceLocation uri = eval.getRascalResolver().resolveModule(name);
 
-	        if (isDeprecated(module)) {
-	            eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
-	        }
+      try {
+          eval.jobTodo(jobName, 1);
+          if (uri == null) {
+              throw new ModuleImport(name, "can not find in search path", x);
+          }
+          Module module = buildModule(uri, env, eval, jobName);
 
-	        if (module != null) {
-	            String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
-	            if (!internalName.equals(name)) {
-	                throw new ModuleNameMismatch(internalName, name, x);
-	            }
-	            heap.setModuleURI(name, module.getLocation().getURI());
+          if (isDeprecated(module)) {
+              eval.getErrorPrinter().println("WARNING: deprecated module " + name + ":" + getDeprecatedMessage(module));
+          }
 
-	            module.interpret(eval);
+          if (module != null) {
+              String internalName = org.rascalmpl.semantics.dynamic.Module.getModuleName(module);
+              if (!internalName.equals(name)) {
+                  throw new ModuleNameMismatch(internalName, name, x);
+              }
+              heap.setModuleURI(name, module.getLocation().getURI());
 
-	            return env;
-	        }
-	    }
-	    catch (SyntaxError e) {
-	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-	        throw e;
-	    }
-	    catch (StaticError e) {
-	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-	        throw e;
-	    }
-	    catch (Throw  e) {
-	        handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
-	        throw e;
-	    } catch (Throwable e) {
-	        handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
-	        e.printStackTrace();
-	        throw new ModuleImport(name, e.getMessage(), x);
-	    } 
+              module.interpret(eval);
+          }
+      }
+      catch (SyntaxError e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
+      }
+      catch (StaticError e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
+      }
+      catch (Throw  e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), e.getLocation(), x);
+          throw e;
+      } 
+      catch (Throwable e) {
+          handleLoadError(heap, env, eval, name, e.getMessage(), x, x);
+          e.printStackTrace();
+          throw new ModuleImport(name, e.getMessage(), x);
+      } 
+      finally {
+          eval.jobStep(jobName, name, 1);
+      }
 
-	    heap.removeModule(env);
-	    throw new ImplementationError("Unexpected error while parsing module " + name + " and building an AST for it ", x);
+      return env;
 	}
   
   private static void handleLoadError(GlobalEnvironment heap, ModuleEnvironment env, IEvaluator<Result<IValue>> eval,
@@ -368,20 +375,14 @@ private static boolean isDeprecated(Module preModule){
     return "";
   }
   
-  private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval) throws IOException {
-      try {
-          eval.jobStart("Loading module " + uri, 10);
-          ITree tree = eval.parseModuleAndFragments(eval, uri);
+  private static Module buildModule(ISourceLocation uri, ModuleEnvironment env,  IEvaluator<Result<IValue>> eval, String jobName) throws IOException {
+      ITree tree = eval.parseModuleAndFragments(eval, uri, jobName);
 
-          return getBuilder().buildModule(tree);
-      }
-      finally {
-          eval.jobEnd("Loading module " + uri, true);
-      }
+      return getBuilder().buildModule(tree);
   }
   
   private static ASTBuilder getBuilder() {
-    return new ASTBuilder();
+    return builder.get();
   }
 
   private static void addImportToCurrentModule(ISourceLocation src, String name, IEvaluator<Result<IValue>> eval) {
@@ -394,11 +395,21 @@ private static boolean isDeprecated(Module preModule){
     current.setSyntaxDefined(current.definesSyntax() || module.definesSyntax());
   }
   
-  public static ITree parseModuleAndFragments(char[] data, ISourceLocation location, IEvaluator<Result<IValue>> eval){
+  public static ITree parseModuleAndFragments(char[] data, ISourceLocation location, String jobName, IEvaluator<Result<IValue>> eval) {
       eval.__setInterrupt(false);
       IActionExecutor<ITree> actions = new NoActionExecutor();
+      ITree tree;
 
-      ITree tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+      try {
+        eval.jobTodo(jobName, 1);
+        tree = new RascalParser().parse(Parser.START_MODULE, location.getURI(), data, actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
+      } 
+      catch (ParseError e) {
+        throw new SyntaxError("module", IRascalValueFactory.getInstance().sourceLocation(location, e.getOffset(), e.getLength(), e.getBeginLine(), e.getEndLine(), e.getBeginColumn(), e.getEndColumn()));
+      }
+      finally {
+        eval.jobStep(jobName, "parsed " + URIUtil.getLocationName(location), 1);
+      }
 
       if (TreeAdapter.isAmb(tree)) {
           // Ambiguity is dealt with elsewhere
@@ -429,23 +440,31 @@ private static boolean isDeprecated(Module preModule){
           
           eval.getCurrentModuleEnvironment().clearProductions();
           ISet rules = Modules.getSyntax(top);
+          eval.getMonitor().jobTodo(jobName, rules.size());
           for (IValue rule : rules) {
               evalImport(eval, (IConstructor) rule);
+              eval.getMonitor().jobStep(jobName, "defining syntax for " + name, 1);
           }
 
           ISet imports = Modules.getImports(top);
+          eval.getMonitor().jobTodo(jobName, imports.size());
           for (IValue mod : imports) {
               evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(jobName, "importing for " + name, 1);
           }
 
           ISet extend = Modules.getExtends(top);
+          eval.getMonitor().jobTodo(jobName, extend.size());
           for (IValue mod : extend) {
               evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(jobName, "extending for " + name, 1);
           }
 
           ISet externals = Modules.getExternals(top);
+          eval.getMonitor().jobTodo(jobName, externals.size());
           for (IValue mod : externals) {
               evalImport(eval, (IConstructor) mod);
+              eval.getMonitor().jobStep(jobName, "external importing for " + name, 1);
           }
       }
       finally {
@@ -454,29 +473,49 @@ private static boolean isDeprecated(Module preModule){
 
       // parse the embedded concrete syntax fragments of the current module
       ITree result = tree;
-      if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
-          RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-          IFunction parsers = null;
-          
-          if (env.getBootstrap()) {
-             parsers = vf.bootstrapParsers();
-          }
-          else {
-            IConstructor dummy = TreeAdapter.getType(tree); // I just need _any_ ok non-terminal
-            IMap syntaxDefinition = env.getSyntaxDefinition();
-            IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
-            IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-            parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
-          }
-      
-          result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
-      }
+      try {
+        if (!eval.getHeap().isBootstrapper() && (needBootstrapParser(data) || (env.definesSyntax() && containsBackTick(data, 0)))) {
+            RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
+            URIResolverRegistry reg = URIResolverRegistry.getInstance();
+            ISourceLocation parserCacheFile = URIUtil.changeExtension(location, "parsers");
 
+            IFunction parsers = null;
+            
+            if (env.getBootstrap()) {
+              // no need to generste a parser for the Rascal language itself
+              parsers = vf.bootstrapParsers();
+            }
+            else if (reg.exists(parserCacheFile)) {
+              // if we cached a ModuleFile.parsers file, we will use the parser from that (typically after deployment time)
+              parsers = vf.loadParsers(parserCacheFile, vf.bool(false),vf.bool(false),vf.bool(false), vf.set());
+            }
+            else {
+              // otherwise we have to generate a fresh parser for this module now
+              IConstructor dummy = TreeAdapter.getType(tree); // I just need _any_ ok non-terminal
+              IMap syntaxDefinition = env.getSyntaxDefinition();
+              IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
+              IConstructor reifiedType = vf.reifiedType(dummy, grammar);
+              parsers = vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+            }
+        
+            try {
+              eval.getMonitor().jobTodo(jobName, 1);
+              result = parseFragments(vf, eval.getMonitor(), parsers, tree, location, env);
+            }
+            finally {
+              eval.getMonitor().jobStep(jobName, "parsed concrete fragments", 1);
+            }
+        }
+      }
+      catch (URISyntaxException | ClassNotFoundException | IOException e) {
+        eval.warning("reusing parsers failed during module import: " + e.getMessage(), env.getLocation());
+      }
+      
       return result;
   } 
   
   private static void declareTypesWhichDoNotNeedImportedModulesAlready(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree top) {
-      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top);
+      List<org.rascalmpl.ast.Toplevel> decls = Modules.getTypeDeclarations(top, getBuilder());
 
       eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), true);
   }
@@ -484,7 +523,7 @@ private static boolean isDeprecated(Module preModule){
 public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod) {
 	  org.rascalmpl.ast.Import imp = (org.rascalmpl.ast.Import) getBuilder().buildValue(mod);
 	  try {
-		  imp.interpret(eval);
+		    imp.interpret(eval);
 	  }
 	  catch (Throw rascalException) {
 		  eval.getEvaluator().warning(rascalException.getMessage(), rascalException.getLocation());
@@ -524,7 +563,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
            IListWriter w = vf.listWriter();
            IList args = TreeAdapter.getArgs(tree);
            for (IValue arg : args) {
-             w.append(arg.accept(this));
+             if (!TreeAdapter.isLayout(tree) && !TreeAdapter.isLexical(tree)) {
+               w.append(arg.accept(this));
+             }
+             else {
+               w.append(arg);
+             }
            }
            args = w.done();
            
@@ -672,7 +716,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
     	IListWriter w = vf.listWriter();
       IList args = TreeAdapter.getArgs(tree);
       for (IValue arg : args) {
-        w.append(arg.accept(this));
+        if (!TreeAdapter.isLayout((ITree) arg)) {
+          w.append(arg.accept(this));
+        }
+        else {
+          w.append(arg);
+        }
       }
       args = w.done();
       
@@ -758,7 +807,12 @@ public static void evalImport(IEvaluator<Result<IValue>> eval, IConstructor mod)
             IListWriter w = vf.listWriter();
             IList args = TreeAdapter.getArgs(tree);
             for (IValue elem : args) {
-              w.append(elem.accept(this));
+              if (!TreeAdapter.isLayout((ITree) elem)) {
+                w.append(elem.accept(this));
+              }
+              else {
+                w.append(elem);
+              }
             }
             args = w.done();
             

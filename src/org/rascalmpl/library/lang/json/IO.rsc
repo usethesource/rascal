@@ -15,19 +15,25 @@
 module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use writeJSON}
+@deprecated{
+use writeJSON
+}
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use asJSON}
+@deprecated{
+use asJSON
+}
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use readJSON}
+@deprecated{
+use readJSON
+}
 public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@doc{reads JSON values from a stream
+@synopsis{reads JSON values from a stream
 In general the translation behaves as follows:
  * Objects translate to map[str,value] by default, unless a node is expected (properties are then translated to keyword fields)
  * Arrays translate to lists by default, or to a set if that is expected or a tuple if that is expected. Arrays may also be interpreted as constructors or nodes (see below)
@@ -37,17 +43,20 @@ In general the translation behaves as follows:
  * If the expected type provided is a node then it will construct a node named "object" and map the fields to keyword fields.
  * If num, int, real or rat are expected both strings and number values are mapped
  * If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
-   a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}
-}
+   a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}}
 java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@doc{parses JSON values from a string
-In general the translation behaves as the same as for ((readJSON)).
-}
+@synopsis{parses JSON values from a string
+In general the translation behaves as the same as for ((readJSON)).}
 java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
+@synopsis{writes `val` to the location `target`}
+@description{
+  If `dateTimeAsInt` is set to `true`, the dateTime values are converted to an int that represents the number of milliseconds from 1970-01-01T00:00Z.
+  If `indent` is set to a number greater than 0, the JSON file will be formatted with `indent` number of spaces as indentation.
+}
 java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
