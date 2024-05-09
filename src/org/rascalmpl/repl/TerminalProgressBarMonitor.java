@@ -234,7 +234,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + " "
                 ;
 
-            writer.println(line); // note this puts us one line down
+            writer.println("\r" + line); // note this puts us one line down
         }
 
         private String threadLabel() {
@@ -529,6 +529,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             out.write(b);
         }
     }
+
+    
 
     @Override
     public synchronized void endAllJobs() {
