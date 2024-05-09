@@ -28,7 +28,7 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-bool traceTPL = false;
+bool traceTPL = true;
 bool traceCaches = false;
 
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){    
@@ -192,20 +192,24 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 ms.tmodels[qualifiedModuleName] = tpl;
                 ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
                 return <true, tpl, ms>;
-             } else {
-                println("INFO: <tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)");
-                msg = error("<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)", tplLoc);
-                
-                ms.tmodels[qualifiedModuleName] = 
-                    tmodel(modelName=qualifiedModuleName, 
-                           messages=[msg]);
-                return <true, tpl, ms>; 
-             }
+             } 
+             //else {
+             //   msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
+             //   println("INFO: <msg>)");
+             //   throw rascalTplVersionError(msg);
+             //   //ms.tmodels[qualifiedModuleName] = 
+             //   //    tmodel(modelName=qualifiedModuleName, 
+             //   //           messages=[msg]);
+             //   //return <true, tpl, ms>; 
+             //}
         } catch e: {
             //ms.status[qualifiedModuleName] ? {} += not_found();
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
         }
+        msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
+        println("INFO: <msg>)");
+        throw rascalTplVersionError(msg);
     }
     //if(qualifiedModuleName notin hardwired){
     //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
@@ -322,7 +326,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
         
         if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
-           //println("BOM <qualifiedModuleName>:"); iprintln(bom);
            for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
                if(!ms.status[m]?){
                     ms.status[m] = {};
@@ -351,6 +354,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 allImportsAndExtendsValid = true;
                 println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
+                throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
             }
         }
         if(allImportsAndExtendsValid){

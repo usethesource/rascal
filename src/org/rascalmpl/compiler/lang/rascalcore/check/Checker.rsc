@@ -232,6 +232,7 @@ ModuleStatus rascalTModelForLocs(
     for(mloc <- mlocs){
             m = getModuleName(mloc, pcfg);
             topModuleNames += {m};
+            ms.moduleLocs[m] = mloc;
     }
     
     try {
@@ -360,6 +361,14 @@ ModuleStatus rascalTModelForLocs(
     } catch ParseError(loc src): {
         for(str mname <- topModuleNames){
             ms.messages[mname] = [ error("Parse error", src) ];
+        }
+    } catch rascalTplVersionError(str txt):{
+        for(str mname <- topModuleNames){
+            ms.messages[mname] = [error("<txt>", ms.moduleLocs[mname] ? |unknown:///|)];
+        }
+    } catch rascalSourceMissing(str txt):{
+        for(str mname <- topModuleNames){
+            ms.messages[mname] = [error("<msg>", ms.moduleLocs[mname] ? |unknown:///|)];
         }
     } catch Message msg: {
         for(str mname <- topModuleNames){
