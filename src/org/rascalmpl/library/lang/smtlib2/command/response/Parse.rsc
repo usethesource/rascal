@@ -6,9 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
-@doc{
-	Synopsis: Parse the response that a SMT solver returns
-}
+@synopsis{Synopsis: Parse the response that a SMT solver returns}
 
 module lang::smtlib2::command::response::Parse
 

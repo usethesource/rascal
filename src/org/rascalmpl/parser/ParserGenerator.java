@@ -30,6 +30,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -54,7 +55,7 @@ public class ParserGenerator {
 	public ParserGenerator(IRascalMonitor monitor, OutputStream out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
-		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope,heap);
+		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope, heap, monitor);
 		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
 		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		
@@ -62,22 +63,16 @@ public class ParserGenerator {
 		this.bridge = new JavaBridge(loaders, factory, config);
 		this.vf = factory;
 		
-		monitor.jobStart("Loading parser generator", 100, 139);
-		try {
-			evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
-			evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Priorities");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Regular");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
-			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-			evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
-		}
-		finally {
-			monitor.jobEnd("Loading parser generator", true);
-		}
+		evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
+		evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Priorities");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Regular");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
+		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
+		evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
 	}
 	
 	public void setGeneratorProfiling(boolean f) {
@@ -124,17 +119,10 @@ public class ParserGenerator {
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
 		synchronized(evaluator) {
 			IConstructor g = getGrammarFromModules(monitor, main, definition);
-			String JOB = "Expanding Grammar";
-
-			monitor.jobStep(JOB, "Expanding keywords", 10);
 			g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
-			monitor.jobStep(JOB, "Adding regular productions",10);
 			g = (IConstructor) evaluator.call(monitor, "makeRegularStubs", g);
-			monitor.jobStep(JOB, "Expanding regulars", 10);
 			g = (IConstructor) evaluator.call(monitor, "expandRegularSymbols", g);
-			monitor.jobStep(JOB, "Expanding parametrized symbols");
 			g = (IConstructor) evaluator.call(monitor, "expandParameterizedSymbols", g);
-			monitor.jobStep(JOB, "Defining literals");
 			g = (IConstructor) evaluator.call(monitor, "literals", g);
 			return g;
 		}
@@ -191,25 +179,23 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition) {
-		String JOB = "Generating parser:" + name;
-		monitor.jobStart(JOB, 100, 130);
-		
 		Profiler profiler = evaluator.getConfiguration().getGeneratorProfilingProperty() ? new Profiler(evaluator) : null;
 
 		try {
-			monitor.jobStep(JOB, "Importing and normalizing grammar:" + name, 30);
 			if (profiler != null) {
 				profiler.start();
 			}
 			IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
-		} catch (ClassCastException e) {
+		} 
+		catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
-		} catch (Throw e) {
+		} 
+		catch (Throw e) {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
-		} finally {
-			monitor.jobEnd(JOB, true);
+		} 
+		finally {
 			if (profiler != null) {
 				profiler.pleaseStop();
 				evaluator.getOutPrinter().println("PROFILE:");
@@ -229,27 +215,51 @@ public class ParserGenerator {
    * @return A parser class, ready for instantiation
    */
 	public Class<IGTD<IConstructor, ITree, ISourceLocation>> getNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IConstructor grammar) {
-		String JOB = "Generating parser:" + name;
-		monitor.jobStart(JOB, 100, 60);
-
 		try {
 			String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
-			monitor.jobStep(JOB, "Generating java source code for parser: " + name,30);
+			
 			IString classString;
 			synchronized (evaluator) {
 				classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
 			}
 			debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
-			monitor.jobStep(JOB,"Compiling generated java code: " + name, 30);
+			
 			return bridge.compileJava(loc, packageName + "." + normName, classString.getValue());
 		} catch (ClassCastException e) {
 			throw new ImplementationError("parser generator:" + e.getMessage(), e);
 		} catch (Throw e) {
 			throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
-		} finally {
-			monitor.jobEnd(JOB, true);
 		}
 	}
+
+	/**
+   * Generate a parser from a Rascal grammar and write it to disk
+   * 
+   * @param monitor a progress monitor; this method will contribute 100 work units
+   * @param loc     a location for error reporting
+   * @param name    the name of the parser for use in code generation and for later reference
+   * @param grammar a grammar
+   * @return A parser class, ready for instantiation
+	 * @throws IOException
+   */
+  public void writeNewParser(IRascalMonitor monitor, ISourceLocation loc, String name, IMap definition, ISourceLocation target) throws IOException {
+	try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+		String normName = name.replaceAll("::", "_").replaceAll("\\\\", "_");
+		IString classString;
+		IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
+
+		synchronized (evaluator) {
+			classString = (IString) evaluator.call(monitor, "newGenerate", vf.string(packageName), vf.string(normName), grammar);
+		}
+		debugOutput(classString, System.getProperty("java.io.tmpdir") + "/parser.java");
+		
+		bridge.compileJava(loc, packageName + "." + normName, classString.getValue(), out);
+	} catch (ClassCastException e) {
+		throw new ImplementationError("parser generator:" + e.getMessage(), e);
+	} catch (Throw e) {
+		throw new ImplementationError("parser generator: " + e.getMessage() + e.getTrace());
+	}
+}
 
 	public IString createHole(IConstructor part, IInteger size) {
 		synchronized (evaluator) {

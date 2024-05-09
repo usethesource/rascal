@@ -6,18 +6,16 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jouke Stoel - jouke.stoel@cwi.nl - CWI}
+@deprecated{Use util::Monitor for the same effect with more support for different IDEs and commandline environments.}
 module util::Progress
 
 import String;
 import IO;
 import util::Math;
 
-@doc{
-  .Synopsis
-  This progressbar can be used in terminal applications to show the progress of some process in the terminal.
-  
-  .Description
-  The total number of steps is the only required parameter to be passed in. All other parameters are optional.
+@synopsis{This progressbar can be used in terminal applications to show the progress of some process in the terminal.}
+@description{
+The total number of steps is the only required parameter to be passed in. All other parameters are optional.
    - `prefix` is the string that is displayed in front of the progress bar (default "").
    - `length` is the length (number of characters) of the displayed bar (default 50).
    - `limit` allows for the throtteling of the number of times the progress bar is printed. For instance if the total is 1000 and the limit is set to 100 then the progress bar will be updated every 10 iterations. 
@@ -30,18 +28,6 @@ import util::Math;
   - `finished()` can be called at the end of the iteration to add a new line to the terminal  
 
   It is inspired on the progressbar described here: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
-
-  .Examples
-  ```rascal-shell
-  import util::Progress;
-  int total = 10; 
-  pb = progressBar(total, length = 15, limit = 100);
-  for (i <- [0..total]) {
-    pb.report(" : <i+1> of <total>");
-  }
-  pb.finished();  
-  ```
-
 }
 tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Progress:", int length = 50, int limit = total, str fill = "\u2588", str unfill = "-", str printEnd = "\r") {
     limit = limit > total ? total : limit;
@@ -60,26 +46,13 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
     }, void () { println(); }>;
 }
 
-@doc {
-  .Synopsis
-  Simple spinner to display progress for some terminal process for which the total number of steps is not known.
-      
-  .Description
-  `prefix` - Contains the string displayed in front the spinner (default " ").
+@synopsis{Simple spinner to display progress for some terminal process for which the total number of steps is not known.}
+@description{
+`prefix` - Contains the string displayed in front the spinner (default " ").
      
    It returns a function that can be called to make the spinner spin one rotation.
-   This function takes a `suffix` string parameter that will be displayed behind the spinner  
-  
-  .Examples  
-  ```rascal-shell
-  import util::Progress;
-  import util::Math;
-  sp = spinner();
-  while (n := arbInt(100), n != 1) {
-    sp("<n>");
-  }
-  ```  
-}
+   This function takes a `suffix` string parameter that will be displayed behind the spinner
+} 
 void (str) spinner(str prefix = " ", str printEnd = "\r") {
   int stat = 0;
   

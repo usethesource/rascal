@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Evaluator;
@@ -65,7 +66,7 @@ public class Eval {
  
 
 			
-	public Eval(IValueFactory values, OutputStream out, OutputStream err, InputStream in, ClassLoader loader) {
+	public Eval(IValueFactory values, OutputStream out, OutputStream err, InputStream in, ClassLoader loader, IRascalMonitor monitor) {
 		super();
 		this.values = values;
 		this.tr = new TypeReifier(values);
@@ -73,12 +74,10 @@ public class Eval {
 		
 		GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = new ModuleEnvironment("$eval$", heap);
-        this.eval = new Evaluator(values, in, err, out, root, heap);
+        this.eval = new Evaluator(values, in, err, out, root, heap, monitor);
         
         // TODO: this is to fix the course Question compiler with a workaround.
         // it would be better to parameterize eval with a PathConfig.
-        
-        this.eval.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
         this.eval.addRascalSearchPath(URIUtil.rootLocation("std"));
         //          this.eval.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 	}

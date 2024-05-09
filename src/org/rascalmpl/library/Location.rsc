@@ -7,16 +7,10 @@
 }
 @contributor{Paul Klint - Paul.Klint@swat.engineering - SWAT.engineering}
 
-@doc{
-#### Synopsis
 
-Library functions for source locations.
-
-#### Description
-
-For a description of source locations see [Location]((Rascal:Values-Location)) in the Rascal Language Reference.
-
-The following functions are defined for source locations:
+@synopsis{Library functions for source locations.}
+@description{
+The following library functions are defined for source locations:
 (((TOC)))
 
 A source location `l` refers to a text fragment in another file or resource. To ease the description we will
@@ -30,13 +24,9 @@ import Set;
 import String;
 import Exception;
 
-@doc{
-#### Synopsis
 
-Extracts a path relative to a parent location. 
-
-#### Description
-
+@synopsis{Extracts a path relative to a parent location.}
+@description{
 So from `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
 If the outside does not envelop the inside, then the original loc is returned.
 }
@@ -53,29 +43,16 @@ loc relativize(list[loc] haystack, loc needle) {
     }
 }
 
-@doc{
-#### Synopsis
 
-Check that two locations refer to the same file.
-}    
-bool isSameFile(loc l, loc r)
-    = (isEmpty(l.fragment) ? l.top : l.top[fragment=""])
-      == 
-      (isEmpty(r.fragment) ? r.top : r.top[fragment=""])
-    ;
-    
-@doc{
-#### Synopsis
+@synopsis{Check that two locations refer to the same file.}    
+bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
 
-Compare two location values lexicographically.
-
-#### Description
-
+@synopsis{Compare two location values lexicographically.}
+@description{
 When the two locations refer to different files, their paths are compared as string.
 When they refer to the same file, their offsets are compared when present.
-
-#### Pittfalls
-
+}
+@pittfalls{
 This ordering regards the location value itself as opposed to the text it refers to.
 }
 bool isLexicallyLess(loc l, loc r)
@@ -83,21 +60,14 @@ bool isLexicallyLess(loc l, loc r)
 
 
 
-@doc{
-#### Synopsis
 
-Get the textual content a location refers to.
-}
+@synopsis{Get the textual content a location refers to.}
 str getContent(loc l)
     = readFile(l);
 
-@doc{
-#### Synopsis
 
-Is a location textually (strictly) contained in another location?
-
-#### Description
-
+@synopsis{Is a location textually (strictly) contained in another location?}
+@description{
 Strict containment between two locations `inner` and `outer` holds when
 
 
@@ -107,25 +77,25 @@ Strict containment between two locations `inner` and `outer` holds when
 }
 
 bool isStrictlyContainedIn(loc inner, loc outer){
+    if(inner == outer){
+        return false;
+    }
     if(isSameFile(inner, outer)){
        if(inner.offset?){
-          return outer.offset? ==> (  inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
-                                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                   );
-       } else {
-         return inner.offset > 0 && !outer.offset?;
+          if(outer.offset?){
+            return    inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
+                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
+          } else {
+            return inner.offset > 0;
+          }
        }
     }
     return false;
 }
 
-@doc{
-#### Synopsis
 
-Is a location textually contained in another location?
-
-#### Description
-
+@synopsis{Is a location textually contained in another location?}
+@description{
 Containment between two locations `inner` and `outer` holds when
 
 
@@ -136,7 +106,11 @@ Containment between two locations `inner` and `outer` holds when
 bool isContainedIn(loc inner, loc outer){
     if(isSameFile(inner, outer)){
        if(inner.offset?){
-          return outer.offset? ==> (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+          if(outer.offset?){
+            return (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+          } else {
+            return true;
+          }
        } else {
          return !outer.offset?;
        }
@@ -144,83 +118,56 @@ bool isContainedIn(loc inner, loc outer){
     return false;
 }
 
-@doc{
-#### Synopsis
 
-Begins a location's text before (but may overlap with) another location's text?
-}
+@synopsis{Begins a location's text before (but may overlap with) another location's text?}
 bool beginsBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset < r.offset;
     
-@doc{
-#### Synopsis
 
-Begins and ends a location's text before another location's text?
-
-#### Description
-
+@synopsis{Begins and ends a location's text before another location's text?}
+@description{
 `isBefore(l, r)` holds when `l` 's text occurs textually before `r` 's text.
 }
 bool isBefore(loc l, loc r)
     = isSameFile(l, r)  && l.offset + l.length <= r.offset;
 
-@doc{
-#### Synopsis
 
-Occurs a location's text _immediately_ before another location's text?
-
-#### Description
-
+@synopsis{Occurs a location's text _immediately_ before another location's text?}
+@description{
 `isImmediatelyBefore(l, r)` holds when `l` 's text occurs textually before, and is adjacent to, `r` 's text.
 }
 bool isImmediatelyBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset + l.length == r.offset;
  
- @doc{
-#### Synopsis
-
-Begins a location's text after (but may overlap with) another location's text?
+ 
+@synopsis{Begins a location's text after (but may overlap with) another location's text?
 
 Description
 `beginsAfter(l, r)` holds when `l` 's text begins after `r` 's text. No assumption is made about the end of both texts.
-In other words, `l` 's text may end before or after the end of `r` 's text.
-}
+In other words, `l` 's text may end before or after the end of `r` 's text.}
 bool beginsAfter(loc l, loc r)
     = isSameFile(l, r) && l.offset > r.offset;
        
-@doc{
-#### Synopsis
 
-Is a location's text completely after another location's text?
-}
+@synopsis{Is a location's text completely after another location's text?}
 bool isAfter(loc l, loc r)
     = isBefore(r, l);
 
-@doc{
-#### Synopsis
 
-Is a location's text _immediately_ after another location's text?
-}
+@synopsis{Is a location's text _immediately_ after another location's text?}
 bool isImmediatelyAfter(loc l, loc r)
     = isImmediatelyBefore(r, l);
 
-@doc{
-#### Synopsis
 
-Refer two locations to text that overlaps?
-}
+@synopsis{Refer two locations to text that overlaps?}
 bool isOverlapping(loc l, loc r)
     = isSameFile(l, r) && (  (l.offset <= r.offset && l.offset + l.length > r.offset) 
                           || (r.offset <= l.offset && r.offset + r.length > l.offset)
                           );
 
-@doc{
-#### Synopsis
 
-Compute a location that textually covers the text of a list of locations.
-
-#### Description
-
+@synopsis{Compute a location that textually covers the text of a list of locations.}
+@description{
 Create a new location that refers to the smallest text area that overlaps with the text of the given locations.
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
 }

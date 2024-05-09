@@ -2,6 +2,7 @@ package org.rascalmpl.library.util;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
@@ -11,13 +12,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
@@ -455,26 +456,45 @@ public class PathConfig {
         Set<String> loaderSchemes = reg.getRegisteredClassloaderSchemes();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
         String projectName = manifest.getProjectName(manifestRoot);
-        Set<String> libNames = new HashSet<>();
         IListWriter libsWriter = vf.listWriter();
         IListWriter srcsWriter = vf.listWriter();
         IListWriter classloaders = vf.listWriter();
+        Map<String, ISourceLocation> mavenLibs = new HashMap<>();
         
         if (!projectName.equals("rascal")) {
             // always add the standard library but not for the project named "rascal"
             // which contains the source of the standard library
             libsWriter.append(URIUtil.correctLocation("lib", "rascal", ""));
         }
+
+        // target classes always go first
+        ISourceLocation target = URIUtil.correctLocation("target", projectName, "/");
+        classloaders.append(target);
+
+        // for the Rascal run-time
+        classloaders.append(URIUtil.correctLocation("system", "", ""));
+
+        IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
+       
+         // the dependencies in the back
+        classloaders.appendAll(mavenClasspath);
         
+        // this collects Rascal libraries we can find in maven dependencies
+        for (IValue elem : mavenClasspath) {
+            ISourceLocation dep = (ISourceLocation) elem;
+            String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
+            
+            if (libProjectName != null) {
+                mavenLibs.put(libProjectName, RascalManifest.jarify(dep));
+            }
+        }
+
         for (String lib : manifest.getRequiredLibraries(manifestRoot)) {
             try {
                 ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(manifestRoot, lib);
                 ISourceLocation projectLoc = URIUtil.correctLocation("project", jar.getAuthority(), "/");
 
-                // needed to later filter the pom classpath
-                if (jar.getScheme().equals("lib")) {
-                    libNames.add(jar.getAuthority());
-                }
+                assert jar != null;
 
                 if (jar.getScheme().equals("lib") && reg.exists(projectLoc)) {
                     // library dependency to open peer project in the workspace
@@ -494,65 +514,39 @@ public class PathConfig {
                     libsWriter.appendAll(childConfig.getLibs());
                     classloaders.appendAll(childConfig.getClassloaders());
                 }
-                else if (jar != null && reg.exists(jar)) {
-                    // library dependency to something on the JVM's classpath but not to a peer project in the workspace
-                   
-                    if (mode == RascalConfigMode.INTERPETER) {
-                        // in interpreter mode we try and find the sources inside of the jar
-                        boolean foundSrc = false;
-                        for (String src : manifest.getSourceRoots(jar)) {
-                            ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
-                            if (reg.exists(srcLib)) {
-                                srcsWriter.append(srcLib);
-                                foundSrc = true;
-                            }
+                else {
+                    ISourceLocation jarLoc = jar;
+                    
+                    if (jar.getScheme().equals("lib")) {
+                        String libraryName = jar.getAuthority();
+                        if (libraryName.equals("rascal")) {
+                            // ignore ourselves
+                            continue;
                         }
+                        ISourceLocation libraryLoc = mavenLibs.get(libraryName);
 
-                        if (!foundSrc) {
-                            // if we could not find source roots, we default to the jar root
-                            srcsWriter.append(jar);
+                        if (libraryLoc != null) {
+                            jarLoc = libraryLoc;
                         }
                     }
-                    else if (mode == RascalConfigMode.COMPILER) {
-                        // in compiler mode we expect .tpl and .class files at the root of the jar
-                        libsWriter.append(jar);
-                    }
-                    else {
-                        throw new IOException("unknown configuration mode: " + mode);
+
+                    if (!reg.exists(jarLoc)) {
+                        throw new FileNotFoundException(jarLoc.toString());
+                    } 
+
+                    switch (mode) {
+                        case COMPILER:
+                            libsWriter.append(jarLoc);
+                            break;
+                        case INTERPETER:
+                            addLibraryToSourcePath(manifest, reg, srcsWriter, jarLoc);
+                            break;
+                        default:
+                            throw new IOException("unknown configuration mode: " + mode);
                     }
 
-                    if (loaderSchemes.contains(jar.getScheme())) {
-                        classloaders.append(jar);
-                    }
-                }
-                 else if (jar != null && reg.exists(jar)) {
-                    // library dependency to something on the JVM's classpath but not to a peer project in the workspace
-                   
-                    if (mode == RascalConfigMode.INTERPETER) {
-                        // in interpreter mode we try and find the sources inside of the jar
-                        boolean foundSrc = false;
-                        for (String src : manifest.getSourceRoots(jar)) {
-                            ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
-                            if (reg.exists(srcLib)) {
-                                srcsWriter.append(srcLib);
-                                foundSrc = true;
-                            }
-                        }
-
-                        if (!foundSrc) {
-                            // if we could not find source roots, we default to the jar root
-                            srcsWriter.append(jar);
-                        }
-                    }
-                    else if (mode == RascalConfigMode.COMPILER) {
-                        // in compiler mode we expect .tpl and .class files at the root of the jar
-                        libsWriter.append(jar);
-                    }
-                    else {
-                        throw new IOException("unknown configuration mode: " + mode);
-                    }
-
-                    if (loaderSchemes.contains(jar.getScheme())) {
+                    // if this is not a jar file from the pom, its a new place to find classes
+                    if (jar == jarLoc && loaderSchemes.contains(jar.getScheme())) {
                         classloaders.append(jar);
                     }
                 }
@@ -571,29 +565,6 @@ public class PathConfig {
             srcsWriter.append(URIUtil.getChildLocation(manifestRoot, srcName));
         }
         
-        ISourceLocation target = URIUtil.correctLocation("target", projectName, "/");
-        classloaders.append(target);
-
-        // for the Rascal run-time
-        classloaders.append(URIUtil.correctLocation("system", "", ""));
-
-        IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
-       
-        for (IValue elem : mavenClasspath) {
-            ISourceLocation dep = (ISourceLocation) elem;
-
-            switch (mode) {
-                case INTERPETER:
-                    addJarToSearchPath(dep, libNames, srcsWriter);
-                    break;
-                case COMPILER:
-                    addJarToLibraryPath(dep, libNames, libsWriter);
-                    break;
-            }
-        }
-
-        classloaders.appendAll(mavenClasspath);
-        
         return new PathConfig(
                 srcsWriter.done(), 
                 libsWriter.done(), 
@@ -603,28 +574,48 @@ public class PathConfig {
                 classloaders.done());
 	}
 
-    private static void addJarToSearchPath(ISourceLocation jar, Set<String> libNames, IListWriter srcs) {
-        ISourceLocation prefix = RascalManifest.jarify(jar);
-        
-        RascalManifest mf = new RascalManifest();
-        List<String> roots = mf.getManifestSourceRoots(mf.manifest(jar));
-        String projectName = mf.getManifestProjectName(mf.manifest(jar));
+    public static class LibResolverForMavenDependencies implements ILogicalSourceLocationResolver {
+        private final String libraryName;
+        private final ISourceLocation jarLoc;
 
-        if (roots != null && projectName != null && libNames.contains(projectName)) {
-            for (String root : roots) {
-                srcs.append(URIUtil.getChildLocation(prefix, root));
+        public LibResolverForMavenDependencies(String libraryName, ISourceLocation jarLoc) {
+            this.libraryName = libraryName;
+            this.jarLoc = jarLoc;
+        }
+
+        @Override
+        public ISourceLocation resolve(ISourceLocation input) throws IOException {
+            if (!libraryName.equals(input.getAuthority())) {
+                return input;
             }
+            return URIUtil.getChildLocation(jarLoc, input.getPath());
+        }
+
+        @Override
+        public String scheme() {
+            return "lib";
+        }
+
+        @Override
+        public String authority() {
+            return libraryName;
         }
     }
 
-    private static void addJarToLibraryPath(ISourceLocation jar, Set<String> libNames, IListWriter libs) {
-        ISourceLocation prefix = RascalManifest.jarify(jar);
-        
-        RascalManifest mf = new RascalManifest();
-        String projectName = mf.getManifestProjectName(mf.manifest(jar));
+    private static void addLibraryToSourcePath(RascalManifest manifest, URIResolverRegistry reg, IListWriter srcsWriter,
+        ISourceLocation jar) {
+        boolean foundSrc = false;
+        for (String src : manifest.getSourceRoots(jar)) {
+            ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
+            if (reg.exists(srcLib)) {
+                srcsWriter.append(srcLib);
+                foundSrc = true;
+            }
+        }
 
-        if (projectName != null && libNames.contains(projectName)) {
-            libs.append(prefix);
+        if (!foundSrc) {
+            // if we could not find source roots, we default to the jar root
+            srcsWriter.append(jar);
         }
     }
 

@@ -11,6 +11,7 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -55,8 +56,14 @@ public class URIUtil {
 	 * @throws URISyntaxException
 	 */
 	public static URI createFile(String path) throws URISyntaxException {
-		path = fixWindowsPath(path);
-		return fixUnicode(new File(path).toURI());
+		File file = new File(fixWindowsPath(path));
+		try {
+			file = file.getCanonicalFile();
+		}
+		catch (IOException e) {
+			// swallow, let's keep the old file
+		}
+		return fixUnicode(file.toURI());
 	}
 	
 	/**
@@ -425,5 +432,33 @@ public class URIUtil {
 	}
     public static ISourceLocation createFromURI(String value) throws URISyntaxException {
         return vf.sourceLocation(createFromEncoded(value));
+    }
+    public static ISourceLocation changeExtension(ISourceLocation location, String ext) throws URISyntaxException {
+        String path = location.getPath();
+		boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
+		if (endsWithSlash) {
+			path = path.substring(0, path.length() - 1);
+		}
+
+		if (path.length() > 1) {
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			int index = path.substring(slashIndex).lastIndexOf('.');
+
+			if (index == -1 && !ext.isEmpty()) {
+				path = path + (!ext.startsWith(".") ? "." : "") + ext;
+			}
+			else if (!ext.isEmpty()) {
+				path = path.substring(0, slashIndex + index) + (!ext.startsWith(".") ? "." : "") + ext;
+			}
+			else if (index != -1) {
+				path = path.substring(0, slashIndex + index);
+			}
+
+			if (endsWithSlash) {
+				path = path + URIUtil.URI_PATH_SEPARATOR;
+			}
+		}
+
+		return URIUtil.changePath(location, path);
     }
 }

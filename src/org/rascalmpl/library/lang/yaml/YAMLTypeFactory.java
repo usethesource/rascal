@@ -29,8 +29,7 @@ public class YAMLTypeFactory {
 	public static final Type Node_scalar = tf.constructor(yaml, Node, "scalar", 
 			tf.valueType(), "value");
 	
-	public static final Type Node_reference = tf.constructor(yaml, Node, "reference",
-			tf.integerType(), "anchor");
+	public static final Type Node_reference = tf.constructor(yaml, Node, "reference");
 	
 	public static final Type Node_mapping = tf.constructor(yaml, Node, "mapping",
 			tf.mapType(Node, Node), "map");

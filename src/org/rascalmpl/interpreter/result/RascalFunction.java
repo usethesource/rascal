@@ -128,7 +128,6 @@ public class RascalFunction extends NamedFunction {
         return getAst().clone(body);
     }
 
-
     private String computeIndexedLabel(int pos, AbstractAST ast) {
         return ast.accept(new NullASTVisitor<String>() {
             @Override

@@ -8,13 +8,11 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm - CWI}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @synopsis{Visualizing values using "ASCII art".}
-@synopsis{
-This module provides functions that map values to strings using ASCII Art pretty printing.
+@synopsis{This module provides functions that map values to strings using ASCII Art pretty printing.
 
 The words [ASCII Art](https://en.wikipedia.org/wiki/ASCII_art) refers to the technique of 
 constructing images from text characters that are in the ASCII set. However, in this case
-we may use any Unicode character for visual representation purposes.
-}
+we may use any Unicode character for visual representation purposes.}
 @examples{
 ```rascal-shell
 syntax E = "e" | E "+" E;
@@ -52,7 +50,7 @@ str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false,
   str nodeLabel(loc src)                                      = "<src>";
   default str nodeLabel(Tree v)                               = "<v>";
 
-  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t.src> | src, t.src?] + [<"", k> | Tree k <- args, include(k)];
+  lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t@\loc> | src, t@\loc?] + [<"", k> | Tree k <- args, include(k)];
   lrel[str,value] edges(amb(set[Tree] alts))              = [<"", a> | Tree a <- alts];
   lrel[str,value] edges(loc _)                            = [];
   default lrel[str,value] edges(Tree _)                   = [];

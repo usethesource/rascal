@@ -1,4 +1,4 @@
-@doc{tests specific aspects of generic functions and generic data-types in Rascal}
+@synopsis{tests specific aspects of generic functions and generic data-types in Rascal}
 module lang::rascal::tests::basic::Generics
 
 import Exception;
@@ -7,7 +7,7 @@ import util::Maybe;
 data Wrapper[&SAME] = something(&SAME wrapped);
 alias Graph[&SAME] = rel[&SAME from, &SAME to];
 
-@doc{it matters for testing that '&SAME' is the same name as in the definition of Wrapper}
+@synopsis{it matters for testing that '&SAME' is the same name as in the definition of Wrapper}
 &SAME getIt(Wrapper[&SAME] x) = x.wrapped;
 
 test bool hygienicGenericADT() {
@@ -49,12 +49,16 @@ bool less(&T a, &T b) = a < b;
 
 test bool lessIsConsistentThroughTypeParameters(num x, num y) = (x < y) ==> less(x, y);
 
+@ignoreCompiler{How to make 1 compatible with &T?}
 &T avoidEmpty(list[&T] _) { return 1; }
+@ignoreCompiler{How to make 1 compatible with &T?}
 &T avoidEmpty(list[&T] _) { throw "this should happen"; }
 
+@ignoreCompiler{How to make 1 compatible with &T?}
 test bool voidReturnIsNotAllowed() {
    try {
-     return avoidEmpty([]); 
+     avoidEmpty([]); 
+     return false;
    } catch "this should happen":
      return true;
 }

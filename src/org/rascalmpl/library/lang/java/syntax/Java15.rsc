@@ -6,14 +6,14 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Davy Landman - Davy.Landman@cwi.nl - CWI}
-@doc{
+@synopsis{Java 5}
+@description{
 The grammar was based on the SDF2 definition in the  Java-frontend project for Stratego/XT 
 See https://github.com/metaborg/java-front
-
-#### Pitfalls
-
+}
+@pitfalls{
 * The grammar has been changed to use Rascal's disambiguation constructs rather than SDF2's constructs,
-but this has not been well tested. 
+but this has not been well tested.
 } 
 
 module lang::java::\syntax::Java15
@@ -512,7 +512,7 @@ lexical EscapeSeq =
   ;
 
 layout LAYOUTLIST  =
-  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> (  [/]  [*]  ) !>> (  [/]  [/]  ) !>> "/*" !>> "//"
+  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> "/*" !>> "//"
   ;
 
 syntax ResultType =

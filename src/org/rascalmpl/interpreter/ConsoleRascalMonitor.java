@@ -62,4 +62,9 @@ public class ConsoleRascalMonitor implements IRascalMonitor {
 		out.println("Warning: " + message);
 		out.flush();
 	}
+
+	@Override
+	public void endAllJobs() {
+		// ignore
+	}
 }

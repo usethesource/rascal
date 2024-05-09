@@ -1,10 +1,6 @@
-@doc{
-#### Synopsis
 
-Intermediate notation for control flow graphs
-
-#### Description
-
+@synopsis{Intermediate notation for control flow graphs}
+@description{
 Control flow graphs are a unifying concept for units of executable
 code in programming languages. This module defines a common
 intermediate representation which is designed to be produced from ((data:analysis::m3::Core-M3))
@@ -14,19 +10,15 @@ then downstream analyses and visualizations are accurate.
 }
 module analysis::flow::ControlFlow
 
-@doc{
-#### Synopsis
 
-control points in source code
-
-#### Description
-
+@synopsis{control points in source code}
+@description{
 Control points in executable units of code are either straightline
 code (block), or forks. Each executable unit has an entry and an exit
 node. This is the simplest model for control flow nodes which may hold
 all the possible structures we find in real executable units, but it
 does require an analysis which resolves the locations of each block
-and the labels which are used to jump to. 
+and the labels which are used to jump to.
 }
 data ControlNode
   = \block(loc id) // intermediate nodes in an executable unit
@@ -34,13 +26,9 @@ data ControlNode
   | \exit(loc id)  // exit node of an executable unit or a join point
   ;
 
-@doc{
-#### Synopsis
 
-identify control edges
-
-#### Description
-
+@synopsis{identify control edges}
+@description{
 A control edge goes from ControlEdge to ControlEdge and is identified
 by the condition which activates it. For normal structured control
 flow (`choice`) like if, while and do-while this is a boolean condition going either

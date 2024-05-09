@@ -18,10 +18,10 @@ The following definition is built into Rascal:
 data type[&T] = type(Symbol symbol, map[Symbol, Production] definitions);
 ```
 
-For values of type `type[...]` the static and dynamic type systems satisfy three additional constraints over the rules of type-parameterized ((Rascal:AlgebraicDataType))s:
+For values of type `type[...]` the static and dynamic type systems satisfy three additional constraints over the rules of type-parameterized data types:
 1. For any type `T`: `#T` has type `type[T]`
-2. For any type T and any value of `type[T]`, namely `type(S, D)` it holds that S is the symbolic representation of type `T` using the ((Rascal:AlgebraicDataType)) ((Type-Symbol)), and
-3. ... `D` holds all the necessary ((Rascal:AlgebraicDataType)) and ((Rascal:SyntaxDefinition)) rules required to form values of type `T`.
+2. For any type T and any value of `type[T]`, namely `type(S, D)` it holds that S is the symbolic representation of type `T` using the ((Type-Symbol)) type, and
+3. ... `D` holds all the necessary data and syntax rules required to form values of type `T`.
 
 In other words, the `#` operator will always produce a value of `type[&T]`, where `&T` is bound to the type that was reified _and_ said value will contain the full grammatical definition for what was bound to `&T`.
 }
@@ -95,7 +95,6 @@ data Symbol // <4>
 
 @synopsis{A production in a grammar or constructor in a data type.}
 @description{
-
 Productions represent abstract (recursive) definitions of abstract data type constructors and functions:
 
 * `cons`: a constructor for an abstract data type.
@@ -160,7 +159,7 @@ public Production choice(Symbol s, set[Production] choices) {
 //  = choice(s, a+b);
   
 
-@doc{Functions with variable argument lists are normalized to normal functions}
+@synopsis{Functions with variable argument lists are normalized to normal functions}
 // TODO: What is this? Not sure why this is here...
 //public Production \var-func(Symbol ret, str name, list[tuple[Symbol typ, str label]] parameters, Symbol varArg, str varLabel) =
 //       \func(ret, name, parameters + [<\list(varArg), varLabel>]);
@@ -263,7 +262,6 @@ public bool equivalent(Symbol s, Symbol t) = subtype(s,t) && subtype(t,s);
 
 @synopsis{Strict structural equality between values.}
 @description{
-
 The difference between `eq` and `==` is that no implicit coercions are done between values of incomparable types
 at the top-level. 
 
@@ -271,7 +269,6 @@ The `==` operator, for convience, equates `1.0` with `1` but not `[1] with [1.0]
 when writing consistent specifications. The new number system that is coming up will not have these issues.
 }
 @examples{
-
 ```rascal-shell
 import Type;
 1 == 1.0
@@ -283,7 +280,7 @@ public java bool eq(value x, value y);
 
 @synopsis{The least-upperbound (lub) of two types is the common ancestor in the type lattice that is lowest.}
 @description{
-This function documents and implements the lub operation in Rascal's type system. 
+This function documents and implements the lub operation in Rascal's type system.
 }
 public Symbol lub(Symbol s, s) = s;
 public default Symbol lub(Symbol s, Symbol t) = \value();
@@ -394,7 +391,7 @@ private default list[Symbol] addParamLabels(list[Symbol] l, list[str] s) { throw
 
 @synopsis{The greatest lower bound (glb) between two types, i.e. a common descendant of two types in the lattice which is largest.}
 @description{
-This function documents and implements the glb operation in Rascal's type system. 
+This function documents and implements the glb operation in Rascal's type system.
 }
 public Symbol glb(Symbol s, s) = s;
 public default Symbol glb(Symbol s, Symbol t) = \void();
@@ -491,11 +488,11 @@ public &T typeCast(type[&T] typ, value v) {
   throw typeCastException(typeOf(v), typ);
 }
 
-@synopsis{Dynamically instantiate an ((Rascal:AlgebraicDataType)) constructor of a given type with the given children and optional keyword arguments.}
+@synopsis{Dynamically instantiate an data constructor of a given type with the given children and optional keyword arguments.}
 @description{
 This function will build a constructor if the definition exists and the parameters fit its description, or throw an exception otherwise.
 
-This function can be used to validate external data sources against an ((Rascal:AlgebraicDataType)) such as XML, JSON and YAML documents.
+This function can be used to validate external data sources against a data type such as XML, JSON and YAML documents.
 }
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args);
@@ -505,12 +502,10 @@ public java &T make(type[&T] typ, str name, list[value] args, map[str,value] key
  
 @synopsis{Returns the dynamic type of a value as a ((Type-Symbol)).}
 @description{
-
 As opposed to the # operator, which produces the type of a value statically, this
 function produces the dynamic type of a value, represented by a symbol.
 }
 @examples{
-
 ```rascal-shell
 import Type;
 value x = 1;
@@ -524,9 +519,8 @@ type(typeOf(x), ())
 ```
 }
 @pitfalls{
-*  Note that the `typeOf` function does not produce definitions, like the 
-   [reify]((Rascal:Values-ReifiedTypes)) operator `#` does, 
-   since values may escape the scope in which they've been constructed leaving their contents possibly undefined.
+Note that the `typeOf` function does not produce definitions, like the 
+reify operator `#` does, since values may escape the scope in which they've been constructed.
 }
 @javaClass{org.rascalmpl.library.Type}
 public java Symbol typeOf(value v);
@@ -647,13 +641,6 @@ public bool isListType(Symbol::\label(_,Symbol lt)) = isListType(lt);
 public bool isListType(Symbol::\list(_)) = true;
 public bool isListType(Symbol::\lrel(_)) = true;
 public default bool isListType(Symbol _) = false;
-
-@synopsis{Determine if the given type is an lrel.}
-public bool isListRelType(Symbol::\alias(_,_,Symbol at)) = isListRelType(at);
-public bool isListRelType(Symbol::\parameter(_,Symbol tvb)) = isListRelType(tvb);
-public bool isListRelType(Symbol::\label(_,Symbol lt)) = isListRelType(lt);
-public bool isListRelType(Symbol::\lrel(_)) = true;
-public default bool isListRelType(Symbol _) = false;
 
 @synopsis{Determine if the given type is an map.}
 public bool isMapType(Symbol::\alias(_,_,Symbol at)) = isMapType(at);

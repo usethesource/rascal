@@ -12,6 +12,7 @@
 module lang::rascal::tests::functionality::Aliasing
 
 import Type;
+import Exception;
 
 alias INTEGER0 = int;
 		
@@ -280,11 +281,29 @@ test bool listOrLrel6() = {LIST[tuple[int,int]] LT = [<3,4>]; LT + <1,2> == [<3,
 test bool listOrLrel7() = {LIST[tuple[int,int]] LT = [<3,4>]; lrel[int,int] LR = LT + <1,2>; LR == [<3,4>, <1,2>];};
 test bool listOrLrel8() = {LIST[tuple[int,int]] LT = [<3,4>]; lrel[int,int] LR = <1,2> + LT; LR == [<1,2>, <3,4>];};
 
-@doc{this triggered issue #1595}
+@synopsis{this triggered issue #1595}
 test bool enumerableAlias() {
   SET[int] tmp = {1,2,3};
   
   x = for (i <- tmp) append i;
   
   return {*x} == tmp;
+}
+
+alias T[&T] = tuple[&T, &T];
+
+@synopsis{this triggered #1811}
+test bool assignableTupleAlias() {
+  T[int] x = <0,1>;
+  <a,b> = x; // this would throw an exception
+  return a == 0 && b == 1;
+}
+
+@synopsis{this tests if the solution for #1811 still checks the arity of the tuple}
+@ignoreCompiler{The assignment is flagged as a type error}
+@expected{UnexpectedType}
+test bool assignableTupleAliasError() {
+  T[int] x = <0,1>;
+  <a,b,c> = x; // this should throw an exception
+  return a == 0 && b == 1;
 }

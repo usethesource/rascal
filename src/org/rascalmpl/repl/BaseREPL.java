@@ -19,7 +19,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 
@@ -274,7 +273,7 @@ public class BaseREPL {
     }
 
     private String previousPrompt = "";
-    public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().fg(Color.BLACK).toString();
+    public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().toString();
     public static final String PRETTY_PROMPT_POSTFIX = Ansi.ansi().boldOff().reset().toString();
 
     protected void updatePrompt() {
@@ -363,19 +362,21 @@ public class BaseREPL {
             // we are closing down, so do nothing, the finally clause will take care of it
         }
         catch (Throwable e) {
-            try (PrintWriter err = new PrintWriter(errorWriter, true)) {
+            PrintWriter err = new PrintWriter(errorWriter, true);
+            
+            if (!err.checkError()) {
                 err.println("Unexpected (uncaught) exception, closing the REPL: ");
-                if (!err.checkError()) {
-                    err.print(e.toString());
-                    e.printStackTrace(err);
-                }
-                else {
-                    System.err.print(e.toString());
-                    e.printStackTrace();
-                }
-                err.flush();
+                err.print(e.toString());
+                e.printStackTrace(err);
             }
-            errorWriter.flush();
+            else {
+                System.err.println("Unexpected (uncaught) exception, closing the REPL: ");
+                System.err.print(e.toString());
+                e.printStackTrace(System.err);
+            }
+            
+            err.flush();
+    
             throw e;
         }
         finally {

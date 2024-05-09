@@ -4,10 +4,8 @@ import ParseTree;
 import Set;
 import List;
 
-@doc{
-Import his module if you want prefer/avoid filtering with counting enabled for your grammar. Use @prefer and @avoid to
-label alternatives.
-}
+@synopsis{Import his module if you want prefer/avoid filtering with counting enabled for your grammar. Use @prefer and @avoid to
+label alternatives.}
 &T <:Tree directThenCountPreferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   if (size(alternatives) == 1) {
     fail directThenCountPreferAvoidFilter;

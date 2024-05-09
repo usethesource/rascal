@@ -34,11 +34,28 @@
         },
         {
             "type": "java",
+            "name": "Launch RascalShell Tutor",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "projectName": "rascal",
+            "cwd" : "${workspaceFolder}/../rascal-tutor",
+            "vmArgs": "-Xss80m -Xmx2g -ea"
+        },
+        {
+            "type": "java",
             "name": "Attach RascalShell",
             "request": "attach",
             "projectName": "rascal",
             "hostName": "localhost",
             "port": 9001
+        },
+        {
+            "type": "java",
+            "name": "Attach Mvn Rascal",
+            "request": "attach",
+            "projectName": "rascal-maven-plugin",
+            "hostName": "localhost",
+            "port": 8000
         },
         {
             "type": "java",

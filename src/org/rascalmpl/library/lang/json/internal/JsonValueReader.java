@@ -269,26 +269,30 @@ public class JsonValueReader {
         }
         
         in.endObject();
-
-        if (path != null && offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
-            return vf.sourceLocation(path, offset, length, beginLine, endLine, beginColumn, endColumn);
-        }
         try {
-            if (scheme != null && authority != null && query != null && fragment != null) {
-                return vf.sourceLocation(scheme, authority, path, query, fragment);
-            }
-            if (scheme != null) {
-                return vf.sourceLocation(scheme, authority == null ? "" : authority, path);
-            }
+          ISourceLocation root;
+          if (scheme != null && authority != null && query != null && fragment != null) {
+              root = vf.sourceLocation(scheme, authority, path, query, fragment);
+          }
+          else if (scheme != null) {
+              root = vf.sourceLocation(scheme, authority == null ? "" : authority, path);
+          }
+          else if (path != null) {
+              root = URIUtil.createFileLocation(path);
+          }
+          else {
+            throw new IOException("Could not parse complete source location: " + in.getPath());
+          }
+          if (offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
+              return vf.sourceLocation(root, offset, length, beginLine, endLine, beginColumn, endColumn);
+          }
+          if (offset != -1 && length != -1) {
+              return vf.sourceLocation(root, offset, length);
+          }
+          return root;
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
-
-        if (path != null) {
-            return vf.sourceLocation(path);
-        }
-        
-        throw new IOException("Could not parse complete source location: " + in.getPath());
       }
       
       @Override
@@ -331,7 +335,7 @@ public class JsonValueReader {
             }
             else {
               // will be simple interpreted as an absolute file name
-              return vf.sourceLocation(val);
+              return URIUtil.createFileLocation(val);
             }
           } catch (URISyntaxException e) {
             throw new IOException("could not parse URI:" + in.getPath() + " due to " + e.getMessage(), e);

@@ -1,5 +1,6 @@
 module lang::rascal::tests::library::analysis::statistics::DescriptiveTests
 
+import IO;
 import List;
 import util::Math;
 import analysis::statistics::Descriptive;
@@ -14,7 +15,7 @@ bool leq(num a, num b) = a < b ? true : eq(a,b);
 test bool geometricLessThanArithmeticMean(list[num] nums) {
 	if (nums == []) return true;
 	nums = abs(nums);
-	nums = assureRange(nums, 0.1,30);
+	nums = assureRange(nums, 0.1, 30); 
 	return leq(geometricMean(nums), mean(nums));
 }
 test bool meanTimesSizeEqualsSum(list[num] nums) {

@@ -12,12 +12,9 @@
 
 @synopsis{Functions for reading and writing XML files to and from a "DOM" representation.}
 @description{
-
 [XML](http://en.wikipedia.org/wiki/XML) is a widely used markup language for encoding and exchanging documents.
 
-The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent
-way of representing and manipulating HTML, XHTML and XML documents. In this module we represent the DOM as a 
-Rascal ((Declarations-AlgebraicDataType)) using [keyword parameters]((Declarations-Function)) for the optional attributes.
+The Document Object Model [DOM](http://en.wikipedia.org/wiki/Document_Object_Model) is a cross-platform and language-independent way of representing and manipulating HTML, XHTML and XML documents. In this module we represent the DOM as a Rascal data types using keyword parameters for the optional attributes.
 
 In ((lang::xml::IO)) a different approach is taken, where each XML document is mapped to an instance of 
 the `node` class, which gives a more direct one-to-ony mapping as opposed to the DOM encoding here.
@@ -33,11 +30,8 @@ module lang::xml::DOM
 
 import Node;
 
-@doc{
-#### Synopsis
 
-Datatypes for representing an instance of the DOM.
-}
+@synopsis{Datatypes for representing an instance of the DOM.}
 
 data Node(map[str key, str val] attrs = ()) 
     = document(Node root)
@@ -74,30 +68,21 @@ public Node toXML(node x)
            [toXML(c) | c <- getChildren(x)] + [attribute(none(),"<key>","<annos[key]>") | annos := getAnnotations(x), key <- annos]);
 public default Node toXML(value x) = charData("<x> ");
 
-@doc{
-#### Synopsis
 
-Auxiliary constructor for XML attribute without namespace.
-}
+@synopsis{Auxiliary constructor for XML attribute without namespace.}
 public Node attribute(str name, str text) = attribute(none(), name, text);
 
-@doc{
-#### Synopsis
 
-Auxiliary constructor for XML element without namespace.
-}
+@synopsis{Auxiliary constructor for XML element without namespace.}
 public Node element(str name, list[Node] kids) = element(none(), name, kids);
 
 
-@doc{
-#### Synopsis
 
-Parse an XML document and return a DOM instance.
+@synopsis{Parse an XML document and return a DOM instance.}
+@description{
 
-#### Description
-
-#### Examples
-
+}
+@examples{
 Read the sample note file, parse it, and construct a DOM instance.
 ```rascal-shell
 import IO;
@@ -113,13 +98,9 @@ As expected, the result is of type ((lang::xml::DOM::Node)).
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOM(str src);
 
-@doc{
-#### Synopsis
 
-Parse an XML document and trim it (remove layout).
-
-#### Examples
-
+@synopsis{Parse an XML document and trim it (remove layout).}
+@examples{
 Read the sample note file, parse it, and construct a DOM instance (using `parseXMLDOMTrim`).
 ```rascal-shell
 import IO;
@@ -133,13 +114,9 @@ Compare this with the output of ((parseXMLDOM)).
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java Node parseXMLDOMTrim(str src);
 
-@doc{
-#### Synopsis
 
-Convert a DOM instance to a raw XML string.
-
-#### Examples
-
+@synopsis{Convert a DOM instance to a raw XML string.}
+@examples{
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
 import IO;
@@ -154,13 +131,9 @@ Apart from an extra XML header, the original source file `F` and the output `S` 
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlRaw(Node x);
 
-@doc{
-#### Synopsis
 
-Convert a DOM instance to a compact XML string (with minimal white space).
-
-#### Examples
-
+@synopsis{Convert a DOM instance to a compact XML string (with minimal white space).}
+@examples{
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 ```rascal-shell
 import IO;
@@ -175,13 +148,9 @@ The output `S` of `xmlCompact` is a version of the original source file `F` with
 @javaClass{org.rascalmpl.library.lang.xml.DOM}
 public java str xmlCompact(Node x);
 
-@doc{
-#### Synopsis
 
-Convert a DOM instance to a pretty printed XML string.
-
-#### Examples
-
+@synopsis{Convert a DOM instance to a pretty printed XML string.}
+@examples{
 Read the sample note file, parse it, construct a DOM instance, and convert it to a string:
 
 ```rascal-shell
