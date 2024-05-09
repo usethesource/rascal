@@ -139,6 +139,7 @@ loc lhsDecl(s:id(_))            = s.decl;
 loc lhsDecl(q:qualifiedName(_)) = q.decl;
 
 set[FlowStm] getStatements(set[Declaration] asts) {
+  // TODO: add lambda's here?
   allMethods 
     = [ m | /m:Declaration::method(_, _, _, _, _, _, _) <- asts]
     + [Declaration::method([],[], t, n, p, excep, empty())[decl=m.decl] | /m:Declaration::method(_,_, Type t, n, p, excep) <- asts] 
@@ -171,13 +172,11 @@ set[FlowStm] getStatements(set[Declaration] asts) {
             result += { *translate(m.decl, lhsDecl(l2), r2)};
           }
         }
-      case v:Expression::variable(_,_,r) : 
-        if (!ignoreType(v.typ)) {
-          result += { *translate(m.decl, v.decl, r)};
-        }
+
       // regular method calls with no target
       case m2:Expression::methodCall(_ ,_, _):
         result += { *translate(m.decl, emptyId, m2)};
+
       case m2:Expression::methodCall(_ ,_, _, _):
         result += { *translate(m.decl, emptyId, m2)};
     }
@@ -194,6 +193,9 @@ set[FlowStm] translate(loc base, loc target, c:cast(_, e)) {
   result = translate(base, target, e);
   return { s.target == target ? s[cast=c.typ.decl] : s | s <- result};
 }
+
+// TODO: what about switch expressions (JLS14)?
+// TODO: what about lambda expressions ?
 
 set[FlowStm] translate(loc base, loc target, conditional(con, t, e)) 
   = translate(base, emptyId, con)
@@ -217,10 +219,11 @@ set[FlowStm] translate(loc base, loc target, a:assignment(l,_,r))
   + translate(base, target, r)
   ;
 
-set[FlowStm] translate(loc base, loc target, m:methodCall(s, n, a))
-  = translate(base, target, methodCall(s, this(), n, a)[decl=m.decl][typ=m.typ][src=m.src]);
+set[FlowStm] translate(loc base, loc target, m:methodCall(targs, n, args))
+  = translate(base, target, methodCall(this(), targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
 
-set[FlowStm] translate(loc base, loc target, m:methodCall(_, r, n, a)) {
+// TODO: missing super method calls?
+set[FlowStm] translate(loc base, loc target, m:methodCall(r, _, n, a)) {
   set[FlowStm] stms = {};
   loc recv = emptyId;
   if (this() := r) {
@@ -255,7 +258,7 @@ set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, 
 set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t,  list[Declaration] targs, list[Expression] a, Declaration _))
   = translate(base, target, newObject(t, targs, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a)) {
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, _, a)) {
   assert target != emptyId;
   if (ignoreType(ob.typ))
     return {};
