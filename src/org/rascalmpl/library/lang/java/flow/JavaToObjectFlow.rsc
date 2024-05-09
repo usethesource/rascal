@@ -174,10 +174,10 @@ set[FlowStm] getStatements(set[Declaration] asts) {
         }
 
       // regular method calls with no target
-      case m2:Expression::methodCall(_ ,_, _):
+      case m2:Expression::methodCall(_ , _, _):
         result += { *translate(m.decl, emptyId, m2)};
 
-      case m2:Expression::methodCall(_ ,_, _, _):
+      case m2:Expression::methodCall(_ , _, _, _):
         result += { *translate(m.decl, emptyId, m2)};
     }
   }
@@ -222,7 +222,24 @@ set[FlowStm] translate(loc base, loc target, a:assignment(l,_,r))
 set[FlowStm] translate(loc base, loc target, m:methodCall(targs, n, args))
   = translate(base, target, methodCall(this(), targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
 
-// TODO: missing super method calls?
+set[FlowStm] translate(loc base, loc target, m:superMethodCall(targs, n, args))
+  = translate(base, target, methodCall(super(), targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superMethodCall(qual, targs, n, args))
+// TODO: not sure this passing of `qualifier` does the trick here
+  = translate(base, target, methodCall(qual, targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
+
+// TODO: check if this is the way to handle this new constructor for constructorCall
+set[FlowStm] translate(loc base, loc target, m:constructorCall(targs, args))
+  = translate(base, target, methodCall(this(), targs, id(m.decl.file), args)[decl=m.decl][typ=class(base, [t.typ | t <- targs])][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superConstructorCall(qual, targs, args))
+// TODO: not sure this passing of `qualifier` does the trick here
+  = translate(base, target, methodCall(qual, targs, id(m.decl.file), args)[decl=m.decl][typ=class(base, [t.typ | t <- targs])][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superConstructorCall(targs, args))
+  = translate(base, target, methodCall(super(), targs, id(m.decl.file), args)[decl=m.decl][typ=class(base, [t.typ | t <- targs])][src=m.src]);
+
 set[FlowStm] translate(loc base, loc target, m:methodCall(r, _, n, a)) {
   set[FlowStm] stms = {};
   loc recv = emptyId;
