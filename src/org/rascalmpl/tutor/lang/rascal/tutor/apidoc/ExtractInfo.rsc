@@ -171,7 +171,19 @@ str getSynopsis(rel[str, DocTag] tags) {
     }
 
     if (docTag(content=str docContents) <- tags["synopsis"]) {
-      return trim(intercalate(" ", split("\n", docContents)));
+      if (docTag(content=str deprMessage) <- tags["deprecated"]) {
+        return "<trim(intercalate(" ", split("\n", docContents)))>
+               '
+               ':::warning
+               '**deprecated: marked for future deletion**
+               '<deprMessage>
+               '::: 
+               '";
+      }
+      else {
+        return trim(intercalate(" ", split("\n", docContents)));
+      }
+      
     }
     else {
       return "";
@@ -179,7 +191,7 @@ str getSynopsis(rel[str, DocTag] tags) {
 }
 
 
-bool isTutorTag(str label) = label in {"doc", "synopsis", "syntax", "types", "details", "description", "examples", "benefits", "pitfalls"};
+bool isTutorTag(str label) = label in {"doc", "synopsis", "syntax", "types", "details", "description", "examples", "benefits", "pitfalls", "deprecated"};
 
 @synopsis{extracts the contents of _all_ tags from a declaration syntax tree and stores origin information}
 rel[str, DocTag] getTagContents(Tags tags){
