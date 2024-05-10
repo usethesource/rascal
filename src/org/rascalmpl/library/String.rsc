@@ -577,7 +577,7 @@ toLocation("http://grammarware.net");
 toLocation("document.xml");
 ```
 }
-@deprecated{Use ((Locations::fromOSPath))}
+@deprecated{Use ((Location::fromOSlocFromFileSystem))}
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 
