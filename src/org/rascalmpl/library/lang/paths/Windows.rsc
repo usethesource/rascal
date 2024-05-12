@@ -11,16 +11,13 @@ module lang::paths::Windows
 start syntax WindowsPathString = WindowsPath;
 
 lexical WindowsPath
-    = unc              : "\\\\" PathSep* PathChar* hostName PathSep+ PathChar* shareName PathSep+ WindowsFilePath path
+    = unc              : "\\\\" PathSep? PathChar* hostName PathSep PathChar* shareName PathSep WindowsFilePath path
     | absolute         : [A-Za-z] drive ":" PathSep WindowsFilePath path
     | driveRelative    : [A-Za-z] drive ":" WindowsFilePath path
-    | directoryRelative: PathSep WindowsFilePath
+    | directoryRelative: [\\/] WindowsFilePath
     | relative         : WindowsFilePath path         
     ;
-
-lexical PathChar = 
-    @synopsis{This is the most admissable we can be. Note that some paths will be incorrect for older versions of DOS and Windows}
-    !([\a00-\a20\< \> : \" | ? * \\ /] - [\ ]);
+lexical PathChar = !([\a00-\a20\< \> : \" | ? * \\ /] - [\ ]);
 
 lexical PathSegment
     = current: "."
@@ -28,7 +25,9 @@ lexical PathSegment
     | name   : PathChar+ \ ".." \ "."
     ;
 
-lexical PathSep = [\\/];
+lexical PathSep = [\\/]+ !>> [\\/];
+
+lexical Drive = [A-Za-z];
 
 lexical WindowsFilePath = {PathSegment PathSep+}* segments [\ ] !<< (); // only the last segment must not end in spaces.
 
@@ -43,10 +42,11 @@ the right path separators are introduced.
 loc parseWindowsPath(str input) = mapPathToLoc([WindowsPath] input);
 
 @synopsis{UNC}
-loc mapPathToLoc((WindowsPath) `\\\\<PathSep* _><PathChar* hostName><PathSep+ _><PathChar* shareName><PathSep+ _><WindowsFilePath path>`)
+loc mapPathToLoc((WindowsPath) `\\\\<PathSep? _><PathChar* hostName><PathSep _><PathChar* shareName><PathSep _><WindowsFilePath path>`)
     = (|file://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
 
 @synopsis{Absolute}
+// loc mapPathToLoc((WindowsPath) `<[A-Za-z] drive>:<PathSep _><WindowsFilePath path>`) 
 loc mapPathToLoc((WindowsPath) `C:<PathSep _><WindowsFilePath path>`) 
     = (|file:///C:/| | it + "<segment>" | segment <- path.segments);
 
@@ -61,6 +61,10 @@ loc mapPathToLoc((WindowsPath) `<PathSep _><WindowsFilePath path>`)
 @synopsis{Relative}
 loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
     = (|cwd:///| | it + "<segment>" | segment <- path.segments);
+
+test bool uncPath()
+    = parseWindowsPath("\\\\Server2\\Share\\Test\\Foo.txt")
+    == |file://Server2/Share/Test/Foo.txt|;
 
 test bool simpleDrivePath()
     = parseWindowsPath("C:\\Program Files\\Rascal")
