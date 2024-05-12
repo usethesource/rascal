@@ -36,6 +36,9 @@ extend lang::rascalcore::check::Import;
 
 extend lang::rascalcore::check::RascalConfig;
 
+import lang::rascalcore::compile::CompileTimeError;
+import analysis::typepal::Exception;
+
 import IO;
 import List;
 import Map;
@@ -260,7 +263,7 @@ ModuleStatus rascalTModelForLocs(
             ordered = reverse(sorted);
             singletons = toList(topModuleNames - toSet(ordered));
             ordered += singletons;
-            for(singleton <- singletons){
+            for(str singleton <- singletons){
                 module2component[singleton] = {singleton};
             }
         }
@@ -368,7 +371,7 @@ ModuleStatus rascalTModelForLocs(
         }
     } catch rascalSourceMissing(str txt):{
         for(str mname <- topModuleNames){
-            ms.messages[mname] = [error("<msg>", ms.moduleLocs[mname] ? |unknown:///|)];
+            ms.messages[mname] = [error("<txt>", ms.moduleLocs[mname] ? |unknown:///|)];
         }
     } catch Message msg: {
         for(str mname <- topModuleNames){

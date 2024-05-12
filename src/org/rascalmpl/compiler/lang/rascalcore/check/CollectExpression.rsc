@@ -969,15 +969,11 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
        c.useQualified([qualifier, base], name, {variableId(), moduleVariableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
        if(!isWildCard(base)){
-          //if(inPatternScope(c)){
             if(!isEmpty(c.getStack(currentAdt))){
                 c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
             } else {
                 c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
             }
-          //} else {
-          //  c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
-          //}
        } else {
           c.fact(current, avalue());
        }
