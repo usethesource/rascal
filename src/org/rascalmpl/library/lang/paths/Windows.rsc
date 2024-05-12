@@ -14,7 +14,7 @@ lexical WindowsPath
     = unc              : "\\\\" PathSep? PathChar* hostName PathSep PathChar* shareName PathSep WindowsFilePath path
     | absolute         : [A-Za-z] drive ":" PathSep WindowsFilePath path
     | driveRelative    : [A-Za-z] drive ":" WindowsFilePath path
-    | directoryRelative: [\\/] WindowsFilePath
+    | directoryRelative: PathSep \ "\\\\" WindowsFilePath
     | relative         : WindowsFilePath path         
     ;
 lexical PathChar = !([\a00-\a20\< \> : \" | ? * \\ /] - [\ ]);
@@ -62,9 +62,13 @@ loc mapPathToLoc((WindowsPath) `<PathSep _><WindowsFilePath path>`)
 loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
     = (|cwd:///| | it + "<segment>" | segment <- path.segments);
 
-test bool uncPath()
+test bool uncSharePath()
     = parseWindowsPath("\\\\Server2\\Share\\Test\\Foo.txt")
     == |file://Server2/Share/Test/Foo.txt|;
+
+test bool uncDrivePath()
+    = parseWindowsPath("\\\\system07\\C$\\")
+    == |file://system07/C$|;
 
 test bool simpleDrivePath()
     = parseWindowsPath("C:\\Program Files\\Rascal")
