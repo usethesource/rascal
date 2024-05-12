@@ -6,6 +6,7 @@ import  lang::rascalcore::compile::Compile;
 
 value main() {
     pcfg = getRascalCorePathConfig();
+    input ="lang::rascalcore::check::Checker";
     testConfig = pathConfig(
                     bin=|project://rascal-core/target|,
                     generatedSources=|project://rascal-core/target/generated-test-sources2|,
@@ -16,6 +17,6 @@ value main() {
                            |project://typepal/src|],
                     libs = [|lib:///| ]
                 );
-    msgs = compile("lang::rascalcore::compile::Examples::Tst0", getRascalCorePathConfig(), getRascalCompilerConfig());
+    msgs = compile(input, getRascalCoreCompilerConfig());
     return msgs;
 }

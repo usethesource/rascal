@@ -28,7 +28,7 @@ import analysis::graphs::Graph;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-bool traceTPL = true;
+bool traceTPL = false;
 bool traceCaches = false;
 
 tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){    

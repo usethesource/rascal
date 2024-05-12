@@ -600,7 +600,7 @@ AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = 
                                                               : lb == b1 ? p : lb when lb := alub(b1, b2);
 
 AType alub(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && lb == b1 ? p1 : lb when lb := alub(b1, p2);
-AType alub(p1:aparameter(n1, b1, closed=true), aparameter(n2, b2, closed=false)) = n1 == n2 && lb == b2 ? p2 : lb when lb := alub(p1, b2);
+AType alub(p1:aparameter(n1, b1, closed=true), p2:aparameter(n2, b2, closed=false)) = n1 == n2 && lb == b2 ? p2 : lb when lb := alub(p1, b2);
 
 AType alub(p:aparameter(n, b, closed=false), AType r) = lb == b ? p : lb when !(r is aparameter), lb := alub(b, r);
 AType alub(AType l, p:aparameter(n, b,closed=false))  = lb == b ? p : lb when !(l is aparameter), lb := alub(l, b);
@@ -619,10 +619,10 @@ AType alub(\iter-star(AType l), \iter-star(AType r)) = aadt("Tree", [], dataSynt
 AType alub(\iter-star(AType l), \iter(AType r)) = aadt("Tree", [], dataSyntax());
 
 AType alub(\iter-seps(_, _), \iter-seps(_,_)) = aadt("Tree", [], dataSyntax());
-AType alub(\iter-seps(_,_), \iter-star-seps(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-seps(_,_), \iter-star-seps(AType r,_)) = aadt("Tree", [], dataSyntax());
 
-AType alub(\iter-star-seps(AType l), \iter-star-seps(AType r)) = aadt("Tree", [], dataSyntax());
-AType alub(\iter-star-seps(AType l), \iter-seps(AType r)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star-seps(AType l, _), \iter-star-seps(AType r, _)) = aadt("Tree", [], dataSyntax());
+AType alub(\iter-star-seps(AType l, _), \iter-seps(AType r, _)) = aadt("Tree", [], dataSyntax());
 
 AType alub(l:aadt("Tree", _, _), AType r) = l
     when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
@@ -738,7 +738,7 @@ AType aglb(aparameter(n1, b1,closed=true), aparameter(n2, b2,closed=true)) = n1 
                                                               : avoid();
 
 AType aglb(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, p2);
-AType aglb(p1:aparameter(n1, b1,closed=true), aparameter(n2, b2,closed=false)) = n1 == n2 && b2 == gl ? p2 : gl when gl := aglb(p1, b2);
+AType aglb(p1:aparameter(n1, b1,closed=true), p2:aparameter(n2, b2,closed=false)) = n1 == n2 && b2 == gl ? p2 : gl when gl := aglb(p1, b2);
 
 AType aglb(p:aparameter(n, b,closed=false), AType r)  = b == gl ? p : gl when !(r is aparameter), gl := aglb(b, r);
 AType aglb(AType l, p:aparameter(n, b,closed=false))  = b == gl ? p : gl when !(l is aparameter), gl := aglb(l, b);
