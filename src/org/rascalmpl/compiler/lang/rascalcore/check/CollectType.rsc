@@ -577,7 +577,6 @@ bool isLexicalContext(Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol>+`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iter", current, [symbol], AType(Solver s) { 
         symbol_type = s.getType(symbol);
@@ -588,7 +587,7 @@ void collect(current:(Sym) `<Sym symbol>+`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    if(isIterStarSym(symbol)) c.report(warning(current, "Nested * iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterStar", current, [symbol], AType(Solver s) { 
         symbol_type = s.getType(symbol);
@@ -599,7 +598,6 @@ void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
 }
 
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterSep", current, [symbol, sep], 
         AType(Solver s) { 
@@ -613,7 +611,7 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
 }
 
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    if(isIterStarSym(symbol)) c.report(warning(current, "Nested * iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterStarSep", current, [symbol, sep], 
         AType(Solver s) { 

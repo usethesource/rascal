@@ -1423,7 +1423,12 @@ bool isIterType(AType::\iter-star(_)) = true;
 bool isIterType(AType::\iter-seps(_,_)) = true;
 bool isIterType(AType::\iter-star-seps(_,_)) = true;
 bool isIterType(AType::\opt(_)) = true;
-default bool isIterType(AType _) = false;    
+default bool isIterType(AType _) = false; 
+
+bool isIterStarType(aparameter(_,AType tvb)) = isIterStarType(tvb);
+bool isIterStarType(AType::\iter-star(_)) = true;
+bool isIterStarType(AType::\iter-star-seps(_,_)) = true;
+default bool isIterStarType(AType _) = false;       
 
 AType getIterElementType(aparameter(_,AType tvb)) = getIterElementType(tvb);
 AType getIterElementType(AType::\iter(AType i)) = i;
