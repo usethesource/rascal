@@ -20,7 +20,7 @@ lexical WindowsPath
 
 lexical PathChar = 
     @synopsis{This is the most admissable we can be. Note that some paths will be incorrect for older versions of DOS and Windows}
-    ![\a00-\a20 \< \> : \" | ? * \\ /];
+    !([\a00-\a20\< \> : \" | ? * \\ /] - [\ ]);
 
 lexical PathSegment
     = current: "."
@@ -47,12 +47,12 @@ loc mapPathToLoc((WindowsPath) `\\\\<PathSep* _><PathChar* hostName><PathSep+ _>
     = (|file://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
 
 @synopsis{Absolute}
-loc mapPathToLoc((WindowsPath) `<[A-Za-z] drive>:<PathSep _><WindowsFilePath path>`) 
-    = (|file:///<drive>:/| | it + "<segment>" | segment <- path.segments);
+loc mapPathToLoc((WindowsPath) `C:<PathSep _><WindowsFilePath path>`) 
+    = (|file:///C:/| | it + "<segment>" | segment <- path.segments);
 
 @synopsis{Drive relative}
-loc mapPathToLoc((WindowsPath) `<[A-Za-z] drive>:<WindowsFilePath path>`) 
-    = (|file:///<drive>:| | it + "<segment>" | segment <- path.segments);
+loc mapPathToLoc((WindowsPath) `C:<WindowsFilePath path>`) 
+    = (|file:///C:| | it + "<segment>" | segment <- path.segments);
 
 @synopsis{Directory relative}
 loc mapPathToLoc((WindowsPath) `<PathSep _><WindowsFilePath path>`) 
@@ -61,3 +61,7 @@ loc mapPathToLoc((WindowsPath) `<PathSep _><WindowsFilePath path>`)
 @synopsis{Relative}
 loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
     = (|cwd:///| | it + "<segment>" | segment <- path.segments);
+
+test bool simpleDrivePath()
+    = parseWindowsPath("C:\\Program Files\\Rascal")
+    == |file:///C:/Program%20Files/Rascal|;
