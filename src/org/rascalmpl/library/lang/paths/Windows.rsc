@@ -75,6 +75,8 @@ loc mapPathToLoc((WindowsPath) `<Slash _><WindowsFilePath path>`)
 loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
     = (|cwd:///| | it + "<segment>" | segment <- path.segments);
 
+private bool IS_WINDOWS = /win/i := getSystemProperty("os.name");
+
 test bool uncSharePath()
     = parseWindowsPath("\\\\Server2\\Share\\Test\\Foo.txt")
     == |file://Server2/Share/Test/Foo.txt|;
@@ -102,7 +104,7 @@ test bool simpleDrivePathD()
 test bool uncNetworkShareOk() {
     loc l = parseWindowsPath("\\\\localhost\\ADMIN$\\System32\\cmd.exe");
 
-    if (/win/i := getSystemProperty("os.name")) {
+    if (IS_WINDOWS) {
         return exists(l);
     }
     else {
