@@ -133,6 +133,12 @@ jobs:
         # single quotes to help windows deal with argument splitting
         run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=3' test
 
+      - name: Little experiment
+        if: runner.os == 'Windows'
+        run: |
+             pushd //localhost/
+             dir
+
       - uses: codecov/codecov-action@v3
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
