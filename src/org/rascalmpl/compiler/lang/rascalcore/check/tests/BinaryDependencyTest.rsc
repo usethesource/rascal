@@ -19,8 +19,6 @@ test bool importSimpleBinaryModule() {
         'int aFunction() = 1;
         ");
     
-    
-
     pcfg = pathConfig(
         srcs=[|memory://myTestLibrary/src|],
         bin=|memory://myTestLibrary/bin|,
@@ -29,7 +27,7 @@ test bool importSimpleBinaryModule() {
         libs=[]
     );
       
-    // this transitively compiles A and stores in pcfg.bin/rascal/$A.tpl
+    // this transitively compiles A and stores in pcfg.resources/rascal/$A.tpl
     msgs = check([|memory://myTestLibrary/src/A.rsc|], rascalCompilerConfig(pcfg));
 
     // no issues expected
