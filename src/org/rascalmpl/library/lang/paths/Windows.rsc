@@ -16,6 +16,9 @@ is purely syntactical, and tries to preserve the semantics of the path as much a
 }
 module lang::paths::Windows
 
+import IO;
+import util::SystemAPI;
+
 lexical WindowsPath
     = unc              : Slash Slash Slashes? PathChar* hostName Slashes PathChar* shareName Slashes WindowsFilePath path
     | absolute         : Drive drive ":" Slashes WindowsFilePath path
@@ -95,3 +98,14 @@ test bool trailingSlashesDrivePathC()
 test bool simpleDrivePathD()
     = parseWindowsPath("D:\\Program Files\\Rascal")
     == |file:///D:/Program%20Files/Rascal|;
+
+test bool uncNetworkShareOk() {
+    loc l = parseWindowsPath("\\\\localhost\\ADMIN$\\System32\\cmd.exe");
+
+    if (/win/i := getSystemProperty("os.name")) {
+        return exists(l);
+    }
+    else {
+        return |file://localhost/ADMIN$/System32/cmd.exe| == l;
+    }
+}
