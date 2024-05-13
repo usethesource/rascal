@@ -154,7 +154,7 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
         case aadt(n, list[AType] r, _):
             return asubtypeList(l, r);
         case aadt("Tree", _, _):
-            /*if(isConcreteSyntaxRole(sr))*/ return true;
+            if(isConcreteSyntaxRole(sr)) return true;
         case \start(AType t):
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
     }

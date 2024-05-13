@@ -1,3 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst6
 
-value main() = 1;
+data Content 
+  = content(str id, str title=id)
+  ;
