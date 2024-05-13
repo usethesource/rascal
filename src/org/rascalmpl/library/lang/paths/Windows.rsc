@@ -1,22 +1,26 @@
 @synopsis{Defines the syntax of filesystem and network drive paths on DOS and Windows Systems.}
 @description{
-This syntax definition ports open-source manually written Java, C++ and C# code parsers for Windows
-syntax of file and directory names, as well as shares on local networks (UNC notation). 
+This syntax definition of file paths and file names in Windows fprmalizes open-source implementations 
+manually written  Java, C++ and C# code. These are parsers for Windows syntax of file and directory names,
+as well as shares on local networks (UNC notation). It also derives from openly available documentation 
+sources on Windows and the .NET platform for confirmation and test examples.
 
-Instead of following the strict definitions of what is admissable and what is not, all implementations
-try to be a as lenient as possible. And so this is reflected in the grammar below as well.
+The main function of this module, ((parseWindowsPath)):
+* faithfully maps any syntactically correctly Windows paths to syntactically correct `loc` values.
+* ensures that if the file exists on system A, then the `loc` representation
+resolves to the same file on system A via any ((module::IO)) function. 
+* and nothing more.
 }
 module lang::paths::Windows
 
-start syntax WindowsPathString = WindowsPath;
-
 lexical WindowsPath
-    = unc              : "\\\\" PathSep? PathChar* hostName PathSep PathChar* shareName PathSep WindowsFilePath path
-    | absolute         : [A-Za-z] drive ":" PathSep WindowsFilePath path
-    | driveRelative    : [A-Za-z] drive ":" WindowsFilePath path
-    | directoryRelative: PathSep \ "\\\\" WindowsFilePath
+    = unc              : Slash Slash Slashes? PathChar* hostName Slashes PathChar* shareName Slashes WindowsFilePath path
+    | absolute         : Drive drive ":" Slashes WindowsFilePath path
+    | driveRelative    : Drive drive ":" WindowsFilePath path
+    | directoryRelative: Slash WindowsFilePath
     | relative         : WindowsFilePath path         
     ;
+
 lexical PathChar = !([\a00-\a20\< \> : \" | ? * \\ /] - [\ ]);
 
 lexical PathSegment
@@ -25,11 +29,15 @@ lexical PathSegment
     | name   : PathChar+ \ ".." \ "."
     ;
 
-lexical PathSep = [\\/]+ !>> [\\/];
+lexical Drive = [A-Za-z];
+
+lexical Slashes = Slash+ !>> [\\/];
+
+lexical Slash = [\\/];
 
 lexical Drive = [A-Za-z];
 
-lexical WindowsFilePath = {PathSegment PathSep+}* segments [\ ] !<< (); // only the last segment must not end in spaces.
+lexical WindowsFilePath = {PathSegment Slashes}* segments [\ ] !<< (); // only the last segment must not end in spaces.
 
 @synopsis{Convert a windows path literal to a source location URI}
 @description{
@@ -42,20 +50,20 @@ the right path separators are introduced.
 loc parseWindowsPath(str input) = mapPathToLoc([WindowsPath] input);
 
 @synopsis{UNC}
-loc mapPathToLoc((WindowsPath) `\\\\<PathSep? _><PathChar* hostName><PathSep _><PathChar* shareName><PathSep _><WindowsFilePath path>`)
+loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = (|file://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
 
 @synopsis{Absolute}
 // loc mapPathToLoc((WindowsPath) `<[A-Za-z] drive>:<PathSep _><WindowsFilePath path>`) 
-loc mapPathToLoc((WindowsPath) `C:<PathSep _><WindowsFilePath path>`) 
-    = (|file:///C:/| | it + "<segment>" | segment <- path.segments);
+loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
+    = (|file:///<drive>:/| | it + "<segment>" | segment <- path.segments);
 
 @synopsis{Drive relative}
-loc mapPathToLoc((WindowsPath) `C:<WindowsFilePath path>`) 
-    = (|file:///C:| | it + "<segment>" | segment <- path.segments);
+loc mapPathToLoc((WindowsPath) `<Drive drive>:<WindowsFilePath path>`) 
+    = (|file:///<drive>:| | it + "<segment>" | segment <- path.segments);
 
 @synopsis{Directory relative}
-loc mapPathToLoc((WindowsPath) `<PathSep _><WindowsFilePath path>`) 
+loc mapPathToLoc((WindowsPath) `<Slash _><WindowsFilePath path>`) 
     = (|file:///| | it + "<segment>" | segment <- path.segments);
 
 @synopsis{Relative}
@@ -70,6 +78,10 @@ test bool uncDrivePath()
     = parseWindowsPath("\\\\system07\\C$\\")
     == |file://system07/C$|;
 
-test bool simpleDrivePath()
+test bool simpleDrivePathC()
     = parseWindowsPath("C:\\Program Files\\Rascal")
     == |file:///C:/Program%20Files/Rascal|;
+
+test bool simpleDrivePathD()
+    = parseWindowsPath("D:\\Program Files\\Rascal")
+    == |file:///D:/Program%20Files/Rascal|;
