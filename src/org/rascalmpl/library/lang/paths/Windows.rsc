@@ -1,15 +1,18 @@
 @synopsis{Defines the syntax of filesystem and network drive paths on DOS and Windows Systems.}
 @description{
-This syntax definition of file paths and file names in Windows fprmalizes open-source implementations 
-manually written  Java, C++ and C# code. These are parsers for Windows syntax of file and directory names,
+This syntax definition of file paths and file names in Windows formalizes open-source implementations 
+manually written  in Java, C++ and C# code. These are parsers for Windows syntax of file and directory names,
 as well as shares on local networks (UNC notation). It also derives from openly available documentation 
 sources on Windows and the .NET platform for confirmation and test examples.
 
 The main function of this module, ((parseWindowsPath)):
 * faithfully maps any syntactically correctly Windows paths to syntactically correct `loc` values.
+* throws a ParseError if the path does not comply. Typically file names ending in spaces do not comply.
 * ensures that if the file exists on system A, then the `loc` representation
 resolves to the same file on system A via any ((module::IO)) function. 
-* and nothing more.
+* and nothing more. No normalization, no interpretatioon of `.` and `..`, no changing of cases. 
+This is left to downstream processors of `loc` values, if necessary. The current transformation
+is purely syntactical, and tries to preserve the semantics of the path as much as possible.
 }
 module lang::paths::Windows
 
@@ -37,7 +40,7 @@ lexical Slash = [\\/];
 
 lexical Drive = [A-Za-z];
 
-lexical WindowsFilePath = {PathSegment Slashes}* segments [\ ] !<< (); // only the last segment must not end in spaces.
+lexical WindowsFilePath = {PathSegment Slashes}* segments Slashes? [\ ] !<< (); // only the last segment must not end in spaces.
 
 @synopsis{Convert a windows path literal to a source location URI}
 @description{
