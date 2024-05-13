@@ -53,20 +53,20 @@ loc parseWindowsPath(str input) = mapPathToLoc([WindowsPath] input);
 loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = (|file://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
 
-@synopsis{Absolute}
+@synopsis{Absolute: given the drive and relative to its root.}
 // loc mapPathToLoc((WindowsPath) `<[A-Za-z] drive>:<PathSep _><WindowsFilePath path>`) 
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
     = (|file:///<drive>:/| | it + "<segment>" | segment <- path.segments);
 
-@synopsis{Drive relative}
+@synopsis{Drive relative: relative to the current working directory on the given drive.}
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<WindowsFilePath path>`) 
-    = (|file:///<drive>:| | it + "<segment>" | segment <- path.segments);
+    = (|file:///<drive>:.| | it + "<segment>" | segment <- path.segments);
 
-@synopsis{Directory relative}
+@synopsis{Directory relative: relative to the root of the current drive.}
 loc mapPathToLoc((WindowsPath) `<Slash _><WindowsFilePath path>`) 
-    = (|file:///| | it + "<segment>" | segment <- path.segments);
+    = (|cwdrive:///| | it + "<segment>" | segment <- path.segments);
 
-@synopsis{Relative}
+@synopsis{Relative to the current working directory on the current drive.}
 loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
     = (|cwd:///| | it + "<segment>" | segment <- path.segments);
 
