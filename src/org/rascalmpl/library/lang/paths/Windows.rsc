@@ -79,11 +79,11 @@ private bool IS_WINDOWS = /win/i := getSystemProperty("os.name");
 
 test bool uncSharePath()
     = parseWindowsPath("\\\\Server2\\Share\\Test\\Foo.txt")
-    == |file://Server2/Share/Test/Foo.txt|;
+    == |unc://Server2/Share/Test/Foo.txt|;
 
 test bool uncDrivePath()
     = parseWindowsPath("\\\\system07\\C$\\")
-    == |file://system07/C$|;
+    == |unc://system07/C$|;
 
 test bool simpleDrivePathC()
     = parseWindowsPath("C:\\Program Files\\Rascal")
