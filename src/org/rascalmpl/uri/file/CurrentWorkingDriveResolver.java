@@ -10,7 +10,6 @@
  ******************************************************************************/
 package org.rascalmpl.uri.file;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 /**
@@ -24,7 +23,7 @@ public class CurrentWorkingDriveResolver extends AliasedFileResolver {
 		super("cwdrive", deriveCurrentWorkingDrive(System.getProperty("user.dir")));
 	}
 
-	private static String deriveCurrentWorkingDrive(String property) {
-		return Paths.get(property).getRoot().toString();
+	private static String deriveCurrentWorkingDrive(String userDir) {
+		return Paths.get(userDir).toAbsolutePath().getRoot().toString();
 	}
 }
