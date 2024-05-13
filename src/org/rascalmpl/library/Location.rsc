@@ -24,6 +24,7 @@ import Set;
 import String;
 import Exception;
 
+import lang::paths::Windows;
 
 @synopsis{Extracts a path relative to a parent location.}
 @description{
@@ -43,63 +44,18 @@ loc relativize(list[loc] haystack, loc needle) {
     }
 }
 
-@synopsis{Names of file system path syntaxes that can be found in the wild.}
+@synopsis{Convert Windows path syntax to a `loc` value}
 @description{
-* `generic` captures all unix-like systems like the BSD family, SunOs, Solaris, Irix, etc.
-* `mac_osx` captures modern Mac's that also have a unix-like filesystem but with different exceptions to permissable characters and case-sensitivity.
-* `windows` is for all DOS-based filesystems and what came after, with the slashes in the other direction.
-* `linux` is for all the filesystems in Linux distributions.
+This conversion supports generic Windows path syntax, including:
+* Absolute drive-specific: `C:\Program Files`
+* Relative drive-specific: `C:hello.txt`
+* Relative: `hello.txt`
+* Directory-relative: `\hello.txt`
+* UNC format: `\\\\system07\\C$\\`
 
-Use this as a parameter to ((locFromFileSystem)) to choose how to parse a string as a filesystem path.
+Windows paths, againat popular believe, support both `/` and `\` as path separators.
 }
-data FileSystemSyntax
-    = generic()
-    | mac_osx()
-    | windows()
-    | linux()
-    ;
-
-@javaClass{org.rascalmpl.library.Prelude}
-@synopsis{Utility to retrieve the current notation for file system paths.}
-@description{
-This is uses to configure the default syntax parameter of ((locFromFileSystem)).
-}
-java FileSystemSyntax currentFileSystem();
-
-@synopsis{Converts the OS-specific string representation of a file or directory PATH to a `loc`.}
-@description{
-This converts a string that hold a path to a file, written in a specific notation for paths, to
-a canonical `loc` in URI format.
-
-* if `legalize` is true, then every path segment is legalized by replacing offending characters to `_`
-* if `legalize` is false, and offending characters appear between the path separators, then an IO exception is thrown.
-* if the requested file system syntax is either case insensitive or not case preserving (or both), then all uppercase characters will be replaced by lowercase characters.
-* on windows systems the drive letter `C:` is added if a drive letter is missing.
-* on all the other systems, if the path starts with a path separator, it is taken as absolute in `file:///`. Otherwise the root will be `cwd:///`.
-}
-// Wait for bootstrap
-// @examples{
-// ```rascal-shell
-// import Location;
-// locFromFileSystem("C:\\Documents\\Newsletters\\Summer2018.pdf", \syntax=windows())
-// ```
-// }
-@benefits{
-* After conversion there are many utility functions that operate safely and portably on `loc` values. See ((module:IO)) and ((module:util::FileSystem)) for examples.
-* ((module:util::ShellExec)) features `loc`-based versions for passing the names of binaries and the names of file parameters on the commandlines as `loc` values.
-* The file names identified by the path strings do not need to exist. They could typically be names in a CSV file or a spreadsheet data source, for which
-no reflection exists in the mounted drives of the current (virtual) computer. Consider them "data", until passed in the functions of ((module:IO)), for example.
-}
-@pitfalls{
-* Delaying this conversion until _just before_ file ((module:IO)), misses out on:
-   * efficiency; loc values have internal sharing and memoization features.
-   * portability: OS-specific string paths can break on other machines.
-   * equational reasoning: ((locFromFileSystem)) has canonicalizing features to remove common cases of aliases (such as uppercase vs lowercase).
-* Path syntax does not support `..` or `.` notation, simply because this conversion does not require
-the paths to even exist on the current system. The `..` notation remains part of the name of a file accordingly, without being interpreted against a mounted file system.
-}
-@javaClass{org.rascalmpl.library.Prelude}
-java loc locFromFileSystem(str pathString, FileSystemSyntax \syntax=currentFileSystem(), bool legalize=false);
+loc locFromWindowsPath(str path) = parseWindowsPath(path);
 
 @synopsis{Check that two locations refer to the same file.}    
 bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
