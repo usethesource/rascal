@@ -3627,62 +3627,6 @@ public class Prelude {
 		return values.constructor(cons);
 	}
 
-	public ISourceLocation locFromFileSystem(IString pathString, IConstructor syntax, IBool legalize) {
-		var fs = FileSystem.valueOf(syntax.getName().toUpperCase());
-		var sep = String.valueOf(fs.getNameSeparator());
-		var path = pathString.getValue();
-		var drive = fs.supportsDriveLetter() && path.length() >= 2 && path.charAt(1) == ':' 
-			? path.substring(0, 2)
-			: "";
-		
-		if (drive.length() > 0) {
-			// cut off the drive letter
-			path = path.substring(2);
-		}
-
-		if (FileSystem.WINDOWS == fs && drive.isEmpty()) {
-			// supply missing drive letter
-			drive = "C:";
-		}
-
-		if (legalize.getValue()) {
-			// replace illegals by _
-			String[] legal = Arrays.stream(path.split(Pattern.quote(sep)))
-				.map(segment -> fs.toLegalFileName(segment, '_'))
-				.toArray(String[]::new);
-			path = String.join(sep, legal);
-		}
-
-		// throw IO when illegal char occur
-		Arrays.stream(path.split(Pattern.quote(sep)))
-			.forEach(segment -> {
-				if (!segment.isEmpty() && !fs.isLegalFileName(segment)) {
-					throw RuntimeExceptionFactory.io("\""+ segment + "\" is not a legal " + syntax.getName() + " filename.");
-				}
-			});
-		
-		// now switch to forward slashes
-		if (!sep.equals("/")) {
-			path = FilenameUtils.separatorsToUnix(path);
-		}
-
-		// canonicalize if required or necessary
-		if (!fs.isCasePreserving() || !fs.isCaseSensitive()) {
-			// to try and avoid having different loc values point to the same file
-			// the fewer aliases, the better, even though due to symlinks,
-			// mounts and such we can not avoid them alltogether.
-			path = path.toLowerCase();
-		}
-
-		// generate either a root file loc or a current working directory loc.
-		if (path.startsWith(sep) && drive.isEmpty()) {
-			return URIUtil.correctLocation("file", "", drive + path);
-		}
-		else {
-			return URIUtil.correctLocation("cwd", "", drive + path);
-		}
-	}
-	
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
