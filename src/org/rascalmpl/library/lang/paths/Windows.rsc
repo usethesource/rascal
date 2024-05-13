@@ -38,8 +38,6 @@ lexical Slashes = Slash+ !>> [\\/];
 
 lexical Slash = [\\/];
 
-lexical Drive = [A-Za-z];
-
 lexical WindowsFilePath = {PathSegment Slashes}* segments Slashes? [\ .] !<< (); // only the last segment must not end in spaces.
 
 import ParseTree;
