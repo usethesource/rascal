@@ -27,7 +27,7 @@ test bool importSimpleBinaryModule() {
         libs=[]
     );
       
-    // this transitively compiles A and stores in pcfg.resources/rascal/$A.tpl
+    // this compiles A and stores in pcfg.resources/rascal/$A.tpl
     msgs = check([|memory://myTestLibrary/src/A.rsc|], rascalCompilerConfig(pcfg));
 
     // no issues expected
