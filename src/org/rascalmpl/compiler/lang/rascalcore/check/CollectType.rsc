@@ -567,6 +567,10 @@ bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }+`) = true;
 bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
 default bool isIterSym(Sym sym) = false;
 
+bool isIterStarSym((Sym) `<Sym symbol>*`) = true;
+bool isIterStarSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
+default bool isIterStarSym(Sym sym) = false;
+
 
 bool isLexicalContext(Collector c){
     adtStack = c.getStack(currentAdt);
