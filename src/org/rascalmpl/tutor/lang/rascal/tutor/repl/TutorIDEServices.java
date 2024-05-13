@@ -53,4 +53,9 @@ public class TutorIDEServices implements IDEServices {
     public void edit(ISourceLocation path) {
         
     }
+
+    @Override
+    public void endAllJobs() {
+        
+    }
 }

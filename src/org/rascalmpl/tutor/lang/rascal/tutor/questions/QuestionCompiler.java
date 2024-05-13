@@ -14,6 +14,7 @@ package lang.rascal.tutor.questions;
 
 import java.io.File;
 
+import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -35,7 +36,7 @@ public class QuestionCompiler {
     public QuestionCompiler(PathConfig pcfg) {
         final GlobalEnvironment heap = new GlobalEnvironment();
         final ModuleEnvironment top = new ModuleEnvironment("***question compiler***", heap);
-        eval = new Evaluator(vf, System.in, System.err, System.out, top, heap);
+        eval = new Evaluator(vf, System.in, System.err, System.out, top, heap, new ConsoleRascalMonitor());
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));
         eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
         

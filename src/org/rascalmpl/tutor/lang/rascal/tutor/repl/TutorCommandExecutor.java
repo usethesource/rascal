@@ -70,7 +70,7 @@ public class TutorCommandExecutor {
                 GlobalEnvironment heap = new GlobalEnvironment();
                 ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                Evaluator eval = new Evaluator(vf, input, stderr, stdout, root, heap);
+                Evaluator eval = new Evaluator(vf, input, stderr, stdout, root, heap, services);
 
                 eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
                 eval.setMonitor(services);        
