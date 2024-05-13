@@ -57,7 +57,7 @@ loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#Win
 
 @synopsis{UNC}
 loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
-    = (|file://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
+    = (|unc://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
 
 @synopsis{Absolute: given the drive and relative to its root.}
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
@@ -108,6 +108,6 @@ test bool uncNetworkShareOk() {
         return exists(l);
     }
     else {
-        return |file://localhost/ADMIN$/System32/cmd.exe| == l;
+        return |unc://localhost/ADMIN$/System32/cmd.exe| == l;
     }
 }
