@@ -136,8 +136,7 @@ jobs:
       - name: Little experiment
         if: runner.os == 'Windows'
         run: |
-             pushd //localhost/
-             dir
+             net share
 
       - uses: codecov/codecov-action@v3
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
