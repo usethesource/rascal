@@ -40,7 +40,9 @@ lexical Slash = [\\/];
 
 lexical Drive = [A-Za-z];
 
-lexical WindowsFilePath = {PathSegment Slashes}* segments Slashes? [\ ] !<< (); // only the last segment must not end in spaces.
+lexical WindowsFilePath = {PathSegment Slashes}* segments Slashes? [\ .] !<< (); // only the last segment must not end in spaces.
+
+import ParseTree;
 
 @synopsis{Convert a windows path literal to a source location URI}
 @description{
@@ -50,14 +52,13 @@ hostname, share name and path segment names. Also all superfluous path separator
 3. uses `loc + str` path concatenation with its builtin character encoding to construct the URI. Also
 the right path separators are introduced. 
 }
-loc parseWindowsPath(str input) = mapPathToLoc([WindowsPath] input);
+loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#WindowsPath, input, src));
 
 @synopsis{UNC}
 loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = (|file://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
 
 @synopsis{Absolute: given the drive and relative to its root.}
-// loc mapPathToLoc((WindowsPath) `<[A-Za-z] drive>:<PathSep _><WindowsFilePath path>`) 
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
     = (|file:///<drive>:/| | it + "<segment>" | segment <- path.segments);
 
@@ -83,6 +84,14 @@ test bool uncDrivePath()
 
 test bool simpleDrivePathC()
     = parseWindowsPath("C:\\Program Files\\Rascal")
+    == |file:///C:/Program%20Files/Rascal|;
+
+test bool mixedSlashesDrivePathC()
+    = parseWindowsPath("C:\\Program Files/Rascal")
+    == |file:///C:/Program%20Files/Rascal|;
+
+test bool trailingSlashesDrivePathC()
+    = parseWindowsPath("C:\\Program Files\\Rascal\\\\")
     == |file:///C:/Program%20Files/Rascal|;
 
 test bool simpleDrivePathD()
