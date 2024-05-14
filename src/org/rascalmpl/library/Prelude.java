@@ -3616,14 +3616,6 @@ public class Prelude {
 		return URIUtil.relativize(outside, inside);
 	}
 
-	public IConstructor currentFileSystem() {
-		var tf = TypeFactory.getInstance();
-		var ts = new TypeStore();
-		var fs = tf.abstractDataType(ts, "FileSystemSyntax");
-		Type cons = tf.constructor(ts, fs, org.apache.commons.io.FileSystem.getCurrent().name().toLowerCase());
-		return values.constructor(cons);
-	}
-
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
