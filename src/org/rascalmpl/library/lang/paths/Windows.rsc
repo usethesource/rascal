@@ -57,30 +57,30 @@ the right path separators are introduced.
 loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#WindowsPath, input, src));
 
 @synopsis{UNC}
-loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
+private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://<hostName>/| + "<shareName>", path);
 
 @synopsis{DOC UNC}
-loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _>?<Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
+private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _>?<Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://%3F/| + "<shareName>", path);
 
 @synopsis{Absolute: given the drive and relative to its root.}
-loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
+private loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
     = appendPath(|file:///<drive>:/|, path);
 
 @synopsis{Drive relative: relative to the current working directory on the given drive.}
-loc mapPathToLoc((WindowsPath) `<Drive drive>:<WindowsFilePath path>`) 
+private loc mapPathToLoc((WindowsPath) `<Drive drive>:<WindowsFilePath path>`) 
     = appendPath(|file:///<drive>:.|, path);
 
 @synopsis{Directory relative: relative to the root of the current drive.}
-loc mapPathToLoc((WindowsPath) `<Slash _><WindowsFilePath path>`) 
+private loc mapPathToLoc((WindowsPath) `<Slash _><WindowsFilePath path>`) 
     = appendPath(|cwdrive:///|, path);
 
 @synopsis{Relative to the current working directory on the current drive.}
-loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
+private loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
     = appendPath(|cwd:///|, path);
 
-loc appendPath(loc root, WindowsFilePath path)
+private loc appendPath(loc root, WindowsFilePath path)
     = (root | it + "<segment>" | segment <- path.segments);
 
 private bool IS_WINDOWS = /win/i := getSystemProperty("os.name");
