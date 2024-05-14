@@ -49,7 +49,7 @@ syntax[&T] explode(data[&T] ast) {
    throw "unexpected problem while exploding <ast>";
 }r
 
-// singleton str nodes are lexical identifiers
+// singleton str nodes are lexicals (identifiers and constants)
 Tree explode(data[&T] ast:str label(str identifier), str contents, int offset, int length) {
    return appl(prod(lex("*identifiers*"),[\iter-star(\char-class([range(1,1114111)]))],{}),
       [
@@ -81,7 +81,7 @@ default Tree explode(data[&T] ast, str contents, int offset, int length) {
    cons     = getConstructor(ast);
    symbols  = cons.symbols;
   
-   // Here we generate a quasi syntax rule that has the structure and the types
+   // Here we generate a quasi syntax rule on-the-fly that has the structure and the types
    // of the exploded children. Each rule starts with separators, has separators
    // in between every child, and ends with separators. Each child node is modified
    // to a syntax node. Lists become iter-star symbols.
@@ -115,15 +115,45 @@ Tree separatorTree(str contents, int \start, int end)
             [char(ch) | int ch <- chars(contents[\start..end])])
       ]);
 
+@synopsis{Helper function to convert AST notions to their ParseTree equivalent.}
+@description{
+* argument labels are kept for field access purposes later
+* string constants represent (flat) lexical syntax
+* abstract lists become concrete layout-separated nullable lists.
+}
 Symbol \syntax(label(str x, Symbol s)) = label(x, \syntax(s));
-Symbol \syntax(\str())                 = \lex("*identifiers*");
+Symbol \syntax(\str())                 = \lex("*lexical*");
 Symbol \syntax(\list(Symbol s))        = \iter-star-seps(\syntax(s),[layouts("*separators*")]);
 
 private Symbol unlabel(label(str _, Symbol s))                  = unlabel(s);
 private Symbol unlabel(conditional(Symbol s, set[Condition] _)) = unlabel(s);
 private default Symbol unlabel(Symbol s)                        = s;
 
-@synopsis{Give every element a true location for later processing.}
+@synopsis{Give every element an exact and true location for later processing.}
+@description{
+For every AST element in a list, the function returns a list of the same length,
+with each inferred fully-specified location in the place of the respective AST element.
+
+There are strings, nodes, empty lists and non-empty lists to consider. Only nodes have
+a `.src` field. For the other values a `loc` value is computed from the surrounding
+siblings and the parent span. 
+
+This algorithm runs in 2 steps:
+1. `pos` first positions every type of possible abstract element
+   * for lexical strings it becomes the entire span
+   * empty lists are not resolvable in this stage, deferred with `empty:///`
+   * nodes with src annotations; that is used
+   * non-empty lists take the cover of the first and last element.
+2. The second step is a fixed-point computation that incrementally replaces `empty:///` instances
+by using the information of the already resolved siblings, until all `empty:///` spots have been resolved.
+   * `empty:///` at the start means we can use the parent span for the left border.
+   * `empty:///` at the end means we can use the parent span for the right border.
+   * `empty:///` after a resolved location can take over the right border of that sibling.
+   * `empty:///` before a resolved location can take over the left border of that sibling.
+
+Due to the semantics of list matching, the algorithm typically replaces `empty:///` in the list
+going from left to right to find instances of the above cases. 
+}
 private list[loc] positions(loc span, list[value] l) = infer(span, [pos(span, x) | x <- l]);
 
 @synopsis{Replaces all |empty:///| with a correct loc inferred from the surroundings}
@@ -134,9 +164,21 @@ private list[loc] infer(loc span, [*loc pre, loc l, loc after, *loc post])  = in
 private default list[loc] infer(loc _span, list[loc] done)                  = done;
 
 @synsopsis{An element either knows its position, or it does not.}
-private loc pos(loc span, int _)                 = span;
+@description{
+This function applies the `span` and any directly available `.src` fields
+to do a first estimate at solving the location of an AST element.
+In particular it fails to do so for empty lists `[]`, which is left for 
+the later `infer` stage. 
+}
+@pitfalls{
+* This is where we have to assume that `str` fields are always singletons, otherwise we could not 
+put the entire `span` around them.
+}
 private loc pos(loc span, str _)                 = span;
 private loc pos(loc _span, [])                   = |empty:///|;
 private loc pos(loc _span, node n)               = \loc(n);
 private loc pos(loc _span, [node n])             = \loc(n);
 private loc pos(loc _span, [node a, *_, node b]) = cover([\loc(a), \loc(b)]);
+
+@synopsis{Waiting for `node.src` to be available in Rascal for good...}
+private loc \loc(node n) = l when loc l := n.src;
