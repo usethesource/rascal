@@ -9,7 +9,7 @@ The main function of this module, ((parseWindowsPath)):
 * faithfully maps any syntactically correctly Windows paths to syntactically correct `loc` values.
 * throws a ParseError if the path does not comply. Typically file names ending in spaces do not comply.
 * ensures that if the file exists on system A, then the `loc` representation
-resolves to the same file on system A via any ((module::IO)) function. 
+resolves to the same file on system A via any ((Library:module:IO)) function. 
 * and nothing more. No normalization, no interpretatioon of `.` and `..`, no changing of cases. 
 This is left to downstream processors of `loc` values, if necessary. The current transformation
 is purely syntactical, and tries to preserve the semantics of the path as much as possible.
@@ -57,23 +57,26 @@ loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#Win
 
 @synopsis{UNC}
 loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
-    = (|unc://<hostName>/| + "<shareName>" | it + "<segment>" | segment <- path.segments );
+    = appendPath(|unc://<hostName>/| + "<shareName>", path);
 
 @synopsis{Absolute: given the drive and relative to its root.}
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
-    = (|file:///<drive>:/| | it + "<segment>" | segment <- path.segments);
+    = appendPath(|file:///<drive>:/|, path);
 
 @synopsis{Drive relative: relative to the current working directory on the given drive.}
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<WindowsFilePath path>`) 
-    = (|file:///<drive>:.| | it + "<segment>" | segment <- path.segments);
+    = appendPath(|file:///<drive>:.|, path);
 
 @synopsis{Directory relative: relative to the root of the current drive.}
 loc mapPathToLoc((WindowsPath) `<Slash _><WindowsFilePath path>`) 
-    = (|cwdrive:///| | it + "<segment>" | segment <- path.segments);
+    = appendPath(|cwdrive:///|, path);
 
 @synopsis{Relative to the current working directory on the current drive.}
 loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`) 
-    = (|cwd:///| | it + "<segment>" | segment <- path.segments);
+    = appendPath(|cwd:///|, path);
+
+loc appendPath(loc root, WindowsFilePath path)
+    = (root | it + "<segment>" | segment <- path.segments);
 
 private bool IS_WINDOWS = /win/i := getSystemProperty("os.name");
 
