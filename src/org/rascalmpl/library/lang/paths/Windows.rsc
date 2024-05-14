@@ -18,7 +18,7 @@ module lang::paths::Windows
 
 import IO;
 import util::SystemAPI;
-
+ 
 lexical WindowsPath
     = unc              : Slash Slash Slashes? PathChar* hostName Slashes PathChar* shareName Slashes WindowsFilePath path
     | uncDOS           : Slash Slash Slashes? "?" Slashes PathChar* shareName Slashes WindowsFilePath path
