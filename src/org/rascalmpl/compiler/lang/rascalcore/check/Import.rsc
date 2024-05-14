@@ -501,7 +501,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
             
             TModel m1 = tmodel();
-            m1.rascalTplVersion = getCurrentRascalTplVersion();
+            m1.rascalTplVersion = compilerConfig.rascalTplVersion;
             m1.modelName = qualifiedModuleName;
             m1.moduleLocs = (qualifiedModuleName : mscope);
             
