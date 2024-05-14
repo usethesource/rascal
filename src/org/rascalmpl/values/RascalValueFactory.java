@@ -224,6 +224,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Alias = tf.constructor(uptr, Symbol, "alias", str, "name", tf.listType(Symbol), "parameters", Symbol, "aliased");
 	public static final Type Symbol_Cons = tf.constructor(uptr, Symbol, "cons", Symbol, "adt", str, "name", tf.listType(Symbol), "parameters");
 	
+	/* Modifiers */
+	public static final Type Symbol_DataModifier = tf.constructor(uptr, Symbol, "data", Symbol, "modified");
+	public static final Type Symbol_SyntaxModifier = tf.constructor(uptr, Symbol, "syntax", Symbol, "modified");
+	public static final Type Symbol_LexicalModifier = tf.constructor(uptr, Symbol, "lexical", Symbol, "modified");
+	public static final Type Symbol_KeywordModifier = tf.constructor(uptr, Symbol, "keyword", Symbol, "modified");
+	public static final Type Symbol_LayoutModifier = tf.constructor(uptr, Symbol, "layout", Symbol, "modified");
+
+
 	/* Internally (type checker) used constructors for Symbol: */
 	public static final Type Symbol_Overloaded = tf.constructor(uptr, Symbol, "overloaded", tf.setType(Symbol), "overloads", tf.setType(Symbol), "defaults");
 	public static final Type Symbol_Prod = tf.constructor(uptr, Symbol, "prod", Symbol, "sort", str, "name", tf.listType(Symbol), "parameters",  tf.setType(Attr), "attributes");
