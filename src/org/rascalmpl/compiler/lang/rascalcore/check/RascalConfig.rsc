@@ -432,6 +432,8 @@ data TModel (
 );
 
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
+
+        str rascalTplVersion          = currentRascalTplVersion,
         // Control message levels
         bool warnUnused               = true,
         bool warnUnusedFormals        = true,
@@ -452,6 +454,8 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         bool forceCompilationTopModule= false
     )
     = tconfig(
+        rascalTplVersion              = rascalTplVersion,
+        
         // Compiler options
         warnUnused                    = warnUnused,
         warnUnusedFormals             = warnUnusedFormals,
