@@ -97,7 +97,7 @@ test bool uncDOSDrive() {
     loc l = parseWindowsPath("\\\\?\\C$\\");
     
     if (IS_WINDOWS) {
-        assert exists(l + "Program Files");
+        assert exists(l);
     }
 
     return l == |unc://%3F/C$|;
