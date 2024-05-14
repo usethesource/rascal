@@ -21,6 +21,7 @@ import util::SystemAPI;
 
 lexical WindowsPath
     = unc              : Slash Slash Slashes? PathChar* hostName Slashes PathChar* shareName Slashes WindowsFilePath path
+    | uncDOS           : Slash Slash Slashes? "?" Slashes PathChar* shareName Slashes WindowsFilePath path
     | absolute         : Drive drive ":" Slashes WindowsFilePath path
     | driveRelative    : Drive drive ":" WindowsFilePath path
     | directoryRelative: Slash WindowsFilePath
@@ -59,6 +60,10 @@ loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#Win
 loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://<hostName>/| + "<shareName>", path);
 
+@synopsis{DOC UNC}
+loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _>?<Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
+    = appendPath(|unc://%3F/| + "<shareName>", path);
+
 @synopsis{Absolute: given the drive and relative to its root.}
 loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
     = appendPath(|file:///<drive>:/|, path);
@@ -87,6 +92,16 @@ test bool uncSharePath()
 test bool uncDrivePath()
     = parseWindowsPath("\\\\system07\\C$\\")
     == |unc://system07/C$|;
+
+test bool uncDOSDrive() {
+    loc l = parseWindowsPath("\\\\?\\C$\\");
+    
+    if (IS_WINDOWS) {
+        assert exists(l);
+    }
+
+    return l == |unc://%3F/C$|;
+}
 
 test bool simpleDrivePathC()
     = parseWindowsPath("C:\\Program Files\\Rascal")
