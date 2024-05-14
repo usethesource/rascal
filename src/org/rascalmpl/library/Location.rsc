@@ -51,9 +51,9 @@ This conversion supports generic Windows path syntax, including:
 * Relative drive-specific: `C:hello.txt`
 * Relative: `hello.txt`
 * Directory-relative: `\hello.txt`
-* UNC format: `\\\\system07\\C$\\`
+* UNC format: `\\system07\C$\`
 
-Windows paths, againat popular believe, support both `/` and `\` as path separators.
+Windows paths, against popular believe, support both `/` and `\` as path separators.
 }
 loc locFromWindowsPath(str path) = parseWindowsPath(path);
 
