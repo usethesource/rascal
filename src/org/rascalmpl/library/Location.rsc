@@ -57,6 +57,16 @@ Windows paths, against popular believe, support both `/` and `\` as path separat
 }
 loc locFromWindowsPath(str path) = parseWindowsPath(path);
 
+@synopsis{Convert Unix path syntax to a `loc` value}
+@description{
+This conversion supports generic Unix path syntax, including:
+* Absolute: `/usr/local/bin`
+* Relative: `hello.txt`
+* Home: `~/hello.txt`
+* User: `~userName\hello.txt`
+}
+loc locFromUnixPath(str path) = parseUnixPath(path);
+
 @synopsis{Check that two locations refer to the same file.}    
 bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
 
