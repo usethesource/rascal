@@ -60,7 +60,7 @@ loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#Win
 private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://<hostName>/| + "<shareName>", path);
 
-@synopsis{DOC UNC}
+@synopsis{DOS UNC}
 private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _>?<Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://%3F/| + "<shareName>", path);
 
