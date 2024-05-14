@@ -41,8 +41,12 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.ModuleNode;
+import org.objectweb.asm.tree.ModuleOpenNode;
 import org.objectweb.asm.tree.TypeInsnNode;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -54,14 +58,9 @@ import io.usethesource.vallang.IString;
 //TODO: check offset + length in physical locations.
 //TODO: change when JarInputStream problem is solved.
 public class JarConverter extends M3Converter {
-    
-    //---------------------------------------------
-    // Fields
-    //---------------------------------------------
-    
-    /**
+     /**
      * Physical source location of the current compilation unit. 
-     * A .class file is considered as a computational unit.
+     * A .class file is considered as a compilation unit.
      */
     private ISourceLocation compUnitPhysical;
     
@@ -80,11 +79,6 @@ public class JarConverter extends M3Converter {
      * Supports URI resolution.
      */
     private URIResolverRegistry registry;
-    
-    
-    //---------------------------------------------
-    // Methods
-    //---------------------------------------------
     
     /**
      * JarConverter constructor 
@@ -115,6 +109,7 @@ public class JarConverter extends M3Converter {
         modifiersOpcodes.put(Opcodes.ACC_SYNCHRONIZED, constructModifierNode("synchronized"));
         modifiersOpcodes.put(Opcodes.ACC_TRANSIENT, constructModifierNode("transient"));
         modifiersOpcodes.put(Opcodes.ACC_VOLATILE, constructModifierNode("volatile"));
+        modifiersOpcodes.put(Opcodes.ACC_TRANSITIVE, constructModifierNode("transitive"));
     }
     
     /**
@@ -142,13 +137,12 @@ public class JarConverter extends M3Converter {
      * Jar scheme is not supported.
      */
     private void createM3() {
-        try {
-                       
+        try {                 
             try (JarInputStream jarStream = new JarInputStream(registry.getInputStream(loc))) {
                 JarEntry entry = jarStream.getNextJarEntry();
                 while (entry != null) {
-                    compUnitPhysical = M3LocationUtil.extendPath(loc, entry.getName());
-                    
+                    compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), entry.getName());
+            
                     if (entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
                         ClassReader classReader = resolver.buildClassReader(jarStream);
@@ -177,9 +171,10 @@ public class JarConverter extends M3Converter {
             resolver = new ASMNodeResolver(loc, classpath, typeStore);
         }
 
-        String compUnit = className;
+        String compUnit = className.replaceAll("\\.", "/");
         ClassReader classReader = resolver.buildClassReader(className);
 
+        this.compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), compUnit + ".class");
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);
@@ -254,6 +249,17 @@ public class JarConverter extends M3Converter {
         return M3LocationUtil.makeLocation(PACKAGE_SCHEME, "", path);
     }
     
+    private ISourceLocation resolveInternalTypeName(String name) {
+        ClassReader classReader = resolver.buildClassReader(name);
+
+        if (classReader != null) {
+            ClassNode classNode = new ClassNode();
+            classReader.accept(classNode, ClassReader.SKIP_DEBUG);
+            return resolver.resolveBinding(classNode, null);
+        }
+
+        return bindingsResolver.makeBinding("java+classOrInterface", name, name);
+    }
     /**
      * Sets class M3 relations. The creation of relations associated
      * to inner classes, fields, and methods is triggered.
@@ -265,8 +271,15 @@ public class JarConverter extends M3Converter {
             ClassNode classNode = new ClassNode();
             classReader.accept(classNode, ClassReader.SKIP_DEBUG);
             
+            if (classNode.module != null) {
+                addModuleRelations(classNode.module);
+                // TODO: check if this is ok; we are skipping everything else here!
+                return;
+            }
+
             IString className = M3LocationUtil.getLocationName(classNode.name);
             ISourceLocation compUnitLogical = M3LocationUtil.makeLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
+            
             ISourceLocation classLogical = resolver.resolveBinding(classNode, null);
             ISourceLocation classPhysical = M3LocationUtil.makeLocation(compUnitPhysical, classReader.header, classReader.b.length);
             IConstructor cons = resolver.resolveType(classNode, null);
@@ -284,7 +297,72 @@ public class JarConverter extends M3Converter {
             setInnerClassRelations(classNode, classLogical); 
             setFieldRelations(classNode, classLogical);
             setMethodRelations(classNode, classLogical);
+            setLanguages(resolver.resolveLanguageVersion(classNode));
         }
+    }
+
+    private void addModuleRelations(ModuleNode module) {
+        ISourceLocation modLoc = resolveBinding(module);
+        addToDeclarations(modLoc, compUnitPhysical);
+
+        if (module.exports != null) {
+            for (var export : module.exports) {
+                var pkgLoc = resolveBinding(export.packaze);
+
+                if (export.modules.isEmpty()) {
+                    // export to all
+                    insert(moduleExportsPackage, modLoc, pkgLoc, URIUtil.rootLocation("java+module"));
+                }
+                else {
+                    // export to specific modules
+                    for (var to : export.modules) {
+                        insert(moduleExportsPackage, modLoc, pkgLoc, M3LocationUtil.makeLocation("java+module", "", to));
+                    }
+                }
+            }
+        }
+
+        if (module.provides != null) {
+            for (var provides : module.provides) {
+                var service = resolveInternalTypeName(provides.service);
+                for (var to : provides.providers) {
+                    insert(moduleProvidesService, modLoc, service, resolveInternalTypeName(to));
+                }
+            }
+        }
+
+        if (module.uses != null) {
+            for (var uses : module.uses) {
+                var service = resolveInternalTypeName(uses);
+                insert(moduleProvidesService, modLoc, service);
+            }
+        }
+
+        if (module.requires != null) {
+            for (var requires : module.requires) {
+                var required = M3LocationUtil.makeLocation("java+module", "", requires.module);
+                insert(moduleRequiresModule, modLoc, required);
+            }
+        }
+
+        if (module.opens != null) {
+            for (ModuleOpenNode opens : module.opens) {
+                var pkg = resolveBinding(opens.packaze);
+                
+                if (opens.modules.isEmpty()) {
+                    // open to all
+                    insert(moduleOpensPackage, pkg, URIUtil.rootLocation("java+module"));
+                }
+                else {
+                    // open to specific 
+                    for (var to : opens.modules) {
+                        insert(moduleOpensPackage, modLoc, pkg, resolveInternalTypeName(to));
+                    }
+                }
+            }
+        }
+
+        return;
     }
 
     /**
@@ -350,6 +428,10 @@ public class JarConverter extends M3Converter {
         }
     }
 
+    private void setLanguages(IConstructor version) {
+       addToLanguages(version);
+    }
+
     /**
      * Sets M3 relations of all methods of a given class node. The
      * creation of relations associated to parameters and bytecode
@@ -403,7 +485,18 @@ public class JarConverter extends M3Converter {
             List<MethodNode> superMethods = classNode.methods;
             
             if (superMethods != null) {
-                for (MethodNode superMethodNode : superMethods) {    
+                for (MethodNode superMethodNode : superMethods) {   
+                    
+                    if ((superMethodNode.access & Opcodes.ACC_STATIC) != 0) {
+                        // static methods do not override
+                        continue;
+                    }
+
+                    if ((superMethodNode.access & Opcodes.ACC_FINAL) != 0) {
+                        // final methods can not be overriden
+                        continue;
+                    }
+
                     if (superMethodNode.name.equals(methodNode.name) 
                         && superMethodNode.desc.equals(methodNode.desc)) {  
                         
@@ -412,6 +505,17 @@ public class JarConverter extends M3Converter {
 
                         insert(methodOverrides, methodLogical, methodSuperLogical);
                         addToMethodOverrides(classNode, methodNode, methodLogical);
+                    }
+                    else if (superMethodNode.name.equals(methodNode.name)) {
+                        // if the parameters and the name are the same, we can have co-variant return types (non-primitive)
+                        if (Type.getArgumentTypes(superMethodNode.desc).equals(Type.getArgumentTypes(methodNode.desc))) {
+                            // so here we assume the code was generated by a correct Java compiler
+                            ISourceLocation superClassLogical = resolver.resolveBinding(classNode, null);
+                            ISourceLocation methodSuperLogical = resolver.resolveBinding(superMethodNode, superClassLogical);
+    
+                            insert(methodOverrides, methodLogical, methodSuperLogical);
+                            addToMethodOverrides(classNode, methodNode, methodLogical);
+                        }
                     }
                 }
             }
@@ -465,7 +569,7 @@ public class JarConverter extends M3Converter {
     private void setInstructionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
         InsnList instructions = methodNode.instructions;
         
-        if(instructions != null) {
+        if (instructions != null) {
             ListIterator<AbstractInsnNode> iterator = instructions.iterator();
 
             while (iterator.hasNext()) {
@@ -495,6 +599,8 @@ public class JarConverter extends M3Converter {
      */
     private void setInstructionRelations(MethodNode methodNode, ISourceLocation methodLogical, MethodInsnNode instructionNode) {
         ISourceLocation methodInvocationLogical = resolver.resolveBinding(instructionNode, methodLogical);
+
+        
         addToMethodInvocation(methodLogical, methodInvocationLogical);
         // The class of the current method may also have a dependency on the same type.
         addToTypeDependency(methodLogical, Type.getObjectType(instructionNode.owner));
@@ -698,6 +804,10 @@ public class JarConverter extends M3Converter {
      */
     private void addToTypes(ISourceLocation logical, IConstructor cons) {
         insert(types, logical, cons);
+    }
+
+    private void addToLanguages(IConstructor lang) {
+        insert(languages, lang);
     }
 
     /**
