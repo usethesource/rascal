@@ -25,6 +25,7 @@ import String;
 import Exception;
 
 import lang::paths::Windows;
+import lang::paths::Unix;
 
 @synopsis{Extracts a path relative to a parent location.}
 @description{
