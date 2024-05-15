@@ -146,6 +146,12 @@ test bool uncDOSDevicePathLocalFileDot() {
     return l == |unc://%2E/C:/Test/Foo.txt|;
 }
 
+test bool uncDOSDeviceVolumeGUIDReference() {
+    loc l = parseWindowsPath("\\\\.\\Volume{b75e2c83-0000-0000-0000-602f00000000}\\Test\\Foo.txt");
+
+    return l == |unc://%2E/Volume%7Bb75e2c83-0000-0000-0000-602f00000000%7D/Test/Foo.txt|;
+}
+
 test bool simpleDrivePathC()
     = parseWindowsPath("C:\\Program Files\\Rascal")
     == |file:///C:/Program%20Files/Rascal|;
