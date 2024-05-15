@@ -126,7 +126,7 @@ test bool uncDrivePath()
     == |unc://system07/C$|;
 
 
-test bool uncDOSDevicePathLocalFile() {
+test bool uncDOSDevicePathLocalFileQuestion() {
     loc l = parseWindowsPath("\\\\?\\c:");
     
     if (IS_WINDOWS) {
@@ -134,6 +134,16 @@ test bool uncDOSDevicePathLocalFile() {
     }
 
     return l == |unc://%3F/c:|;
+}
+
+test bool uncDOSDevicePathLocalFileDot() {
+    loc l = parseWindowsPath("\\\\.\\C:\\Test\\Foo.txt");
+    
+    if (IS_WINDOWS) {
+        assert exists(l);
+    }
+
+    return l == |unc://%2E/C:/Test/Foo.txt|;
 }
 
 test bool simpleDrivePathC()
