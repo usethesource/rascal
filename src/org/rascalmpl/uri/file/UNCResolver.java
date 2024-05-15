@@ -2,6 +2,7 @@ package org.rascalmpl.uri.file;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -26,7 +27,7 @@ public class UNCResolver extends FileURIResolver {
             // which are able to parse UNC's on Windows.
             // TODO: remove debug statements
             System.err.println("UNC resolver produced this path: " + "\\\\" + uri.getAuthority() + "\\" + uri.getPath());
-			return "\\\\" + uri.getAuthority() + "\\" + uri.getPath().replaceAll("/", "\\");
+			return "\\\\" + uri.getAuthority() + "\\" + uri.getPath().replaceAll(Pattern.quote("/"), Pattern.quote("\\"));
 		}
 		else {
 			// just a normal absolute path
