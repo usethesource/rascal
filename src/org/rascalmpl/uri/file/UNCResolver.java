@@ -24,7 +24,9 @@ public class UNCResolver extends FileURIResolver {
         if (uri.hasAuthority()) {
             // downstream methods will use `new File` and `new FileInputStream`
             // which are able to parse UNC's on Windows.
-			return "\\\\" + uri.getAuthority() + "\\" + uri.getPath();
+            // TODO: remove debug statements
+            System.err.println("UNC resolver produced this path: " + "\\\\" + uri.getAuthority() + "\\" + uri.getPath());
+			return "\\\\" + uri.getAuthority() + "\\" + uri.getPath().replaceAll("/", "\\");
 		}
 		else {
 			// just a normal absolute path
