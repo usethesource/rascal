@@ -29,7 +29,9 @@ jobs:
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
-          token: e8b4481a-d178-4148-a4ff-502906390512
+          fail_ci_if_error: false
+          verbose: true
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish Test Report on github action
         if: ${{ always() && github.event_name != 'pull_request' }} # to bad this doesn't work nicely with external pull requests
