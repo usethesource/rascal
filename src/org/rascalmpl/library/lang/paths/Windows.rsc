@@ -27,7 +27,7 @@ import IO;
 import util::SystemAPI;
  
 lexical WindowsPath
-    = unc              : Slash Slash Slashes? PathChar* Slashes PathChar* Slashes WindowsFilePath 
+    = unc              : Slash Slash Slashes? PathChar* \ "." Slashes PathChar* Slashes WindowsFilePath 
     | uncDOSDrive      : Slash Slash Slashes? DOSDevice Slashes Drive ":" OptionalWindowsFilePath 
     | uncDOSPath       : Slash Slash Slashes? DOSDevice Slashes PathChar* Slashes WindowsFilePath 
     | absolute         : Drive ":" Slashes WindowsFilePath 
@@ -150,6 +150,11 @@ test bool uncDOSDeviceVolumeGUIDReference() {
     loc l = parseWindowsPath("\\\\.\\Volume{b75e2c83-0000-0000-0000-602f00000000}\\Test\\Foo.txt");
 
     return l == |unc://%2E/Volume%7Bb75e2c83-0000-0000-0000-602f00000000%7D/Test/Foo.txt|;
+}
+
+test bool uncDOSDeviceBootPartition() {
+    loc l = parseWindowsPath("\\\\.\\BootPartition\\");
+    return l == |unc://%2E/BootPartition|;
 }
 
 test bool simpleDrivePathC()
