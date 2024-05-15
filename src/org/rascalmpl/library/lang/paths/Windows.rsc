@@ -138,12 +138,23 @@ test bool uncDOSDevicePathLocalFileQuestion() {
 
 test bool uncDOSDevicePathLocalFileDot() {
     loc l = parseWindowsPath("\\\\.\\C:\\Test\\Foo.txt");
+
     
     if (IS_WINDOWS) {
         assert exists(l);
     }
 
     return l == |unc://%2E/C:/Test/Foo.txt|;
+}
+
+test bool uncDOSDeviceUNCSharePath() {
+    // the entire UNC namespace is looped back into the DOS Device UNC encoding via
+    // the reserved name "UNC":
+    loc m1 = parseWindowsPath("\\\\?\\UNC\\Server\\Share\\Test\\Foo.txt");
+    loc m2 = parseWindowsPath("\\\\.\\UNC\\Server\\Share\\Test\\Foo.txt");
+
+    return m1 == |unc://%3F/UNC/Server/Share/Test/Foo.txt|
+        && m2 == |unc://%2E/UNC/Server/Share/Test/Foo.txt|;
 }
 
 test bool uncDOSDeviceVolumeGUIDReference() {
