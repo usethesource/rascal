@@ -93,14 +93,25 @@ test bool uncDrivePath()
     = parseWindowsPath("\\\\system07\\C$\\")
     == |unc://system07/C$|;
 
-test bool uncDOSDrive() {
-    loc l = parseWindowsPath("\\\\?\\C$\\");
+
+test bool uncDOSDevicePathLocalFileNonNormalized() {
+    loc l = parseWindowsPath("\\\\?\\c:");
     
     if (IS_WINDOWS) {
         assert exists(l);
     }
 
-    return l == |unc://%3F/C$|;
+    return l == |unc://%3F/C:|;
+}
+
+test bool uncDOSDevicePathLocalFileNormalized() {
+    loc l = parseWindowsPath("\\\\.\\c:");
+    
+    if (IS_WINDOWS) {
+        assert exists(l);
+    }
+
+    return l == |unc://./C:|;
 }
 
 test bool simpleDrivePathC()
@@ -128,4 +139,14 @@ test bool uncNetworkShareOk() {
     else {
         return |unc://localhost/ADMIN$/System32/cmd.exe| == l;
     }
+}
+
+test bool uncDOSDevicePathShare() {
+    loc l = parseWindowsPath("\\\\?\\UNC\\localhost\\ADMIN$\\System32\\cmd.exe");
+    
+    if (IS_WINDOWS) {
+        assert exists(l);
+    }
+
+    return |unc://%3F/UNC/localhost/ADMIN$/System32/cmd.exe| == l;
 }
