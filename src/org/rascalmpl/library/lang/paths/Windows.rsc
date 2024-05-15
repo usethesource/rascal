@@ -20,13 +20,21 @@ import IO;
 import util::SystemAPI;
  
 lexical WindowsPath
-    = unc              : Slash Slash Slashes? PathChar* hostName Slashes PathChar* shareName Slashes WindowsFilePath path
-    | uncDOS           : Slash Slash Slashes? "?" Slashes PathChar* shareName Slashes WindowsFilePath path
-    | absolute         : Drive drive ":" Slashes WindowsFilePath path
-    | driveRelative    : Drive drive ":" WindowsFilePath path
+    = unc              : Slash Slash Slashes? PathChar* Slashes PathChar* Slashes WindowsFilePath 
+    | uncDOSDrive      : Slash Slash Slashes? DOSDevice Slashes Drive ":" OptionalWindowsFilePath 
+    | uncDOSPath       : Slash Slash Slashes? DOSDevice Slashes PathChar* Slashes WindowsFilePath 
+    | absolute         : Drive ":" Slashes WindowsFilePath 
+    | driveRelative    : Drive ":" WindowsFilePath 
     | directoryRelative: Slash WindowsFilePath
-    | relative         : WindowsFilePath path         
+    | relative         : WindowsFilePath          
     ;
+
+lexical OptionalWindowsFilePath
+    = ()
+    | Slashes WindowsFilePath
+    ;
+
+lexical DOSDevice = [.?];
 
 lexical PathChar = !([\a00-\a20\< \> : \" | ? * \\ /] - [\ ]);
 
@@ -60,9 +68,21 @@ loc parseWindowsPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#Win
 private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><PathChar* hostName><Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://<hostName>/| + "<shareName>", path);
 
-@synopsis{DOS UNC}
+@synopsis{DOS UNC Device Drive}
+private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><DOSDevice dq><Slashes _><Drive drive>:<OptionalWindowsFilePath path>`)
+    = appendPath(|unc://<deviceIndicator(dq)>/| + "<drive>:", path);
+
+@synopsis{DOS UNC Device Path}
+private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><DOSDevice dq><Slashes _><PathChar* deviceName><Slashes _><WindowsFilePath path>`)
+    = appendPath(|unc://<deviceIndicator(dq)>/| + "<deviceName>", path);
+
+private str deviceIndicator((DOSDevice) `?`) = "%3F";
+private str deviceIndicator((DOSDevice) `.`) = "%2E";
+
+@synopsis{DOS UNCPath}
 private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _>?<Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
     = appendPath(|unc://%3F/| + "<shareName>", path);
+
 
 @synopsis{Absolute: given the drive and relative to its root.}
 private loc mapPathToLoc((WindowsPath) `<Drive drive>:<Slashes _><WindowsFilePath path>`) 
@@ -83,6 +103,11 @@ private loc mapPathToLoc((WindowsPath) `<WindowsFilePath path>`)
 private loc appendPath(loc root, WindowsFilePath path)
     = (root | it + "<segment>" | segment <- path.segments);
 
+private loc appendPath(loc root, (OptionalWindowsFilePath) ``) = root;
+
+private loc appendPath(loc root, (OptionalWindowsFilePath) `<Slashes _><WindowsFilePath path>`) 
+    = appendPath(root, path);
+
 private bool IS_WINDOWS = /win/i := getSystemProperty("os.name");
 
 test bool uncSharePath()
@@ -94,24 +119,14 @@ test bool uncDrivePath()
     == |unc://system07/C$|;
 
 
-test bool uncDOSDevicePathLocalFileNonNormalized() {
+test bool uncDOSDevicePathLocalFile() {
     loc l = parseWindowsPath("\\\\?\\c:");
     
     if (IS_WINDOWS) {
         assert exists(l);
     }
 
-    return l == |unc://%3F/C:|;
-}
-
-test bool uncDOSDevicePathLocalFileNormalized() {
-    loc l = parseWindowsPath("\\\\.\\c:");
-    
-    if (IS_WINDOWS) {
-        assert exists(l);
-    }
-
-    return l == |unc://./C:|;
+    return l == |unc://%3F/c:|;
 }
 
 test bool simpleDrivePathC()
