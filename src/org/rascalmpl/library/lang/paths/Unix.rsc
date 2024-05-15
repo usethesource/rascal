@@ -15,6 +15,10 @@ is purely syntactical, and tries to preserve the semantics of the path as much a
 @pitfalls{
 * the `~` notation is typically a feature of the shell and not of system paths. However it is so commonly
 used to refer to the  home directories of users that we've added an interpretation here with the `home:///` scheme.
+* otherwise, the path syntax may be different from what you have to type in _bash_ or _zsh_. This is because shells
+need to reserve characters, like spaces, for different purposes (commandline argument separation). The 
+current definition is about the path notation that shells like _zsh_ and _bash_, and other programs, have to pass into the string arguments of
+OS features, after their own concatenation, splicing, variable expansion, de-escaping and unquoting routines have finished.. 
 }
 module lang::paths::Unix
 
