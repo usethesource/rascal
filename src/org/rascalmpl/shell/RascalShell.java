@@ -16,12 +16,17 @@ package org.rascalmpl.shell;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
+import org.fusesource.jansi.internal.Kernel32;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+
+
 import jline.Terminal;
 import jline.TerminalFactory;
 import jline.TerminalSupport;
@@ -36,6 +41,7 @@ public class RascalShell  {
     }
     
     public static void main(String[] args) throws IOException {
+        setupWindowsCodepage();
         System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
         printVersionNumber();
 
@@ -84,6 +90,28 @@ public class RascalShell  {
         finally {
             System.out.flush();
             System.err.flush();
+        }
+    }
+
+    private static final int WINDOWS_UTF8_CODE_PAGE = 65001;
+    public static void setupWindowsCodepage() {
+        if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+            // On windows, we rarely get started as utf8, but lots of places in the repl assume utf8
+            // both conhost & terminal on windows support utf8, as long as we setup the correct
+            // codepage. so we do that.
+            // after that we update the properties and continue as if all is wll.
+            try {
+                // this enables unicode output, but unicode input is not working, we need jline3 for that
+                // as the has both `SetConsoleCP` but more importantly: the `readConsoleInput` function actually deals with unicode chars
+                Kernel32.SetConsoleOutputCP(WINDOWS_UTF8_CODE_PAGE);
+                System.setOut(new PrintStream(System.out, false, StandardCharsets.UTF_8));
+                System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
+                System.setProperty("file.encoding", StandardCharsets.UTF_8.name());
+                System.setProperty("input.encoding", StandardCharsets.UTF_8.name());
+            } catch (Exception e) {
+                System.err.println("Error setting console code point to UTF8: " + e.getMessage());
+                System.err.println("Most likely, non-ascii characters will not print correctly, please report this on our github.");
+            }
         }
     }
     private static final class TMSimpleTerminal extends TerminalSupport {
