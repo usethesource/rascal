@@ -1,6 +1,10 @@
 @synopsis{Implements RFC1738 for URL syntax and maps them to `loc` values.}
+@pitfalls{
+This was taken over literall from RFC1738 but not tested.
+}
 module lang::paths::URL
 
+extend lang::paths::MailAddress;
 lexical URL
     = http:    "http://" HostPort ( "/" Hpath ( "?" Search)?)?
     | ftp:     "ftp://" Login ("/" Fpath (";type=" FtpType)?)?    
