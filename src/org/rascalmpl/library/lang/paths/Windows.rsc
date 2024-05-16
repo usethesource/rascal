@@ -84,7 +84,7 @@ private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _><DOSDevice
     = appendPath(|unc://<deviceIndicator(dq)>/| + "<deviceName>", path);
 
 private str deviceIndicator((DOSDevice) `?`) = "%3F";
-private str deviceIndicator((DOSDevice) `.`) = "%2E";
+private str deviceIndicator((DOSDevice) `.`) = ".";
 
 @synopsis{DOS UNCPath}
 private loc mapPathToLoc((WindowsPath) `<Slash _><Slash _><Slashes? _>?<Slashes _><PathChar* shareName><Slashes _><WindowsFilePath path>`)
@@ -144,7 +144,7 @@ test bool uncDOSDevicePathLocalFileDot() {
         assert exists(l);
     }
 
-    return l == |unc://%2E/C:/Test/Foo.txt|;
+    return l == |unc://./C:/Test/Foo.txt|;
 }
 
 test bool uncDOSDeviceUNCSharePath() {
@@ -154,18 +154,18 @@ test bool uncDOSDeviceUNCSharePath() {
     loc m2 = parseWindowsPath("\\\\.\\UNC\\Server\\Share\\Test\\Foo.txt");
 
     return m1 == |unc://%3F/UNC/Server/Share/Test/Foo.txt|
-        && m2 == |unc://%2E/UNC/Server/Share/Test/Foo.txt|;
+        && m2 == |unc://./UNC/Server/Share/Test/Foo.txt|;
 }
 
 test bool uncDOSDeviceVolumeGUIDReference() {
     loc l = parseWindowsPath("\\\\.\\Volume{b75e2c83-0000-0000-0000-602f00000000}\\Test\\Foo.txt");
 
-    return l == |unc://%2E/Volume%7Bb75e2c83-0000-0000-0000-602f00000000%7D/Test/Foo.txt|;
+    return l == |unc://./Volume%7Bb75e2c83-0000-0000-0000-602f00000000%7D/Test/Foo.txt|;
 }
 
 test bool uncDOSDeviceBootPartition() {
     loc l = parseWindowsPath("\\\\.\\BootPartition\\");
-    return l == |unc://%2E/BootPartition|;
+    return l == |unc://./BootPartition|;
 }
 
 test bool simpleDrivePathC()
