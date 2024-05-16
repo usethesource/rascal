@@ -128,7 +128,7 @@ test bool uncDrivePath()
 
 test bool uncDOSDevicePathLocalFileQuestion() {
     loc l = parseWindowsPath("\\\\?\\c:");
-    
+                             
     if (IS_WINDOWS) {
         assert exists(l);
     }

@@ -27,7 +27,12 @@ public class UNCResolver extends FileURIResolver {
             // which are able to parse UNC's on Windows.
             // TODO: remove debug statements
             System.err.println("UNC resolver produced this path: " + "\\\\" + uri.getAuthority() + "\\" + uri.getPath());
-			return "\\\\" + uri.getAuthority() + "\\" + uri.getPath().replaceAll(Pattern.quote("/"), Pattern.quote("\\"));
+            String path = uri.getPath();
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+            // path = path.replaceAll(Pattern.quote("/"), Pattern.quote("\\"));
+			return "\\\\" + uri.getAuthority() + "\\" + path;
 		}
 		else {
 			// just a normal absolute path
