@@ -158,7 +158,11 @@ public interface IRascalMonitor {
 	 * @return
 	 */
 	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
-		return System.console() != null
+		return buildConsoleMonitor(in, out, System.console() != null);
+	}
+
+	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out, boolean ansiEnabled) {
+		return ansiEnabled 
 			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
 			: new ConsoleRascalMonitor(new PrintStream(out))
 		;
