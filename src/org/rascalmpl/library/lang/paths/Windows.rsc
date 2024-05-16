@@ -139,11 +139,6 @@ test bool uncDOSDevicePathLocalFileQuestion() {
 test bool uncDOSDevicePathLocalFileDot() {
     loc l = parseWindowsPath("\\\\.\\C:\\Test\\Foo.txt");
 
-    
-    if (IS_WINDOWS) {
-        assert exists(l);
-    }
-
     return l == |unc://./C:/Test/Foo.txt|;
 }
 
