@@ -160,7 +160,6 @@ int commonPrefix(list[str] rdir, list[str] rm){
     return size(rm);
 }
 
-
 @synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
@@ -189,11 +188,17 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
 
     int longestSuffix = 0;
     for(loc dir <- pcfg.libs){
+        dir = dir + "rascal";
         for(loc file <- find(dir, "tpl")){
             candidate = replaceFirst(file.path, dir.path, "");
+            candidate = replaceLast(candidate, "$", "");
+            if(candidate[0] == "/"){
+                candidate = candidate[1..];
+            }
             <candidate, ext> = splitFileExtension(candidate);
             candidateAsList = split("/", candidate);
             n = commonPrefix(reverse(candidateAsList), modulePathAsListReversed);
+            //println("<candidateAsList>, <modulePathAsList> =\> <n>");
             if(n > longestSuffix){
                 longestSuffix = n;
             }
@@ -204,42 +209,6 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
-
-//@synopsis{Get the name of a Rascal module given its (src or tpl) location}
-//str getModuleName(loc moduleLoc,  PathConfig pcfg){
-//    modulePath = moduleLoc.path;
-//    
-//    if(moduleLoc.extension notin {"rsc", "tpl"}){
-//        throw "Not a Rascal source or tpl file: <moduleLoc>";
-//    }
-//   
-//    for(loc dir <- pcfg.srcs){
-//        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-//           moduleName = replaceFirst(modulePath, dir.path, "");
-//           moduleName = replaceLast(moduleName, ".rsc", "");
-//           if(moduleName[0] == "/"){
-//              moduleName = moduleName[1..];
-//           }
-//           moduleName = replaceAll(moduleName, "/", "::");
-//           return moduleName;
-//        }
-//    }
-//    
-//    for(loc dir <- pcfg.libs){
-//        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-//           moduleName = replaceFirst(modulePath, dir.path, "");
-//           moduleName = replaceLast(moduleName, ".tpl", "");
-//           if(moduleName[0] == "/"){
-//              moduleName = moduleName[1..];
-//           }
-//           moduleName = replaceAll(moduleName, "/", "::");
-//           return moduleName;
-//        }
-//    }
-//    
-//    throw "No module name found for `<moduleLoc>`;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
-//}
-
 
 @synopsis{Derive a location from a given module name for reading}
 @description{
