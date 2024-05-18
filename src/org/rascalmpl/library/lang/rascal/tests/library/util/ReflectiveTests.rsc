@@ -33,8 +33,8 @@ test bool moduleReflectiveWithSrc() {
 }
 
 test bool moduleExceptionOnlyTpl() {
-      writeFile(|memory://myTestLibrary/resources/Exception.tpl|,
-        "module Exception TPL (only file matters, content irrelevant)
+      writeFile(|memory://myTestLibrary/resources/rascal/$Exception.tpl|,
+        "$Exception.tpl (only file matters, content irrelevant)
         ");
     pcfg = pathConfig(libs=[|memory://myTestLibrary/resources/|]
                      );
@@ -43,8 +43,8 @@ test bool moduleExceptionOnlyTpl() {
 }
 
 test bool moduleReflectiveOnlyTpl() {
-      writeFile(|memory://myTestLibrary/resources/util/Reflective.tpl|,
-        "module Reflective TPL (only file matters, content irrelevant)
+      writeFile(|memory://myTestLibrary/resources/rascal/util/Reflective.tpl|,
+        "util::$Reflective.tpl (only file matters, content irrelevant)
         ");
     pcfg = pathConfig(srcs = [],
                     libs=[|memory://myTestLibrary/resources/|]
@@ -54,11 +54,11 @@ test bool moduleReflectiveOnlyTpl() {
 }
 
 test bool longestModuleReflectiveOnlyTpl() {
-      writeFile(|memory://myTestLibrary1/resources/Reflective.tpl|,
-        "module Reflective TPL at top level (only file matters, content irrelevant)
+      writeFile(|memory://myTestLibrary1/resources/rascal/$Reflective.tpl|,
+        "$Reflective.tpl at top level (only file matters, content irrelevant)
         ");
-      writeFile(|memory://myTestLibrary2/resources/util/Reflective.tpl|,
-        "module Reflective TPL in subdir util (only file matters, content irrelevant)
+      writeFile(|memory://myTestLibrary2/resources/rascal/util/Reflective.tpl|,
+        "util::$Reflective.tpl in subdir util (only file matters, content irrelevant)
         ");
     pcfg = pathConfig(srcs= [], 
                       libs=[|memory://myTestLibrary1/resources/|, |memory://myTestLibrary2/resources/|]
