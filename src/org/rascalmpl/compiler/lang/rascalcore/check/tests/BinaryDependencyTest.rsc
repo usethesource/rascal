@@ -69,7 +69,7 @@ test bool importSimpleBinaryModule() {
     return true;
 }
 
-test bool importTransitiveBinaryModule() {
+test bool extendTransitiveBinaryModule() {
     remove(|memory://myTestLibrary/|, recursive=true);
     remove(|memory://myTestLibraryClient|, recursive=true);
     remove(|memory://myTestClient|, recursive=true);
@@ -104,7 +104,7 @@ test bool importTransitiveBinaryModule() {
     writeFile(|memory://myTestLibraryClient/src/B.rsc|,
         "module B
         '
-        'import A; // library import
+        'extend A; // library extension
         'int bFunction() = aFunction(); // library usage
         ");
     
@@ -126,18 +126,18 @@ test bool importTransitiveBinaryModule() {
     remove(|memory://myTestLibraryClient/src|, recursive=true);
 
     // Now we compile a client
-    writeFile(|memory://myTestClient/src/C.rsc|,
+    writeFile(|memory://myTestLibraryClient/src/C.rsc|,
         "module C
         '
-        'extend B; // library import that itself depends on another library
+        'extend B; // library extension that itself depends on another library
         'int cFunction() = bFunction() + aFunction(); // library usage from two levels of extend
         ");
     
     pcfgClient = pathConfig(
-        srcs=[|memory://myTestClient/src|],
-        bin=|memory://myTestClient/bin|,
-        generatedSources=|memory://myTestClient/generated|,
-        resources=|memory://myTestClient/resources|,
+        srcs=[|memory://myTestLibraryClient/src|],
+        bin=|memory://myTestLibraryClient/bin|,
+        generatedSources=|memory://myTestLibraryClient/generated|,
+        resources=|memory://myTestLibraryClient/resources|,
         libs=[|memory://myTestLibrary/resources|       // library dependency on where the .tpl files are
              ,|memory://myTestLibraryClient/resources|] // for both projects we depend on
     );
