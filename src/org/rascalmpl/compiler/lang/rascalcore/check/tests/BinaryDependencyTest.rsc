@@ -6,6 +6,7 @@ import lang::rascalcore::check::Checker;
 import util::Reflective;
 import IO;
 import lang::rascalcore::check::Import;
+import String;
 
 data PathConfig(loc resources=|unknown:///|, loc generatedSources=|unknown:///|);
 
@@ -53,7 +54,13 @@ test bool importSimpleBinaryModule() {
         resources=|memory://myTestLibraryClient/resources|,
         libs=[|memory://myTestLibrary/resources|] // library dependency on where the .tpl files are
     );
+
     
+    moduleLoc = |memory://myTestLibraryClient/src/B.rsc|;
+    modulePath = moduleLoc.path;
+    dir = |memory://myTestLibrary/resources|;
+    dirPath = dir.path;
+ 
     msgs = check([|memory://myTestLibraryClient/src/B.rsc|], rascalCompilerConfig(pcfg));
 
     // again no issues expected
