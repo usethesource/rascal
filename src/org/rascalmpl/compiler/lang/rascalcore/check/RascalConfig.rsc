@@ -405,7 +405,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
+loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        moduleName = getModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
