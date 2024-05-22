@@ -46,14 +46,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 
 public class TestFramework {
-	private static class InstanceHolder {
-		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
-    }
-   
-   	public static IRascalMonitor getCommonMonitor() {
-	   return InstanceHolder.monitor;
-   	}
-
 	private final static Evaluator evaluator;
 	private final static GlobalEnvironment heap;
 	private final static ModuleEnvironment root;
@@ -65,12 +57,13 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, getCommonMonitor(), root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, RascalJUnitTestRunner.getCommonMonitor(), root, heap);
 	
 		stdout = evaluator.getOutPrinter();
 		stderr = evaluator.getErrorPrinter();
 
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+		
 		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
 		
 		try {
