@@ -470,11 +470,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized void warning(String message, ISourceLocation src) {
-        if (bars.size() > 0) {
+        if (!bars.isEmpty()) {
             eraseBars();
         }
         writer.println(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
-        if (bars.size() > 0) {
+        if (!bars.isEmpty()) {
             printBars();
         }
     }
@@ -486,7 +486,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     @Override
     public synchronized void write(byte[] b) throws IOException {
-        if (bars.size() > 0) {
+        if (!bars.isEmpty()) {
             eraseBars();
             out.write(b);
             printBars();
@@ -503,7 +503,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     @Override
     public synchronized void write(byte[] b, int off, int len) throws IOException {
-    if (bars.size() > 0) {
+        if (!bars.isEmpty()) {
             eraseBars();
             out.write(b, off, len);
             printBars();
@@ -520,7 +520,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     @Override
     public synchronized void write(int b) throws IOException {
-        if (bars.size() > 0) {
+        if (!bars.isEmpty()) {
             eraseBars();
             out.write(b);
             printBars();
