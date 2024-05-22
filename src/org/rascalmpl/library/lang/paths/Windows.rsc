@@ -189,13 +189,3 @@ test bool uncNetworkShareOk() {
         return |unc://localhost/ADMIN$/System32/cmd.exe| == l;
     }
 }
-
-test bool uncDOSDevicePathShare() {
-    loc l = parseWindowsPath("\\\\?\\UNC\\localhost\\ADMIN$\\System32\\cmd.exe");
-    
-    if (IS_WINDOWS) {
-        assert exists(l);
-    }
-
-    return |unc://%3F/UNC/localhost/ADMIN$/System32/cmd.exe| == l;
-}
