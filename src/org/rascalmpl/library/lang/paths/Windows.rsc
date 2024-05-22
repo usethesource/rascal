@@ -127,13 +127,13 @@ test bool uncDrivePath()
 
 
 test bool uncDOSDevicePathLocalFileQuestion() {
-    loc l = parseWindowsPath("\\\\?\\c:");
+    loc l = parseWindowsPath("\\\\?\\c:\\windows\\system32\\cmd.exe");
                              
     if (IS_WINDOWS) {
         assert exists(l);
     }
 
-    return l == |unc://%3F/c:|;
+    return l == |unc://%3F/c:/windows/system32/cmd.exe|;
 }
 
 test bool uncDOSDevicePathLocalFileDot() {
