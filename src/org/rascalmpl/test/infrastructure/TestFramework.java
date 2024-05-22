@@ -71,7 +71,6 @@ public class TestFramework {
 		stderr = evaluator.getErrorPrinter();
 
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
 		
 		try {
 			assert (false);
