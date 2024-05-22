@@ -3615,7 +3615,7 @@ public class Prelude {
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
 		return URIUtil.relativize(outside, inside);
 	}
-	
+
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 

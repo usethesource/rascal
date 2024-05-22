@@ -24,6 +24,8 @@ import Set;
 import String;
 import Exception;
 
+import lang::paths::Windows;
+import lang::paths::Unix;
 
 @synopsis{Extracts a path relative to a parent location.}
 @description{
@@ -43,6 +45,28 @@ loc relativize(list[loc] haystack, loc needle) {
     }
 }
 
+@synopsis{Convert Windows path syntax to a `loc` value}
+@description{
+This conversion supports generic Windows path syntax, including:
+* Absolute drive-specific: `C:\Program Files`
+* Relative drive-specific: `C:hello.txt`
+* Relative: `hello.txt`
+* Directory-relative: `\hello.txt`
+* UNC format: `\\system07\C$\`
+
+Windows paths, against popular believe, support both `/` and `\` as path separators.
+}
+loc locFromWindowsPath(str path) = parseWindowsPath(path);
+
+@synopsis{Convert Unix path syntax to a `loc` value}
+@description{
+This conversion supports generic Unix path syntax, including:
+* Absolute: `/usr/local/bin`
+* Relative: `hello.txt`
+* Home: `~/hello.txt`
+* User: `~userName\hello.txt`
+}
+loc locFromUnixPath(str path) = parseUnixPath(path);
 
 @synopsis{Check that two locations refer to the same file.}    
 bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
