@@ -143,6 +143,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	* To override to build resolvers to specific locations using a prefix for example.
 	*/
 	protected String getPath(ISourceLocation uri) {
+		assert !uri.hasAuthority();
 		return uri.getPath();
 	}
 	
