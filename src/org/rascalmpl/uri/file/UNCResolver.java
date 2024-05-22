@@ -23,15 +23,18 @@ public class UNCResolver extends FileURIResolver {
         }
         
         if (uri.hasAuthority()) {
-            // downstream methods will use `new File` and `new FileInputStream`
-            // which are able to parse UNC's on Windows.
-            // TODO: remove debug statements
-            System.err.println("UNC resolver produced this path: " + "\\\\" + uri.getAuthority() + "\\" + uri.getPath());
             String path = uri.getPath();
+            
             if (path.startsWith("/")) {
+                // that will be the backslash added before the path later
                 path = path.substring(1);
             }
-            // path = path.replaceAll(Pattern.quote("/"), Pattern.quote("\\"));
+
+            if (path.endsWith(":")) {
+                // current folder on drive not supported in UNC notation, this becomes the root of the drive
+                path = path + "\\";
+            }
+            
 			return "\\\\" + uri.getAuthority() + "\\" + path;
 		}
 		else {
