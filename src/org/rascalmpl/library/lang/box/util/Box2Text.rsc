@@ -73,7 +73,7 @@ import lang::box::\syntax::Box;
 @description{
 * This algorithm never changes the left-to-right order of the Boxes constituents, such that
 syntactical correctness is maintained
-* This algorithm tries not never over-run the maxWidth parameter, but if it must to maintain 
+* This algorithm tries to never over-run the `maxWidth` parameter, but if it must to maintain 
 text order, and the specified nesting of boxes, it will anyway. For example, if a table column doesn't
 fit it will still be printed. We say `maxWidth` is a _soft_ constraint.
 * Separator options like `i`, `h` and `v` options are _hard_ constraints, they may lead to overriding `maxWidth`.
@@ -134,8 +134,8 @@ private Text vv(Text a, Text b) = [*a, *b];
 private str blank(str a) = right("", width(a));
 
 @synopsis{Computes a white line with the length of the last line of a}
- Text wd([])             = [];
- Text wd([*_, str x])    = [blank(x)];
+Text wd([])             = [];
+Text wd([*_, str x])    = [blank(x)];
 
 @synopsis{Computes the length of unescaped string s}
 private int width(str s) = size(s); 
