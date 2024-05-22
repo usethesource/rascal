@@ -31,7 +31,7 @@ This demonstrates the semantics of the main hard constraints:
 
 ```rascal-shell
 import lang::box::util::Box2Text;
-import lang::box::util::Box;
+import lang::box::\syntax::Box;
 format(H([L("A"), L("B"), L("C")], hs=2))
 format(H([L("A"), L("B"), L("C")], hs=1))
 format(H([L("A"), L("B"), L("C")], hs=0))
