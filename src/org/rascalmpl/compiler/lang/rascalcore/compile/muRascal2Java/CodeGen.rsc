@@ -1775,7 +1775,7 @@ JCode trans(muThrow(MuExp exp, loc src), JGenie jg)
       : "throw new Throw(<trans(exp, jg)>);";
 
 JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){
-    finallyCode = trans(\finally, jg);
+    finallyCode = semi(trans(\finally, jg));
     return "try {
            '     <semi(trans(exp, jg))>
            '}<trans(\catch, jg)>
