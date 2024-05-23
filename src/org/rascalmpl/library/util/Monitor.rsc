@@ -206,6 +206,9 @@ test bool unfinishedInputTest() {
   for (/<l:[a-z]>/ := "abcdefghijklmnopqrstuwvxyz") {
     print(l); // no newline!
     jobStep("job", "letter <l>", work=1);
+    if (arbInt(10) == 0) {
+      println(); // break it
+    }
   }
   println(); // flush it
   jobEnd("job");
