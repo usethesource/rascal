@@ -234,7 +234,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 				options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.APPEND };
 			}
 			else {
-				options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ };
+				options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING };
 			}
 			return FileChannel.open(new File(path).toPath(), options);
 		}
