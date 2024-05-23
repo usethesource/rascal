@@ -210,7 +210,7 @@ test bool unfinishedInputTest() {
       println(); // break it
     }
   }
-  println(); // flush it
+  // println(); // flush it
   jobEnd("job");
   return true;
 }
