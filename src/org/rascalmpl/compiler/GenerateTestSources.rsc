@@ -23,7 +23,7 @@ void generateTestSources(PathConfig pcfg) {
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources|,
      resources = |project://rascal-core/target/generated-test-resources|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library| ],
+     srcs=[ |std:///|, |project://rascal-core/src/org/rascalmpl/core/library| ],
      libs = [ ]
      );
      
