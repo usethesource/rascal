@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.39.5-BOOT2</version>
+    <version>0.39.5-BOOT3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
