@@ -28,7 +28,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;

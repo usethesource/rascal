@@ -2,8 +2,6 @@ package org.rascalmpl.uri.file;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.regex.Pattern;
-
 import io.usethesource.vallang.ISourceLocation;
 
 /**

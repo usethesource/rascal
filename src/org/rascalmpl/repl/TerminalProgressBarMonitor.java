@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private List<ProgressBar> bars = new LinkedList<>();
     
+    /**
+     * We also keep a list of currently unfinished lines (one for each thread).
+     * Since there are generally very few threads a simple list beats a hash-map in terms
+     * of memory allocation and possibly also lookup efficiency.
+     */
+    private List<UnfinishedLine> unfinishedLines = new ArrayList<>(3);
+
     /**
      * This writer is there to help with the encoding to what the terminal needs. It writes directly to the
      * underlying stream.
@@ -107,6 +115,87 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             out.write(ANSI.showCursor());
             out.flush();
         }  
+    }
+
+    private class UnfinishedLine {
+        final long threadId;
+        int curCapacity = 512;
+        byte[] buffer = new byte[curCapacity];
+        int curEnd = 0;
+        int lastNewLine = 0;
+
+        public UnfinishedLine() {
+            this.threadId = Thread.currentThread().getId();
+        }
+
+        /**
+         * Adding input combines previously unfinished sentences with possible
+         * new sentences. A number of cases come together here that otherwise
+         * should be diligently separated. 
+         * 
+         *   - An unfinished line can already exist or not
+         *   - The new input can contain newlines or not
+         *   - The new input can end with a newline character or not
+         * 
+         * By concatenating the previous unfinished line with the new input
+         * all we have to do now is figure out where the last newline character is.
+         * 
+         */
+        private void add(byte[] newInput, int offset, int len) {
+            // first ensure capacity of the array
+            if (curEnd + len >= curCapacity) {
+                var oldCapacity = curCapacity;
+                curCapacity *= 2; // this should not happen to often. we're talking a few lines of text.
+                byte[] tmp = new byte[curCapacity];
+                System.arraycopy(buffer, 0, tmp, 0, oldCapacity);
+                buffer = tmp;
+            }
+
+            System.arraycopy(newInput, offset, buffer, curEnd, len);
+            curEnd += len;
+            lastNewLine = startOfLastLine(buffer);
+        }
+
+        public void write(byte[] n, OutputStream out) throws IOException {
+            add(n, 0, n.length);
+            flushToLastLine(out);
+        }
+
+        public void write(byte[] n, int offset, int len, OutputStream out) throws IOException {
+            add(n, offset, len);
+            flushToLastLine(out);
+        }
+
+        private void flushToLastLine(OutputStream out) throws IOException {
+            if (lastNewLine != -1) {
+                // write everything out (except the last unfinished line), but including the last newline
+                out.write(buffer, 0, lastNewLine);
+                
+                // rewind buffer to throw everything away that has been written already
+                curEnd -= lastNewLine;
+                System.arraycopy(buffer, lastNewLine, buffer, 0, curEnd);
+                lastNewLine = -1; // no newline anymore
+            }
+
+            // otherwise we wait until the next input comes to be able to complete a line.
+        }
+
+        public void writeLeftOvers(OutputStream out) throws IOException {
+            out.write(buffer, 0, curEnd);
+            out.write('\n');
+            curEnd = 0;
+            lastNewLine = -1;
+        }
+    
+        private int startOfLastLine(byte[] b) {
+            for (int i = b.length - 1; i >= 0; i--) {
+                if (b[i] == '\n') {
+                    return i;
+                }
+            }
+    
+            return -1;
+        }
     }
 
     /**
@@ -395,6 +484,21 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             .filter(b -> b.threadId == Thread.currentThread().getId())
             .filter(b -> b.name.equals(name)).findFirst().orElseGet(() -> null);
     }
+
+    private UnfinishedLine findUnfinishedLine() {
+        UnfinishedLine before = unfinishedLines.stream()
+            .filter(l -> l.threadId == Thread.currentThread().getId())
+            .findAny()
+            .orElse(null);
+
+        if (before == null) {
+            UnfinishedLine l = new UnfinishedLine();
+            unfinishedLines.add(l);
+            before = l;
+        }
+
+        return before;
+    }
     
     @Override
     public synchronized void jobStart(String name, int workShare, int totalWork) {
@@ -483,12 +587,18 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * Here we make sure the progress bars are gone just before
      * someone wants to print in the console. When the printing
      * is ready, we simply add our own progress bars again.
+     * 
+     * Special cases handle when there are unfinished lines in play.
+     * This code guarantees that printBars is only called when the cursor
+     * is before the first character of a line.
      */
     @Override
     public synchronized void write(byte[] b) throws IOException {
         if (!bars.isEmpty()) {
             eraseBars();
-            out.write(b);
+        
+            findUnfinishedLine().write(b, out);
+            
             printBars();
         }
         else {
@@ -505,7 +615,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     public synchronized void write(byte[] b, int off, int len) throws IOException {
         if (!bars.isEmpty()) {
             eraseBars();
-            out.write(b, off, len);
+            findUnfinishedLine().write(b, off, len, out);
             printBars();
         }
         else {
@@ -541,6 +651,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         bars.clear();
+        for (UnfinishedLine l : unfinishedLines) {
+            try {
+                l.writeLeftOvers(out);
+            }
+            catch (IOException e) {
+                // might happen if the terminal crashes before we stop running 
+            }
+        }
         writer.write(ANSI.showCursor());
         writer.flush();
     }
