@@ -7,15 +7,18 @@ import IO;
 import String;
 import List;
 
+@synopsis{Split the file extension from a path}
 tuple[str,str] splitFileExtension(str path){
     int n = findLast(path, ".");
     if(n < 0) return <path, "">;
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
+@synopsis{Determine length of common suffix of list of strings}
 int commonSuffix(list[str] dir, list[str] m)
     = commonPrefix(reverse(dir), reverse(m));
 
+@synopsis{Determine length of common prefix of list of strings}
 int commonPrefix(list[str] rdir, list[str] rm){
     for(int i <- index(rm)){
         if(i >= size(rdir)){
@@ -29,18 +32,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
     return size(rm);
 }
 
-test bool commonSuffixCommutative(list[str] a, list[str] b) = commonSuffix(a, b) == commonSuffix(b, a);
-test bool cs1() = commonSuffix([], ["c"]) == 0;
-
-test bool cs2() = commonSuffix(["c"], ["c"]) == 1;
-
-test bool cs3() = commonSuffix(["a", "b", "c"], ["c"]) == 1;
-
-test bool cs4() = commonSuffix(["a", "b", "c"], ["b", "c"]) == 2;
-test bool cs5() = commonSuffix(["a", "b", "c"], ["a", "b", "c"]) == 3;
-test bool cs6() = commonSuffix(["a", "b", "c"], ["z", "a", "b", "c"]) == 3;
-test bool cs7() = commonSuffix(["a", "b", "c"], ["a", "b", "d"]) == 0;
-
+@synopsis{Find the module name corresponding with a give module location and PathConfig}
 str getModuleNameNew(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
@@ -83,7 +75,19 @@ str getModuleNameNew(loc moduleLoc,  PathConfig pcfg){
     }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
-    
+
+test bool commonSuffixCommutative(list[str] a, list[str] b) = commonSuffix(a, b) == commonSuffix(b, a);
+test bool cs1() = commonSuffix([], ["c"]) == 0;
+
+test bool cs2() = commonSuffix(["c"], ["c"]) == 1;
+
+test bool cs3() = commonSuffix(["a", "b", "c"], ["c"]) == 1;
+
+test bool cs4() = commonSuffix(["a", "b", "c"], ["b", "c"]) == 2;
+test bool cs5() = commonSuffix(["a", "b", "c"], ["a", "b", "c"]) == 3;
+test bool cs6() = commonSuffix(["a", "b", "c"], ["z", "a", "b", "c"]) == 3;
+test bool cs7() = commonSuffix(["a", "b", "c"], ["a", "b", "d"]) == 0;
+
 test bool moduleExceptionWithAsSrc() {
     pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);
     return getModuleNameNew(|project://rascal/src/org/rascalmpl/library/Exception.rsc|, pcfg) 
