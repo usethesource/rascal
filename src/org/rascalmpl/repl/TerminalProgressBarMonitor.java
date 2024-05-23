@@ -153,7 +153,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
             System.arraycopy(newInput, offset, buffer, curEnd, len);
             curEnd += len;
-            lastNewLine = startOfLastLine(buffer);
+            lastNewLine = startOfLastLine();
         }
 
         public void write(byte[] n, OutputStream out) throws IOException {
@@ -169,11 +169,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private void flushToLastLine(OutputStream out) throws IOException {
             if (lastNewLine != -1) {
                 // write everything out (except the last unfinished line), but including the last newline
-                out.write(buffer, 0, lastNewLine);
+                out.write(buffer, 0, lastNewLine + 1);
                 
                 // rewind buffer to throw everything away that has been written already
                 curEnd -= lastNewLine;
-                System.arraycopy(buffer, lastNewLine, buffer, 0, curEnd);
+                System.arraycopy(buffer, lastNewLine + 1, buffer, 0, curEnd);
                 lastNewLine = -1; // no newline anymore
             }
 
@@ -181,15 +181,17 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         public void writeLeftOvers(OutputStream out) throws IOException {
-            out.write(buffer, 0, curEnd);
-            out.write('\n');
-            curEnd = 0;
-            lastNewLine = -1;
+            if (curEnd != 0) {
+                out.write(buffer, 0, curEnd);
+                out.write('\n');
+                curEnd = 0;
+                lastNewLine = -1;
+            }
         }
     
-        private int startOfLastLine(byte[] b) {
-            for (int i = b.length - 1; i >= 0; i--) {
-                if (b[i] == '\n') {
+        private int startOfLastLine() {
+            for (int i = curEnd; i >= 0; i--) {
+                if (buffer[i] == '\n') {
                     return i;
                 }
             }
@@ -632,7 +634,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     public synchronized void write(int b) throws IOException {
         if (!bars.isEmpty()) {
             eraseBars();
-            out.write(b);
+            findUnfinishedLine().write(new byte[] { (byte) b }, out);
             printBars();
         }
         else {
