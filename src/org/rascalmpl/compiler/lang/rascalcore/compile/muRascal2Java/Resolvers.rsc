@@ -400,7 +400,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         //key = /*def_type.isDefault ? 0 :*/ (def_type.isConcreteArg ? def_type.concreteFingerprint : def_type.abstractFingerprint);
        
         call_code = base_call = "";
-
+        cst = resolver_returns_void ? "" : "(<atype2javatype(resolver_return_type)>)";
         if(isFunctionAType(def_type)){
             if(isContainedIn(def.defined, module_scope)){
                 pref = "";
@@ -411,9 +411,8 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
                         }
                     }
                 }
-                call_code = "<pref><uniqueName>(<actuals_text>)";
+                call_code = "<cst><pref><uniqueName>(<actuals_text>)";
             } else if(/*isContainedIn(def.defined, def.scope),*/ loc2module[def.scope]?){
-                cst = resolver_returns_void ? "" : "(<atype2javatype(resolver_return_type)>)";
                 call_code = "<cst><module2field(loc2module[def.scope])>.<uniqueName>(<actuals_text>)"; // was uniqueName
             } else {  
                return; //do nothing
