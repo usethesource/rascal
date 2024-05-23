@@ -171,10 +171,17 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 // write everything out (except the last unfinished line), but including the last newline
                 out.write(buffer, 0, lastNewLine + 1);
                 
-                // rewind buffer to throw everything away that has been written already
-                curEnd -= lastNewLine;
-                System.arraycopy(buffer, lastNewLine + 1, buffer, 0, curEnd);
-                lastNewLine = -1; // no newline anymore
+                if (lastNewLine + 1 == curEnd) {
+                    // nothing left
+                    curEnd = 0;
+                    lastNewLine = -1;
+                }
+                else {
+                    // copy the last line that does not end with a newline
+                    curEnd -= lastNewLine;
+                    System.arraycopy(buffer, lastNewLine + 1, buffer, 0, curEnd);
+                    lastNewLine = -1; // no newline anymore
+                }
             }
 
             // otherwise we wait until the next input comes to be able to complete a line.
@@ -190,7 +197,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
     
         private int startOfLastLine() {
-            for (int i = curEnd; i >= 0; i--) {
+            for (int i = curEnd - 1; i >= 0; i--) {
                 if (buffer[i] == '\n') {
                     return i;
                 }
