@@ -332,7 +332,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + " "
                 ;
 
-            writer.println("\r" + line); // note this puts us one line down
+            writer.println(line); // note this puts us one line down
         }
 
         private String threadLabel() {
