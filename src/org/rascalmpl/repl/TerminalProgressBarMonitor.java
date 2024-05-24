@@ -489,18 +489,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
     }
 
     private UnfinishedLine findUnfinishedLine() {
-        UnfinishedLine before = unfinishedLines.stream()
+        return unfinishedLines.stream()
             .filter(l -> l.threadId == Thread.currentThread().getId())
             .findAny()
-            .orElse(null);
-
-        if (before == null) {
-            UnfinishedLine l = new UnfinishedLine();
-            unfinishedLines.add(l);
-            before = l;
-        }
-
-        return before;
+            .orElseGet(() -> {
+                UnfinishedLine l = new UnfinishedLine();
+                unfinishedLines.add(l);
+                return l;    
+            });
     }
     
     @Override
