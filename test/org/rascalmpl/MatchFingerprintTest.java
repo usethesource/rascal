@@ -21,8 +21,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
-import org.rascalmpl.test.infrastructure.TestFramework;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
