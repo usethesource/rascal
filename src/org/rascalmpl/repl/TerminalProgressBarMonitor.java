@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -117,12 +118,11 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }  
     }
 
-    private class UnfinishedLine {
+    private static class UnfinishedLine {
         final long threadId;
-        int curCapacity = 512;
-        byte[] buffer = new byte[curCapacity];
-        int curEnd = 0;
-        int lastNewLine = 0;
+        private int curCapacity = 512;
+        private byte[] buffer = new byte[curCapacity];
+        private int curEnd = 0;
 
         public UnfinishedLine() {
             this.threadId = Thread.currentThread().getId();
@@ -130,74 +130,68 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         /**
          * Adding input combines previously unfinished sentences with possible
-         * new sentences. A number of cases come together here that otherwise
-         * should be diligently separated. 
+         * new (unfinished) sentences. 
          * 
-         *   - An unfinished line can already exist or not
-         *   - The new input can contain newlines or not
-         *   - The new input can end with a newline character or not
-         * 
-         * By concatenating the previous unfinished line with the new input
-         * all we have to do now is figure out where the last newline character is.
-         * 
+         * The resulting buffer nevers contain any newline character.
          */
-        private void add(byte[] newInput, int offset, int len) {
+        private void store(byte[] newInput, int offset, int len) {
             // first ensure capacity of the array
             if (curEnd + len >= curCapacity) {
-                var oldCapacity = curCapacity;
-                curCapacity *= 2; // this should not happen to often. we're talking a few lines of text.
-                byte[] tmp = new byte[curCapacity];
-                System.arraycopy(buffer, 0, tmp, 0, oldCapacity);
-                buffer = tmp;
+                curCapacity *= 2; 
+                buffer = Arrays.copyOf(buffer, curCapacity);
             }
 
             System.arraycopy(newInput, offset, buffer, curEnd, len);
             curEnd += len;
-            lastNewLine = startOfLastLine();
         }
 
         public void write(byte[] n, OutputStream out) throws IOException {
-            add(n, 0, n.length);
-            flushToLastLine(out);
+            write(n, 0, n.length, out);
         }
 
+        /**
+         * Main workhorse looks for newline characters in the new input.
+         *  - if there are newlines, than whatever is in the buffer can be flushed.
+         *  - all the characters up to the last new new line are flushed immediately.
+         *  - all the new characters after the last newline are buffered.
+         */
         public void write(byte[] n, int offset, int len, OutputStream out) throws IOException {
-            add(n, offset, len);
-            flushToLastLine(out);
-        }
+            int lastNL = startOfLastLine(n, offset, len);
 
-        private void flushToLastLine(OutputStream out) throws IOException {
-            if (lastNewLine != -1) {
-                // write everything out (except the last unfinished line), but including the last newline
-                out.write(buffer, 0, lastNewLine + 1);
-                
-                if (lastNewLine + 1 == curEnd) {
-                    // nothing left
-                    curEnd = 0;
-                    lastNewLine = -1;
-                }
-                else {
-                    // copy the last line that does not end with a newline
-                    curEnd -= lastNewLine;
-                    System.arraycopy(buffer, lastNewLine + 1, buffer, 0, curEnd);
-                    lastNewLine = -1; // no newline anymore
-                }
+            if (lastNL == -1) {
+                store(n, offset, len);
             }
-
-            // otherwise we wait until the next input comes to be able to complete a line.
+            else {
+                flush(out);
+                out.write(n, offset, lastNL + 1);
+                store(n, offset, lastNL - offset);
+            }
         }
 
-        public void writeLeftOvers(OutputStream out) throws IOException {
+        /**
+         * This empties the current buffer onto the stream,
+         * and resets the cursor.
+         */
+        private void flush(OutputStream out) throws IOException {
             if (curEnd != 0) {
                 out.write(buffer, 0, curEnd);
-                out.write('\n');
                 curEnd = 0;
-                lastNewLine = -1;
+            }
+        }
+
+        /**
+         * Prints whatever is the last line in the buffer,
+         * and adds a newline.
+         */
+        public void flushLastLine(OutputStream out) throws IOException {
+            if (curEnd != 0) {
+                flush(out);
+                out.write('\n');
             }
         }
     
-        private int startOfLastLine() {
-            for (int i = curEnd - 1; i >= 0; i--) {
+        private int startOfLastLine(byte[] buffer, int offset, int len) {
+            for (int i = offset + len - 1; i >= 0; i--) {
                 if (buffer[i] == '\n') {
                     return i;
                 }
@@ -662,7 +656,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         bars.clear();
         for (UnfinishedLine l : unfinishedLines) {
             try {
-                l.writeLeftOvers(out);
+                l.flushLastLine(out);
             }
             catch (IOException e) {
                 // might happen if the terminal crashes before we stop running 
