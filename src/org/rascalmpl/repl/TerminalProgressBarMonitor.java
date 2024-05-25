@@ -135,6 +135,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
          * The resulting buffer nevers contain any newline character.
          */
         private void store(byte[] newInput, int offset, int len) {
+            if (len == 0) {
+                return; // fast exit
+            }
+            
             // first ensure capacity of the array
             if (curEnd + len >= curCapacity) {
                 curCapacity *= 2; 
@@ -164,7 +168,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             else {
                 flush(out);
                 out.write(n, offset, lastNL + 1);
-                store(n, offset, lastNL - offset);
+                store(n, offset, Math.max(0, lastNL - offset - 1));
             }
         }
 
