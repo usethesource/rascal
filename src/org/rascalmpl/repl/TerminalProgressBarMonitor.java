@@ -191,7 +191,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
     
         private int startOfLastLine(byte[] buffer, int offset, int len) {
-            for (int i = offset + len - 1; i >= 0; i--) {
+            for (int i = offset + len - 1; i >= offset; i--) {
                 if (buffer[i] == '\n') {
                     return i;
                 }
