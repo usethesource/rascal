@@ -281,7 +281,7 @@ ModuleStatus rascalTModelForLocs(
        
         while(mi < nmodules) {
             component = module2component[ordered[mi]];
-            jobStep(jobName, intercalate(" + ", [*moduleNames]), work=size(component));
+            jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
 
             recheck = !all(m <- component, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
             for(m <- component){
