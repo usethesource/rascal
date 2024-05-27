@@ -237,7 +237,7 @@ ModuleStatus rascalTModelForLocs(
     
     for (mloc <- mlocs) {
         m = getModuleName(mloc, pcfg);
-        jobStep(jobName, "Retrieving module name " + mloc, work=1);
+        jobStep(jobName, "Retrieving module name <mloc>", work=1);
         topModuleNames += {m};
         ms.moduleLocs[m] = mloc;
     }
