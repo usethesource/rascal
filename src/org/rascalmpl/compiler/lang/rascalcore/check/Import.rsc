@@ -166,8 +166,12 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
 //    return ms;
 //}
 
+ModuleStatus clearTModels( ModuleStatus ms){
+    ms.tmodels = ();
+    return ms;
+}
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
-    //if(traceCaches) println("getTModelForModule: <qualifiedModuleName>");
+    if(traceCaches) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]?){
         return <true, ms.tmodels[qualifiedModuleName], ms>;
@@ -432,7 +436,7 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
 }
 
 ModuleStatus prepareForCompilation(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, TModel tm){
-    map[str,TModel] tmodels = ms.tmodels;
+    map[str,TModel] tmodels = (); //ms.tmodels;
     pcfg = ms.pathConfig;
     
     dependencies_ok = true;
