@@ -437,7 +437,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         public static String darkBackground() {
-            return "\u001B[48;5;242m";
+            return "\u001B[48;5;248m";
         }
 
         public static String noBackground() {
@@ -445,7 +445,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         }
 
         public static String lightBackground() {
-            return "\u001B[48;5;249m";
+            return "\u001B[48;5;250m";
         }
 
         static String moveDown(int n) {
