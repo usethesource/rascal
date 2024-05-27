@@ -220,7 +220,10 @@ ModuleStatus rascalTModelForLocs(
     list[loc] mlocs,   
     RascalCompilerConfig compilerConfig,
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
-){         
+){     
+    jobName = "Rascal compiler";
+    jobStart(jobName, totalwork=2 * size(mlocs) + 1);
+
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
     
@@ -232,13 +235,15 @@ ModuleStatus rascalTModelForLocs(
     ModuleStatus ms = newModuleStatus(pcfg); 
     topModuleNames = {};
     
-    for(mloc <- mlocs){
-            m = getModuleName(mloc, pcfg);
-            topModuleNames += {m};
-            ms.moduleLocs[m] = mloc;
+    for (mloc <- mlocs) {
+        m = getModuleName(mloc, pcfg);
+        jobStep(jobName, "Retrieving module name " + mloc, work=1);
+        topModuleNames += {m};
+        ms.moduleLocs[m] = mloc;
     }
     
     try {
+        jobStep(jobName, "Computing and reducing import and extend graph", work=1);
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
         if(compilerConfig.forceCompilationTopModule){
@@ -250,6 +255,7 @@ ModuleStatus rascalTModelForLocs(
         imports_and_extends = ms.strPaths<0,2>;
         
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
+        
         map[str, set[str]] module2component = (m : c | c <- components, m <- c);
         
         list[str] ordered = [];
@@ -273,8 +279,10 @@ ModuleStatus rascalTModelForLocs(
         mi = 0;
         nmodules = size(ordered);
        
-        while(mi < nmodules){
+        while(mi < nmodules) {
             component = module2component[ordered[mi]];
+            jobStep(jobName, intercalate(" + ", [*moduleNames]), work=size(component));
+
             recheck = !all(m <- component, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
             for(m <- component){
                 mi += 1;
@@ -439,8 +447,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         //    ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
         //}
     }
-    jobStart("RascalCompiler");
-    jobStep("RascalCompiler", "Checking <modelName>"); // TODO: monitor
+    
     if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
     
     start_check = cpuTime();  
@@ -469,7 +476,6 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     
     check_time = (cpuTime() - start_check)/1000000;
     
-    jobStep("RascalCompiler", "Checked <modelName> in <check_time> ms");// TODO: monitor
     if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
     
     return <tm, ms>;
