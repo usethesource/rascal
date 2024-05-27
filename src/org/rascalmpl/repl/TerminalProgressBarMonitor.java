@@ -138,7 +138,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             if (len == 0) {
                 return; // fast exit
             }
-            
+
             // first ensure capacity of the array
             if (curEnd + len >= curCapacity) {
                 curCapacity *= 2; 
@@ -168,7 +168,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             else {
                 flush(out);
                 out.write(n, offset, lastNL + 1);
-                store(n, offset, Math.max(0, lastNL - offset - 1));
+                store(n, lastNL + 1, len - (lastNL + 1));
             }
         }
 
