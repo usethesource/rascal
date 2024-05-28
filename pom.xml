@@ -33,6 +33,7 @@
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.28.4</rascal-maven.version>
+        <jline.version>3.26.1</jline.version>
     </properties>
 
     <licenses>
@@ -468,6 +469,36 @@
             <groupId>jline</groupId>
             <artifactId>jline</artifactId>
             <version>2.14.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal-jni</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal-jna</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-style</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-console</artifactId>
+            <version>${jline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
