@@ -1983,4 +1983,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
     }
+
+
+    public void overwritePrintStream(PrintWriter outWriter, PrintWriter errWriter) {
+        this.curOutWriter = outWriter;
+        this.curErrWriter = errWriter;
+    }
 }
