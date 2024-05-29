@@ -1,18 +1,22 @@
-/*******************************************************************************
- * Copyright (c) 2009-2015 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
+/*
+Copyright (c) 2024, Swat.engineering
+All rights reserved. 
+  
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+  
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+  
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
+  
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+*/
 
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Tijs van der Storm - Tijs.van.der.Storm@cwi.nl
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *******************************************************************************/
 package org.rascalmpl.shell;
+
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,23 +26,18 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import org.apache.commons.io.input.NullInputStream;
-import org.jline.reader.Candidate;
-import org.jline.reader.CompletionMatcher;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
-import org.jline.reader.ParsedLine;
-import org.jline.reader.LineReader.Option;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.TerminalBuilder;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
@@ -47,21 +46,16 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.ReplTextWriter;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor2;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
 
 
 public class RascalShell2  {
@@ -78,8 +72,6 @@ public class RascalShell2  {
             var term = TerminalBuilder.builder()
                 .color(true)
                 .encoding(StandardCharsets.UTF_8)
-                //.jni(true)
-                //.streams(System.in, System.out)
                 .build();
 
             var reader = LineReaderBuilder.builder()
@@ -90,12 +82,14 @@ public class RascalShell2  {
                 .build();
 
             //IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out, true);
-            var monitor = new NullRascalMonitor() {
-                @Override
-                public void warning(String message, ISourceLocation src) {
-                    reader.printAbove("[WARN] " + message);
-                }
-            };
+            var monitor = new TerminalProgressBarMonitor2(term);
+
+            // var monitor = new NullRascalMonitor() {
+            //     @Override
+            //     public void warning(String message, ISourceLocation src) {
+            //         reader.printAbove("[WARN] " + message);
+            //     }
+            // };
 
             IDEServices services = new BasicIDEServices(term.writer(), monitor);
 
@@ -103,8 +97,8 @@ public class RascalShell2  {
             GlobalEnvironment heap = new GlobalEnvironment();
             ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
-            Evaluator evaluator = new Evaluator(vf, new NullInputStream(), new FakeOutput(reader), new FakeOutput(reader), root, heap, monitor);
-            evaluator.overwritePrintStream(new FakePrintStream(reader, false), new FakePrintStream(reader, true));
+            Evaluator evaluator = new Evaluator(vf, new NullInputStream(), OutputStream.nullOutputStream(), OutputStream.nullOutputStream(), root, heap, monitor);
+            evaluator.overwritePrintStream(monitor, new PrintWriter(monitor, true));
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
