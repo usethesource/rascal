@@ -1,19 +1,22 @@
 package org.rascalmpl.repl;
 
+import java.io.FilterOutputStream;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
-
 import io.usethesource.vallang.ISourceLocation;
 
 /**
@@ -36,6 +39,19 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
     private List<ProgressBar> bars = new LinkedList<>();
     
     /**
+     * We also keep a list of currently unfinished lines (one for each thread).
+     * Since there are generally very few threads a simple list beats a hash-map in terms
+     * of memory allocation and possibly also lookup efficiency.
+     */
+    private List<UnfinishedLine> unfinishedLines = new ArrayList<>(3);
+
+    /**
+     * This writer is there to help with the encoding to what the terminal needs. It writes directly to the
+     * underlying stream.
+     */
+    private final PrintWriter writer;
+
+    /**
      * The entire width in character columns of the current terminal. Resizes everytime when we start
      * the first job.
      */
@@ -53,18 +69,140 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
      */
     private final Terminal tm;
 
-    private final PrintWriter writer;
-
 
     @SuppressWarnings("resource")
-    public TerminalProgressBarMonitor2(Terminal term) {
-        super(term.writer());
-        this.writer = term.writer();
+    public TerminalProgressBarMonitor2(Terminal tm) {
+        super(tm.writer());
        
-        this.tm = term;
+        this.tm = tm;
         
+        this.writer = tm.writer();
         this.lineWidth = tm.getWidth();
-        this.unicodeEnabled = term.encoding().contains(StandardCharsets.UTF_8);
+        this.unicodeEnabled = tm.encoding().contains(StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Use this for debugging terminal cursor movements, step by step.
+     */
+    private static class AlwaysFlushAlwaysShowCursor extends FilterWriter {
+
+        public AlwaysFlushAlwaysShowCursor(PrintWriter out) {
+            super(out);
+        }
+
+        @Override
+        public void write(int c) throws IOException {
+            out.write(c);
+            out.write(ANSI.showCursor());
+            out.flush();
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            out.write(cbuf, off, len);
+            out.write(ANSI.showCursor());
+            out.flush();
+        }
+
+        @Override
+        public void write(String str, int off, int len) throws IOException {
+            out.write(str, off, len);
+            out.write(ANSI.showCursor());
+            out.flush();
+        }  
+    }
+
+    private static class UnfinishedLine {
+        final long threadId;
+        private int curCapacity = 512;
+        private char[] buffer = new char[curCapacity];
+        private int curEnd = 0;
+
+        public UnfinishedLine() {
+            this.threadId = Thread.currentThread().getId();
+        }
+
+        /**
+         * Adding input combines previously unfinished sentences with possible
+         * new (unfinished) sentences. 
+         * 
+         * The resulting buffer nevers contain any newline character.
+         */
+        private void store(char[] newInput, int offset, int len) {
+            if (len == 0) {
+                return; // fast exit
+            }
+
+            // first ensure capacity of the array
+            if (curEnd + len >= curCapacity) {
+                curCapacity *= 2; 
+                buffer = Arrays.copyOf(buffer, curCapacity);
+            }
+
+            System.arraycopy(newInput, offset, buffer, curEnd, len);
+            curEnd += len;
+        }
+
+        /**
+         * Main workhorse looks for newline characters in the new input.
+         *  - if there are newlines, than whatever is in the buffer can be flushed.
+         *  - all the characters up to the last new new line are flushed immediately.
+         *  - all the new characters after the last newline are buffered.
+         */
+        public void write(char[] n, int offset, int len, PrintWriter out) {
+            int lastNL = startOfLastLine(n, offset, len);
+
+            if (lastNL == -1) {
+                store(n, offset, len);
+            }
+            else {
+                flush(out);
+                out.write(n, offset, lastNL + 1);
+                store(n, lastNL + 1, len - (lastNL + 1));
+            }
+        }
+
+        /**
+         * Main workhorse looks for newline characters in the new input.
+         *  - if there are newlines, than whatever is in the buffer can be flushed.
+         *  - all the characters up to the last new new line are flushed immediately.
+         *  - all the new characters after the last newline are buffered.
+         */
+        public void write(String s, int offset, int len, PrintWriter out) {
+            write(s.toCharArray(), offset, len, out);
+        }
+
+        /**
+         * This empties the current buffer onto the stream,
+         * and resets the cursor.
+         */
+        private void flush(PrintWriter out) {
+            if (curEnd != 0) {
+                out.write(buffer, 0, curEnd);
+                curEnd = 0;
+            }
+        }
+
+        /**
+         * Prints whatever is the last line in the buffer,
+         * and adds a newline.
+         */
+        public void flushLastLine(PrintWriter out) {
+            if (curEnd != 0) {
+                flush(out);
+                out.write('\n');
+            }
+        }
+    
+        private int startOfLastLine(char[] buffer, int offset, int len) {
+            for (int i = offset + len - 1; i >= offset; i--) {
+                if (buffer[i] == '\n') {
+                    return i;
+                }
+            }
+    
+            return -1;
+        }
     }
 
     /**
@@ -192,7 +330,7 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
                 + " "
                 ;
 
-            writer.println("\r" + line); // note this puts us one line down
+            writer.println(line); // note this puts us one line down
         }
 
         private String threadLabel() {
@@ -244,13 +382,12 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
      */
     private static class ANSI {
 
-
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
         }
 
         public static String darkBackground() {
-            return "\u001B[48;5;242m";
+            return "\u001B[48;5;248m";
         }
 
         public static String noBackground() {
@@ -258,7 +395,7 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
         }
 
         public static String lightBackground() {
-            return "\u001B[48;5;249m";
+            return "\u001B[48;5;250m";
         }
 
         static String moveDown(int n) {
@@ -303,6 +440,17 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
         return bars.stream()
             .filter(b -> b.threadId == Thread.currentThread().getId())
             .filter(b -> b.name.equals(name)).findFirst().orElseGet(() -> null);
+    }
+
+    private UnfinishedLine findUnfinishedLine() {
+        return unfinishedLines.stream()
+            .filter(l -> l.threadId == Thread.currentThread().getId())
+            .findAny()
+            .orElseGet(() -> {
+                UnfinishedLine l = new UnfinishedLine();
+                unfinishedLines.add(l);
+                return l;    
+            });
     }
     
     @Override
@@ -389,29 +537,33 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
     }
 
     @Override
-    public synchronized void write(String str, int off, int len){
+    public void write(String s, int off, int len) {
         if (!bars.isEmpty()) {
             eraseBars();
-            super.write(str, off, len);
+            findUnfinishedLine().write(s, off, len, writer);
             printBars();
         }
         else {
-            super.write(str, off, len);
+            writer.write(s, off, len);
         }
     }
 
+    /**
+     * Here we make sure the progress bars are gone just before
+     * someone wants to print in the console. When the printing
+     * is ready, we simply add our own progress bars again.
+     */
     @Override
-    public void write(char[] cbuf, int off, int len) {
+    public synchronized void write(char[] cbuf, int off, int len) {
         if (!bars.isEmpty()) {
             eraseBars();
-            super.write(cbuf, off, len);
+            findUnfinishedLine().write(cbuf, off, len, writer);
             printBars();
         }
         else {
-            super.write(cbuf, off, len);
+            writer.write(cbuf, off, len);
         }
     }
-
 
     /**
      * Here we make sure the progress bars are gone just before
@@ -422,11 +574,11 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
     public synchronized void write(int b) {
         if (!bars.isEmpty()) {
             eraseBars();
-            super.write(b);
+            findUnfinishedLine().write(new char[] { (char) b },0, 1, writer);
             printBars();
         }
         else {
-            super.write(b);
+            writer.write(b);
         }
     }
 
@@ -441,6 +593,9 @@ public class TerminalProgressBarMonitor2 extends PrintWriter implements IRascalM
         }
 
         bars.clear();
+        for (UnfinishedLine l : unfinishedLines) {
+            l.flushLastLine(writer);
+        }
         writer.write(ANSI.showCursor());
         writer.flush();
     }
