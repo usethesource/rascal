@@ -21,6 +21,7 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
@@ -28,12 +29,12 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.input.NullInputStream;
+import org.jline.jansi.Ansi;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.TerminalBuilder;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
@@ -48,14 +49,17 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.ReplTextWriter;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor2;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
 
 
 public class RascalShell2  {
@@ -105,22 +109,34 @@ public class RascalShell2  {
 
             var indentedPrettyPrinter = new ReplTextWriter(true);
 
+
             while (true) {
-                String line = reader.readLine("rascal> ");
+                String line = reader.readLine(Ansi.ansi().reset().bold().toString() + "rascal> " + Ansi.ansi().boldOff().toString());
                 try {
 
-                    Result<IValue> value;
+                    Result<IValue> result;
 
                     synchronized(evaluator) {
-                        value = evaluator.eval(monitor, line, URIUtil.rootLocation("prompt"));
+                        result = evaluator.eval(monitor, line, URIUtil.rootLocation("prompt"));
                         evaluator.endAllJobs();
                     }
 
-                    if (value.isVoid()) {
-                        reader.printAbove("ok \n");
+                    if (result.isVoid()) {
+                        monitor.println("ok");
                     }
                     else {
-                        reader.printAbove("Result: " + value.toString(1024));
+                        IValue value = result.getValue();
+                        Type type = result.getStaticType();
+                        
+                        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
+                            monitor.write("(" + type.toString() +") `");
+                            TreeAdapter.yield((IConstructor)value, true, monitor);
+                            monitor.write("`");
+                        }
+                        else {
+                            indentedPrettyPrinter.write(value, monitor);
+                        }
+                        monitor.println();
                     }
                 }
                 catch (InterruptException ie) {
