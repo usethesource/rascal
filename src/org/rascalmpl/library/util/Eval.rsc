@@ -25,7 +25,7 @@ data Result[&T] = ok() | result(&T val);
 @description{
 `eval` will throw the first static error that is blocking the execution of a command.
 }
-data Exception 
+data RuntimeException 
   = StaticError(str message, loc location)
   | Timeout()
   ; 
