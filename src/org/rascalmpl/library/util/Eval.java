@@ -271,7 +271,7 @@ public class Eval {
 			this.eval = eval;
 			this.elapsed = 0;
 			this.timeout = timeout;
-			this.sample = timeout / 10;
+			this.sample = java.lang.Math.max(timeout / 10, 1);
 			running = true;
 		}
 

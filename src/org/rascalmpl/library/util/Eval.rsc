@@ -12,6 +12,7 @@ module util::Eval
 
 extend Exception;
 extend util::Reflective;
+import IO;
 
 @synopsis{Results encode the output of a call to `eval`}
 @description{
@@ -26,6 +27,7 @@ data Result[&T] = ok() | result(&T val);
 }
 data Exception 
   = StaticError(str message, loc location)
+  | Timeout()
   ; 
 
 @synopsis{A reusable instance of the Rascal runtime system configured by a specific PathConfig.}
@@ -96,7 +98,8 @@ Result[&T] eval(type[&T] typ, list[str] commands, int duration=-1, PathConfig pc
     e = createRascalRuntime(pcfg=pcfg);
 
     for (command <- commands[..-1]) {
-      e.eval(#value, command, duration=duration);
+      e.eval(#value, command, 
+      duration=duration);
     }
 
     return e.eval(typ, commands[-1], duration=duration);
@@ -115,3 +118,57 @@ Result[value] eval(list[str] commands, int duration=-1, PathConfig pcfg=pathConf
  
 
 
+test bool stateFulEvalCanReset() {
+  e = createRascalRuntime();
+
+  // import works
+  e.eval(#void, "import IO;");
+  // declaration
+  e.eval(#int, "int a = 42;");
+  // use of previous declaration
+  assert e.eval(#int, "2 * a;") == result(84);
+  // use of previous import without error
+  e.eval(#void, "println(a)");
+  // clear everything
+  e.reset();
+  try {
+     // use of undeclared variable
+     e.eval(#int, "a");
+     assert false;
+  }
+  catch StaticError(_, _):
+    assert true;
+
+  return true;
+}
+
+test bool evalTimeoutWorks() {
+  e = createRascalRuntime();
+  
+  try {
+    e.eval(#int, "(0 | it + 1 | i \<- [0..1000000])", duration=10);
+    assert false;
+  }
+  catch Timeout(): 
+    assert true;
+
+  return true;
+}
+
+test bool evalWithOwnPathConfig() {
+  e = createRascalRuntime(
+    pcfg=pathConfig(
+      srcs=[|memory://evalTests|]
+    )
+  );
+
+  writeFile(|memory://evalTests/MyTestModule.rsc|,
+    "module MyTestModule
+    'extend IO;
+    'public int a = 42;");
+  
+  e.eval(#void, "import MyTestModule;");
+  e.eval(#void, "println(a)");
+
+  return e.eval(#int, "a") == result(42);
+}
