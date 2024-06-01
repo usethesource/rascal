@@ -68,7 +68,9 @@ data RascalRuntime
   = evaluator(
       PathConfig pcfg,
       void () reset,
-      Result[&T] (type[&T] typ, str command /* int duration=-1 */) eval
+      Result[&T] (type[&T] typ, str command) eval,
+      type[value] (str command) staticTypeOf,
+      void (int duration) setTimeout 
   );
 
 @synopsis{Workhorse to instantiate a working ((RascalRuntime))/}
@@ -96,13 +98,15 @@ as often as you need it.
 Result[&T] eval(type[&T] typ, list[str] commands, int duration=-1, PathConfig pcfg=pathConfig()) 
   throws Timeout, StaticError, ParseError {
     e = createRascalRuntime(pcfg=pcfg);
-
-    for (command <- commands[..-1]) {
-      e.eval(#value, command, 
-      duration=duration);
+    if (duration?) {
+      e.setTimeout(duration);
     }
 
-    return e.eval(typ, commands[-1], duration=duration);
+    for (command <- commands[..-1]) {
+      e.eval(#value, command);
+    }
+
+    return e.eval(typ, commands[-1]);
 }
 
 @synopsis{Evaluate a list of command and return the value of the last command.}
@@ -144,9 +148,10 @@ test bool stateFulEvalCanReset() {
 
 test bool evalTimeoutWorks() {
   e = createRascalRuntime();
-  
+  e.setTimeout(10);
+
   try {
-    e.eval(#int, "(0 | it + 1 | i \<- [0..1000000])", duration=10);
+    e.eval(#int, "(0 | it + 1 | i \<- [0..1000000])");
     assert false;
   }
   catch Timeout(): 
