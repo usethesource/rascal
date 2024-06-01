@@ -225,6 +225,9 @@ test bool evalWithOwnPathConfig() {
   return e.eval(#int, "a") == result(42);
 }
 
-// Here are some deprecated functions for backward compatibility's sake
+test bool testStaticTypeOf() {
+  e = createRascalRuntime();
+  return e.staticTypeOf("1") == #int;
+}
 
 
