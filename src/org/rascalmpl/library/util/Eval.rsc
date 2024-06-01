@@ -46,16 +46,16 @@ data RuntimeException
 negative number disables the timeout feature. By default the timeout is off.
 }
 @examples{
-```rascal-shell
+```rascal-shell,error // while bootstrapping
 import util::Eval;
-e = createRascalRuntime()
+e = createRascalRuntime();
 e.eval(#int, "2 * 3;");
 ```
 
 A run-time can keep state between calls of `eval`:
-```rascal-shell
+```rascal-shell,error // while bootstrapping
 import util::Eval;
-e = createRascalRuntime()
+e = createRascalRuntime();
 e.eval(#void, "import IO");
 e.eval(#int, "int a = 1;");
 e.eval(#void, "println(a)");
