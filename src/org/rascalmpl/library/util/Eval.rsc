@@ -73,14 +73,15 @@ data RascalRuntime
 
 @synopsis{Workhorse to instantiate a working ((RascalRuntime))/}
 @javaClass{org.rascalmpl.library.util.Eval}
+@description{
+See ((RascalRuntime)) on how to use a configured and stateful runtime
+to evaluate Rascal commands or the static type checker.
+}
 java RascalRuntime createRascalRuntime(PathConfig pcfg=pathConfig());
 
 @synopsis{Evaluate a single command and return its return value.}
 @description{
 This creates a ((RascalRuntime)), uses it to evaluate one command, and then discards the runtime again.
-
-For efficiency's sake it may be better to use ((createRascalRuntime)), and call it's `eval` closure
-as often as you need it. 
 }
 @deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.}
 Result[&T] eval(type[&T] typ, str command, int duration=-1, PathConfig pcfg=pathConfig()) 
@@ -90,9 +91,6 @@ Result[&T] eval(type[&T] typ, str command, int duration=-1, PathConfig pcfg=path
 @synopsis{Evaluate a list of command and return the value of the last command.}
 @description{
 This creates a ((RascalRuntime)), uses it to evaluate some commands, and then discards the runtime again.
-
-For efficiency's sake it may be better to use ((createRascalRuntime)), and call it's `eval` closure
-as often as you need it. 
 }
 @deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.}
 Result[&T] eval(type[&T] typ, list[str] commands, int duration=-1, PathConfig pcfg=pathConfig()) 
@@ -119,14 +117,17 @@ Result[value] eval(list[str] commands, int duration=-1, PathConfig pcfg=pathConf
   = eval(#value, commands, duration=duration, pcfg=pcfg);
 
 @deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@synopsis{Evaluate a command and return the value, unless the `duration` amount of milliseconds has passed first.}
 Result[&T] eval(type[&T] typ, str command, int duration) throws Timeout, StaticError, ParseError
   = eval(typ, command, duration=duration);
 
 @deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@synopsis{Evaluate a list of commands and return the value of the last command, unless the `duration` amount of milliseconds has passed first.}
 Result[&T] eval(type[&T] typ, list[str] commands, int duration) throws Timeout, StaticError, ParseError
   = eval(typ, commands, duration=duration);
 
 @deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+
 Result[value] eval(list[str] commands, int duration) 
   = eval(#value, commands, duration=duration);
 
