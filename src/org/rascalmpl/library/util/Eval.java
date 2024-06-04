@@ -323,14 +323,14 @@ public class Eval {
 	public static class EvaluatorInterruptTimer extends Thread {
 		private final Evaluator eval;
 		private final int timeout;
-		private int elapsed;
 		private final int sample;
 		private volatile boolean running;
 		
 		public EvaluatorInterruptTimer(Evaluator eval, int timeout) {
 			super();
+			setDaemon(true);
 			this.eval = eval;
-			this.elapsed = 0;
+			// this.elapsed = 0;
 			this.timeout = timeout;
 			this.sample = java.lang.Math.max(timeout / 10, 1);
 			running = true;
@@ -338,7 +338,7 @@ public class Eval {
 
 		public void run() {
 			running = true;
-			elapsed = 0;
+			var elapsed = 0;
 			while (running) {
 				try {
 					sleep(sample);
