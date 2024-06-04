@@ -319,14 +319,15 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
             var line 
                 = done 
-                + ANSI.darkBackground() 
+                + ANSI.lightBackground() 
+                + ANSI.underlined()
+                + ANSI.overlined()
                 + ANSI.darkestForeground()
                 + frontPart
                 + ANSI.noBackground()
-                + ANSI.lightBackground()
                 + backPart
-                + ANSI.noBackground()
                 + ANSI.noForeground()
+                + ANSI.normal()
                 + " " + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
@@ -434,25 +435,32 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             return "\u001B[" + n + "F";
         }
 
+        static String overlined() {
+            return "\u001B[53m";
+        }
+
+        static String underlined() {
+            return "\u001B[4m";
+        }
+
         public static String printCursorPosition() {
             return "\u001B[6n";
         }
 
         public static String darkestForeground() {
-            return "\u001B[38;5;255m";
+            return "\u001B[30m";
         }
 
         public static String noForeground() {
             return "\u001B[39m";
         }
 
-
-        public static String darkBackground() {
-            return "\u001B[48;5;248m";
-        }
-
         public static String noBackground() {
             return "\u001B[49m";
+        }
+
+        public static String normal() {
+            return "\u001B[0m";
         }
 
         public static String lightBackground() {
