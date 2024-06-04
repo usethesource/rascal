@@ -8,6 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Atze van der Ploeg - Atze.van.der.Ploeg@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
+@synopsis{Provides string-based programmatic access to a fully functional Rascal execution engine.}
 module util::Eval
 
 extend Exception;
@@ -60,7 +61,18 @@ e.eval(#void, "import IO");
 e.eval(#int, "int a = 1;");
 e.eval(#void, "println(a)");
 ```
-
+}
+@benefits{
+* Creating a single run-time engine is an expensive operation. By reusing it you
+can safe a lot of time and space. Use `.reset()` to reuse the configuration while dropping
+all other state and returning to an initial runtime.
+* The PathConfig parameter completelu defines the configuration of the ((RascalRuntime)).
+}
+@pitfalls{
+* To turn a value string into an actual value, it's better and faster to use ((readTextValueString)) or ((readTextValueFile)).
+* Parsing file paths is better done using ((locFromUnixPath)) and ((locFromWindowsPath)).
+* A ((RascalRuntime)) is neither thread-safe nor thread-friendly. 
+* `staticTypeOf` is an abstract interpreter which can take as much time as running the program. 
 }
 data RascalRuntime
   = evaluator(
