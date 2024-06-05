@@ -57,6 +57,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private int lineWidth;
 
+    /**
+     * If true this will enable the use of unicode tickboxes and clock tickers instead of creative use of ASCII characters.
+     */
     private final boolean unicodeEnabled;
 
     /**x    
@@ -168,6 +171,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             else {
                 flush(out);
                 out.write(n, offset, lastNL + 1);
+                out.flush();
                 store(n, lastNL + 1, len - (lastNL + 1));
             }
         }
@@ -210,7 +214,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      */
     private class ProgressBar {
         private final long threadId;
-        private final String threadName;
         private final String name;
         private int max;
         private int current = 0;
@@ -234,7 +237,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         ProgressBar(String name, int max) {
             this.threadId = Thread.currentThread().getId();
-            this.threadName = Thread.currentThread().getName();
             this.name = name;
             this.max = Math.max(1, max);
             this.startTime = Instant.now();
@@ -340,17 +342,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 ;
 
             writer.println(line); // note this puts us one line down
-        }
-
-        private String threadLabel() {
-            if (threadName.isEmpty()) {
-                return "";
-            }
-            else if ("main".equals(threadName)) {
-                return "";
-            }
-            
-            return threadName + ": ";
         }
 
         @Override
@@ -603,7 +594,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         if (!bars.isEmpty()) {
             eraseBars();
         }
+
         writer.println(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
+
         if (!bars.isEmpty()) {
             printBars();
         }
@@ -645,6 +638,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             printBars();
         }
         else {
+            // this must be the raw output stream
+            // otherwise rascal prompts (which do not end in newlines) will be buffered
             out.write(b, off, len);
         }
     }
