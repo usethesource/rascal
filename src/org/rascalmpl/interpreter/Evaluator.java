@@ -903,6 +903,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     profilerRunning = false;
                 }
                 getEventTrigger().fireIdleEvent();
+                endAllJobs();
             }
         } catch (Return e) {
             throw new UnguardedReturn(stat);
@@ -930,6 +931,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return eval(command, location);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -952,6 +954,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return evalMore(commands, location);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -1076,6 +1079,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return eval(command);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
