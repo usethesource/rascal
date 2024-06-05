@@ -521,6 +521,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             writer.write(ANSI.hideCursor());
         }
 
+        if (totalWork == 0) {
+            // makes it easy to use `size` for totalWork and not do anything
+            // if there is nothing to do.
+            return;
+        }
+
         var pb = findBarByName(name);
         
         if (pb == null) {
@@ -570,7 +576,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized boolean jobIsCanceled(String name) {
-       // ? don't know what this should do
+       // This is in UI environments where there is a cancel button.
        return false;
     }
 
