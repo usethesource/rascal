@@ -216,8 +216,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         private int current = 0;
         private int previousWidth = 0;
         private int doneWidth = 0;
-        private final int barWidthUnicode = lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length();
-        private final int barWidthAscii   = lineWidth - "? ".length() - " - 00:00:00.000 ".length();
+        private final int barWidth = unicodeEnabled
+            ? lineWidth - "☐ ".length() - " 🕐 00:00:00.000 ".length()
+            : lineWidth - "? ".length() - " - 00:00:00.000 ".length();
         private final Instant startTime;
         private Duration duration;
         private String message = "";
@@ -238,7 +239,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             this.max = Math.max(1, max);
             this.startTime = Instant.now();
             this.duration = Duration.ZERO;
-            this.message = name;
+            this.message = "";
         }
 
         void worked(int amount, String message) {
@@ -276,10 +277,10 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             if (max != 0) {
                 current = Math.min(max, current); // for robustness sake
                 var partDone = (current * 1.0) / (max * 1.0);
-                return (int) Math.floor(barWidthUnicode * partDone);
+                return (int) Math.floor(barWidth * partDone);
             }
             else {
-                return barWidthUnicode % stepper;
+                return barWidth % stepper;
             }
         }
 
@@ -297,14 +298,21 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 ;
 
             // capitalize
-            var msg = message.substring(0, 1).toUpperCase() + message.substring(1, message.length());
+            var msg = message.length() > 0 
+                ? message.substring(0, 1).toUpperCase() + message.substring(1, message.length())
+                : "";
+
+            var capName = name.length() > 0 
+                ? name.substring(0, 1).toUpperCase() + name.substring(1, name.length())
+                : "";
             
-            // fill up and cut off:
-            msg = threadLabel() + msg;
-            msg = (msg + " ".repeat(Math.max(0, barWidthUnicode - msg.length()))).substring(0, barWidthUnicode);
+            capName = message.length() > 0 ? (capName + ": ") : capName;
+
+                // fill up and cut off:
+            msg = capName + msg;
+            msg = (msg + " ".repeat(Math.max(0, barWidth - msg.length()))).substring(0, barWidth);
 
             // split
-            var barWidth = unicodeEnabled ? barWidthUnicode : barWidthAscii;
             var frontPart = msg.substring(0, doneWidth);
             var backPart = msg.substring(doneWidth, msg.length());
             var clock = unicodeEnabled ? clocks[stepper % clocks.length] : twister[stepper % twister.length];
@@ -361,7 +369,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         public void done() {
             this.current = Math.min(current, max);
             this.duration = Duration.between(startTime, Instant.now());
-            this.message = name;
+            this.message = "";
         }
     }
 
