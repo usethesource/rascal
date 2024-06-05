@@ -656,13 +656,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
     @Override
     public synchronized void endAllJobs() {
-        for (var pb : bars) {
-            if (pb.nesting >= 0) {
-                writer.println("[INFO] " + pb.name + " is still at nesting level " + pb.nesting);
-            }
+        if (!bars.isEmpty()) {
+            eraseBars();
+            printBars();
+            bars.clear();
         }
 
-        bars.clear();
         for (UnfinishedLine l : unfinishedLines) {
             try {
                 l.flushLastLine(out);
@@ -671,7 +670,19 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 // might happen if the terminal crashes before we stop running 
             }
         }
-        writer.write(ANSI.showCursor());
-        writer.flush();
+
+        try {
+            writer.write(ANSI.showCursor());
+            writer.flush();
+            out.flush();
+        }
+        catch (IOException e) {
+            // ignore
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        endAllJobs();
     }
 }
