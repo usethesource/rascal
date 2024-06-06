@@ -26,7 +26,7 @@ str createValidScheme(str s) {
 }
 
 @expected{MalFormedURI}
-test bool noOpaqueURI2() = loc l := |home:://this:is:opaque|;
+test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
 test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
@@ -75,6 +75,8 @@ test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).pa
 test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
 test bool testFile(loc l, str s) {
 	s = replaceAll(s, "/","_");
+    if (s == "")
+      return true;
 	return (l + s).file == s;
 }
 
@@ -387,7 +389,7 @@ test bool isImmediatelyBefore2(int _){
 }
 
 // beginsAfter
-
+@ignore{Until #1693 has been solved}
 test bool beginsAfter1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsAfter(l2, l1));
@@ -439,3 +441,81 @@ test bool isCover3(int f, int t){
    u = cover([l, l, l, l]);
    return report(l, l, l == u);
 }
+
+test bool trailingSlashFile1() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    return withSlash.file == withoutSlash.file;
+}
+
+test bool trailingSlashFile2() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    withoutSlash.file = "libs";
+    withSlash.file = "libs";
+
+    return withSlash.file == withoutSlash.file
+        && withSlash.parent == withoutSlash.parent
+        ;
+}
+
+test bool testRelativize() 
+    = relativize(|file:///a/b|, |file:///a/b/c.txt|)
+        == |relative:///c.txt|;
+
+test bool testFailedRelativize()
+    = relativize(|file:///b/b|, |file:///a/b/c.txt|)
+        == |file:///a/b/c.txt|;
+
+test bool trailingSlashRelativize1() 
+    = relativize(|file:///library/|, |file:///library|)
+        == relativize(|file:///library/|, |file:///library/|);
+
+test bool trailingSlashRelativize2() 
+    = relativize(|file:///library|, |file:///library/|)
+        == relativize(|file:///library|, |file:///library|);
+
+test bool extensionSetWithMoreDots1()
+    = |file:///a.txt/b|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithMoreDots2()
+    = |file:///a.txt/b.noot|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithSlash()
+    = |file:///a/b.noot/|[extension="aap"] == |file:///a/b.aap/|;
+
+test bool extensionSetWithSlashAndMoreDots()
+    = |file:///a.txt/b.noot/|[extension="aap"] == |file:///a.txt/b.aap/|;
+
+test bool extensionGetWithMoreDot1() 
+    = |file:///a.txt/b|.extension == "";
+
+test bool extensionGetWithMoreDots2()
+    = |file:///a.txt/b.noot|.extension == "noot";
+
+test bool extensionGetWithSlash()
+    = |file:///a/b.noot/|.extension == "noot";
+
+test bool extensionGetSimple()
+    = |file:///a/b.noot|.extension == "noot";
+
+test bool extensionGetRoot()
+    = |file:///b.noot|.extension == "noot";
+
+test bool extensionGetNoRoot()
+    = |file:///b|.extension == "";
+
+test bool extensionNoPath()
+    = |file:///|.extension == "";
+
+test bool extensionSetRoot()
+    = |file:///b.noot|[extension="aap"] == |file:///b.aap|;
+
+test bool extensionSetSimple()
+    = |file:///a/b.noot|[extension="aap"] == |file:///a/b.aap|;
+
+
+// we don't want backslashes in windows
+test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;

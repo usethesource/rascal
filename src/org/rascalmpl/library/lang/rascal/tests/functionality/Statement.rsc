@@ -143,6 +143,21 @@ test bool testWhileWithBacktracking6(){
     return res ==  [[12],[12],[12]];
 }
 
+@ignoreInterpreter{Infinite loop}
+test bool labelledWhileContinue(){
+  res = "";
+  next_fun:
+    while(_n <- [3,3]){                       
+       try {
+           throw "NO";
+       } catch "NO": {
+           res += "NO";
+           continue next_fun;
+       }
+   }
+   return res == "NONO";
+}
+
 @ignoreCompiler{FIXME: pre and post should be reset to undefined on loop entry}
 test bool testWhileWithPatternVariables(){
     syms = [10,9,1,3,5];
@@ -211,7 +226,21 @@ test bool testFor2() {int n = 0; for(int i <- [1,2,3,4], n <= 3){ n = n + i;} re
 test bool testFor3() {int n = 0; for(int _ <- [1,2,3,4]){ n = n + 1; if (n == 3) break; } return n == 3;}
 test bool testFor4() {int n = 0; for(int _ <- [1,2,3,4], n <= 3){ if (n == 3) continue; n = n + 1; } return n == 3;}
 test bool testFor5() {int n = 0; loop:for(int _ <- [1,2,3,4], n <= 3){ if (n == 3) fail loop; n = n + 1; } return n == 3;}
-  
+
+test bool labelledForContinue(){
+  res = "";
+  next_fun:
+    for(_n <- [3,3]){                       
+       try {
+           throw "NO";
+       } catch "NO": {
+           res += "NO";
+           continue next_fun;
+       }
+   }
+   return res == "NONO";
+}
+
 // testAppend
 
 /*TODO:?*/

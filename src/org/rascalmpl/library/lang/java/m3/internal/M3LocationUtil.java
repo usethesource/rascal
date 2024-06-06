@@ -22,19 +22,9 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
 
 public class M3LocationUtil {
-
-    //---------------------------------------------
-    // Fields
-    //---------------------------------------------
+     private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
     
-    private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-    
-    
-    //---------------------------------------------
-    // Methods
-    //---------------------------------------------
-    
-    /**
+     /**
      * Creates a location. Existing exceptions are captured as a 
      * RuntimeException.
      * @param scheme - location scheme
@@ -72,12 +62,7 @@ public class M3LocationUtil {
      * @return extended location
      */
     public static ISourceLocation extendPath(ISourceLocation uri, String path) {
-        try {
-            return URIUtil.changePath(uri, uri.getPath() + "/" + path);
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("Extending path error with URIUtil", e);
-        }
+        return URIUtil.getChildLocation(uri, path);
     }
     
     /**

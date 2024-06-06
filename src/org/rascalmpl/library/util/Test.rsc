@@ -1,6 +1,5 @@
 @synopsis{Provides occasionally useful access to Rascal's testing framework}
 @description{
-
 Rascal's test framework can normally be accessed via UI and commandline interfaces:
 
   * Running as JUnit tests in IDEs
@@ -9,11 +8,9 @@ Rascal's test framework can normally be accessed via UI and commandline interfac
   
 This module provides a programmatic interface, and reports the test results
 as values. It can be handy to construct more UI components which interact
-with tests, but also to query larger volumes of failing tests. 
+with tests, but also to query larger volumes of failing tests.
 }
 module util::Test
-
-extend Message;
 
 data TestResult = \testResult(str name, bool success, loc src, str message = "", list[value] exceptions = []);
 
@@ -22,7 +19,9 @@ data TestResult = \testResult(str name, bool success, loc src, str message = "",
 This function works under the assumption that the named module is available in the current execution environment.
 }
 @javaClass{org.rascalmpl.library.util.RunTests}
-@reflect{to access interpreter functionality to run tests}
+@reflect{
+to access interpreter functionality to run tests
+}
 java list[TestResult] runTests(str moduleName);
 
 private test bool testTest() = true;

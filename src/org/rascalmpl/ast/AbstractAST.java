@@ -198,7 +198,6 @@ public abstract class AbstractAST implements IVisitable, Cloneable {
 	 * Recursively build a back-tracking data-structure, use getBacktracker if you are just a client of IBooleanResult
 	 */
 	public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
-	  System.err.println("ambiguity at " + getLocation());
 		throw new NotYetImplemented(this);
 	}
 	

@@ -3,14 +3,46 @@ package org.rascalmpl.values.parsetrees;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
-public interface ITree extends IConstructor {
+public interface ITree extends IConstructor, IExternalValue {
     
+	@Override
+	default IConstructor encodeAsConstructor() {
+		return this;
+	}
+
+	@Override
+	default <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+	    return v.visitExternal(this);
+	}
+
+	@Override
+	default int getMatchFingerprint() {
+		// ITrees must simulate their constructor prints in case
+		// we pattern match on the abstract Tree data-type
+		return IConstructor.super.getMatchFingerprint();
+	}
+
+	/**
+	 * Concrete patterns need another layer of fingerprinting on top
+	 * of `getMatchFingerprint`. The reason is that _the same IValue_
+	 * can be matched against an abstract pattern of the Tree data-type,
+	 * and against concrete patterns. 
+	 * 
+	 * Like before, the match-fingerprint contract is:
+	 *   if pattern.match(tree) ==> pattern.fingerprint() == match.fingerprint();
+	 * 
+	 * @return a unique code for each outermost ITree node
+	 */
+	int getConcreteMatchFingerprint();
+
 	default boolean isAppl() {
 		return false;
 	}

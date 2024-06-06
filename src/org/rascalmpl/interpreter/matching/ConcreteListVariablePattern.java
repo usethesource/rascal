@@ -52,7 +52,6 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		this.declaredType = (NonTerminalType) type;
 		this.anonymous = Names.name(name).equals("_");
 		this.iDeclaredItMyself = false;
-		//System.err.println("ConcreteListVariablePattern");
 	}
 
 	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
@@ -62,7 +61,6 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 		this.declaredType = (NonTerminalType) type;
 		this.anonymous = name.equals("_");
 		this.iDeclaredItMyself = false;
-		//System.err.println("ConcreteListVariablePattern");
 	}
 	
 	@Override

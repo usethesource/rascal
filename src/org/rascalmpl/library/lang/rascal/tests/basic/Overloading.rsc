@@ -39,7 +39,8 @@ test bool overloading2(){
 
 data D = d(str s) | d(int n) | d();
 
-@doc{triggers issue #1234}
+@synopsis{triggers issue #1234}
+@ignoreCompiler{d(x) is now flagged as type error}
 test bool constructorDynamicMatch() {
   value x = 1;
   
@@ -174,10 +175,14 @@ test bool overloadingPlusVarArgsSpecialCase(){
     return f(["0","0"]) + f("1","1") ==  ["0","0","1","1"];
 }
 
-@IgnoreCompiler{Map patterns not supported}
+@IgnoreCompiler{
+Map patterns not supported
+}
 private bool singletonSetWithMap({()}) = true;
 
-@IgnoreCompiler{Map patterns not supported}
+@IgnoreCompiler{
+Map patterns not supported
+}
 private default bool singletonSetWithMap(value _) = false;
 
 @Ignore

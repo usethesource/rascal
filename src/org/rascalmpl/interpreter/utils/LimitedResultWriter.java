@@ -67,7 +67,7 @@ public class LimitedResultWriter extends StringWriter {
 		private static final long serialVersionUID = -1396788285349799099L;
 
 		public IOLimitReachedException(){
-			super("Limit reached");
+			super("Limit reached", null, true, false);
 		}
 	}
 

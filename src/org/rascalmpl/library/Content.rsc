@@ -1,23 +1,22 @@
-@doc{
-.Synopsis
-Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.
-}
+
+@synopsis{Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.}
 module Content
 
-@doc{
-.Synopsis
-Content wraps the HTTP Request/Response API to support interactive visualization types
-on the terminal <<Rascal.REPL>>.  
 
-.Description
-
+@synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
+on the terminal ((RascalShell)).}
+@description{
 Values wrapped in a `Content` wrapper will be displayed by interactive
 Rascal applications such as the IDE, the REPL terminal and the documentation pages. 
 
+```rascal-prepare
+import Content;
+```
+
 For example, a piece of html can be displayed directly like such:
-[source,rascal-shell]
+```rascal-shell,continue
 html("\<a href=\"http://www.rascal-mpl.org\"\>Rascal homepage\</a\>")
-----
+```
 
 In its most general form, `Content` is an HTTP(s) webserver callback, such that you might deliver
 any kind of content, based on any kind of request. If you produce a `Content` value
@@ -32,46 +31,36 @@ on the commandline.
 
 When you are happy with the interaction, or you want a permanent visualization which is not
 garbage collected after 30 minutes, you can consider wrapping the same callback in
-a webserver using the <<util::Webserver::serve>> function. 
+a webserver using the ((util::Webserver::serve)) function.
 }
 data Content 
-  = content(str id, Response (Request) callback)
-  | content(Response response)
+  = content(str id, Response (Request) callback, str title=id, int viewColumn=1)
+  | content(Response response, str title="*static content*", int viewColumn=1)
   ;
 
-@doc{
-.Synopsis
-Directly serve a static html page
-}
+
+@synopsis{Directly serve a static html page}
 Content html(str html) = content(response(html));
 
-@doc{
-.Synopsis
-Directly serve the contents of a file
-}
+
+@synopsis{Directly serve the contents of a file}
 Content file(loc src) = content(response(src));
 
-@doc{
-.Synopsis
-Directly serve the contents of a string as plain text
-}
-Content text(str text) = content(plain(text));
+
+@synopsis{Directly serve the contents of a string as plain text}
+Content plainText(str text) = content(plain(text));
 
 alias Body = value (type[value] expected);
 
-@doc{
-.Synopsis
-Request values represent what a browser is asking for, most importantly the URL path.
 
-.Description
-
+@synopsis{Request values represent what a browser is asking for, most importantly the URL path.}
+@description{
 A request value also contains the full HTTP headers, the URL parameters as a `map[str,str]`
 and possibly uploaded content, also coded as a map[str,str]. From the constructor type,
-`put` or `get` you can see what kind of HTTP request it was. 
-
-.Pitfalls 
-
-* Note that `put` and `post` have not been implemented yet in the REPL server. 
+`put` or `get` you can see what kind of HTTP request it was.
+}
+@pitfalls{
+* Note that `put` and `post` have not been implemented yet in the REPL server.
 }
 data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())
   = get (str path)
@@ -81,12 +70,9 @@ data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str
   | head(str path)
   ;
 
-@doc{
-.Synopsis
-A response encodes what is send back from the server to the browser client.
 
-.Description
-
+@synopsis{A response encodes what is send back from the server to the browser client.}
+@description{
 The three kinds of responses, encode either content that is already a `str`,
 some file which is streamed directly from its source location or a jsonResponse
 which involves a handy, automatic, encoding of Rascal values into json values.
@@ -94,44 +80,32 @@ which involves a handy, automatic, encoding of Rascal values into json values.
 data Response 
   = response(Status status, str mimeType, map[str,str] header, str content)
   | fileResponse(loc file, str mimeType, map[str,str] header)
-  | jsonResponse(Status status, map[str,str] header, value val, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
   ;
   
-@doc{
-.Synopsis
-Utility to quickly render a string as HTML content
-}  
-Response response(str content)                    = response(ok(), "text/html", (), content);
 
-@doc{
-.Synopsis
-Utility to quickly report an HTTP error with a user-defined message
-}
-Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
+@synopsis{Utility to quickly render a string as HTML content}  
+Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, content);
 
-@doc{
-.Synopsis
-Utility to quickly make a plaintext response.
-}
+
+@synopsis{Utility to quickly report an HTTP error with a user-defined message}
+Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
+
+
+@synopsis{Utility to quickly make a plaintext response.}
 Response plain(str text) = response(ok(), "text/plain", (), text);
 
-@doc{
-.Synopsis
-Utility to serve a file from any source location.
-}
-Response response(loc f)                          = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
 
-@doc{
-.Synopsis
-Utility to quickly serve any rascal value as a json text. This comes in handy for
-asynchronous HTTP requests from Javascript.
-}
+@synopsis{Utility to serve a file from any source location.}
+Response response(loc f, map[str,str] header = ()) = fileResponse(f, mimeTypes[f.extension]?"text/plain", header);
+
+
+@synopsis{Utility to quickly serve any rascal value as a json text. This comes in handy for
+asynchronous HTTP requests from Javascript.}
 default  Response response(value val, map[str,str] header = ())             = jsonResponse(ok(), header, val);
   
-@doc{
-.Synopsis
-Encoding of HTTP status
-}  
+
+@synopsis{Encoding of HTTP status}  
 data Status 
   = ok() 
   | created() 
@@ -148,10 +122,8 @@ data Status
   | internalError()
   ; 
 
-@doc{
-.Synopsis
-A static map with default MIME interpretations for particular file extensions.
-}  
+
+@synopsis{A static map with default MIME interpretations for particular file extensions.}  
 public map[str extension, str mimeType] mimeTypes = (
         "json" :"application/json",
         "css" : "text/css",

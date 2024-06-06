@@ -13,7 +13,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.function.Function;
 
-import org.rascalmpl.library.lang.json.io.JsonValueWriter;
+import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -134,14 +134,10 @@ public class REPLContentServer extends NanoHTTPD {
         IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
 
         IValue dtf = kws.getParameter("dateTimeFormat");
-        IValue ics = kws.getParameter("implicitConstructors");
-        IValue ipn = kws.getParameter("implicitNodes");
         IValue dai = kws.getParameter("dateTimeAsInt");
 
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-            .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
-            .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
             .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
         try {
@@ -149,6 +145,7 @@ public class REPLContentServer extends NanoHTTPD {
 
             JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
 
+            
             writer.write(out, data);
             out.flush();
             out.close();

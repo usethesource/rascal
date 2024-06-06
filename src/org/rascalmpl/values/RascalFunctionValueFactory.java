@@ -14,16 +14,22 @@ package org.rascalmpl.values;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
+import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -32,9 +38,18 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.parser.ParserGenerator;
+import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
+import org.rascalmpl.parser.gtd.recovery.IRecoverer;
+import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.ReifiedType;
@@ -43,10 +58,16 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -56,6 +77,12 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class RascalFunctionValueFactory extends RascalValueFactory {
+    private ParserGenerator generator;
+    private final LoadingCache<IMap, Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache = Caffeine.newBuilder()
+        .softValues()
+        .maximumSize(100) // a 100 cached parsers is quit a lot, put this in to make debugging such a case possible
+        .expireAfterAccess(30, TimeUnit.MINUTES) // we clean up unused parsers after 30 minutes
+        .build(grammar -> generateParser(grammar));
     private final IEvaluatorContext ctx;
 
     /** 
@@ -66,6 +93,37 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     public RascalFunctionValueFactory(IEvaluatorContext ctx) {
         super();
         this.ctx = ctx;
+    }
+    
+    private ParserGenerator getParserGenerator() {
+        if (this.generator == null) {
+            this.generator = ctx.getEvaluator().getParserGenerator();
+        }
+        
+        return generator;
+    }
+
+    private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
+        try {
+            return getParserGenerator().getNewParser(ctx.getEvaluator().getMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
+        } 
+        catch (ExceptionInInitializerError e) {
+            throw new ImplementationError(e.getMessage(), e);
+        }
+    }
+
+    protected Class<IGTD<IConstructor, ITree, ISourceLocation>> getParserClass(IMap grammar) {
+        return parserCache.get(grammar);
+    }
+
+    protected void writeParserClass(IMap grammar, ISourceLocation target) throws IOException {
+        getParserGenerator().writeNewParser(
+            ctx.getEvaluator().getMonitor(), 
+            URIUtil.rootLocation("parser-generator"), 
+            "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), 
+            grammar, 
+            target
+        );
     }
     
     @Override
@@ -137,7 +195,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                     throw RuntimeExceptionFactory.callFailed(ctx.getCurrentAST().getLocation(), Arrays.stream(argValues).collect(vf.listWriter()));
                 }
 
-                if (staticFunctionType.isBottom()) {
+                if (staticFunctionType.getReturnType().isBottom()) {
                     return ResultFactory.nothing();
                 }
                 else if (returnValue == null) {
@@ -154,59 +212,226 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
     
     @Override
-    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+    public IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         TypeFactory tf = TypeFactory.getInstance();
         
-        // the return type of the generated parse function is instantiated here to the s tart nonterminal of
+        // the return type of the generated parse function is instantiated here to the start nonterminal of
         // the provided grammar:
-        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
-            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
-            tf.tupleEmpty());
+        Type functionType = !firstAmbiguity.getValue() 
+            ? tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+                tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+                tf.tupleEmpty())
+            : tf.functionType(RascalFunctionValueFactory.Tree,
+                tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+                tf.tupleEmpty())
+            ;
         
-        return function(functionType, new ParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters));
+        Class<IGTD<IConstructor, ITree, ISourceLocation>>parser = getParserClass((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
+        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+
+        checkPreconditions(startSort, reifiedGrammar.getType());
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+
+        String name = getParserMethodName(startSort);
+        if (name == null) {
+            name = generator.getParserMethodName(startSort);
+        }
+
+        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
     }
     
+    protected static String getParserMethodName(IConstructor symbol) {
+		// we use a fast non-synchronized path for simple cases; 
+		// this is to prevent locking the evaluator in IDE contexts
+		// where many calls into the evaluator/parser are fired in rapid
+		// succession.
+
+		switch (symbol.getName()) {
+			case "start":
+				return "start__" + getParserMethodName(SymbolAdapter.getStart(symbol));
+			case "layouts":
+				return "layouts_" + SymbolAdapter.getName(symbol);
+			case "sort":
+			case "lex":
+			case "keywords":
+				return SymbolAdapter.getName(symbol);
+		}
+
+        return null;
+    }
+
     @Override
-    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+    public IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         RascalTypeFactory rtf = RascalTypeFactory.getInstance();
         TypeFactory tf = TypeFactory.getInstance();
         
         // here the return type is parametrized and instantiated when the parser function is called with the
         // given start non-terminal:
-        
         Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
         
         Type functionType = tf.functionType(parameterType,
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
+
+        Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = getParserClass((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
+        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+
+        checkPreconditions(startSort, reifiedGrammar.getType());    
         
-        return function(functionType, new ParametrizedParseFunction(ctx, reifiedGrammar, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters));
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+        
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+    }
+
+    @Override
+    public void storeParsers(IValue reifiedGrammar, ISourceLocation saveLocation) throws IOException {
+        IMap grammar = (IMap) ((IConstructor) reifiedGrammar).get("definitions");
+        getParserGenerator().writeNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar, saveLocation);
+    }
+
+    @Override
+    public IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        // here the return type is parametrized and instantiated when the parser function is called with the
+        // given start non-terminal:
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+        
+        Type functionType = tf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+
+        @SuppressWarnings({"unchecked"})
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+          
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                
+        return function(
+            functionType, 
+            new ParametrizedParseFunction(() -> getParserGenerator(), 
+            this, 
+            caller, 
+            parser, 
+            allowAmbiguity, hasSideEffects, firstAmbiguity, filters)
+        );
+    }
+
+    @Override
+    public IFunction loadParser(IValue reifiedGrammar, ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+      
+        @SuppressWarnings({"unchecked"})
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+          
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                
+        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+
+        checkPreconditions(startSort, reifiedGrammar.getType());
+        
+        String name = getParserMethodName(startSort);
+        if (name == null) {
+            name = generator.getParserMethodName(startSort);
+        }
+
+        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, hasSideEffects, firstAmbiguity, filters));
+    }
+
+    /**
+     * This function mimicks `parsers(#start[Module]) inside lang::rascal::\syntax::Rascal.
+     * so it produces a parse function for the Rascal language, where non-terminal is the
+     * first parameter as a reified type and a str (IString) is the second parameter.
+     */
+    public IFunction bootstrapParsers() {
+        RascalTypeFactory rtf = RascalTypeFactory.getInstance();
+        TypeFactory tf = TypeFactory.getInstance();
+        IValueFactory vf = ctx.getValueFactory();
+
+        Type parameterType = tf.parameterType("U", RascalValueFactory.Tree);
+
+        Type functionType = tf.functionType(parameterType,
+            tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
+            tf.tupleEmpty());
+
+        // Funny diamond issue with multiple interface inheritance requires double cast to avoid compiler error here.
+        @SuppressWarnings("unchecked")
+        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) (Class<?>) RascalParser.class;
+
+        AbstractAST current = ctx.getCurrentAST();
+        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+        return function(functionType, new ParametrizedParseFunction(() -> getParserGenerator(), this, caller, parser, vf.bool(false), vf.bool(false), vf.bool(false), ctx.getValueFactory().set()));
+    }
+
+    public IString createHole(ITree part, IInteger index) {
+        ITree hole = TreeAdapter.getArg(part, "hole");
+        ITree sym = TreeAdapter.getArg(hole, "symbol");
+        IConstructor symbol = SymbolFactory.typeToSymbol(sym , false, null);
+
+        IString result =  ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
+
+        return result;
+    }
+
+    public IConstructor sym2symbol(ITree parsedSym) {
+        if ("nonterminal".equals(TreeAdapter.getConstructorName(parsedSym))) {
+            String nonterminalName = TreeAdapter.yield(parsedSym);
+            return constructor(Symbol_Sort, string(nonterminalName));
+        }
+        
+        return getParserGenerator().symbolTreeToSymbol(parsedSym);
+    }
+      
+    private static IConstructor checkPreconditions(IValue start, Type reified) {
+        if (!(reified instanceof ReifiedType)) {
+           throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
+        }
+        
+        Type nt = reified.getTypeParameters().getFieldType(0);
+        
+        if (!(nt instanceof NonTerminalType)) {
+            throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
+        }
+        
+        return (IConstructor) start;
     }
     
     /**
-     * This class wraps the parseObject methods of the Evaluator by presenting it as an implementation of IFunction.
+     * This class wraps generated parser classes by presenting them as implementations of IFunction.
      * In this way library builtins can use the parser generator functionality of the Evaluator without knowing about
      * the internals of parser generation and parser caching.
      */
     static private class ParseFunction implements BiFunction<IValue[], Map<String, IValue>, IValue> {
-        protected final IEvaluatorContext ctx;
-        protected final IValue grammar;
         protected final ISet filters;
         protected final IValueFactory vf;
         protected final boolean allowAmbiguity;
         protected final boolean hasSideEffects;
         protected final boolean firstAmbiguity;
-        protected final boolean robust;
+        protected final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser;
+        protected final String methodName;
+        protected final ISourceLocation caller;
         
-        public ParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
-            this.ctx = ctx;
-            this.vf = ctx.getValueFactory();
-            this.grammar = grammar;
+        public ParseFunction(IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, String methodName, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+            this.vf = vf;
+            this.caller = caller;
+            this.parser = parser;
+            this.methodName = methodName;
             this.filters = filters;
             this.allowAmbiguity = allowAmbiguity.getValue() || firstAmbiguity.getValue();
             this.hasSideEffects = hasSideEffects.getValue();
             this.firstAmbiguity = firstAmbiguity.getValue();
-            this.robust = robust.getValue();
         }
         
         @Override
@@ -217,10 +442,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
             if (firstAmbiguity) {
                 if (parameters[0].getType().isString()) {
-                    return firstAmbiguity(grammar, (IString) parameters[0], ctx);
+                    return firstAmbiguity(methodName, (IString) parameters[0]);
                 }
                 else if (parameters[0].getType().isSourceLocation()) {
-                    return firstAmbiguity(grammar, (ISourceLocation) parameters[0], ctx);
+                    return firstAmbiguity(methodName, (ISourceLocation) parameters[0]);
                 }
             }
             else {
@@ -229,10 +454,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 }
 
                 if (parameters[0].getType().isString()) {
-                    return parse(grammar, filters, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, robust, ctx);
+                    return parse(methodName, filters, (IString) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects);
                 }
                 else if (parameters[0].getType().isSourceLocation()) {
-                    return parse(grammar, filters, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects, robust, ctx);
+                    return parse(methodName, filters, (ISourceLocation) parameters[0], (ISourceLocation) parameters[1], allowAmbiguity, hasSideEffects);
                 }
             }
 
@@ -240,18 +465,25 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
 
         protected Throw fail(IValue... parameters) {
-            return RuntimeExceptionFactory.callFailed(URIUtil.rootLocation("unknown"), Arrays.stream(parameters).collect(ctx.getValueFactory().listWriter()));
+            return RuntimeExceptionFactory.callFailed(caller, Arrays.stream(parameters).collect(vf.listWriter()));
         }
         
-        protected IValue parse(IValue start, ISet filters, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, boolean robust, IEvaluatorContext ctx) {
+        private IGTD<IConstructor, ITree, ISourceLocation> getParser() {
             try {
-                Type reified = start.getType();
+                return parser.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                    | NoSuchMethodException | SecurityException e) {
+                throw new ImplementationError("could not instantiate generated parser", e);
+            } 
+        }
+
+        protected IValue parse(String methodName, ISet filters, IString input,  ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects) {
+            try {
                 if (origin == null) {
                     origin = URIUtil.rootLocation("unknown");
                 }
                 
-                IConstructor grammar = checkPreconditions(start, reified);
-                return ctx.getEvaluator().parseObject(grammar, filters, origin, input.getValue().toCharArray(), allowAmbiguity, hasSideEffects, robust);
+                return parseObject(methodName, origin, input.getValue().toCharArray(), allowAmbiguity, hasSideEffects, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
@@ -262,39 +494,33 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree)), vf.string(TreeAdapter.yield(tree)));
             }
             catch (UndeclaredNonTerminalException e){
-                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), caller);
             }
         }
         
-        protected IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
-            Type reified = start.getType();
-            IConstructor grammar = checkPreconditions(start, reified);
-            
+        protected IValue firstAmbiguity(String methodName, IString input) {
             try {
-                return ctx.getEvaluator().parseObject(grammar, vf.set(), URIUtil.invalidLocation(), input.getValue().toCharArray(), false, false, false);
+                return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+                throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (Ambiguous e) {
                 return e.getTree();
             }
             catch (UndeclaredNonTerminalException e){
-                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), caller);
             }
         }
         
-        protected IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
-            Type reified = start.getType();
-            IConstructor grammar = checkPreconditions(start, reified);
-            
+        protected IValue firstAmbiguity(String methodName, ISourceLocation input) {
             try {
-                return ctx.getEvaluator().parseObject(grammar, vf.set(), input, readAll(input), false, false, false);
+                return parseObject(methodName, input, readAll(input), false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+                throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (IOException e) {
                 throw RuntimeExceptionFactory.io("IO error: " + e);
@@ -303,7 +529,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 return e.getTree();
             }
             catch (UndeclaredNonTerminalException e){
-                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), caller);
             }
         }
 
@@ -317,20 +543,17 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             return vf.string(SymbolAdapter.toString(symbol, false));
         }
 
-        protected IValue parse(IValue start, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects, boolean robust, IEvaluatorContext ctx) {
-            Type reified = start.getType();
-            IConstructor grammar = checkPreconditions(start, reified);
-            
+        protected IValue parse(String methodName, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects) {
             if (origin == null) {
                 origin = input;
             }
             
             try {
-                return ctx.getEvaluator().parseObject(grammar, vf.set(), input, readAll(input), allowAmbiguity, hasSideEffects, robust);
+                return parseObject(methodName, input, readAll(input), allowAmbiguity, hasSideEffects, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
-                throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+                throw RuntimeExceptionFactory.parseError(errorLoc);
             }
             catch (IOException e) {
                 throw RuntimeExceptionFactory.io("IO error: " + e);
@@ -340,22 +563,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 throw RuntimeExceptionFactory.ambiguity(e.getLocation(), printSymbol(TreeAdapter.getType(tree)), vf.string(TreeAdapter.yield(tree)));
             }
             catch (UndeclaredNonTerminalException e){
-                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+                throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), caller);
             }
         }
 
-        private static IConstructor checkPreconditions(IValue start, Type reified) {
-            if (!(reified instanceof ReifiedType)) {
-               throw RuntimeExceptionFactory.illegalArgument(start, "A reified type is required instead of " + reified);
-            }
-            
-            Type nt = reified.getTypeParameters().getFieldType(0);
-            
-            if (!(nt instanceof NonTerminalType)) {
-                throw RuntimeExceptionFactory.illegalArgument(start, "A non-terminal type is required instead of  " + nt);
-            }
-            
-            return (IConstructor) start;
+        private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects,  ISet filters) {
+            IActionExecutor<ITree> exec = filters.isEmpty() ?  new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
+
+            return (ITree) getParser().parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
         }
     }
     
@@ -368,9 +583,11 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
      * parameter for the start-nonterminal.
      */
     static private class ParametrizedParseFunction extends ParseFunction {
-        
-        public ParametrizedParseFunction(IEvaluatorContext ctx, IValue grammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
-            super(ctx, grammar, allowAmbiguity, hasSideEffects, firstAmbiguity, robust, filters);
+        private Supplier<ParserGenerator> generator;
+
+        public ParametrizedParseFunction(Supplier<ParserGenerator> generator, IValueFactory vf, ISourceLocation caller, Class<IGTD<IConstructor, ITree, ISourceLocation>> parser, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
+            super(vf, caller, parser, null, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+            this.generator = generator;
         }
         
         @Override
@@ -379,28 +596,35 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 throw fail(parameters);
             }
 
+            IConstructor startSort = (IConstructor) ((IConstructor) parameters[0]).get("symbol");
+
+            if (!(parameters[0].getType() instanceof ReifiedType)) {
+                throw fail(parameters);
+            }
+
+            String name = getParserMethodName(startSort);
+            if (name == null) {
+                name = generator.get().getParserMethodName(startSort);
+            }
+
             if (firstAmbiguity) {
                 if (parameters[1].getType().isString()) {
-                    return firstAmbiguity(parameters[0], (IString) parameters[1], ctx);
+                    return firstAmbiguity(name, (IString) parameters[1]);
                 }
                 else if (parameters[1].getType().isSourceLocation()) {
-                    return firstAmbiguity(parameters[0], (ISourceLocation) parameters[1], ctx);
+                    return firstAmbiguity(name, (ISourceLocation) parameters[1]);
                 }
             }
             else {
-                if (!(parameters[0].getType() instanceof ReifiedType)) {
-                    throw fail(parameters);
-                }
-
                 if (!parameters[2].getType().isSourceLocation()) {
                     throw fail(parameters); 
                 }
 
                 if (parameters[1].getType().isString()) {
-                    return parse(parameters[0], filters, (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, robust, ctx);
+                    return parse(name, filters, (IString) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects);
                 }
                 else if (parameters[1].getType().isSourceLocation()) {
-                    return parse(parameters[0], filters, (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects, robust, ctx);
+                    return parse(name, filters, (ISourceLocation) parameters[1], (ISourceLocation) parameters[2], allowAmbiguity, hasSideEffects);
                 }
             }
 

@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -27,14 +27,13 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr) {
+    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap);
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
-        evaluator.setMonitor(new ConsoleRascalMonitor());
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
@@ -47,14 +46,12 @@ public class ShellEvaluatorFactory {
         return evaluator;
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr) {
+    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap);
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-
-        evaluator.setMonitor(new ConsoleRascalMonitor());
 
         ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);
         if (rootFolder != null) {

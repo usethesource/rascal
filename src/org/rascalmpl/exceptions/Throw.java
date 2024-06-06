@@ -17,7 +17,6 @@ import java.io.IOException;
 
 import org.rascalmpl.interpreter.control_exceptions.ControlException;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -84,7 +83,7 @@ public final class Throw extends ControlException {
         try {
             stw.write(value, lros);
         }
-        catch (IOLimitReachedException iolrex){
+        catch (/*IOLimitReachedException*/ RuntimeException iolrex){
             // This is fine, ignore.
         }
         catch (IOException ioex) {

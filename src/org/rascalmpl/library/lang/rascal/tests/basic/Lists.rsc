@@ -68,7 +68,7 @@ int freq(&T x, list[&T] L) = (0 | eq(e, x) ? it + 1 : it | e <- L);
 public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
    int i = 0;
    int j = 0;
-   res = [];
+   list[&T] res = [];
    while(i < size(A) || j < size(B)){
             if(i < size(A) && arbBool()){
                res = res + [elementAt(A,i)];
@@ -83,7 +83,7 @@ public list[&T] mergeOrdered(list[&T] A, list[&T] B) {
 
 // Merge two lists without keeping their order.
 public list[&T] mergeUnOrdered(list[&T] A, list[&T] B) {
-   res = [];
+   list[&T] res = [];
    while(!(isEmpty(A) && isEmpty(B))){
             if(arbBool() && size(A) > 0){
                <x, A> = takeOneFrom(A);
@@ -185,7 +185,7 @@ test bool sliceFirstSecond(list[int] L) {
   return L[f, f + incr..] == makeSlice(L, f, f + incr, size(L));
 }
 
-test bool sliceEmpty(int from, int to) = [][from..to] == [];
+test bool sliceEmpty(int from, int to) = [][from % 32768 .. to % 32768] == [];
 
 test bool sliceOverEnd() = [0][1..] == [];
 

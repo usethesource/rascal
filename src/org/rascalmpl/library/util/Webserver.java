@@ -27,8 +27,8 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.lang.json.io.JsonValueReader;
-import org.rascalmpl.library.lang.json.io.JsonValueWriter;
+import org.rascalmpl.library.lang.json.internal.JsonValueReader;
+import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -181,13 +181,9 @@ public class Webserver {
                         else {
                             // otherwise the content is parsed as JSON and validated against the given type
                             IValue dtf = keyArgValues.get("dateTimeFormat");
-                            IValue ics = keyArgValues.get("implicitConstructors");
-                            IValue icn = keyArgValues.get("implicitNodes");
-
-                            return new JsonValueReader(vf, store)
+                         
+                            return new JsonValueReader(vf, store, monitor, null)
                                 .setCalendarFormat((dtf != null) ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                                .setConstructorsAsObjects((ics != null) ? ((IBool) ics).getValue() : true)
-                                .setNodesAsObjects((icn != null) ? ((IBool) icn).getValue() : true)
                                 .read(new JsonReader(getRawContentReader(parms, contentParamName)), topType);
                         }
                     } catch (IOException | URISyntaxException e) {
@@ -210,7 +206,7 @@ public class Webserver {
             private IString getRawContent(Map<String, String> parms, String contentParamName) throws URISyntaxException {
                 String path = parms.get(contentParamName);
                 if (path != null && !path.isEmpty()) {
-                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path));
+                    return Prelude.readFile(vf, false, URIUtil.createFileLocation(path), "UTF-8", true);
                 }
                 else {
                     // empty content is a valid response.
@@ -241,14 +237,10 @@ public class Webserver {
                 IWithKeywordParameters<? extends IConstructor> kws = cons.asWithKeywordParameters();
 
                 IValue dtf = kws.getParameter("dateTimeFormat");
-                IValue ics = kws.getParameter("implicitConstructors");
-                IValue ipn = kws.getParameter("implicitNodes");
                 IValue dai = kws.getParameter("dateTimeAsInt");
 
                 JsonValueWriter writer = new JsonValueWriter()
                     .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                    .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
-                    .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
                     .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
                 try {
@@ -340,7 +332,7 @@ public class Webserver {
         try {
             server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
             servers.put(url, server);
-            monitor.jobStart("Server: " + server);
+           
             if (!asDeamon.getValue()) {
                 out.println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
                 out.flush();
@@ -357,7 +349,6 @@ public class Webserver {
                 }
                 server.stop();
                 servers.remove(url);
-                monitor.jobEnd("Server: " + server, true);
             }
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
@@ -442,7 +433,7 @@ public class Webserver {
             requestType = store.lookupAbstractDataType("Request");
 
             RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-            functionType = tf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.voidType());
+            functionType = tf.functionType(tf.valueType(), tf.tupleType(rtf.reifiedType(tf.valueType())), tf.tupleEmpty());
 
             get = store.lookupConstructor(requestType, "get", tf.tupleType(tf.stringType()));
             put = store.lookupConstructor(requestType, "put",  tf.tupleType(tf.stringType(), functionType));

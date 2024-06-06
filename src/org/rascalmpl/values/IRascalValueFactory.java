@@ -10,6 +10,7 @@
 *******************************************************************************/
 package org.rascalmpl.values;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -22,6 +23,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
@@ -87,15 +89,12 @@ public interface IRascalValueFactory extends IValueFactory {
 	 *  `firstAmbiguity`: if true, then the parser returns the subforest for the first (left-most innermost) ambiguity instead of a parse tree for
 	 *                    the entire input string. This is for grammar debugging purposes a much faster solution then waiting for an entire 
 	 *                    parse forest to be constructed in polynomial time.
-	 *                    
-	 *  `robust`:         if true, then the parser will continue after a parse error and produce a "pseudo" parse tree node around the place where the parse
-	 *                    error(s) had occurred.
 	 * 
 	 *  `filter` : is a function that eiter returns a modified tree of the same type, or throws `FilterException` which leads
 	 *             to the removal of the current tree under an ambiguity cluster that is higher up the tree. The filter function
 	 *             is called on every parse tree node while it is being constructed after a succesful parse forest is produced.
 	 */
-	default IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+	default IFunction parser(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
 	    throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
 	}
 	
@@ -105,7 +104,36 @@ public interface IRascalValueFactory extends IValueFactory {
 	 *  * &U parse(type[&U <: Tree], str input, loc origin);
 	 *  * &U parse(type[&U <: Tree], loc input, loc origin);
 	 */
-	default IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, IBool robust, ISet filters) {
+	default IFunction parsers(IValue reifiedGrammar, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
         throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator:" + getClass());
     }
+
+	/**
+	 * Same as `parsers` but saves the result to disk rather than wrapping it as an IFunction.
+	 * 
+	 * @param start
+	 * @param saveLocation
+	 * @throws IOException
+	 */
+    default void storeParsers(IValue start, ISourceLocation saveLocation) throws IOException {
+		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can store parsers on disk." + getClass());
+	}
+
+	/**
+	 * Reverse of storeParsers and with the same effect as the {@see parsers} method.
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	default IFunction loadParsers(ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
+	}
+
+	/**
+	 * Reverse of storeParsers and with the same effect as the {@see parsers} method.
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	default IFunction loadParser(IValue reifiedType, ISourceLocation saveLocation, IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) throws IOException, ClassNotFoundException {
+		throw new UnsupportedOperationException("This Rascal value factory does not support a parser generator that can restore parsers from disk." + getClass());
+	}
 }

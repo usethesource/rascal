@@ -19,8 +19,8 @@ import Node;
 import Exception;
 import IO;
 
-private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
-private list[&T] emptyList(type[&T] _) = [];
+private map[&K,&V] emptyMap(type[map[&K,&V]] _) { map[&K,&V] e = (); return e; }
+private list[&T] emptyList(type[&T] _) { list[&T] e = []; return e; }
 private map[value,value] up(map[&K,&V] m) = m;
 
 // composition
@@ -150,6 +150,13 @@ test bool union1(map[&K,&V] M1, map[&K,&V] M2) = size(M1 + M2) >= size(M1);
 test bool union2(map[&K,&V] M) = () + M == M;
 test bool union3(map[&K,&V] M) = M + () == M;
 test bool union4() = (1:10) + (2:20) == (1:10,2:20);
+
+// +=
+test bool increment1(){
+    map[int,rel[int,int]] M = (0 : {<1,10>});
+    M[0] += <10,20>;
+    return M ==  (0 : {<1,10>, <10,20>});
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // legacy

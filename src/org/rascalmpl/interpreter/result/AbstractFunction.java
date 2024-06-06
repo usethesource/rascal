@@ -24,8 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
-
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.FunctionDeclaration;
@@ -37,15 +35,15 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
-
-import io.usethesource.vallang.IConstructor;
+ 
+import io.usethesource.vallang.IConstructor; 
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -71,12 +69,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	protected final AbstractAST ast;
 	protected final IValueFactory vf;
 
+	private int hash = -1;
+
 	
 	
-	protected static int callNesting = 0;
-	protected static boolean callTracing = false;
-	
-	// TODO: change arguments of these constructors to use EvaluatorContexts
 	public AbstractFunction(AbstractAST ast, IEvaluator<Result<IValue>> eval, Type functionType, Type dynamicFunctionType, List<KeywordFormal> initializers, boolean varargs, Environment env) {
 		super(functionType, null, eval);
 		this.ast = ast;
@@ -122,10 +118,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	@Override
 	public int getArity() {
 		return staticFunctionType.getArity();
-	}
-	
-	public static void setCallTracing(boolean value){
-		callTracing = value;
 	}
 	
 	public boolean isPatternDispatched() {
@@ -260,7 +252,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 
 	
 	private void printNesting(StringBuilder b) {
-		for (int i = 0; i < callNesting; i++) {
+		for (int i = 0; i < ctx.getCallNesting(); i++) {
 			b.append('>');
 		}
 	}
@@ -271,11 +263,11 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			new StandardTextWriter(true, 2).write(value, w);
 			return w.toString();
 		} 
-		catch (IOLimitReachedException e) {
-			return w.toString();
-		}
 		catch (IOException e) {
 			return "...";
+		}
+		catch (/*IOLimitReachedException*/ RuntimeException e) {
+			return w.toString();
 		}
 	}
 	protected void printHeader(StringBuilder b, IValue[] actuals) {
@@ -303,7 +295,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		printHeader(b, actuals);
 		eval.getOutPrinter().println(b.toString());
 		eval.getOutPrinter().flush();
-		callNesting++;
+		eval.incCallNesting();
 	}
 
 	private String moduleName() {
@@ -316,7 +308,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	protected void printExcept(Throwable e) {
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			StringBuilder b = new StringBuilder();
 			b.append("except>");
 			printNesting(b);
@@ -332,7 +324,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 	
 	protected void printEndTrace(IValue result) {
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			StringBuilder b = new StringBuilder();
 			b.append("return>");
 			printNesting(b);
@@ -354,8 +346,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		    if (actualStaticTypes.isOpen()) {
 			    // we have to make the environment hygenic now, because the caller scope
 			    // may have the same type variable names as the current scope
-			    actualStaticTypes = renameType(actualStaticTypes, renamings);
+			    actualStaticTypes = renameType(actualStaticTypes, renamings, env.getLocation());
 			}
+
 			
 			Map<Type, Type> staticBindings = new HashMap<Type, Type>();
 			
@@ -401,13 +394,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	    return resultType;
 	}
 	  
-    public static Type renameType(Type actualTypes, Map<Type, Type> renamings) {
+    public static Type renameType(Type actualTypes, Map<Type, Type> renamings, ISourceLocation uniquePrefix) {
         actualTypes.match(TypeFactory.getInstance().voidType(), renamings);
         
         // rename all the bound type parameters
         for (Entry<Type,Type> entry : renamings.entrySet()) {
             Type key = entry.getKey();
-            renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + UUID.randomUUID().toString(), key.getBound()));
+            renamings.put(key, TypeFactory.getInstance().parameterType(key.getName() + ":" + uniquePrefix, key.getBound()));
         }
         actualTypes = actualTypes.instantiate(renamings);
         return actualTypes;
@@ -604,7 +597,10 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public int hashCode() {
-		return 7 + (ast != null ? ast.hashCode() * 23 : 23);
+		if (this.hash == -1) {
+		  	this.hash = 7 + (ast != null ? ast.hashCode() * 23 : 23);
+		}
+		return this.hash;
 	}
 	
 	@Override

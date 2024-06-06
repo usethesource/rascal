@@ -67,7 +67,13 @@ public interface IDebugMessage {
 		 * Indicates a continuation of the execution, caused by a step over
 		 * request.
 		 */
-		STEP_OVER
+		STEP_OVER,
+
+		/**
+		 * Indicates a continuation of the execution, caused by a step out
+		 * request.
+		 */
+		STEP_OUT
 	}
 	
 	Action getAction();

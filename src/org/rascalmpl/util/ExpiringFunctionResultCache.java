@@ -71,7 +71,9 @@ public class ExpiringFunctionResultCache<TResult> {
         if (maxEntries > 0) {
             result = result.maximumSize(maxEntries);
         }
-        return result.scheduler(Scheduler.systemScheduler());
+        return result
+            .executor(Runnable::run)
+            .scheduler(Scheduler.systemScheduler());
     }
 
     private static long simulateNanoTicks() {
@@ -120,7 +122,7 @@ public class ExpiringFunctionResultCache<TResult> {
         }
         // we schedule the next run
         CompletableFuture
-            .delayedExecutor(5, TimeUnit.SECONDS)
+            .delayedExecutor(3, TimeUnit.SECONDS)
             .execute(() -> doCleanup(cache));
 
         // then we do the actual cleanup

@@ -23,12 +23,10 @@ public data Production = lookahead(Symbol def, set[Symbol] classes, Production p
 public data Symbol = eoi();     // end-of-input marker
 private data Grammar = simple(set[Symbol] starts, set[Production] productions);
 
-@doc{
-  This function wraps productions with their single character lookahead sets for 
+@synopsis{This function wraps productions with their single character lookahead sets for 
   parser generation.
   
-  'extra' contains extra lookahead symbols per symbol
-}
+  'extra' contains extra lookahead symbols per symbol}
 public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
   G2 = expandRegularSymbols(removeLabels(G));
   <fst, fol> = firstAndFollow(simple(G2.starts, {p | /Production p:prod(_,_,_) := G2}));
@@ -51,10 +49,8 @@ public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
   }
 }
 
-@doc{
-  This function evaluates lookahead sets to obtain an optimal production selection automaton
-  As a side-effect it also needs to replace priority ordering and associativity by the simple choice operator!  
-}
+@synopsis{This function evaluates lookahead sets to obtain an optimal production selection automaton
+  As a side-effect it also needs to replace priority ordering and associativity by the simple choice operator!}
 public Grammar compileLookaheads(Grammar G) {
   // first we remove first and assoc groups for simplicity's sake
   G = visit (G) {

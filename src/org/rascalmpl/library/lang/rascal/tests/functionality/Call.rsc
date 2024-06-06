@@ -469,3 +469,11 @@ test bool bt1() = c(7 * 5 * 3 * 2) == c(1);
 test bool bt2() = c(5 * 3 * 2) == c(1);
 test bool bt3() = c(3 * 2) == c(1);
 test bool bt(int i) = (j := i mod 100) && c(xxx) := c(j) && xxx <= j;
+
+// when clauses
+
+int fw(int n) = 10 when 0 !:= n;
+default int fw(int n) = -1;
+
+test bool negativeMatch1() = fw(0) == -1;
+test bool negativeMatch2() = fw(1) == 10;

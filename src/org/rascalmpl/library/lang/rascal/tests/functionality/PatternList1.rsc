@@ -84,7 +84,19 @@ test bool matchList45() = [*int _] := [1];
 test bool matchList46() = [*int _] := [1,2];
 test bool matchList47() = ([1, *int _, 10, *int _, 20] := [1,2,10,20]);
 
-test bool matchList48() {
+test bool matchList48() = [*x] := [];
+test bool matchList49() = [*x,*y] := [];
+test bool matchList50() = [*x,*y,*z] := [];
+
+test bool matchList51() = [*x,1] := [1];
+test bool matchList52() = [1,*y] := [1];
+test bool matchList53() = [*x,1,*y] := [1];
+
+test bool matchList54() = [*x,a] := [1] && a == 1;
+test bool matchList55() = [a,*y] := [1] && a == 1;
+test bool matchList56() = [*x,a,*y] := [1] && a == 1;
+
+test bool matchList60() {
 	res = [];
  	for([*int a, *int b, *int c, *int d] := [1,2,3,4,5,6]) { res = res + [[a,b,c,d]]; }
  	return res ==
@@ -594,7 +606,7 @@ test bool matchList48() {
 		    []
 		  ]
 		];
-}	
+}
 
 test bool matchListDynamic1() = [str s, int n] := ["a", 1];
 test bool matchListDynamic2() = [str _, int _] := ["a", 1];
@@ -643,6 +655,14 @@ test bool matchNestedList12() = !(([[1], *list[int] L, [6,7,8]] := [[1],[2,3],[4
   		
 test bool matchNestedList13() = ([[1], *list[int] L, [6,7,8], *L] := [[1],[2,3],[4,5],[6,7,8],[2,3],[4,5]]) && (L == [[2,3],[4,5]]);
 
+test bool matchNestedList14() {
+    if([*list[int] L] := [[1,2]] && L == [[1,2,3]]){
+        return false;
+     } else {
+        return true;
+     }
+}
+
 // matchExternalListVars
 
 // int n is uninitialized on purpose here
@@ -677,6 +697,13 @@ test bool matchListTuples5() = [*c, <a, a>] := [<1, 2>, <3, 3>];
 test bool matchListTuples6() = [*c, <int a, a>] := [<1, 2>, <3, 3>];
 test bool matchListTuples7() = [<int a, int b>, <b, b>, *c] := [<1, 2>, <2, 2>, <3, 4>];
 
+test bool matchListTuples8() {
+    if([<1, int n, 3>] := [<1, 2, 3>] && n == -2){
+        return false;
+    } else {
+        return true;
+    }
+}
 // match list of lists
 
 test bool matchListLists1() = [[1, 2, 3]] := [[1, 2, 3]];
