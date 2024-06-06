@@ -1,4 +1,4 @@
- module lang::rascal::tests::functionality::Assignment
+module lang::rascal::tests::functionality::Assignment
   
 import Exception;
 
@@ -210,5 +210,25 @@ test bool testUnInitAssignment10() {
   list[int] m = [];
   m[0] += 1;
   return false;
+}
+
+test bool testSetIfUndefinedKeyIssue1713() {
+  myKey = "testkey";
+  map[str, set[int]] tableSet = ();
+
+  // this would throw an exception (static)
+  tableSet[myKey]?{} += {1};
+
+  return tableSet == ("testkey":{1});
+}
+
+test bool testListIfUndefinedKeyIssue1713() {
+  myKey = "testkey";
+  map[str, list[int]] tableSet = ();
+
+  // this would throw an exception (static)
+  tableSet[myKey]?[] += [1];
+
+  return tableSet == ("testkey":[1]);
 }
 

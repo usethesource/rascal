@@ -22,7 +22,6 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -53,7 +52,7 @@ public class ReadEvalPrintDialogMessages {
 				LimitedResultWriter lros = new LimitedResultWriter(1000);
 				try{
 					stw.write(value, lros);
-				}catch(IOLimitReachedException iolrex){
+				}catch(/*IOLimitReachedException*/ RuntimeException iolrex){
 					// This is fine, ignore.
 				}catch(IOException ioex){
 					// This can never happen.
@@ -146,7 +145,7 @@ public class ReadEvalPrintDialogMessages {
 	
 	public static void parseOrStaticOrThrowMessage(PrintWriter out, RuntimeException e, StandardTextWriter prettyPrinter) {
 		if (e instanceof ParseError) {
-			parseErrorMessage(out, "unkown", "unkown", (ParseError)e, prettyPrinter);
+			parseErrorMessage(out, "unknown", "unknown", (ParseError)e, prettyPrinter);
 		}
 		else if (e instanceof StaticError)  {
 			staticErrorMessage(out, (StaticError)e, prettyPrinter);
@@ -165,7 +164,7 @@ public class ReadEvalPrintDialogMessages {
                 prettyPrinter.write(e.getException(), lros);
             }
 		}
-		catch(IOLimitReachedException iolrex){
+		catch(/*IOLimitReachedException*/ RuntimeException iolrex){
 			// This is fine, ignore.
 		}
 		catch(IOException ioex){

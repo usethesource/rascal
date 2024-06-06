@@ -43,6 +43,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
+import io.usethesource.vallang.type.TypeFactory.TypeValues;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.BottomUpVisitor;
 import io.usethesource.vallang.visitors.IdentityVisitor;
@@ -93,9 +94,13 @@ public class NonTerminalType extends RascalType {
 		this(SymbolFactory.typeToSymbol(type, lex, layout));
 	}
 	
-    public static class Reifier implements TypeReifier {
+    public static class Reifier extends TypeReifier {
 
-        @Override
+        public Reifier(TypeValues symbols) {
+			super(symbols);
+		}
+
+		@Override
         public Set<Type> getSymbolConstructorTypes() {
             return Arrays.stream(new Type[] {
                    RascalValueFactory.Symbol_Label,
@@ -202,8 +207,8 @@ public class NonTerminalType extends RascalType {
     }
     
     @Override
-    public TypeReifier getTypeReifier() {
-        return new Reifier();
+    public TypeReifier getTypeReifier(TypeValues symbols) {
+        return new Reifier(symbols);
     }
     
     @Override
@@ -439,8 +444,7 @@ public class NonTerminalType extends RascalType {
 	  }
 
 	  if (SymbolAdapter.isParameter(otherSym)) {
-		  RascalType bound = (RascalType) RTF.nonTerminalType((IConstructor) otherSym.get("bound"));
-		  return isSubtypeOf(bound);
+		  return isSubtypeOf(RTF.nonTerminalType((IConstructor) otherSym.get("bound")));
 	  }
 	  
 	  // TODO co-variance for the other structured symbols (sequence, opt, list)

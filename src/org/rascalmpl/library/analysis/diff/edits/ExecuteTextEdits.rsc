@@ -28,15 +28,12 @@ void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
         return e1.range.offset < e2.range.offset; 
     });
 
-    content = readFile(file);
-    shift = 0;
+    str content = readFile(file);
 
-    for (replace(loc range, str repl) <- edits) {
+    for (replace(loc range, str repl) <- reverse(edits)) {
         assert range.top == file.top;
-        
-        content[(shift + range.offset) .. (shift + range.offset + range.length)] = repl;
-        shift += size(repl) - range.length;
+        content = "<content[..range.offset]><repl><content[range.offset+range.length..]>";
     }
 
-    writeFile(file, content);
+    writeFile(file.top, content);
 }

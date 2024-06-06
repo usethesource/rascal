@@ -613,8 +613,18 @@ test bool matchNestedSet10() = {*set[int] _} := {{1,2}};
 test bool matchNestedSet11() = ({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{6,7,8}}) && (L == {{2,3},{4,5}});
 test bool matchNestedSet12() = !(({{1}, *set[int] L, {6,7,8}} := {{1},{2,3},{4,5},{8}}) && (L == {{2,3},{4,5}}));
  
- @IgnoreInterpreter{TBD}
+ @IgnoreInterpreter{
+TBD
+}
 test bool matchNestedSet13() = ({{1}, *set[int] L, {6,7,8}, *L} := {{1},{2,3},{4,5},{6,7,8},{2,3},{4,5}}) && (L == {{2,3},{4,5}});
+
+test bool matchNestedSet14() {
+    if({*set[int] S} := {{1,2}} && S == {{1,2,3}}){
+        return false;
+     } else {
+        return true;
+     }
+}
 
 //    matchSetMultiVars
 
@@ -638,6 +648,14 @@ test bool matchSetTuples5() = {<a, a>, *c} := {<1, 2>, <3, 3>};
 test bool matchSetTuples6() = {<int a, a>, *c} := {<1, 2>, <3, 3>};
 test bool matchSetTuples7() = {<int a, int b>, <b, b>, *c} := {<1, 2>, <2, 2>, <3, 4>};
 
+test bool matchSetTuples8() {
+    if({<1, int n, 3>} := {<1, 2, 3>} && n == -2){
+        return false;
+    } else {
+        return true;
+    }
+}
+
 // match set of lists
 
 test bool matchSetLists1() = {[1, 2, 3]} := {[1, 2, 3]};
@@ -648,6 +666,13 @@ test bool matchSetLists5() = {[a, a], *c} := {[1, 2], [3, 3]};
 test bool matchSetLists6() = {[int a, a], *c} := {[1, 2], [3, 3]};
 test bool matchSetLists7() = {[int a, int b], [b, b], *c} := {[1, 2], [2, 2], [3, 4]};
 
+test bool matchSetLists8() {
+    if({[1, int n, 3]} := {[1, 2, 3]} && n == -2){
+        return false;
+    } else {
+        return true;
+    }
+}
 // match set of ADTs
 
 data D = d(int x, int y) | d(int x, int y, int z);

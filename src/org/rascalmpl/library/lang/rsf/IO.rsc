@@ -9,13 +9,12 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rsf::IO
 
-@doc{Read an RSF file.
+@synopsis{Read an RSF file.
 
 Read relations from an RSF file. An RSF file contains tuples of binary relations
 in the following format:
     RelationName Arg1 Arg2
-where each field is separated by a tabulation character (\t). One file may contain tuples for more than one relation. readRSF takes an RSF file nameRSFFile and generates a map[str,rel[str,str]] that maps each relation name to the actual relation.
-}
+where each field is separated by a tabulation character (\t). One file may contain tuples for more than one relation. readRSF takes an RSF file nameRSFFile and generates a map[str,rel[str,str]] that maps each relation name to the actual relation.}
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 public java map[str, rel[str,str]] readRSF(loc nameRSFFile);
 
@@ -28,15 +27,15 @@ public java map[str, type[value]] getRSFTypes(loc location);
 @javaClass{org.rascalmpl.library.lang.rsf.RSFIO}
 public java &T readRSFRelation(type[&T] result, str name, loc location);
 
-@resource{rsf}
-@doc{
-  The RSF schema should be given as:
+@resource{
+rsf
+}
+@synopsis{The RSF schema should be given as:
     rsf+rascal-file-uri
   where rascal-file-uri is a standard Rascal URI, for instance:
     rsf+file:///tmp/myRSFFile.rsf
   or
-    rsf+project://MyProject/src/data/myRSFFile.rsf
-}
+    rsf+project://MyProject/src/data/myRSFFile.rsf}
 public str generate(str moduleName, loc uri) {
     
     // Retrieve the relation names and their types

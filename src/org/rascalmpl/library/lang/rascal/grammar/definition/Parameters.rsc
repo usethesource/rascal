@@ -7,9 +7,7 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
-@doc{
-  This module implements the support for parameterized syntax definitions
-}
+@synopsis{This module implements the support for parameterized syntax definitions}
 module lang::rascal::grammar::definition::Parameters
 
 import Grammar;

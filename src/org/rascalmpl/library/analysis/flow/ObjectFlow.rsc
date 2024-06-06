@@ -1,16 +1,13 @@
-@doc{
-.Synopsis
-Intermediate Language and Basic Algorithms for object flow analysis
-  
-.Description
-  
+
+@synopsis{Intermediate Language and Basic Algorithms for object flow analysis}
+@description{
 The object flow language from the Tonella and Potrich book 
-"Reverse Engineering Object Oriented Code" <<tonella>> is an intermediate
+"Reverse Engineering Object Oriented Code" is an intermediate
 representation for object flow. We may translate for example
 Java to this intermediate language and then analyze object flow
 based on the simpler language.
   
-The implementation in this file is intended to work with <<M3>> models
+The implementation in this file is intended to work with ((data:analysis::m3::Core-M3)) models
 }
 @bibliography{
 @book{tonella,
@@ -20,7 +17,7 @@ The implementation in this file is intended to work with <<M3>> models
  isbn = {0387402950},
  publisher = {Springer-Verlag New York, Inc.},
  address = {Secaucus, NJ, USA},
-} 
+}
 }
 module analysis::flow::ObjectFlow
 
@@ -31,14 +28,14 @@ data FlowProgram = flowProgram(set[FlowDecl] decls, set[FlowStm] statements);
 
 public loc emptyId = |id:///|;
 
-@doc{Figure 2.1 <<tonella>>}
+@synopsis{Figure 2.1}
 data FlowDecl 
 	= attribute(loc id)
 	| method(loc id, list[loc] formalParameters)
 	| constructor(loc id, list[loc] formalParameters)
 	;
 
-@doc{Figure 2.1 <<tonella>>}
+@synopsis{Figure 2.1}
 data FlowStm
 	= newAssign(loc target, loc class, loc ctor, list[loc] actualParameters)
 	| assign(loc target, loc cast, loc source)
@@ -47,7 +44,7 @@ data FlowStm
 	
 alias OFG = rel[loc from, loc to];
 
-@doc{Figure 2.2 <<tonella>>}
+@synopsis{Figure 2.2}
 OFG buildFlowGraph(FlowProgram p)
   = { <as[i], fps[i]> | newAssign(_, _, c, as) <- p.statements, constructor(c, fps) <- p.decls, i <- index(as) }
   + { <cl + "this", x> | newAssign(x, cl, _, _) <- p.statements }
@@ -57,7 +54,7 @@ OFG buildFlowGraph(FlowProgram p)
   + { <m + "return", x> | call(x, _, _, m, _) <- p.statements, x != emptyId}
   ;
 
-@doc{Section 2.4 <<tonella>>}
+@synopsis{Section 2.4}
 rel[loc,&T] propagate(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
   rel[loc,&T] IN = { };
   rel[loc,&T] OUT = gen + (IN - kill);
@@ -66,7 +63,7 @@ rel[loc,&T] propagate(OFG g, rel[loc,&T] gen, rel[loc,&T] kill, bool back) {
   }
 
   solve (IN, OUT) {
-    // book would say:
+    // Tonella would say:
     //   IN = { <n,\o> | n <- carrier(g), p <- g[n], \o <- OUT[p] }; <==>
     //   IN = { <n,\o> | n <- carrier(g), p <- g[n], \o <- OUT[p] }; <==> 
     //   IN = { <n,\o> | <n,_> <- g, p <- g[n], \o <- OUT[p] }; <==>

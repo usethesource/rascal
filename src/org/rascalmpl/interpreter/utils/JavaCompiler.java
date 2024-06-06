@@ -28,6 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.jar.Attributes;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import java.util.jar.JarOutputStream;
+import java.util.jar.Manifest;
 import java.util.Set;
 
 import javax.tools.DiagnosticCollector;
@@ -41,6 +46,7 @@ import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIUtil;
 
 /**
@@ -162,10 +168,13 @@ public class JavaCompiler<T> {
          final DiagnosticCollector<JavaFileObject> diagnosticsList,
          final Class<?>... types) throws JavaCompilerException,
          ClassCastException {
-      if (diagnosticsList != null)
+      if (diagnosticsList != null) {
          diagnostics = diagnosticsList;
-      else
+      }
+      else {
          diagnostics = new DiagnosticCollector<JavaFileObject>();
+      }
+
       Map<String, CharSequence> classes = new HashMap<String, CharSequence>(1);
       classes.put(qualifiedClassName, javaSource);
       Map<String, Class<T>> compiled = compile(classes, diagnostics);
@@ -197,8 +206,12 @@ public class JavaCompiler<T> {
     */
    public synchronized Map<String, Class<T>> compile(
          final Map<String, CharSequence> classes,
-         final DiagnosticCollector<JavaFileObject> diagnostics)
+         DiagnosticCollector<JavaFileObject> diagnostics)
          throws JavaCompilerException {
+      if (diagnostics == null) {
+         diagnostics = new DiagnosticCollector<>();
+      }
+
       List<JavaFileObject> sources = new ArrayList<JavaFileObject>();
       for (Entry<String, CharSequence> entry : classes.entrySet()) {
          String qualifiedClassName = entry.getKey();
@@ -243,6 +256,28 @@ public class JavaCompiler<T> {
       } catch (SecurityException e) {
          throw new JavaCompilerException(classes.keySet(), e, diagnostics);
       }
+   }
+
+   public void compile(OutputStream classBytes, String qualifiedClassName, CharSequence classSource, final DiagnosticCollector<JavaFileObject> diagnostics) throws JavaCompilerException {
+      Map<String, CharSequence> fileMap = new HashMap<>();
+
+      try {
+         fileMap.put(qualifiedClassName, classSource);
+
+         // ignoring return class here
+         compile(fileMap, diagnostics);
+
+         // side-effect alert:
+         //     now the local classloader contains the .class file
+         classLoader.outputClassesToJar(qualifiedClassName, classBytes);
+      }
+      catch (IOException e) {
+         throw new JavaCompilerException(fileMap.keySet(), e, diagnostics);
+      }
+   }
+
+   public Class<?> load(InputStream file) throws IOException, ClassNotFoundException {
+      return classLoader.inputClassesFromJar(file);
    }
 
    /**
@@ -310,6 +345,8 @@ public class JavaCompiler<T> {
    public JavaFileManager getFileManager() {
 	  return javaFileManager;
    }
+
+   
 }
 
 /**
@@ -559,6 +596,51 @@ final class ClassLoaderImpl extends ClassLoader {
 
    ClassLoaderImpl(final ClassLoader parentClassLoader) {
       super(parentClassLoader);
+   }
+
+   public void outputClassesToJar(String qualifiedClassName, OutputStream output) throws IOException {
+      Manifest manifest = new Manifest();
+      manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+      manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, qualifiedClassName);
+   
+      try (JarOutputStream target = new JarOutputStream(output, manifest)) {
+         for (Entry<String, JavaFileObject> entry : classes.entrySet()) {
+            String className = entry.getKey();
+            JavaFileObjectImpl file = (JavaFileObjectImpl) entry.getValue();
+            JarEntry jarEntry = new JarEntry(className);
+            jarEntry.setTime(file.getLastModified());
+            target.putNextEntry(jarEntry);
+            target.write(file.getByteCode());
+            target.closeEntry();
+         }
+      }  
+   }
+
+   public Class<?> inputClassesFromJar(InputStream in) throws IOException, ClassNotFoundException {
+      try (JarInputStream jarIn = new JarInputStream(in)) {
+         Manifest mf = jarIn.getManifest();
+         String mainClass = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
+         JarEntry jarEntry;
+
+         if (mainClass == null) {
+            throw new IOException("missing Main-Class in jar manifest");
+         }
+
+         while ((jarEntry = jarIn.getNextJarEntry()) != null) {
+            if (!jarEntry.isDirectory()) {
+               var className = jarEntry.getName();
+               var file = new JavaFileObjectImpl(className, JavaFileObject.Kind.CLASS);
+               
+               try (var fo = file.openOutputStream()) {
+                  fo.write(Prelude.consumeInputStream(jarIn));
+               }
+
+               add(className, file);
+            }
+         }
+
+         return loadClass(mainClass);
+      }
    }
 
    /**

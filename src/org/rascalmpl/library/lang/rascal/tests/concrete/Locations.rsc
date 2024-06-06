@@ -92,6 +92,17 @@ test bool concreteExpressionsSourceLocationsCorrect2()
 test bool concreteExpressionsSourceLocationsCorrect3() 
   = readFile((E) `(a+(a*a))`.src) == "(a+(a*a))";
 
+test bool concreteExpressionsAssignSourceLocation1() {
+    x = (A) `a`;
+    x.src.length = 100;
+    return x.src.length == 100;
+}
+
+test bool concreteExpressionsAssignSourceLocationLegacy1() {
+    x = (A) `a`;
+    y = x@\loc[length = 100];
+    return y.length == 100;
+}
     
 test bool concreteExpressionsHaveSourceLocationsAfterVisitWithMatch()  {
    // assert /int _ := (A) `a`; // Removed assert since not relevant for the test itself

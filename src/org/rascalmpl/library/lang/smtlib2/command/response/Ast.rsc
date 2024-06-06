@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: Represents the AST of the SMT solver response
-}
+@synopsis{Synopsis: Represents the AST of the SMT solver response}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::command::response::Ast
@@ -22,7 +20,7 @@ data Response
 data CheckSat
 	= sat()
 	| unsat()
-	| unkown()
+	| unknown()
 	;
 	
 data GetUnsatCore = unsatCore(list[str] labels);
