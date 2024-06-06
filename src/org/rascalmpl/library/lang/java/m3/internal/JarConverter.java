@@ -44,9 +44,9 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ModuleNode;
 import org.objectweb.asm.tree.ModuleOpenNode;
 import org.objectweb.asm.tree.TypeInsnNode;
-import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarURIResolver;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -141,7 +141,7 @@ public class JarConverter extends M3Converter {
             try (JarInputStream jarStream = new JarInputStream(registry.getInputStream(loc))) {
                 JarEntry entry = jarStream.getNextJarEntry();
                 while (entry != null) {
-                    compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), entry.getName());
+                    compUnitPhysical = URIUtil.getChildLocation(JarURIResolver.jarify(loc), entry.getName());
             
                     if (entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
@@ -174,7 +174,7 @@ public class JarConverter extends M3Converter {
         String compUnit = className.replaceAll("\\.", "/");
         ClassReader classReader = resolver.buildClassReader(className);
 
-        this.compUnitPhysical = URIUtil.getChildLocation(RascalManifest.jarify(loc), compUnit + ".class");
+        this.compUnitPhysical = URIUtil.getChildLocation(JarURIResolver.jarify(loc), compUnit + ".class");
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);

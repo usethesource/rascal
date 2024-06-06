@@ -61,7 +61,6 @@ import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
