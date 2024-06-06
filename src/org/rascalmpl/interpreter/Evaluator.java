@@ -61,6 +61,7 @@ import org.rascalmpl.debug.IRascalRuntimeInspection;
 import org.rascalmpl.debug.IRascalSuspendTrigger;
 import org.rascalmpl.debug.IRascalSuspendTriggerListener;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
@@ -894,6 +895,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 profilerRunning = true;
             }
             currentAST = stat;
+           
             try {
                 return stat.interpret(this);
             } finally {
@@ -905,11 +907,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 getEventTrigger().fireIdleEvent();
                 endAllJobs();
             }
-        } catch (Return e) {
+        } 
+        catch (Return e) {
             throw new UnguardedReturn(stat);
-        } catch (Failure e) {
+        } 
+        catch (Failure e) {
             throw new UnguardedFail(stat, e);
-        } catch (Insert e) {
+        } 
+        catch (Insert e) {
             throw new UnguardedInsert(stat);
         }
     }
