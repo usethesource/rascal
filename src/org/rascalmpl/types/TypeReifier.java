@@ -15,10 +15,10 @@ package org.rascalmpl.types;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.SymbolAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
@@ -140,13 +140,26 @@ public class TypeReifier {
 
     /**
      * Get the alternatives of a definitions from a grammar map.
+     * Must take care to lookup parameterized non-terminals and data-types
+     * by name instead of by instantiated symbol.
+     * 
      * @param definitions rel[Symbol, Production.choice]
      * @param sort        a Symbol
      * @return
      */
     private Set<IConstructor> getAlternatives(IMap definitions, IConstructor sort) {
-        IConstructor choice = (IConstructor) definitions.get(sort);
+        if (SymbolAdapter.isParametrizableType(sort) && !SymbolAdapter.getParameters(sort).isEmpty()) {
+            // slow path can not lookup symbols by structural id, but has to look
+            // them up by name slowly
+            return getParameterizedAlternatives(definitions, sort);
+        }
+        else {
+            return getSimpleAlternatives(definitions, sort);
+        }
+    }
 
+    private Set<IConstructor> getSimpleAlternatives(IMap definitions, IConstructor sort) {
+        IConstructor choice = (IConstructor) definitions.get(sort);
         if (choice == null || choice.getConstructorType() != RascalValueFactory.Production_Choice) {
             return Collections.emptySet();
         }
@@ -157,6 +170,21 @@ public class TypeReifier {
         }
 
         return result;
+    }
+
+    private Set<IConstructor> getParameterizedAlternatives(IMap definitions, IConstructor sort) {
+        String name = SymbolAdapter.getName(sort);
+
+        // lookup the definition by name instead of by symbol
+        for (IValue elem : definitions) {
+            IConstructor symbol = (IConstructor) elem;
+            if (SymbolAdapter.isParametrizableType(sort) && SymbolAdapter.getName(symbol).equals(name)) {
+                // reuse the lookup by using the declared open symbol now
+                return getSimpleAlternatives(definitions, symbol);
+            }
+        }
+
+        return Set.of();
     }
 
     /**

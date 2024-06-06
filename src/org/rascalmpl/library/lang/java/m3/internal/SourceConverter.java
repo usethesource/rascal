@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.ExportsDirective;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -27,13 +28,18 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.OpensDirective;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ProvidesDirective;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.RequiresDirective;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -42,6 +48,7 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.UsesDirective;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -49,6 +56,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 
 @SuppressWarnings("rawtypes")
@@ -80,45 +88,51 @@ public class SourceConverter extends M3Converter {
 	}
 	
 	private void addTypeDependency(ISourceLocation dependency) {
-	  if (!scopeManager.isEmpty()) {
-	    ISourceLocation parent = getParent();
-	    if (!parent.equals(dependency)) {
-	      insert(typeDependency, parent, dependency);
-	    }
-	  }
+		if (!scopeManager.isEmpty()) {
+	    	ISourceLocation parent = getParent();
+			if (!parent.equals(dependency)) {
+				insert(typeDependency, parent, dependency);
+			}
+	  	}
 	}
-	
+
 	public void preVisit(ASTNode node) {
 		if (node instanceof Annotation) {
 			insert(annotations, getParent(), resolveBinding(((Annotation) node).getTypeName()));
 			return;
 		}
+
 		ownValue = resolveBinding(node);
 	}
 	
+	@Override
 	public boolean visit(AnnotationTypeDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(AnnotationTypeDeclaration node) {
 		ownValue = scopeManager.pop();
 		computeTypeSymbol(node);
 	}
 	
+	@Override
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(AnnotationTypeMemberDeclaration node) {
 		ownValue = scopeManager.pop();
 		IConstructor type = bindingsResolver.resolveType(node.getType().resolveBinding(), true);
 	    insert(types, ownValue, type);
 	}
 	
+	@Override
 	public boolean visit(AnonymousClassDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		// enum constant declaration and classinstancecreation gives types for anonymousclasses
@@ -150,82 +164,186 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(AnonymousClassDeclaration node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(BlockComment node) {
 		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return true;
 	}
 	
+	@Override
 	public boolean visit(ClassInstanceCreation node) {
 		insert(methodInvocation, getParent(), ownValue);
 	  	insert(uses, getSourceLocation(node), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(CompilationUnit node) {
 		insert(declarations, ownValue, getSourceLocation(node));
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		insert(declarations, ownValue, getSourceLocation(node));
+		insert(names, values.string(node.getName().getFullyQualifiedName()), ownValue);
+
+		scopeManager.push((ISourceLocation) ownValue);
+		return true;
+	}
+
+	@Override
+	public void endVisit(ModuleDeclaration node) {
+		scopeManager.pop();
+	}
+
+	@Override
+	public boolean visit(RequiresDirective node) {
+		var parent = scopeManager.peek();
+		var name = resolveBinding(node.getName());
+		// TODO: encode static and transitive modifiers somehow in the modifiers relation, or in the moduleRequires relation
+		insert(moduleRequiresModule, parent, name);
+		return true;
+	}
+
+	@Override
+	public boolean visit(ExportsDirective node) {
+		var parent = scopeManager.peek();
+		var targets = ((List<?>) node.modules())
+			.stream()
+			.map(o -> ((ASTNode) o))
+			.map(n -> resolveBinding(n)).collect(values.listWriter());
+		var name = resolveBinding(node.getName());
+
+		if (targets.isEmpty()) {
+			// this encodes unqualified exports to all other modules
+			insert(moduleExportsPackage, parent, name, URIUtil.rootLocation("java+module"));
+		}
+		else {
+			for (var target : targets) {
+				insert(moduleExportsPackage, parent, name , target);
+			}
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean visit(ProvidesDirective node) {
+		var parent = scopeManager.peek();
+		var implementations = ((List<?>) node.implementations())
+			.stream()
+			.map(o -> ((ASTNode) o))
+			.map(n -> resolveBinding(n)).collect(values.listWriter());
+		var name = resolveBinding(node.getName());
+
+		for (var impl : implementations) {
+			insert(moduleProvidesService, parent, name, impl);
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean visit(UsesDirective node) {
+		var parent = scopeManager.peek();
+		insert(moduleUsesService, parent, resolveBinding(node.getName()));
+		return true;
+	}
+
+	@Override
+	public boolean visit(OpensDirective node) {
+		var parent = scopeManager.peek();
+		var name = resolveBinding(node.getName());
+		var modules = ((List<?>) node.modules())
+			.stream()
+			.map(o -> ((ASTNode) o))
+			.map(n -> resolveBinding(n)).collect(values.listWriter());
+		
+		if (modules.isEmpty()) {
+			// this encodes unqualified opening to all other modules
+			insert(moduleOpensPackage, parent, name, URIUtil.rootLocation("java+module"));
+		}
+		else {
+			for (var module : modules) {
+				insert(moduleOpensPackage, parent, name, module);
+			}
+		}
+
+		return true;
+	}
+
+	@Override
 	public void endVisit(CompilationUnit node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(ConstructorInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(EnumConstantDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(EnumConstantDeclaration node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(EnumDeclaration node) {
+		// TODO: enums can have methods that override as well
 		insert(containment, getParent(), ownValue);
 		
-		IValueList implementedInterfaces = new IValueList(values);
+		IListWriter implementedInterfaces = values.listWriter();
 		if (!node.superInterfaceTypes().isEmpty()) {
 			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 				Type t = (Type) it.next();
-				implementedInterfaces.add(resolveBinding(t));
+				implementedInterfaces.append(resolveBinding(t));
 			}
 		}
-		insert(implementsRelations, ownValue, implementedInterfaces);
+		insert(implementsRelations, ownValue, implementedInterfaces.done());
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(EnumDeclaration node) {
 		ownValue = scopeManager.pop();
-	  computeTypeSymbol(node);
+	  	computeTypeSymbol(node);
 	}
 
-  private void computeTypeSymbol(AbstractTypeDeclaration node) {
-    IConstructor type = bindingsResolver.resolveType(node.resolveBinding(), true);
-    insert(types, ownValue, type);
-  }
+	private void computeTypeSymbol(AbstractTypeDeclaration node) {
+		IConstructor type = bindingsResolver.resolveType(node.resolveBinding(), true);
+		insert(types, ownValue, type);
+	}
 	
+	@Override
 	public boolean visit(FieldAccess node) {
 		insert(fieldAccess, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(FieldDeclaration node) {
 		visitFragments(node.fragments());
 		return false;
 	}
 	
+	@Override
 	public boolean visit(Initializer node) {
 		insert(containment, getParent(), ownValue);
 		insert(declarations, ownValue, getSourceLocation(node));
@@ -233,10 +351,12 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(Initializer node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(Javadoc node) {
 		ASTNode parent = node.getParent();
 		if (parent == null) {
@@ -259,17 +379,20 @@ public class SourceConverter extends M3Converter {
 		return false;
 	}
 	
+	@Override
 	public boolean visit(LineComment node) {
 		insert(documentation, resolveBinding(node.getAlternateRoot()), getSourceLocation(node));
 		return true;
 	}
 	
+	@Override
 	public boolean visit(MethodDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(MethodDeclaration node) {
 		ownValue = scopeManager.pop();
 		ASTNode parent = node.getParent();
@@ -287,7 +410,7 @@ public class SourceConverter extends M3Converter {
 	
 	private void fillOverrides(IMethodBinding node, ITypeBinding parent) {
 		if (node == null || parent == null) {
-			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
 					values.string("parent or method binding is null, not proceeding with fillOverrides"),
 					getSourceLocation(compilUnit.findDeclaringNode(node))));
 			return;
@@ -310,12 +433,14 @@ public class SourceConverter extends M3Converter {
 		}
 	}
 	
+	@Override
 	public boolean visit(MethodInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		//TODO: add to uses as well
 		return true;
 	}
 	
+	@Override
 	public boolean visit(Modifier node) {
 		String modifier = node.getKeyword().toString();
 		insert(modifiers, getParent(), constructModifierNode(modifier));
@@ -326,9 +451,9 @@ public class SourceConverter extends M3Converter {
 	    insert(declarations, pkg, folder);
 	  
 	    if (!(parent == null)) {
-	      insert(containment, parent, pkg);
-	      pkg = parent;
-	      generatePackageDecls(getParent(pkg), pkg, getParent(folder));
+			insert(containment, parent, pkg);
+	      	pkg = parent;
+	      	generatePackageDecls(getParent(pkg), pkg, getParent(folder));
 	    }
     }
 	
@@ -340,14 +465,16 @@ public class SourceConverter extends M3Converter {
 	    return result;
 	}
 	
+	@Override
 	public boolean visit(PackageDeclaration node) {
 		IPackageBinding binding = node.resolveBinding();
 		
 		if (binding != null) {
 		  generatePackageDecls(getParent((ISourceLocation) ownValue), (ISourceLocation) ownValue, getParent(loc));
 		  insert(containment, ownValue, getParent());
-		} else {
-			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+		} 
+		else {
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
 					values.string("Unresolved binding for: " + node),
 					values.sourceLocation(loc, 0, 0)));
 		}
@@ -356,22 +483,38 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(PackageDeclaration node) {
 		ownValue = scopeManager.pop();
 	}
 	
+	@Override
 	public boolean visit(QualifiedName node) {
+		if (!((ISourceLocation) ownValue).getScheme().equals("java+package")) {
+			// can't "use" a package
+			insert(uses, getSourceLocation(node), ownValue);
+		}
+
 		if (((ISourceLocation) ownValue).getScheme().equals("java+field")) {
 			insert(fieldAccess, getParent(), ownValue);
 		}
+
+		if (((ISourceLocation) ownValue).getScheme().equals("java+arrayLength")) {
+			insert(fieldAccess, getParent(), ownValue);
+		}
+
+
 		return true;
 	}
 	
+	@Override
 	public boolean visit(SimpleName node) {
 		insert(names, values.string(node.getIdentifier()), ownValue);
+		insert(names, values.string(node.getFullyQualifiedName()), ownValue);
 		
 		if (!simpleNameIsConstructorDecl(node)) {
 			addTypeDependency(resolveBinding(node.resolveTypeBinding()));
+
 			if (!node.isDeclaration()) {
 				addTypeDependency(resolveDeclaringClass(node.resolveBinding()));
 			}
@@ -380,6 +523,7 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public void endVisit(SimpleName node) {
 		if ((node.isDeclaration() || simpleNameIsConstructorDecl(node))) {
 			insert(declarations, ownValue, getSourceLocation(compilUnit.findDeclaringNode(node.resolveBinding())));
@@ -392,86 +536,94 @@ public class SourceConverter extends M3Converter {
 		}
 	}
 
+	@Override
 	public boolean visit(SingleVariableDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
 		return true;
 	}
 	
+	@Override
 	public void endVisit(SingleVariableDeclaration node) {
 		ownValue = scopeManager.pop();
 	    IConstructor type = bindingsResolver.resolveType(node.getType().resolveBinding(), false);
         insert(types, ownValue, type);
 	}
 	
+	@Override
 	public boolean visit(SuperConstructorInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(SuperFieldAccess node) {
 		insert(fieldAccess, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(SuperMethodInvocation node) {
 		insert(methodInvocation, getParent(), ownValue);
 		return true;
 	}
 	
+	@Override
 	public boolean visit(TypeDeclaration node) {
 		insert(containment, getParent(), ownValue);
 		
 		scopeManager.push((ISourceLocation) ownValue);
 		
-		IValueList extendsClass = new IValueList(values);
-		IValueList implementsInterfaces = new IValueList(values);
+		IListWriter extendsClass = values.listWriter();
+		IListWriter implementsInterfaces = values.listWriter();
 		
 		if (node.getAST().apiLevel() == AST.JLS2) {
 			if (node.getSuperclass() != null) {
-				extendsClass.add(resolveBinding(node.getSuperclass()));
+				extendsClass.append(resolveBinding(node.getSuperclass()));
 			}
 			if (!node.superInterfaces().isEmpty()) {
 				for (Iterator it = node.superInterfaces().iterator(); it.hasNext();) {
 					Name n = (Name) it.next();
-					implementsInterfaces.add(resolveBinding(n));
+					implementsInterfaces.append(resolveBinding(n));
 				}
 			}
 		} 
 		else if (node.getAST().apiLevel() >= AST.JLS3) {
 			if (node.getSuperclassType() != null) {
-				extendsClass.add(resolveBinding(node.getSuperclassType()));
+				extendsClass.append(resolveBinding(node.getSuperclassType()));
 			}
 			if (!node.superInterfaceTypes().isEmpty()) {
 				for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
 					Type t = (Type) it.next();
-					implementsInterfaces.add(resolveBinding(t));
+					implementsInterfaces.append(resolveBinding(t));
 				}
 			}
 		}
 		
 		if (node.isInterface()) {
-			insert(extendsRelations, ownValue, implementsInterfaces);
-		} else {
-			insert(extendsRelations, ownValue, extendsClass);
-			insert(implementsRelations, ownValue, implementsInterfaces);
+			insert(extendsRelations, ownValue, implementsInterfaces.done());
+		} 
+		else {
+			insert(extendsRelations, ownValue, extendsClass.done());
+			insert(implementsRelations, ownValue, implementsInterfaces.done());
 		}
 		
 		return true;
 	}
 	
-	
+	@Override
 	public void endVisit(TypeDeclaration node) {
 		ownValue = scopeManager.pop();
 		computeTypeSymbol(node);
 	}
 	
+	@Override
 	public boolean visit(TypeParameter node) {
-		IValueList extendsList = new IValueList(values);
+		IListWriter extendsList = values.listWriter();
 		if (!node.typeBounds().isEmpty()) {
 			for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
 				Type t = (Type) it.next();
-				extendsList.add(resolveBinding(t));
+				extendsList.append(resolveBinding(t));
 			}
 		}
 		
@@ -480,11 +632,13 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 	
+	@Override
 	public boolean visit(VariableDeclarationExpression node) {
 		visitFragments(node.fragments());
 		return false;
 	}
 	
+	@Override
 	public boolean visit(VariableDeclarationFragment node) {
 		insert(containment, getParent(), ownValue);
 		scopeManager.push((ISourceLocation) ownValue);
@@ -495,7 +649,7 @@ public class SourceConverter extends M3Converter {
 		  insert(types, ownValue, type);
 		}
 		else {
-			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+			insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
 					values.string("No binding for: " + node),
 					values.sourceLocation(loc, 0, 0)));
 		}
@@ -514,6 +668,9 @@ public class SourceConverter extends M3Converter {
 			parent.getType().accept(this);
 			visitListOfModifiers(parent.modifiers());
 		} 
+		else if (parentASTNode instanceof LambdaExpression) {
+			// skip, there is nothing to extract in terms of modifiers from lambda's
+		}
 		else {
 			VariableDeclarationStatement parent = (VariableDeclarationStatement)parentASTNode;
 			parent.getType().accept(this);
@@ -523,6 +680,7 @@ public class SourceConverter extends M3Converter {
 		return true;
 	}
 
+	@Override
 	public boolean visit(VariableDeclarationStatement node) {
 		visitFragments(node.fragments());
 		return false;

@@ -20,7 +20,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -32,28 +32,28 @@ import io.usethesource.vallang.ISourceLocation;
  *
  */
 public class BasicIDEServices implements IDEServices {
-  
-  private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
-  private PrintWriter stderr;
+  private final IRascalMonitor monitor;
+  private final PrintWriter stderr;
 
-  public BasicIDEServices(PrintWriter stderr){
+  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor){
     this.stderr = stderr;
-    monitor = new ConsoleRascalMonitor();
+    this.monitor = monitor;
   }
-  
+
   @Override
   public PrintWriter stderr() {
     return stderr;
   }
   
-  public void browse(ISourceLocation loc){
-      browse(loc.getURI());
+  public void browse(ISourceLocation loc, String title, int viewColumn){
+      browse(loc.getURI(), title, viewColumn);
   }
 
   /* (non-Javadoc)
    * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#browse(java.net.URI)
    */
-  public void browse(URI uri){
+  @Override
+  public void browse(URI uri, String _title, int _viewColumn) {
     Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
     if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
       try {
@@ -69,7 +69,9 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void edit(ISourceLocation loc) {
     try {
-      if (loc.getScheme() != "file") {
+      loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+      
+      if (!loc.getScheme().equals("file")) {
         ISourceLocation tmp = URIUtil.correctLocation("tmp", "", "rascal-edits");
         tmp = URIUtil.getChildLocation(tmp, loc.getScheme());
         tmp = URIUtil.getChildLocation(tmp, loc.getPath());
@@ -116,6 +118,11 @@ public class BasicIDEServices implements IDEServices {
     return monitor.jobEnd(name, succeeded);
   }
   
+  @Override
+  public void endAllJobs() {
+      monitor.endAllJobs();
+  }
+
   @Override
   public boolean jobIsCanceled(String name) {
       return monitor.jobIsCanceled(name);

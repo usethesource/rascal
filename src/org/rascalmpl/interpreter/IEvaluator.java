@@ -37,7 +37,6 @@ import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -54,6 +53,7 @@ import io.usethesource.vallang.IValueFactory;
  * Interface needs to be properly split up in different compoments.
  */
 public interface IEvaluator<T> extends IEvaluatorContext {
+	public static final String LOADING_JOB_CONSTANT = "loading modules";
 
 	/**
 	 * Notify subscribers about a suspension caused while interpreting the program.
@@ -104,6 +104,9 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public void notifyConstructorDeclaredListeners();
 	
 	
+	public int getCallNesting();
+	public boolean getCallTracing();
+	public void setCallTracing(boolean val);
 	
 	public Environment pushEnv(Statement s);
 
@@ -116,7 +119,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public ITree parseCommand(IRascalMonitor monitor, String command,
 			ISourceLocation location);
 
-	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException;
+	public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException;
 
 	public void registerConstructorDeclaredListener(IConstructorDeclared iml);
 
@@ -143,17 +146,6 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	 * signature which overrrides it.
 	 */
 	public IValue call(String adt, String name, IValue... args);
-
-	public IConstructor parseObject(IConstructor startSort, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects, boolean robust);
-
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort,
-			ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects, boolean robust);
 
 	/**
 	 *  Freeze the global state of this evaluator so that it can no longer be updated.

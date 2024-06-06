@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: The SMTLIBv2 Command AST. This is the basic AST needed to construct SMTLIBv2 constraint problems. Sorts, Expressions and Literals are implemented in the different theories
-}
+@synopsis{Synopsis: The SMTLIBv2 Command AST. This is the basic AST needed to construct SMTLIBv2 constraint problems. Sorts, Expressions and Literals are implemented in the different theories}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::command::Ast

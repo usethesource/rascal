@@ -18,7 +18,7 @@ import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.library.lang.json.io.JsonValueWriter;
+import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
@@ -239,14 +239,10 @@ public class TermREPL {
             IWithKeywordParameters<? extends IConstructor> kws = response.asWithKeywordParameters();
 
             IValue dtf = kws.getParameter("dateTimeFormat");
-            IValue ics = kws.getParameter("implicitConstructors");
-            IValue ipn = kws.getParameter("implicitNodes");
             IValue dai = kws.getParameter("dateTimeAsInt");
             
             JsonValueWriter writer = new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                .setConstructorsAsObjects(ics != null ? ((IBool) ics).getValue() : true)
-                .setNodesAsObjects(ipn != null ? ((IBool) ipn).getValue() : true)
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -53,16 +53,24 @@ First a "pre-release" of the supporting compiler/typechecker tools must be done,
 - [ ] syntax highlighting in editor works
 - [ ] add dependency on another project by editing `RASCAL.MF`: `Required-Libraries: |lib://otherProject|`, import a module and test the type-checker as well as the interpreter for correct resolution
 - [ ] `import demo::lang::Pico::Plugin; registerPico();` and test the editor of the example pico files (syntax highlighting, menu options)
-- [ ] open tutor view and test the search box
-- [ ] open tutor view and test browsing the documentation
 - [ ] `import demo::lang::Pico::Plugin; rascal>:edit  demo::lang::Pico::Plugin`
-- [ ] edit a .concept file, save it and watch the preview in the Tutor Preview view
-- [ ] Tutor Preview "edit" button opens the corresponding concept file of the currently visited Concept URL
-- [ ] Tutor Preview Forward/Back/Refresh buttons work
+- [ ] use util::IDEServices:
+   - [ ] registerDiagnostics with more than one file
+   - [ ] test edit function (for example with vis::Graph examples that use it)
+   - [ ] test showInteractiveContent function (for example with vis::Chart examples)
 
 # Actual release
 
 - [ ] release rascal project (when resolving SNAPSHOT dependencies choose the right versions of vallang etc, and make sure to bump the new rascal SNAPSHOT release one minor version)
+- [ ] bootstrap documentation site
+   - [ ] bump rascal version in rascal-maven-project, mvn install
+   - [ ] bump rascal version in rascal-website project
+   - [ ] set rascal-maven-project snapshot dependency in rascal-website project
+   - [ ] run `mvn clean package` in rascal-website project
+   - [ ] fix errors, possibly release rascal project patch versions, and repeat the above.
+   - [ ] release rascal-maven-project
+   - [ ] bump rascal-maven-project dependency in rascal-website project
+   - [ ] run `mvn clean package` in rascal-website project and `git push` to publish new docs
 - [ ] release rascal-eclipse project (take care to choose the right release versions of typepal and rascal-core you release earlier and choose their new SNAPSHOT dependencies to the latest)
 - [ ] change the configuration of the stable version in `update-site-nexus-link-script/refresh-nexus-data` to the released version
 - [ ] test the stable update site at https://update.rascal-mpl.org/stable
@@ -75,3 +83,8 @@ The following items can be executed asynchronously, but are nevertheless not to 
 - [ ] change dependencies on rascal-eclipse and rascal in rascal-eclipse-libraries and the projects it depends on
 - [ ] change dependencies of typepal to latest rascal and rascal-eclipse
 - [ ] change dependency of rascal-core to latest stable rascal
+- [ ] change dependency in all projects on new rascal-maven-project
+- [ ] change dependency of rascal-maven-project and rascal in rascal-tutor
+- [ ] release rascal-tutor
+- [ ] bump dependency of rascal-tutor in rascal-maven-project
+- [ ] release rascal-maven-project again

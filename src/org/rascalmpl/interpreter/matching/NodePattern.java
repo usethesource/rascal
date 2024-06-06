@@ -99,7 +99,7 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		String sname = this.subject.getName();
-		if(qName != null){
+		if (qName != null){
 			if(!((org.rascalmpl.semantics.dynamic.QualifiedName.Default) qName).lastName().equals(sname)){
 				return;
 			}

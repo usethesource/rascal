@@ -197,7 +197,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	protected Result<IBool> equalToValue(ValueResult that) {
 		return that.equalityBoolean(this);
 	}
-
+	
 	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();

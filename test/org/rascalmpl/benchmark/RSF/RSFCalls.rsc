@@ -13,10 +13,12 @@ module RSF::RSFCalls
 import Relation;
 import util::Math;
 import Set;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import lang::rsf::IO;
 import IO;
 import util::Benchmark;
+
+value main() = measure();
 
 public bool measure(){
   return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"]);
@@ -27,11 +29,10 @@ public bool measureOne(){
 }
 
 public bool measure(list[str] names){
-
-	loc p = |benchmarks:///RSF/|;
+	loc p = {loc x} := findResources("RSF") ? x : |not-found:///|;
 	
 	for(str name <- names){
-		map[str, rel[str,str]] values = readRSF(p[path= p.path + name]);
+		map[str, rel[str,str]] values = readRSF(p + name);
 		rel[str,str] CALL = values["CALL"];
 		n = size(CALL);
 		println("<name>: CALL contains <n> tuples");
@@ -64,8 +65,8 @@ public rel[str,str] trans(rel[str,str] CALL){
 }
 
 public set[str] reachFromTop1(rel[str,str] CALL){
-    set[str] top = top(CALL);
-	return top + range(domainR(CALL+, top));
+    set[str] tp = top(CALL);
+	return tp + range(domainR(CALL+, tp));
 }
 
 public set[str] reachFromTop2(rel[str,str] CALL){

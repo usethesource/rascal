@@ -95,17 +95,16 @@ import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.io.InputConverter;
-import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.parser.uptr.recovery.ToNextWhitespaceRecoverer;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.RascalFunctionValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.IConstructor;
@@ -124,7 +123,8 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
-    private final IValueFactory vf; // sharable
+   
+    private final RascalFunctionValueFactory vf; // sharable
     private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
     protected volatile Environment currentEnvt; // not sharable
 
@@ -134,6 +134,38 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * True if an interrupt has been signalled and we should abort execution
      */
     private volatile boolean interrupt = false;
+
+    /**
+     * State to manage call tracing
+     */
+    private int callNesting = 0;
+	private boolean callTracing = false;
+
+    @Override
+    public int getCallNesting() {
+       return callNesting;
+    }
+
+    @Override
+    public boolean getCallTracing() {
+        return callTracing;
+    }
+
+    @Override
+    public void setCallTracing(boolean callTracing) {
+        this.callTracing = callTracing;
+    }
+
+    @Override
+    public void incCallNesting() {
+        callNesting++;
+    }
+
+    @Override
+    public void decCallNesting() {
+        callNesting--;
+    }
+
 
     private JavaBridge javaBridge; //  sharable if synchronized
 
@@ -200,14 +232,30 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     
     private static final Object dummy = new Object();	
 
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, input, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    /**
+     * Promotes the monitor to the outputstream automatically if so required.
+     */
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    }
+
+    /**
+     * If your monitor should wrap stdout (like TerminalProgressBarMonitor) then you can use this constructor.
+     */
+    public <M extends OutputStream & IRascalMonitor> Evaluator(IValueFactory f, InputStream input, OutputStream stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+        setMonitor(monitor);
+    }
+
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
+        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+        setMonitor(monitor);
     }
 
     public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
         super();
 
-        this.vf = vf;
+        this.vf = new RascalFunctionValueFactory(this);
         this.heap = heap;
         this.typeDeclarator = new TypeDeclarationEvaluator(this);
         this.currentEnvt = scope;
@@ -285,8 +333,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         interrupt = false;
-        IRascalMonitor old = monitor;
+        IRascalMonitor old = this.monitor;
         this.monitor = monitor;
+
         return old;
     }
 
@@ -295,6 +344,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         if (monitor != null)
             return monitor.jobEnd(name, succeeded);
         return 0;
+    }
+
+    @Override
+    public void endAllJobs() {
+        if (monitor != null) {
+            monitor.endAllJobs();
+        }
     }
 
     @Override	
@@ -714,66 +770,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return func.call(getMonitor(), types, args, kwArgs).getValue();
     }
 
-    @Override	
-    public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust) {
-        IConstructor startSort = (IConstructor) grammar.get("symbol");
-        IGTD<IConstructor, ITree, ISourceLocation> parser;
-        String name;
-        synchronized(this) {
-            parser = getObjectParser((IMap) grammar.get("definitions"));
-            name = getParserGenerator().getParserMethodName(startSort);
-        }
+    // @Override	
+    // public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    //     RascalFunctionValueFactory vf = new RascalFunctionValueFactory(this);
+    //     IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
 
-        __setInterrupt(false);
-        IActionExecutor<ITree> exec = !filters.isEmpty() 
-            ? new RascalFunctionActionExecutor(filters, !hasSideEffects)
-            : new NoActionExecutor();
-
-        IRecoverer<IConstructor> recoverer = robust ? new ToNextWhitespaceRecoverer() : null;
-        return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), recoverer);
-    }
-
-    @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust){
-        IRascalMonitor old = setMonitor(monitor);
-
-        try {
-            char[] input = getResourceContent(location);
-            return parseObject(startSort, filters, location, input, allowAmbiguity, hasSideEffects, robust);
-        }
-        catch(IOException ioex){
-            throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
-        }
-        finally{
-            setMonitor(old);
-        }
-    }
-
-    @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, boolean allowAmbiguity, boolean hasSideEffects, boolean robust) {
-        IRascalMonitor old = setMonitor(monitor);
-        try {
-            return parseObject(startSort, filters, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects, robust);
-        }
-        finally {
-            setMonitor(old);
-        }
-    }
-
-    @Override
-    public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, ISet filters, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects, boolean robust) {
-        IRascalMonitor old = setMonitor(monitor);
-        try{
-            return parseObject(startSort, filters, loc, input.toCharArray(), allowAmbiguity, hasSideEffects, robust);
-        }finally{
-            setMonitor(old);
-        }
-    }
-
-    private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IMap grammar){
-        ModuleEnvironment mod = (ModuleEnvironment) getCurrentEnvt().getRoot();
-        return org.rascalmpl.semantics.dynamic.Import.getParser(this, mod, getCurrentAST().getLocation(), grammar, false);
-    }
+    //     return (ITree) parser.call(vf.string(new String(input)), location);
+    // }
 
     @Override
     public IConstructor getGrammar(Environment env) {
@@ -798,11 +801,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ParserGenerator pgen = getParserGenerator();
             String main = uri.getAuthority();
             ModuleEnvironment env = getHeap().getModule(main);
-            monitor.jobStart("Expanding Grammar");
             return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
         }
         finally {
-            monitor.jobEnd("Expanding Grammar", true);
             setMonitor(old);
         }
     }
@@ -827,16 +828,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
             }
 
-
             Evaluator self = this;
-            job("Loading parser generator", () -> {
-                synchronized (self) {
-                    if (parserGenerator == null) {
-                        parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-                    }
-                    return true;
+
+            synchronized (self) {
+                if (parserGenerator == null) {
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (OutputStream) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
                 }
-            });
+            }
         }
 
         return parserGenerator;
@@ -897,6 +895,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 profilerRunning = true;
             }
             currentAST = stat;
+           
             try {
                 return stat.interpret(this);
             } finally {
@@ -906,12 +905,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     profilerRunning = false;
                 }
                 getEventTrigger().fireIdleEvent();
+                endAllJobs();
             }
-        } catch (Return e) {
+        } 
+        catch (Return e) {
             throw new UnguardedReturn(stat);
-        } catch (Failure e) {
+        } 
+        catch (Failure e) {
             throw new UnguardedFail(stat, e);
-        } catch (Insert e) {
+        } 
+        catch (Insert e) {
             throw new UnguardedInsert(stat);
         }
     }
@@ -933,6 +936,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return eval(command, location);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -955,6 +959,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return evalMore(commands, location);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -966,7 +971,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         ITree tree = new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+            ModuleEnvironment curMod = getCurrentModuleEnvironment();
+            IFunction parsers = parserForCurrentModule(vf, curMod);
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parsers, tree, location, getCurrentModuleEnvironment());
         }
 
         Command stat = new ASTBuilder().buildCommand(tree);
@@ -978,6 +985,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return eval(stat);
     }
 
+    private IFunction parserForCurrentModule(RascalFunctionValueFactory vf, ModuleEnvironment curMod) {
+        IConstructor dummy = vf.constructor(RascalFunctionValueFactory.Symbol_Empty); // I just need _any_ ok non-terminal
+        IMap syntaxDefinition = curMod.getSyntaxDefinition();
+        IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
+        IConstructor reifiedType = vf.reifiedType(dummy, grammar);
+        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+    }
+
     private Result<IValue> evalMore(String command, ISourceLocation location)
         throws ImplementationError {
         __setInterrupt(false);
@@ -987,7 +1002,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+            IFunction parsers = parserForCurrentModule(vf, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parsers, tree, location, getCurrentModuleEnvironment());
         }
 
         Commands stat = new ASTBuilder().buildCommands(tree);
@@ -1036,7 +1052,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
         ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
         if (!noBacktickOutsideStringConstant(command)) {
-            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
+            tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
         }
 
         return tree;
@@ -1051,7 +1067,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ITree tree = new RascalParser().parse(Parser.START_COMMANDS, location.getURI(), commands.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
 
             if (!noBacktickOutsideStringConstant(commands)) {
-                tree = parseFragments(this, tree, location, getCurrentModuleEnvironment());
+                tree = parseFragments(vf, getMonitor(), parserForCurrentModule(vf, getCurrentModuleEnvironment()), tree, location, getCurrentModuleEnvironment());
             }
 
             return tree;
@@ -1068,6 +1084,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return eval(command);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -1105,7 +1122,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             profilerRunning = true;
         }
         try {
-            return command.interpret(this);
+            if (command.isImport()) {
+                return job(LOADING_JOB_CONSTANT, 1, (jobName, step) -> {
+                    try {
+                        return command.interpret(this);
+                    }
+                    finally{
+                        step.accept(jobName, 1);
+                    }
+                });
+            }
+            else {
+                return command.interpret(this);
+            }
         } finally {
             if (profiler != null) {
                 profiler.pleaseStop();
@@ -1160,61 +1189,53 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
         SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
+
         try {
             Set<String> onHeap = new HashSet<>();
             Set<String> extendingModules = new HashSet<>();
             PrintWriter errStream = getErrorPrinter();
-
-            try {
-                monitor.jobStart("Cleaning modules", names.size());
-                for (String mod : names) {
-                    if (heap.existsModule(mod)) {
-                        onHeap.add(mod);
-                        if (recurseToExtending) {
-                            extendingModules.addAll(heap.getExtendingModules(mod));
-                        }
-                        heap.removeModule(heap.getModule(mod));
+ 
+            for (String mod : names) {
+                if (heap.existsModule(mod)) {
+                    onHeap.add(mod);
+                    if (recurseToExtending) {
+                        extendingModules.addAll(heap.getExtendingModules(mod));
                     }
-                    monitor.jobStep("Cleaning modules", "Processed " + mod, 1);
+                    heap.removeModule(heap.getModule(mod));
                 }
-                extendingModules.removeAll(names);
-            } finally {
-                monitor.jobEnd("Cleaning modules", true);
             }
+            extendingModules.removeAll(names);
 
-            try {
-                monitor.jobStart("Reloading modules", onHeap.size());
+            job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName, step) ->  {
                 for (String mod : onHeap) {
-                    wrapped.clear();
-                    if (!heap.existsModule(mod)) {
-                        errStream.println("Reloading module " + mod);
-                        reloadModule(mod, errorLocation, affectedModules);
+                    try {
+                        wrapped.clear();
                         if (!heap.existsModule(mod)) {
-                            // something went wrong with reloading, let's print that:
-                            errStream.println("** Something went wrong while reloading module " + mod + ":");
-                            for (String s : wrapped.getWarnings()) {
-                                errStream.println(s);
+                            reloadModule(mod, errorLocation, affectedModules, jobName);
+                            if (!heap.existsModule(mod)) {
+                                // something went wrong with reloading, let's print that:
+                                errStream.println("** Something went wrong while reloading module " + mod + ":");
+                                for (String s : wrapped.getWarnings()) {
+                                    errStream.println(s);
+                                }
+                                errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
+                                errStream.println("*** if the error persists, start a new console session.");
                             }
-                            errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
-                            errStream.println("*** if the error persists, start a new console session.");
-                        }
-                    }
-                    monitor.jobStep("Reloading modules", "loaded " + mod, 1);
+                        }    
+                    } finally {
+                        step.accept(mod, 1);
+                    }      
                 }
-            } finally {
-                monitor.jobEnd("Reloading modules", true);
-            }
 
-            Set<String> dependingImports = new HashSet<>();
-            Set<String> dependingExtends = new HashSet<>();
-            dependingImports.addAll(getImportingModules(names));
-            dependingExtends.addAll(getExtendingModules(names));
+                Set<String> dependingImports = new HashSet<>();
+                Set<String> dependingExtends = new HashSet<>();
+                dependingImports.addAll(getImportingModules(names));
+                dependingExtends.addAll(getExtendingModules(names));
 
-            try {
-                monitor.jobStart("Reconnecting importers of affected modules");
                 for (String mod : dependingImports) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getImports());
+                    
                     for (String imp : todo) {
                         if (names.contains(imp)) {
                             env.unImport(imp);
@@ -1228,20 +1249,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 warning("could not reimport " + imp, errorLocation);
                             }
                         }
-
                     }
-                    monitor.jobStep("Reconnecting importers of affected modules", "Reconnected " + mod, 1);
                 }
-            }
-            finally {
-                monitor.jobEnd("Reconnecting importers of affected modules", true);
-            }
 
-            try {
-                monitor.jobStart("Reconnecting extenders of affected modules");
                 for (String mod : dependingExtends) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getExtends());
+
                     for (String ext : todo) {
                         if (names.contains(ext)) {
                             env.unExtend(ext);
@@ -1255,27 +1269,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             }
                         }
                     }
-                    monitor.jobStep("Reconnecting extenders of affected modules", "Reconnected " + mod, 1);
                 }
-            }
-            finally {
-                monitor.jobEnd("Reconnecting extenders of affected modules", true);
-            }
 
-            if (recurseToExtending && !extendingModules.isEmpty()) {
-                reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
-            }
+                if (recurseToExtending && !extendingModules.isEmpty()) {
+                    reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
+                }
 
-            if (!names.isEmpty()) {
-                notifyConstructorDeclaredListeners();
-            }
+                if (!names.isEmpty()) {
+                    notifyConstructorDeclaredListeners();
+                }
+
+                return true;
+            });
         }
         finally {
             setMonitor(old);
         }
     }
 
-    private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded) {
+    private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);
@@ -1408,14 +1420,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * effect of declaring non-terminal types in the given environment.
      */
     @Override
-    public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException{
-        return parseModuleAndFragments(monitor, getResourceContent(location), location);
+    public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException{
+        return parseModuleAndFragments(monitor, jobName, getResourceContent(location), location);
     }
 
-    public ITree parseModuleAndFragments(IRascalMonitor monitor, char[] data, ISourceLocation location){
+    public ITree parseModuleAndFragments(IRascalMonitor monitor, String jobName, char[] data, ISourceLocation location){
         IRascalMonitor old = setMonitor(monitor);
         try {
-            return org.rascalmpl.semantics.dynamic.Import.parseModuleAndFragments(data, location, this);
+            return org.rascalmpl.semantics.dynamic.Import.parseModuleAndFragments(data, location, jobName, this);
         }
         finally{
             setMonitor(old);
@@ -1426,7 +1438,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public void updateProperties() {
         Evaluator.doProfiling = config.getProfilingProperty();
 
-        AbstractFunction.setCallTracing(config.getTracingProperty());
+        setCallTracing(config.getTracingProperty());
     }
 
     public Configuration getConfiguration() {
@@ -1504,6 +1516,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     @Override	
     public IValueFactory getValueFactory() {
         return __getVf();
+    }
+
+    @Override	
+    public RascalFunctionValueFactory getFunctionValueFactory() {
+        return (RascalFunctionValueFactory) __getVf();
     }
 
     public void setAccumulators(Accumulator accu) {
@@ -1805,6 +1822,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
+        public void endAllJobs() {
+            monitor.endAllJobs();
+        }
+
+        @Override
         public void warning(String message, ISourceLocation src) {
             warnings.add(src + ":" + message);
             monitor.warning(message, src);
@@ -1849,9 +1871,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         @Override
-        public void browse(URI uri) {
+        public void browse(URI uri, String title, int viewColumn) {
             if (monitor instanceof IDEServices) {
-                ((IDEServices) monitor).browse(uri);
+                ((IDEServices) monitor).browse(uri, title, viewColumn);
             }
             else {
                 return;

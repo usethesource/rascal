@@ -6,10 +6,8 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @bootstrapParser
-@doc{
-In this test module we collect test cases that are associated with bugs from the past.
-This is just to make sure the bugs are not re-introduced accidentally.
-}
+@synopsis{In this test module we collect test cases that are associated with bugs from the past.
+This is just to make sure the bugs are not re-introduced accidentally.}
 module lang::rascal::\syntax::tests::SolvedIssues
 
 import lang::rascal::\syntax::Rascal;

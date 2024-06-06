@@ -107,6 +107,17 @@ public class MemoizationCache<TResult> {
 			if (this == obj) {
 				return true;
 			}
+			// yes, this reads a bit weird. But this is right
+			// we use a different class for lookup (LookupKey)
+			// that doesn't incur the runtime penalty of creating all kinds of
+			// SoftReferences. Since this code is in the hot path of the call
+			// overhead of the evaluator, it's worth it.
+			// The reason is not comparing to it's own class is that the
+			// store method should only be called for cases where we know
+			// the entry is not in the map yet. So to keep this code small,
+			// we don't include a whole bunch of code to handle a case of something 
+			// that should never happen (except in case of hash collision, and then
+			// a false is the right answer)
 			if (obj instanceof LookupKey) {
 				return ((LookupKey)obj).equals(this);
 			}

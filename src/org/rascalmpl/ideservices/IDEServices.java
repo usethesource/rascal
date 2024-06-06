@@ -38,7 +38,7 @@ public interface IDEServices extends IRascalMonitor {
    * Open a browser for the give uri.
    * @param uri
    */
-  void browse(URI uri);
+  void browse(URI uri, String title, int viewColumn);
 
   /**
    * Open an editor for file at given path.
@@ -58,10 +58,18 @@ public interface IDEServices extends IRascalMonitor {
   }
 
   /**
-   * Registers a new language definition with the surrounding IDE
+   * Registers a new language definition with the surrounding IDE. Multiple registries for the same language are supported, registration order determines priority.
    * @param language
    */
   default void registerLanguage(IConstructor language) {
+    throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
+  }
+
+  /**
+   * Unregisters a language definition with the surrounding IDE. Can be partial if module & function are not empty strings.
+   * @param language
+   */
+  default void unregisterLanguage(IConstructor language) {
     throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
   }
 
@@ -105,16 +113,21 @@ public interface IDEServices extends IRascalMonitor {
     boolean isError = type.equals("error");
     boolean isWarning = type.equals("warning");
 
-    ISourceLocation loc = (ISourceLocation) msg.get("at");
+    String locString = "unknown location";
     int col = 0;
     int line = 0;
-    if(loc.hasLineColumn()) {
-      col = loc.getBeginColumn();
-      line = loc.getBeginLine();
+   
+    if (msg.has("at")) {
+      ISourceLocation loc = (ISourceLocation) msg.get("at");
+      locString = loc.top().toString().substring(1, loc.top().toString().length() - 1);
+      if (loc.hasLineColumn()) {
+        col = loc.getBeginColumn();
+        line = loc.getBeginLine();
+      }
     }
 
     String output
-    = loc
+    = locString
     + ":"
     + String.format("%04d", line)
     + ":"

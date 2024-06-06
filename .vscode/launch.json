@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Launch DocRunner",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.DocRunner",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "Launch DoubleRightNullableWithPrefixSharing",
             "request": "launch",
             "mainClass": "org.rascalmpl.test.parser.DoubleRightNullableWithPrefixSharing",
@@ -22,9 +29,17 @@
             "name": "Launch RascalShell",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
-            "vmArgs": "-ea",
             "projectName": "rascal",
-            "java.debug.settings.hotCodeReplace": "auto"
+            "vmArgs": "-Xss80m -Xmx2g -ea"
+        },
+        {
+            "type": "java",
+            "name": "Launch RascalShell Tutor",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "projectName": "rascal",
+            "cwd" : "${workspaceFolder}/../rascal-tutor",
+            "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {
             "type": "java",
@@ -33,6 +48,14 @@
             "projectName": "rascal",
             "hostName": "localhost",
             "port": 9001
+        },
+        {
+            "type": "java",
+            "name": "Attach Mvn Rascal",
+            "request": "attach",
+            "projectName": "rascal-maven-plugin",
+            "hostName": "localhost",
+            "port": 8000
         },
         {
             "type": "java",

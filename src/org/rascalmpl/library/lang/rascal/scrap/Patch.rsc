@@ -6,15 +6,13 @@ import ParseTree;
 import List;
 import String;
 
-@doc{
-Convert a sequence of commands to a textual patch value to be applied to the editor
+@synopsis{Convert a sequence of commands to a textual patch value to be applied to the editor
 containing the commands. The patch is based on the results of evaluating the commands
 and comparing the outputs with what is in the source (pt) itself. Differences in command
 output are reconciled through the patch. 
 
 A patch is list of tuples from loc to str. Loc to "" represents removal.
-A loc with length=0 to x represents insertion of x.
-}
+A loc with length=0 to x represents insertion of x.}
 lrel[loc, str] commands2patch(start[Commands] pt) {
   
   // don't evaluate commands that represent output

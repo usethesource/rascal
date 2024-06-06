@@ -1,12 +1,11 @@
 module util::SemVer
 
-@doc{
-.Synopsis
-Semantic Versioning
-.Description
+
+@synopsis{Semantic Versioning}
+@description{
 Check that a given version string satisfies a range-set as defined by:
 (See https://github.com/npm/node-semver):
-<verbatim>
+``````
 range-set  ::= range ( logical-or range ) *
 logical-or ::= ( ' ' ) * '||' ( ' ' ) *
 range      ::= hyphen | simple ( ' ' simple ) * | ''
@@ -23,7 +22,7 @@ pre        ::= parts
 build      ::= parts
 parts      ::= part ( '.' part ) *
 part       ::= nr | [-0-9A-Za-z]+
-</verbatim>
+``````
 }
 @javaClass{org.rascalmpl.library.util.SemVerLib}
 java bool satisfiesVersion(str version, str rangeSet);
@@ -40,7 +39,6 @@ java bool greaterVersion(str version1, str version2);
 @javaClass{org.rascalmpl.library.util.SemVerLib}
 java bool greaterEqualVersion(str version1, str version2);
 
-
 @javaClass{org.rascalmpl.library.util.SemVerLib}
 java bool equalVersion(str version1, str version2);
 
@@ -52,3 +50,6 @@ java str getRascalRuntimeVersion();
 
 @javaClass{org.rascalmpl.library.util.SemVerLib}
 java str getRascalCompilerVersion();
+
+@javaClass{org.rascalmpl.library.util.SemVerLib}
+java str getJavaRuntimeVersion();

@@ -8,7 +8,7 @@
  @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
  @contributor{Bert Lisser - Bert.Lisser@cwi.nl (CWI)}
 
-@doc{API to the System for example System Variables or System Commands.} 
+@synopsis{API to the System for example System Variables or System Commands.} 
 module util::SystemAPI
 
 @javaClass{org.rascalmpl.library.util.SystemAPI}

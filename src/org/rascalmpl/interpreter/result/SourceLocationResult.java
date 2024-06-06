@@ -164,10 +164,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		case "parent": 
 			return makeResult(tf.boolType(), vf.bool(!path.equals("") && !path.equals("/")), ctx);
 
-		case "file": {
-			
-			return makeResult(tf.boolType(), vf.bool(!path.equals("")), ctx);
-		}
+		case "file": 
+			return makeResult(tf.boolType(), vf.bool(!path.equals("") && !path.equals("/")), ctx);
 
 		case "ls": 
 			return makeResult(tf.boolType(), vf.bool(URIResolverRegistry.getInstance().exists(value) && URIResolverRegistry.getInstance().isDirectory(value) ), ctx);
@@ -295,6 +293,10 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		case "file": {
 			String path = value.hasPath() ? value.getPath() : "";
+
+			if (path.endsWith("/")) {
+				path = path.substring(0, path.length() - 1);
+			}
 			
 			int i = path.lastIndexOf((int)'/');
 			
@@ -334,12 +336,23 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
 		case "extension" : {
 			String path = value.hasPath() ? value.getPath() : "";
-			int i = path.lastIndexOf((int)'.');
-			if (i != -1) {
-				stringResult = path.substring(i + 1);
+			if (path.endsWith(URIUtil.URI_PATH_SEPARATOR)) {
+				path = path.substring(0, path.length() - 1);
+			}
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			if (slashIndex == -1) {
+				// empty path
+				stringResult = "";
 			}
 			else {
-				stringResult = "";
+				int i = path.substring(slashIndex).lastIndexOf((int)'.');
+
+				if (i != -1) {
+					stringResult = path.substring(slashIndex + i + 1);
+				}
+				else {
+					stringResult = "";
+				}
 			}
 			break;
 		}
@@ -452,6 +465,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
+				boolean endsWithSlash = path.endsWith("/");
+				path = endsWithSlash ? path.substring(0, path.length() - 1) : path;
+
 				int i = path.lastIndexOf("/");
 				
 				if (i != -1) {
@@ -460,6 +476,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				else {
 					path = path + "/" + newStringValue;	
 				}
+
+				if (endsWithSlash) {
+					path += "/";
+				}
+
 				uriPartChanged = true;
 			}
 			else if (name.equals("parent")) {
@@ -488,21 +509,8 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 				if (!replType.isString()) {
 					throw new UnexpectedType(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 				}
-				String ext = newStringValue;
 				
-				if (path.length() > 1) {
-					int index = path.lastIndexOf('.');
-
-					if (index == -1 && !ext.isEmpty()) {
-						path = path + (!ext.startsWith(".") ? "." : "") + ext;
-					}
-					else if (!ext.isEmpty()) {
-						path = path.substring(0, index) + (!ext.startsWith(".") ? "." : "") + ext;
-					}
-					else {
-						path = path.substring(0, index);
-					}
-				}
+				path = URIUtil.changeExtension(loc, newStringValue).getPath();
 				uriPartChanged = true;
 			}
 			else if (name.equals("top")) {

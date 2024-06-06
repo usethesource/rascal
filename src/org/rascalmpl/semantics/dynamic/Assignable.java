@@ -52,6 +52,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
@@ -407,17 +408,21 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 		}
 
 		@Override
-		public Result<IValue> assignment(AssignableEvaluator __eval) {
-			if (getReceiver().isDefined(__eval.getEvaluator()).getValue().getValue()) {
-				return getReceiver().assignment(__eval);
+		public Result<IValue> assignment(AssignableEvaluator ae) {
+			if (getReceiver().isDefined(ae.getEvaluator()).getValue().getValue()) {
+				return getReceiver().assignment(ae);
 			}
 			else {
-				__eval.__setValue(__eval.newResult(this.getDefaultExpression()
-						.interpret((Evaluator) __eval.__getEval()), __eval
-						.__getValue()));
-				__eval.__setOperator(AssignmentOperator.Default);
-				return this.getReceiver().assignment(__eval);
+				ae.__setValue(ae.newResult(lubResult(this.getDefaultExpression()
+						.interpret((Evaluator) ae.__getEval()), ae
+						.__getValue(), ae), ae.__getValue()));
+				ae.__setOperator(AssignmentOperator.Default);
+				return this.getReceiver().assignment(ae);
 			}
+		}
+
+		private Result<IValue> lubResult(Result<IValue> newValue, Result<IValue> oldValue, AssignableEvaluator ae) {
+			return ResultFactory.makeResult(oldValue.getStaticType().lub(newValue.getStaticType()), newValue.getValue(), ae.__getEval());
 		}
 
 		@Override
@@ -937,12 +942,11 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			List<org.rascalmpl.ast.Assignable> arguments = this.getElements();
 
-			if (!__eval.__getValue().getStaticType().isTuple()) {
-				// TODO construct a better expected type
-				throw new UnexpectedType(
-						org.rascalmpl.interpreter.AssignableEvaluator.__getTf()
-								.tupleEmpty(), __eval.__getValue().getStaticType(),
-						this);
+			TypeFactory tf = AssignableEvaluator.__getTf();
+			Type tupleTemplate = tf.tupleType(arguments.stream().map(a ->  tf.valueType()).toArray(Type[]::new));
+
+			if (!__eval.__getValue().getStaticType().comparable(tupleTemplate)) {
+				throw new UnexpectedType(tupleTemplate, __eval.__getValue().getStaticType(), this);
 			}
 
 			Type tupleType = __eval.__getValue().getStaticType();

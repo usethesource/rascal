@@ -69,7 +69,7 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
                         ISourceLocation loc;
 
                         if (url.getProtocol().equals("jar") && url.getPath().startsWith("file:/")) {
-                            loc = vf.sourceLocation("jar+file", null, url.getPath().substring("file:".length()));
+                            loc = vf.sourceLocation("jar+file", null, URIUtil.fromURL(new URL(url.getPath())).getPath());
                         }
                         else {
                             loc = vf.sourceLocation(URIUtil.fromURL(url));
@@ -93,8 +93,11 @@ public class RascalLibraryURIResolver implements ISourceLocationInput, IClassloa
     }
 
     private void registerLibrary(String event, ConcurrentHashMap<String, ISourceLocation> libs, String libName, ISourceLocation loc) {
-        System.err.println("INFO: " + event + " |lib://" + libName + "| at " + loc);
-        libs.merge(libName, loc, (o, n) -> n);
+        /* we want the first match, just like the classpath, so always using the old value */
+        if (libs.merge(libName, loc, (o, n) -> o) == loc) {
+            /* now we have a new one: report it */
+            System.err.println("INFO: " + event + " |lib://" + libName + "| at " + loc);
+        }
     }
     
     /**

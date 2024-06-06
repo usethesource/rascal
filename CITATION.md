@@ -44,7 +44,7 @@ Here some citable zenodo snapshots, which you could cite instead of the above pa
 the work than the conceptual contribution of Rascal. It's up to you. The author lists are different necessarily. So if you depend on a particular
 piece of work inside Rascal authored by somebody who is not an author of the above papers, then this might have your preference.
 
-* TODO: put bibtex of zenodo DOI's for 0.7.3 and 0.8.x releases
+* https://zenodo.org/record/7595297
 
 
 		
