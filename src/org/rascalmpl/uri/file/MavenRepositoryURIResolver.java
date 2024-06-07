@@ -48,7 +48,7 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
     private final Pattern authorityRegEx 
-        = Pattern.compile("^([a-zA-Z0-9.]+)\\.([a-zA-Z0-9-]+)-([0-9]+\\.[0-9]+\\.[0-9]+)(-[A-Z0-9-]+)?$");
+        = Pattern.compile("^([a-zA-Z0-9.]+)\\.([a-zA-Z0-9-]+)-([0-9]+\\.[0-9]+(\\.[0-9]+)?)(-[A-Z0-9-]+)?$");
     //                               groupId       .  artifactId  - major .  minor .  patch   -OptionalReleaseTag
 
     public MavenRepositoryURIResolver() throws IOException {
@@ -146,7 +146,8 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                 String group = m.group(1);
                 String name = m.group(2);
                 String version = m.group(3);
-                String tag = m.group(4);
+                // String patch = m.group(4);
+                String tag = m.group(5);
 
                 // tags are optional
                 tag = tag == null ? "" : tag;
@@ -160,7 +161,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                     + "/"
                     + name
                     + "-"
-                    + version
+                    + version 
                     + tag
                     + ".jar"
                     ;
