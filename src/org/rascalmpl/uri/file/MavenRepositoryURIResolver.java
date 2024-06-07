@@ -167,7 +167,17 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
 
                 var jarLocation = URIUtil.getChildLocation(root, jarPath);
 
-                if (!path.isEmpty()) {
+                // convenience feature: `/!` path switches to jarified version (helps with auto-completion)
+                var pathIsJarRoot = "/!".equals(path);
+
+                // compensate for additional !'s produced by the previous
+                if (!pathIsJarRoot && path.startsWith("/!")) {
+                    path = path.substring(2);
+                }
+
+                // if the path is non-empty we mean to look inside of the jar
+                    if ((!path.isEmpty() && !path.equals("/")) || pathIsJarRoot) {
+                    path = pathIsJarRoot ? "" : path;
                     // go make a location that points _inside_ of the jar
                     jarLocation = JarURIResolver.jarify(jarLocation);
                     jarLocation = URIUtil.getChildLocation(jarLocation, path);
