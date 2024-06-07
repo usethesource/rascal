@@ -234,6 +234,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '  }<}>
            '
            '  private int nextFreeStackNodeId = <newItem()>;
+           '  @Override
            '  protected int getFreeStackNodeId() {
            '    return nextFreeStackNodeId++;
            '  }
