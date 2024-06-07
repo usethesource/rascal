@@ -232,7 +232,12 @@ public str newGenerate(str package, str name, Grammar gr) {
            '      <}>
            '    }
            '  }<}>
-           '	
+           '
+           '  private int nextFreeStackNodeId = <newItem()>;
+           '  protected int getFreeStackNodeId() {
+           '    return nextFreeStackNodeId++;
+           '  }
+           '
            '  // Parse methods    
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
