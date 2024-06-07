@@ -8,6 +8,7 @@ import ListRelation;
 import IO;
 import util::Math;
 import Location;
+import util::FileSystem;
 
 int singleChar(str s) = charAt(s,0);
 
@@ -519,3 +520,24 @@ test bool extensionSetSimple()
 
 // we don't want backslashes in windows
 test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;
+
+test bool mvnSchemeTest() {
+    jarFiles = find(|mvn:///|, "jar");
+
+    for (jar <- jarFiles) {
+        println(jar);
+        if (/[a-z\-]+-[0-9]+\.[0-9]+\.[0-9]+(-[A-Z\-0-9]+)?/ !:= jar[extension=""].file) {
+            throw "<jar.file> does not match the right regex";
+        }
+
+        groupId = replaceAll(jar.parent.parent.path[1..], "/", ".");
+
+        mvnLoc = |mvn://<groupId>-<jar[extension=""].file>|;
+
+        // this tests the internal consistency of the mvn resolution scheme, comparing
+        // the authority-less version with the decoding of the authority to a nested path.
+        assert resolveLocation(mvnLoc) == resolveLocation(jar);
+    }
+
+    return true;
+}
