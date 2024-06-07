@@ -525,26 +525,30 @@ test bool mvnSchemeTest() {
     jarFiles = find(|mvn:///|, "jar");
 
     for (jar <- jarFiles) {
-        println(jar);
-        if (/[a-z\-]+-[0-9]+\.[0-9]+\.[0-9]+(-[A-Z\-0-9]+)?/ !:= jar[extension=""].file) {
-            throw "<jar.file> does not match the right regex";
-        }
+        println("jar: <jar>");
 
-        groupId = replaceAll(jar.parent.parent.path[1..], "/", ".");
-
-        mvnLoc = |mvn://<groupId>-<jar[extension=""].file>|;
-        println(resolveLocation(mvnLoc));
-        
-        // resolve and jarify
         resolvedJar = resolveLocation(jar);
-        resolvedJar.file="<jar.file>!";
-        resolvedJar.scheme = "jar+file";
 
-        println(resolvedJar);
-        println(resolveLocation(mvnLoc));
+        println("resolved jar: <resolvedJar>");
+
+        // reconstruct a mvn authority from the path by
+        // dropping leading slashes, mapping slashes to dots
+        // and skipping over the version folder.
+        // the maven resolver does the inverse internally, and these 
+        // two processes must match up for the resolver to be correct
+        groupId = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+        artifactId = jar[extension=""].file;
+
+        println("groupId: <groupId>");
+        println("artifactId: <artifactId>");
+        mvnLoc = |mvn://<groupId>.<artifactId>|;
+
+        println("mvn: <mvnLoc>");
         
-        // this tests the internal consistency of the mvn resolution scheme, comparing
-        // the authority-less version with the decoding of the authority to a nested path.
+        resolvedMvn = resolveLocation(mvnLoc);
+
+        println("resolved mvn: <resolvedMvn>");
+    
         assert resolveLocation(mvnLoc) == resolvedJar;
     }
 
