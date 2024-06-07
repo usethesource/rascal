@@ -3,6 +3,7 @@ package org.rascalmpl.uri.file;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
@@ -44,7 +45,7 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
     private final Pattern namePattern 
-        = Pattern.compile("([a-z0-9\\-\\.]+)\\.([a-z0-9\\-]+)\\-([0-9]+\\.[0-9]+\\.[0-9]+(-[A-Za-z0-9\\-)?)");
+        = Pattern.compile("^([a-zA-Z0-9.]+)\\.([a-zA-Z0-9]+)-([0-9]+\\.[0-9]+\\.[0-9]+)(-[A-Z0-9-]+)?$");
 
     public MavenRepositoryURIResolver() throws IOException {
         super("mvn", inferMavenRepositoryLocation());
@@ -52,7 +53,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
 
     private static String inferMavenRepositoryLocation() {
         // TODO add -D and maven home settings resolution
-        return System.getProperty("user.home") + "/.m2";
+        return System.getProperty("user.home") + "/.m2/repository";
     }
 
     @Override
@@ -70,28 +71,31 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             var m = namePattern.matcher(authority);
 
             if (m.matches()) {
-                String group = m.group(0);
-                String name = m.group(1);
+                String group = m.group(1);
+                String name = m.group(2);
                 String version = m.group(3);
+                String tag = m.group(4);
 
-                System.err.println("group: " + group);
-                System.err.println("name: " + group);
-                System.err.println("version: " + group);
+                // tags are optional
+                tag = tag == null ? "" : tag;
 
                 String jarPath 
                     = group.replaceAll("\\.", "/")
                     + "/"
                     + name
                     + "/"
+                    + version
+                    + "/"
                     + name
                     + "-"
                     + version
+                    + tag
                     + ".jar"
                     ;
 
                 var jarLocation = URIUtil.getChildLocation(root, jarPath);
 
-                if (!path.isEmpty() && !path.equals("/")) {
+                if (!path.isEmpty()) {
                     // go make a location that points _inside_ of the jar
                     jarLocation = JarURIResolver.jarify(jarLocation);
                     jarLocation = URIUtil.getChildLocation(jarLocation, path);
@@ -102,7 +106,6 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             else {
                 throw new IOException("Could not parse authority into Maven Project group, name and version: " + authority);
             }
-        }
-        
+        }    
     }
 }
