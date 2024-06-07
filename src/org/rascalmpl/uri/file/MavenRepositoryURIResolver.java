@@ -1,9 +1,12 @@
 package org.rascalmpl.uri.file;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
@@ -44,17 +47,86 @@ import io.usethesource.vallang.ISourceLocation;
  * much to obtain any transparancy in dependency resolution. 
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
-    private final Pattern namePattern 
+    private final Pattern authorityRegEx 
         = Pattern.compile("^([a-zA-Z0-9.]+)\\.([a-zA-Z0-9]+)-([0-9]+\\.[0-9]+\\.[0-9]+)(-[A-Z0-9-]+)?$");
+    //                               groupId       .  artifactId  - major .  minor .  patch   -OptionalReleaseTag
 
     public MavenRepositoryURIResolver() throws IOException {
         super("mvn", inferMavenRepositoryLocation());
     }
 
+    /**
+     * This code is supposed to run very quickly in most cases, but still deal with 
+     * the situation that the actual location of the local repository may be configured
+     * in an XML file in the maven installation folder. In that case we run
+     * `mvn help:evaluate` (once) to retrieve the actual location. If the `mvn` command
+     * is not on the OS search PATH, tough luck.
+     */
     private static String inferMavenRepositoryLocation() {
-        // TODO add -D and maven home settings resolution
-        return System.getProperty("user.home") + "/.m2/repository";
+        String property = System.getProperty("maven.repo.local");
+        if (property != null) {
+            return property;
+        }
+
+        String m2HomeFolder = System.getProperty("user.home") + "/.m2/repository";
+        if (!new File(m2HomeFolder).exists()) {
+            // only then we go for the expensive option and retrieve it from maven itself
+            String configuredLocation = getLocalRepositoryLocationFromMavenCommand();
+
+            if (configuredLocation != null) {
+                return configuredLocation;
+            }
+            
+            // if the above fails we default to the home folder anyway.
+            // note that since it does not exist this will make all downstream resolutions fail
+            // to to "file does not exist"
+        }
+        
+        return m2HomeFolder;
     }
+
+    /**
+     * Maven has a different name on Windows; this computes the right name.
+     */
+    private static String computeMavenCommandName() {
+        if (System.getProperty("os.name", "generic").startsWith("Windows")) {
+            return "mvn.cmd";
+        }
+        else {
+            return "mvn";
+        }
+    }
+
+    /**
+     * This (slow) code runs only if the ~/.m2 folder does not exist and nobody -D'ed its location either.
+     * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
+     * get a quick enough answer most of the time.
+     */
+    private static String getLocalRepositoryLocationFromMavenCommand() {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(computeMavenCommandName(), 
+                "-q", 
+                "help:evaluate",
+                "-Dexpression=settings.localRepository",
+                "-DforceStdout"
+               );
+            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
+
+            Process process = processBuilder.start();
+            if (process.waitFor() != 0) {
+                throw new IOException("could not run mvn to retrieve local repository location");
+            }
+            
+            try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                return reader.lines().collect(Collectors.joining()).trim(); 
+            }
+        }
+        catch (IOException | InterruptedException e) {
+            // it's ok to fail. that just happens.
+            return null;
+        }
+    }
+
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
@@ -68,7 +140,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
         else {
             // the authority encodes the group, name and version of a maven dependency
             // org.rascalmpl.rascal-34.2.0-RC2
-            var m = namePattern.matcher(authority);
+            var m = authorityRegEx.matcher(authority);
 
             if (m.matches()) {
                 String group = m.group(1);
