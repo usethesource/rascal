@@ -226,8 +226,10 @@ public abstract class AbstractStackNode<P>{
 	public boolean hasEqualFilters(AbstractStackNode<P> otherNode){
 		IEnterFilter[] otherEnterFilters = otherNode.enterFilters;
 		if(otherEnterFilters != null){
-			if(enterFilters == null) return false;
-			
+			if(enterFilters == null || enterFilters.length != otherEnterFilters.length) {
+				return false;
+			}
+
 			OUTER: for(int i = enterFilters.length - 1; i >= 0; --i){
 				IEnterFilter enterFilter = enterFilters[i];
 				for(int j = otherEnterFilters.length - 1; j >= 0; --j){
@@ -241,7 +243,9 @@ public abstract class AbstractStackNode<P>{
 		
 		ICompletionFilter[] otherCompletionFilters = otherNode.completionFilters;
 		if(otherCompletionFilters != null){
-			if(completionFilters == null) return false;
+			if(completionFilters == null || completionFilters.length != otherCompletionFilters.length) {
+				return false;
+			}
 			
 			OUTER: for(int i = completionFilters.length - 1; i >= 0; --i){
 				ICompletionFilter completionFilter = completionFilters[i];
