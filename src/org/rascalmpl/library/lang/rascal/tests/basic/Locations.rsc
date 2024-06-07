@@ -524,7 +524,7 @@ test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///
 test bool mvnSchemeTest() {
     jarFiles = find(|mvn:///|, "jar");
 
-    for (jar <- jarFiles) {
+    for (jar <- jarFiles, /-sources.jar$/ !:= jar.file) {
         println("jar: <jar>");
 
         resolvedJar = resolveLocation(jar);
@@ -537,11 +537,13 @@ test bool mvnSchemeTest() {
         // the maven resolver does the inverse internally, and these 
         // two processes must match up for the resolver to be correct
         groupId = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
-        artifactId = jar[extension=""].file;
+        version = jar.parent.file;
+        artifactId = jar.parent.parent.file;
 
         println("groupId: <groupId>");
         println("artifactId: <artifactId>");
-        mvnLoc = |mvn://<groupId>.<artifactId>|;
+        println("version: <version>");
+        mvnLoc = |mvn://<groupId>.<artifactId>-<version>|;
 
         println("mvn: <mvnLoc>");
         
