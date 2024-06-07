@@ -48,7 +48,7 @@ import io.usethesource.vallang.ISourceLocation;
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
     private final Pattern authorityRegEx 
-        = Pattern.compile("^([a-zA-Z0-9.]+)\\.([a-zA-Z0-9]+)-([0-9]+\\.[0-9]+\\.[0-9]+)(-[A-Z0-9-]+)?$");
+        = Pattern.compile("^([a-zA-Z0-9.]+)\\.([a-zA-Z0-9-]+)-([0-9]+\\.[0-9]+\\.[0-9]+)(-[A-Z0-9-]+)?$");
     //                               groupId       .  artifactId  - major .  minor .  patch   -OptionalReleaseTag
 
     public MavenRepositoryURIResolver() throws IOException {
@@ -176,7 +176,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                 return jarLocation;
             }
             else {
-                throw new IOException("Could not parse authority into Maven Project group, name and version: " + authority);
+                return null; // signal resolution has failed.
             }
         }    
     }

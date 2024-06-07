@@ -533,10 +533,19 @@ test bool mvnSchemeTest() {
         groupId = replaceAll(jar.parent.parent.path[1..], "/", ".");
 
         mvnLoc = |mvn://<groupId>-<jar[extension=""].file>|;
+        println(resolveLocation(mvnLoc));
+        
+        // resolve and jarify
+        resolvedJar = resolveLocation(jar);
+        resolvedJar.file="<jar.file>!";
+        resolvedJar.scheme = "jar+file";
 
+        println(resolvedJar);
+        println(resolveLocation(mvnLoc));
+        
         // this tests the internal consistency of the mvn resolution scheme, comparing
         // the authority-less version with the decoding of the authority to a nested path.
-        assert resolveLocation(mvnLoc) == resolveLocation(jar);
+        assert resolveLocation(mvnLoc) == resolvedJar;
     }
 
     return true;
