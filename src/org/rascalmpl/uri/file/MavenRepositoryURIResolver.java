@@ -79,7 +79,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             
             // if the above fails we default to the home folder anyway.
             // note that since it does not exist this will make all downstream resolutions fail
-            // to to "file does not exist"
+            // to "file does not exist"
         }
         
         return m2HomeFolder;
