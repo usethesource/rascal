@@ -540,24 +540,27 @@ MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
         return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
     }
 
-    if (/\./ := artifactId) {
-        return error("ArtifactId contains dots: <artifactId>");
+    if (/!/ := artifactId) {
+        return error("ArtifactId contains exclamation mark: <artifactId>");
     }
 
     return path(groupId, artifactId, version);
 }
 
 test bool mvnSchemeTest() {
+    debug = false;
     jarFiles = find(|mvn:///|, "jar");
 
     // check whether the implementation of the scheme holds the contract specified in the assert
     for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
-        mvnLoc = |mvn://<groupId>.<artifactId>-<version>|;
-        assert resolveLocation(mvnLoc) == resolveLocation(jar);
+        mvnLoc = |mvn://<groupId>!<artifactId>!<version>|;
+        assert resolveLocation(mvnLoc) == resolveLocation(jar) : "<resolveLocation(mvnLoc)> != <resolveLocation(jar)>
+                                                                 '  jar: <jar>
+                                                                 '  mvnLoc: <mvnLoc>";
     }
 
     // report on all the failed attempts
-    for (jar <- jarFiles, error(msg) := parseMavenLocalRepositoryPath(jar)) {
+    for (debug, jar <- jarFiles, error(msg) := parseMavenLocalRepositoryPath(jar)) {
         println(msg);
     }
 
