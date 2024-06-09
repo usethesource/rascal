@@ -80,8 +80,7 @@ str prettyAType(t: acons(AType adt, /*str consName,*/
 
 str prettyAType(amodule(str mname)) = "module <mname>";         
 str prettyAType(aparameter(str pn, AType t, closed=c)) =
-    ((avalue() := t) ? "&<pn>" : "&<pn> \<: <prettyAType(t)>") 
-    + (c ? "[closed]" : "[open]");
+    ((avalue() := t) ? "&<pn>" : "&<pn> \<: <prettyAType(t)>");
 str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
