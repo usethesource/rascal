@@ -835,7 +835,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
         actual_i = s.instantiate(actual_i);
         if(tvar(loc _) := actual_i || !s.isFullyInstantiated(actual_i)){
            if(identicalFormals[i]){
-              s.requireUnify(actual_i, iformalTypes[i], error(current, "Cannot unify %t with %t", actual_i, iformalTypesU[i]));
+              s.requireUnify(actual_i, iformalTypesU[i], error(current, "Cannot unify %t with %t", actual_i, iformalTypesU[i]));
               actual_i = s.instantiate(actual_i);
            } else {
               continue;
@@ -1170,9 +1170,9 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
 
 //TODO: Deprecated
 private AType computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s)
-    = ternaryOp("set annotation", _computeSetAnnotationType, current, t1, tn, t2, s);
+    = ternaryOp("set annotation", do_computeSetAnnotationType, current, t1, tn, t2, s);
 
-private AType _computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s){
+private AType do_computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s){
     if (isNodeAType(t1) || isADTAType(t1) || isNonTerminalAType(t1)) {
         if(aanno(_, onType, annoType) := tn){
           s.requireSubType(t2, annoType, error(current, "Cannot assign value of type %t to annotation of type %t", t2, annoType));
@@ -1203,9 +1203,9 @@ void collect(current:(Expression) `<Expression expression> [ @ <Name name> = <Ex
 // ---- getAnnotation
 
 AType computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s)
-    = binaryOp("get annotation", _computeGetAnnotationType, current, t1, tn, s);
+    = binaryOp("get annotation", do_computeGetAnnotationType, current, t1, tn, s);
 
-private AType _computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s){
+private AType do_computeGetAnnotationType(Tree current, AType t1, AType tn, Solver s){
     if (isNodeAType(t1) || isADTAType(t1) || isNonTerminalAType(t1)) {
         if(aanno(_, onType, annoType) := tn){
            return annoType;
