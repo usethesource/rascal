@@ -521,38 +521,46 @@ test bool extensionSetSimple()
 // we don't want backslashes in windows
 test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;
 
+private data MavenLocalRepositoryPath
+    = path(str groupId, str artifactId, str version)
+    | error(str cause)
+    ;
+
+MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
+    if (jar.extension != "jar") {
+        return error("jar should have jar extension");
+    }
+
+    groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+    artifactId = jar.parent.parent.file;
+    version    = jar.parent.file;
+    file       = jar.file;
+
+    if (file != "<artifactId>-<version>.jar") {
+        return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
+    }
+
+    if (/\./ := artifactId) {
+        return error("ArtifactId contains dots: <artifactId>");
+    }
+
+    return path(groupId, artifactId, version);
+}
+
 test bool mvnSchemeTest() {
     jarFiles = find(|mvn:///|, "jar");
 
-    for (jar <- jarFiles, /-sources.jar$/ !:= jar.file) {
-        println("jar: <jar>");
-
-        resolvedJar = resolveLocation(jar);
-
-        println("resolved jar: <resolvedJar>");
-
-        // reconstruct a mvn authority from the path by
-        // dropping leading slashes, mapping slashes to dots
-        // and skipping over the version folder.
-        // the maven resolver does the inverse internally, and these 
-        // two processes must match up for the resolver to be correct
-        groupId = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
-        version = jar.parent.file;
-        artifactId = jar.parent.parent.file;
-
-        println("groupId: <groupId>");
-        println("artifactId: <artifactId>");
-        println("version: <version>");
+    // check whether the implementation of the scheme holds the contract specified in the assert
+    for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
         mvnLoc = |mvn://<groupId>.<artifactId>-<version>|;
-
-        println("mvn: <mvnLoc>");
-        
-        resolvedMvn = resolveLocation(mvnLoc);
-
-        println("resolved mvn: <resolvedMvn>");
-    
-        assert resolveLocation(mvnLoc) == resolvedJar;
+        assert resolveLocation(mvnLoc) == resolveLocation(jar);
     }
+
+    // report on all the failed attempts
+    for (jar <- jarFiles, error(msg) := parseMavenLocalRepositoryPath(jar)) {
+        println(msg);
+    }
+
 
     return true;
 }
