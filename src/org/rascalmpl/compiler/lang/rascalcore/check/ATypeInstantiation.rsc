@@ -24,6 +24,7 @@ extend lang::rascalcore::check::NameUtils;
 import Map;
 import Set;
 import Node;
+import String;
 
 public alias Bindings = map[str varName, AType varType];
 
@@ -197,10 +198,10 @@ bool hasOpenTypeParams(AType t){
 
 // Make all type parameters unique with given suffix
 AType makeUniqueTypeParams(AType t, str suffix){
-    return visit(t) { case param:aparameter(str pname, AType bound): {
+    return visit(t) { case param:aparameter(str pname, AType _bound): {
                                 if(findLast(pname, ".") < 0){
-                                    repl = param.pname = param.pname + "." + suffix;
-                                    insert repl;
+                                    param.pname = param.pname + "." + suffix;
+                                    insert param;
                                 }
                           }
                      };
@@ -218,9 +219,9 @@ str deUnique(str s) {
 }
 
 AType deUnique(AType t){
-    return visit(t) { case param:aparameter(str pname, AType bound): {
-                                repl = param.pname = deUnique(pname);
-                                insert repl;
+    return visit(t) { case param:aparameter(str pname, AType _bound): {
+                                param.pname = deUnique(pname);
+                                insert param;
                        }
                     };
 }
@@ -234,7 +235,7 @@ AType instantiateRascalTypeParameters(AType t, Bindings bindings){
     if(isEmpty(bindings))
         return t;
     else
-        return visit(t) { case param:aparameter(str pname, AType bound): {
+        return visit(t) { case param:aparameter(str pname, AType _bound): {
                                 if(bindings[pname]?){
                                     repl = param.alabel? ? bindings[pname][alabel=param.alabel] :  bindings[pname]; //TODO simplified for compiler
                                     insert repl;
