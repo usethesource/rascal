@@ -16,15 +16,15 @@ import Set;
 
 void collect(current: (Expression) `<Expression e> is <Name n>`, Collector c){
     scope = c.getScope();
-    c.calculate("is", current, [e], AType(Solver s) { return unaryOp("is", _computeIsType, current, s.getType(e), s);  });
+    c.calculate("is", current, [e], AType(Solver s) { return unaryOp("is", do_computeIsType, current, s.getType(e), s);  });
     c.use(n, {constructorId()});
     collect(e, c); 
 }
 
-private AType _computeIsType(Tree current, AType t1, Solver s){               // TODO: check that name exists
+private AType do_computeIsType(Tree current, AType t1, Solver s){               // TODO: check that name exists
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         for(<_, _, tp> <- overloads){
-           try return _computeIsType(current, tp, s);
+           try return do_computeIsType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
            catch NoBinding(): /* ignore, try next */;
         }
@@ -161,11 +161,11 @@ AType computeNegative(Tree current, AType t1, Solver s){
 
 void collect(current: (Expression) `* <Expression arg>`, Collector c){
     c.calculate("splice", current, [arg], 
-       AType(Solver s){ return unaryOp("splice", _computeSpliceType, current, s.getType(arg), s, maybeVoid=true); });
+       AType(Solver s){ return unaryOp("splice", do_computeSpliceType, current, s.getType(arg), s, maybeVoid=true); });
     collect(arg, c); 
 }
 
-private AType _computeSpliceType(Tree current, AType t1, Solver s){    
+private AType do_computeSpliceType(Tree current, AType t1, Solver s){    
     if (isListAType(t1)) return getListElementType(t1);
     if (isSetAType(t1)) return getSetElementType(t1);
     if (isBagAType(t1)) return getBagElementType(t1);
@@ -196,14 +196,14 @@ void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, Collec
             lhsType = s.getType(lhs);
             rhsType = s.getType(rhs);
             if(isOverloadedAType(lhsType) && isOverloadedAType(rhsType)){
-                return _computeCompositionType(current, lhsType, rhsType, s);
+                return do_computeCompositionType(current, lhsType, rhsType, s);
             }
-            return binaryOp("composition", _computeCompositionType, current, lhsType, rhsType, s); 
+            return binaryOp("composition", do_computeCompositionType, current, lhsType, rhsType, s); 
        });
     collect(lhs, rhs, c); 
 }
 
-private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s){  
+private AType do_computeCompositionType(Tree current, AType t1, AType t2, Solver s){  
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
@@ -297,11 +297,11 @@ void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, Collec
 
 void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, Collector c){
     c.calculate("join", current, [lhs, rhs], 
-       AType(Solver s){ return binaryOp("join", _computeJoinType, current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s){ return binaryOp("join", do_computeJoinType, current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
-private AType _computeJoinType(Tree current, AType t1, AType t2, Solver s){ 
+private AType do_computeJoinType(Tree current, AType t1, AType t2, Solver s){ 
     if ((isRelAType(t1) && isRelAType(t2)) || (isListRelAType(t1) && isListRelAType(t2))) {
        bool isRel = isRelAType(t1);
         list[AType] lflds = isRel ? getRelFields(t1) : getListRelFields(t1);
@@ -349,7 +349,7 @@ private AType _computeJoinType(Tree current, AType t1, AType t2, Solver s){
 
 void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, Collector c){
     c.calculate("remainder", current, [lhs, rhs],
-        AType(Solver s){ return binaryOp("remainder", _computeRemainderType, current, s.getType(lhs), s.getType(rhs), s);
+        AType(Solver s){ return binaryOp("remainder", do_computeRemainderType, current, s.getType(lhs), s.getType(rhs), s);
                 //t1 = getType(lhs); t2 = getType(rhs);
                 // if(isIntAType(t1) && isIntAType(t2)) return lub(t1, t2);
                 // report(error(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
@@ -357,7 +357,7 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, Collec
     collect(lhs, rhs, c); 
 }
 
-private AType _computeRemainderType(Tree current, AType t1, AType t2, Solver s){
+private AType do_computeRemainderType(Tree current, AType t1, AType t2, Solver s){
     if(!(isIntAType(t1) && isIntAType(t2))){
         s.report(error(current, "Remainder not defined on %t and %t", t1, t2));
     }
@@ -400,11 +400,11 @@ void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, Collec
 
 void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, Collector c){
     c.calculate("append after", current, [lhs, rhs],
-        AType(Solver s){ return binaryOp("append after", _computeAppendAfterType, current, s.getType(lhs), s.getType(rhs), s); });
+        AType(Solver s){ return binaryOp("append after", do_computeAppendAfterType, current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
-private AType _computeAppendAfterType(Tree current, AType t1, AType t2, Solver s) { 
+private AType do_computeAppendAfterType(Tree current, AType t1, AType t2, Solver s) { 
     if (isListAType(t1)) {
        return makeListType(s.lub(getListElementType(t1),t2));
     }
@@ -416,11 +416,11 @@ private AType _computeAppendAfterType(Tree current, AType t1, AType t2, Solver s
 
 void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, Collector c){
     c.calculate("insert before", current, [lhs, rhs],
-       AType(Solver s){ return binaryOp("insert before", _computeInsertBeforeType, current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s){ return binaryOp("insert before", do_computeInsertBeforeType, current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
-private AType _computeInsertBeforeType(Tree current, AType t1, AType t2, Solver s) { 
+private AType do_computeInsertBeforeType(Tree current, AType t1, AType t2, Solver s) { 
     if (isListAType(t2)) {
         return makeListType(s.lub(getListElementType(t2),t1));
     }
@@ -432,11 +432,11 @@ private AType _computeInsertBeforeType(Tree current, AType t1, AType t2, Solver 
 
 void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, Collector c){
     c.calculate("modulo", current, [lhs, rhs],
-       AType(Solver s){ return binaryOp("modulo", _computeModuloType, current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s){ return binaryOp("modulo", do_computeModuloType, current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
-private AType _computeModuloType(Tree current, AType t1, AType t2, Solver s) { 
+private AType do_computeModuloType(Tree current, AType t1, AType t2, Solver s) { 
     if(!(isIntAType(t1) && isIntAType(t2)) ){
         s.report(error(current, "Modulo not defined on %t and %t", t1, t2));
     }
@@ -447,11 +447,11 @@ private AType _computeModuloType(Tree current, AType t1, AType t2, Solver s) {
 
 void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, Collector c){
     c.calculate("notin", current, [lhs, rhs], 
-       AType(Solver s) { return binaryOp("notin", _computeInType, current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s) { return binaryOp("notin", do_computeInType, current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
-private AType _computeInType(Tree current, AType t1, AType t2, Solver s){
+private AType do_computeInType(Tree current, AType t1, AType t2, Solver s){
     if (isRelAType(t2)) {
         et = getRelElementType(t2);
         s.requireComparable(t1, et, error(current, "Cannot compare %t with element type of %t", t1, t2));
@@ -482,7 +482,7 @@ private AType _computeInType(Tree current, AType t1, AType t2, Solver s){
 
 void collect(current: (Expression) `<Expression lhs> in <Expression rhs>`, Collector c){
     c.calculate("in", current, [lhs, rhs], 
-       AType(Solver s) { return binaryOp("in", _computeInType, current, s.getType(lhs), s.getType(rhs), s); });
+       AType(Solver s) { return binaryOp("in", do_computeInType, current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
 }
 
@@ -508,12 +508,12 @@ void collect(current: (Expression) `<Expression lhs> != <Expression rhs>`, Colle
 
 void checkComparisonOp(str op, Expression current, Collector c){
     c.require("comparison `<op>`", current, [current.lhs, current.rhs],
-       void(Solver s){ binaryOp(op, _computeComparisonType, current, s.getType(current.lhs), s.getType(current.rhs), s); });
+       void(Solver s){ binaryOp(op, do_computeComparisonType, current, s.getType(current.lhs), s.getType(current.rhs), s); });
     c.fact(current, abool());
     collect([current.lhs, current.rhs], c);
 }
 
-private AType _computeComparisonType(Tree current, AType t1, AType t2, Solver s){
+private AType do_computeComparisonType(Tree current, AType t1, AType t2, Solver s){
     if(t1.alabel?) t1 = unset(t1, "alabel");      // TODO: do this for all operators?
     if(t2.alabel?) t2 = unset(t2, "alabel");
     if(comparable(t1, t2) || (isNumericType(t1) && isNumericType(t2)))
