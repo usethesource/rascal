@@ -10,6 +10,8 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
+
+import lang::rascalcore::check::ModuleStatus;
   
 import lang::rascal::\syntax::Rascal;
  
@@ -137,13 +139,21 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
 
-TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] tmodels){
+tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] transient_tms, ModuleStatus ms){
     try {
         rel[AType,AProduction] definedProductions = {};
         allStarts = {};
-        tm = tmodels[qualifiedModuleName];
-        for(m <- {qualifiedModuleName, *imports, *extends}, tmodels[m]?){
-            facts = tmodels[m].facts;
+        for(m <- {qualifiedModuleName, *imports, *extends}){
+            TModel tm1;
+            if(transient_tms[m]?){
+                tm1 = transient_tms[m];
+            } else {
+                <found, tm1, ms> = getTModelForModule(m, ms);
+                if(!found) {
+                    throw "addGrammar: tmodel for <m> not found";
+                }
+            }
+            facts = tm1.facts;
             prodLocs1 = { k | loc k <- facts, aprod(_) := facts[k] };
             
             // filter out productions contained in priority/associativity declarations
@@ -179,7 +189,7 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         // Check keyword rules
         
-        tm = checkKeywords(allProductions, tm);
+        tm = checkKeywords(allProductions, transient_tms[qualifiedModuleName]);
         
         // Check layout
     
@@ -270,10 +280,10 @@ TModel addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, m
         g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);
         tm.store[key_grammar] = [g];
-        return tm;
+        return <tm, ms>;
     } catch TypeUnavailable(): {
         // protect against undefined entities in the grammar that have not yet been reported.
-        return tmodels[qualifiedModuleName];
+        return <tmodel(), ms>;
     }
 }
 

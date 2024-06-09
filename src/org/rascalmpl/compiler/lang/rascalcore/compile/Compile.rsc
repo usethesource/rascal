@@ -27,10 +27,10 @@ bool errorsPresent(list[Message] msgs) = !isEmpty([ e | e:error(_,_) <- msgs ]);
 
 data ModuleStatus;
 
-list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig){    
     pcfg = ms.pathConfig;
-    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-   
+    //<found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
+    tm = transient_tms[qualifiedModuleName];
     //iprintln(tm, lineLimit=10000);
     if(errorsPresent(tm)){
         return tm.messages;
@@ -65,8 +65,12 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
     tmodels = ();
     for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
-        <found, tpl, ms> = getTModelForModule(m, ms);
-        tmodels[m] = tpl;
+        if(m in transient_tms){
+            tmodels[m] = transient_tms[m];
+        } else {
+            <found, tpl, ms> = getTModelForModule(m, ms);
+            tmodels[m] = tpl;
+        }
     }
     tmodels[qualifiedModuleName] = tm;
         

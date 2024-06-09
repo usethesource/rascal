@@ -121,8 +121,9 @@ tuple[str, int]  safeCompile(str \module, RascalCompilerConfig compilerConfig) {
                                                   compilerConfig,
                                                   dummy_compile1);
        //iprintln(result.tmodels[\module].facts);
-       if(!isEmpty(result.tmodels[\module].messages)){
-            iprintln(result.tmodels[\module].messages);
+       <found, tm, result> = getTModelForModule(\module, result);
+       if(found && !isEmpty(tm.messages)){
+            iprintln(tm.messages);
        }
        return <"", cpuTime()-start_time>;
    }
