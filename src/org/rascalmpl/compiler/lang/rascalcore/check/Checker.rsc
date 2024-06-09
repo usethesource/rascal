@@ -36,6 +36,8 @@ extend lang::rascalcore::check::Import;
 
 extend lang::rascalcore::check::RascalConfig;
 
+extend lang::rascalcore::check::ModuleStatus;
+
 import lang::rascalcore::compile::CompileTimeError;
 import analysis::typepal::Exception;
 
@@ -211,7 +213,7 @@ list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
 
 // Dummy compile function (used when running only the checker)
 
-list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
+list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Rascal::Module _M, map[str,TModel] _transient_tms, ModuleStatus _ms, RascalCompilerConfig _compilerConfig)
     = [];
 
 // rascalTModelForLocs is the basic work horse
@@ -219,10 +221,10 @@ list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Ra
 ModuleStatus rascalTModelForLocs(
     list[loc] mlocs,   
     RascalCompilerConfig compilerConfig,
-    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
+    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){     
     jobName = "Rascal compiler";
-    jobStart(jobName, totalwork=2 * size(mlocs) + 1);
+    jobStart(jobName, totalWork=2 * size(mlocs) + 1);
 
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
@@ -354,19 +356,19 @@ ModuleStatus rascalTModelForLocs(
                 }
                 // prepare the TModels of the modules in this component for compilation
                 
-                ms = prepareForCompilation(component, m_imports, m_extends, ms, moduleScopes, tm);
+                <transient_tms, ms> = prepareForCompilation(component, m_imports, m_extends, ms, moduleScopes, tm);
                 
                 // generate code for the modules in this component
                 
                 for(str m <- component, MStatus::ignored() notin ms.status[m]){
                     <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
-                        msgs = codgen(m, pt, ms, compilerConfig);
+                        msgs = codgen(m, pt, transient_tms, ms, compilerConfig);
                         ms.messages[m] += msgs;
                         ms.status[m] += {code_generated()};
                     }
                 }
-                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, compilerConfig);
+                ms = doSaveModule(component, m_imports, m_extends, ms, moduleScopes, transient_tms, compilerConfig);
             }
         }
     } catch ParseError(loc src): {
@@ -477,7 +479,6 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     check_time = (cpuTime() - start_check)/1000000;
     
     if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
-    
     return <tm, ms>;
 }
 
@@ -485,7 +486,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
 
 ModuleStatus rascalTModelForNames(list[str] moduleNames, 
                                   RascalCompilerConfig compilerConfig, 
-                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen){
+                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen){
 
    
     pcfg = compilerConfig.typepalPathConfig;

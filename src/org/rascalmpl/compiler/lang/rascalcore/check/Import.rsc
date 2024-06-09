@@ -12,6 +12,7 @@ import lang::rascalcore::check::RascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ADTandGrammar;
+import lang::rascalcore::check::ModuleStatus;
 
 import DateTime;
 import Exception;
@@ -27,231 +28,6 @@ import ValueIO;
 import analysis::graphs::Graph;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
-
-bool traceTPL = false;
-bool traceCaches = false;
-
-tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){    
-    parts = split("::", qualifiedModuleName);
-    parts = parts[0 .. size(parts)-1] + "$<parts[-1]>";
-    res = intercalate("/", parts);
-    fileName = intercalate("/", parts) + ".tpl";
-    dirName = makeDirName(qualifiedModuleName);
-    
-    for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?     
-        fileLoc = dir + "<compiled_rascal_package>" + fileName;
-        if(exists(fileLoc)){
-           if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
-           return <true, fileLoc>;
-        } else {
-           if(traceTPL) println("getTPLReadLoc: DOES NOT EXIST: <fileLoc>");
-        }
-    }
-    return <false, |error:///|>;
-}
-
-tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
-    fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
-    tplLoc = getDerivedResourcesDir(qualifiedModuleName, pcfg) + fileName;
-    return <exists(tplLoc), tplLoc>;
-}
-
-datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
-    qualifiedModuleName = unescape(qualifiedModuleName);
-    try {
-        res = moduleLastModified[qualifiedModuleName];
-        //println("getLastModified <qualifiedModuleName> from map: <res>");
-        return res;
-   } catch NoSuchKey(_): {
-        try {
-            mloc = getModuleLocation(qualifiedModuleName, pcfg);
-            res = lastModified(mloc);
-            //println("getLastModified <mloc> via lastModified: <res>");
-            return res;
-        } catch value _: {
-            return $2000-01-01T00:00:00.000+00:00$;
-        }
-    }
-}
-
-int parseTreeCacheSize = 10;
-
-tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms){
-    pcfg = ms.pathConfig;
-    if(ms.parseTrees[qualifiedModuleName]?){
-        if(traceCaches) println("*** using cached parse tree for <qualifiedModuleName>");
-        return <true, ms.parseTrees[qualifiedModuleName], ms>;
-    } else {
-        if(!ms.status[qualifiedModuleName]?){
-            ms.status[qualifiedModuleName] = {};
-        }
-        if(parse_error() notin ms.status[qualifiedModuleName]){
-            if(size(ms.parseTreeLIFO) >= parseTreeCacheSize){
-                ms.parseTrees = delete(ms.parseTrees, ms.parseTreeLIFO[-1]);
-                if(traceCaches) println("*** deleting parse tree <ms.parseTreeLIFO[-1]>");
-                ms.parseTreeLIFO = ms.parseTreeLIFO[..-1];
-            }
-            ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
-            mloc = |unknown:///|;
-            try {
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);      
-            } catch _: {
-                //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
-                //ms.status[qualifiedModuleName] += {not_found()};
-                mpt = [Module] "module <qualifiedModuleName>";
-                //ms.parseTrees[qualifiedModuleName] = mpt;
-                ms.moduleLocs[qualifiedModuleName] = mloc;
-                return <false, mpt, ms>;
-            }              
-            if(traceCaches) println("*** parsing <qualifiedModuleName> from <mloc>");
-            try {
-                pt = parseModuleWithSpaces(mloc).top;
-                ms.parseTrees[qualifiedModuleName] = pt;
-                ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
-                ms.status[qualifiedModuleName] += parsed();
-                return <true, pt, ms>;
-            } catch _: {//ParseError(loc src): {
-                ms.messages[qualifiedModuleName] ? [] = [error("Parse error in <qualifiedModuleName>", mloc)];
-                ms.moduleLocs[qualifiedModuleName] = mloc;
-                ms.status[qualifiedModuleName] += parse_error();
-                return <false, [Module] "module <qualifiedModuleName>", ms>;
-            }
-        }
-        mpt = [Module] "module <qualifiedModuleName>";
-        ms.parseTrees[qualifiedModuleName] = mpt;
-        return <false, mpt, ms>;
-   }
-}
-
-//set[str] hardwired = {};
-//
-//int maxHardwired = 10;
-//
-//int tmodelCacheSize = 200;
-//
-//void analyzeTModels(ModuleStatus ms){
-//    freq = ();
-//    total = 0;
-//    for(<_, _, m2> <- ms.strPaths){
-//        freq[m2] ? 0 += 1;
-//        total += 1;
-//    }
-//    sorted_freq = sort(toList(freq), bool(tuple[str s,int n] a, tuple[str s, int n] b){ return a.n > b.n; });
-//    nmodules = size(freq);
-//    cutoff = 2 * total/(nmodules + 1);
-//    hardwire = [tp | tuple[str s, int n] tp <- sorted_freq , tp.n > cutoff][0..maxHardwired];
-//    if(traceCaches){
-//        println("analyzeTModels: <nmodules> modules, imports/extends: <total>, cutoff: <cutoff>");
-//      iprintln(hardwire);
-//    }
-//    hardwired = toSet(domain(hardwire));
-//}
-//
-//ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
-//    if(traceCaches) println("addTModel: <qualifiedModuleName>");
-//    ms.tmodels[qualifiedModuleName] = tm;
-//    if(qualifiedModuleName notin hardwired){
-//        if(qualifiedModuleName notin ms.tmodelLIFO){
-//            ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
-//        }
-//        while(size(ms.tmodels) >= tmodelCacheSize){
-//            if(tpl_saved() notin ms.status[ms.tmodelLIFO[-1]]){
-//                throw "Cannot remove unsaved tpl <ms.tmodelLIFO[-1]>, <ms.status[ms.tmodelLIFO[-1]]>";
-//            }
-//            ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
-//            if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
-//            ms.tmodelLIFO = ms.tmodelLIFO[..-1];
-//        }
-//    }
-//    return ms;
-//}
-
-ModuleStatus clearTModels( ModuleStatus ms){
-    ms.tmodels = ();
-    return ms;
-}
-tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
-    if(traceCaches) println("getTModelForModule: <qualifiedModuleName>");
-    pcfg = ms.pathConfig;
-    if(ms.tmodels[qualifiedModuleName]?){
-        return <true, ms.tmodels[qualifiedModuleName], ms>;
-    }
-    //while(size(ms.tmodels) >= tmodelCacheSize){
-    //    ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
-    //    if(traceCaches) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
-    //    ms.tmodelLIFO = ms.tmodelLIFO[..-1];
-    //}
-    //if(qualifiedModuleName notin hardwired){
-    //    ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
-    //}
-    
-    <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
-    if(found){
-        if(traceTPL) println("*** reading tmodel <tplLoc>");
-        try {
-            tpl = readBinaryValueFile(#TModel, tplLoc);
-            if(tpl.rascalTplVersion? && isValidRascalTplVersion(tpl.rascalTplVersion)){
-                tpl = convertTModel2PhysicalLocs(tpl);
-                
-                ms.tmodels[qualifiedModuleName] = tpl;
-                ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
-                return <true, tpl, ms>;
-             } 
-             //else {
-             //   msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
-             //   println("INFO: <msg>)");
-             //   throw rascalTplVersionError(msg);
-             //   //ms.tmodels[qualifiedModuleName] = 
-             //   //    tmodel(modelName=qualifiedModuleName, 
-             //   //           messages=[msg]);
-             //   //return <true, tpl, ms>; 
-             //}
-        } catch e: {
-            //ms.status[qualifiedModuleName] ? {} += not_found();
-            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
-            //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
-        }
-        msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
-        println("INFO: <msg>)");
-        throw rascalTplVersionError(msg);
-    }
-    //if(qualifiedModuleName notin hardwired){
-    //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
-    //}
-    //ms.status[qualifiedModuleName] ? {} += not_found();
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL", |unknown:///|)]), ms>;
-   // throw IO("Cannot read tpl for <qualifiedModuleName>");
-}
-
-data MStatus =
-      not_found()
-    | parsed()
-    | parse_error()
-    | module_dependencies_extracted()
-    | checked()
-    | check_error()
-    | code_generated()
-    | tpl_uptodate()
-    | tpl_saved()
-    | ignored()
-    ;
-
-data ModuleStatus = 
-    moduleStatus(
-      rel[str, PathRole, str] strPaths, 
-      rel[loc, PathRole, loc] paths, 
-      map[str, Module] parseTrees,
-      list[str] parseTreeLIFO,
-      map[str, TModel] tmodels,
-      //list[str] tmodelLIFO,
-      map[str,loc] moduleLocs, 
-      map[str,datetime] moduleLastModified,
-      map[str, list[Message]] messages,
-      map[str, set[MStatus]] status,
-      PathConfig pathConfig
-   );
-
-ModuleStatus newModuleStatus(PathConfig pcfg) = moduleStatus({}, {}, (), [], (), (), (), (), (), pcfg);
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     if(moduleStrs[mloc]? ){
@@ -295,7 +71,8 @@ ModuleStatus complete(ModuleStatus ms){
             strPaths += <mfrom, r, mto >;
         } catch _: ;/* ignore non-existing module */
     }
-    ms.strPaths = strPaths;  
+    ms.strPaths = strPaths; 
+    analyzeTModels(ms); 
     return ms;
 }
 
@@ -435,15 +212,14 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
     throw "No module scope found for <qualifiedModuleName>";
 }
 
-ModuleStatus prepareForCompilation(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, TModel tm){
-    map[str,TModel] tmodels = (); //ms.tmodels;
+tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, TModel tm){
+   //map[str,TModel] tmodels = (); //ms.tmodels;
     pcfg = ms.pathConfig;
     
     dependencies_ok = true;
     for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
         if(parse_error() in ms.status[m]){
-            ms.tmodels[m] = tmodel(modelName=m,messages=ms.messages[m]);
-            return ms;
+            return <(m : tmodel(modelName=m,messages=ms.messages[m])) ,ms>;
         }
         for(imp <- m_imports[m] + m_extends[m], not_found() notin ms.status[imp], MStatus::ignored() notin ms.status[m]){
             imp_status = ms.status[imp];
@@ -454,26 +230,28 @@ ModuleStatus prepareForCompilation(set[str] component, map[str,set[str]] m_impor
             }
         }
         if(!dependencies_ok){
-            ms.tmodels[m] = tmodel(modelName=m,messages=ms.messages[m]);
-            return ms;
+            return <(m: tmodel(modelName=m,messages=ms.messages[m])), ms>;
         }
     }
+    transient_tms = (m : tm | m <- component);
+    org_tm = tm;
     for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
+        tm = org_tm;
         tm.modelName = m;
         mScope = getModuleScope(m, moduleScopes, pcfg);
         tm.moduleLocs = (m : mScope);
         
         tm.definitions = ( def.defined : def | Define def <- tm.defines);
        
-        ms.tmodels[m] = tm;
-        tm = addGrammar(m, m_imports[m], m_extends[m], ms.tmodels);
+        transient_tms[m] = tm;
+        <tm, ms> = addGrammar(m, m_imports[m], m_extends[m], transient_tms, ms);
         ms.messages[m] = tm.messages;
-        ms.tmodels[m] = tm;
+        transient_tms[m] = tm;
     }
-    return ms;
+    return <transient_tms, ms>;
 }
 
-ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, RascalCompilerConfig compilerConfig){
+ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str, TModel] transient_tms, RascalCompilerConfig compilerConfig){
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
     
@@ -487,9 +265,9 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     bool isContainedInComponentScopes(loc inner){
         return any(cs <- component_scopes, isContainedIn(inner, cs));
     };
-        
+       
     for(qualifiedModuleName <- component){
-        tm = ms.tmodels[qualifiedModuleName];
+        tm = transient_tms[qualifiedModuleName];
         try {
             mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
             <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
@@ -537,7 +315,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
             
             //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
-            m1.useDef = { <u, d> | <u, d> <- tm.useDef, tm.definitions[d].idRole in keepInTModelRoles || isContainedIn(u, mscope) };
+            m1.useDef = { <u, d> | <u, d> <- tm.useDef, isContainedIn(u, mscope) || (tm.definitions[d]? && tm.definitions[d].idRole in keepInTModelRoles) };
             
             // Filter model for current module and replace functions in defType by their defined type
             
@@ -602,11 +380,10 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             } catch value e: {
                 throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
-            
-            ms.tmodels[qualifiedModuleName] = m1;
+            ms = addTModel(qualifiedModuleName, m1, ms);
             
         } catch value e: {
-            ms.tmodels[qualifiedModuleName] = tmodel(modelName=qualifiedModuleName, messages=tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]);
+            ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
             return ms;
         }
     }
