@@ -285,8 +285,10 @@ void extractScopes(TModel tm){
     defUses = invert(useDef);
     set[loc] modules = {};
     //setModuleScope(tm.moduleLocs[tm.modelName]);
-    
-    if([*AGrammar gs] := tm.store[key_grammar]){
+    if(!tm.store[key_grammar]?){
+        iprintln(tm.store);
+        throw "`grammar` not found in store";
+    } else if([*AGrammar gs] := tm.store[key_grammar]){
         current_grammar = gs[0];
         //println("extractScopes:"); iprintln(current_grammar);
     } else {
