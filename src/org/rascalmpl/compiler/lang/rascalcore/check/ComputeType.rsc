@@ -718,9 +718,9 @@ public AType numericArithTypes(AType l, AType r) {
 }
 
 AType computeAdditionType(Tree current, AType t1, AType t2, Solver s) 
-    = binaryOp("addition", _computeAdditionType, current, t1, t2, s);
+    = binaryOp("addition", do_computeAdditionType, current, t1, t2, s);
 
-private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
+private AType do_computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isStrAType(t1) && isStrAType(t2))
@@ -822,9 +822,9 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
 }
 
 AType computeSubtractionType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("subtraction", _computeSubtractionType, current, t1, t2, s);
+    = binaryOp("subtraction", do_computeSubtractionType, current, t1, t2, s);
 
-private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s) { 
+private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver s) { 
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
     }
@@ -866,9 +866,9 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
 }
 
 AType computeProductType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("product", _computeProductType, current, t1, t2, s);
+    = binaryOp("product", do_computeProductType, current, t1, t2, s);
 
-private AType _computeProductType(Tree current, AType t1, AType t2, Solver s){ 
+private AType do_computeProductType(Tree current, AType t1, AType t2, Solver s){ 
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isListAType(t1) && isListAType(t2))
@@ -886,9 +886,9 @@ private AType _computeProductType(Tree current, AType t1, AType t2, Solver s){
 }
 
 AType computeDivisionType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("division", _computeDivisionType, current, t1, t2, s);
+    = binaryOp("division", do_computeDivisionType, current, t1, t2, s);
 
-private AType _computeDivisionType(Tree current, AType t1, AType t2, Solver s){
+private AType do_computeDivisionType(Tree current, AType t1, AType t2, Solver s){
     if(!(isNumericType(t1) && isNumericType(t2))){
         s.report(error(current, "Division not defined on %t and %t", t1, t2));
     }
@@ -896,9 +896,9 @@ private AType _computeDivisionType(Tree current, AType t1, AType t2, Solver s){
 }
 
 AType computeIntersectionType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("intersection", _computeIntersectionType, current, t1, t2, s);
+    = binaryOp("intersection", do_computeIntersectionType, current, t1, t2, s);
     
-private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver s){  
+private AType do_computeIntersectionType(Tree current, AType t1, AType t2, Solver s){  
     if ( ( isListRelAType(t1) && isListRelAType(t2) ) || 
          ( isListAType(t1) && isListAType(t2) ) || 
          ( isRelAType(t1) && isRelAType(t2) ) || 
