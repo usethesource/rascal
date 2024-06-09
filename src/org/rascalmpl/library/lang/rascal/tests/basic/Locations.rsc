@@ -526,7 +526,7 @@ private data MavenLocalRepositoryPath
     | error(str cause)
     ;
 
-MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
+private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
     if (jar.extension != "jar") {
         return error("jar should have jar extension");
     }
