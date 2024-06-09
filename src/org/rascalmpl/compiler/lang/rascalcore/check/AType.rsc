@@ -244,8 +244,11 @@ bool asubtype(\seq(list[AType] ll),\seq(list[AType] rl)) {
 bool asubtype(alit(_), aadt(n, [], _)) = n == "Tree";
 bool asubtype(acilit(_), aadt(n, [], _)) = n == "Tree";
 
-bool asubtype(conditional(AType s, _), conditional(AType t, _)) {
-    return asubtype(s, t);
+bool asubtype(conditional(AType s, _), AType r /*conditional(AType t, _)*/) {
+    if(conditional(AType t, _) := r)
+        return asubtype(s, t);
+     else
+        return asubtype(s, r);
 }
 
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
