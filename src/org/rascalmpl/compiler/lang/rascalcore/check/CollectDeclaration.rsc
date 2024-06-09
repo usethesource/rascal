@@ -579,7 +579,7 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     try {
         returnExprTypeU = instantiateRascalTypeParameters(returnExpr, returnExprTypeU, bindings, s);
     } catch invalidInstantiation(str msg): {
-        s.report(error(current, "Cannot instantiate return type `<prettyAType(returnExprType)>`: " + msg));
+        s.report(error(returnExpr, "Cannot instantiate return type `<prettyAType(returnExprType)>`: " + msg));
     }
     
     s.requireSubType(deUnique(returnExprTypeU), deUnique(declaredReturnTypeU), msg);
