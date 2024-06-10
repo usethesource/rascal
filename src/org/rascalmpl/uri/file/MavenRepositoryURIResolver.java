@@ -22,7 +22,9 @@ import io.usethesource.vallang.ISourceLocation;
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file.
  * 
- * Here version is [0-9]+ major . [0-9]+ minor .[0-9]+ path -[A-Za-z\-]* optionalTag
+ * Here version is an arbitrary string with lots of numbers, dots, dashed and underscores.
+ * Typically we'd expect the semantic versioning scheme here with some release tag, but
+ * real maven projects frequently do not adhere to that standard. 
  * 
  * Locations with the `mvn` scheme are typically produced by configuration code that uses 
  * Maven to resolve dependencies. Once the group id, name and version are known, any
