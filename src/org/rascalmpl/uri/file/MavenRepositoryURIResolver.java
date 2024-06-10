@@ -14,17 +14,22 @@ import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
+ * For a discussion REMOTE repositories see below.
  * 
  * We use `mvn://<groupid>!<name>!<version>/<path-inside-jar>` as the general scheme;
  * also `mvn://<groupid>!<name>!<version>/!/<path-inside-jar>` is allowed to make sure the
  * root `mvn://<groupid>!<name>!<version>/` remains a jar file unambiguously.
  * 
  * So the authority encodes the identity of the maven project and the path encodes
- * what's inside the respective jar file.
+ * what's inside the respective jar file. This is analogous to other schemes for projects
+ * and deployed projects such as project://, target://, plugin://, bundle:// and bundleresource://:
+ * the authority identifies the container, and the path identifies what is inside.
  * 
- * Here version is an arbitrary string with lots of numbers, dots, dashed and underscores.
+ * Here `version` is an arbitrary string with lots of numbers, dots, dashed and underscores.
  * Typically we'd expect the semantic versioning scheme here with some release tag, but
- * real maven projects frequently do not adhere to that standard. 
+ * real maven projects frequently do not adhere to that standard. Hence we have to be "free"
+ * here and allow lots of funny version strings. This is also why we use ! again to separate
+ * the version from the artifactId.
  * 
  * Locations with the `mvn` scheme are typically produced by configuration code that uses 
  * Maven to resolve dependencies. Once the group id, name and version are known, any
@@ -42,10 +47,26 @@ import io.usethesource.vallang.ISourceLocation;
  * This resolver does NOT find the "latest" version or any version of a package without an explicit
  * version reference in the authority pattern, by design. Any automated resolution here would
  * make the dependency management downstream less transparant and possibly error-prone. 
+ * The `mvn://` locations are intended to be the _result_ of dependency resolution, not 
+ * to implement dependency resolution.
  * 
  * This resolver also does not implement any download or installation procedure, by design.
- * It should simply reflect what has been downloaded and installed into the LOCAL maven
- * repository.
+ * It does not access and REMOTE repositories although it easily could be implemented.
+ * This scheme should simply reflect what _has been downloaded and installed_ into the LOCAL maven
+ * repository. This is for the sake of transparancy and predictability, but also for _legal_ reasons:
+ * Any automated implicit downloading by the `mvn://` scheme could easily result in late/lazy downloading 
+ * and linking by end-users who have not been able to diligently vet the legal implications of the 
+ * reuse of another library. Therefore this scheme DOES NOT DOWNLOAD stuff, ever.
+ * 
+ * PLEASE DO NOT EVER ADD AUTOMATIC DOWNLOADING OR ACCESS TO REMOTE REPOSITORIES TO THIS SCHEME,
+ * however easy or practical this may seem.
+ * Download, installation, linking, bundling, making fat jars, etc. must all be scrutinized by the due 
+ * diligence legal processes for open-source dependencies. Those who take responsibility
+ * for dependencies on open-source packages, with for example GPL licenses, must have the 
+ * opportunity to scrutinize every instance of incorporating such as dependency. Therefore
+ * it must not be automated here. Note that these are not necessarily people from the usethesource or
+ * Rascal-contributing organizations; but our users (Rascal language engineers) that we protect
+ * here.
  * 
  * This resolver is to replace for the large part the use of the deprecate `lib` scheme
  * from {@see RascalLibraryURIResolver} which leaves too much implicit and automates too 
