@@ -189,6 +189,7 @@ data Production
      | \reference(Symbol def, str cons) // <5>
      ;
 
+data Production = skipped(Symbol def, Production prod, int validPrefix);
 
 @synopsis{Attributes in productions.}
 @description{
