@@ -557,6 +557,24 @@ test bool mvnSchemeTest() {
         assert resolveLocation(mvnLoc) == resolveLocation(jar) : "<resolveLocation(mvnLoc)> != <resolveLocation(jar)>
                                                                  '  jar: <jar>
                                                                  '  mvnLoc: <mvnLoc>";
+
+        assert exists(mvnLoc) : "<mvnLoc> should exist because <jar> exists.";
+
+        assert exists(mvnLoc + "!") : "<mvnLoc + "!"> should resolve to the jarified root and exist";
+
+        // not all jars contain a META-INF folder
+        if (exists(mvnLoc + "!/META-INF")) {
+            // but if they do then this relation holds
+
+            assert exists(mvnLoc + "META-INF")
+                : "<mvnLoc + "META-INF"> should exist and resolved to the jarified location inside.";
+
+            assert resolveLocation(mvnLoc + "!/META-INF") == resolveLocation(mvnLoc + "META-INF")
+                : "Two different ways of resolving inside the jar (with and without !) should be equivalent";
+
+            assert (mvnLoc + "META-INF").ls == [e[path=e.path[2..]] | e <- (mvnLoc + "!/META-INF").ls]
+                : "listings should be equal mod ! for <mvnLoc + "META-INF">";
+        }
     }
 
     // report on all the failed attempts
