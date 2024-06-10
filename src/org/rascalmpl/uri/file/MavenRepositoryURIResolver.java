@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -224,19 +225,29 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
      * leaves all other locations as-is.
      * */
     public static ISourceLocation mavenize(ISourceLocation loc) {
-        loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
-        
-        ISourceLocation repo = URIUtil.createFileLocation(inferMavenRepositoryLocation());
-        boolean isFileInRepo = loc.getScheme().equals("file") && URIUtil.relativize(repo, loc).getScheme().equals("relative");  
+        try {
+            loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
 
-        if (isFileInRepo) { 
-            String groupId    = URIUtil.getParentLocation(URIUtil.getParentLocation(URIUtil.getParentLocation(loc))).getPath().substring(1).replaceAll, "/", ".");
-            String artifactId = URIUtil.getLocationName(URIUtil.getParentLocation(URIUtil.getParentLocation(loc)));
-            String version    = URIUtil.getLocationName(URIUtil.getParentLocation(loc));
-        
-            return URIUtil.correctLocation("mvn", groupId + "!" + artifactId + "!" + version, "");
+            if (!URIUtil.getExtension(loc).equals("jar")) {
+                return loc;
+            }
+
+            ISourceLocation repo = URIUtil.createFileLocation(inferMavenRepositoryLocation());
+            ISourceLocation relative = URIUtil.relativize(repo, loc);
+            boolean isFileInRepo = loc.getScheme().equals("file") && relative.getScheme().equals("relative");  
+
+            if (isFileInRepo) { 
+                String groupId    = URIUtil.getParentLocation(URIUtil.getParentLocation(URIUtil.getParentLocation(relative))).getPath().substring(1).replaceAll("/", ".");
+                String artifactId = URIUtil.getLocationName(URIUtil.getParentLocation(URIUtil.getParentLocation(relative)));
+                String version    = URIUtil.getLocationName(URIUtil.getParentLocation(relative));
+            
+                return URIUtil.correctLocation("mvn", groupId + "!" + artifactId + "!" + version, "");
+            }
+
+            return loc;
         }
-
-        return loc;
+        catch (IOException | URISyntaxException e) {
+            return loc;
+        }
     }
 }

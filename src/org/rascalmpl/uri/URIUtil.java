@@ -433,6 +433,32 @@ public class URIUtil {
     public static ISourceLocation createFromURI(String value) throws URISyntaxException {
         return vf.sourceLocation(createFromEncoded(value));
     }
+
+	/**
+	 * Extracts the extension (the characters after the last . in the file name),
+	 * if any, and otherwise returns the empty string.
+	 * @param loc
+	 * @return
+	 */
+	public static String getExtension(ISourceLocation loc) {
+		String path = loc.getPath();
+		boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
+		if (endsWithSlash) {
+			path = path.substring(0, path.length() - 1);
+		}
+
+		if (path.length() > 1) {
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			int index = path.substring(slashIndex).lastIndexOf('.');
+
+			if (index != -1) {
+				return path.substring(slashIndex + index + 1);
+			}
+		}
+
+		return "";
+	}
+
     public static ISourceLocation changeExtension(ISourceLocation location, String ext) throws URISyntaxException {
         String path = location.getPath();
 		boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
