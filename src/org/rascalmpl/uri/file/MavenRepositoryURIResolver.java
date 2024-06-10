@@ -32,8 +32,8 @@ import io.usethesource.vallang.ISourceLocation;
  * the version from the artifactId.
  * 
  * Locations with the `mvn` scheme are typically produced by configuration code that uses 
- * Maven to resolve dependencies. Once the group id, name and version are known, any
- * `mvn:///` location is easily constructed and uses. It can be seen as a transparent
+ * a Maven pom.xml to resolve dependencies. Once the group id, name and version are known, any
+ * `mvn:///` location is easily constructed and used. It can be seen as a transparent
  * short-hand for an absolute `file:///` location that points into the (deeply nested)
  * .m2 local repository. The prime benefits are:
  *    1. much shorter location than `file:///`
@@ -42,7 +42,7 @@ import io.usethesource.vallang.ISourceLocation;
  * 
  * It is a logical resolver in order to allow for short names for frequently
  * occurring paths, without loss of transparancy. We always know which jar file is meant,
- * and the encoding is one-to-one. 
+ * and the encoding is (almost) one-to-one. 
  * 
  * This resolver does NOT find the "latest" version or any version of a package without an explicit
  * version reference in the authority pattern, by design. Any automated resolution here would
@@ -51,7 +51,7 @@ import io.usethesource.vallang.ISourceLocation;
  * to implement dependency resolution.
  * 
  * This resolver also does not implement any download or installation procedure, by design.
- * It does not access and REMOTE repositories although it easily could be implemented.
+ * It does not access any REMOTE repositories although it easily could be implemented.
  * This scheme should simply reflect what _has been downloaded and installed_ into the LOCAL maven
  * repository. This is for the sake of transparancy and predictability, but also for _legal_ reasons:
  * Any automated implicit downloading by the `mvn://` scheme could easily result in late/lazy downloading 
@@ -65,12 +65,16 @@ import io.usethesource.vallang.ISourceLocation;
  * for dependencies on open-source packages, with for example GPL licenses, must have the 
  * opportunity to scrutinize every instance of incorporating such as dependency. Therefore
  * it must not be automated here. Note that these are not necessarily people from the usethesource or
- * Rascal-contributing organizations; but our users (Rascal language engineers) that we protect
- * here.
+ * Rascal-contributing organizations; but our industrial, educational and academic users 
+ * (Rascal language engineers) that we protect here.
  * 
  * This resolver is to replace for the large part the use of the deprecate `lib` scheme
- * from {@see RascalLibraryURIResolver} which leaves too much implicit and automates too 
+ * from {@see RascalLibraryURIResolver} which left too much implicit and automated too 
  * much to obtain any transparancy in dependency resolution. 
+ * 
+ * Another pitfall of this scheme is that since it transparantely resolves to file:/// and jar+file:///
+ * schemes, it could be used to _write_ to `mvn` jars as well. Of course this is very much not a good 
+ * idea; but there is currently no way to register read-only logical schemes.
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
     private final Pattern authorityRegEx 
