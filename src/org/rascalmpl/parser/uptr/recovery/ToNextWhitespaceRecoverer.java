@@ -21,6 +21,7 @@ import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
+import org.rascalmpl.parser.gtd.util.IdDispenser;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
@@ -28,12 +29,10 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
 
-public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
-	// TODO: its a magic constant, and it may clash with other generated constants
-	// should generate implementation of static int getLastId() in generated parser to fix this.
-	private int recoveryId = 100000;
+public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	private static final int[] WHITESPACE = {' ', '\r', '\n', '\t' };
 	
+	private IdDispenser stackNodeIdDispenser;
 	
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>();
@@ -46,11 +45,11 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
-				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<IConstructor>(recoveryId++, prod, recoveryNode);
+				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<IConstructor>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
 				int startLocation = recoveryNode.getStartLocation();
 				
-				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<IConstructor>(recoveryId++, WHITESPACE, input, startLocation, prod);
+				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<IConstructor>(stackNodeIdDispenser.dispenseId(), WHITESPACE, input, startLocation, prod);
 				recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
 				recoverLiteral.initEdges();
 				EdgesSet<IConstructor> edges = new EdgesSet<IConstructor>(1);
@@ -177,6 +176,9 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor>{
 	    }
 	}
 
+	public ToNextWhitespaceRecoverer(IdDispenser stackNodeIdDispenser) {
+		this.stackNodeIdDispenser = stackNodeIdDispenser;
+	}
 	
 	@Override
 	public DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveStacks(int[] input,
