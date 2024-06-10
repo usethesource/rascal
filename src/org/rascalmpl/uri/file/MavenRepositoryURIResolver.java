@@ -15,7 +15,10 @@ import io.usethesource.vallang.ISourceLocation;
 /**
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
  * 
- * We use `mvn://<groupid>.<name>-<version>/<path-inside-jar>` as the general scheme.
+ * We use `mvn://<groupid>!<name>!<version>/<path-inside-jar>` as the general scheme;
+ * also `mvn://<groupid>!<name>!<version>/!/<path-inside-jar>` is allowed to make sure the
+ * root `mvn://<groupid>!<name>!<version>/` remains a jar file unambiguously.
+ * 
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file.
  * 
