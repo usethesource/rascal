@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
@@ -216,5 +217,26 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                 return null; // signal resolution has failed.
             }
         }    
+    }
+
+    /** 
+     * Shortens a location of a jar file that points into a local maven repository, and
+     * leaves all other locations as-is.
+     * */
+    public static ISourceLocation mavenize(ISourceLocation loc) {
+        loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+        
+        ISourceLocation repo = URIUtil.createFileLocation(inferMavenRepositoryLocation());
+        boolean isFileInRepo = loc.getScheme().equals("file") && URIUtil.relativize(repo, loc).getScheme().equals("relative");  
+
+        if (isFileInRepo) { 
+            String groupId    = URIUtil.getParentLocation(URIUtil.getParentLocation(URIUtil.getParentLocation(loc))).getPath().substring(1).replaceAll, "/", ".");
+            String artifactId = URIUtil.getLocationName(URIUtil.getParentLocation(URIUtil.getParentLocation(loc)));
+            String version    = URIUtil.getLocationName(URIUtil.getParentLocation(loc));
+        
+            return URIUtil.correctLocation("mvn", groupId + "!" + artifactId + "!" + version, "");
+        }
+
+        return loc;
     }
 }

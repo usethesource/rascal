@@ -337,7 +337,7 @@ public class URIUtil {
 		File file = new File(uri.getPath());
 		return file.getName();
 	}
-	
+
 	public static String getLocationName(ISourceLocation uri) {
 		File file = new File(uri.getPath());
 		return file.getName();
