@@ -88,7 +88,7 @@ public class Reflective {
 	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
 	    try {
 	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
-	            return PathConfig.fromSourceProjectRascalManifest(projectRoot, mode.getName().equals("compiler") ? RascalConfigMode.COMPILER :  RascalConfigMode.INTERPETER).asConstructor();
+	            return PathConfig.fromSourceProjectRascalManifest(projectRoot, mode.getName().equals("compiler") ? RascalConfigMode.COMPILER :  RascalConfigMode.INTERPRETER).asConstructor();
 	        }
 	        else {
 	            throw new FileNotFoundException(projectRoot.toString());

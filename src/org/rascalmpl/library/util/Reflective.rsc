@@ -18,6 +18,7 @@ import List;
 import ParseTree;
 import String;
 import util::FileSystem;
+import Message;
 
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
@@ -41,15 +42,27 @@ data RascalConfigMode
     | interpreter()
     ;
 
+@synopsis{General configuration (via path references) of a compiler or interpreter.}
+@description{
+A PathConfig is the result of dependency resolution and other configuration steps. Typically,
+IDEs produce the information to fill a PathConfig, such that language tools can consume it
+transparantly. A PathConfig is also a log of the configuration process. 
+
+* `srcs` list of root directories to search for source files; to interpret or to compile.
+* `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, or skipped when the compiler arives there.)
+* `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or an executable file later.
+* `libs` is a list of binary dependency files (typically jar files or target folders) on other projects, for checking and linking purposes.
+* `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
+}
 data PathConfig 
-    // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
-  = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] ignores = [],              // List of locations to ignore from the source files
-               loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               list[loc] libs = [|lib://rascal/|],          // List of directories to search source for derived files
-               list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
-               list[loc] classloaders = [|system:///|]      // TODO: must generate the same defaults as in PathConfig
-              );
+  = pathConfig(
+        list[loc] srcs = [],  
+        list[loc] ignores = [],  
+        loc bin = |unknown:///|,
+        loc generatedSources = |unknown:///|,
+        list[loc] libs = [],          
+        list[Message] messages = []
+    );
 
 data RascalManifest
   = rascalManifest(
