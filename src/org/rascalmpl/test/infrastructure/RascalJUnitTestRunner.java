@@ -105,7 +105,7 @@ public class RascalJUnitTestRunner extends Runner {
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER);
             
             for (IValue path : pcfg.getSrcs()) {
 
