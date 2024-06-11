@@ -66,6 +66,20 @@ public class RascalManifest {
             return "unknown (due to " + e.getMessage();
         }
     }
+
+    public String getManifestVersionNumber(ISourceLocation project) throws IOException {
+        Manifest mf = new Manifest(manifest(project));
+
+        String bundleName = mf.getMainAttributes().getValue("Name");
+        if (bundleName != null && bundleName.equals("rascal")) {
+            String result = mf.getMainAttributes().getValue("Specification-Version");
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return "Unknown version for " + project + " (missing MANIFEST.MF or Specification-Version in MANIFEST.MF)";
+    }
     
     public Manifest getDefaultManifest(String projectName) {
         Manifest manifest = new Manifest();
@@ -272,21 +286,6 @@ public class RascalManifest {
 
     public List<String> getRequiredLibraries(ISourceLocation root) {
         return getManifestRequiredLibraries(manifest(root));
-    }
-
-    public PathConfig makePathConfig(ISourceLocation root) throws IOException {
-        List<ISourceLocation> libs = new ArrayList<>();
-        List<ISourceLocation> srcs = new ArrayList<>();
-
-        ISourceLocation binFolder = URIUtil.getChildLocation(root, "bin");
-        libs.add(binFolder);
-
-        RascalManifest mf = new RascalManifest();
-        for (String src : mf.getSourceRoots(root)) {
-            srcs.add(URIUtil.getChildLocation(root, src));
-        }
-
-        return new PathConfig(srcs, libs, binFolder);
     }
 
     public InputStream manifest(JarInputStream stream) {

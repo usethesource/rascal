@@ -282,28 +282,6 @@ public class Eval {
 
 			return current;
 		}
-		
-		private String javaCompilerPathAsString(IList javaCompilerPath) {
-			StringBuilder b = new StringBuilder();
-
-			for (IValue elem : javaCompilerPath) {
-				ISourceLocation loc = (ISourceLocation) elem;
-
-				if (b.length() != 0) {
-					b.append(File.pathSeparatorChar);
-				}
-
-				// this is the precondition
-				assert loc.getScheme().equals("file");
-
-				// this is robustness in case of experimentation in pom.xml
-				if ("file".equals(loc.getScheme())) {
-					b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
-				}
-			}
-
-			return b.toString();
-		}
 	
 		public void reset() {
 			eval.getCurrentModuleEnvironment().reset();
