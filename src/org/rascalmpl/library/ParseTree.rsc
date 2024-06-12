@@ -691,7 +691,6 @@ java &T<:value implode(type[&T<:value] t, Tree tree);
 @deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(Message message = Message () { throw "no default value"; }());
 
-
 @synopsis{Annotate a parse tree node with a list of (error) messages.} 
 @deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(set[Message] messages = {});

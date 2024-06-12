@@ -11,6 +11,9 @@ import util::Reflective;
 import Set;
 import util::Monitor;
 
+list[Message] reportForProject(loc projectRoot)
+  = reportForPathConfig(getProjectPathConfig(projectRoot));
+  
 list[Message] reportForProject(str projectName) 
   = reportForPathConfig(getProjectPathConfig(|project://<projectName>|));
 
