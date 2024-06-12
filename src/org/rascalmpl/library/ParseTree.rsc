@@ -154,7 +154,7 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 <4> A single character.
 }
 
-data Tree //(loc src = |unknown:///|(0,0,<0,0>,<0,0>))
+data Tree(loc src = |unknown:///|(0,0,<0,0>,<0,0>))
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
@@ -328,11 +328,6 @@ Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associ
 Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, {*a, *b}); 
         
-
-@synopsis{Annotate a parse tree node with a source location.} 
-data Tree(loc src = |unknown:///|);
-
-
 @synopsis{Parse input text (from a string or a location) and return a parse tree.}
 @description{
 *  Parse a string and return a parse tree.
