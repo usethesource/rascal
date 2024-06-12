@@ -85,11 +85,7 @@ appl(
         {}),
       [appl(
           regular(\iter-star(lex("LAYOUT"))),
-          [])[
-          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,0,<9,9>,<9,9>)
-        ]])[
-      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,0,<9,9>,<9,9>)
-    ],appl(
+          [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,0,<9,9>,<9,9>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,0,<9,9>,<9,9>)],appl(
       prod(
         label(
           "nonterminal",
@@ -150,15 +146,7 @@ appl(
                           range(95,95),
                           range(97,122)
                         ]))),
-                  [])[
-                  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(123,0,<9,10>,<9,10>)
-                ]])[
-              @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,1,<9,9>,<9,10>)
-            ]])[
-          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,1,<9,9>,<9,10>)
-        ]])[
-      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,1,<9,9>,<9,10>)
-    ],appl(
+                  [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(123,0,<9,10>,<9,10>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,1,<9,9>,<9,10>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,1,<9,9>,<9,10>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(122,1,<9,9>,<9,10>)],appl(
       prod(
         layouts("LAYOUTLIST"),
         [conditional(
@@ -183,11 +171,7 @@ appl(
         {}),
       [appl(
           regular(\iter-star(lex("LAYOUT"))),
-          [])[
-          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(123,0,<9,10>,<9,10>)
-        ]])[
-      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(123,0,<9,10>,<9,10>)
-    ],appl(
+          [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(123,0,<9,10>,<9,10>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(123,0,<9,10>,<9,10>)],appl(
       prod(
         lit(")"),
         [\char-class([range(41,41)])],
@@ -234,13 +218,7 @@ appl(
                       range(12288,12288)
                     ])],
                 {}),
-              [char(32)])[
-              @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(124,1,<9,11>,<9,12>)
-            ]])[
-          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(124,1,<9,11>,<9,12>)
-        ]])[
-      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(124,1,<9,11>,<9,12>)
-    ],appl(
+              [char(32)])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(124,1,<9,11>,<9,12>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(124,1,<9,11>,<9,12>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(124,1,<9,11>,<9,12>)],appl(
       prod(
         lit("`"),
         [\char-class([range(96,96)])],
@@ -305,11 +283,7 @@ appl(
                     {}),
                   [appl(
                       regular(\iter-star(lex("LAYOUT"))),
-                      [])[
-                      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,0,<9,14>,<9,14>)
-                    ]])[
-                  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,0,<9,14>,<9,14>)
-                ],appl(
+                      [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,0,<9,14>,<9,14>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,0,<9,14>,<9,14>)],appl(
                   prod(
                     label(
                       "nonterminal",
@@ -370,15 +344,7 @@ appl(
                                       range(95,95),
                                       range(97,122)
                                     ]))),
-                              [])[
-                              @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,0,<9,15>,<9,15>)
-                            ]])[
-                          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)
-                        ]])[
-                      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)
-                    ]])[
-                  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)
-                ],appl(
+                              [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,0,<9,15>,<9,15>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)],appl(
                   prod(
                     layouts("LAYOUTLIST"),
                     [conditional(
@@ -420,13 +386,7 @@ appl(
                                   range(12288,12288)
                                 ])],
                             {}),
-                          [char(32)])[
-                          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,1,<9,15>,<9,16>)
-                        ]])[
-                      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,1,<9,15>,<9,16>)
-                    ]])[
-                  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,1,<9,15>,<9,16>)
-                ],appl(
+                          [char(32)])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,1,<9,15>,<9,16>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,1,<9,15>,<9,16>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,1,<9,15>,<9,16>)],appl(
                   prod(
                     lex("Name"),
                     [conditional(
@@ -492,13 +452,7 @@ appl(
                                   range(95,95),
                                   range(97,122)
                                 ]))),
-                          [])[
-                          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)
-                        ]])[
-                      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)
-                    ]])[
-                  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)
-                ],appl(
+                          [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)],appl(
                   prod(
                     layouts("LAYOUTLIST"),
                     [conditional(
@@ -523,29 +477,17 @@ appl(
                     {}),
                   [appl(
                       regular(\iter-star(lex("LAYOUT"))),
-                      [])[
-                      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)
-                    ]])[
-                  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)
-                ],appl(
+                      [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)],appl(
                   prod(
                     lit("\>"),
                     [\char-class([range(62,62)])],
                     {}),
-                  [char(62)])])[
-              @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(126,5,<9,13>,<9,18>)
-            ]])[
-          @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(126,5,<9,13>,<9,18>)
-        ]])[
-      @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(126,5,<9,13>,<9,18>)
-    ],appl(
+                  [char(62)])])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(126,5,<9,13>,<9,18>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(126,5,<9,13>,<9,18>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(126,5,<9,13>,<9,18>)],appl(
       prod(
         lit("`"),
         [\char-class([range(96,96)])],
         {}),
-      [char(96)])])[
-  @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(121,11,<9,8>,<9,19>)
-];
+      [char(96)])])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(121,11,<9,8>,<9,19>)];
 
 rel[Tree,Tree] ThePsList =
 {<appl(
@@ -609,15 +551,7 @@ rel[Tree,Tree] ThePsList =
                         range(95,95),
                         range(97,122)
                       ]))),
-                [])[
-                @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,0,<9,15>,<9,15>)
-              ]])[
-            @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)
-          ]])[
-        @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)
-      ]])[
-    @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)
-  ],appl(
+                [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(128,0,<9,15>,<9,15>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(127,1,<9,14>,<9,15>)],appl(
     prod(
       lex("Name"),
       [conditional(
@@ -683,10 +617,4 @@ rel[Tree,Tree] ThePsList =
                     range(95,95),
                     range(97,122)
                   ]))),
-            [])[
-            @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)
-          ]])[
-        @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)
-      ]])[
-    @\loc=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)
-  ]>};
+            [])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(130,0,<9,17>,<9,17>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)]])[src=|project://rascal/src/org/rascalmpl/library/experiments/Compiler/Examples/Tst2.rsc|(129,1,<9,16>,<9,17>)]>};

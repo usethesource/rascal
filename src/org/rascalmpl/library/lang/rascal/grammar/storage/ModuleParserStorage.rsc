@@ -114,7 +114,7 @@ void storeParsersForModules(set[loc] moduleFiles, PathConfig pcfg) {
 
 void storeParsersForModules(set[Module] modules, PathConfig pcfg) {
     for (m <- modules) {
-        storeParserForModule("<m.header.name>", m@\loc, modules, pcfg);
+        storeParserForModule("<m.header.name>", m.src, modules, pcfg);
     }
 }
 

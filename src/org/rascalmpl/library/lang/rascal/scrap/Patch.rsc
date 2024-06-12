@@ -17,7 +17,7 @@ lrel[loc, str] commands2patch(start[Commands] pt) {
   
   // don't evaluate commands that represent output
   cmds = [ "<c>" | c <- pt.top.commands, !(c is output) ];
-  results = evalCommands(cmds, pt@\loc);
+  results = evalCommands(cmds, pt.src);
   
   patch = [];
   
@@ -46,7 +46,7 @@ lrel[loc, str] commands2patch(start[Commands] pt) {
         // if there's a change in output, add a tuple
         // to the patch.        
         if (new != "" && trim(old) != trim(new)) {
-          org = args[i]@\loc; 
+          org = args[i].src; 
           at = org.offset + org.length;
           l = org[offset=at][length=0]; // insert
           patch += [<l, new>];
@@ -60,7 +60,7 @@ lrel[loc, str] commands2patch(start[Commands] pt) {
       else {
         if (change) {
           // only remove previous output nodes if there was a change
-          patch += [<args[i]@\loc, "">];
+          patch += [<args[i].src, "">];
         }
         
         // output commands are not evaluated by evalCommands above;
@@ -73,7 +73,7 @@ lrel[loc, str] commands2patch(start[Commands] pt) {
         if (addedSpace && change && startsWith(l, " ")) {
           // if a leading space was added in the case of changed output,
           // remove it here. Otherwise leave the layout unchanged.
-          org = args[i]@\loc; 
+          org = args[i].src; 
           patch += [<org[length=1], "">]; 
           addedSpace = false;
         }
