@@ -7,9 +7,26 @@ import ParseTree;
 import IO;
 import Message;
 import Exception;
+import util::Reflective;
+import Set;
+import util::Monitor;
 
-list[Message] report(loc root) 
-   = [*reportFor(m) | m <- find(root, "rsc")];
+list[Message] reportForProject(str projectName) 
+  = reportForPathConfig(getProjectPathConfig(|project://<projectName>|));
+
+list[Message] reportForPathConfig(PathConfig pcfg)
+  = [ *report(root) | root <- pcfg.srcs];
+
+list[Message] report(loc root) {
+  set[loc] ms = find(root, "rsc");
+
+  return job("Reporting", list[Message] (void (str, int) step) {
+    bool st(str msg) { step(msg, 1); return true; };
+
+    list[Message] result = [*reportFor(\module) | \module <- ms, st(\module.file)];
+    return result;
+  }, totalWork = size(ms));
+}
    
 list[Message] reportFor(loc l) {
   try {
