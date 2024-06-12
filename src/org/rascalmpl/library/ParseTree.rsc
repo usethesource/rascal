@@ -688,45 +688,45 @@ java &T<:value implode(type[&T<:value] t, Tree tree);
 
 
 @synopsis{Annotate a parse tree node with an (error) message.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(Message message = Message () { throw "no default value"; }());
 
 
 @synopsis{Annotate a parse tree node with a list of (error) messages.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(set[Message] messages = {});
 
 
 @synopsis{Annotate a parse tree node with a documentation string.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(str doc = "");
 
 
 @synopsis{Annotate a parse tree node with documentation strings for several locations.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(map[loc,str] docs = ());
 
-
-
 @synopsis{Annotate a parse tree node with the target of a reference.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(loc link = |unknown:///|);
 
 
 @synopsis{Annotate a parse tree node with multiple targets for a reference.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
 data Tree(set[loc] links = {});
 
 
-@synopsis{Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)
-
-This is similar to link and links annotations, except that you can put it as one set at the top of the tree.} 
+@synopsis{Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)}
+@description{
+This is similar to link and links annotations, except that you can put it as one set at the top of the tree.
+}
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.} 
 data Tree(rel[loc,loc] hyperlinks = {});
-
 
 @synopsis{Tree search result type for ((treeAt)).}
 data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
 
-
-
 @synopsis{Select the innermost Tree of a given type which is enclosed by a given location.}
-@description{
-
-}
 TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
 	if ((a.src)?, al := a.src, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
@@ -748,7 +748,6 @@ bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
 bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 bool sameType(Symbol s, s) = true;
 default bool sameType(Symbol s, Symbol t) = false;
-
 
 @synopsis{Determine if the given type is a non-terminal type.}
 bool isNonTerminalType(Symbol::\sort(str _)) = true;
