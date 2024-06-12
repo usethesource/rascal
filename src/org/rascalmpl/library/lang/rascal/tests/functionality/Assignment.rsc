@@ -1,3 +1,4 @@
+
 module lang::rascal::tests::functionality::Assignment
   
 import Exception;
@@ -95,23 +96,24 @@ test bool testADT33() { D d = intfield(5); d.i *= 3; return d == intfield(15); }
 test bool testADT34() { D d = intfield(6); d.i /= 3; return d == intfield(2); }
   	
 data F = f() | f(int n) | g(int n) | deep(F f);
-anno int F@pos;
-  
-// testAnnotations
  
-test bool testAnnotations1() { F X = f(); X@pos = 1; return X@pos == 1; }
+data F(int pos = 0);
   
-test bool testAnnotations2() { X = f(); X@pos = 2; X@pos += 3; return X@pos == 5; }
+// testAnnotations (the annotation syntax has been replaced by keywordparameters but we have kept the tests for reference.)
+ 
+test bool testAnnotations1() { F X = f(); X.pos = 1; return X.pos == 1; }
+  
+test bool testAnnotations2() { X = f(); X.pos = 2; X.pos += 3; return X.pos == 5; }
 
-test bool testAnnotations3() { X = f(); X@pos = 3; X@pos -= 2;  return X@pos == 1; }
+test bool testAnnotations3() { X = f(); X.pos = 3; X.pos -= 2;  return X.pos == 1; }
 
-test bool testAnnotations4() { X = f(); X@pos = 2; X@pos *= 3; return X@pos == 6; }
+test bool testAnnotations4() { X = f(); X.pos = 2; X.pos *= 3; return X.pos == 6; }
 
-test bool testAnnotations5() { X = f(); X@pos = 6; X@pos /= 3;  return X@pos == 2; }
+test bool testAnnotations5() { X = f(); X.pos = 6; X.pos /= 3;  return X.pos == 2; }
 
-test bool testAnnotations6() { X = f(); X@pos = 6; X@pos ?= 3;  return X@pos == 6; }
+test bool testAnnotations6() { X = f(); X.pos = 6; X.pos ?= 3;  return X.pos == 6; }
 
-test bool testAnnotations7() { X = f(); X@pos ?= 3; return X@pos == 3; }
+test bool testAnnotations7() { X = f(); X.pos ?= 3; return X.pos == 3; }
   	
 // assigningClosureToVariableBug877
   
