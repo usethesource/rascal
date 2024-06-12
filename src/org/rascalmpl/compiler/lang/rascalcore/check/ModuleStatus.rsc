@@ -118,7 +118,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
                 ms.parseTreeLIFO = ms.parseTreeLIFO[..-1];
             }
             ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
-            mloc = |unknown:///|;
+            mloc = |unknown:///<qualifiedModuleName>|;
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);      
             } catch _: {
@@ -251,6 +251,6 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
     //}
     //ms.status[qualifiedModuleName] ? {} += not_found();
-    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///|)]), ms>;
+    return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
