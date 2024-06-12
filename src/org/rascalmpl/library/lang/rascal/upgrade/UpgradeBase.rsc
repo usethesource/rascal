@@ -40,11 +40,11 @@ void updateProject(str projectName) {
 
 void updatePathConfig(PathConfig pcfg) {
   for (root <- pcfg.srcs) {
-    update(root); 
+    updateFolder(root); 
   }
 }
 
-void update(loc root) {
+void updateFolder(loc root) {
   set[loc] ms = find(root, "rsc");
 
   job("Updating <root>", bool (void (str, int) step) {
