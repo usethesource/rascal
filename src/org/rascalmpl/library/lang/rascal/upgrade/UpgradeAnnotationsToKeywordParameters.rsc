@@ -11,6 +11,7 @@ list[Message] report(Tree m)
   + [info("found annotation use", name.src) | /(Expression) `<Expression e>@<Name name>` := m]
   + [info("found annotion literal", name.src) | /(Expression) `<Expression e>[@<Name name>=<Expression def>]` := m]
   + [info("found annotation update", field.src) | /(Assignable) `<Name rec>@<Name field>` := m]
+  + [info("found annotation catch", e.src) | /(Catch) `catch NoSuchAnnotation(<Pattern e>) : <Statement body>` := m]
   ;
 
 Tree update(Tree m) =
@@ -33,6 +34,11 @@ Tree update(Tree m) =
       
     case (Assignable) `<Name rec>@<Name field>` => (Assignable) `<Name rec>.<Name name2>`
       when Name name2 := getName(field)
+
+    case (Catch) `catch NoSuchAnnotation(<Pattern e>) : <Statement body>`
+      => (Catch) `catch NoSuchField(<Pattern e>) :
+                 ' // TODO: where annotations would often throw exceptions, keyword fields return their default.
+                 '  <Statement body>`
   };
 
 Name getName((Name) `\\loc`) = (Name) `src`;
