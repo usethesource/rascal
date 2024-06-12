@@ -91,12 +91,7 @@ test bool KeywordAssignVisibleViaAnno2(){
 
 test bool unavailableAnno1(){
     F example = f();
-    try {
-     example.notThere;
-     return false;
-   }
-   catch NoSuchAnnotation("notThere"):
-      return true;
+    return example.notThere == 0 && !(example.notThere?);
 }
 
 test bool unavailableAnno2(){
@@ -108,7 +103,8 @@ test bool unavailableAnno2(){
      x.notThere;
      return false;
    }
-   catch NoSuchField("notThere"):
-     return true;
+   catch NoSuchField("notThere") :
+ // TODO: where annotations would often throw exceptions, keyword fields return their default.
+  return true;
 }
 
