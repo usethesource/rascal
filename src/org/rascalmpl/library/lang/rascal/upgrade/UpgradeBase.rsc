@@ -20,11 +20,10 @@ list[Message] reportForPathConfig(PathConfig pcfg)
 list[Message] report(loc root) {
   set[loc] ms = find(root, "rsc");
 
-  return job("Reporting", list[Message] (void (str, int) step) {
+  return job("Reporting for <root>", list[Message] (void (str, int) step) {
     bool st(str msg) { step(msg, 1); return true; };
 
-    list[Message] result = [*reportFor(\module) | \module <- ms, st(\module.file)];
-    return result;
+    return [*reportFor(\module) | \module <- ms, st(\module.file)];
   }, totalWork = size(ms));
 }
    
@@ -34,17 +33,38 @@ list[Message] reportFor(loc l) {
   } catch ParseError(loc r) :
     return [warning("parse error in Rascal file",r)];
 }
-   
-void update(loc root) {
-  modules = [ f | /file(f) := crawl(root), f.extension == "rsc"];
-  for (m <- modules) {
-    try 
-      writeFile(m, "<update(parse(#start[Module], m))>");
-    catch ParseError(l):
-      println("parse error in <l>, skipped");
+  
+void updateProject(str projectName) { 
+  updatePathConfig(getProjectPathConfig(|project://<projectName>|));
+}
+
+void updatePathConfig(PathConfig pcfg) {
+  for (root <- pcfg.srcs) {
+    update(root); 
   }
 }
 
-default list[Message] report(Tree m) = [];
+void update(loc root) {
+  set[loc] ms = find(root, "rsc");
+
+  job("Updating <root>", bool (void (str, int) step) {
+    for (loc m <- ms) {
+      try {
+        step(m.file, 1);
+        writeFile(m, "<update(parse(#start[Module], m))>");
+      }
+      catch ParseError(l): {
+        println("parse error in <l>, skipped");
+      }
+    }
+    
+    return true;
+  }, totalWork=size(ms));
+}
+
+@synopsis{Definition to override in an extending module for reporting on a specific upgrade refactoring.}
+default list[Message] report(Tree _) = [];
+
+@synopsis{Definition to override in an extending module for implementing a specific upgrade refactoring.}
 default Tree update(Tree m) = m;
 
