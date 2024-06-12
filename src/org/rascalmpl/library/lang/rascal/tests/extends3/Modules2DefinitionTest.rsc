@@ -8,6 +8,7 @@ import util::Reflective;
 import Grammar;
 import IO;
 
+@synopsis{Uses example modules A, B, C, D, E, and F to see how layout definitions propagate over import and extend dependencies.}
 test bool layoutPropagationOverImportAndExtendTest() {
    testModules = { m | m <- |project://rascal/src/org/rascalmpl/library/lang/rascal/tests/extends3/|.ls, /[A-F].rsc/ := m.file };
 
@@ -21,7 +22,8 @@ test bool layoutPropagationOverImportAndExtendTest() {
         gr = resolve(fuse(layouts(def)));
 
         // the L1 layout definition should have propagated to all of the modules
-        assert layouts("L1") in gr.rules : "L1 is not in <main>";
+        assert layouts("L1") in gr.rules : "L1 is not in <main>:
+                                           '  <gr>";
     }
 
     return true;
