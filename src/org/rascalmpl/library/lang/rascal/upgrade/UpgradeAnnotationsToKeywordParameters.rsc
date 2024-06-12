@@ -2,15 +2,13 @@
 module lang::rascal::upgrade::UpgradeAnnotationsToKeywordParameters
 
 extend lang::rascal::upgrade::UpgradeBase;
- 
- 
-data Tree(loc src = |unknown:///|);
+import ParseTree; 
 
 list[Message] report(Tree m) 
-  = [info("found annotation definition", name.src) | /(Declaration) `<Tags _> <Visibility v> anno <Type _> <Type _>@<Name name>;` := m]
+  = [info("found <if ("<t>" == "node") {>irreplacable<}> annotation definition", name.src) | /(Declaration) `<Tags _> <Visibility v> anno <Type _> <Type t>@<Name name>;` := m]
   + [info("found annotation use", name.src) | /(Expression) `<Expression e>@<Name name>` := m]
-  + [info("found annotion literal", name.src) | /(Expression) `<Expression e>[@<Name name>=<Expression def>]` := m]
-  + [info("found annotation update", field.src) | /(Assignable) `<Name rec>@<Name field>` := m]
+  + [info("found annotion update", name.src) | /(Expression) `<Expression e>[@<Name name>=<Expression def>]` := m]
+  + [info("found annotation literal", field.src) | /(Assignable) `<Name rec>@<Name field>` := m]
   + [info("found annotation catch", e.src) | /(Catch) `catch NoSuchAnnotation(<Pattern e>) : <Statement body>` := m]
   ;
 
