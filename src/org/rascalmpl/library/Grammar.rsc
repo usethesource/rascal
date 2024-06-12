@@ -111,12 +111,12 @@ public Grammar compose(Grammar g1, Grammar g2) {
 @description{
 Note that this relation is already transitively closed because that is the semantics of extend.
 }
-rel[str, str] extends(GrammarDefinition def) {
+rel[str \module, str extended] extends(GrammarDefinition def) {
   return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
 }
 
 @synopsis{Compute a relation from importer to imported modules for the given grammar}
-rel[str,str] imports(GrammarDefinition def) {
+rel[str \module, str imported] imports(GrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
 
@@ -129,7 +129,7 @@ that we use is already transitively closed. Next to this we also add dependencie
 nature of module extension, a module that extends another module exposes all
 rules to any importing module. 
 }
-rel[str, str] dependencies(GrammarDefinition def) {
+rel[str \module, str dependency] dependencies(GrammarDefinition def) {
   imps = imports(def);
   exts = extends(def);
 
