@@ -157,7 +157,7 @@ MuExp translateLiteral((Literal) `<IntegerLiteral n>`) =
 // -- regular expression literal  ------------------------------------
 
 MuExp translateLiteral((Literal) `<RegExpLiteral r>`) { 
-    throw "RexExpLiteral cannot occur in expression"; 
+    throw "RexExpLiteral `<r>` cannot occur in expression"; 
 }
 
 // -- string literal  ------------------------------------------------
