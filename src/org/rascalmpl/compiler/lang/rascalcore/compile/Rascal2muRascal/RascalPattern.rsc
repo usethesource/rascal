@@ -2067,9 +2067,17 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
                               falseCont);
    }
  } 
+MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore = muBlock([])) 
+    = translateRegExpLiteral(r, subjectType, subject, btscopes, trueCont, falseCont);
 
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, int posInPat, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore=muBlock([])) {
-    if(lit is regExp) fail;
+    if(lit is regExp){
+        return translateRegExpLiteral(lit.regExpLiteral, subjectType, muSubscript(subject, subjectType, cursor), btscopes, 
+               muBlock([ muIncNativeInt(cursor, muCon(1)), 
+                         trueCont
+                        ]),
+               falseCont);
+    }
  
     return muIfElse(muAndNativeBool(muLessNativeInt(cursor, sublen), muEqual(translate(lit), muSubscript(subject, subjectType, cursor))), 
                     muBlock([ muIncNativeInt(cursor, muCon(1)), 
