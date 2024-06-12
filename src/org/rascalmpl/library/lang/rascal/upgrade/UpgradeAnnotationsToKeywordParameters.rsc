@@ -3,13 +3,14 @@ module lang::rascal::upgrade::UpgradeAnnotationsToKeywordParameters
 
 extend lang::rascal::upgrade::UpgradeBase;
  
-anno loc Tree@\loc;
+ 
+data Tree(loc src = |unknown:///|);
 
 list[Message] report(Tree m) 
-  = [info("found annotation definition", name@\loc) | /(Declaration) `<Tags _> <Visibility v> anno <Type _> <Type _>@<Name name>;` := m]
-  + [info("found annotation use", name@\loc) | /(Expression) `<Expression e>@<Name name>` := m]
-  + [info("found annotion literal", name@\loc) | /(Expression) `<Expression e>[@<Name name>=<Expression def>]` := m]
-  + [info("found annotation update", field@\loc) | /(Assignable) `<Name rec>@<Name field>` := m]
+  = [info("found annotation definition", name.src) | /(Declaration) `<Tags _> <Visibility v> anno <Type _> <Type _>@<Name name>;` := m]
+  + [info("found annotation use", name.src) | /(Expression) `<Expression e>@<Name name>` := m]
+  + [info("found annotion literal", name.src) | /(Expression) `<Expression e>[@<Name name>=<Expression def>]` := m]
+  + [info("found annotation update", field.src) | /(Assignable) `<Name rec>@<Name field>` := m]
   ;
 
 Tree update(Tree m) =

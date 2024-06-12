@@ -329,8 +329,8 @@ Production associativity(Symbol s, Associativity as, {*Production a, priority(Sy
   = associativity(s, as, {*a, *b}); 
         
 
-@synopsis{Annotate a parse tree node with a source location.}
-anno loc Tree@\loc;
+@synopsis{Annotate a parse tree node with a source location.} 
+data Tree(loc src = |unknown:///|);
 
 
 @synopsis{Parse input text (from a string or a location) and return a parse tree.}
@@ -692,35 +692,35 @@ data Exp = add(Exp, Exp);
 java &T<:value implode(type[&T<:value] t, Tree tree);
 
 
-@synopsis{Annotate a parse tree node with an (error) message.}
-anno Message Tree@message;
+@synopsis{Annotate a parse tree node with an (error) message.} 
+data Tree(Message message = Message () { throw "no default value"; }());
 
 
-@synopsis{Annotate a parse tree node with a list of (error) messages.}
-anno set[Message] Tree@messages;
+@synopsis{Annotate a parse tree node with a list of (error) messages.} 
+data Tree(set[Message] messages = {});
 
 
-@synopsis{Annotate a parse tree node with a documentation string.}
-anno str Tree@doc;
+@synopsis{Annotate a parse tree node with a documentation string.} 
+data Tree(str doc = "");
 
 
-@synopsis{Annotate a parse tree node with documentation strings for several locations.}
-anno map[loc,str] Tree@docs;
+@synopsis{Annotate a parse tree node with documentation strings for several locations.} 
+data Tree(map[loc,str] docs = ());
 
 
 
-@synopsis{Annotate a parse tree node with the target of a reference.}
-anno loc Tree@link;
+@synopsis{Annotate a parse tree node with the target of a reference.} 
+data Tree(loc link = |unknown:///|);
 
 
-@synopsis{Annotate a parse tree node with multiple targets for a reference.}
-anno set[loc] Tree@links;
+@synopsis{Annotate a parse tree node with multiple targets for a reference.} 
+data Tree(set[loc] links = {});
 
 
 @synopsis{Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)
 
-This is similar to link and links annotations, except that you can put it as one set at the top of the tree.}
-anno rel[loc,loc] Tree@hyperlinks;
+This is similar to link and links annotations, except that you can put it as one set at the top of the tree.} 
+data Tree(rel[loc,loc] hyperlinks = {});
 
 
 @synopsis{Tree search result type for ((treeAt)).}
@@ -733,7 +733,7 @@ data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
 
 }
 TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
-	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+	if ((a.src)?, al := a.src, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}
