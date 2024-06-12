@@ -1,6 +1,5 @@
 module lang::rascal::tests::concrete::SyntaxKeywordFields
 
-import Node;
 import ParseTree;
 
 syntax A = "a";

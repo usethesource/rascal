@@ -244,7 +244,7 @@ test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 
 data F = f3() | f3(int n) | g(int n) | deep(F f);
  
-data F(int pos = 0);
+data F(int pos = 10);
 
 test bool isDefinedAnno1() = (f3()[pos=1]).pos?;
 
