@@ -38,8 +38,8 @@ public class ConsoleRascalMonitor implements IRascalMonitor {
 
 	@Override
 	public void jobStep(String name, String msg, int inc) {
-		//out.println(name);
-		//out.flush();
+		out.println(name);
+		out.flush();
 	}
 
 	@Override
