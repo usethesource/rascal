@@ -44,6 +44,7 @@ void importGraph(PathConfig pcfg) {
     // let's start with a simple graph and elaborate on details in later versions
     g = { <from, "I", to> | <from, to> <- m.imports}
       + { <from, "E", to> | <from, to> <- m.extends}
+      + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
       + { <from, "x", "x">  | from <- bottom(m.imports + m.extends)} // pull the bottom modules down.
       ;
     
