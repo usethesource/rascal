@@ -4,6 +4,7 @@ import util::Reflective;
 import ValueIO;
 import String;
 import util::FileSystem;
+import util::Monitor;
 import IO;
 import ValueIO;
 import Location;
@@ -45,12 +46,34 @@ rel[str, str] createConceptIndex(list[loc] srcs, datetime lastModified, bool isP
   = {*createConceptIndex(src, lastModified, isPackageCourse, packageName) | src <- srcs, bprintln("Indexing <src>")};
 
 @synopsis{creates a lookup table for concepts nested in a folder}
-rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageCourse, str packageName)
-  = // first we collect index entries for concept names, each file is one concept which
-    // can be linked to in many different ways ranging from very short (handy but inexact) to very long (guaranteed to be exact.)
+rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageCourse, str packageName) {
+  bool step(str label, loc file) {
+    jobStep(label, "<file.file>");
+    return true;
+  }
+
+  void \start(str label, int work) {
+    if (work > 0) {
+      jobStart(label, totalWork=work);
+    }
+  }
+
+  // first we collect index entries for concept names, each file is one concept which
+  // can be linked to in many different ways ranging from very short (handy but inexact) to very long (guaranteed to be exact.)
+  conceptFiles = find(src, isFreshConceptFile(lastModified));
+  \start("Indexing concepts", 2*size(conceptFiles));
+
+  imageFiles = find(src, isImageFile);
+  \start("Indexing images", size(imageFiles));
+
+  directoryIndexes = find(src, isDirectory);
+  \start("Indexing directories", 2*size(directoryIndexes));
+
+  rascalFiles = find(src, isFreshRascalFile(lastModified));
+  \start("Indexing modules", size(rascalFiles));
 
     // First we handle the root concept
-    {
+  result = {
       <RootName, "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<RootName>/index.md">,
       <"course:<RootName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<RootName>/index.md">
       | str RootName := ((isPackageCourse && src.file in {"src","rascal","api"}) ? "API" : package(src.file))
@@ -76,7 +99,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f.parent).path)[1..], "/", "-")>", fr>
 
-    | loc f <- find(src, isFreshConceptFile(lastModified))
+    | loc f <- conceptFiles
+      , step("Indexing concepts", f)
       , f.parent?
       , f.parent.path != "/"
       , f.parent != src
@@ -105,7 +129,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, cf).path)[1..], "/", "-")>", fr>
 
-    | loc f <- find(src, isFreshConceptFile(lastModified))
+    | loc f <- conceptFiles
+      , step("Indexing concepts", f)
       , f.parent?
       , f.parent.path != "/"
       , f.parent != src
@@ -134,7 +159,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
 
       // `((Rascal:Expressions-Values-Set-StrictSuperSet)) -> /Rascal/Expressions/Values/Set/StrictSuperSet/index.md`
       <"<capitalize(src.file)>:<replaceAll(capitalize(relativize(src, f).path)[1..], "/", "-")>", fr>
-    | loc f <- find(src, isDirectory)
+    | loc f <- directoryIndexes
+    , step("Indexing directories", f)
     , fr := "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<fragment(src, f)>"
     , f != src
     }
@@ -143,7 +169,7 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
     { <"<f.parent.file>-<f.file>",        fr>,
       <f.file,                            fr>,
       <"<capitalize(src.file)>:<f.file>", fr>
-    |  loc f <- find(src, isImageFile),
+    |  loc f <- imageFiles, step("Indexing images", f),
        fr := "/assets/<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}><relativize(src, f).path>"
     }
   + { // these are links to packages/folders/directories via module path prefixes, like `analysis::m3`
@@ -153,7 +179,8 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "-"))>", fr>,
      <"<capitalize(src.file)>:package:<replaceAll(relativize(src, f).path[1..], "/", "::")>", fr>,
      <"<capitalize(src.file)>:<capitalize(replaceAll(relativize(src, f).path[1..], "/", "::"))>", fr>
-    | loc f <- find(src, isDirectory)
+    | loc f <- directoryIndexes
+      , step("Indexing directories", f)
       , /\/internal\// !:= f.path
       , f != src
       , fr := "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<fragment(src, f)>"
@@ -185,10 +212,17 @@ rel[str, str] createConceptIndex(loc src, datetime lastModified, bool isPackageC
       *{<"<capitalize(src.file)>:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" >,
          <"<capitalize(src.file)>:module:<item.moduleName>", "<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>/API<} else {>/<capitalize(src.file)><}>/<modulePath(item.moduleName)>.md" > | item is moduleInfo}
 
-      | loc f <- find(src, isFreshRascalFile(lastModified)), list[DeclarationInfo] inf := safeExtract(f), item <- inf,
+      | loc f <- rascalFiles, step("Indexing modules", f), list[DeclarationInfo] inf := safeExtract(f), item <- inf,
         fr := "/<if (isPackageCourse) {>/Packages/<package(packageName)><}>/<if (isPackageCourse && src.file in {"src","rascal","api"}) {>API<} else {><capitalize(src.file)><}>/<modulePath(item.moduleName)>.md<moduleFragment(item.moduleName)>-<item.name>"
-    }
-    ;
+    };
+
+  jobEnd("Indexing modules");
+  jobEnd("Indexing directories");
+  jobEnd("Indexing concepts");
+  jobEnd("Indexing images");
+
+  return result;
+}
 
 private bool isConceptFile(loc f) = f.extension in {"md"};
 
