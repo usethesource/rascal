@@ -27,30 +27,33 @@ import util::IDEServices;
 import IO;
 import analysis::graphs::Graph;
 
-void importGraph(str projectName) {
-    importGraph(|project://<projectName>|);
+@synopsis{If `projectName` is an open project in the current IDE, the visualize its import/extend graph.}
+void importGraph(str projectName, bool hideExternals=true) {
+    importGraph(|project://<projectName>|, hideExternals=hideExternals);
 }
 
-void importGraph(loc projectRoot) {
+@synopsis{Given an arbitrary root folder of a Rascal project, visualize its import/extend graph.}
+void importGraph(loc projectRoot, bool hideExternals=true) {
     // we use compiler() mode here to avoid diving into the transitively depended projects.
     pcfg = getProjectPathConfig(projectRoot, mode=compiler());
-    importGraph(pcfg);
+    importGraph(pcfg, hideExternals=hideExternals);
 }
 
 @synopsis{Visualizes an import/extend graph for all the modules in the srcs roots of the current PathConfig}
-void importGraph(PathConfig pcfg) {
+void importGraph(PathConfig pcfg, bool hideExternals=true) {
     m = getProjectModel(pcfg.srcs);
     
     // let's start with a simple graph and elaborate on details in later versions
-    g = { <from, "I", to> | <from, to> <- m.imports}
-      + { <from, "E", to> | <from, to> <- m.extends}
+    g = { <from, "I", to> | <from, to> <- m.imports, hideExternals ==> to notin m.external}
+      + { <from, "E", to> | <from, to> <- m.extends, hideExternals ==> to notin m.external}
       + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
-      + { <from, "x", "x">  | from <- bottom(m.imports + m.extends)} // pull the bottom modules down.
+      + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
     
     showInteractiveContent(graph(g, \layout=defaultDagreLayout()), title="Rascal Import/Extend Graph");
 }
 
+@synopsis{Container for everything we need to know about the modules in a project to visualize it.}
 data ProjectModel = projectModel(
     set[str]      modules = {},
     set[str]      external = {},
