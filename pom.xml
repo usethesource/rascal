@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.39.7-BOOT3-SNAPSHOT</version>
+    <version>0.40.0-BOOT1</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.39.5-BOOT2</tag>
+        <tag>v0.40.0-BOOT1</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
