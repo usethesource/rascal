@@ -11,6 +11,7 @@ import util::FileSystem;
 import util::Monitor;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
+import util::SystemAPI;
 
 PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|);
 
@@ -19,6 +20,11 @@ void main(list[str] args) = generateTestSources(manualTestConfig);
 void main() = main([]);
 
 void generateTestSources(PathConfig pcfg) {
+   if (getSystemProperty("-Drascal.generateSources.skip") != "") {
+     println("Skipping the generation of test sources.");
+     return;
+   }
+
    testConfig = pathConfig(
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources|,
