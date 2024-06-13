@@ -25,6 +25,7 @@ import Exception;
 import util::FileSystem;
 import util::IDEServices;
 import IO;
+import analysis::graphs::Graph;
 
 void importGraph(str projectName) {
     importGraph(|project://<projectName>|);
@@ -32,7 +33,8 @@ void importGraph(str projectName) {
 
 void importGraph(loc projectRoot) {
     // we use compiler() mode here to avoid diving into the transitively depended projects.
-    importGraph(getProjectPathConfig(projectRoot, mode=compiler()));
+    pcfg = getProjectPathConfig(projectRoot, mode=compiler());
+    importGraph(pcfg);
 }
 
 @synopsis{Visualizes an import/extend graph for all the modules in the srcs roots of the current PathConfig}
@@ -42,6 +44,7 @@ void importGraph(PathConfig pcfg) {
     // let's start with a simple graph and elaborate on details in later versions
     g = { <from, "I", to> | <from, to> <- m.imports}
       + { <from, "E", to> | <from, to> <- m.extends}
+      + { <from, "x", "x">  | from <- bottom(m.imports + m.extends)} // pull the bottom modules down.
       ;
     
     showInteractiveContent(graph(g, \layout=defaultDagreLayout()), title="Rascal Import/Extend Graph");
