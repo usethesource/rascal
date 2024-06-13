@@ -87,8 +87,8 @@ ProjectModel getProjectModel(loc file) {
 
         return projectModel(
             modules = {name},
-            imports = {<name, i> | i <- imps},
-            extends = {<name, e> | e <- exts}
+            imports = {name} * imps,
+            extends = {name} * exts
         );
     }
     catch ParseError(_) : 
