@@ -20,7 +20,7 @@ void main(list[str] args) = generateTestSources(manualTestConfig);
 void main() = main([]);
 
 void generateTestSources(PathConfig pcfg) {
-   if (getSystemProperty("-Drascal.generateSources.skip") != "") {
+   if ("rascal.generateSources.skip" in getSystemProperties()) {
      println("Skipping the generation of test sources.");
      return;
    }
