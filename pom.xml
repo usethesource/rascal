@@ -297,6 +297,13 @@
                                 <relocation>
                                     <pattern>org.fusesource.jansi</pattern>
                                     <shadedPattern>org.rascampl.fusesource.jansi</shadedPattern>
+                                    <excludes>
+                                        <exclude>org.fusesource.jansi.internal.*</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jline</pattern>
+                                    <shadedPattern>org.rascampl.jline</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
