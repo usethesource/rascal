@@ -49,8 +49,17 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
       + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
       + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
-    
-    showInteractiveContent(graph(g, \layout=defaultDagreLayout()), title="Rascal Import/Extend Graph");
+
+    loc modLinker(str name) {
+        if (loc x <- m.files[name])
+            return x;
+        else 
+            return |nothing:///|;
+    }
+
+    default loc modLinker(value _) = |nothing:///|;
+
+    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker), title="Rascal Import/Extend Graph");
 }
 
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
@@ -58,7 +67,8 @@ data ProjectModel = projectModel(
     set[str]      modules = {},
     set[str]      external = {},
     rel[str, str] imports = {},
-    rel[str, str] extends = {}
+    rel[str, str] extends = {},
+    rel[str, loc] files = {}
 );
 
 @synopsis{Collects name, imports and extends for all modules reachable from the `srcs` root folders.}
@@ -70,7 +80,8 @@ ProjectModel getProjectModel(list[loc] srcs) {
     wholeWorld = projectModel(
         modules = {*m.modules | m <- models},
         imports = {*m.imports | m <- models},
-        extends = {*m.extends | m <- models}
+        extends = {*m.extends | m <- models},
+        files   = {*m.files   | m <- models}
     );
 
     wholeWorld.external = wholeWorld.imports<1> + wholeWorld.extends<1> - wholeWorld.modules;
@@ -88,7 +99,8 @@ ProjectModel getProjectModel(loc file) {
         return projectModel(
             modules = {name},
             imports = {name} * imps,
-            extends = {name} * exts
+            extends = {name} * exts,
+            files   = {<name, file>}
         );
     }
     catch ParseError(_) : 
