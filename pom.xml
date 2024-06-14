@@ -293,9 +293,19 @@
                                     <resource>io/usethesource/vallang/type/types.config </resource>
                                 </transformer>
                             </transformers>
-                            <!--
-                                    http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html
-                                -->
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.fusesource.jansi</pattern>
+                                    <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
+                                    <excludes>
+                                        <exclude>org.fusesource.jansi.internal.*</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jline</pattern>
+                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
