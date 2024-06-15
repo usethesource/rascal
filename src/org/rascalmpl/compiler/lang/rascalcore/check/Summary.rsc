@@ -7,11 +7,8 @@ module lang::rascalcore::check::Summary
 */
 
 extend lang::rascalcore::check::CheckerCommon;
-//extend lang::rascalcore::check::ATypeUtils;
-//import lang::rascalcore::check::BasicRascalConfig;
-//
-//extend analysis::typepal::TypePal;
 
+import lang::rascalcore::check::ModuleStatus;
 import lang::rascalcore::check::Import;
 import analysis::typepal::TModel;
 
