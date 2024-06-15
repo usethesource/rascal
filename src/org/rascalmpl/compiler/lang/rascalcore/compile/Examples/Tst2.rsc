@@ -6,7 +6,7 @@ import  lang::rascalcore::compile::Compile;
 
 value main() {
     pcfg = getRascalCorePathConfig();
-    input ="lang::rascalcore::check::Checker";
+    input ="lang::rascalcore::check::Summary";
     testConfig = pathConfig(
                     bin=|project://rascal-core/target|,
                     generatedSources=|project://rascal-core/target/generated-test-sources2|,
