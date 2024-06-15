@@ -573,7 +573,7 @@ private MuExp translateParsedConcretePattern(t:appl(prod:Production::regular(Sym
 private MuExp translateParsedConcretePattern(t:appl(prod:Production::regular(s:Symbol::opt(Symbol symbol)), list[Tree] args),
                        AType patType, AType subjectType,  MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, MuExp restore = muBlock([])) {
    
-    body = translateParsedConcretePattern(args[0], symbol2atype(symbol), getType(subject), subject, btscopes, trueCont, falseCont, restore=restore);
+    body = isEmpty(args) ? trueCont : translateParsedConcretePattern(args[0], symbol2atype(symbol), getType(subject), subject, btscopes, trueCont, falseCont, restore=restore);
     ///*syn*/if(label(str _, Symbol tp) := prod.def){     
     //    prod.def = tp; 
     //} 
