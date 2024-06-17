@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.39.7-BOOT3-SNAPSHOT</version>
+    <version>0.40.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.39.5-BOOT2</tag>
+        <tag>v0.40.0-BOOT1</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.26.3-BOOT1</rascal-maven.version>
+        <rascal-maven.version>0.27.1-BOOT3</rascal-maven.version>
     </properties>
 
 
@@ -293,9 +293,19 @@
                                     <resource>io/usethesource/vallang/type/types.config </resource>
                                 </transformer>
                             </transformers>
-                            <!--
-                                    http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html
-                                -->
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.fusesource.jansi</pattern>
+                                    <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
+                                    <excludes>
+                                        <exclude>org.fusesource.jansi.internal.*</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jline</pattern>
+                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
