@@ -70,8 +70,8 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
             style=defaultEdgeStyle()[\line-style="dashed"] // are dashed
         ),
         *[ cytoStyleOf(
-            selector=and([\edge(),equal("source", f),equal("target", t)]),
-            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]
+            selector=and([\edge(),equal("source", f),equal("target", t)]), // any transitive edge
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  // will be made 25% opaque 
         )
             | <f,t> <- transitiveEdges
         ]
