@@ -1166,14 +1166,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
-    public void doImport(IRascalMonitor monitor, String string) {
+    public void doImport(IRascalMonitor monitor, String... string) {
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
+            monitor.jobStart(LOADING_JOB_CONSTANT, string.length);
             ISourceLocation uri = URIUtil.rootLocation("import");
-            org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
+            for (String module : string) {
+                monitor.jobStep(LOADING_JOB_CONSTANT, "Starting on " + module);
+                org.rascalmpl.semantics.dynamic.Import.importModule(module, uri, this);
+            }
         }
         finally {
+            monitor.jobEnd(LOADING_JOB_CONSTANT, true);
             setMonitor(old);
             setCurrentAST(null);
         }
