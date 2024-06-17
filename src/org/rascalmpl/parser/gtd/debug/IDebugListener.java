@@ -16,6 +16,9 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
+import org.rascalmpl.parser.gtd.util.DoubleArrayList;
+import org.rascalmpl.parser.gtd.util.DoubleStack;
+import org.rascalmpl.parser.gtd.util.Stack;
 
 public interface IDebugListener<P>{
 	void shifting(int offset, int[] input, PositionStore positionStore);
@@ -47,4 +50,14 @@ public interface IDebugListener<P>{
 	void filteredByEnterFilter(AbstractStackNode<P> node);
 
 	void filteredByCompletionFilter(AbstractStackNode<P> node, AbstractNode result);
+
+	void reviving(int[] input,
+			int location,
+			Stack<AbstractStackNode<P>> unexpandableNodes,
+			Stack<AbstractStackNode<P>> unmatchableLeafNodes,
+			DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>,
+			AbstractStackNode<P>> unmatchableMidProductionNodes,
+			DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes);
+
+	void revived(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes);
 }

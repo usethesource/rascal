@@ -65,5 +65,5 @@ public abstract class AbstractMatchableStackNode<P> extends AbstractStackNode<P>
 	public final boolean isMatchable(){
 		return true;
 	}
-	
+
 }
