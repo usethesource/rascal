@@ -46,12 +46,12 @@ In general the translation behaves as follows:
    a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}
 * Go to ((JSONParser)) to find out how to use the optional `parsers` parameter.
 }
-java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[node] parser = (type[void] _, str _) { throw "default parser"; });
+java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[value] parser = (type[value] _, str _) { throw ""; });
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{parses JSON values from a string.
 In general the translation behaves as the same as for ((readJSON)).}
-java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[node] parser = (type[void] _, str _) { throw "default parser"; });
+java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[value] parser = (type[value] _, str _) { throw ""; });
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{writes `val` to the location `target`}
