@@ -33,11 +33,34 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	private static final int[] WHITESPACE = {' ', '\r', '\n', '\t' };
 	
 	private IdDispenser stackNodeIdDispenser;
-	
+
+	public ToNextWhitespaceRecoverer(IdDispenser stackNodeIdDispenser) {
+		this.stackNodeIdDispenser = stackNodeIdDispenser;
+	}
+
+	@Override
+	public DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveStacks(int[] input,
+			int location,
+			Stack<AbstractStackNode<IConstructor>> unexpandableNodes,
+			Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
+			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
+			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
+
+		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<AbstractStackNode<IConstructor>>();
+		collectUnexpandableNodes(unexpandableNodes, failedNodes);
+		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
+		//collectFilteredNodes(filteredNodes, failedNodes);
+
+		return reviveFailedNodes(input, location, failedNodes);
+	}
+
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>();
 		
-		for (int i = recoveryNodes.size() - 1; i >= 0; --i) {
+		// <PO> original: for (int i = recoveryNodes.size() - 1; i >= 0; --i) {
+		// But this caused problems because recovery nodes with a later position
+		// where queued before nodes with an earlier position which the parser cannot handle.
+		for (int i = 0; i<recoveryNodes.size()-1; i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
 			
@@ -82,6 +105,11 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		}
 	}
 	
+	/**
+	 * @param location the location where the failure occurs
+	 * @param unmatchableMidProductionNodes each pair consists of a list of predecessors and a node that failed to match
+	 * @param failedNodes the list to which new failed nodes must be added
+	 */
 	private static void collectUnmatchableMidProductionNodes(int location, DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes, ArrayList<AbstractStackNode<IConstructor>> failedNodes){
 		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
 			DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
@@ -119,7 +147,7 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 			ArrayList<IConstructor> recoveryProductions = new ArrayList<IConstructor>();
 			collectProductions(node, recoveryProductions);
 			if (recoveryProductions.size() > 0) {
-			    recoveryNodes.add(node, recoveryProductions);
+				recoveryNodes.add(node, recoveryProductions);
 			}
 			
 			IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
@@ -176,22 +204,5 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	    }
 	}
 
-	public ToNextWhitespaceRecoverer(IdDispenser stackNodeIdDispenser) {
-		this.stackNodeIdDispenser = stackNodeIdDispenser;
-	}
 	
-	@Override
-	public DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveStacks(int[] input,
-			int location,
-			Stack<AbstractStackNode<IConstructor>> unexpandableNodes,
-			Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
-			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
-			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
-		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<AbstractStackNode<IConstructor>>();
-		collectUnexpandableNodes(unexpandableNodes, failedNodes);
-		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
-		//collectFilteredNodes(filteredNodes, failedNodes);
-		
-		return reviveFailedNodes(input, location, failedNodes);
-	}
 }

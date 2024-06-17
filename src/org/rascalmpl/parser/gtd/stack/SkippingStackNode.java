@@ -76,7 +76,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
-	public String toString(){
+	/*Original: public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(getId());
 		sb.append('(');
@@ -84,12 +84,28 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		sb.append(')');
 		
 		return sb.toString();
-	}
+	}*/
 	
+	@Override
+	public String toString() {
+		return "SkippingStackNode[result=" + result + "," + super.toString() + "]";
+	}
+
+	@Override
 	public int hashCode(){
 		return getParentProduction().hashCode();
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean equals(Object rhs) {
+		if (rhs instanceof AbstractStackNode) {
+			return isEqual((AbstractStackNode<P>)rhs);
+		}
+
+		return false;
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if ( !(stackNode instanceof SkippingStackNode)) {
 		    return false;

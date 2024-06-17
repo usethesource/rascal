@@ -54,24 +54,53 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	
 	private URI inputURI;
 	private int[] input;
-	
+	private int location;
+	protected int lookAheadChar;
+
+	// A mapping between character location and line/column.
 	private final PositionStore positionStore;
 	
+	// Terminals that matched. Circular buffer indexed by length of the terminal. Each entry contains the node to reduce and the result node
+	// This is a circular buffer where queueIndex determines the start of the buffer.
+	// At each position, a stack is maintained of all terminals to reduce of a certain length.
+	// So at queueIndex+3, all terminals of length 3 that need reducing are stored.
 	private DoubleStack<AbstractStackNode<P>, AbstractNode>[] todoLists;
 	private int queueIndex;
 	
+	// Stack of non-terminal nodes to expand
+	// - Nodes are removed in expand, which pops and expands all stack nodes on this stack
+	// - Nodes are added in:
+	//   - parse: the root node is pushed
+	//   - updateNextNode: next node of the production is pushed
+	//   - updateAlternativeNextNode: next node of a prefix-shared production is pushed
+	//   - handleExpects: non-matchable first element of each alternative is pushed
+	//   - expandStack: when an expandable stack is expanded, all non-matchable children are pushed
 	private final Stack<AbstractStackNode<P>> stacksToExpand;
+
+	// The current stack of non-terminals to reduce. Each stack has a container node to accumulate results.
+	// - Nodes are removed in `reduce` where all productions are advanced one dot past the non-terminal node
+	// - Nodes are added in:
+	//   - handleEdgeList: result container node is created and all edges are pushed with the same result container node
+	//   - handleEdgeListWithRestrictions: result container node is created and all edges are pushed with the same result container node
+	//   - expandStack: non-matchable, non-expandable nodes (and their existing result container node) are added if their name can be found in `cachedEdgesForExpect`.
+	//   - expandStack: expandable nodes that are nullable? Might be a cycle thing
 	private final DoubleStack<AbstractStackNode<P>, AbstractContainerNode<P>> stacksWithNonTerminalsToReduce;
+
+	// The current stack of non-terminals to reduce: it contains the matchable node with the smallest length from todoLists.
+	// - Nodes are removed in `reduce` where all productions are advanced one dot past the matchable node
+	// - Variable is assigned in:
+	//   - findFirstStacksToReduce: the first non-empty `todoList` is assigned to this variable
+	//   - findStacksToReduce: again the first non-empty `todoList` is assigned to this variable
+	// - parse: variable is used in main reduce/expand loop to determine when it is time to look for more `stacksToReduce`.
 	private DoubleStack<AbstractStackNode<P>, AbstractNode> stacksWithTerminalsToReduce;
 	
 	private final HashMap<String, EdgesSet<P>> cachedEdgesForExpect;
 	
 	private final IntegerKeyedDoubleValueHashMap<AbstractStackNode<P>, DoubleArrayList<AbstractStackNode<P>, AbstractNode>> sharedNextNodes;
 	
-	private int location;
 	
-	protected int lookAheadChar;
-	
+	// Reflection is used to get the expects for each non-terminal.
+	// This cache is used so the reflection call is only needed once.
 	private final HashMap<String, AbstractStackNode<P>[]> expectCache;
 	
 	private final IntegerObjectList<AbstractStackNode<P>> sharedLastExpects;
@@ -81,7 +110,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	
 	// Error reporting
 	private final Stack<AbstractStackNode<P>> unexpandableNodes;
-	private final Stack<AbstractStackNode<P>> unmatchableLeafNodes;
+	private final Stack<AbstractStackNode<P>> unmatchableLeafNodes; // Leaf nodes (for instance literals) that failed to match
 	private final DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>> unmatchableMidProductionNodes;
 	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
 	
@@ -791,7 +820,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 		
 		if (recoverer != null) {
+			if (debugListener != null) {
+				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			}
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			if (debugListener != null) {
+				debugListener.revived(recoveredNodes);
+			}
 			if (recoveredNodes.size() > 0) { // TODO Do something with the revived node. Is this the right location to do this?
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
@@ -825,10 +860,16 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 		
 		if (recoverer != null && location < input.length) {
+			if (debugListener != null) {
+				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			}
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
+			debugListener.revived(recoveredNodes);
 			if (recoveredNodes.size() > 0) {
+
+				// <PO>for (int i = recoveredNodes.size()-1; i>= 0; i--) {
 				for (int i = 0; i < recoveredNodes.size(); i++) {
-					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
+						AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
 					
 //					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
 					
@@ -900,12 +941,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
             
             // reset the parser!
             queueIndex = 0;
-            location = startPosition + 1; 
+            location = startPosition + 1;
             
             DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex + 1];
             if (terminalsTodo == null){
                 terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
-                todoLists[queueIndex + 1] = terminalsTodo;
+                todoLists[queueIndex + 1] = terminalsTodo; // <PO> Why the +1 and not length? To get the recovered node to be processed first?
             }
             else {
                 assert false: "this should never happen";

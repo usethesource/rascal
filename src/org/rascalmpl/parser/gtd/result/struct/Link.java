@@ -35,4 +35,8 @@ public class Link{
 	public AbstractNode getNode(){
 		return node;
 	}
+
+	public String toString() {
+		return "Link[node=" + node + ", prefixes=" + (prefixes == null ? 0 : prefixes.size()) + "]";
+	}
 }

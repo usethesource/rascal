@@ -11,6 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
+import java.util.Arrays;
+
+import org.rascalmpl.unicode.UnicodeConverter;
+
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */
@@ -53,5 +57,10 @@ public class SkippedNode extends AbstractNode {
 
 	public int getLength() {
 		return skippedChars.length;
+	}
+
+	@Override
+	public String toString() {
+		return "SkippedNode[skippedChars=" + UnicodeConverter.unicodeArrayToString(skippedChars) + ",offset=" + offset + "]";
 	}
 }

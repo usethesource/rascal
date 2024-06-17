@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
+import java.util.Arrays;
+
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
@@ -20,6 +22,9 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.BitSet;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
 
 @SuppressWarnings({"unchecked", "cast"})
 public abstract class AbstractStackNode<P>{
@@ -28,8 +33,8 @@ public abstract class AbstractStackNode<P>{
 	
 	protected AbstractStackNode<P>[] production;
 	protected AbstractStackNode<P>[][] alternateProductions;
-	
-	protected IntegerObjectList<EdgesSet<P>> edgesMap;
+
+	protected IntegerObjectList<EdgesSet<P>> edgesMap; // <PO>: key=startLocation, value=EdgesSet a that location
 	protected ArrayList<Link>[] prefixesMap;
 	
 	protected EdgesSet<P> incomingEdges;
@@ -732,7 +737,69 @@ public abstract class AbstractStackNode<P>{
 		
 		return propagatedReductions;
 	}
-	
+
+	public String toShortString() {
+		return "id=" + id + ",dot=" + dot + ",start=" + startLocation;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append(id);
+		builder.append('.');
+		builder.append(dot);
+		builder.append('@');
+		builder.append(startLocation);
+		if (production != null) {
+			builder.append(",prod=[");
+			boolean first = true;
+			for (AbstractStackNode<P> prodElem : production) {
+				if (first) {
+					first = false;
+				} else {
+					builder.append(",");
+				}
+				builder.append(prodElem.getId());
+			}
+			builder.append("]");
+		}
+		if (isEndNode) {
+			builder.append(",endNode");
+		}
+		if (isSeparator) {
+			builder.append(",separator");
+		}
+		if (isLayout) {
+			builder.append(",layout");
+		}
+
+		if (alternateProductions != null && alternateProductions.length != 0) {
+			builder.append(",alternateProductions=" + Arrays.toString(alternateProductions));
+		}
+		if (edgesMap != null && edgesMap.size() != 0) {
+			builder.append(",edges=" + edgesMap);
+		}
+		if (prefixesMap != null && prefixesMap.length != 0) {
+			builder.append(",prefixes=" + Arrays.toString(prefixesMap));
+		}
+		if (incomingEdges != null && incomingEdges.size() != 0) {
+			builder.append(",incomingEdges=" + incomingEdges);
+		}
+		if (alternativeProduction != null) {
+			builder.append(",alternativeProduction=" + DebugUtil.prodToString((IConstructor)alternativeProduction));
+		}
+		if (propagatedPrefixes != null) {
+			builder.append(",propagatedPrefixes=" + propagatedPrefixes);
+		}
+		if (propagatedReductions != null) {
+			builder.append(",propagatedReductions=" + propagatedReductions);
+		}
+
+		// Do not print filters for now.
+
+		return builder.toString();
+	}
+
 	// Matchables.
 	/**
 	 * Matches the symbol associated with this node to the input at the specified location.
