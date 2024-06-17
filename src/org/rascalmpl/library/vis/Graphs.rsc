@@ -45,8 +45,8 @@ graph(d, \layout=defaultDagreLayout());
 graph(d, \layout=defaultDagreLayout(), nodeLabeler=str (loc l) { return l.file; });
 ```
 }
-Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle(), list[CytoStyleOf] styles=[]) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle, styles=styles)));
 
 @synopsis{A graph plot from a ternary list relation where the middle column is the edge label.}
 @examples{
@@ -55,8 +55,8 @@ import vis::Graphs;
 graph([<x,2*x+1,x+1> | x <- [1..100]] + [<100,101,1>])
 ```
 }
-Content graph(lrel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(lrel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle(), list[CytoStyleOf] styles=[]) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle, styles=styles)));
 
 @synopsis{A graph plot from a binary relation.}
 @examples{
@@ -65,8 +65,8 @@ import vis::Graphs;
 graph({<x,x+1> | x <- [1..100]} + {<100,1>})
 ```
 }
-Content graph(rel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(rel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle(), list[CytoStyleOf] styles=[]) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler, edgeLabeler=edgeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle, styles=styles)));
 
 @synopsis{A graph plot from a ternary relation where the middle column is the edge label.}
 @examples{
@@ -75,8 +75,8 @@ import vis::Graphs;
 graph({<x,2*x+1,x+1> | x <- [1..100]} + {<100,101,1>})
 ```
 }
-Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
-    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
+Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle(), list[CytoStyleOf] styles=[]) 
+    = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle, styles=styles)));
 
 alias NodeLinker[&T] = loc (&T _id1);
 loc defaultNodeLinker(/loc l) = l;
@@ -91,12 +91,13 @@ alias EdgeLabeler[&T]= str (&T _source, &T _target);
 str defaultEdgeLabeler(&T _source, &T _target)  = "";
 
 
-Cytoscape cytoscape(list[CytoData] \data, \CytoLayout \layout=\defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle())
+Cytoscape cytoscape(list[CytoData] \data, \CytoLayout \layout=\defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle(), list[CytoStyleOf] styles=[])
     = cytoscape(
         elements=\data,        
         style=[
             cytoNodeStyleOf(nodeStyle),
-            cytoEdgeStyleOf(edgeStyle)
+            cytoEdgeStyleOf(edgeStyle),
+            *styles
         ],
         \layout=\layout
     );
@@ -258,6 +259,7 @@ CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         visibility          = "visible", /* hidden, collapse */
         width               = 3,
+        \line-style          = "solid", /* dotted, dashed */
         \color              = "red",
         \line-color         = "black",
         \target-arrow-color = "black",
@@ -300,6 +302,7 @@ data CytoStyle
         str visibility          = "visible", /* hidden, collapse */
         int width               = 3,
         str \line-color         = "black",
+        str \line-style         = "solid", /* dotted, dashed */
         str color               = "red",
         str \target-arrow-color = "black",
         str \source-arrow-color = "black",
@@ -336,7 +339,7 @@ data CytoSelector
 @synopsis{Serialize a ((CytoSelector)) to string for client side expression.}
 str formatCytoSelector(\node()) = "node";
 str formatCytoSelector(\edge()) = "edge";
-str formatCytoSelector(\id(str i)) = "\"<i>\"";
+str formatCytoSelector(\id(str i)) = formatCytoSelector(equal("id", i));
 str formatCytoSelector(and(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)><}>";
 str formatCytoSelector(or(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)>,<}>"[..-1];
 str formatCytoSelector(equal(str field, str val)) = "[<field> = \"<val>\"]";

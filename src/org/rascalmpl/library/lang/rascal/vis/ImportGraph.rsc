@@ -50,6 +50,21 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
       + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
 
+    styles = [
+        cytoStyleOf(
+            selector=or([
+                and([\node(), id("_")]), // the top node
+                and([\node(), id("x")]), // the bottom node
+                and([\edge(), equal("source", "_")]), // edges from the top node
+                and([\edge(), equal("target", "x")])]), // edges to the bottom node
+            style=defaultNodeStyle()[visibility="hidden"] // hide it all
+        ),
+        cytoStyleOf(
+            selector=or([
+                and([\edge(), equal("label", "E")])]), // extend edges
+            style=defaultEdgeStyle()[\line-style="dashed"] // are dashed
+        )
+    ];
     loc modLinker(str name) {
         if (loc x <- m.files[name])
             return x;
@@ -59,7 +74,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     default loc modLinker(value _) = |nothing:///|;
 
-    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker), title="Rascal Import/Extend Graph");
+    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker, styles=styles), title="Rascal Import/Extend Graph");
 }
 
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
