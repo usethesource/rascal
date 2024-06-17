@@ -755,20 +755,20 @@ private set[str] introducedVars(Pattern e, Collector c){
     vars = {};
     top-down-break visit(e){
         case (Pattern) `<QualifiedName qualifiedName>`: {
-             nm = "<qualifiedName>";
+             nm = prettyPrintName(qualifiedName);
              if(nm[0] != "_" && !c.isAlreadyDefined(nm, qualifiedName)) vars += nm;
         }
         case (Pattern) `<Type _> <Name name>` : { 
-             nm = "<name>"; 
+             nm = prettyPrintName(name); 
              if(nm[0] != "_") vars += nm;
         }
         case (Pattern) `<Name name> : <Pattern pattern>`: {
-             nm = "<name>"; 
+             nm = prettyPrintName(name); 
              if(nm[0] != "_" && !c.isAlreadyDefined(nm, name)) vars += nm;
              vars += introducedVars(pattern, c);
         }
         case (Pattern) `<Type _> <Name name> : <Pattern pattern>`: {
-             nm = "<name>"; 
+             nm = prettyPrintName(name); 
              if(nm[0] != "_") vars += nm;
              vars += introducedVars(pattern, c);
         }

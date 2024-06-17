@@ -1176,10 +1176,10 @@ MuExp translateBool((Expression) `<QualifiedName v>`, BTSCOPES btscopes, MuExp t
     translateBool(v, btscopes, trueCont, falseCont);
  
 MuExp translate((QualifiedName) `<QualifiedName v>`) =
-    mkVar("<v>", v@\loc);
+    mkVar(prettyPrintName(v), v@\loc);
 
 MuExp translateBool((QualifiedName) `<QualifiedName v>`, BTSCOPES _btscopes, MuExp trueCont, MuExp falseCont) =
-    muIfExp(mkVar("<v>", v@\loc), trueCont, falseCont);
+    muIfExp(mkVar(prettyPrintName(v), v@\loc), trueCont, falseCont);
 
 // For the benefit of names in regular expressions
 

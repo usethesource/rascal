@@ -130,7 +130,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.fact(current, avalue(alabel=unescape(prettyPrintBaseName(name))));  
           c.define(base, formalId(), name, defLub([], AType(Solver _) { return avalue(alabel=unescape(prettyPrintBaseName(name))); }));
        } else {
-          if(c.isAlreadyDefined("<name>", name)){
+          if(c.isAlreadyDefined(base, name)){
             c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId()});
             c.report(info(name, "Pattern variable %q has been declared outside pattern and its value will be used, add explicit declaration here if you want a new variable", name));
           } else {
