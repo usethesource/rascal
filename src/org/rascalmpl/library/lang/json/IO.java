@@ -107,6 +107,11 @@ public class IO {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
+	  if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+		// ignore the default parser
+		parsers = null;
+	  }
+	  
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
 		in.setLenient(lenient.getValue());
         return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
@@ -127,7 +132,7 @@ public class IO {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 	      
-		  if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isBottom()) {
+		  if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
 			// ignore the default parser
 			parsers = null;
 		  }
