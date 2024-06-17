@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -112,6 +113,11 @@ public class JsonValueReader {
   }
 
   public JsonValueReader setParsers(IFunction parsers) {
+    if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+			// ignore the default parser
+			parsers = null;
+    }
+
     this.parsers = parsers;
     return this;
   }

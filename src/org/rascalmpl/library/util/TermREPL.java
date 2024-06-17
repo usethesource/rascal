@@ -238,9 +238,11 @@ public class TermREPL {
 
             IValue dtf = kws.getParameter("dateTimeFormat");
             IValue dai = kws.getParameter("dateTimeAsInt");
+            IValue formatters = kws.getParameter("formatter");
             
             JsonValueWriter writer = new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                .setFormatters((IFunction) formatters)
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -2,6 +2,7 @@
 @synopsis{Content provides access to the content server of the Rascal terminal for viewing interactive HTML output.}
 module Content
 
+import lang::json::IO;
 
 @synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
 on the terminal ((RascalShell)).}
@@ -80,7 +81,7 @@ which involves a handy, automatic, encoding of Rascal values into json values.
 data Response 
   = response(Status status, str mimeType, map[str,str] header, str content)
   | fileResponse(loc file, str mimeType, map[str,str] header)
-  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+  | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; })
   ;
   
 
