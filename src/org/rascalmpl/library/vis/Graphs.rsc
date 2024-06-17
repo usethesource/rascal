@@ -311,10 +311,39 @@ data CytoStyle
     )
     ;
     
+@synopsis{A combinator language that translates down to strings in JSON}
+@description{
+* For field names you can use the names, or the dot notation for array indices and fields of objects: `"labels.0"`, `"name.first"`.
+* `and` and `or` can not be nested; this will lead to failure to select anything at all. The or must be outside and the and must be inside.
+* `node()` selects all nodes
+* `edge()` selects all edges
+}    
 data CytoSelector
     = \node()
     | \edge()
-    ; 
+    | \id(str id)
+    | \and(list[CytoSelector] conjuncts)
+    | \or(list[CytoSelector] disjuncts)
+    | \equal(str field, str \value)
+    | \equal(str field, int limit)
+    | \greater(str field, int limit)
+    | \less(str field, int limit)
+    | \greaterEqual(str field, int limit)
+    | \lessEqual(str field, int limit) 
+    ;
+
+@synopsis{Serialize a ((CytoSelector)) to string for client side expression.}
+str formatCytoSelector(\node()) = "node";
+str formatCytoSelector(\edge()) = "edge";
+str formatCytoSelector(\id(str i)) = "\"<i>\"";
+str formatCytoSelector(and(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)><}>";
+str formatCytoSelector(or(list[CytoSelector] cjs)) = "<for (cj <- cjs) {><formatCytoSelector(cj)>,<}>"[..-1];
+str formatCytoSelector(equal(str field, str val)) = "[<field> = \"<val>\"]";
+str formatCytoSelector(equal(str field, int lim)) = "[<field> = <lim>]";
+str formatCytoSelector(greater(str field, int lim)) = "[<field> \> <lim>]";
+str formatCytoSelector(greaterEqual(str field, int lim)) = "[<field> \>= <lim>]";
+str formatCytoSelector(lessEqual(str field, int lim)) = "[<field> \<= <lim>]";
+str formatCytoSelector(less(str field, int lim)) = "[<field> \< <lim>]";
 
 data CytoLayoutName
     = grid()
@@ -422,7 +451,7 @@ Response (Request) graphServer(Cytoscape ch) {
     }
 
     Response reply(get(/^\/cytoscape/)) {
-        return response(ch);
+        return response(ch, formatter=formatCytoSelector);
     }
 
     // returns the main page that also contains the callbacks for retrieving data and configuration
