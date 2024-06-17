@@ -63,16 +63,18 @@ public class ParserGenerator {
 		this.bridge = new JavaBridge(loaders, factory, config);
 		this.vf = factory;
 		
-		evaluator.doImport(monitor, "lang::rascal::grammar::ParserGenerator");
-		evaluator.doImport(monitor, "lang::rascal::grammar::ConcreteSyntax");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Modules");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Priorities");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Regular");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Keywords");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
-		evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-		evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
+		evaluator.doImport(monitor, 
+	"lang::rascal::grammar::ParserGenerator",
+			"lang::rascal::grammar::ConcreteSyntax",
+			"lang::rascal::grammar::definition::Modules",
+			"lang::rascal::grammar::definition::Priorities", 
+			"lang::rascal::grammar::definition::Regular", 
+			"lang::rascal::grammar::definition::Keywords",
+			"lang::rascal::grammar::definition::Literals",
+			"lang::rascal::grammar::definition::Parameters",
+			"lang::rascal::grammar::definition::Symbols",
+			"analysis::grammars::Ambiguity"
+		);
 	}
 	
 	public void setGeneratorProfiling(boolean f) {
