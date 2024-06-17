@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -27,14 +28,18 @@ import java.util.Map;
 import java.util.Set;
 
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
+
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
@@ -52,19 +57,20 @@ import com.google.gson.stream.JsonToken;
 public class JsonValueReader {
   private static final TypeFactory TF = TypeFactory.getInstance();
   private final TypeStore store;
-  private final IValueFactory vf;
+  private final IRascalValueFactory vf;
   private ThreadLocal<SimpleDateFormat> format;
   private final IRascalMonitor monitor;
   private ISourceLocation src;
   private VarHandle posHandler;
   private VarHandle lineHandler;
   private VarHandle lineStartHandler;
+  private IFunction parsers;
   
   /**
    * @param vf     factory which will be used to construct values
    * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
    */
-  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor, ISourceLocation src) {
+  public JsonValueReader(IRascalValueFactory vf, TypeStore store, IRascalMonitor monitor, ISourceLocation src) {
     this.vf = vf;
     this.store = store;
     this.monitor = monitor;
@@ -87,7 +93,7 @@ public class JsonValueReader {
     }
   }
   
-  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
+  public JsonValueReader(IRascalValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
     this(vf, new TypeStore(), monitor, src);
   }
   
@@ -102,6 +108,11 @@ public class JsonValueReader {
         return new SimpleDateFormat(format);
       }
     };
+    return this;
+  }
+
+  public JsonValueReader setParsers(IFunction parsers) {
+    this.parsers = parsers;
     return this;
   }
 
@@ -481,8 +492,27 @@ public class JsonValueReader {
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
         if (in.peek() == JsonToken.STRING) {
+          var stringInput = in.nextString();
+
+          // might be a parsable string. let's see.
+          if (parsers != null) {
+            var symbol = new org.rascalmpl.types.TypeReifier(vf).typeToValue(type, new TypeStore(), vf.map()); 
+            var reified = vf.reifiedType(symbol, vf.map());
+            try {
+               return parsers.call(Collections.emptyMap(), reified, vf.string(stringInput));
+            }
+            catch (Throw t) { 
+              Type excType = t.getException().getType();
+
+              if (excType.isAbstractData() && ((IConstructor) t.getException()).getConstructorType().getName().equals("ParseError")) {
+                  throw new IOException(t); // an actual parse error is meaningful to report
+              }
+              // otherwise we fall through to enum recognition
+            }
+          }
+
           // enum!
-          Set<Type> enumCons = store.lookupConstructor(type, in.nextString());
+          Set<Type> enumCons = store.lookupConstructor(type, stringInput);
 
           for (Type candidate : enumCons) {
             if (candidate.getArity() == 0) {
