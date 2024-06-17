@@ -1167,6 +1167,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     public void doImport(IRascalMonitor monitor, String... string) {
+        assert monitor != null;
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
