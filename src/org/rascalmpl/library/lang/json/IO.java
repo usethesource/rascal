@@ -131,11 +131,7 @@ public class IO {
 	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-	      
-		  if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
-			// ignore the default parser
-			parsers = null;
-		  }
+
 
 	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
 			in.setLenient(lenient.getValue());
@@ -153,12 +149,6 @@ public class IO {
 	    }
 	
 	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter) {
-		if (formatter.getType().getFieldType(0).isTop()) {
-			// ignore default function
-			formatter = null;
-		}
-
-
 	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
 	        if (indent.intValue() > 0) {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
@@ -178,11 +168,6 @@ public class IO {
 	
 	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter) {
 	    StringWriter string = new StringWriter();
-
-		if (formatter.getType().getFieldType(0).isTop()) {
-			// ignore default function
-			formatter = null;
-		}
 
 	    try (JsonWriter out = new JsonWriter(string)) {
 	        if (indent.intValue() > 0) {

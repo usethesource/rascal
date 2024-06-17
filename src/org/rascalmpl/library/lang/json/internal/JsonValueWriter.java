@@ -83,6 +83,11 @@ public class JsonValueWriter {
   }
 
   public JsonValueWriter setFormatters(IFunction formatters) {
+    if (formatters.getType().getFieldType(0).isTop()) {
+			// ignore default function
+			formatters = null;
+		}
+
     this.formatters = formatters;
     return this;
   } 
