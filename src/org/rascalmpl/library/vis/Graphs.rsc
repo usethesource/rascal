@@ -230,20 +230,18 @@ data CytoCurveStyle
     ;
 
 data CytoStyleOf
-    = cytoNodeStyleOf(
+    = cytoStyleOf(
         CytoSelector selector = \node(),
         CytoStyle style = cytoNodeStyle()
     )
-    | cytoEdgeStyleOf(
-        CytoSelector selector = \edge(),
-        CytoStyle style = cytoEdgeStyle()
-    );
+    ;
 
-CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoNodeStyleOf(selector=\node(), style=style);
-CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoEdgeStyleOf(selector=\edge(), style=style);
+CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoStyleOf(selector=\node(), style=style);
+CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoStyleOf(selector=\edge(), style=style);
 
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
+        visibility        = "visible", /* hidden, collapse */
         width             = "label",
         padding           = "10pt",
         \background-color = "blue",
@@ -258,6 +256,7 @@ CytoStyle defaultNodeStyle()
 
 CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
+        visibility          = "visible", /* hidden, collapse */
         width               = 3,
         \color              = "red",
         \line-color         = "black",
@@ -278,6 +277,7 @@ data CytoFontWeight
 
 data CytoStyle
     = cytoNodeStyle(
+        str visibility          = "visible", /* hidden, collapse */
         str width               = "label",
         str padding             = "10pt",
         str color               = "white",
@@ -297,6 +297,7 @@ data CytoStyle
         int \line-height        = 1
     )
     | cytoEdgeStyle(
+        str visibility          = "visible", /* hidden, collapse */
         int width               = 3,
         str \line-color         = "black",
         str color               = "red",
