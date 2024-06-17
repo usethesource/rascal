@@ -243,7 +243,7 @@ public class Eval {
 				eval.addRascalSearchPath((ISourceLocation) path);
 			}
 
-			ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibs(), ShellEvaluatorFactory.class.getClassLoader());
+			ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
 			eval.addClassLoader(cl);
 		}
 

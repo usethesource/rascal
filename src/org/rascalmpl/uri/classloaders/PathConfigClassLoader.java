@@ -21,6 +21,6 @@ import org.rascalmpl.library.util.PathConfig;
  */
 public class PathConfigClassLoader extends SourceLocationClassLoader {
     public PathConfigClassLoader(PathConfig pcfg, ClassLoader parent) {
-        super(pcfg.getLibs(), parent);
+        super(pcfg.getLibsAndTarget(), parent);
     }
 }
