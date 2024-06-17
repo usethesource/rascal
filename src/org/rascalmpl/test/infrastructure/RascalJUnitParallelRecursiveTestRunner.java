@@ -247,7 +247,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                         evaluator.jobTodo(jn, 1);
                        
                         try {
-                            evaluator.doImport(new NullRascalMonitor(), module);
+                            evaluator.doImport(evaluator.getMonitor(), module);
                         }
                         catch (Throwable e) {
                             synchronized(stdout) {

@@ -220,7 +220,7 @@ public class RascalJUnitTestRunner extends Runner {
                     evaluator.jobStep(jobName, "Preparing " + name);
 
                     try {
-                        evaluator.doImport(new NullRascalMonitor(), name);
+                        evaluator.doImport(evaluator.getMonitor(), name);
                         List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                     
                         if (tests.isEmpty()) {
