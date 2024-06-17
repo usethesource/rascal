@@ -171,4 +171,19 @@ public class DoubleStack<E, F>{
 	public void dirtyClear(){
 		size = 0;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("stack[");
+		for (int i=0; i<size; i++) {
+			builder.append("\n    ");
+			builder.append("<");
+			builder.append(firstData[0]);
+			builder.append(",");
+			builder.append(secondData[1]);
+			builder.append(">");
+		}
+		builder.append("]\n");
+		return builder.toString();
+	}
 }

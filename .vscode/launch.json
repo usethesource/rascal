@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "Simple2",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.test.parser.Simple2",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "Launch DocRunner",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.DocRunner",
@@ -38,7 +45,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "cwd" : "${workspaceFolder}/../rascal-tutor",
+            "cwd": "${workspaceFolder}/../rascal-tutor",
             "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {

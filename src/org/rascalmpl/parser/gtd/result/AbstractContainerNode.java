@@ -15,6 +15,9 @@ import java.net.URI;
 
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
 
 /**
  * All nodes in the resulting tree that can contain other nodes are a subtype
@@ -146,5 +149,38 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 	 */
 	public ArrayList<Link> getAdditionalAlternatives(){
 		return alternatives;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("offset=" + offset);
+		builder.append(",endOffset=" + endOffset);
+		if (isNullable) {
+			builder.append(",nullable");
+		}
+		if (isSeparator) {
+			builder.append(",separator");
+		}
+		if (isLayout) {
+			builder.append(",layout");
+		}
+		if (firstAlternative != null) {
+			builder.append(",alternatives=[");
+			builder.append(firstAlternative);
+			builder.append(":");
+			builder.append(DebugUtil.prodToString((IConstructor) firstProduction));
+
+			if (alternatives != null) {
+				for (int i=0; i<alternatives.size(); i++) {
+					builder.append(",");
+					builder.append(alternatives.get(i));
+					builder.append(":");
+					builder.append(DebugUtil.prodToString((IConstructor) productions.get(i)));
+				}
+			}
+			builder.append("]");
+		}
+		return builder.toString();
 	}
 }

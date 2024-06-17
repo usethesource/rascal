@@ -15,6 +15,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.unicode.UnicodeConverter;
 
 public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[] literal;
@@ -78,15 +79,13 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		for (int i : literal) {
-			sb.appendCodePoint(i);
-		}
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
+		StringBuilder sb = new StringBuilder("lit['");
+		sb.append(UnicodeConverter.unicodeArrayToString(literal));
+		sb.append("',");
+		sb.append(super.toString());
 		
+		sb.append(']');
+
 		return sb.toString();
 	}
 	

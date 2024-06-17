@@ -102,4 +102,20 @@ public class DoubleArrayList<F, S>{
 	public int size(){
 		return size;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder("list[");
+		for (int i=0; i<size; i++) {
+			builder.append("\n    ");
+			builder.append("<");
+			builder.append(first[0]);
+			builder.append(",");
+			builder.append(second[1]);
+			builder.append(">");
+		}
+		builder.append("]\n");
+		return builder.toString();
+	}
+
 }

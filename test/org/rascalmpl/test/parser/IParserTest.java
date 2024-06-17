@@ -38,7 +38,7 @@ public interface IParserTest{
 
 		expectArray[index-1].setAlternativeProduction(prod);
 
-		return expectArray;
+		return (AbstractStackNode<IConstructor>[]) new AbstractStackNode[]{expectArray[0]};
 	}
 	
 	ITree executeParser();
