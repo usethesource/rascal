@@ -16,6 +16,7 @@ import java.util.function.Function;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import com.google.gson.stream.JsonWriter;
 
@@ -135,9 +136,11 @@ public class REPLContentServer extends NanoHTTPD {
 
         IValue dtf = kws.getParameter("dateTimeFormat");
         IValue dai = kws.getParameter("dateTimeAsInt");
+        IValue formatters = kws.getParameter("formatter");
 
         JsonValueWriter writer = new JsonValueWriter()
             .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+            .setFormatters((IFunction) formatters)
             .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
 
         try {
