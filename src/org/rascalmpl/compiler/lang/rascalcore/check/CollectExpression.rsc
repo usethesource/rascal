@@ -760,6 +760,8 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
 // The interpreter does not handle this well, so revisit this later
 
 // TODO: maybe check that all upperbounds of type parameters are identical?
+//   JV: upperbounds need to be glb'ed. If two upperbounds must be made true, then the nearest solution is their 
+//       greatest lowerbound. In practise this means they are indeed identitical 9 out 10 cases.
 
 private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, bool isVarArgs, list[Expression] actuals, keywordArguments, list[bool] identicalFormals, Solver s){
     nactuals = size(actuals); nformals = size(formals);
@@ -815,6 +817,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     retTypeU = makeUniqueTypeParams(retType, fsuffix);
     formalTypesU = makeUniqueTypeParams(formalTypes, fsuffix);
     actualTypesU = makeUniqueTypeParams(actualTypes, asuffix);
+    // TODO: (JV) the initial bindings should be &T => avoid() for all type parameters
     try   bindings = matchRascalTypeParams(formalTypesU, actualTypesU, bindings);
     catch invalidMatch(str reason):
           s.report(error(/*i < size(actuals)  ? actuals[i] :*/ current, reason));
