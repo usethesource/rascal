@@ -14,12 +14,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +49,6 @@ import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -227,7 +224,7 @@ public class Eval {
 
 			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 			eval.setMonitor(services);        
-			eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
+			eval.getConfiguration().setRascalJavaClassPathProperty(PathConfig.resolveCurrentRascalRuntimeJar().getPath());
 			eval.setMonitor(services);
 
 			if (!pcfg.getSrcs().isEmpty()) {
@@ -246,7 +243,7 @@ public class Eval {
 				eval.addRascalSearchPath((ISourceLocation) path);
 			}
 
-			ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+			ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibs(), ShellEvaluatorFactory.class.getClassLoader());
 			eval.addClassLoader(cl);
 		}
 
