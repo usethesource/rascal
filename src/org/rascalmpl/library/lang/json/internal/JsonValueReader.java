@@ -496,8 +496,8 @@ public class JsonValueReader {
 
           // might be a parsable string. let's see.
           if (parsers != null) {
-            var symbol = new org.rascalmpl.types.TypeReifier(vf).typeToValue(type, new TypeStore(), vf.map()); 
-            var reified = vf.reifiedType(symbol, vf.map());
+            var reified = new org.rascalmpl.types.TypeReifier(vf).typeToValue(type, new TypeStore(), vf.map()); 
+            
             try {
                return parsers.call(Collections.emptyMap(), reified, vf.string(stringInput));
             }
@@ -520,7 +520,12 @@ public class JsonValueReader {
             }
           }
           
-          throw new IOException("no nullary constructor found for " + type);
+          if (parsers != null) {
+            throw new IOException("parser failed to recognize \"" + stringInput + "\" and no nullary constructor found for " + type + "either");
+          }
+          else {
+            throw new IOException("no nullary constructor found for " + type);
+          }
         }
 
         assert in.peek() == JsonToken.BEGIN_OBJECT;
