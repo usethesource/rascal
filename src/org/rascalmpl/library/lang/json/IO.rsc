@@ -35,32 +35,37 @@ public java &T fromJSON(type[&T] typ, str src);
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{reads JSON values from a stream
 In general the translation behaves as follows:
- * Objects translate to map[str,value] by default, unless a node is expected (properties are then translated to keyword fields)
- * Arrays translate to lists by default, or to a set if that is expected or a tuple if that is expected. Arrays may also be interpreted as constructors or nodes (see below)
- * Booleans translate to bools
- * If the expected type provided is a datetime then an int instant is mapped and if a string is found then the dateTimeFormat parameter will be used to configure the parsing of a date-time string
- * If the expected type provided is an ADT then this reader will try to "parse" each object as a constructor for that ADT. It helps if there is only one constructor for that ADT. Positional parameters will be mapped by name as well as keyword parameters.
- * If the expected type provided is a node then it will construct a node named "object" and map the fields to keyword fields.
- * If num, int, real or rat are expected both strings and number values are mapped
- * If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
-   a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}}
-java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
+* Objects translate to map[str,value] by default, unless a node is expected (properties are then translated to keyword fields)
+* Arrays translate to lists by default, or to a set if that is expected or a tuple if that is expected. Arrays may also be interpreted as constructors or nodes (see below)
+* Booleans translate to bools
+* If the expected type provided is a datetime then an int instant is mapped and if a string is found then the dateTimeFormat parameter will be used to configure the parsing of a date-time string
+* If the expected type provided is an ADT then this reader will try to "parse" each object as a constructor for that ADT. It helps if there is only one constructor for that ADT. Positional parameters will be mapped by name as well as keyword parameters.
+* If the expected type provided is a node then it will construct a node named "object" and map the fields to keyword fields.
+* If num, int, real or rat are expected both strings and number values are mapped
+* If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
+   a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}
+* Go to ((JSONParser)) to find out how to use the optional `parsers` parameter.
+}
+java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[node] parser = (type[void] _, str _) { throw "default parser"; });
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{parses JSON values from a string
+@synopsis{parses JSON values from a string.
 In general the translation behaves as the same as for ((readJSON)).}
-java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
+java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[node] parser = (type[void] _, str _) { throw "default parser"; });
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{writes `val` to the location `target`}
 @description{
-  If `dateTimeAsInt` is set to `true`, the dateTime values are converted to an int that represents the number of milliseconds from 1970-01-01T00:00Z.
-  If `indent` is set to a number greater than 0, the JSON file will be formatted with `indent` number of spaces as indentation.
+* If `dateTimeAsInt` is set to `true`, the dateTime values are converted to an int that represents the number of milliseconds from 1970-01-01T00:00Z.
+* If `indent` is set to a number greater than 0, the JSON file will be formatted with `indent` number of spaces as indentation.
+* Check out ((JSONFormatter)) on how to use the `formatters` parameter
+
 }
-java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true, set[JSONFormatter[value]] formatters = {});
+java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; });
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, set[JSONFormatter[value]] formatters = {});
+@synopsis{Does what ((writeJSON)) does but serializes to a string instead of a location target.}
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; });
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{
@@ -82,4 +87,12 @@ The resulting data constructor is put into the resulting value instead of a norm
 The goal of JSONParser and its dual JSONFormatter is to bridge the gap between string-based JSON encodings and typical
 Rascal algebraic combinators.
 }
-alias JSONParser[&T] = &T (str);
+@benefits{
+* Use parsers to create more structure than JSON provides.
+}
+@pitfalls{
+* The `type[&T]` argument is called dynamically by the JSON reader; it does not contain the
+grammar. It does encode the expected type of the parse result.
+* The expected types can only be `data` types, not syntax types. 
+}
+alias JSONParser[&T] = &T (type[&T], str);
