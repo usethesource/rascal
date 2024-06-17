@@ -26,6 +26,7 @@ import util::FileSystem;
 import util::IDEServices;
 import IO;
 import analysis::graphs::Graph;
+import Set;
 
 @synopsis{If `projectName` is an open project in the current IDE, the visualize its import/extend graph.}
 void importGraph(str projectName, bool hideExternals=true) {
@@ -44,14 +45,15 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     m = getProjectModel(pcfg.srcs);
     
     // let's start with a simple graph and elaborate on details in later versions
-    g = { <from, "I", to> | <from, to> <- m.imports, hideExternals ==> to notin m.external}
-      + { <from, "E", to> | <from, to> <- m.extends, hideExternals ==> to notin m.external}
+    g = { <from, "I", to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external}
+      + { <from, "E", to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external}
       + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
       + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
 
-    nonTransitiveEdges = transitiveReduction(g<0,2>);
-    transitiveEdges = g<0,2> - nonTransitiveEdges;
+    nonTransitiveEdges = transitiveReduction(m.imports + m.extends);
+    cyclicNodes = { x | <x,x> <- (m.imports + m.extends)+};
+    transitiveEdges = {<x,y> | <x,y> <- (m.imports + m.extends), <x,y> notin nonTransitiveEdges, x notin cyclicNodes, y notin cyclicNodes};
     
     styles = [
         cytoStyleOf(
@@ -69,7 +71,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
         ),
         *[ cytoStyleOf(
             selector=and([\edge(),equal("source", f),equal("target", t)]),
-            style=defaultEdgeStyle()[opacity="50%"][\line-opacity="0.25"]
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]
         )
             | <f,t> <- transitiveEdges
         ]
