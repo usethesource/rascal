@@ -289,6 +289,10 @@ public class PathConfig {
 	public IList getLibs() {
         return vf.list(libs.toArray(new IValue[0]));
     }
+
+    public IList getLibsAndTarget() {
+        return getLibs().append(getBin());
+    }
 	
 	public PathConfig addLibLoc(ISourceLocation dir) throws IOException {
 		List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
