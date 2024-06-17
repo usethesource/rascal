@@ -1,7 +1,6 @@
 package org.rascalmpl.shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
@@ -68,23 +67,18 @@ public class ShellEvaluatorFactory {
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 
-        try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER);
+        PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER);
 
-            for (IValue path : pcfg.getSrcs()) {
-                evaluator.addRascalSearchPath((ISourceLocation) path); 
-            }
-
-            for (IValue path : pcfg.getLibs()) {
-                evaluator.addRascalSearchPath((ISourceLocation) path);
-            }
-
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-            evaluator.addClassLoader(cl);
+        for (IValue path : pcfg.getSrcs()) {
+            evaluator.addRascalSearchPath((ISourceLocation) path); 
         }
-        catch (IOException e) {
-            System.err.println(e);
+
+        for (IValue path : pcfg.getLibs()) {
+            evaluator.addRascalSearchPath((ISourceLocation) path);
         }
+
+        ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibs(), ShellEvaluatorFactory.class.getClassLoader());
+        evaluator.addClassLoader(cl);    
     }
 
     /**

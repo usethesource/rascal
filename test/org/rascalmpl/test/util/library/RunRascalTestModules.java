@@ -1,4 +1,4 @@
-package org.rascalmpl.test.library;
+package org.rascalmpl.test.util.library;
 
 import org.junit.runner.RunWith;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;
