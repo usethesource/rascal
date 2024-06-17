@@ -50,6 +50,9 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
       + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
 
+    nonTransitiveEdges = transitiveReduction(g<0,2>);
+    transitiveEdges = g<0,2> - nonTransitiveEdges;
+    
     styles = [
         cytoStyleOf(
             selector=or([
@@ -63,7 +66,13 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
             selector=or([
                 and([\edge(), equal("label", "E")])]), // extend edges
             style=defaultEdgeStyle()[\line-style="dashed"] // are dashed
+        ),
+        *[ cytoStyleOf(
+            selector=and([\edge(),equal("source", f),equal("target", t)]),
+            style=defaultEdgeStyle()[opacity="50%"][\line-opacity="0.25"]
         )
+            | <f,t> <- transitiveEdges
+        ]
     ];
     loc modLinker(str name) {
         if (loc x <- m.files[name])
