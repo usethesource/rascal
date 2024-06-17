@@ -28,7 +28,6 @@ import org.junit.runner.notification.RunNotifier;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TestEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -112,15 +111,12 @@ public class RascalJUnitTestRunner extends Runner {
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+            ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibs(), ShellEvaluatorFactory.class.getClassLoader());
             evaluator.addClassLoader(cl);
         }
         catch (AssertionError e) {
             e.printStackTrace();
             throw e;
-        }
-        catch (IOException e) {
-            System.err.println(e);
         }
     }
 

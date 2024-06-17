@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -16,16 +15,11 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
-import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -35,9 +29,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -244,7 +235,7 @@ public class PathConfig {
 	public static ISourceLocation getDefaultGeneratedSources() {
 	    return defaultGeneratedSources;
 	}
-	
+
 	public static IList getDefaultIgnoresList() {
 	    return convertLocs(defaultIgnores);
 	}
@@ -489,7 +480,7 @@ public class PathConfig {
                     else {
                         // just a pre-installed dependency in the local maven repository
                         if (!reg.exists(dep)) {
-                            messages.append(Messages.error("Declared dependency does not exist: " + dep, getPomXmLocation(manifestRoot)));
+                            messages.append(Messages.error("Declared dependency does not exist: " + dep, getPomXmlLocation(manifestRoot)));
                         }
 
                         switch (mode) {
@@ -539,7 +530,7 @@ public class PathConfig {
             }
 
             if (!manifest.getRequiredLibraries(manifestRoot).isEmpty()) {
-                messages.append(Messages.info("Required-Libraries in RASCAL.MF are not used anymore. Please use Maven dependencies in pom.xml."), getRascalMfLocation(manifestRoot));
+                messages.append(Messages.info("Required-Libraries in RASCAL.MF are not used anymore. Please use Maven dependencies in pom.xml.", getRascalMfLocation(manifestRoot)));
             }
         }
         catch (IOException e) {
