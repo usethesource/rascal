@@ -48,20 +48,18 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     g = { <from, "I", to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external}
       + { <from, "E", to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external}
       + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
-      + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
 
     nonTransitiveEdges = transitiveReduction(m.imports + m.extends);
     cyclicNodes = { x | <x,x> <- (m.imports + m.extends)+};
-    transitiveEdges = {<x,y> | <x,y> <- (m.imports + m.extends), <x,y> notin nonTransitiveEdges, x notin cyclicNodes, y notin cyclicNodes};
+    transitiveEdges = {<x,y> | <x,y> <- (m.imports + m.extends - nonTransitiveEdges), x notin cyclicNodes, y notin cyclicNodes};
     
     styles = [
         cytoStyleOf(
             selector=or([
                 and([\node(), id("_")]), // the top node
-                and([\node(), id("x")]), // the bottom node
-                and([\edge(), equal("source", "_")]), // edges from the top node
-                and([\edge(), equal("target", "x")])]), // edges to the bottom node
+                and([\edge(), equal("source", "_")]) // edges from the top node
+            ]), 
             style=defaultNodeStyle()[visibility="hidden"] // hide it all
         ),
         cytoStyleOf(
@@ -76,6 +74,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
             | <f,t> <- transitiveEdges
         ]
     ];
+
     loc modLinker(str name) {
         if (loc x <- m.files[name])
             return x;
@@ -85,7 +84,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     default loc modLinker(value _) = |nothing:///|;
 
-    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker, styles=styles), title="Rascal Import/Extend Graph");
+    showInteractiveContent(graph(g, \layout=defaultDagreLayout()[ranker=\tight-tree()], nodeLinker=modLinker, styles=styles), title="Rascal Import/Extend Graph");
 }
 
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
