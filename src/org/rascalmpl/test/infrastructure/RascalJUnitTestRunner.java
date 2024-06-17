@@ -111,7 +111,7 @@ public class RascalJUnitTestRunner extends Runner {
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibs(), ShellEvaluatorFactory.class.getClassLoader());
+            ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
             evaluator.addClassLoader(cl);
         }
         catch (AssertionError e) {
