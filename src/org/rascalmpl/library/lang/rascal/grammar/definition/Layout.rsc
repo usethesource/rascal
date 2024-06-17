@@ -14,7 +14,7 @@ import ParseTree;
 
 @synopsis{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
 GrammarDefinition \layouts(GrammarDefinition def) {
-  deps = extends(def) + imports(def);
+  deps = dependencies(def);
   for (str name <- def.modules) {
     def.modules[name].grammar 
       = layouts(def.modules[name].grammar, 
