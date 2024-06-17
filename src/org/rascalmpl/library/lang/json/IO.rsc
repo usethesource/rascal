@@ -57,7 +57,29 @@ java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'
   If `dateTimeAsInt` is set to `true`, the dateTime values are converted to an int that represents the number of milliseconds from 1970-01-01T00:00Z.
   If `indent` is set to a number greater than 0, the JSON file will be formatted with `indent` number of spaces as indentation.
 }
-java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true);
+java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true, set[JSONFormatter[value]] formatters = {});
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, set[JSONFormatter[value]] formatters = {});
+
+@synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
+@description{
+A JSONFormatter can be passed to the ((writeJSON)) and ((asJSON)) functions. When/if the type matches an algebraic data-type
+to be serialized, then it is applied and the resulting string is serialized to the JSON stream instead of the structured data.
+
+The goal of JSONFormat and its dual JSONParser is to bridge the gap between string-based JSON encodings and typical
+Rascal algebraic combinators.
+}
+alias JSONFormatter[&T] = str (&T);
+
+@synopsis{((readJSON)) and ((parseJSON)) use JSONParser functions to turn unstructured data into structured data.}
+@description{
+A parser JSONParser can be passed to ((readJSON)) and ((parseJSON)). When the reader expects an algebraic data-type
+or a syntax type, but the input at that moment is a JSON string, then the parser is called on that string (after string.trim()).
+
+The resulting data constructor is put into the resulting value instead of a normal string.
+
+The goal of JSONParser and its dual JSONFormatter is to bridge the gap between string-based JSON encodings and typical
+Rascal algebraic combinators.
+}
+alias JSONParser[&T] = &T (str);
