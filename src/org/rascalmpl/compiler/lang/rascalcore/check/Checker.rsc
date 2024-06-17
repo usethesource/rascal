@@ -144,7 +144,8 @@ public PathConfig getRascalCorePathConfig() {
                 |project://rascal-core/src/org/rascalmpl/core/library|,
                 //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
                 |project://typepal/src|,
-                |project://rascal-tutor/src|
+                |project://rascal-tutor/src|,
+                |project://flybytes/src|
                 ],
         bin = |project://rascal-core/target/test-classes|,
         generatedSources = |project://rascal-core/target/generated-test-sources|,
