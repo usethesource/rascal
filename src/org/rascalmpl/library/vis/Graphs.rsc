@@ -396,8 +396,15 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     )
     | dagreLayout(
         CytoLayoutName name = dagre(),
-        num spacingFactor = .1
+        num spacingFactor = .1,
+        DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
     )
+    ;
+
+data DagreRanker
+    = \network-simplex()
+    | \tight-tree()
+    | \longest-path()
     ;
 
 CytoLayout defaultCoseLayout()
@@ -441,7 +448,8 @@ CytoLayout defaultDagreLayout(num spacingFactor=1)
     = dagreLayout(
         name=CytoLayoutName::dagre(),
         animate=false,
-        spacingFactor=spacingFactor
+        spacingFactor=spacingFactor,
+        ranker=\network-simplex()
     );
 
 
