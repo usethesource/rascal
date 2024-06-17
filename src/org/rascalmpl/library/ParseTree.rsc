@@ -687,9 +687,13 @@ data Exp = add(Exp, Exp);
 java &T<:value implode(type[&T<:value] t, Tree tree);
 
 
+@synopsis{A bottom value for Message is interpreted as no message at all.}
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Message = silence();
+
 @synopsis{Annotate a parse tree node with an (error) message.} 
 @deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
-data Tree(Message message = Message () { throw "no default value"; }());
+data Tree(Message message = silence());
 
 @synopsis{Annotate a parse tree node with a list of (error) messages.} 
 @deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
