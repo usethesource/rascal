@@ -243,6 +243,7 @@ CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoStyleOf(selector=\edge(), sty
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
         visibility        = "visible", /* hidden, collapse */
+        opacity           = "1",
         width             = "label",
         padding           = "10pt",
         \background-color = "blue",
@@ -258,6 +259,8 @@ CytoStyle defaultNodeStyle()
 CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         visibility          = "visible", /* hidden, collapse */
+        opacity             = "1",
+        \line-opacity       = "1",
         width               = 3,
         \line-style          = "solid", /* dotted, dashed */
         \color              = "red",
@@ -280,10 +283,11 @@ data CytoFontWeight
 data CytoStyle
     = cytoNodeStyle(
         str visibility          = "visible", /* hidden, collapse */
+        str opacity             = "1",
         str width               = "label",
         str padding             = "10pt",
         str color               = "white",
-        str \text-opacity       = "100%",
+        str \text-opacity       = "1",
         str \font-family        = "",
         str \font-size          = "12pt",
         str \font-style         = "",
@@ -300,6 +304,8 @@ data CytoStyle
     )
     | cytoEdgeStyle(
         str visibility          = "visible", /* hidden, collapse */
+        str opacity             = "1",
+        str \line-opacity       = "1",
         int width               = 3,
         str \line-color         = "black",
         str \line-style         = "solid", /* dotted, dashed */
