@@ -66,11 +66,13 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     styles = [
         cytoStyleOf( 
-            selector=or([
-                \node(id("_")),
-                \edge(equal("source", "_"))
-            ]), 
-            style=defaultNodeStyle()[visibility="hidden"] 
+            selector=\edge(equal("source", "_")),
+            style=defaultEdgeStyle()[visibility="hidden"]
+        ),
+
+        cytoStyleOf( 
+            selector=\node(id("_")),
+            style=defaultNodeStyle()[visibility="hidden"]
         ),
 
         cytoStyleOf(
@@ -81,7 +83,8 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
         cytoStyleOf(
             selector=\edge(className("transitive")),               
             style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  
-        ),
+        )
+        ,
 
         cytoStyleOf(
             selector=\edge(className("cyclic")),               
