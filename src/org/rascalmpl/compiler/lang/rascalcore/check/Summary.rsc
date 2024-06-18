@@ -8,7 +8,6 @@ module lang::rascalcore::check::Summary
 
 extend lang::rascalcore::check::CheckerCommon;
 
-import lang::rascalcore::check::ModuleStatus;
 import lang::rascalcore::check::Import;
 import analysis::typepal::TModel;
 

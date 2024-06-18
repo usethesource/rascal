@@ -3,7 +3,6 @@ module lang::rascalcore::check::Import
 
 /*
     Check imports, and read/write TPL files.
-    Introduces ModuleStatus that represents all the relevant information about currently processed modules.
 */
 
 extend lang::rascalcore::check::CheckerCommon;
@@ -12,7 +11,6 @@ import lang::rascalcore::check::RascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ADTandGrammar;
-import lang::rascalcore::check::ModuleStatus;
 
 import DateTime;
 import Exception;
