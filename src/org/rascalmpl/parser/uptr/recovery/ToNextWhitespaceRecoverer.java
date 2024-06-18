@@ -63,7 +63,7 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		for (int i = 0; i<recoveryNodes.size()-1; i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
-			
+
 			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
