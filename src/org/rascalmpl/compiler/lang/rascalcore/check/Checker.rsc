@@ -36,7 +36,7 @@ extend lang::rascalcore::check::Import;
 
 extend lang::rascalcore::check::RascalConfig;
 
-extend lang::rascalcore::check::ModuleStatus;
+extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::compile::CompileTimeError;
 import analysis::typepal::Exception;

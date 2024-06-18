@@ -10,8 +10,6 @@ extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
-
-import lang::rascalcore::check::ModuleStatus;
   
 import lang::rascal::\syntax::Rascal;
  
