@@ -47,7 +47,7 @@ import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
-import org.rascalmpl.parser.gtd.util.ReflectiveStackNodeIdDispenser;
+import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
@@ -576,7 +576,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IGTD<IConstructor, ITree, ISourceLocation> parserInstance = getParser();
             IRecoverer<IConstructor> recoverer = null;
             if (allowRecovery) {
-                recoverer = new ToNextWhitespaceRecoverer(new ReflectiveStackNodeIdDispenser(parserInstance));
+                recoverer = new ToNextWhitespaceRecoverer(new StackNodeIdDispenser(parserInstance));
             }
             return (ITree) parserInstance.parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer);
         }
