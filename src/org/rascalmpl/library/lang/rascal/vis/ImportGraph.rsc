@@ -55,10 +55,13 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
         *["project"  | n notin m.external]
     ];
     
+    gClosed = g+;
+
     list[str] edgeClass(str from, str to) = [
         *["extend"     | <from, to> in m.extends],
         *["import"     | <from, to> in m.imports],
-        *["transitive" | <from, to> in g o g+]
+        *["transitive" | <from, to> in g o gClosed, <from, from> notin gClosed, <to,to> notin gClosed],
+        *["cyclic"     | <from, from> in gClosed]
     ];
 
     styles = [
@@ -78,6 +81,11 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
         cytoStyleOf(
             selector=\edge(className("transitive")),               
             style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  
+        ),
+
+        cytoStyleOf(
+            selector=\edge(className("cyclic")),               
+            style=defaultEdgeStyle()[opacity="1"][\line-opacity="1"][\width=10]  
         )
     ];
 
