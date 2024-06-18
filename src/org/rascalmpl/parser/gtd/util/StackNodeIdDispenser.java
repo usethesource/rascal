@@ -13,12 +13,12 @@ import io.usethesource.vallang.ISourceLocation;
  * To offer backwards compatibility for generated parsers that do not yet have the "getFreeStackNodeId" method yet,
  * this class uses reflection to find that method and otherwise improvises by just using a ridiculously high starting number.
  */
-public class ReflectiveStackNodeIdDispenser implements IdDispenser {
+public class StackNodeIdDispenser implements IdDispenser {
     private IGTD<IConstructor, ITree, ISourceLocation> parser;
     private Method dispenseMethod;
     private int nextNodeIdBackup = (Integer.MAX_VALUE/4)*3;
 
-    public ReflectiveStackNodeIdDispenser(IGTD<IConstructor, ITree, ISourceLocation> parser) {
+    public StackNodeIdDispenser(IGTD<IConstructor, ITree, ISourceLocation> parser) {
         try {
             dispenseMethod = parser.getClass().getMethod("getFreeStackNodeId");
         } catch (NoSuchMethodException e) {
