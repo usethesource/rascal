@@ -45,17 +45,23 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     m = getProjectModel(pcfg.srcs);
     
     // let's start with a simple graph and elaborate on details in later versions
-    g = { <from, "I", to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external}
-      + { <from, "E", to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external}
-      + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
+    g = { <from, to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external}
+      + { <from, to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external}
+      + { <"_" , to> |  to <- top(m.imports + m.extends) } // pull up the top modules
       ;
 
+    str nodeClass(str n) = "rascal.project" when n notin m.external;
+    str nodeClass(str n) = "rascal.external" when n in m.external;
+
+    str edgeClass(str from, str to) = "rascal.import" when <from, to> in m.imports;
+    str edgeClass(str from, str to) = "rascal.extend" when <from, to> in m.extends;
+
     nonTransitiveEdges = transitiveReduction(m.imports + m.extends);
-    cyclicNodes = { x | <x,x> <- (m.imports + m.extends)+};
-    transitiveEdges = {<x,y> | <x,y> <- (m.imports + m.extends - nonTransitiveEdges), x notin cyclicNodes, y notin cyclicNodes};
+    cyclicNodes        = { x | <x,x> <- (m.imports + m.extends)+};
+    transitiveEdges    = {<x,y> | <x,y> <- (m.imports + m.extends - nonTransitiveEdges), x notin cyclicNodes, y notin cyclicNodes};
     
     styles = [
-        cytoStyleOf(
+        cytoStyleOf( 
             selector=or([
                 and([\node(), id("_")]), // the top node
                 and([\edge(), equal("source", "_")]) // edges from the top node
@@ -84,7 +90,16 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     default loc modLinker(value _) = |nothing:///|;
 
-    showInteractiveContent(graph(g, \layout=defaultDagreLayout()[ranker=\tight-tree()], nodeLinker=modLinker, styles=styles), title="Rascal Import/Extend Graph");
+    cfg = cytoGraphConfig(
+        \layout=dagreLayout(ranker=\tight-tree()),
+        styles=styles,
+        title="Rascal Import/Extend Graph",
+        nodeClassifier=nodeClass,
+        edgeClassifier=edgeClass,
+        nodeLinker=modLinker
+    );
+
+    showInteractiveContent(graph(g, cfg=cfg), title=cfg.title);
 }
 
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
