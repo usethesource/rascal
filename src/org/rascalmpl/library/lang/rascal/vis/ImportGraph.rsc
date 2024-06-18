@@ -50,32 +50,35 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
       + { <"_" , to> |  to <- top(m.imports + m.extends) } // pull up the top modules
       ;
 
-    str nodeClass(str n) = n in m.external ? "external" : "project";
-    str edgeClass(str from, str to) = <from,to> in m.imports ? "import" : "extend";
-
-    nonTransitiveEdges = transitiveReduction(m.imports + m.extends);
-    cyclicNodes        = { x | <x,x> <- (m.imports + m.extends)+};
-    transitiveEdges    = {<x,y> | <x,y> <- (m.imports + m.extends - nonTransitiveEdges), x notin cyclicNodes, y notin cyclicNodes};
+    list[str] nodeClass(str n) = [
+        *["external" | n in    m.external],
+        *["project"  | n notin m.external]
+    ];
     
+    list[str] edgeClass(str from, str to) = [
+        *["extend"     | <from, to> in m.extends],
+        *["import"     | <from, to> in m.imports],
+        *["transitive" | <from, to> in g o g+]
+    ];
+
     styles = [
         cytoStyleOf( 
             selector=or([
-                and([\node(), id("_")]), // the top node
-                and([\edge(), equal("source", "_")]) // edges from the top node
+                \node(id("_")),
+                \edge(equal("source", "_"))
             ]), 
-            style=defaultNodeStyle()[visibility="hidden"] // hide it all
+            style=defaultNodeStyle()[visibility="hidden"] 
         ),
+
         cytoStyleOf(
-            selector=or([
-                and([\edge(), className("extend")])]), // extend edges
-            style=defaultEdgeStyle()[\line-style="dashed"] // are dashed
+            selector=\edge(className("extend")),
+            style=defaultEdgeStyle()[\line-style="dashed"] 
         ),
-        *[ cytoStyleOf(
-            selector=and([\edge(),equal("source", f),equal("target", t)]), // any transitive edge
-            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  // will be made 25% opaque 
+
+        cytoStyleOf(
+            selector=\edge(className("transitive")),               
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  
         )
-            | <f,t> <- transitiveEdges
-        ]
     ];
 
     loc modLinker(str name) {

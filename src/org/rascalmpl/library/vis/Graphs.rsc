@@ -78,16 +78,16 @@ str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
 default str defaultNodeLabeler(&T v) = "<v>";
 
 @synopsis{A NodeClassifier maps node identities to classes that are used later to select specific layout and coloring options.}
-alias NodeClassifier[&T] = str (&T _id3);
+alias NodeClassifier[&T] = list[str] (&T _id3);
 
-@synopsis{The default class for all nodes is `"node"``}
-str defaultNodeClassifier(&T _) = "node";
+@synopsis{The default classifier produces no classes}
+list[str] defaultNodeClassifier(&T _) = [];
 
 @synopsis{An EdgeClassifier maps edge identities to classes that are used later to select specific layout and coloring options.}
-alias EdgeClassifier[&T] = str (&T _from, &T _to);
+alias EdgeClassifier[&T] = list[str] (&T _from, &T _to);
 
-@synopsis{The default class for all edges is `"edge"`}
-str defaultEdgeClassifier(&T _, &T _) = "edge";
+@synopsis{The default edge classifier produces no classes}
+list[str] defaultEdgeClassifier(&T _, &T _) = [];
 
 @synopsis{An EdgeLabeler maps edge identies to descriptive edge labels.}
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
@@ -166,50 +166,50 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
 
 @synopsis{Turns a `rel[loc from, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to)), classes=cfg.edgeClassifier(from,to)) | <from, to> <- v]
       ;
 
 @synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
       ;
 
 @synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
-    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
-      [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
+    = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>"), classes=cfg.nodeClassifier(e)) | e <- {*v<x>, *v<y>}] +
+      [cytodata(\edge("<from>", "<to>", label="<e>"), classes=cfg.edgeClassifier(from,to)) | <from, e, to> <- v]
       ;
 
 data CytoNodeShape
@@ -248,11 +248,11 @@ data Cytoscape
     );
 
 data CytoData
-  = cytodata(CytoElement \data);
+  = cytodata(CytoElement \data, list[str] classes=[]);
 
 data CytoElement
-  = \node(str id, str label=id, str editor="|none:///|", str class="node")
-  | \edge(str source, str target, str id="<source>-<target>", str label="", str class="edge")
+  = \node(str id, str label=id, str editor="|none:///|")
+  | \edge(str source, str target, str id="<source>-<target>", str label="")
   ;
 
 data CytoHorizontalAlign
@@ -384,7 +384,7 @@ data CytoStyle
         str \source-arrow-color = "black",
         CytoArrowHeadStyle \target-arrow-shape = CytoArrowHeadStyle::triangle(),
         CytoArrowHeadStyle \source-arrow-shape = CytoArrowHeadStyle::none(),
-        CytoCurveStyle \curve-style            = CytoCurveStyle::bezier(),
+        CytoCurveStyle \curve-style            = CytoCurveStyle::\unbundled-bezier(),
         int \source-text-offset = 1,
         int \target-text-offset = 1,
         str label               = "data(label)"
@@ -413,8 +413,14 @@ data CytoSelector
     | \className(str)
     ;
 
+@synopsis{Short-hand for a node with a single condition}
+CytoSelector \node(CytoSelector condition) = and([\node(), condition]);
+
+@synopsis{Short-hand for a node with a single condition}
+CytoSelector \edge(CytoSelector condition) = and([\edge(), condition]);
+
 @synopsis{Utility to generate class attributes with multiple names consistently.}
-CytoSelector classNames(set[str] names) = \className("<for (str n <- sort(names)) {><n> <}>"[..-1]);
+str more(set[str] names) = "<for (str n <- sort(names)) {><n> <}>"[..-1];
 
 @synopsis{Serialize a ((CytoSelector)) to string for client side expression.}
 str formatCytoSelector(\node()) = "node";
