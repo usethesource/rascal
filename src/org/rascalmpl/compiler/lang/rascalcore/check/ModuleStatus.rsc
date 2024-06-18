@@ -2,7 +2,7 @@ module lang::rascalcore::check::ModuleStatus
 
 extend lang::rascalcore::check::CheckerCommon;
 
-extend lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::RascalConfig;
 
 import analysis::typepal::Collector;
 
