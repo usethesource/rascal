@@ -50,11 +50,8 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
       + { <"_" , to> |  to <- top(m.imports + m.extends) } // pull up the top modules
       ;
 
-    str nodeClass(str n) = "rascal.project" when n notin m.external;
-    str nodeClass(str n) = "rascal.external" when n in m.external;
-
-    str edgeClass(str from, str to) = "rascal.import" when <from, to> in m.imports;
-    str edgeClass(str from, str to) = "rascal.extend" when <from, to> in m.extends;
+    str nodeClass(str n) = n in m.external ? "external" : "project";
+    str edgeClass(str from, str to) = <from,to> in m.imports ? "import" : "extend";
 
     nonTransitiveEdges = transitiveReduction(m.imports + m.extends);
     cyclicNodes        = { x | <x,x> <- (m.imports + m.extends)+};
@@ -70,7 +67,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
         ),
         cytoStyleOf(
             selector=or([
-                and([\edge(), equal("label", "E")])]), // extend edges
+                and([\edge(), className("extend")])]), // extend edges
             style=defaultEdgeStyle()[\line-style="dashed"] // are dashed
         ),
         *[ cytoStyleOf(
@@ -91,7 +88,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     default loc modLinker(value _) = |nothing:///|;
 
     cfg = cytoGraphConfig(
-        \layout=dagreLayout(ranker=\tight-tree()),
+        \layout=defaultDagreLayout()[ranker=\network-simplex()],
         styles=styles,
         title="Rascal Import/Extend Graph",
         nodeClassifier=nodeClass,
