@@ -5,10 +5,9 @@ module lang::rascalcore::check::RascalConfig
     High level configuration of the Rascal checker.
 */
 
-extend lang::rascalcore::check::CheckerCommon;
+//import lang::rascalcore::check::CheckerCommon;
 
- 
-extend lang::rascalcore::check::ADTandGrammar;
+import lang::rascalcore::check::ADTandGrammar;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;

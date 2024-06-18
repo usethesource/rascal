@@ -1,5 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst3
 
-int _z() = 0;
+data Maybe[&A] 
+   = nothing() 
+   | just(&A val)
+   ;
 
-value main() = _z();
+void loadClass( Maybe[loc] file=nothing()) {}
