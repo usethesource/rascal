@@ -25,6 +25,7 @@ import lang::html::AST;
 import util::IDEServices;
 import Content;
 import ValueIO;
+import Set;
 
 @synopsis{Optional configuration attributes for graph style and graph layout}
 @description{
@@ -147,6 +148,11 @@ graph({<x,2*x+1,x+1> | x <- [1..100]} + {<100,101,1>})
 Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig()) 
     = content(cfg.title, graphServer(cytoscape(graphData(v, cfg=cfg), cfg=cfg)));
 
+@synopsis{This core workhorse mixes the graph data with the configuration to obtain visualizable CytoScape.js data-structure.}
+@description{
+This data-structure is serialized to JSON and communicated directly to initialize cytoscape.js.
+The serialization is done by the generic ((lang::json::IO)) library under the hood of a ((util::Webserver)).
+}
 Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
     = cytoscape(
         elements=\data,        
@@ -158,41 +164,49 @@ Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
         \layout=cfg.\layout
     );
 
+@synopsis{Turns a `rel[loc from, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
+@synopsis{Turns any `rel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
+@synopsis{Turns any `lrel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
+@synopsis{Turns any `lrel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
+@synopsis{Turns any `lrel[loc from, loc to]` into a graph}
 list[CytoData] graphData(lrel[loc x, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
+@synopsis{Turns any `lrel[&T from, &T to]` into a graph}
 default list[CytoData] graphData(lrel[&T x, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=cfg.edgeLabeler(from, to), class=cfg.edgeClassifier(from,to))) | <from, to> <- v]
       ;
 
+@synopsis{Turns any `rel[loc from, &L edge, loc to]` into a graph}
 list[CytoData] graphData(rel[loc x, &L edge, loc y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
       ;
 
+@synopsis{Turns any `rel[&T from, &L edge, &T to]` into a graph}
 default list[CytoData] graphData(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
     = [cytodata(\node("<e>", label=cfg.nodeLabeler(e), editor="<cfg.nodeLinker(e)>", class=cfg.nodeClassifier(e))) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label="<e>", class=cfg.edgeClassifier(from,to))) | <from, e, to> <- v]
