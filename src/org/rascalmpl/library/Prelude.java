@@ -3972,5 +3972,94 @@ public class Prelude {
 	}
 
 
+	// this fact that this is just a java function helps the jitter with inline it
+	private static boolean isSameFilePure(ISourceLocation a, ISourceLocation b) {
+		a = a.top();
+		b = b.top();
+		if (!a.hasFragment() && !b.hasFragment()) {
+			// fast path: use equals of ISourceLocations
+			return a.equals(b);
+		} 
+		// fallback, just compare everything except the fragment
+		return a.getScheme().equals(b.getScheme())
+			&& a.getAuthority().equals(b.getAuthority())
+			&& a.getPath().equals(b.getPath())
+			&& a.getQuery().equals(b.getQuery())
+			;
+	}
+
+	public IBool isSameFile(ISourceLocation a, ISourceLocation b) {
+		return values.bool(isSameFilePure(a, b));
+	}
+
+	public IBool isStrictlyContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		// original code would also do full equality, but we don't need that due to the logic in the outer &
+		// inner offset compares
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					(innerStart == outerStart && innerEnd < outerEnd)
+					|| (innerStart > outerStart && innerEnd <= outerEnd)
+				);
+			}
+			else {
+				return values.bool(inner.getLength() > 0);
+			}
+		}
+		return values.bool(false);
+	}
+
+	public IBool isContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					outerStart <= innerStart && innerEnd <= outerEnd
+				);
+			}
+			return values.bool(true);
+		}
+
+		return values.bool(!outer.hasOffsetLength());
+	}
+
+	public IBool isOverlapping(ISourceLocation first, ISourceLocation second) {
+		if (!isSameFilePure(first, second)) {
+			return values.bool(false);
+		}
+		if (first.hasOffsetLength()) {
+			if (second.hasOffsetLength()) {
+				int firstStart = first.getOffset();
+				int firstEnd = firstStart + first.getLength();
+				int secondStart = second.getOffset();
+				int secondEnd = secondStart + second.getLength();
+
+				return values.bool(
+					   (firstStart <= secondStart && secondStart <= firstEnd)
+					|| (secondStart <= firstStart && firstStart <= secondEnd)
+				);
+
+			}
+		}
+		return values.bool(true);
+
+	}
+
+
 }
 
