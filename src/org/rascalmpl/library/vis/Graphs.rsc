@@ -46,6 +46,63 @@ Typically the functions passed into this configuration are closures that capture
 input data to find out about where to link and how to classify. The `&T` parameter reflects the type of
 the original input `Graph[&T]`; so that is the type of the nodes. Often this would be `loc` or `str`.
 }
+@examples{
+
+Let's experiment with a number of styling parameters based on the shape of a graph:
+```rascal-shell
+import vis::Graphs;
+// let's play with the geneology of the "Simpsons"
+g = {
+    <"Abraham Simpson", "Homer Simpson">,
+    <"Mona Simpson", "Homer Simpson">,
+    <"Homer Simpson", "Bart Simpson">,
+    <"Homer Simpson", "Lisa Simpson">,
+    <"Homer Simpson", "Maggie Simpson">,
+    <"Marge Simpson", "Bart Simpson">,
+    <"Marge Simpson", "Lisa Simpson">,
+    <"Marge Simpson", "Maggie Simpson">,
+    <"Bart Simpson", "Rod Flanders">,
+    <"Bart Simpson", "Todd Flanders">,
+    <"Lisa Simpson", "Bart Simpson">,
+    <"Abraham Simpson", "Patty Bouvier">,
+    <"Abraham Simpson", "Selma Bouvier">,
+    <"Mona Simpson", "Patty Bouvier">,
+    <"Mona Simpson", "Selma Bouvier">
+};
+// visualizing this without styling:
+graph(g);
+// to style nodes, let's select some special nodes and "classify" them first. We reuse some generic graph analysis tools.
+import analysis::graphs::Graph;
+list[str] nodeClassifier(str simpson) = [
+  *["top" | simpson in top(g)],
+  *["bottom" | simpson in bottom(g)]
+];
+// once classified, we can style each node according to their assigned classes. Nodes can be in more than one class.
+styles = [
+    cytoStyleOf( 
+        selector=or([\node(className("top")),\node(className("bottom"))]),
+        style=defaultNodeStyle()[shape=CytoNodeShape::diamond()]
+    )
+];
+// we pick a sensible layout
+lyt = defaultDagreLayout();
+// we wrap the styling information into a configuration wrapper:
+cfg = cytoGraphConfig(nodeClassifier=nodeClassifier, styles=styles, \layout=lyt);
+// and now we see the effect:
+graph(g, cfg=cfg)
+// now let's style some edges:
+list[str] edgeClassifier(str from, str to) = ["grandparent" | <from, to > in g o g];
+// add another styling element
+styles += [
+    cytoStyleOf( 
+        selector=edge(className("grandparent")),
+        style=defaultEdgeStyle()[\line-style="dashed"]
+    )
+];
+// and draw again (while adding the grandparent edges too)
+graph(g + (g o g), cytoGraphConfig(nodeClassifier=nodeClassifier, edgeClassifier=edgeClassifier, styles=styles, \layout=lyt))
+```    
+}
 data CytoGraphConfig = cytoGraphConfig(
     str title="Graph", 
 
