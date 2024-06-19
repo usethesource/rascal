@@ -176,7 +176,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     /**
      * True if we're doing profiling
      */
-    private static boolean doProfiling = false;
+    private boolean doProfiling = false;
 
     /**
      * Track if we already started a profiler, to avoid starting duplicates after a callback to an eval function.
@@ -888,7 +888,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         __setInterrupt(false);
         try {
             Profiler profiler = null;
-            if (Evaluator.doProfiling && !profilerRunning) {
+            if (doProfiling && !profilerRunning) {
                 profiler = new Profiler(this);
                 profiler.start();
                 profilerRunning = true;
@@ -1092,7 +1092,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(Commands commands) {
         __setInterrupt(false);
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
@@ -1115,7 +1115,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(Command command) {
         __setInterrupt(false);
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
@@ -1440,7 +1440,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override	
     public void updateProperties() {
-        Evaluator.doProfiling = config.getProfilingProperty();
+        doProfiling = config.getProfilingProperty();
 
         setCallTracing(config.getTracingProperty());
     }
@@ -1573,7 +1573,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
