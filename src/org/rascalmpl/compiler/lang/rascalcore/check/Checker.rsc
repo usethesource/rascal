@@ -173,7 +173,9 @@ public PathConfig getRascalProjectPathConfig() {
     );  
 }  
 
-list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
+
+
+list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
     msgs = [];
     
     if(isEmpty(pcfg.srcs)) msgs += error("PathConfig: `srcs` is empty", mloc);
@@ -192,22 +194,19 @@ list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
         }
     }
     
-    if(!exists(pcfg.resources)) {
-        try {
-            mkDirectory(pcfg.resources);
-        } catch e: {
-            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
-        }
-    }
-    
-    if(!exists(pcfg.generatedSources)) 
+    return msgs;
+}
+
+list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
+    msgs = validatePathConfigForChecker(pcfg, mloc);
+    if(!exists(pcfg.generatedSources)){
         try {
             mkDirectory(pcfg.generatedSources);
         } catch e: {
             msgs += error("PathConfig `generatedSources`: <e>", pcfg.generatedSources);
         }
-        
-    return msgs;
+     }
+     return msgs;
 }
 
 // ----  Various check functions  ---------------------------------------------
@@ -230,7 +229,7 @@ ModuleStatus rascalTModelForLocs(
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
     
-    msgs = validatePathConfigForCompiler(pcfg, mlocs[0]);
+    msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
     if(!isEmpty(msgs)){
         throw msgs;
     }
