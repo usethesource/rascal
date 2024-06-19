@@ -69,7 +69,12 @@ This conversion supports generic Unix path syntax, including:
 loc locFromUnixPath(str path) = parseUnixPath(path);
 
 @synopsis{Check that two locations refer to the same file.}    
-bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
+bool isSameFile(loc l, loc r) 
+    = l.scheme == r.scheme 
+    && l.authority == r.authority
+    && l.path == r.path
+    && l.query == r.query
+    ;
 
 @synopsis{Compare two location values lexicographically.}
 @description{
@@ -101,18 +106,19 @@ Strict containment between two locations `inner` and `outer` holds when
 }
 
 bool isStrictlyContainedIn(loc inner, loc outer){
-    if(inner == outer){
+    // inlined inverse of isSameFile, as this function gets called very often in rascal-core
+    if (inner.scheme != outer.scheme 
+        || inner.authority != outer.authority
+        || inner.path != outer.path
+        || inner.query != outer.query) {
         return false;
     }
-    if(isSameFile(inner, outer)){
-       if(inner.offset?){
-          if(outer.offset?){
-            return    inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
-                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
-          } else {
-            return inner.offset > 0;
-          }
-       }
+    if(inner.offset?){
+        if(outer.offset?){
+            return inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
+                || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
+        } 
+        return inner.offset > 0;
     }
     return false;
 }
@@ -128,18 +134,20 @@ Containment between two locations `inner` and `outer` holds when
 }
 
 bool isContainedIn(loc inner, loc outer){
-    if(isSameFile(inner, outer)){
-       if(inner.offset?){
-          if(outer.offset?){
-            return (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
-          } else {
-            return true;
-          }
-       } else {
-         return !outer.offset?;
-       }
+    // inlined inverse of isSameFile, as this function gets called very often in rascal-core
+    if (inner.scheme != outer.scheme 
+        || inner.authority != outer.authority
+        || inner.path != outer.path
+        || inner.query != outer.query) {
+        return false;
     }
-    return false;
+    if(inner.offset?){
+        if(outer.offset?){
+            return (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
+        } 
+        return true;
+    }
+    return !outer.offset?;
 }
 
 
