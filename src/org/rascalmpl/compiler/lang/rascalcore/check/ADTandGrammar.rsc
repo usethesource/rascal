@@ -136,6 +136,8 @@ void addCommonKeywordFields(Solver s){
 list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 
 
 bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
+@javaClass{org.rascalmpl.core.library.lang.rascalcore.Performance}
+java bool isStrictlyContainedIn2(loc a, loc b);
 
 tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,TModel] transient_tms, ModuleStatus ms){
     try {
@@ -155,7 +157,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
             prodLocs1 = { k | loc k <- facts, aprod(_) := facts[k] };
             
             // filter out productions contained in priority/associativity declarations
-            prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, k != l, isStrictlyContainedIn(k, l)) };
+            prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, k != l, isStrictlyContainedIn2(k, l)) };
 
             definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
             //definedProductions += {<p1.def, p1> | loc k <- prodLocs2, aprod(p) := facts[k], p1 := p[def=unset(p.def)] };/*syn*/
