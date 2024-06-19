@@ -607,7 +607,7 @@ Response (Request) graphServer(Cytoscape ch) {
     }
 
     Response reply(get(/^\/cytoscape/)) {
-        return response(ch, formatter=formatCytoSelector);
+        return response(ch, formatCytoSelector);
     }
 
     // returns the main page that also contains the callbacks for retrieving data and configuration
