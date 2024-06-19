@@ -84,27 +84,30 @@ data Response
   | jsonResponse(Status status, map[str,str] header, value val, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", JSONFormatter[value] formatter = str (value _) { fail; })
   ;
   
-
 @synopsis{Utility to quickly render a string as HTML content}  
 Response response(str content, map[str,str] header = ()) = response(ok(), "text/html", header, content);
-
 
 @synopsis{Utility to quickly report an HTTP error with a user-defined message}
 Response response(Status status, str explanation, map[str,str] header = ()) = response(status, "text/plain", header, explanation);
 
-
 @synopsis{Utility to quickly make a plaintext response.}
 Response plain(str text) = response(ok(), "text/plain", (), text);
-
 
 @synopsis{Utility to serve a file from any source location.}
 Response response(loc f, map[str,str] header = ()) = fileResponse(f, mimeTypes[f.extension]?"text/plain", header);
 
+@synopsis{Utility to quickly serve any rascal value as a json text.}
+@benefits{
+This comes in handy for asynchronous HTTP requests from Javascript clients. Rascal Values are
+fully transformed to their respective JSON serialized form before being communicated over HTTP.
+}
+default  Response response(value val, map[str,str] header = ()) = jsonResponse(ok(), header, val);
 
-@synopsis{Utility to quickly serve any rascal value as a json text. This comes in handy for
-asynchronous HTTP requests from Javascript.}
-default  Response response(value val, map[str,str] header = (), JSONFormatter[value] formatter = str (value _) { fail; }) = jsonResponse(ok(), header, val, formatter=formatter);
-  
+@synopsis{Utility to quickly serve any rascal value as a json text, formatting data-types on-the-fly using a `formatter` function}
+@benefits{
+Fast way of producing JSON strings for embedded DSLs on the Rascal side.
+}
+Response response(value val, JSONFormatter[value] formatter, map[str,str] header = ()) = jsonResponse(ok(), header, val, formatter=formatter);
 
 @synopsis{Encoding of HTTP status}  
 data Status 
