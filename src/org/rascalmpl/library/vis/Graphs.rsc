@@ -396,7 +396,7 @@ CytoStyle defaultEdgeStyle()
         \source-arrow-color = "black",
         \target-arrow-shape = CytoArrowHeadStyle::triangle(),
         \source-arrow-shape = CytoArrowHeadStyle::none(),
-        \curve-style        = bezier(),
+        \curve-style        = \unbundled-bezier(),
         \label              = "data(label)"
     );
 
