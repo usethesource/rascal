@@ -37,6 +37,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -54,7 +55,7 @@ public class RascalJUnitTestRunner extends Runner {
     }
    
    	public static IRascalMonitor getCommonMonitor() {
-	   return InstanceHolder.monitor;
+	    return InstanceHolder.monitor;
    	}
 
     private static Evaluator evaluator;
@@ -68,6 +69,9 @@ public class RascalJUnitTestRunner extends Runner {
 
     static {
         try {
+            RascalShell.setupWindowsCodepage();
+            RascalShell.enableWindowsAnsiEscapesIfPossible();
+
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, getCommonMonitor());
