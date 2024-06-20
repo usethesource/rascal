@@ -25,6 +25,7 @@ import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
+import jline.Terminal;
 import jline.TerminalFactory;
 
 public interface IRascalMonitor {
@@ -168,8 +169,10 @@ public interface IRascalMonitor {
 	}
 
 	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out, boolean batchMode) {
-		return !batchMode 
-			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
+		Terminal terminal = TerminalFactory.get();
+
+		return !batchMode && terminal.isAnsiSupported()
+			? new TerminalProgressBarMonitor(out, in, terminal)
 			: new BatchProgressMonitor(new PrintStream(out))
 		;
 	}
