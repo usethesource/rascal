@@ -32,6 +32,45 @@ import jline.internal.Configuration;
  * with an object of this class.
  */
 public class TerminalProgressBarMonitor extends FilterOutputStream implements IRascalMonitor  {
+    /** 
+     * Temporary array to allow for a different color for every next bar;
+     * we use to test different colors in different terminal color schemes.
+     * We focus on the 4-bit colors because those are most likely to have been mapped by a theme.
+     * The greyscale colors are there for reference, because we started out with those.
+     */
+    public static final String[][] FOUR_BIT_BGCOLORS = {
+        {"Black", "\u001B[40m"},
+        {"Red", "\u001B[41m"},
+        {"Green", "\u001B[42m"},
+        {"Yellow", "\u001B[43m"},
+        {"Blue", "\u001B[44m"},
+        {"Magenta", "\u001B[45m"},
+        {"Cyan", "\u001B[46m"},
+        {"White", "\u001B[47m"},
+        {"Bright Black", "\u001B[100m"},
+        {"Bright Red", "\u001B[101m"},
+        {"Bright Green", "\u001B[102m"},
+        {"Bright Yellow", "\u001B[103m"},
+        {"Bright Blue", "\u001B[104m"},
+        {"Bright Magenta", "\u001B[105m"},
+        {"Bright Cyan", "\u001B[106m"},
+        {"Bright White", "\u001B[107m"},
+        // 8-bit greyscale codes (skipping every other gradient)
+        {"Grey0", "\u001B[48;5;232m"},
+        {"Grey2", "\u001B[48;5;234m"},
+        {"Grey4", "\u001B[48;5;236m"},
+        {"Grey6", "\u001B[48;5;238m"},
+        {"Grey8", "\u001B[48;5;240m"},
+        {"Grey10", "\u001B[48;5;242m"},
+        {"Grey12", "\u001B[48;5;244m"},
+        {"Grey14", "\u001B[48;5;246m"},
+        {"Grey16", "\u001B[48;5;248m"},
+        {"Grey18", "\u001B[48;5;250m"},
+        {"Grey20", "\u001B[48;5;252m"},
+        {"Grey22", "\u001B[48;5;254m"}
+    };
+    private static int colorCycler = 0;
+    
     /**
      * We administrate an ordered list of named bars, which will be printed from
      * top to bottom just above the next prompt.
@@ -213,6 +252,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * Represents one currently running progress bar
      */
     private class ProgressBar {
+        private int colorPicked = colorCycler++ % FOUR_BIT_BGCOLORS.length;
+
         private final long threadId;
         private final String name;
         private int max;
@@ -311,7 +352,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             capName = message.length() > 0 ? (capName + ": ") : capName;
 
                 // fill up and cut off:
-            msg = capName + msg;
+            msg = capName + " " + FOUR_BIT_BGCOLORS[colorPicked][0] + ", " + msg;
             msg = (msg + " ".repeat(Math.max(0, barWidth - msg.length()))).substring(0, barWidth);
 
             // split
@@ -329,7 +370,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
             var line 
                 = done 
-                + ANSI.lightBackground() 
+                + FOUR_BIT_BGCOLORS[colorPicked][1] /*ANSI.lightBackground() */
                 + ANSI.underlined()
                 + ANSI.overlined()
                 + frontPart
