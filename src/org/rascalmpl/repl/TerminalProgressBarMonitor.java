@@ -85,7 +85,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         this.writer = debug ? new PrintWriter(new AlwaysFlushAlwaysShowCursor(theWriter)) : theWriter;
         this.lineWidth = tm.getWidth();
         this.unicodeEnabled = ANSI.isUTF8enabled(theWriter, in);
-        
+
         assert tm.isSupported() && tm.isAnsiSupported(): "interactive progress bar needs a working ANSI terminal";
         assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
     }

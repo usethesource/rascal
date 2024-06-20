@@ -153,24 +153,28 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     }
 
     private void runTests(RunNotifier notifier) {
-        waitForRunning.release(numberOfWorkers);
-        int completed = 0;
-        while (completed < numberOfWorkers) {
-            try {
-                if (workersCompleted.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                    completed++;
+        try {
+            waitForRunning.release(numberOfWorkers);
+            int completed = 0;
+            while (completed < numberOfWorkers) {
+                try {
+                    if (workersCompleted.tryAcquire(10, TimeUnit.MILLISECONDS)) {
+                        completed++;
+                    }
+                }
+                catch (InterruptedException e) {
+                }
+                Consumer<RunNotifier> newResult;
+                while ((newResult = results.poll()) != null) {
+                    newResult.accept(notifier);
                 }
             }
-            catch (InterruptedException e) {
-            }
-            Consumer<RunNotifier> newResult;
-            while ((newResult = results.poll()) != null) {
-                newResult.accept(notifier);
-            }
-        }
 
-        RascalJUnitTestRunner.getCommonMonitor().endAllJobs();
-        assert results.isEmpty();
+            assert results.isEmpty();
+        }
+        finally {
+            RascalJUnitTestRunner.getCommonMonitor().endAllJobs();
+        }
     }
 
 
