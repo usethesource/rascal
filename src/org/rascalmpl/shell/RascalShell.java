@@ -42,7 +42,7 @@ public class RascalShell  {
     
     public static void main(String[] args) throws IOException {
         setupWindowsCodepage();
-        boolean ansiEnabled = enableAnsiEscapes();
+        enableWindowsAnsiEscapesIfPossible();
         System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
         printVersionNumber();
 
@@ -56,7 +56,7 @@ public class RascalShell  {
                     return;
                 }
                 else {
-                    var monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out, ansiEnabled);
+                    var monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
                     runner = new ModuleRunner(System.in, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, System.err, monitor);
                 }
             } 
@@ -74,7 +74,7 @@ public class RascalShell  {
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
 
-                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out, ansiEnabled);
+                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
 
                 IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
                 runner = new REPLRunner(System.in, System.err, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, term, services);
@@ -98,23 +98,27 @@ public class RascalShell  {
 
     private static int ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
-    public static boolean enableAnsiEscapes() {
+    public static void enableWindowsAnsiEscapesIfPossible() {
         if (IS_WINDOWS) {
             // Since Windows 10, it's possible to setup ANSI escapes for the terminal process
             // but jline2 doesn't do this itself. Some terminals on windows take care of it, some don't.
             // so we get the handle, and set it up
             long stdOut = Kernel32.GetStdHandle(Kernel32.STD_OUTPUT_HANDLE);
             if (stdOut == Kernel32.INVALID_HANDLE_VALUE) {
-                return false; // there is no output stream allocated for this process
+                return; // there is no output stream allocated for this process
             }
             int[] mode = new int[1];
             if (Kernel32.GetConsoleMode(stdOut, mode) == 0) {
-                return false; // not a console, but a file/stream output
+                // not a console, but a file/stream output, no need to turn ANSI on.
+                return; 
             }
             int newMode = mode[0] | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            return Kernel32.SetConsoleMode(stdOut, newMode) != 0; // will only fail on older versions of Windows
+            int errno;
+            if ((errno = Kernel32.SetConsoleMode(stdOut, newMode)) != 0) {
+                // will only fail on older versions of Windows
+                System.err.println("Windows console mode could not be enabled, errno=" + errno);
+            }; 
         }
-        return TerminalFactory.get().isAnsiSupported() && System.console() != null;
     }
 
     private static final int WINDOWS_UTF8_CODE_PAGE = 65001;
