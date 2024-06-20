@@ -162,7 +162,7 @@ with workload `1` and the same label as the job name.
 test bool horseRaceTest() {
   distance  = 3000000;
   stride    = 50;
-  horses    = 5;
+  horses    = 28;
   handicaps = [ arbInt(stride * 15 / 100)    | _ <- [0..horses]];
   labels    = [ "Horse <h> (handicap is <handicaps[h]>)" | h <- [0..horses]];
   progress  = [ 0                            | _ <- [0..horses]];
