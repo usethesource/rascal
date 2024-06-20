@@ -477,16 +477,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
      * Simply print the bars. No cursor movement here. Hiding the cursor prevents flickering.
      */
     private void printBars() {
-        if (bars.isEmpty()) {
-            // no more bars to show, so cursor goes back.
-            writer.write(ANSI.showCursor());
-        }
-
         for (var pb : bars) {
             pb.write();
         }
         
         writer.flush();
+        
     }
 
     /**
@@ -516,8 +512,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         if (bars.size() == 0) {
             // first new job, we take time to react to window resizing
             lineWidth = tm.getWidth();
-            // remove the cursor
-            writer.write(ANSI.hideCursor());
         }
 
         if (totalWork == 0) {
@@ -528,10 +522,12 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         var pb = findBarByName(name);
         
-        if (pb == null) {
+        writer.write(ANSI.hideCursor());
+
+        if (pb == null) {    
             eraseBars(); // to make room for the new bars
             bars.add(new ProgressBar(name, totalWork));
-            printBars(); // probably one line longer than before!
+            printBars(); // probably one line longer than before!   
         }
         else {
             // Zeno-bar: we add the new work to the already existing work
@@ -539,6 +535,9 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             pb.nesting++;
             pb.update();
         }
+
+        writer.write(ANSI.showCursor());
+        writer.flush();
     }
 
     @Override
@@ -546,14 +545,19 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         ProgressBar pb = findBarByName(name);
         
         if (pb != null) {
+            writer.write(ANSI.hideCursor());
             pb.worked(workShare, message);
             pb.update();
+            writer.write(ANSI.showCursor());
+            writer.flush();
         }
     }
 
     @Override
     public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
+
+        writer.write(ANSI.hideCursor());
 
         if (pb != null && --pb.nesting == -1) {
             eraseBars();
@@ -569,6 +573,8 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             pb.done();
             pb.update();
         }
+
+        writer.write(ANSI.showCursor());
 
         return -1;
     }
