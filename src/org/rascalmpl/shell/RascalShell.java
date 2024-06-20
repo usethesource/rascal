@@ -74,7 +74,7 @@ public class RascalShell  {
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
 
-                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out, ansiEnabled);
+                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
 
                 IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
                 runner = new REPLRunner(System.in, System.err, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, term, services);
