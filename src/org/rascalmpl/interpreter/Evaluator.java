@@ -1166,6 +1166,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
+    /**
+     * This starts a comprehensive batch of imports with its
+     * own monitoring job. The bar will grow as new modules
+     * are discovered to be recursively imported or extended.
+     * @param monitor
+     * @param string
+     */
     public void doImport(IRascalMonitor monitor, String... string) {
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
@@ -1179,6 +1186,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
         finally {
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
+            setMonitor(old);
+            setCurrentAST(null);
+        }
+    }
+
+    /**
+     * This is if a LOADING_JOB_CONSTANT-named job is already running, and
+     * we need to execute the next few imports. It assumed at least names.length
+     * work is on the todo list for the monitor. The todo work will grow
+     * as recursively imported or extended modules are discovered.
+     */
+    public void doNextImport(String jobName, String... names) {
+        IRascalMonitor old = setMonitor(monitor);
+        interrupt = false;
+        try {
+            ISourceLocation uri = URIUtil.rootLocation("import");
+            for (String module : names) {
+                monitor.jobStep(jobName, "Starting on " + module);
+                org.rascalmpl.semantics.dynamic.Import.importModule(module, uri, this);
+            }
+        }
+        finally {
             setMonitor(old);
             setCurrentAST(null);
         }
