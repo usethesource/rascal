@@ -466,8 +466,14 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
     returnType  = signature.\type;
    
     typeParamsInReturn = getTypeParams(returnType);
-    // TODO: JV; I'm missing understanding here. Why is a variable of role typeVarId() not
-    // something we can look up in the current scope? Can't we list all variables of a certain role?
+    
+    // Type parameters have to be handled in a different way than other variables.
+    // Ordinary entities like variables and function names are declared or used when we encounter them 
+    // during collection.  We cannot declare or use type parameters as they are encountered during collect 
+    // since their open/closed status has to be taken into account and that depends on the more global 
+    // context of the signature or function declaration in which they occur. That is why we explicitly create
+    //  uses and defs nof type parameters.
+   
     typeParamsInParameters = [*getTypeParams(t) | t <- formals + kwFormals];
     
     rel[str,Type] typeParamBounds = {};
@@ -509,9 +515,9 @@ private tuple[set[str], rel[str,Type]] computeBoundsAndDefineTypeParams(Signatur
         }
     }
 
-    // TODO: JV: I'm still missing the understanding here. Why does the lookup of the parameter &T not
-    // fail by itself when we compute the return type from it's AST if it is not a previously declared type parameter?
-    // Do we not get two errors now? One for the undeclared type parameter and one like below?
+    // Due to their special treatment, missing type parameters are not detected by typepal but have to
+    // detected explicitly.
+    
     missing = seenInReturn - seenInParams;
     if(!isEmpty(missing)){
         missing = {"&<m>" | m <- missing };
