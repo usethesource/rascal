@@ -242,7 +242,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         }
 
         private void processModules() {
-            evaluator.job("Importing test modules", 0, (jn) -> {
+            evaluator.job(Evaluator.LOADING_JOB_CONSTANT, 0, (jn) -> {
                 try {
                     String module;
 
@@ -250,7 +250,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                         evaluator.jobTodo(jn, 1);
                        
                         try {
-                            evaluator.doImport(evaluator.getMonitor(), module);
+                            evaluator.jobStep(jn,  module);
+                            evaluator.doNextImport(jn, module);
                         }
                         catch (Throwable e) {
                             synchronized(stdout) {
@@ -272,9 +273,6 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             descriptions.add(testDesc);
 
                             continue;
-                        }
-                        finally {
-                            evaluator.jobStep(jn, "Imported " + module);
                         }
 
                         ModuleEnvironment moduleEnv = heap.getModule(module.replaceAll("\\\\",""));
