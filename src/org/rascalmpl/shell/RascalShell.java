@@ -113,11 +113,13 @@ public class RascalShell  {
                 return; 
             }
             int newMode = mode[0] | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-            int errno;
-            if ((errno = Kernel32.SetConsoleMode(stdOut, newMode)) != 0) {
-                // will only fail on older versions of Windows
-                System.err.println("Windows console mode could not be enabled, errno=" + errno);
-            }; 
+            if (newMode != mode[0]) {
+                int errno;
+                if ((errno = Kernel32.SetConsoleMode(stdOut, newMode)) != 0) {
+                    // will only fail on older versions of Windows
+                    System.err.println("Windows console mode could not be enabled, errno=" + errno);
+                }; 
+            }
         }
     }
 
