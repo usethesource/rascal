@@ -371,14 +371,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             var line 
                 = done 
                 + FOUR_BIT_BGCOLORS[colorPicked][1] /*ANSI.lightBackground() */
-                + ANSI.underlined()
-                + ANSI.overlined()
-                // + "\u001B[30m" // black foreground
+                // + ANSI.underlined()
+                // + ANSI.overlined()
+                + "\u001B[37m" // white/black foreground 37/30
                 + frontPart
-                // + "\u001B[0m" // reset foreground
+                + "\u001B[0m" // reset foreground
                 + ANSI.noBackground()
                 + backPart
-                + ANSI.normal()
+                // + ANSI.normal()
                 + " " + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
