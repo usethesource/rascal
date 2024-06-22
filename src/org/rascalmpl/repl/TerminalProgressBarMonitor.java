@@ -335,7 +335,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
                 + ANSI.noBackground()
                 + ANSI.normal()
                 + backPart
-                // + ANSI.normal()
                 + " " + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
