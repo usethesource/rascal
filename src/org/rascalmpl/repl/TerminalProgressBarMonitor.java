@@ -329,13 +329,13 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
             var line 
                 = done 
-                + ANSI.lightBackground() 
-                + ANSI.underlined()
-                + ANSI.overlined()
+                + ANSI.grey8Background()
+                + ANSI.brightWhiteForeground()
                 + frontPart
                 + ANSI.noBackground()
-                + backPart
                 + ANSI.normal()
+                + backPart
+                // + ANSI.normal()
                 + " " + clock + " "
                 + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
                 + " "
@@ -404,6 +404,14 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             catch (IOException e) {
                return false;
             }
+        }
+
+        public static String grey8Background() {
+            return "\u001B[48;5;240m"; 
+        }
+
+        public static String brightWhiteForeground() {
+            return "\u001B[97m";
         }
 
         static int getCursorPosition(PrintWriter writer, InputStream in) throws IOException {
