@@ -514,6 +514,13 @@ default AType alub(AType s, AType t)
                              : avalue();
 
 AType alub(atypeList(ts1), atypeList(ts2)) = atypeList(alubList(ts1, ts2));
+
+AType alub(overloadedAType(overloads), AType t2)
+    = isEmpty(overloads) ? t2 : alub((avalue() | aglb(it, tp) | <_, _, tp> <- overloads), t2);
+
+AType alub(AType t1, overloadedAType(overloads))
+    = isEmpty(overloads) ? t1 : alub(t1, (avalue() | aglb(it, tp)  | <_, _, tp> <- overloads));
+    
 AType alub(avalue(), AType t) = avalue();
 AType alub(AType s, avalue()) = avalue();
 AType alub(avoid(), AType t)  = t;
@@ -699,6 +706,12 @@ public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
 
+AType aglb(overloadedAType(overloads), AType t2)
+    = isEmpty(overloads) ? t2 : aglb((avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
+
+AType aglb(AType t1, overloadedAType(overloads))
+    = isEmpty(overloads) ? t1 : aglb(t1, (avoid() | alub(it, tp)  | <_, _, tp> <- overloads));
+    
 public AType aglb(alist(AType s), alist(AType t)) = alist(aglb(s, t));  
 public AType aglb(alist(AType s), alrel(AType t)) = alist(aglb(s,atuple(t)));  
 public AType aglb(alrel(AType s), alist(AType t)) = alist(aglb(atuple(s), t));
