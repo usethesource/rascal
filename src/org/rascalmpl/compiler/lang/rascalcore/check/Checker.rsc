@@ -436,6 +436,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     modelName = intercalate(" + ", toList(moduleNames));    
     map[str, Module] namedTrees = ();
     for(str nm <- moduleNames){
+        ms.status[nm] = {};
+        ms.messages[nm] = [];
         <success, pt, ms> = getModuleParseTree(nm, ms);
         if(success){
             tagsMap = getTags(pt.header.tags);
