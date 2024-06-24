@@ -9,6 +9,12 @@ test bool undeclaredType1() = undeclaredType("X N;");            // TODO Type X 
 
 test bool doubleDeclaration3() = redeclaredVariable("int f(int N){int N = 1; return N;}");
 
+test bool doubleDeclaration4() = redeclaredVariable("void main() {
+    'int bar = 8;
+    'bool bar() = true;
+    'bar();
+}");
+
 test bool shadowingDeclaration1() = checkOK("int N = 1; {int N = 2;}; N == 1;"); //DISCUSS, was: redeclaredVariable
 
 test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1;"); //DISCUSS, was: redeclaredVariable

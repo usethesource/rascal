@@ -1,152 +1,21 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::BasicRascalConfig;
+import util::Maybe;
 
-value a1() = alub(
-      overloadedAType({
-        <|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/compile/Examples/Tst3.rsc|(399,6,<18,6>,<18,12>),constructorId(),acons(
-          aadt(
-            "LanguageService",
-            [],
-            dataSyntax()),
-          [afunc(
-              aadt(
-                "Tree",
-                [],
-                dataSyntax()),
-              [
-                astr(),
-                aloc()
-              ],
-              [],
-              alabel="parser")],
-          [],
-          alabel="parser")>,
-        <|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/compile/Examples/Tst3.rsc|(121,101,<11,0>,<12,59>),functionId(),afunc(
-          afunc(
-            aparameter(
-              "T",
-              avalue(),
-              closed=true),
-            [
-              avalue(),
-              aloc()
-            ],
-            []),
-          [areified(
-              aparameter(
-                "T",
-                avalue(),
-                closed=false),
-              alabel="grammar")],
-          [],
-          returnsViaAllPath=true,
-          abstractFingerprint=0,
-          alabel="parser")>
-      }),
-      
-      acons(
-      aadt(
-        "LanguageService",
-        [],
-        dataSyntax()),
-      [afunc(
-          alist(aadt(
-              "DocumentSymbol",
-              [],
-              dataSyntax())),
-          [aadt(
-              "Tree",
-              [],
-              dataSyntax())],
-          [],
-          alabel="outliner")],
-      [],
-      alabel="outliner")
-      );
-      
-      
- value a2() = alub(
- 
-    afunc(
-          afunc(
-            aparameter(
-              "T",
-              avalue(),
-              closed=true),
-            [
-              avalue(),
-              aloc()
-            ],
-            []),
-          [areified(
-              aparameter(
-                "T",
-                avalue(),
-                closed=false),
-              alabel="grammar")],
-          [],
-          returnsViaAllPath=true,
-          abstractFingerprint=0,
-          alabel="parser")
- ,
- 
-   acons(
-      aadt(
-        "LanguageService",
-        [],
-        dataSyntax()),
-      [afunc(
-          alist(aadt(
-              "DocumentSymbol",
-              [],
-              dataSyntax())),
-          [aadt(
-              "Tree",
-              [],
-              dataSyntax())],
-          [],
-          alabel="outliner")],
-      [])
-);
+//set[int] z1 = {y | x <- [1..5], just(y)     := just(x)};
+set[int] z2 = {y | x <- [1..5], just(y)     := just(x)} + {6, 7, 8}; // Error: Initialization of `z2` should be subtype of `set[int]`, found `set[value]`
+//set[int] z3 = {y | x <- [1..5], just(int y) := just(x)} + {6, 7, 8};
 
+set[int] z4 = {y | x <- [1..5], {y} := {y}};
+//set[int] z5 = {y | x <- [1..5], {y} := {y}} + {6, 7, 8};
+//set[int] z6 = {y | x <- [1..5], [y] := [y]};
+//set[int] z7 = {y | x <- [1..5], [y] := [y]} + {6, 7, 8};
 
-AType a3() = alub(
-       afunc(
-            aparameter(
-              "T",
-              avalue(),
-              closed=true),
-            [
-              avalue(),
-              aloc()
-            ],
-            [])
-,
-      
-      afunc(
-          alist(aadt(
-              "DocumentSymbol",
-              [],
-              dataSyntax())),
-          [aadt(
-              "Tree",
-              [],
-              dataSyntax())],
-          [],
-          alabel="outliner")
-);  
+value main() = z4;
+//
+//alias A = int;
+//int A() = 0;
 
-
-AType a4() = alub(
-        aparameter(
-              "T",
-              avalue(),
-              closed=true)
-              ,
-         alist(aadt(
-              "DocumentSymbol",
-              [],
-              dataSyntax()))
-);        
+//data F = f(str s, int n) | f(int n, str s);
+//int getN(f(s, n)) = s;
+        
