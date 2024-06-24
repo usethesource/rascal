@@ -176,7 +176,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     /**
      * True if we're doing profiling
      */
-    private static boolean doProfiling = false;
+    private boolean doProfiling = false;
 
     /**
      * Track if we already started a profiler, to avoid starting duplicates after a callback to an eval function.
@@ -888,7 +888,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         __setInterrupt(false);
         try {
             Profiler profiler = null;
-            if (Evaluator.doProfiling && !profilerRunning) {
+            if (doProfiling && !profilerRunning) {
                 profiler = new Profiler(this);
                 profiler.start();
                 profilerRunning = true;
@@ -1092,7 +1092,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(Commands commands) {
         __setInterrupt(false);
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
@@ -1115,7 +1115,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(Command command) {
         __setInterrupt(false);
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
@@ -1166,6 +1166,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
+    /**
+     * This starts a comprehensive batch of imports with its
+     * own monitoring job. The bar will grow as new modules
+     * are discovered to be recursively imported or extended.
+     * @param monitor
+     * @param string
+     */
     public void doImport(IRascalMonitor monitor, String... string) {
         assert monitor != null;
         IRascalMonitor old = setMonitor(monitor);
@@ -1180,6 +1187,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
         finally {
             monitor.jobEnd(LOADING_JOB_CONSTANT, true);
+            setMonitor(old);
+            setCurrentAST(null);
+        }
+    }
+
+    /**
+     * This is if a LOADING_JOB_CONSTANT-named job is already running, and
+     * we need to execute the next few imports. It assumed at least names.length
+     * work is on the todo list for the monitor. The todo work will grow
+     * as recursively imported or extended modules are discovered.
+     */
+    public void doNextImport(String jobName, String... names) {
+        IRascalMonitor old = setMonitor(monitor);
+        interrupt = false;
+        try {
+            ISourceLocation uri = URIUtil.rootLocation("import");
+            for (String module : names) {
+                monitor.jobStep(jobName, "Starting on " + module);
+                org.rascalmpl.semantics.dynamic.Import.importModule(module, uri, this);
+            }
+        }
+        finally {
             setMonitor(old);
             setCurrentAST(null);
         }
@@ -1441,7 +1470,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override	
     public void updateProperties() {
-        Evaluator.doProfiling = config.getProfilingProperty();
+        doProfiling = config.getProfilingProperty();
 
         setCallTracing(config.getTracingProperty());
     }
@@ -1574,7 +1603,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
