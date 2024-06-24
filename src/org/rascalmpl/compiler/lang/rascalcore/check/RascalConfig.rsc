@@ -14,6 +14,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 import Location;
 import util::Reflective;
+import util::SemVer;
 
 //TODO: eventually, parser generator will be called
 //extend lang::rascalcore::grammar::ParserGenerator;
@@ -35,20 +36,23 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     bool seenLAY = false;
     bool seenKEY = false;
     bool seenALIAS = false;
-    
+    bool seenFUNCTION = false;
+
     for(def <- defs){
         // Forbid:
-        // - overloading of variables/formals
+        // - overloading of variables/formals/pattern variables
         // - overloading of incompatible syntax definitions
         switch(defines[def].idRole){
+        case functionId():
+            { if(seenVAR) return false; seenFUNCTION = true; }
         case variableId(): 
-            { if(seenVAR) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case moduleVariableId(): 
-            { if(seenVAR) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case formalId(): 
-            { if(seenVAR) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case patternVariableId(): 
-            { if(seenVAR) return false;  seenVAR = true;}
+            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case nonterminalId():
             { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
         case lexicalId():
@@ -59,6 +63,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
             { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
         case aliasId():
             { if(seenALIAS) return false; seenALIAS = true; } 
+        
         }
     }
     return true;
