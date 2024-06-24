@@ -1,16 +1,13 @@
 package org.rascalmpl.library;
 
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -108,7 +105,7 @@ public class Messages {
                 out.println("[ERROR]  " + output);
             }
             else if (isWarning) {
-                out.println("[WARNING]" + output)
+                out.println("[WARNING]" + output);
             }
             else {
                 out.println("[INFO]   " + output);
