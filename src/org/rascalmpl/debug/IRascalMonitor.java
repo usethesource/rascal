@@ -20,11 +20,12 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.interpreter.BatchProgressMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
+import jline.Terminal;
 import jline.TerminalFactory;
 
 public interface IRascalMonitor {
@@ -153,18 +154,26 @@ public interface IRascalMonitor {
 	public void warning(String message, ISourceLocation src);
 
 	/**
-	 * Convenience method will produce a monitor with ANSI progress bars if possible,
+	 * Convenience method will produce a monitor with ANSI progress bars if not in batch mode,
 	 * and otherwise default to a dumn terminal console progress logger.
 	 * @return
 	 */
 	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
-		return buildConsoleMonitor(in, out, System.console() != null);
+		return buildConsoleMonitor(in, out, inBatchMode());
 	}
 
-	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out, boolean ansiEnabled) {
-		return ansiEnabled 
-			? new TerminalProgressBarMonitor(out, in, TerminalFactory.get())
-			: new ConsoleRascalMonitor(new PrintStream(out))
+	public static boolean inBatchMode() {
+		return "true".equals(System.getenv("CI")) 
+		    || System.getProperty("rascal.monitor.batch") != null
+			;
+	}
+
+	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out, boolean batchMode) {
+		Terminal terminal = TerminalFactory.get();
+
+		return !batchMode && terminal.isAnsiSupported()
+			? new TerminalProgressBarMonitor(out, in, terminal)
+			: new BatchProgressMonitor(new PrintStream(out))
 		;
 	}
 
