@@ -11,6 +11,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -78,7 +79,9 @@ public class ShellEvaluatorFactory {
         }
 
         ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
-        evaluator.addClassLoader(cl);    
+        evaluator.addClassLoader(cl);  
+        
+        Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
     }
 
     /**
