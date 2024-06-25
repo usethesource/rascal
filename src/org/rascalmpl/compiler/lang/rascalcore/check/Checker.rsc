@@ -188,11 +188,11 @@ list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(lb)) msgs += error("PathConfig `libs`: <lb> does not exist", lb);
     }
     
-    if(!exists(pcfg.bin)) {
+    if(!exists(pcfg.resources)) {
         try {
-            mkDirectory(pcfg.bin);
+            mkDirectory(pcfg.resources);
         } catch e: {
-            msgs += error("PathConfig `bin`: <e>", pcfg.bin);
+            msgs += error("PathConfig `resources`: <e>", pcfg.resources);
         }
     }
     
@@ -201,11 +201,11 @@ list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
 
 list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
     msgs = validatePathConfigForChecker(pcfg, mloc);
-    if(!exists(pcfg.generatedSources)){
+    if(!exists(pcfg.bin)){
         try {
-            mkDirectory(pcfg.generatedSources);
+            mkDirectory(pcfg.bin);
         } catch e: {
-            msgs += error("PathConfig `generatedSources`: <e>", pcfg.generatedSources);
+            msgs += error("PathConfig `bin`: <e>", pcfg.bin);
         }
      }
      return msgs;
