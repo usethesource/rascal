@@ -6,7 +6,7 @@ import util::Benchmark;
 
 void main() {
     start_time = cpuTime();  
-    input_module = "lang::rascalcore::compile::Compile";
+    input_module = "B";
     
     pcfg = pathConfig(
                     bin=|project://rascal-core/target/generated-test-sources2|,
