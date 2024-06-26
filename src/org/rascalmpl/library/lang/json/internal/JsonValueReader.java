@@ -66,6 +66,7 @@ public class JsonValueReader {
   private VarHandle lineHandler;
   private VarHandle lineStartHandler;
   private IFunction parsers;
+  private Map<Type, IValue> nulls = Collections.emptyMap();
   
   /**
    * @param vf     factory which will be used to construct values
@@ -98,6 +99,10 @@ public class JsonValueReader {
     this(vf, new TypeStore(), monitor, src);
   }
   
+  public JsonValueReader setNulls(Map<Type, IValue> nulls) {
+      this.nulls = nulls;
+      return this;
+  }
   /**
    * Builder method to set the format to use for all date-time values encoded as strings
    */
@@ -140,7 +145,8 @@ public class JsonValueReader {
             case STRING:
               return vf.integer(in.nextString());
             case NULL:
-              return null;
+              in.nextNull();
+              return inferNullValue(nulls, type);
             default:
               throw new IOException("Expected integer but got " + in.peek());
           }
@@ -158,7 +164,8 @@ public class JsonValueReader {
             case STRING:
               return vf.real(in.nextString());
             case NULL:
-              return null;
+              in.nextNull();
+              return inferNullValue(nulls, type);
             default:
               throw new IOException("Expected integer but got " + in.peek());
           }
@@ -168,6 +175,38 @@ public class JsonValueReader {
         }
       }
       
+      private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
+          IValue nullValue = nulls.get(expected);
+
+          if (nullValue != null) {
+            return nullValue;
+          }
+
+          for (Type superType : nulls.keySet()) {
+            if (superType.isTop() || superType.isNode()) {
+              continue; // those are last resorts.
+            }
+
+            if (expected.isSubtypeOf(superType)) {
+              return nulls.get(superType);
+            }
+          }
+
+          Type node = TypeFactory.getInstance().nodeType();
+          Type value = TypeFactory.getInstance().valueType();
+
+          if (expected.isSubtypeOf(node) && nulls.containsKey(node)) {
+            return nulls.get(node);
+          }
+
+          if (expected.isSubtypeOf(value) && nulls.containsKey(value)) {
+            return nulls.get(value);
+          }
+
+          /* this will trigger an NPE somewhere */
+          return null;
+      }
+
       @Override
       public IValue visitExternal(Type type) throws IOException {
         throw new IOException("External type " + type + "is not implemented yet by the json reader:" + in.getPath());
@@ -176,7 +215,7 @@ public class JsonValueReader {
       @Override
       public IValue visitString(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
         
         return vf.string(in.nextString());
@@ -185,7 +224,7 @@ public class JsonValueReader {
       @Override
       public IValue visitTuple(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
 
         List<IValue> l = new ArrayList<>();
@@ -334,7 +373,7 @@ public class JsonValueReader {
             return vf.string(in.nextName());
           case NULL:
             in.nextNull();
-            return null;
+            return inferNullValue(nulls, type);
           default:
             throw new IOException("Did not expect end of Json value here, while looking for " + type + " + at " + in.getPath());
         }
@@ -361,7 +400,7 @@ public class JsonValueReader {
       
       public IValue visitRational(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
         
         switch (in.peek()) {
@@ -400,7 +439,7 @@ public class JsonValueReader {
       @Override
       public IValue visitMap(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
         IMapWriter w = vf.mapWriter();
         
@@ -444,7 +483,7 @@ public class JsonValueReader {
       @Override
       public IValue visitBool(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
         return vf.bool(in.nextBoolean());
       }
@@ -661,7 +700,7 @@ public class JsonValueReader {
       @Override
       public IValue visitList(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
 
         IListWriter w = vf.listWriter();
@@ -677,7 +716,7 @@ public class JsonValueReader {
       
       public IValue visitSet(Type type) throws IOException {
         if (isNull()) {
-          return null;
+          return inferNullValue(nulls, type);
         }
 
         ISetWriter w = vf.setWriter();
@@ -706,4 +745,6 @@ public class JsonValueReader {
     
     return res;
   }
+
+
 }

@@ -14,6 +14,8 @@
 
 module lang::json::IO
 
+import util::Maybe;
+
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
 use writeJSON
@@ -45,8 +47,31 @@ In general the translation behaves as follows:
 * If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
    a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}
 * Go to ((JSONParser)) to find out how to use the optional `parsers` parameter.
+* if the parser finds a `null` JSON value, it will lookup in the `nulls` map based on the currently expected type which value to return, or throw an exception otherwise.
+First the expected type is used as a literal lookup, and then each value is tested if the current type is a subtype of it. 
 }
-java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[value] parser = (type[value] _, str _) { throw ""; });
+java &T readJSON(
+  type[&T] expected, 
+  loc src, 
+  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  bool lenient=false, 
+  bool trackOrigins=false, 
+  JSONParser[value] parser = (type[value] _, str _) { throw ""; },
+  map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues);
+
+public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
+  #Maybe[value]     : nothing(), 
+  #node             : "null"(), 
+  #int              : -1, 
+  #real             : -1.0, 
+  #rat              :-1r1, 
+  #value            : "null"(), 
+  #str              : "", 
+  #list[value]      : [], 
+  #set[value]       : {}, 
+  #map[value,value] : (),
+  #loc              : |unknown:///|
+);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{parses JSON values from a string.
