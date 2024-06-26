@@ -253,15 +253,21 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
     
+    start_save = cpuTime();  
     if(any(c <- component, !isEmpty({parse_error(), not_found(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
+    set[loc] filteredModuleScopes = {};
     loc2moduleName = invertUnique(ms.moduleLocs);
     
     bool isContainedInComponentScopes(loc inner){
         return any(cs <- component_scopes, isContainedIn(inner, cs));
+    };
+    
+    bool isContainedInFilteredModuleScopes(loc inner){
+        return any(cs <- filteredModuleScopes, isContainedIn(inner, cs));
     };
        
     for(qualifiedModuleName <- component){
@@ -318,17 +324,18 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             // Filter model for current module and replace functions in defType by their defined type
             
             defs = for(tup:<loc scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){ 
-                       if( idRole in keepInTModelRoles
-                          && isContainedInComponentScopes(defined)
-                          && (  scope == |global-scope:///| && defined.path in filteredModuleScopePaths 
-                             || scope in filteredModuleScopes
-                             || scope.path == mscope.path
-                             )
-                         ){
-                         append tup;
-                      } else {
-                         ;
-                      }
+                       if( ( idRole in variableRoles ?  isContainedInComponentScopes(defined)
+                                                     : (  idRole in keepInTModelRoles 
+                                                       && ( isContainedInComponentScopes(defined)
+                                                          || isContainedInFilteredModuleScopes(defined)
+                                                          )
+                                                       )
+                           )
+                           ){
+                            append tup;
+                         } else {
+                            ;//println("skip: <tup>");
+                         }
                    };
             
             m1.defines = toSet(defs);
@@ -374,11 +381,14 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             ms.status[qualifiedModuleName] += tpl_saved();
             try {
                 writeBinaryValueFile(tplLoc, m1);
-                if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
+                //if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
+                save_time = (cpuTime() - start_save)/1000000;
+                println("Saved TPL .. <qualifiedModuleName> in <save_time> ms");
             } catch value e: {
                 throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
             ms = addTModel(qualifiedModuleName, m1, ms);
+            //println("doSaveModule"); iprintln(m1);
             
         } catch value e: {
             ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
