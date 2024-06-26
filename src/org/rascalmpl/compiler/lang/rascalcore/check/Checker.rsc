@@ -130,7 +130,7 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     );
 }
 
-@synopsis{PathConfig for type-checking test modules in the rascal-core project; such as lang::rascalcore::check::Test1}
+@synopsis{PathConfig for type-checking test modules in the rascal-core project}
 @description{
 * sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
 * binaries will be stored the target folder of the rascal-core project
@@ -139,14 +139,37 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
         srcs = [
+                |std:///|,
+                |project://rascal-core/src/org/rascalmpl/core/library|,
+                |project://typepal/src|
+               ],
+        bin = |project://rascal-core/target/test-classes|,
+        generatedSources = |project://rascal-core/target/generated-test-sources|,
+        resources = |project://rascal-core/target/generated-test-resources|,
+        libs = []
+    );
+}
+
+public RascalCompilerConfig getRascalCoreCompilerConfig(){
+    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+}
+
+@synopsis{Developers version: PathConfig for type-checking modules in other (named) Rascal projects}
+@description{
+* sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
+* binaries will be stored the target folder of the rascal-core project
+* has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
+* Included projects: rascal-tutor, flybytes, rascal-lsp
+}
+public PathConfig getRascalCorePathConfigDev() {
+   return pathConfig(   
+        srcs = [
                 |project://rascal/src/org/rascalmpl/library|, 
                 |std:///|,
                 |project://rascal-core/src/org/rascalmpl/core/library|,
-                //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
                 |project://typepal/src|,
                 |project://rascal-tutor/src|,
                 |project://flybytes/src|,
-                //|project://rascal-lsp/src/main/|
                 |project://rascal-lsp/src/main/rascal/|
                 ],
         bin = |project://rascal-core/target/test-classes|,
@@ -156,12 +179,12 @@ public PathConfig getRascalCorePathConfig() {
     );
 }
 
-public RascalCompilerConfig getRascalCoreCompilerConfig(){
-    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true];
+public RascalCompilerConfig getRascalCoreCompilerConfigDev(){
+    return rascalCompilerConfig(getRascalCorePathConfigDev())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = true];
+    return rascalCompilerConfig(pcfg);
 }
     
 @synopsis{a path config for testing type-checking of the standard library in the rascal project}    
@@ -347,9 +370,9 @@ ModuleStatus rascalTModelForLocs(
                         }
                     }
                     if(ms.messages[m]?){
-                        tm.messages = ms.messages[m];
+                        tm.messages += ms.messages[m];
                     } else {
-                        ms.messages[m] = [];
+                        ms.messages[m] = tm.messages;
                     }
                     ms.status[m] += {tpl_uptodate(), checked()};
                     if(!isEmpty([ e | e:error(_,_) <- ms.messages[m] ])){
