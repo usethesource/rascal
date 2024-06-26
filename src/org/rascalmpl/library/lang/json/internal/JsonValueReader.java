@@ -176,35 +176,14 @@ public class JsonValueReader {
       }
       
       private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
-          IValue nullValue = nulls.get(expected);
+          return nulls.keySet().stream()
+            .sorted((x,y) -> x.compareTo(y))                         // smaller types are matched first 
+            .filter(superType -> expected.isSubtypeOf(superType))    // remove any type that does not fit
+            .findFirst()                                             // give the most specific match
+            .map(t -> nulls.get(t))                                  // lookup the corresponding null value
+            .orElse(null);                                     // or muddle on and throw NPE elsewhere
 
-          if (nullValue != null) {
-            return nullValue;
-          }
-
-          for (Type superType : nulls.keySet()) {
-            if (superType.isTop() || superType.isNode()) {
-              continue; // those are last resorts.
-            }
-
-            if (expected.isSubtypeOf(superType)) {
-              return nulls.get(superType);
-            }
-          }
-
-          Type node = TypeFactory.getInstance().nodeType();
-          Type value = TypeFactory.getInstance().valueType();
-
-          if (expected.isSubtypeOf(node) && nulls.containsKey(node)) {
-            return nulls.get(node);
-          }
-
-          if (expected.isSubtypeOf(value) && nulls.containsKey(value)) {
-            return nulls.get(value);
-          }
-
-          /* this will trigger an NPE somewhere */
-          return null;
+          // The NPE triggering "elsewhere" should help with fault localization. 
       }
 
       @Override
@@ -536,6 +515,10 @@ public class JsonValueReader {
 
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
+        if (isNull()) {
+          return inferNullValue(nulls, type);
+        }
+
         if (in.peek() == JsonToken.STRING) {
           var stringInput = in.nextString();
 
@@ -573,7 +556,7 @@ public class JsonValueReader {
           }
         }
 
-        assert in.peek() == JsonToken.BEGIN_OBJECT;
+        assert in.peek() == JsonToken.BEGIN_OBJECT || in.peek() == JsonToken.NULL;
 
         Set<Type> alternatives = store.lookupAlternatives(type);
         if (alternatives.size() > 1) {
@@ -605,10 +588,13 @@ public class JsonValueReader {
             }
           }
           else if (cons.hasKeywordField(label, store)) {
-            IValue val = read(in, store.getKeywordParameterType(cons, label));
-            if (val != null) {
-              // if the value is null we'd use the default value of the defined field in the constructor
-              kwParams.put(label, val);
+            if (!isNull()) { // lookahead for null to give default parameters the preference.
+              IValue val = read(in, store.getKeywordParameterType(cons, label));
+              // null can still happen if the nulls map doesn't have a default
+              if (val != null) {
+                // if the value is null we'd use the default value of the defined field in the constructor
+                kwParams.put(label, val);
+              }
             }
           }
           else { // its a normal arg, pass its label to the child
