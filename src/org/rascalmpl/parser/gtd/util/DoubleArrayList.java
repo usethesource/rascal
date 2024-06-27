@@ -11,6 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
+import java.util.Comparator;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 @SuppressWarnings("unchecked")
 public class DoubleArrayList<F, S>{
 	private final static int DEFAULT_SIZE = 8;
@@ -101,6 +105,21 @@ public class DoubleArrayList<F, S>{
 	
 	public int size(){
 		return size;
+	}
+
+	public void sort(Comparator<Pair<F,S>> comparator) {
+		java.util.List<Pair<F,S>> elems = new java.util.ArrayList<>(size);
+		for (int i=0; i<size; i++) {
+			elems.add(Pair.of(first[i], second[i]));
+		}
+
+		elems.sort(comparator);
+
+		for (int i=0; i<size; i++) {
+			Pair<F,S> elem = elems.get(i);
+			first[i] = elem.getLeft();
+			second[i] = elem.getRight();
+		}
 	}
 
 	@Override

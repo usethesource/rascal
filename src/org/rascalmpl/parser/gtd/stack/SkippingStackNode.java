@@ -17,10 +17,10 @@ import org.rascalmpl.parser.gtd.result.SkippedNode;
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
 	
-	public SkippingStackNode(int id, int[] until, int[] input, int startLocation, P parentProduction){
+	public SkippingStackNode(int id, int[] until, int[] input, int startLocation, P parentProduction, int dot){
 		super(id, 0);
 		
-		this.result = buildResult(input, until, startLocation);
+		this.result = buildResult(input, until, startLocation, parentProduction, dot);
 		setAlternativeProduction(parentProduction);
 	}
 	
@@ -36,7 +36,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		this.result = result;
 	}
 	
-	private static SkippedNode buildResult(int[] input, int[] until, int startLocation){
+	private SkippedNode buildResult(int[] input, int[] until, int startLocation, P production, int dot){
 		for (int to = startLocation ; to < input.length; ++to) {
 			for (int i = 0; i < until.length; ++i) {
 				if (input[to] == until[i]) {
@@ -44,12 +44,12 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 					int[] chars = new int[length];
 					System.arraycopy(input, startLocation, chars, 0, length);
 					
-					return new SkippedNode(chars, startLocation);
+					return new SkippedNode(production, dot, chars, startLocation);
 				}
 			}
 		}
 		
-		return new SkippedNode(new int[0], startLocation);
+		return new SkippedNode(production, dot, new int[0], startLocation);
 	}
 	
 	public boolean isEmptyLeafNode(){

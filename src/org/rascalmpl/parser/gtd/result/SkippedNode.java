@@ -11,8 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
-import java.util.Arrays;
-
 import org.rascalmpl.unicode.UnicodeConverter;
 
 /**
@@ -21,13 +19,16 @@ import org.rascalmpl.unicode.UnicodeConverter;
 public class SkippedNode extends AbstractNode {
 	public final static int ID = 9;
 	
+	private final Object production;
+	private final int dot;
 	private final int[] skippedChars;
-	
 	private final int offset;
 
-	public SkippedNode(int[] skippedChars, int offset){
+	public SkippedNode(Object production, int dot, int[] skippedChars, int offset) {
 		super();
 		
+		this.production = production;
+		this.dot = dot;
 		this.skippedChars = skippedChars;
 		this.offset = offset;
 	}
@@ -35,7 +36,15 @@ public class SkippedNode extends AbstractNode {
 	public int getTypeIdentifier(){
 		return ID;
 	}
-	
+
+	public Object getProduction() {
+		return production;
+	}
+
+	public int getDot() {
+		return dot;
+	}
+
 	public int[] getSkippedChars(){
 		return skippedChars;
 	}
