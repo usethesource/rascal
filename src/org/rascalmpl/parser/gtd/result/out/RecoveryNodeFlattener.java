@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.result.out;
 
 import org.rascalmpl.parser.gtd.result.SkippedNode;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
  * A converter for result nodes that contain skipped characters for error recovery
@@ -23,6 +24,6 @@ public class RecoveryNodeFlattener<T, P>{
 	}
 	
 	public T convertToUPTR(INodeConstructorFactory<T, P> nodeConstructorFactory, SkippedNode node){
-		return nodeConstructorFactory.createRecoveryNode(node.getSkippedChars());
+		return nodeConstructorFactory.createRecoveryNode(node.getDot(), new ArrayList<>(), node.getSkippedChars(), node.getProduction());
 	}
 }

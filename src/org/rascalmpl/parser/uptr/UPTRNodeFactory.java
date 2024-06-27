@@ -1,7 +1,6 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -14,6 +13,7 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -22,8 +22,7 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
-	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
-	private final static IConstructor SKIPPED = VF.constructor(RascalValueFactory.Production_Skipped, VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Range, VF.integer(1), VF.integer(Character.MAX_CODE_POINT)))));
+	private static final RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
 	private boolean allowAmb;
 	
 	public UPTRNodeFactory(boolean allowAmbiguity){
@@ -143,8 +142,19 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 	}
 
     @Override
-    public ITree createRecoveryNode(int[] characters) {
-        IList chars = Arrays.stream(characters).mapToObj(ch -> VF.character(ch)).collect(VF.listWriter());
-        return VF.appl(SKIPPED, chars);
+    public ITree createRecoveryNode(int dot, ArrayList<ITree> recognizedPrefix, int[] unrecognizedCharacters, Object production) {
+		IListWriter args = VF.listWriter();
+		for (int i=0; i<recognizedPrefix.size(); i++) {
+			args.append(recognizedPrefix.get(i));
+		}
+
+		for (int c : unrecognizedCharacters) {
+			args.append(VF.character(c));
+		}
+
+		IConstructor prod = (IConstructor) production;
+
+		IConstructor skipped = VF.constructor(RascalValueFactory.Production_Skipped, prod.get(0), (IValue) production, VF.integer(dot));
+        return VF.appl(skipped, args.done());
     }
 }

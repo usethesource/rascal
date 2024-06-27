@@ -919,6 +919,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
      * Inserts a recovery node into the todo-list, and possibly
      * rewinds the parser to an earlier location in the input
      */
+	// TODO: look for original code:
+	// - queueMatchableNode (just above here)
     @SuppressWarnings("unchecked")
     private void queueRecoveryNode(AbstractStackNode<P> node, int startPosition, int length, AbstractNode result){
         assert result != null;
@@ -937,20 +939,19 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
             
             DoubleStack<AbstractStackNode<P>, AbstractNode>[] oldTodoLists = todoLists;
             todoLists = new DoubleStack[negativeOffset + Math.max(queueDepth, length) + 1];
-            System.arraycopy(oldTodoLists, queueIndex, todoLists, negativeOffset + 1, queueDepth - queueIndex);
-            System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex + negativeOffset + 1, queueIndex);
+            System.arraycopy(oldTodoLists, queueIndex, todoLists, negativeOffset, queueDepth - queueIndex);
+            System.arraycopy(oldTodoLists, 0, todoLists, queueDepth - queueIndex + negativeOffset , queueIndex);
             
             // reset the parser!
             queueIndex = 0;
-            location = startPosition + 1;
+            location = startPosition;
             
-            DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex + 1];
-            if (terminalsTodo == null){
+            //<PO> was: DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex + 1];
+			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[length];
+            if (terminalsTodo == null) {
                 terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
-                todoLists[queueIndex + 1] = terminalsTodo; // <PO> Why the +1 and not length? To get the recovered node to be processed first?
-            }
-            else {
-                assert false: "this should never happen";
+                // <PO> was: todoLists[queueIndex + 1] = terminalsTodo; // <PO> Why the +1 and not length? To get the recovered node to be processed first?
+				todoLists[length] = terminalsTodo;
             }
             
             terminalsTodo.push(node, result);
