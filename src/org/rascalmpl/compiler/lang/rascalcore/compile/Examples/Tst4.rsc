@@ -1,10 +1,13 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-data F = f();
-anno int F@pos;
+int f1(int foo, int foo) = foo;         // Error (2x): 'Double declaration of `foo` at ...
+int f2(int foo, int foo = 1) = foo;     // No errors; would expect similar to above
+int f3(int foo = 1, int foo = 1) = foo; // No errors; would expect similar to above
 
-value checkAnnoExistsAsKeywordField(){
-   F example = f();
-   example@pos = 1;
-   return example.pos?;
-}
+//int f(int foo = 2) = foo;
+//
+//int main() {
+//  
+//  f(foo = 1);
+//  return 0;
+//}
