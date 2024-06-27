@@ -351,6 +351,30 @@ test bool isContainedIn2(int f, int len){
     return report(l1, l2, !isContainedIn(l2, l1));
 }
 
+// isStrictlyContainedIn
+
+test bool isStrictlyContainedIn1(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1 + delta, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn2(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn3(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    l1 = getLoc(f1, t1); 
+    return report(l1, l1, !isStrictlyContainedIn(l1, l1));
+}
+
 // beginsBefore
 
 @ignore{unknown}
