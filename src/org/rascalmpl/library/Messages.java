@@ -82,12 +82,25 @@ public class Messages {
                     return l1.getPath().compareTo(l2.getPath());
                 }
 
-                if (l1.getBeginLine() == l2.getBeginLine()) {
-                    return Integer.compare(l1.getBeginColumn(), l2.getBeginColumn());
+                if (l1.hasLineColumn() && l2.hasLineColumn()) {
+                    if (l1.getBeginLine() == l2.getBeginLine()) {
+                        return Integer.compare(l1.getBeginColumn(), l2.getBeginColumn());
+                    }
+                    else {
+                        return Integer.compare(l1.getBeginLine(), l2.getBeginLine());
+                    }
                 }
-                else {
-                    return Integer.compare(l1.getBeginLine(), l2.getBeginLine());
+                else if (l1.hasOffsetLength() && l2.hasOffsetLength()) {
+                    return Integer.compare(l1.getOffset(), l2.getOffset());
                 }
+                else if (l1.hasOffsetLength()) {
+                    return -1;
+                }
+                else if (l2.hasOffsetLength()) {
+                    return 1;
+                }
+
+                return 0;
             });
 
         for (IConstructor msg : sortedStream.collect(Collectors.toList())) {
