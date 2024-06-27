@@ -33,6 +33,7 @@ import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.maybe.UtilMaybe;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -67,10 +68,6 @@ public class JsonValueReader {
   private VarHandle lineStartHandler;
   private IFunction parsers;
   private Map<Type, IValue> nulls = Collections.emptyMap();
-  private final Type ParameterT = TF.parameterType("A");
-  private final Type Maybe;
-  private final Type Maybe_nothing;
-  private final Type Maybe_just;
   
   
   /**
@@ -82,11 +79,6 @@ public class JsonValueReader {
     this.store = store;
     this.monitor = monitor;
     this.src = src;
-
-    // WARNING: this clones the definitions of util::Maybe until we can reuse compiler-generated code
-    this.Maybe = TF.abstractDataType(store, "Maybe", ParameterT);
-    this.Maybe_nothing = TF.constructor(store, Maybe, "nothing");
-    this.Maybe_just = TF.constructor(store, Maybe, "just", ParameterT, "val");
 
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -104,14 +96,6 @@ public class JsonValueReader {
         monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
       }
     }
-  }
-
-  private IConstructor justCons(IValue val) {
-    return vf.constructor(Maybe_just, val);
-  }
-
-  private final IConstructor nothingCons() {
-    return vf.constructor(Maybe_nothing);
   }
   
   public JsonValueReader(IRascalValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
@@ -537,10 +521,6 @@ public class JsonValueReader {
        * of null values.
        */
       private IValue visitNullAsAbstractData(Type type) {
-        if (type.isSubtypeOf(Maybe)) {
-          return nothingCons();
-        }
-
         return inferNullValue(nulls, type);
       }
 
@@ -661,13 +641,13 @@ public class JsonValueReader {
 
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
-        if (type.isSubtypeOf(Maybe)) {
+        if (UtilMaybe.isMaybe(type)) {
           if (in.peek() == JsonToken.NULL) {
-            return nothingCons();
+            return UtilMaybe.nothing();
           }
           else {
             // dive into the wrapped type, and wrap the result. Could be a str, int, or anything.
-            return justCons(type.getTypeParameters().getFieldType(0).accept(this));
+            return UtilMaybe.just(type.getTypeParameters().getFieldType(0).accept(this));
           }
         }
 
