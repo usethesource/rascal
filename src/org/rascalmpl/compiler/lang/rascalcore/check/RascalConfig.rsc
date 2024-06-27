@@ -191,13 +191,22 @@ AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[I
     //println("rascalGetTypeInTypeFromDefine: <containerDef>, <selectorName>");
     //println("commonKeywordFields: <containerDef.defInfo.commonKeywordFields>");
     containerType = s.getType(containerDef.defined);
-    if(fieldId() in idRolesSel && selectorName == "top" && isStartNonTerminalType(containerType)){
+    if(  fieldId() in idRolesSel 
+       && selectorName == "top" 
+       && isStartNonTerminalType(containerType)
+       ){
         return getStartNonTerminalType(containerType);
     }
-    if(fieldId() in idRolesSel && selectorName == "top" && isTreeType(containerType)){
+    if(   fieldId() in idRolesSel 
+       && selectorName == "top" 
+       && isTreeType(containerType)
+       ){
         return containerType;
     }
-    if(keywordFieldId() in idRolesSel && selectorName == "src" &&  isNonTerminalAType(containerType)){
+    if(   keywordFieldId() in idRolesSel 
+       && selectorName == "src" 
+       && (isTreeType(containerType) || isNonTerminalAType(containerType))
+       ){
         return aloc();
     }
     
