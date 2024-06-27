@@ -512,11 +512,11 @@ public class PathConfig {
                 // which contains the (source of) the standard library, and if we already
                 // have a dependency on the rascal project we don't add it here either.
                 var rascalLib = resolveCurrentRascalRuntimeJar();
-                messages.append(Messages.info("Effective rascal library", rascalLib));
+                messages.append(Messages.info("Effective rascal library: " + rascalLib, getPomXmlLocation(manifestRoot)));
                 libsWriter.append(rascalLib);
             }
             else if (projectName.equals("rascal")) {
-                messages.append(Messages.info("detected rascal self-application", URIUtil.correctLocation("project", projectName, "pom.xml")));
+                messages.append(Messages.info("detected rascal self-application", getPomXmlLocation(manifestRoot)));
             }
             else if (rascalProject != null) {
                 // The Rascal interpreter can not escape its own classpath, whether
@@ -534,7 +534,7 @@ public class PathConfig {
                 var dependentVersion = rmf.getManifestVersionNumber(dependentRascalProject);
                 
                 if (!builtinVersion.equals(dependentVersion)) {
-                    messages.append(Messages.info("Effective version: " + builtinVersion, resolveCurrentRascalRuntimeJar()));
+                    messages.append(Messages.info("Effective rascal version: " + builtinVersion, getPomXmlLocation(manifestRoot)));
                     messages.append(Messages.warning("Unused rascal dependency: " + dependentVersion, getPomXmlLocation(manifestRoot)));
                 }
             }
