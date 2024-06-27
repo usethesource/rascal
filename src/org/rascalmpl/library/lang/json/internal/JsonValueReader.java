@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils.Null;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -52,7 +51,6 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.MalformedJsonException;
@@ -404,6 +402,10 @@ public class JsonValueReader {
     }
 
     private int getPos() {
+      if (src == null) {
+        return 0;
+      }
+      
       try {
         return Math.max(0, (int) posHandler.get(in) - 1);
       }
@@ -572,7 +574,7 @@ public class JsonValueReader {
         }
       }
       
-      if (src != null) {
+      if (originTracking) {
         kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
       }
 
@@ -637,7 +639,7 @@ public class JsonValueReader {
       int endLine = getLine();
       int endCol = getCol();
 
-      if (src != null) {
+      if (originTracking) {
         kws.put(kws.containsKey("src") ? "rascal-src" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
       }
       
@@ -722,6 +724,7 @@ public class JsonValueReader {
   private ThreadLocal<SimpleDateFormat> format;
   private final IRascalMonitor monitor;
   private ISourceLocation src;
+  private boolean originTracking;
   private VarHandle posHandler;
   private VarHandle lineHandler;
   private VarHandle lineStartHandler;
@@ -738,6 +741,7 @@ public class JsonValueReader {
     this.store = store;
     this.monitor = monitor;
     this.src = (src == null) ? URIUtil.rootLocation("unknown") : src;
+   
 
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
@@ -748,9 +752,11 @@ public class JsonValueReader {
       this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
       this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
       this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+      this.originTracking = (src != null);
     }
     catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
       // we disable the origin tracking if we can not get to the fields
+      originTracking = false;
       src = null;
       monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
     }
