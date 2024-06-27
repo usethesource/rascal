@@ -16,6 +16,14 @@ module lang::json::IO
 
 import util::Maybe;
 
+@synopsis{JSON parse errors have more information than general parse errors}
+@description{
+* `location` is the place where the parsing got stuck (going from left to right).
+* `cause` is a factual diagnosis of what was expected at that position, versus what was found.
+* `path` is a path query string into the JSON value from the root down to the leaf where the error was detected.
+}
+data RuntimeException = ParseError(loc location, str cause="", str path="");
+
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
 use writeJSON
