@@ -39,6 +39,7 @@ public class RascalManifest {
     protected static final String SOURCE = "Source";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
+    public static final String META_INF_MANIFEST_MF = META_INF + "/MANIFEST.MF";
     protected static final String MAIN_MODULE = "Main-Module";
     protected static final String MAIN_FUNCTION = "Main-Function";
     protected static final String PROJECT_NAME = "Project-Name";
@@ -59,14 +60,17 @@ public class RascalManifest {
                 }
             }
 
-            return "Rascal version not specified in META-INF/MANIFEST.MF???";
+            return "Not specified";
         } catch (IOException e) {
             return "unknown (due to " + e.getMessage();
         }
     }
 
+    /**
+     * This looks into the META-INF/MANIFEST.MF file for a Name and Specification-Version
+     */
     public String getManifestVersionNumber(ISourceLocation project) throws IOException {
-        Manifest mf = new Manifest(manifest(project));
+        Manifest mf = new Manifest(javaManifest(project));
 
         String bundleName = mf.getMainAttributes().getValue("Name");
         if (bundleName != null && bundleName.equals("rascal")) {
@@ -269,6 +273,14 @@ public class RascalManifest {
     public InputStream manifest(ISourceLocation root) {
         try {
             return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_RASCAL_MF));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public InputStream javaManifest(ISourceLocation root) {
+        try {
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_MANIFEST_MF));
         } catch (IOException e) {
             return null;
         }

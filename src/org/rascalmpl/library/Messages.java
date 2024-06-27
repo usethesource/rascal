@@ -52,7 +52,6 @@ public class Messages {
     public static void write(IList messages, PrintWriter out) {
         int maxLine = 0;
         int maxColumn = 0;
-        boolean hasErrors = false;
 
         for (IValue error : messages) {
             ISourceLocation loc = (ISourceLocation) ((IConstructor) error).get("at");
@@ -71,6 +70,18 @@ public class Messages {
                 ISourceLocation l1 = (ISourceLocation) m1.get("at");
                 ISourceLocation l2 = (ISourceLocation) m2.get("at");
                 
+                if (!l1.getScheme().equals(l2.getScheme())) {
+                    return l1.getScheme().compareTo(l2.getScheme());
+                }
+
+                if (!l1.getAuthority().equals(l2.getAuthority())) {
+                    return l1.getAuthority().compareTo(l2.getAuthority());
+                }
+                
+                if (!l1.getPath().equals(l2.getPath())) {
+                    return l1.getPath().compareTo(l2.getPath());
+                }
+
                 if (l1.getBeginLine() == l2.getBeginLine()) {
                     return Integer.compare(l1.getBeginColumn(), l2.getBeginColumn());
                 }
