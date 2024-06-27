@@ -72,7 +72,7 @@ public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
   #node             : "null"(), 
   #int              : -1, 
   #real             : -1.0, 
-  #rat              :-1r1, 
+  #rat              : -1r1, 
   #value            : "null"(), 
   #str              : "", 
   #list[value]      : [], 
