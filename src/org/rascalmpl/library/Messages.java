@@ -102,16 +102,17 @@ public class Messages {
             + ((IString) msg.get("msg")).getValue();
 
             if (isError) {
-                out.println("[ERROR]  " + output);
+                out.println("[ERROR]   " + output);
             }
             else if (isWarning) {
-                out.println("[WARNING]" + output);
+                out.println("[WARNING] " + output);
             }
             else {
-                out.println("[INFO]   " + output);
+                out.println("[INFO]    " + output);
             }
         }
 
+        out.flush();
 		return;
     }
 }
