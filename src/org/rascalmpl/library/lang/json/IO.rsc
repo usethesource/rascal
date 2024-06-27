@@ -83,7 +83,7 @@ java &T parseJSON(
   bool lenient=false, 
   bool trackOrigins=false, 
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
-  map[type[value] forType, value nullValue] null = defaultJSONNULLValues
+  map[type[value] forType, value nullValue] nulls = defaultJSONNULLValues
 );
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
