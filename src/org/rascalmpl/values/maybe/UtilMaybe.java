@@ -30,6 +30,14 @@ public class UtilMaybe {
         return t.isSubtypeOf(Maybe);
     }
 
+    public static boolean isNothing(IConstructor v) {
+        return v.getConstructorType().getName().equals("nothing");
+    }
+
+    public static boolean isJust(IConstructor v) {
+        return !isNothing(v);
+    }
+
     /**
      * create `just(val)` of type `Maybe[typeOf(val)]`
      */

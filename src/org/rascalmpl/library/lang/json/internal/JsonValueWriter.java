@@ -19,6 +19,7 @@ import java.util.Map.Entry;
 
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.maybe.UtilMaybe;
 
 import com.google.gson.stream.JsonWriter;
 
@@ -236,6 +237,15 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
+        if (UtilMaybe.isMaybe(o.getType())) {
+          if (UtilMaybe.isNothing(o)) {
+            out.nullValue();
+          }
+          else {
+            o.get(0).accept(this);
+          }
+        }
+        
         if (formatters != null) {
           try {
             var formatted = formatters.call(o);
