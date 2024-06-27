@@ -119,7 +119,7 @@ public class IO {
         return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
             .setCalendarFormat(dateTimeFormat.getValue())
 			.setParsers(parsers)
-			.setNulls(unreify(null))
+			.setNulls(unreify(nulls))
             .read(in, start);
       }
       catch (IOException e) {
