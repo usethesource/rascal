@@ -649,6 +649,13 @@ public class RuntimeExceptionFactory {
 	public static Throw parseError(ISourceLocation loc) {
         return new Throw(VF.constructor(ParseError, loc));
     }   
+
+	public static Throw jsonParseError(ISourceLocation loc, String cause, String path) {
+        return new Throw(VF.constructor(ParseError, loc)
+			.asWithKeywordParameters().setParameter("reason", VF.string(cause))
+			.asWithKeywordParameters().setParameter("path", VF.string(path)));
+    }   
+
 	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ParseError, loc), ast != null ? ast.getLocation() : null, trace);
