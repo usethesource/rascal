@@ -63,9 +63,32 @@ import com.google.gson.stream.MalformedJsonException;
 public class JsonValueReader {
   private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
     private final JsonReader in;
+    private int lastPos;
 
     private ExpectedTypeDispatcher(JsonReader in) {
       this.in = in;
+    }
+
+    /** 
+     * Wrapping in.nextString for better error reporting
+     */
+    private String nextString() throws IOException {
+      // need to cache the last position before parsing the string, because
+      // when the string does not have a balancing quote the read accidentally
+      // rewinds the position to 0.
+      lastPos=getPos();
+      return in.nextString();
+    }
+
+    /** 
+     * Wrapping in.nextName for better error reporting
+     */
+    private String nextName() throws IOException {
+      // need to cache the last position before parsing the string, because
+      // when the string does not have a balancing quote the read accidentally
+      // rewinds the position to 0.
+      lastPos=getPos();
+      return in.nextName();
     }
 
     @Override
@@ -75,7 +98,7 @@ public class JsonValueReader {
           case NUMBER:
             return vf.integer(in.nextLong());
           case STRING:
-            return vf.integer(in.nextString());
+            return vf.integer(nextString());
           case NULL:
             in.nextNull();
             return inferNullValue(nulls, type);
@@ -94,7 +117,7 @@ public class JsonValueReader {
           case NUMBER:
             return vf.real(in.nextDouble());
           case STRING:
-            return vf.real(in.nextString());
+            return vf.real(nextString());
           case NULL:
             in.nextNull();
             return inferNullValue(nulls, type);
@@ -129,8 +152,8 @@ public class JsonValueReader {
       if (isNull()) {
         return inferNullValue(nulls, type);
       }
-      
-      return vf.string(in.nextString());
+  
+      return vf.string(nextString());
     }
 
     @Override
@@ -195,22 +218,23 @@ public class JsonValueReader {
       in.beginObject();
       
       while (in.hasNext()) {
-          String name = in.nextName();
+          String name = nextName();
+          
           switch (name) {
               case "scheme":
-                  scheme = in.nextString();
+                  scheme = nextString();
                   break;
               case "authority":
-                  authority = in.nextString();
+                  authority = nextString();
                   break;
               case "path":
-                  path = in.nextString();
+                  path = nextString();
                   break;
               case "fragment":
-                  fragment = in.nextString();
+                  fragment = nextString();
                   break;
               case "query":
-                  query = in.nextString();
+                  query = nextString();
                   break;
               case "offset":
                   offset = in.nextInt();
@@ -282,7 +306,7 @@ public class JsonValueReader {
           return visitBool(TF.nodeType());
         case NAME:
           // this would be weird though
-          return vf.string(in.nextName());
+          return vf.string(nextName());
         case NULL:
           in.nextNull();
           return inferNullValue(nulls, type);
@@ -293,7 +317,7 @@ public class JsonValueReader {
 
     private IValue sourceLocationString() throws IOException {  
         try {
-          String val = in.nextString().trim();
+          String val = nextString().trim();
           
           if (val.startsWith("|") && (val.endsWith("|") || val.endsWith(")"))) {
             return new StandardTextReader().read(vf, new StringReader(val));
@@ -321,7 +345,7 @@ public class JsonValueReader {
           in.beginObject();
           IInteger nomO = null, denomO = null;
           while (in.hasNext()) {
-            switch (in.nextName()) {
+            switch (nextName()) {
               case "nominator":
                 nomO = (IInteger) read(in, TF.integerType());
               case "denominator":
@@ -343,7 +367,7 @@ public class JsonValueReader {
           in.endArray();
           return vf.rational(nomA, denomA);
         case STRING:
-          return vf.rational(in.nextString());
+          return vf.rational(nextString());
         default:
           throw parseErrorHere("Expected integer but got " + in.peek());
       }
@@ -364,7 +388,7 @@ public class JsonValueReader {
           }
           
           while (in.hasNext()) {
-            w.put(vf.string(in.nextName()), read(in, type.getValueType()));
+            w.put(vf.string(nextName()), read(in, type.getValueType()));
           }
           in.endObject();
           return w.done();
@@ -448,12 +472,12 @@ public class JsonValueReader {
 
     protected Throw parseErrorHere(String cause) {
       var location = src == null ?  URIUtil.rootLocation("unknown") : src;
-      int offset = getPos();
+      int offset = Math.max(getPos(), lastPos);
       int line = getLine();
       int col = getCol();
      
       return RuntimeExceptionFactory.jsonParseError(
-          vf.sourceLocation(location, offset, 1, line, line, col, col + 1),
+          vf.sourceLocation(location,offset, 1, line, line, col, col + 1),
           cause,
           in.getPath());
     }
@@ -474,7 +498,7 @@ public class JsonValueReader {
      * constructors.
      */
     private IValue visitStringAsAbstractData(Type type) throws IOException {
-      var stringInput = in.nextString();
+      var stringInput = nextString();
 
       // might be a parsable string. let's see.
       if (parsers != null) {
@@ -538,7 +562,7 @@ public class JsonValueReader {
       }
       
       while (in.hasNext()) {
-        String label = in.nextName();
+        String label = nextName();
         if (cons.hasField(label)) {
           IValue val = read(in, cons.getFieldType(label));
           if (val != null) {
@@ -626,7 +650,7 @@ public class JsonValueReader {
       Map<String,IValue> kws = new HashMap<>();
       
       while (in.hasNext()) {
-        String kwName = in.nextName();
+        String kwName = nextName();
         IValue value = read(in, TF.valueType());
         
         if (value != null) {
@@ -661,7 +685,8 @@ public class JsonValueReader {
       try {
         switch (in.peek()) {
           case STRING:
-            Date parsedDate = format.get().parse(in.nextString());
+            lastPos = getPos();
+            Date parsedDate = format.get().parse(nextString());
             return vf.datetime(parsedDate.toInstant().toEpochMilli());
           case NUMBER:
             return vf.datetime(in.nextLong());
