@@ -20,6 +20,7 @@ import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -510,22 +511,31 @@ public class PathConfig {
                 // always add the standard library but not for the project named "rascal"
                 // which contains the (source of) the standard library, and if we already
                 // have a dependency on the rascal project we don't add it here either.
-                libsWriter.append(resolveCurrentRascalRuntimeJar());
+                var rascalLib = resolveCurrentRascalRuntimeJar();
+                messages.append(Messages.info("Effective rascal library", rascalLib));
+                libsWriter.append(rascalLib);
             }
-            else {
-                if (mode == RascalConfigMode.INTERPRETER) {
-                    // the Rascal interpreter can not escape its own classpath, whether
-                    // or not we configure a different version in the current project's 
-                    // pom.xml
-                    RascalManifest rmf = new RascalManifest();
-                    var builtinRascalProject = reg.logicalToPhysical(resolveCurrentRascalRuntimeJar());
-                    var builtinVersion = rmf.getManifestVersionNumber(builtinRascalProject);
-                    var dependentRascalProject = reg.logicalToPhysical(rascalProject);
-                    var dependentVersion = rmf.getManifestVersionNumber(dependentRascalProject);
-                    
-                    if (!builtinVersion.equals(dependentVersion)) {
-                        messages.append(Messages.warning("Dependency on Rascal is " + dependentVersion + " while " + builtinVersion + " is effective.", getPomXmlLocation(manifestRoot)));
-                    }
+            else if (projectName.equals("rascal")) {
+                messages.append(Messages.info("detected rascal self-application", URIUtil.correctLocation("project", projectName, "pom.xml")));
+            }
+            else if (rascalProject != null) {
+                // The Rascal interpreter can not escape its own classpath, whether
+                // or not we configure a different version in the current project's 
+                // pom.xml or not. So that pom dependency is always ignored!
+
+                // We check this also in COMPILED mode, for the sake of consistency,
+                // but it is not strictly necessary since the compiler can check and compile
+                // against any standard library on the libs path, even if it's running
+                // itself against a different rascal runtime and standard library.
+
+                RascalManifest rmf = new RascalManifest();
+                var builtinVersion = RascalManifest.getRascalVersionNumber();
+                var dependentRascalProject = reg.logicalToPhysical(rascalProject);
+                var dependentVersion = rmf.getManifestVersionNumber(dependentRascalProject);
+                
+                if (!builtinVersion.equals(dependentVersion)) {
+                    messages.append(Messages.info("Effective version: " + builtinVersion, resolveCurrentRascalRuntimeJar()));
+                    messages.append(Messages.warning("Unused rascal dependency: " + dependentVersion, getPomXmlLocation(manifestRoot)));
                 }
             }
 
