@@ -20,12 +20,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Spliterator;
-import java.util.Spliterators;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.internal.IValueAdapter;
@@ -143,7 +138,7 @@ public class IO {
 			.collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
 	}
 
-	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers) {
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 
@@ -153,6 +148,7 @@ public class IO {
 	        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
 	            .setCalendarFormat(dateTimeFormat.getValue())
 				.setParsers(parsers)
+				.setNulls(unreify(nulls))
 	            .read(in, start);
 	      }
 	      catch (IOException e) {

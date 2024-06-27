@@ -67,6 +67,11 @@ public class JsonValueReader {
   private VarHandle lineStartHandler;
   private IFunction parsers;
   private Map<Type, IValue> nulls = Collections.emptyMap();
+  private final Type ParameterT = TF.parameterType("A");
+  private final Type Maybe;
+  private final Type Maybe_nothing;
+  private final Type Maybe_just;
+  
   
   /**
    * @param vf     factory which will be used to construct values
@@ -77,6 +82,12 @@ public class JsonValueReader {
     this.store = store;
     this.monitor = monitor;
     this.src = src;
+
+    // WARNING: this clones the definitions of util::Maybe until we can reuse compiler-generated code
+    this.Maybe = TF.abstractDataType(store, "Maybe", ParameterT);
+    this.Maybe_nothing = TF.constructor(store, Maybe, "nothing");
+    this.Maybe_just = TF.constructor(store, Maybe, "just", ParameterT, "val");
+
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     if (src != null) {
@@ -93,6 +104,14 @@ public class JsonValueReader {
         monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
       }
     }
+  }
+
+  private IConstructor justCons(IValue val) {
+    return vf.constructor(Maybe_just, val);
+  }
+
+  private final IConstructor nothingCons() {
+    return vf.constructor(Maybe_nothing);
   }
   
   public JsonValueReader(IRascalValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
@@ -512,52 +531,71 @@ public class JsonValueReader {
         }
       }
 
-
-      @Override
-      public IValue visitAbstractData(Type type) throws IOException {
-        if (isNull()) {
-          return inferNullValue(nulls, type);
+      /** 
+       * Expecting an ADT we found NULL on the lookahead.
+       * This is either a Maybe or we can use the map 
+       * of null values.
+       */
+      private IValue visitNullAsAbstractData(Type type) {
+        if (type.isSubtypeOf(Maybe)) {
+          return nothingCons();
         }
 
-        if (in.peek() == JsonToken.STRING) {
-          var stringInput = in.nextString();
+        return inferNullValue(nulls, type);
+      }
 
-          // might be a parsable string. let's see.
-          if (parsers != null) {
-            var reified = new org.rascalmpl.types.TypeReifier(vf).typeToValue(type, new TypeStore(), vf.map()); 
-            
-            try {
-               return parsers.call(Collections.emptyMap(), reified, vf.string(stringInput));
-            }
-            catch (Throw t) { 
-              Type excType = t.getException().getType();
+      /**
+       * Expecting an ADT we found a string value instead.
+       * Now we can (try to) apply the parsers that were passed in.
+       * If that does not fly, we can interpret strings as nullary ADT
+       * constructors.
+       */
+      private IValue visitStringAsAbstractData(Type type) throws IOException {
+        var stringInput = in.nextString();
 
-              if (excType.isAbstractData() && ((IConstructor) t.getException()).getConstructorType().getName().equals("ParseError")) {
-                  throw new IOException(t); // an actual parse error is meaningful to report
-              }
-              // otherwise we fall through to enum recognition
-            }
-          }
-
-          // enum!
-          Set<Type> enumCons = store.lookupConstructor(type, stringInput);
-
-          for (Type candidate : enumCons) {
-            if (candidate.getArity() == 0) {
-                return vf.constructor(candidate);
-            }
-          }
+        // might be a parsable string. let's see.
+        if (parsers != null) {
+          var reified = new org.rascalmpl.types.TypeReifier(vf).typeToValue(type, new TypeStore(), vf.map()); 
           
-          if (parsers != null) {
-            throw new IOException("parser failed to recognize \"" + stringInput + "\" and no nullary constructor found for " + type + "either");
+          try {
+             return parsers.call(Collections.emptyMap(), reified, vf.string(stringInput));
           }
-          else {
-            throw new IOException("no nullary constructor found for " + type);
+          catch (Throw t) { 
+            Type excType = t.getException().getType();
+
+            if (excType.isAbstractData() && ((IConstructor) t.getException()).getConstructorType().getName().equals("ParseError")) {
+                throw new IOException(t); // an actual parse error is meaningful to report
+            }
+            // otherwise we fall through to enum recognition
           }
         }
 
-        assert in.peek() == JsonToken.BEGIN_OBJECT || in.peek() == JsonToken.NULL;
+        // enum!
+        Set<Type> enumCons = store.lookupConstructor(type, stringInput);
 
+        for (Type candidate : enumCons) {
+          if (candidate.getArity() == 0) {
+              return vf.constructor(candidate);
+          }
+        }
+        
+        if (parsers != null) {
+          throw new IOException("parser failed to recognize \"" + stringInput + "\" and no nullary constructor found for " + type + "either");
+        }
+        else {
+          throw new IOException("no nullary constructor found for " + type + ", that matches " + stringInput);
+        }
+      }
+
+      /**
+       * This is the main workhorse. Every object is mapped one-to-one to an ADT constructor
+       * instance. The field names (keyword parameters and positional) are mapped to field
+       * names of the object. The name of the constructor is _not_ consequential.
+       * @param type
+       * @return
+       * @throws IOException
+       */
+      private IValue visitObjectAsAbstractData(Type type) throws IOException {
         Set<Type> alternatives = store.lookupAlternatives(type);
         if (alternatives.size() > 1) {
           monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
@@ -619,6 +657,30 @@ public class JsonValueReader {
 
 
         return vf.constructor(cons, args, kwParams);
+      }
+
+      @Override
+      public IValue visitAbstractData(Type type) throws IOException {
+        if (type.isSubtypeOf(Maybe)) {
+          if (in.peek() == JsonToken.NULL) {
+            return nothingCons();
+          }
+          else {
+            // dive into the wrapped type, and wrap the result. Could be a str, int, or anything.
+            return justCons(type.getTypeParameters().getFieldType(0).accept(this));
+          }
+        }
+
+        switch (in.peek()) {
+          case NULL:
+            return visitNullAsAbstractData(type);
+          case STRING:
+            return visitStringAsAbstractData(type);
+          case BEGIN_OBJECT:
+            return visitObjectAsAbstractData(type);
+          default:
+            throw new IOException("Expected ADT:" + type + ", but found " + in.peek().toString());
+        }
       }
       
       @Override

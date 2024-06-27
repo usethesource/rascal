@@ -76,7 +76,15 @@ public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{parses JSON values from a string.
 In general the translation behaves as the same as for ((readJSON)).}
-java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, JSONParser[value] parser = (type[value] _, str _) { throw ""; });
+java &T parseJSON(
+  type[&T] expected, 
+  str src, 
+  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  bool lenient=false, 
+  bool trackOrigins=false, 
+  JSONParser[value] parser = (type[value] _, str _) { throw ""; },
+  map[type[value] forType, value nullValue] null = defaultJSONNULLValues
+);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{writes `val` to the location `target`}
