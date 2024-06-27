@@ -304,7 +304,11 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             //println("tm.scopes:"); iprintln(tm.scopes);
             //m1.scopes = tm.scopes;
             m1.scopes
-                = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths, isContainedInComponentScopes(inner));
+                = ( inner : tm.scopes[inner] 
+                  | loc inner <- tm.scopes, 
+                    inner.path in filteredModuleScopePaths, 
+                    isContainedInComponentScopes(inner)
+                  );
             
             m1.store 
                 = (key_bom : bom);
@@ -318,8 +322,12 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             
             m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
             
-            //m1.uses = [u | u <- tm.uses, isContainedIn(u.occ, mscope) ];
-            m1.useDef = { <u, d> | <u, d> <- tm.useDef, isContainedIn(u, mscope) || (tm.definitions[d]? && tm.definitions[d].idRole in keepInTModelRoles) };
+            keepRoles = variableRoles + keepInTModelRoles;
+            m1.useDef = { <u, d> 
+                        | <u, d> <- tm.useDef, 
+                             isContainedIn(u, mscope) 
+                          || (tm.definitions[d]? && tm.definitions[d].idRole in keepRoles)
+                        };
             
             // Filter model for current module and replace functions in defType by their defined type
             
@@ -388,7 +396,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                 throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
             ms = addTModel(qualifiedModuleName, m1, ms);
-            //println("doSaveModule"); iprintln(m1);
+            println("doSaveModule"); iprintln(m1);
             
         } catch value e: {
             ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
