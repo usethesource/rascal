@@ -130,7 +130,6 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             c.enterLubScope(var);
             dt = defType([varType], makeGetSyntaxType(varType));
             dt.vis = getVis(current.visibility, privateVis());
-            //dt.md5 = md5Hash("<var>");
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
             vname = prettyPrintName(var.name);
             if(isWildCard(vname)){
@@ -174,7 +173,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     if(isWildCard(pname)){
         c.report(error(name, "Cannot declare annotation name starting with `_`"));
     }
-    c.define(pname, annoId(), name, dt);
+    c.define(pname, annoId(), current, dt);
     collect(tags, annoType, onType, c); 
 }
 

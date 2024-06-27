@@ -1040,7 +1040,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId(), keywordFieldId()/*, annoId()*/}); // DURING TRANSITION: allow annoIds
+    c.useViaType(expression, field, {fieldId(), keywordFieldId(), annoId()}); // DURING TRANSITION: allow annoIds
     c.require("non void", expression, [], makeNonVoidRequirement(expression, "Base expression of field selection"));
     c.fact(current, field);
     collect(expression, c);

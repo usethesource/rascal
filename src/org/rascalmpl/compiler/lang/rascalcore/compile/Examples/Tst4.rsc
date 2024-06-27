@@ -1,9 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-void f(){
-    int example = 1;
-}
+data F = f();
+anno int F@pos;
 
-void g(){
-    int example = 1;
+value checkAnnoExistsAsKeywordField(){
+   F example = f();
+   example@pos = 1;
+   return example.pos?;
 }

@@ -36,7 +36,7 @@ data IdRole
 public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()}; 
-public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId(), typeVarId()};
+public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
 public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
