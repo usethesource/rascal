@@ -643,6 +643,7 @@ public class JsonValueReader {
       public IValue visitAbstractData(Type type) throws IOException {
         if (UtilMaybe.isMaybe(type)) {
           if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
             return UtilMaybe.nothing();
           }
           else {
