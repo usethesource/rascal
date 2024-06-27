@@ -51,6 +51,8 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case formalId(): 
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
+        case keywordFormalId(): 
+            { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case patternVariableId(): 
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case nonterminalId():
@@ -175,9 +177,12 @@ tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aadt(s
 }
 
 tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
-    return <[adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+    return <[adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordFieldId()}>;
 }
 
+//tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(fn:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)){
+//    return <[fn.alabel], {keywordFormalId()}>;
+//}
 default tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(AType t){
     return <[], {}>;
 }
