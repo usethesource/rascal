@@ -76,7 +76,7 @@ public class RascalManifest {
             }
         }
 
-        return "Unknown version for " + project + " (missing MANIFEST.MF or Specification-Version in MANIFEST.MF)";
+        return "unknown";
     }
     
     public Manifest getDefaultManifest(String projectName) {
