@@ -36,6 +36,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -53,7 +54,7 @@ public class RascalJUnitTestRunner extends Runner {
     }
    
    	public static IRascalMonitor getCommonMonitor() {
-	   return InstanceHolder.monitor;
+	    return InstanceHolder.monitor;
    	}
 
     private static Evaluator evaluator;
@@ -67,6 +68,9 @@ public class RascalJUnitTestRunner extends Runner {
 
     static {
         try {
+            RascalShell.setupWindowsCodepage();
+            RascalShell.enableWindowsAnsiEscapesIfPossible();
+
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, getCommonMonitor());
@@ -202,24 +206,22 @@ public class RascalJUnitTestRunner extends Runner {
         Description desc = Description.createSuiteDescription(prefix);
         this.desc = desc;
 
-        evaluator.job("Loading test modules", 1, (jobName) -> {	
+        evaluator.job(Evaluator.LOADING_JOB_CONSTANT, 1, (jobName) -> {	
             try {
-                evaluator.jobTodo(jobName, 1);
                 List<String> modules = new ArrayList<>(10);
+                evaluator.jobTodo(jobName, modules.size());
                 for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
                     getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), modules);
                 }
                 
                 Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
-                evaluator.jobStep(jobName, "detected " + modules.size() + " modules");
-                evaluator.jobTodo(jobName, modules.size());
+                
                 for (String module : modules) {
                     String name = prefix + "::" + module;
                     Description modDesc = Description.createSuiteDescription(name);
-                    evaluator.jobStep(jobName, "Preparing " + name);
 
                     try {
-                        evaluator.doImport(evaluator.getMonitor(), name);
+                        evaluator.doNextImport(jobName, name);
                         List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                     
                         if (tests.isEmpty()) {
