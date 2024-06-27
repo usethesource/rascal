@@ -126,8 +126,7 @@ public class IO {
         throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
       }
       catch (NullPointerException e) {
-        e.printStackTrace();
-        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+        throw RuntimeExceptionFactory.io(values.string("NPE in error handling code"), null, null);
       }
     }
 	
