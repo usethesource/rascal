@@ -12,6 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
@@ -49,6 +50,7 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<AbstractStackNode<IConstructor>>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
 		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
+		// TODO: handle unmatchableLeafNodes
 		//collectFilteredNodes(filteredNodes, failedNodes);
 
 		return reviveFailedNodes(input, location, failedNodes);
@@ -60,22 +62,28 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		// <PO> original: for (int i = recoveryNodes.size() - 1; i >= 0; --i) {
 		// But this caused problems because recovery nodes with a later position
 		// where queued before nodes with an earlier position which the parser cannot handle.
-		for (int i = 0; i<recoveryNodes.size()-1; i++) {
+
+		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
+
+		for (int i = 0; i<recoveryNodes.size(); i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
+			//Pair<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> elem = elems.get(i);
+			//AbstractStackNode<IConstructor> recoveryNode = elem.getLeft();
+			//ArrayList<IConstructor> prods = elem.getRight();
 
 			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
-				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<IConstructor>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
+				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
 				int startLocation = recoveryNode.getStartLocation();
 				
-				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<IConstructor>(stackNodeIdDispenser.dispenseId(), WHITESPACE, input, startLocation, prod);
+				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), WHITESPACE, input, startLocation, prod, recoveryNode.getDot());
 				recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
 				recoverLiteral.initEdges();
-				EdgesSet<IConstructor> edges = new EdgesSet<IConstructor>(1);
+				EdgesSet<IConstructor> edges = new EdgesSet<>(1);
 				edges.add(continuer);
 				
 				recoverLiteral.addEdges(edges, startLocation);
@@ -106,9 +114,11 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	}
 	
 	/**
+	 * Make a fresh copy of  each unmatchable mid-production node and link in the predecessors of the original node.
+	 * The new copies are added to `failedNodes`
 	 * @param location the location where the failure occurs
 	 * @param unmatchableMidProductionNodes each pair consists of a list of predecessors and a node that failed to match
-	 * @param failedNodes the list to which new failed nodes must be added
+	 * @param failedNodes the list to which failed nodes must be added
 	 */
 	private static void collectUnmatchableMidProductionNodes(int location, DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes, ArrayList<AbstractStackNode<IConstructor>> failedNodes){
 		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
@@ -152,7 +162,7 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 			
 			IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
 			
-			for (int i = edges.size() - 1; i >= 0; --i) {
+			for (int i = edges.size() - 1; i >= 0; --i) { // Rewind
 				EdgesSet<IConstructor> edgesList = edges.getValue(i);
 
 				if (edgesList != null) {
