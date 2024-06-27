@@ -184,6 +184,7 @@ public class JsonValueReader {
             .filter(superType -> expected.isSubtypeOf(superType))    // remove any type that does not fit
             .findFirst()                                             // give the most specific match
             .map(t -> nulls.get(t))                                  // lookup the corresponding null value
+            .filter(r -> r.getType().isSubtypeOf(expected))          // the value in the table still has to fit the currently expected type
             .orElse(null);                                     // or muddle on and throw NPE elsewhere
 
           // The NPE triggering "elsewhere" should help with fault localization. 
@@ -671,6 +672,10 @@ public class JsonValueReader {
       
       @Override
       public IValue visitNode(Type type) throws IOException {
+        if (isNull()) {
+          return inferNullValue(nulls, type);
+        }
+
         in.beginObject();
         int startPos = getPos();
         int startLine = getLine();

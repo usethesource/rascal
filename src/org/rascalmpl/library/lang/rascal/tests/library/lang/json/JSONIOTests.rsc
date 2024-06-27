@@ -3,6 +3,7 @@ module lang::rascal::tests::library::lang::json::JSONIOTests
 import String;
 import lang::json::IO;
 import util::UUID;
+import util::Maybe;
 import IO;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
@@ -69,4 +70,29 @@ test bool originTracking() {
    }
 
    return true;
+}
+
+data Cons = cons(str bla = "null");
+
+test bool dealWithNull() {
+    // use the default nulls map
+    assert parseJSON(#map[str,value], "{\"bla\": null}") == ("bla":"null"());
+
+    // using our own nulls map
+    assert parseJSON(#map[str,value], "{\"bla\": null}", nulls=(#value:-1)) == ("bla":-1);
+
+    // conflicting entries in the nulls maps: more specific goes first:
+    assert parseJSON(#map[str,node], "{\"bla\": null}", nulls=(#value:-1, #node:"null"())) == ("bla":"null"());
+
+    // the builtin Maybe interpreter with null
+    assert parseJSON(#map[str,Maybe[str]], "{\"bla\": null}") == ("bla":nothing());
+
+    // the builtin Maybe interpreter with non-null
+    assert parseJSON(#map[str,Maybe[str]], "{\"bla\": \"foo\"}") == ("bla":just("foo"));
+
+    // keyword parameters and null
+    assert parseJSON(#Cons, "{\"bla\": \"foo\"}") == cons(bla="foo");
+    assert parseJSON(#Cons, "{\"bla\": null}") == cons();
+
+    return true;
 }
