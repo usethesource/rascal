@@ -398,7 +398,7 @@ public class PathConfig {
         return current;
     }
 	/**
-	 * This will create a PathConfig instance by learning from the `MANIFEST/RASCAL.MF` file where the sources
+	 * This creates a PathConfig instance by learning from the `MANIFEST/RASCAL.MF` file where the sources
      * are, and from `pom.xml` which libraries to reference. If this PathConfig is
      * for the interpreter it adds more folders to the source path than if its for the compiler. 
      * 
@@ -429,7 +429,7 @@ public class PathConfig {
 	 * 
 	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
      * @param RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
-	 * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter.
+	 * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter, and including a list of revelant info, warning and error messages.
 	 * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
 	 */
 	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode)  {
@@ -448,7 +448,7 @@ public class PathConfig {
                 libsWriter.append(resolveCurrentRascalRuntimeJar());
             }
             catch (IOException e) {
-                
+                messages.append(Messages.error(e.getMessage(), manifestRoot));
             }
         }
 
