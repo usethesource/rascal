@@ -557,7 +557,7 @@ public class PathConfig {
                 
                 if (!builtinVersion.equals(dependentVersion)) {
                     messages.append(Messages.info("Effective rascal version: " + builtinVersion, getPomXmlLocation(manifestRoot)));
-                    messages.append(Messages.warning("Unused rascal dependency: " + dependentVersion, getPomXmlLocation(manifestRoot)));
+                    messages.append(Messages.warning("Different rascal dependency is not used: " + dependentVersion, getPomXmlLocation(manifestRoot)));
                 }
             }
 
