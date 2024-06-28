@@ -398,9 +398,11 @@ public class PathConfig {
         return current;
     }
 	/**
-	 * This will create a PathConfig by learning from the `MANIFEST/RASCAL.MF` file where the sources
+	 * This will create a PathConfig instance by learning from the `MANIFEST/RASCAL.MF` file where the sources
      * are, and from `pom.xml` which libraries to reference. If this PathConfig is
-     * for the interpreter it adds more folders to the source path than if its for the compiler. In the future
+     * for the interpreter it adds more folders to the source path than if its for the compiler. 
+     * 
+     * In the future
      * we'd like the source folders also configured by the pom.xml but for now we read it from RASCAL.MF for
      * the sake of efficiency (reading pom.xml requires an XML parse and DOM traversal.) Also we need
      * some level of backward compatibility until everybody has moved to using pom.xml.
@@ -410,6 +412,20 @@ public class PathConfig {
      * those projects are added to the configuration instead of the jar files.
      * For compiler configs this works differently than for interpreter configs.
      * The latter adds source folders to the `srcs` while the former adds target folders to the `libs`.
+     * 
+     * If the current project is the rascal project itself, then precautions are taken to avoid double
+     * entries in libs and srcs, always promoting the current project over the released rascal version.
+     * 
+     * If the current project depends on a rascal project (e.g. for compiling Java code against Rascal's
+     * and vallang's run-time classes), then this dependency is ignored and the current JVM's rascal version
+     * is used instead. The literal jar file is put in the pathConfig for transparancy's sake, and a
+     * warning is added to the `messages` list.
+     * 
+     * This code also checks for existence of the actual jar files and source folders that are depended on.
+     * If the files or folders do not exist, an an error is added to the messages field.
+     * 
+     * Clients of this method must promote the messages list to a UI facing log, such as the diagnostics
+     * or problems view in an IDE, an error LOG for a CI and stderr or stdout for console applications.
 	 * 
 	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
      * @param RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
@@ -448,10 +464,14 @@ public class PathConfig {
             IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
         
             // This processes Rascal libraries we can find in maven dependencies,
-            // adding them to libs or srcs depending on which mode we are in.
-            // also if a current project is open with the same name, we defer to its
-            // srcs or target folder instead, for easy development of cross-project
-            // features in the IDE.
+            // adding them to libs or srcs depending on which mode we are in; interpreted or compiled.
+            // 
+            // * If a current project is open with the same name, we defer to its
+            // srcs (interpreter mode only) and target folder (both modes) instead, 
+            // for easy development of cross-project features in the IDE. 
+            // * Only the rascal project itself is never used from source project, to avoid 
+            // complex bootstrapping situations. 
+
             for (IValue elem : mavenClasspath) {
                 ISourceLocation dep = (ISourceLocation) elem;
                 String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
@@ -462,7 +482,7 @@ public class PathConfig {
                 }
 
                 if (libProjectName != null) {
-                    if (reg.exists(projectLoc)) {
+                    if (reg.exists(projectLoc) && dep != rascalProject) {
                         // The project we depend on is available in the current workspace. 
                         // so we configure for using the current state of that project.
                         PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode);
@@ -487,16 +507,18 @@ public class PathConfig {
                         if (!reg.exists(dep)) {
                             messages.append(Messages.error("Declared dependency does not exist: " + dep, getPomXmlLocation(manifestRoot)));
                         }
-
-                        switch (mode) {
-                            case COMPILER:
-                                libsWriter.append(dep);
-                                break;
-                            case INTERPRETER:
-                                addLibraryToSourcePath(manifest, reg, srcsWriter, dep);
-                                break;
-                            default:
-                                messages.append(Messages.error("Can not recognize configuration mode (should be COMPILER or INTERPRETER):" + mode, getRascalMfLocation(manifestRoot)));
+                        else {
+                            switch (mode) {
+                                case COMPILER:
+                                    libsWriter.append(dep);
+                                    break;
+                                case INTERPRETER:
+                                    libsWriter.append(dep);
+                                    addLibraryToSourcePath(reg, srcsWriter, messages, dep);
+                                    break;
+                                default:
+                                    messages.append(Messages.error("Can not recognize configuration mode (should be COMPILER or INTERPRETER):" + mode, getRascalMfLocation(manifestRoot)));
+                            }
                         }
                     }
                 }
@@ -551,6 +573,7 @@ public class PathConfig {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
 
+
         for (String srcName : manifest.getSourceRoots(manifestRoot)) {
             var srcFolder = URIUtil.getChildLocation(manifestRoot, srcName);
             
@@ -570,14 +593,31 @@ public class PathConfig {
                 messages.done());
 	}
 
-    private static void addLibraryToSourcePath(RascalManifest manifest, URIResolverRegistry reg, IListWriter srcsWriter,
-        ISourceLocation jar) {
+    private static void addLibraryToSourcePath(URIResolverRegistry reg, IListWriter srcsWriter, IListWriter messages, ISourceLocation jar) {
+        if (!reg.exists(URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF))) {
+            // skip all the non Rascal libraries
+            return;
+        }
+
+       
+        var manifest = new RascalManifest();
+
+        // the rascal dependency leads to a dependency on the std:/// location, somewhere _inside_ of the rascal jar
+        if (manifest.getProjectName(jar).equals("rascal")) {
+            srcsWriter.append(URIUtil.rootLocation("std"));
+            return;            
+        }
+
         boolean foundSrc = false;
+
         for (String src : manifest.getSourceRoots(jar)) {
             ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
             if (reg.exists(srcLib)) {
                 srcsWriter.append(srcLib);
                 foundSrc = true;
+            }
+            else {
+                messages.append(Messages.error(srcLib + " source folder does not exist.", URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF)));
             }
         }
 
