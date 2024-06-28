@@ -1127,7 +1127,11 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
        bareArgTypes = for(p <- pats){
                         try {
-                            append s.getType(p);
+                            pType = s.getType(p);
+                            if(!s.isFullyInstantiated(pType)){
+                                s.report(error(expression, "Ambiguous pattern type %t", texp));
+                            }
+                            append pType;
                         } catch TypeUnavailable():
                             append avalue();
                       };
