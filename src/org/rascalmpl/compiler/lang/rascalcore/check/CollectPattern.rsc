@@ -6,6 +6,7 @@ module lang::rascalcore::check::CollectPattern
 */
 
 extend lang::rascalcore::check::CheckerCommon;
+
 extend lang::rascalcore::check::CollectLiteral;
 
 import lang::rascal::\syntax::Rascal;
@@ -182,7 +183,16 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        if(!isWildCard(uname)){
           if(!inPatternNames(uname, c)){
              c.push(patternNames, <uname, getLoc(argName)>);
-          }    
+          } 
+          orScopes = c.getScopeInfo(orScope());
+          for(<_, orInfo(vars)> <- orScopes){
+            for(str id <- vars, id == uname){
+                if(c.isAlreadyDefined(uname, argName)){
+                    c.use(argName, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                    return;
+                }
+            }
+          }   
           
           c.define(uname, formalOrPatternFormal(c), argName, defType([tp], 
                AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));     
@@ -290,10 +300,22 @@ void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
 
 void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Collector c){
     uname = unescape("<name>");
-    c.push(patternNames, <uname, name>);
-    c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
     c.fact(current, tp);
     collect(tp, pattern, c);
+    if(!isWildCard(uname)){
+        c.push(patternNames, <uname, name>);
+        orScopes = c.getScopeInfo(orScope());
+        for(<_, orInfo(vars)> <- orScopes){
+            for(str id <- vars, id == uname){
+                if(c.isAlreadyDefined(uname, name)){
+                    c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId()});
+                    return;
+                }
+            }
+        }   
+    
+        c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
+    }
 }
 
 // ---- descendant pattern
