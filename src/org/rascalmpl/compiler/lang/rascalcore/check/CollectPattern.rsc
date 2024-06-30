@@ -301,6 +301,7 @@ void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
 void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Collector c){
     uname = unescape("<name>");
     c.fact(current, tp);
+    c.fact(name, tp);
     collect(tp, pattern, c);
     if(!isWildCard(uname)){
         c.push(patternNames, <uname, name>);
@@ -313,7 +314,6 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
                 }
             }
         }   
-    
         c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
     }
 }

@@ -111,7 +111,7 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
 bool asubtype(overloadedAType(overloads), AType r) = isEmpty(overloads) ? asubtype(avoid(), r) : any(<_, _, tp> <- overloads, asubtype(tp, r));
 
 bool asubtype(avoid(), AType _) = true;
-bool asubtype(AType _, avalue()) = true;
+default bool asubtype(AType _, avalue()) = true;
  
 bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
@@ -127,6 +127,8 @@ bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
              return asubtype(a, b) && comparableList(ap, bp);
         case \start(AType t):
             return asubtype(ac, t);
+        case avalue():
+            return true;
     }
     fail;
 }
