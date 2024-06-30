@@ -1,11 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst4
- 
-//value main() {
-//    if({*int x} := {1,2,3} || {*int x} := {10,20,30}) return x; else return 0;
-//}
+
+//syntax A = conditional: A;
 //
-// value main1() = {*int x} := {1,2,3} || {*int x} := {10,20,30};
-// value main2() = [+int x] := [1,2,3] || [+int x] := [10,20,30];
-//  value main3() = [*int x] := [1,2,3] || [*int x] := [10,20,30];
-  value main() = [+int x] := [1,2,3] || [+int x] := [10,20,30];
- //value main5() = [int x: "a"] := [1] || [x: 10] := [10];
+//data B = conditional(B symbol);
+//
+//data C = conditional(C,C);
+//
+//B removeConditionals(B sym) = visit(sym) {
+//  case conditional(s) => s
+//};
+//
+//data D = d(int x, int y) | d(int x, int y, int z);
+//
+//test bool matchSetADTs4() = {d(a, b), *c} := {d(1, 2), d(3, 4)};
+
+data D = d(int n);
+test bool setTypeNamedElem2() = {D _:d(1)} := {d(1)};

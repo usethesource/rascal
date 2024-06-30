@@ -1125,11 +1125,13 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
         return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
     }       
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
+       notFullyInstantiatedArgs = false;
        bareArgTypes = for(p <- pats){
                         try {
                             pType = s.getType(p);
                             if(!s.isFullyInstantiated(pType)){
-                                s.report(error(expression, "Ambiguous pattern type %t", texp));
+                                notFullyInstantiatedArgs = true;
+                               
                             }
                             append pType;
                         } catch TypeUnavailable():
@@ -1140,6 +1142,9 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
           texp = tp;
           s.fact(expression, tp);
        } else {
+         if(notFullyInstantiatedArgs){
+            s.report(error(expression, "Ambiguous pattern type %t", texp));
+         }
          overloads = filteredOverloads;
          validReturnTypeOverloads = {};
          validOverloads = {};
@@ -1149,8 +1154,9 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
                try {
                      validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
                      validOverloads += ovl;
-                    } catch checkFailed(list[FailMessage] _):
+                    } catch e: checkFailed(list[FailMessage] _): {
                             continue next_cons;
+                      }
                       catch NoBinding():
                             continue next_cons;
              }
@@ -1181,10 +1187,8 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc,
     list[bool] identicalFields = [true | int _ <- [0 .. arity]];
     
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
-    //bool acceptable(int i, AType a, AType b)
-    //    = uninstantiated[i] || comparable(a, b);
     
-    for(ovl:<loc _, IdRole _, AType tp> <- overloads){                       
+    for(ovl:<loc _, IdRole _, AType tp> <- overloads){                     
         if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
            if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
             filteredOverloads += ovl;
@@ -1245,9 +1249,10 @@ private AType getPatternType0(current: (Pattern) `<Name name> : <Pattern pattern
 // ---- typed variable becomes
 
 private AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, AType subjectType, loc scope, Solver s){
-    declaredType = s.getType(name);
+    uname = unescape("<name>");
+    declaredType = s.getType(tp);
     patType = getPatternType(pattern, subjectType, scope, s);
-    s.requireComparable(patType, declaredType, error(current, "Incompatible type in assignment to variable %q, expected %t, found %t", name, declaredType, patType));
+    s.requireComparable(patType, declaredType, error(current, "Incompatible type in assignment to variable %q, expected %t, found %t", tp, declaredType, patType));
     return declaredType[alabel=unescape("<name>")];
 }
 
