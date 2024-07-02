@@ -217,7 +217,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	@Override
 	public void endAllJobs() {
-		// TODO Auto-generated method stub
-		
+		ideServices.endAllJobs();
 	}
 }
