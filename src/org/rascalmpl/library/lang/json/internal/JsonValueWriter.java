@@ -17,6 +17,10 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.values.functions.IFunction;
+import org.rascalmpl.values.maybe.UtilMaybe;
+
 import com.google.gson.stream.JsonWriter;
 
 import io.usethesource.vallang.IBool;
@@ -44,6 +48,7 @@ public class JsonValueWriter {
   private boolean datesAsInts = true;
   private boolean unpackedLocations = false;
   private boolean dropOrigins = true;
+  private IFunction formatters;
   
   public JsonValueWriter() {
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -77,6 +82,16 @@ public class JsonValueWriter {
     this.dropOrigins = setting;
     return this;
   }
+
+  public JsonValueWriter setFormatters(IFunction formatters) {
+    if (formatters.getType().getFieldType(0).isTop()) {
+			// ignore default function
+			formatters = null;
+		}
+
+    this.formatters = formatters;
+    return this;
+  } 
 
   public void write(JsonWriter out, IValue value) throws IOException {
     value.accept(new IValueVisitor<Void, IOException>() {
@@ -222,6 +237,27 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
+        if (UtilMaybe.isMaybe(o.getType())) {
+          if (UtilMaybe.isNothing(o)) {
+            out.nullValue();
+          }
+          else {
+            o.get(0).accept(this);
+          }
+        }
+        
+        if (formatters != null) {
+          try {
+            var formatted = formatters.call(o);
+            if (formatted != null) {
+              visitString((IString) formatted);
+              return null;
+            }
+          }
+          catch (Throw x) {
+            // it happens
+          }
+        }
         if (o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
           // enums!
           out.value(o.getName());
