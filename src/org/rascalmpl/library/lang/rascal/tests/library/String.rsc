@@ -232,8 +232,5 @@ test bool toUpperCase3() = String::toUpperCase("abc") == "ABC";
 test bool toUpperCase4() = String::toUpperCase("abc123") == "ABC123";
   	
   
-  	
- 
-  	
-  
- 
+// Base32
+test bool toBase32() = toBase32("abc") == "abc";  	
