@@ -69,6 +69,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base32;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
@@ -1483,18 +1486,38 @@ public class Prelude {
         }
     }
 
-	public void writeBase64(ISourceLocation sloc, IString contents) {
+	public void writeBase64(ISourceLocation sloc, IString base64content) {
         int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
         
         try  (BufferedOutputStream out = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
-			out.write(decoder.decode(contents.getValue()));
+			out.write(decoder.decode(base64content.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
 	
+	public IString readBase32(ISourceLocation sloc) {
+		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
+			Base32 encoder = new Base32();
+			String encoded = encoder.encodeToString(input.readAllBytes());
+			return values.string(encoded);
+		} catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+    }
+
+	public void writeBase32(ISourceLocation sloc, IString base32Content) {
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
+			Base32 decoder = new Base32(72, new byte[] { '\r', '\n' }, false, (byte) '=', CodecPolicy.LENIENT);
+			output.write(decoder.decode(base32Content.getValue()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
@@ -3348,39 +3371,57 @@ public class Prelude {
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
 
-	public IString toBase64(IString in) {
+	public IString toBase64(IString in, IString charsetName) {
 	  try {
-	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	      return values.string(toBase64(bytes, in.length() * 2));
+		Charset charset = Charset.forName(charsetName.getValue());
+	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
+	    return values.string(toBase64(bytes, in.length() * 2));
 	  } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 
 	public IString toBase64(ISourceLocation file) {
-	    try (InputStream in = REGISTRY.getInputStream(file)) {
-	        return values.string(toBase64(in, 1024));
-	    }
-	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	    }
+		try (InputStream in = REGISTRY.getInputStream(file)) {
+			return values.string(toBase64(in, 1024));
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
 	}
-	
-	
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
 	  copy(Base64.getDecoder().wrap(bytes), target);
 	}
 
-	public IString fromBase64(IString in) {
+	public IString fromBase64(IString in, IString charset) {
 	    try {
 	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
 	        fromBase64(in.getValue(), result);
-	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	        return values.string(result.toString(charset.getValue()));
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
+	}
+
+	public IString toBase32(IString in, IString charset, IBool includePadding) {
+		Base32 encoder = new Base32();
+		ByteBuffer buffer = Charset.forName(charset.getValue()).encode(in.getValue());
+		byte[] data = new byte[buffer.limit()];
+		buffer.get(data);
+		String encoded = encoder.encodeToString(data);
+		if (!includePadding.getValue()) {
+			encoded = encoded.replace("=", "");
+		}
+		return values.string(encoded);
+	}
+
+	public IString fromBase32(IString in, IString charset) {
+		Base32 decoder = new Base32(72, new byte[] { '\r', '\n' }, false, (byte) '=', CodecPolicy.LENIENT);
+		byte[] data = decoder.decode(in.getValue());
+		ByteBuffer buffer = ByteBuffer.wrap(data);
+		return values.string(Charset.forName(charset.getValue()).decode(buffer).toString());
 	}
 
 	public IValue toLowerCase(IString s)
