@@ -249,14 +249,14 @@ test bool tstSplit(str S1, str S2) = areOverlapping(S1,S2) || isEmpty(S1) || isE
 
 // squeeze
 
-private str rascalSqueeze(str s, str charSet) {
-  return visit (s) {
-    case /<c:.>(<c>)+/ => "<c>"
-      when /[<charSet>]/ := c
-  };
+test bool tstSqueeze1(str S) = /<c:[a-zA-Z]><c>/ !:= squeeze(S, "a-zA-Z");
+test bool tstSqueeze2(str S) = squeeze(S, "") == S;
+test bool tstSqueeze3(str S) {
+  if (/<c:[a-z]><c>/ := S) {
+    return /<c><c>/ := squeeze(S, "0-9");
+  }
+  return true;
 }
-
-test bool tstSqueeze1(str S) = rascalSqueeze(S, "a-zA-Z") == squeeze(S, "a-zA-Z");
 
 
 test bool tstStartsWith(str S1, str S2) = startsWith(S1+S2, S1);
