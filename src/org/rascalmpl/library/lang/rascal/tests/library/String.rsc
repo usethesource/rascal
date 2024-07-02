@@ -14,7 +14,7 @@
   *******************************************************************************/
   
 import String;
-  
+
 // center
   
 test bool center1() = center("a", 0) == "a";
@@ -233,4 +233,18 @@ test bool toUpperCase4() = String::toUpperCase("abc123") == "ABC123";
   	
   
 // Base32
-test bool toBase32() = toBase32("abc") == "abc";  	
+bool testBase32(str s) {
+     return fromBase32(toBase32(s)) == s && fromBase32(toBase32(s, includePadding=false)) == s;
+}
+
+test bool toBase32Empty() = toBase32("") == "";
+test bool toBase32EmptyNoPadding() = toBase32("", includePadding=false) == "";
+test bool toBase32Single() = toBase32("a") == "ME======";
+test bool toBase32SingleNoPadding() = toBase32("a", includePadding=false) == "ME";
+test bool testBase32SomeChars() = testBase32("Hello World!");
+test bool testBase32AllChars1() = testBase32("`1234567890-=~!@#$%^&*");
+test bool testBase32AllChars2() = testBase32("()_+qwertyuiop[]\\QWERTYUIOP");
+test bool testBase32AllChars3() = testBase32("{}|asdfghjkl;\'ASDFGHJKL:\"");
+test bool testBase32AllChars4() = testBase32("zxcvbnm,./ZXCVBNM\<\>? ");
+
+test bool toBase32SingleNoPadding() = toBase32("a", includePadding=false) == "ME";

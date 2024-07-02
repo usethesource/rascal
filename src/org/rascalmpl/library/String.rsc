@@ -21,6 +21,8 @@ module String
 extend Exception;
 import List;
 
+@synopsis{All functions in this module that have a charset parameter use this as default.}
+private str DEFAULT_CHARSET = "UTF-8";
 
 @synopsis{Center a string in given space.}
 @description{
@@ -534,17 +536,37 @@ public java str capitalize(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str uncapitalize(str src);
 
+@synopsis{Base-64 encode the characters of a string.}
+@description{
+   Convert the characters of a string to a list of bytes using UTF-8 encoding and then encode these bytes using base-64 encoding
+   as defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(str src);
+public java str toBase64(str src, str charset=DEFAULT_CHARSET);
 
+@synopsis{Decode a base-32 encoded string.}
+@description {
+  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
+  The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str fromBase64(str src);
+public java str fromBase64(str src, str charset=DEFAULT_CHARSET);
 
+@synopsis{Base-32 encode the characters of a string.}
+@description{
+   Convert the characters of a string to a list of bytes using UTF-8 encoding and then encode these bytes using base-32 encoding
+   as defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase32(str src);
+public java str toBase32(str src, str charset=DEFAULT_CHARSET, bool includePadding=true);
 
+@synopsis{Decode a base-32 encoded string.}
+@description {
+  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
+  The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str fromBase32(str src);
+public java str fromBase32(str src, str charset=DEFAULT_CHARSET);
 
 
 @synopsis{Word wrap a string to fit in a certain width.}
