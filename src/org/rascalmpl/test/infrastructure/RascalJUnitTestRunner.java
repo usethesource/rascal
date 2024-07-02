@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.shell.RascalShell;
@@ -108,22 +109,21 @@ public class RascalJUnitTestRunner extends Runner {
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER);
             
             for (IValue path : pcfg.getSrcs()) {
-
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+            ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
             evaluator.addClassLoader(cl);
+
+            Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
+            
         }
         catch (AssertionError e) {
             e.printStackTrace();
             throw e;
-        }
-        catch (IOException e) {
-            System.err.println(e);
         }
     }
 

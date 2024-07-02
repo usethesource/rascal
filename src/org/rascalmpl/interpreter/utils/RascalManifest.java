@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -18,7 +17,6 @@ import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
@@ -41,6 +39,7 @@ public class RascalManifest {
     protected static final String SOURCE = "Source";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
+    public static final String META_INF_MANIFEST_MF = META_INF + "/MANIFEST.MF";
     protected static final String MAIN_MODULE = "Main-Module";
     protected static final String MAIN_FUNCTION = "Main-Function";
     protected static final String PROJECT_NAME = "Project-Name";
@@ -61,10 +60,27 @@ public class RascalManifest {
                 }
             }
 
-            return "Rascal version not specified in META-INF/MANIFEST.MF???";
+            return "Not specified";
         } catch (IOException e) {
             return "unknown (due to " + e.getMessage();
         }
+    }
+
+    /**
+     * This looks into the META-INF/MANIFEST.MF file for a Name and Specification-Version
+     */
+    public String getManifestVersionNumber(ISourceLocation project) throws IOException {
+        Manifest mf = new Manifest(javaManifest(project));
+
+        String bundleName = mf.getMainAttributes().getValue("Name");
+        if (bundleName != null && bundleName.equals("rascal")) {
+            String result = mf.getMainAttributes().getValue("Specification-Version");
+            if (result != null) {
+                return result;
+            }
+        }
+
+        return "unknown";
     }
     
     public Manifest getDefaultManifest(String projectName) {
@@ -262,6 +278,14 @@ public class RascalManifest {
         }
     }
 
+    public InputStream javaManifest(ISourceLocation root) {
+        try {
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_MANIFEST_MF));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
     public String getProjectName(ISourceLocation root) {
         return getManifestProjectName(manifest(root));
     }
@@ -272,21 +296,6 @@ public class RascalManifest {
 
     public List<String> getRequiredLibraries(ISourceLocation root) {
         return getManifestRequiredLibraries(manifest(root));
-    }
-
-    public PathConfig makePathConfig(ISourceLocation root) throws IOException {
-        List<ISourceLocation> libs = new ArrayList<>();
-        List<ISourceLocation> srcs = new ArrayList<>();
-
-        ISourceLocation binFolder = URIUtil.getChildLocation(root, "bin");
-        libs.add(binFolder);
-
-        RascalManifest mf = new RascalManifest();
-        for (String src : mf.getSourceRoots(root)) {
-            srcs.add(URIUtil.getChildLocation(root, src));
-        }
-
-        return new PathConfig(srcs, libs, binFolder);
     }
 
     public InputStream manifest(JarInputStream stream) {
