@@ -1406,6 +1406,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         out.println("e.g. profiling    true/false");
         out.println("     tracing      true/false");
         out.println("     errors       true/false");
+        out.println("     debugging    true/false");
         out.println(":edit <modulename>         Opens an editor for that module");
         out.println(":test                      Runs all unit tests currently loaded");
         out.println();
