@@ -540,6 +540,12 @@ public java str toBase64(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str fromBase64(str src);
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str toBase32(str src);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java str fromBase32(str src);
+
 
 @synopsis{Word wrap a string to fit in a certain width.}
 @description{

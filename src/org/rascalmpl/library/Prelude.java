@@ -69,6 +69,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
@@ -1495,6 +1497,26 @@ public class Prelude {
         }
     }
 	
+	public IString readBase32(ISourceLocation sloc) {
+		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
+			Base32 encoder = new Base32();
+			String encoded = encoder.encodeToString(input.readAllBytes());
+			return values.string(encoded);
+		} catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+    }
+
+	public void readBase32(ISourceLocation sloc, IString contents) {
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
+			Base32 decoder = new Base32(72, new byte[] { '\r', '\n' }, false, (byte) '=', CodecPolicy.LENIENT);
+			output.write(decoder.decode(contents.getValue()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
@@ -3366,8 +3388,6 @@ public class Prelude {
 	    }
 	}
 	
-	
-
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
 	  copy(Base64.getDecoder().wrap(bytes), target);
@@ -3381,6 +3401,19 @@ public class Prelude {
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
+	}
+
+	public IString toBase32(IString in) {
+		Base32 encoder = new Base32();
+		byte[] data = StandardCharsets.UTF_8.encode(in.getValue()).array();
+		return values.string(encoder.encodeToString(data));
+	}
+
+	public IString fromBase32(IString in) {
+		Base32 decoder = new Base32(72, new byte[] { '\r', '\n' }, false, (byte) '=', CodecPolicy.LENIENT);
+		byte[] data = decoder.decode(in.getValue());
+		ByteBuffer buffer = ByteBuffer.wrap(data);
+		return values.string(StandardCharsets.UTF_8.decode(buffer).toString());
 	}
 
 	public IValue toLowerCase(IString s)

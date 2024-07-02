@@ -577,10 +577,17 @@ public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
 @deprecated{
-Use writeBase65 instead. Uudecode was a misnomer.
+Use writeBase64 instead. Uudecode was a misnomer.
 }
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str readBase32(loc file)
+throws PathNotFound, IO;
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBase32(loc file, str content)
+throws PathNotFound, IO;
 
 @synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
