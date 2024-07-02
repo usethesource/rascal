@@ -524,8 +524,7 @@ public str squeeze(str src, str charSet) {
     return src;
   }
   return visit(src) {
-    case /<c:.><c>+/ => c
-      when /[<charSet>]/ := c
+    case /<c:[<charSet>]><c>+/ => c
   }
 }
 
