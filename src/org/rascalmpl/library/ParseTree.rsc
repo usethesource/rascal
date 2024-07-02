@@ -154,7 +154,7 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 <4> A single character.
 }
 
-data Tree //(loc src = |unknown:///|(0,0,<0,0>,<0,0>))
+data Tree(loc src = |unknown:///|(0,0,<0,0>,<0,0>))
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
@@ -328,11 +328,6 @@ Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associ
 Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, {*a, *b}); 
         
-
-@synopsis{Annotate a parse tree node with a source location.}
-anno loc Tree@\loc;
-
-
 @synopsis{Parse input text (from a string or a location) and return a parse tree.}
 @description{
 *  Parse a string and return a parse tree.
@@ -692,48 +687,51 @@ data Exp = add(Exp, Exp);
 java &T<:value implode(type[&T<:value] t, Tree tree);
 
 
-@synopsis{Annotate a parse tree node with an (error) message.}
-anno Message Tree@message;
+@synopsis{A bottom value for Message is interpreted as no message at all.}
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Message = silence();
+
+@synopsis{Annotate a parse tree node with an (error) message.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Tree(Message message = silence());
+
+@synopsis{Annotate a parse tree node with a list of (error) messages.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Tree(set[Message] messages = {});
 
 
-@synopsis{Annotate a parse tree node with a list of (error) messages.}
-anno set[Message] Tree@messages;
+@synopsis{Annotate a parse tree node with a documentation string.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Tree(str doc = "");
 
 
-@synopsis{Annotate a parse tree node with a documentation string.}
-anno str Tree@doc;
+@synopsis{Annotate a parse tree node with documentation strings for several locations.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Tree(map[loc,str] docs = ());
+
+@synopsis{Annotate a parse tree node with the target of a reference.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Tree(loc link = |unknown:///|);
 
 
-@synopsis{Annotate a parse tree node with documentation strings for several locations.}
-anno map[loc,str] Tree@docs;
+@synopsis{Annotate a parse tree node with multiple targets for a reference.} 
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.}
+data Tree(set[loc] links = {});
 
 
-
-@synopsis{Annotate a parse tree node with the target of a reference.}
-anno loc Tree@link;
-
-
-@synopsis{Annotate a parse tree node with multiple targets for a reference.}
-anno set[loc] Tree@links;
-
-
-@synopsis{Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)
-
-This is similar to link and links annotations, except that you can put it as one set at the top of the tree.}
-anno rel[loc,loc] Tree@hyperlinks;
-
+@synopsis{Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)}
+@description{
+This is similar to link and links annotations, except that you can put it as one set at the top of the tree.
+}
+@deprecated{Use util::LanguageServer and util::IDEServices instead. This only works in Eclipse.} 
+data Tree(rel[loc,loc] hyperlinks = {});
 
 @synopsis{Tree search result type for ((treeAt)).}
 data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
 
-
-
 @synopsis{Select the innermost Tree of a given type which is enclosed by a given location.}
-@description{
-
-}
 TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
-	if ((a@\loc)?, al := a@\loc, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
+	if ((a.src)?, al := a.src, al.offset <= l.offset, al.offset + al.length >= l.offset + l.length) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}
@@ -753,7 +751,6 @@ bool sameType(Symbol s,conditional(Symbol t,_)) = sameType(s,t);
 bool sameType(conditional(Symbol s,_), Symbol t) = sameType(s,t);
 bool sameType(Symbol s, s) = true;
 default bool sameType(Symbol s, Symbol t) = false;
-
 
 @synopsis{Determine if the given type is a non-terminal type.}
 bool isNonTerminalType(Symbol::\sort(str _)) = true;
