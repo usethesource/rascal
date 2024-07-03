@@ -36,11 +36,14 @@ default bool asubtype(AType l, AType r){
         case tvar(_):
             throw TypeUnavailable(); 
         case overloadedAType(overloads):
+            //TODO: Alternative: return asubtype(l, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
            return isEmpty(overloads) ? asubtype(l, avoid()) : any(<_, _, tp> <- overloads, asubtype(l, tp));
         case avalue():
             return true;
         case anum():
             return l is aint || l is areal || l is arat || l is anum;
+        case aalias(str _, list[AType] _, AType aliased):
+            return asubtype(l, aliased);
         case \start(AType t): 
             return asubtype(l, t);
         case aprod(p):
@@ -108,7 +111,9 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
     return res;
 }
 
-bool asubtype(overloadedAType(overloads), AType r) = isEmpty(overloads) ? asubtype(avoid(), r) : any(<_, _, tp> <- overloads, asubtype(tp, r));
+bool asubtype(overloadedAType(overloads), AType r)
+    //TODO: Alternative: = asubtype((\avoid() | alub(it, tp) | <_, _, tp> <- overloads), r);
+    = isEmpty(overloads) ? asubtype(avoid(), r) : any(<_, _, tp> <- overloads, asubtype(tp, r));
 
 bool asubtype(avoid(), AType _) = true;
 default bool asubtype(AType _, avalue()) = true;
@@ -351,6 +356,9 @@ bool asubtype(a:anode(list[AType] l), AType b){
     fail;
 }
 
+AType asubtype(aalias(str _, list[AType] _, AType aliased), AType r) = asubtype(aliased, r);
+AType alub(AType l, aalias(str _, list[AType] _, AType aliased)) = alub(l, aliased);
+
 // Character classes and char
 
 bool asubtype(l:\achar-class(_), AType r){
@@ -491,7 +499,7 @@ eq(1,1.0)
 @javaClass{org.rascalmpl.library.Type}
 public java bool eq(value x, value y);
 
-// ---- lub: least-upper-bound ------------------------------------------------
+// ---- alub: least-upper-bound ------------------------------------------------
 
 //int size(atypeList(list[AType] l)) = size(l);
 
@@ -518,9 +526,11 @@ default AType alub(AType s, AType t)
 AType alub(atypeList(ts1), atypeList(ts2)) = atypeList(alubList(ts1, ts2));
 
 AType alub(overloadedAType(overloads), AType t2)
-    = isEmpty(overloads) ? t2 : alub((avalue() | aglb(it, tp) | <_, _, tp> <- overloads), t2);
+   // TODO:Alternative: alub((\avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
+   = isEmpty(overloads) ? t2 : alub((avalue() | aglb(it, tp) | <_, _, tp> <- overloads), t2);
 
 AType alub(AType t1, overloadedAType(overloads))
+    //TODO: Alternative: = alub(t1, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
     = isEmpty(overloads) ? t1 : alub(t1, (avalue() | aglb(it, tp)  | <_, _, tp> <- overloads));
     
 AType alub(avalue(), AType t) = avalue();
@@ -606,6 +616,9 @@ AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([
 
 AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
 
+AType alub(aalias(str _, list[AType] _, AType aliased), AType r) = alub(aliased, r);
+AType alub(AType l, aalias(str _, list[AType] _, AType aliased)) = alub(l, aliased);
+
 // From "Exploring Type Parameters (adapted to keep aparameter as long as possible)
 AType alub(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2);
 AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2),closed=true) 
@@ -640,6 +653,15 @@ AType alub(l:aadt("Tree", _, _), AType r) = l
     when r is \achar-class || r is seq || r is opt || r is alt || r is iter || r is \iter-star || r is \iter-seps || r is \iter-star-seps;
 AType alub(AType l, r:aadt("Tree", _, _)) = r
     when l is \achar-class || l is seq || l is opt || l is alt || l is iter || l is \iter-star || l is \iter-seps || l is \iter-star-seps;
+
+AType alub(\start(AType l) , AType r) = alub(l, r);
+AType alub(AType l, \start(AType r)) = alub(l, r);
+
+AType alub(conditional(AType l, _), AType r) = alub(l, r);
+AType alub(AType l, conditional(AType r, _)) = alub(l, r);
+
+AType alub(\seq(list[AType] ll),\seq(list[AType] rl))
+=   \seq(alubList(ll, rl));
 
 // because functions _match_ their parameters, parameter types may be comparable (co- and contra-variant) and not
 // only contra-variant. We choose the lub here over aglb (both would be correct), to
@@ -709,9 +731,11 @@ public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
 
 AType aglb(overloadedAType(overloads), AType t2)
+    //TODO: Alternative: = aglb((\avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
     = isEmpty(overloads) ? t2 : aglb((avoid() | alub(it, tp) | <_, _, tp> <- overloads), t2);
 
 AType aglb(AType t1, overloadedAType(overloads))
+    //TODO: Alternative: = aglb(t1, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
     = isEmpty(overloads) ? t1 : aglb(t1, (avoid() | alub(it, tp)  | <_, _, tp> <- overloads));
     
 public AType aglb(alist(AType s), alist(AType t)) = alist(aglb(s, t));  
