@@ -209,7 +209,7 @@ list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
         if(!exists(src)) msgs += error("PathConfig `srcs`: <src> does not exist", src);
     }
     for(lb <- pcfg.libs){
-        if(!exists(lb)) msgs += error("PathConfig `libs`: <lb> does not exist", lb);
+        if(!exists(lb)) msgs += warning("PathConfig `libs`: <lb> does not exist (yet)", lb);
     }
     
     if(!exists(pcfg.resources)) {
