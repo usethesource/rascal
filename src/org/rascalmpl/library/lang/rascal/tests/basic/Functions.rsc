@@ -543,3 +543,7 @@ int useExtraFormalInListPattern(f([*int ints])){
 } 
 
 test bool useExtraFormalInListPattern1() = useExtraFormalInListPattern(f([42])) == 42;
+
+int _f(int n) = n;
+
+test bool functionNameStartsWithUnderscore() = _f(13) == 13;
