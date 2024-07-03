@@ -7,7 +7,6 @@ AType clean(AType t){
     return visit(t){
         case tvar(loc _) => aint()
         case lazyLub(list[AType] _) => avalue()
-        case overloadedAType({}) => avalue()
     }
 }
 
@@ -19,7 +18,7 @@ AType aglbClean(AType x, AType y) = aglb(clean(x), clean(y));
 
 test bool asubtypeMax(AType x) = asubtypeClean(x, \avalue());
 test bool asubtypeMin(AType x) = asubtypeClean(\avoid(), x);
-//test bool asubtypeReflexive(AType x) = asubtypeClean(x, x);
+test bool asubtypeReflexive(AType x) = asubtypeClean(x, x);
 
 //test bool asubtypeAntisymmetric(AType x, AType y) { 
 //    x1 = clean(x); y1 = clean(y);
@@ -31,13 +30,15 @@ test bool asubtypeMin(AType x) = asubtypeClean(\avoid(), x);
 //        return true;
 //}
     
-test bool asubtypeTransitive(AType x, AType y, AType z) = (asubtypeClean(x, y) && asubtypeClean(y, z)) ==> asubtypeClean(x, z);
+test bool asubtypeTransitive(AType x, AType y, AType z){
+    return  (asubtypeClean(x, y) && asubtypeClean(y, z)) ==> asubtypeClean(x, z);
+}
 
-//// alub
-//
-//test bool alubWithMin(AType x) = alubClean(\avoid(), x) == clean(x);
-//test bool alubWithMax(AType x) = alubClean(\avalue(), x) == \avalue();
-//test bool alubCommutative(AType x, AType y) = alubClean(x, y) := alubClean(y, x);
+// alub
+
+test bool alubWithMin(AType x) = alubClean(\avoid(), x) == clean(x);
+test bool alubWithMax(AType x) = alubClean(\avalue(), x) == \avalue();
+test bool alubCommutative(AType x, AType y) = alubClean(x, y) == alubClean(y, x);
 //
 //test bool lubConsistent(AType x, AType y){
 //    x1 = clean(x);
@@ -48,8 +49,8 @@ test bool asubtypeTransitive(AType x, AType y, AType z) = (asubtypeClean(x, y) &
 //
 //// aglb
 //
-//test bool aglbWithMin(AType x) = aglbClean(\avoid(), x) == avoid();
-//test bool aglbWithMax(AType x) = aglbClean(\avalue(), x) == clean(x);
+test bool aglbWithMin(AType x) = aglbClean(\avoid(), x) == avoid();
+test bool aglbWithMax(AType x) = aglbClean(\avalue(), x) == clean(x);
 //test bool aglbCommutative(AType x, AType y) = aglbClean(x, y) == aglbClean(y, x);
 //test bool aglConsistent(AType x, AType y){
 //    x1 = clean(x);
