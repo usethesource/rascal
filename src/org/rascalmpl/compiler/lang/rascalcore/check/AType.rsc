@@ -356,8 +356,8 @@ bool asubtype(a:anode(list[AType] l), AType b){
     fail;
 }
 
-AType asubtype(aalias(str _, list[AType] _, AType aliased), AType r) = asubtype(aliased, r);
-AType alub(AType l, aalias(str _, list[AType] _, AType aliased)) = alub(l, aliased);
+bool asubtype(AType a:aalias(str _, list[AType] _, AType aliased), AType r) = asubtype(aliased, r);
+bool asubtype(AType l, aalias(str _, list[AType] _, AType aliased)) = asubtype(l, aliased);
 
 // Character classes and char
 
