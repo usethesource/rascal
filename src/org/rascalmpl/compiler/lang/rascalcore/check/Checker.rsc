@@ -170,6 +170,7 @@ public PathConfig getRascalCorePathConfigDev() {
                 |project://typepal/src|,
                 |project://rascal-tutor/src|,
                 |project://flybytes/src|,
+                |project://salix/src|,
                 |project://rascal-lsp/src/main/rascal/|
                 ],
         bin = |project://rascal-core/target/test-classes|,
