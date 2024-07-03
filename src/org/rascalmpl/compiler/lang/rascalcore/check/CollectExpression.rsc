@@ -971,15 +971,11 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     if(!isEmpty(qualifier)){     
        c.useQualified([qualifier, base], name, {variableId(), moduleVariableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
-       if(!isWildCard(base)){
-            if(!isEmpty(c.getStack(currentAdt))){
-                c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
-            } else {
-                c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
-            }
-       } else {
-          c.fact(current, avalue());
-       }
+        if(!isEmpty(c.getStack(currentAdt))){
+            c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+        } else {
+            c.useLub(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+        }
     }
 }
 

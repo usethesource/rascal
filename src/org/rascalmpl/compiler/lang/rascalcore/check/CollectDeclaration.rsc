@@ -214,9 +214,6 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     fname = signature.name;
    
     ppfname = prettyPrintName(fname);
-    if(isWildCard(ppfname)){
-        c.report(error(fname, "Cannot declare function name starting with `_`"));
-    }
     modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
     if(ignoreCompiler(tagsMap)) {
