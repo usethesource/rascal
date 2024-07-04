@@ -5,17 +5,17 @@ import DateTime;
 import String;
 
 test bool testFileCopyCompletely() {
-    writeFile(|memory:///longFile|, "123456789");
-    writeFile(|memory:///shortFile|, "321");
+    writeFile(|tmp:///longFile|, "123456789");
+    writeFile(|tmp:///shortFile|, "321");
 
-    copy(|memory:///shortFile|, |memory:///longFile|, overwrite=true);
+    copy(|tmp:///shortFile|, |tmp:///longFile|, overwrite=true);
 
-    return readFile(|memory:///longFile|) == readFile(|memory:///shortFile|);
+    return readFile(|tmp:///longFile|) == readFile(|tmp:///shortFile|);
 }
 
 test bool watchDoesNotCrashOnURIRewrites() {
-    writeFile(|memory:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|memory:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
+    writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
+    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
         // this should trigger the failing test finally
         remove(event.src); 
     });
@@ -23,8 +23,8 @@ test bool watchDoesNotCrashOnURIRewrites() {
 }
 
 test bool createdDoesNotCrashOnURIRewrites() {
-    writeFile(|memory:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    return created(|memory:///createdDoesNotCrashOnURIRewrites/someFile.txt|) <= now();
+    writeFile(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
+    return created(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|) <= now();
 }
 
 test bool testWriteBase32() {
