@@ -5,17 +5,17 @@ import DateTime;
 import String;
 
 test bool testFileCopyCompletely() {
-    writeFile(|tmp:///longFile|, "123456789");
-    writeFile(|tmp:///shortFile|, "321");
+    writeFile(|memory:///longFile|, "123456789");
+    writeFile(|memory:///shortFile|, "321");
 
-    copy(|tmp:///shortFile|, |tmp:///longFile|, overwrite=true);
+    copy(|memory:///shortFile|, |memory:///longFile|, overwrite=true);
 
-    return readFile(|tmp:///longFile|) == readFile(|tmp:///shortFile|);
+    return readFile(|memory:///longFile|) == readFile(|memory:///shortFile|);
 }
 
 test bool watchDoesNotCrashOnURIRewrites() {
-    writeFile(|tmp:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    watch(|tmp:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
+    writeFile(|memory:///watchDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
+    watch(|memory:///watchDoesNotCrashOnURIRewrites|, true, void (LocationChangeEvent event) { 
         // this should trigger the failing test finally
         remove(event.src); 
     });
@@ -23,19 +23,19 @@ test bool watchDoesNotCrashOnURIRewrites() {
 }
 
 test bool createdDoesNotCrashOnURIRewrites() {
-    writeFile(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    return created(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|) <= now();
+    writeFile(|memory:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
+    return created(|memory:///createdDoesNotCrashOnURIRewrites/someFile.txt|) <= now();
 }
 
 test bool testWriteBase32() {
     str original = "Hello World!";
-    writeBase32(|tmp:///base32Test/writeTest.txt|, toBase32(original));
-    return original == readFile(|tmp:///base32Test/writeTest.txt|);
+    writeBase32(|memory:///base32Test/writeTest.txt|, toBase32(original));
+    return original == readFile(|memory:///base32Test/writeTest.txt|);
 }
 
 test bool testReadBase32() {
     str original = "Hello World!";
-    writeFile(|tmp:///base32Test/readTest.txt|, original);
-    str encoded = readBase32(|tmp:///base32Test/readTest.txt|);
+    writeFile(|memory:///base32Test/readTest.txt|, original);
+    str encoded = readBase32(|memory:///base32Test/readTest.txt|);
     return original == fromBase32(encoded);
 }

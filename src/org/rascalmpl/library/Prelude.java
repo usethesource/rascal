@@ -51,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -136,7 +137,8 @@ import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	
+	private static final byte[] ENCODING_LINE_SEPARATOR = { '\r', '\n' };
+
     protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
@@ -1435,12 +1437,11 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
-		
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = REGISTRY.getInputStream(sloc)) {
-			byte bytes[] = new byte[FILE_BUFFER_SIZE];
+			byte[] bytes = new byte[FILE_BUFFER_SIZE];
 			int read;
 
 			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
@@ -1459,9 +1460,12 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString readBase64(ISourceLocation sloc) {
-        int BUFFER_SIZE = 3 * 512;
+    public IString readBase64(ISourceLocation sloc, IBool includePadding) {
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
+		if (!includePadding.getValue()) {
+			encoder = encoder.withoutPadding();
+		}
         
         try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
             StringBuilder result = new StringBuilder();
@@ -1470,13 +1474,13 @@ public class Prelude {
             
             // read multiples of 3 until not possible anymore
             while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-                 result.append( encoder.encodeToString(chunk) );
+				result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             // read final chunk which is not a multiple of 3
             if ( len > 0 ) {
                  chunk = Arrays.copyOf(chunk,len);
-                 result.append( encoder.encodeToString(chunk) );
+				 result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             return values.string(result.toString());
@@ -1487,21 +1491,24 @@ public class Prelude {
     }
 
 	public void writeBase64(ISourceLocation sloc, IString base64content) {
-        int BUFFER_SIZE = 3 * 512;
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
         
-        try  (BufferedOutputStream out = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
-			out.write(decoder.decode(base64content.getValue()));
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			output.write(decoder.decode(base64content.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
 	
-	public IString readBase32(ISourceLocation sloc) {
+	public IString readBase32(ISourceLocation sloc, IBool includePadding, IInteger lineWidth) {
 		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
-			Base32 encoder = new Base32();
+			Base32 encoder = new Base32(lineWidth.intValue(), ENCODING_LINE_SEPARATOR);
 			String encoded = encoder.encodeToString(input.readAllBytes());
+			if (!includePadding.getValue()) {
+				encoded = encoded.replace("=", "");
+			}
 			return values.string(encoded);
 		} catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1510,7 +1517,8 @@ public class Prelude {
 
 	public void writeBase32(ISourceLocation sloc, IString base32Content) {
         try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
-			Base32 decoder = new Base32(72, new byte[] { '\r', '\n' }, false, (byte) '=', CodecPolicy.LENIENT);
+			// The only relevant field we want to change set is the policy
+			Base32 decoder = new Base32(0, ENCODING_LINE_SEPARATOR, false, (byte) '=', CodecPolicy.LENIENT);
 			output.write(decoder.decode(base32Content.getValue()));
         }
         catch (IOException e) {
@@ -3362,32 +3370,30 @@ public class Prelude {
 		}
 	}
 
-
-	private String toBase64(InputStream src, int estimatedSize) throws IOException {
+	private String toBase64(InputStream src, int estimatedSize, boolean includePadding) throws IOException {
 	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
-	  OutputStream encoder = Base64.getEncoder().wrap(result);
-	  copy(src, encoder);
-	  encoder.close();
+	  Encoder encoder = Base64.getEncoder();
+	  if (!includePadding) {
+	  	encoder = encoder.withoutPadding();
+	  }
+	  OutputStream dest = encoder.wrap(result);
+	  copy(src, dest);
+	  dest.close();
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
 
-	public IString toBase64(IString in, IString charsetName) {
+	public IString toBase64(IString in, IString charsetName, IBool includePadding) {
 	  try {
 		Charset charset = Charset.forName(charsetName.getValue());
 	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
-	    return values.string(toBase64(bytes, in.length() * 2));
+	    return values.string(toBase64(bytes, in.length() * 2, includePadding.getValue()));
 	  } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 
-	public IString toBase64(ISourceLocation file) {
-		try (InputStream in = REGISTRY.getInputStream(file)) {
-			return values.string(toBase64(in, 1024));
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
+	public IString toBase64(ISourceLocation file, IBool includePadding) {
+		return readBase64(file, includePadding);
 	}
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
@@ -3405,8 +3411,8 @@ public class Prelude {
 	    }
 	}
 
-	public IString toBase32(IString in, IString charset, IBool includePadding) {
-		Base32 encoder = new Base32();
+	public IString toBase32(IString in, IString charset, IBool includePadding, IInteger lineWidth) {
+		Base32 encoder = new Base32(lineWidth.intValue(), ENCODING_LINE_SEPARATOR);
 		ByteBuffer buffer = Charset.forName(charset.getValue()).encode(in.getValue());
 		byte[] data = new byte[buffer.limit()];
 		buffer.get(data);
@@ -3418,7 +3424,8 @@ public class Prelude {
 	}
 
 	public IString fromBase32(IString in, IString charset) {
-		Base32 decoder = new Base32(72, new byte[] { '\r', '\n' }, false, (byte) '=', CodecPolicy.LENIENT);
+		// The only relevant field we want to change is the policy
+		Base32 decoder = new Base32(0, ENCODING_LINE_SEPARATOR, false, (byte) '=', CodecPolicy.LENIENT);
 		byte[] data = decoder.decode(in.getValue());
 		ByteBuffer buffer = ByteBuffer.wrap(data);
 		return values.string(Charset.forName(charset.getValue()).decode(buffer).toString());
