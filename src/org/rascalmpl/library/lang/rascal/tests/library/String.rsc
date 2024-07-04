@@ -261,5 +261,3 @@ test bool testBase32AllChars1() = testBase32("`1234567890-=~!@#$%^&*");
 test bool testBase32AllChars2() = testBase32("()_+qwertyuiop[]\\QWERTYUIOP");
 test bool testBase32AllChars3() = testBase32("{}|asdfghjkl;\'ASDFGHJKL:\"");
 test bool testBase32AllChars4() = testBase32("zxcvbnm,./ZXCVBNM\<\>? ");
-
-test bool toBase32LineWidth() = toBase32("abcdefghijklmnopqrstuvwxyz", lineWidth=8) == "MFRGGZDF\r\nMZTWQ2LK\r\nNNWG23TP\r\nOBYXE43U\r\nOV3HO6DZ\r\nPI======\r\n";

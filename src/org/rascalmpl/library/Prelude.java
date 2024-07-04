@@ -72,7 +72,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base32;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
@@ -137,7 +136,6 @@ import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	private static final byte[] ENCODING_LINE_SEPARATOR = { '\r', '\n' };
 
     protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
@@ -1502,9 +1500,9 @@ public class Prelude {
         }
     }
 	
-	public IString readBase32(ISourceLocation sloc, IBool includePadding, IInteger lineWidth) {
+	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
 		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
-			Base32 encoder = new Base32(lineWidth.intValue(), ENCODING_LINE_SEPARATOR);
+			Base32 encoder = new Base32();
 			String encoded = encoder.encodeToString(input.readAllBytes());
 			if (!includePadding.getValue()) {
 				encoded = encoded.replace("=", "");
@@ -1518,7 +1516,7 @@ public class Prelude {
 	public void writeBase32(ISourceLocation sloc, IString base32Content) {
         try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
 			// The only relevant field we want to change set is the policy
-			Base32 decoder = new Base32(0, ENCODING_LINE_SEPARATOR, false, (byte) '=', CodecPolicy.LENIENT);
+			Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
 			output.write(decoder.decode(base32Content.getValue()));
         }
         catch (IOException e) {
@@ -3411,8 +3409,8 @@ public class Prelude {
 	    }
 	}
 
-	public IString toBase32(IString in, IString charset, IBool includePadding, IInteger lineWidth) {
-		Base32 encoder = new Base32(lineWidth.intValue(), ENCODING_LINE_SEPARATOR);
+	public IString toBase32(IString in, IString charset, IBool includePadding) {
+		Base32 encoder = new Base32();
 		ByteBuffer buffer = Charset.forName(charset.getValue()).encode(in.getValue());
 		byte[] data = new byte[buffer.limit()];
 		buffer.get(data);
@@ -3425,7 +3423,7 @@ public class Prelude {
 
 	public IString fromBase32(IString in, IString charset) {
 		// The only relevant field we want to change is the policy
-		Base32 decoder = new Base32(0, ENCODING_LINE_SEPARATOR, false, (byte) '=', CodecPolicy.LENIENT);
+		Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
 		byte[] data = decoder.decode(in.getValue());
 		ByteBuffer buffer = ByteBuffer.wrap(data);
 		return values.string(Charset.forName(charset.getValue()).decode(buffer).toString());

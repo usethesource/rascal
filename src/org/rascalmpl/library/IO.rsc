@@ -591,7 +591,7 @@ public void uudecode(loc file, str content) = writeBase64(file, content);
 @description {
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase32(loc file, bool includePadding=true, int lineWidth=0)
+public java str readBase32(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @synopsis{Decode a base-32 encoded string and write the resulting bytes to a file.}
