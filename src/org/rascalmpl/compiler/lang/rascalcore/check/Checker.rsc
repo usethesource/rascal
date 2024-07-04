@@ -256,7 +256,7 @@ ModuleStatus rascalTModelForLocs(
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
     
     msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
-    if(!isEmpty([ e | e:error(_,_) <- msgs ])){
+    if(error(_,_) <- msgs){
         throw msgs;
     }
 
