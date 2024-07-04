@@ -155,6 +155,7 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
+                     <!-- turned off for bootstrapping purposes 
                     <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
@@ -176,7 +177,7 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             </ignores>
                         </configuration>
-                        </execution>
+                        </execution>-->
                 </executions>
             </plugin>
             <plugin>
@@ -421,12 +422,17 @@
         <dependency> <!-- used by the compression uri feature-->
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.26.0</version>
+            <version>1.26.1</version>
         </dependency>
         <dependency> <!-- needed by commons-compress for compressed+...://...zst -->
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
             <version>1.5.5-11</version>
+        </dependency>
+        <dependency> <!-- used for base32 encoding in IO and String, needed anyway for commons-compress -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.17.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
