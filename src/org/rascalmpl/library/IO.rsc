@@ -567,7 +567,7 @@ public str readFileEnc(loc file, str charset) throws PathNotFound, IO
 @description {
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase64(loc file)
+public java str readBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @deprecated{
@@ -591,7 +591,7 @@ public void uudecode(loc file, str content) = writeBase64(file, content);
 @description {
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase32(loc file)
+public java str readBase32(loc file, bool includePadding=true, int lineWidth=0)
 throws PathNotFound, IO;
 
 @synopsis{Decode a base-32 encoded string and write the resulting bytes to a file.}
@@ -711,7 +711,10 @@ public java str createLink(str title, str target);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(loc file)
+@deprecated{
+  use `readBase64` instead.
+}
+public java str toBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
