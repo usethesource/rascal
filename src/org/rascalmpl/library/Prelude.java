@@ -3409,24 +3409,22 @@ public class Prelude {
 	    }
 	}
 
-	public IString toBase32(IString in, IString charset, IBool includePadding) {
+	public IString toBase32(IString in, IString charsetName, IBool includePadding) {
 		Base32 encoder = new Base32();
-		ByteBuffer buffer = Charset.forName(charset.getValue()).encode(in.getValue());
-		byte[] data = new byte[buffer.limit()];
-		buffer.get(data);
-		String encoded = encoder.encodeToString(data);
+		Charset charset = Charset.forName(charsetName.getValue());
+		String encoded = encoder.encodeToString(in.getValue().getBytes(charset));
 		if (!includePadding.getValue()) {
 			encoded = encoded.replace("=", "");
 		}
 		return values.string(encoded);
 	}
 
-	public IString fromBase32(IString in, IString charset) {
+	public IString fromBase32(IString in, IString charsetName) {
 		// The only relevant field we want to change is the policy
 		Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
 		byte[] data = decoder.decode(in.getValue());
-		ByteBuffer buffer = ByteBuffer.wrap(data);
-		return values.string(Charset.forName(charset.getValue()).decode(buffer).toString());
+		Charset charset = Charset.forName(charsetName.getValue());
+		return values.string(new String(data, charset));
 	}
 
 	public IValue toLowerCase(IString s)
