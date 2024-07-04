@@ -558,7 +558,7 @@ public java str fromBase64(str src, str charset=DEFAULT_CHARSET);
    as defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase32(str src, str charset=DEFAULT_CHARSET, bool includePadding=true, int lineWidth=0);
+public java str toBase32(str src, str charset=DEFAULT_CHARSET, bool includePadding=true);
 
 @synopsis{Decode a base-32 encoded string.}
 @description {
