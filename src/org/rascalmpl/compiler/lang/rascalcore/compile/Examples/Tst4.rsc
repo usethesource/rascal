@@ -1,17 +1,23 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import IO;
+//alias T = tuple[int, str];
+void main() {
+  //set[tuple[int, str]] r = {};
 
-data Foo = foo(int x);
-list[Foo] foos = [foo(1), foo(2), foo(3)];
+  // Error
+  // `Initialization of `ts1` should be subtype of `rel[int, str]`, found `rel[value, value]``
+  //set[tuple[int, str]] ts1 = {t | t:<int _, _> <- r};
+  
+  set[str] a = {};
+  set[str] b = { x| t: x <- a};
 
-void f() {
-    bool foo() = true;
-    println(foo(x) in foos);
-    //      ^^^ Error: "Expected 0 argument(s), found 1"
-    }
-    
-    
+  //// No errors
+  //set[T] ts2 = {t | t <- r};
+  //set[T] ts3 = {t | T t:<_, _> <- r};
+  //set[T] ts4 = {<i, s> | <i, s> <- r};
+  //set[T] ts5 = {t | t:<int _, str _> <- r};
+}
+
 //value main() = _f(3);
 
 //data Tree;

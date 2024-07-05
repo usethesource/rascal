@@ -291,7 +291,13 @@ void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
     } else {
         c.push(patternNames, <uname, getLoc(name)>);
         scope = c.getScope();
-        c.define(uname, formalOrPatternFormal(c), name, defLub([pattern], AType(Solver s) { return getPatternType(pattern, avalue(), scope, s); }));
+        c.define(uname, formalOrPatternFormal(c), name, 
+                 defLub([pattern], AType(Solver s) { 
+                    try{
+                        return s.getType(pattern);
+                    } catch _:
+                        return getPatternType(pattern, avalue(), scope, s); 
+                 }));
     }
     collect(pattern, c);
 }
