@@ -51,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -69,6 +70,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
+import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
@@ -133,7 +136,7 @@ import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
     private static final int FILE_BUFFER_SIZE = 8 * 1024;
-	
+
     protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
@@ -1432,12 +1435,11 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
-		
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
 		try (InputStream in = REGISTRY.getInputStream(sloc)) {
-			byte bytes[] = new byte[FILE_BUFFER_SIZE];
+			byte[] bytes = new byte[FILE_BUFFER_SIZE];
 			int read;
 
 			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
@@ -1456,9 +1458,12 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString readBase64(ISourceLocation sloc) {
-        int BUFFER_SIZE = 3 * 512;
+    public IString readBase64(ISourceLocation sloc, IBool includePadding) {
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
+		if (!includePadding.getValue()) {
+			encoder = encoder.withoutPadding();
+		}
         
         try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
             StringBuilder result = new StringBuilder();
@@ -1467,13 +1472,13 @@ public class Prelude {
             
             // read multiples of 3 until not possible anymore
             while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-                 result.append( encoder.encodeToString(chunk) );
+				result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             // read final chunk which is not a multiple of 3
             if ( len > 0 ) {
                  chunk = Arrays.copyOf(chunk,len);
-                 result.append( encoder.encodeToString(chunk) );
+				 result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             return values.string(result.toString());
@@ -1483,18 +1488,42 @@ public class Prelude {
         }
     }
 
-	public void writeBase64(ISourceLocation sloc, IString contents) {
-        int BUFFER_SIZE = 3 * 512;
+	public void writeBase64(ISourceLocation sloc, IString base64content) {
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
         
-        try  (BufferedOutputStream out = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
-			out.write(decoder.decode(contents.getValue()));
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			output.write(decoder.decode(base64content.getValue()));
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
 	
+	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
+		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
+			Base32 encoder = new Base32();
+			String encoded = encoder.encodeToString(input.readAllBytes());
+			if (!includePadding.getValue()) {
+				encoded = encoded.replace("=", "");
+			}
+			return values.string(encoded);
+		} catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+    }
+
+	public void writeBase32(ISourceLocation sloc, IString base32Content) {
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
+			// The only relevant field we want to change set is the policy
+			Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+			output.write(decoder.decode(base32Content.getValue()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
@@ -3339,48 +3368,63 @@ public class Prelude {
 		}
 	}
 
-
-	private String toBase64(InputStream src, int estimatedSize) throws IOException {
+	private String toBase64(InputStream src, int estimatedSize, boolean includePadding) throws IOException {
 	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
-	  OutputStream encoder = Base64.getEncoder().wrap(result);
-	  copy(src, encoder);
-	  encoder.close();
+	  Encoder encoder = Base64.getEncoder();
+	  if (!includePadding) {
+	  	encoder = encoder.withoutPadding();
+	  }
+	  OutputStream dest = encoder.wrap(result);
+	  copy(src, dest);
+	  dest.close();
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
 
-	public IString toBase64(IString in) {
+	public IString toBase64(IString in, IString charsetName, IBool includePadding) {
 	  try {
-	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	      return values.string(toBase64(bytes, in.length() * 2));
+		Charset charset = Charset.forName(charsetName.getValue());
+	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
+	    return values.string(toBase64(bytes, in.length() * 2, includePadding.getValue()));
 	  } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 
-	public IString toBase64(ISourceLocation file) {
-	    try (InputStream in = REGISTRY.getInputStream(file)) {
-	        return values.string(toBase64(in, 1024));
-	    }
-	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	    }
+	public IString toBase64(ISourceLocation file, IBool includePadding) {
+		return readBase64(file, includePadding);
 	}
-	
-	
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
 	  copy(Base64.getDecoder().wrap(bytes), target);
 	}
 
-	public IString fromBase64(IString in) {
+	public IString fromBase64(IString in, IString charset) {
 	    try {
 	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
 	        fromBase64(in.getValue(), result);
-	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	        return values.string(result.toString(charset.getValue()));
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
+	}
+
+	public IString toBase32(IString in, IString charsetName, IBool includePadding) {
+		Base32 encoder = new Base32();
+		Charset charset = Charset.forName(charsetName.getValue());
+		String encoded = encoder.encodeToString(in.getValue().getBytes(charset));
+		if (!includePadding.getValue()) {
+			encoded = encoded.replace("=", "");
+		}
+		return values.string(encoded);
+	}
+
+	public IString fromBase32(IString in, IString charsetName) {
+		// The only relevant field we want to change is the policy
+		Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+		byte[] data = decoder.decode(in.getValue());
+		Charset charset = Charset.forName(charsetName.getValue());
+		return values.string(new String(data, charset));
 	}
 
 	public IValue toLowerCase(IString s)
@@ -3969,6 +4013,95 @@ public class Prelude {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
+	}
+
+
+	// this fact that this is just a java function helps the jitter with inline it
+	private static boolean isSameFilePure(ISourceLocation a, ISourceLocation b) {
+		a = a.top();
+		b = b.top();
+		if (!a.hasFragment() && !b.hasFragment()) {
+			// fast path: use equals of ISourceLocations
+			return a.equals(b);
+		} 
+		// fallback, just compare everything except the fragment
+		return a.getScheme().equals(b.getScheme())
+			&& a.getAuthority().equals(b.getAuthority())
+			&& a.getPath().equals(b.getPath())
+			&& a.getQuery().equals(b.getQuery())
+			;
+	}
+
+	public IBool isSameFile(ISourceLocation a, ISourceLocation b) {
+		return values.bool(isSameFilePure(a, b));
+	}
+
+	public IBool isStrictlyContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		// original code would also do full equality, but we don't need that due to the logic in the outer &
+		// inner offset compares
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					(innerStart == outerStart && innerEnd < outerEnd)
+					|| (innerStart > outerStart && innerEnd <= outerEnd)
+				);
+			}
+			else {
+				return values.bool(inner.getLength() > 0);
+			}
+		}
+		return values.bool(false);
+	}
+
+	public IBool isContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					outerStart <= innerStart && innerEnd <= outerEnd
+				);
+			}
+			return values.bool(true);
+		}
+
+		return values.bool(!outer.hasOffsetLength());
+	}
+
+	public IBool isOverlapping(ISourceLocation first, ISourceLocation second) {
+		if (!isSameFilePure(first, second)) {
+			return values.bool(false);
+		}
+		if (first.hasOffsetLength()) {
+			if (second.hasOffsetLength()) {
+				int firstStart = first.getOffset();
+				int firstEnd = firstStart + first.getLength();
+				int secondStart = second.getOffset();
+				int secondEnd = secondStart + second.getLength();
+
+				return values.bool(
+					   (firstStart <= secondStart && secondStart <= firstEnd)
+					|| (secondStart <= firstStart && firstStart <= secondEnd)
+				);
+
+			}
+		}
+		return values.bool(true);
+
 	}
 
 
