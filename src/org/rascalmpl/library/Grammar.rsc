@@ -110,28 +110,14 @@ public Grammar compose(Grammar g1, Grammar g2) {
 //  };
 //}    
 
-@synopsis{Compute a relation from extender to extended module for the given grammar}
-@description{
-Note that this relation is already transitively closed because that is the semantics of extend.
-}
-rel[str \module, str extended] extends(GrammarDefinition def) {
+public rel[str, str] extends(GrammarDefinition def) {
   return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
 }
 
-@synopsis{Compute a relation from importer to imported modules for the given grammar}
-rel[str \module, str imported] imports(GrammarDefinition def) {
+public rel[str,str] imports(GrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
 
-@synopsis{Compute which modules directly depend on which other modules.}
-@description{
-This function computes dependencies via import and extend relations. Every module
-X that imports Y or extends Y ends up in the result as <X, Y>. The extends relation
-that we use is already transitively closed. Next to this we also add dependencies
-<X, Z> for all modules X that import Y which extends Z. Because of the transitive
-nature of module extension, a module that extends another module exposes all
-rules to any importing module. 
-}
 rel[str \module, str dependency] dependencies(GrammarDefinition def) {
   imps = imports(def);
   exts = extends(def);
