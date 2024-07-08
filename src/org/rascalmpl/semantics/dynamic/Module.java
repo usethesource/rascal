@@ -60,16 +60,8 @@ public abstract class Module {
 			  List<Toplevel> decls = this.getBody().getToplevels();
 			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
-			  String jobName = URIUtil.getLocationName(env.getLocation());
-			  eval.getMonitor().jobTodo(jobName, decls.size());
-
 			  for (Toplevel l : decls) {
-				try  {
-			    	l.interpret(eval);
-				}
-				finally {
-					eval.getMonitor().jobStep(jobName, "toplevel", 1);
-				}
+				l.interpret(eval);
 			  }
 			}
 			catch (RuntimeException e) {

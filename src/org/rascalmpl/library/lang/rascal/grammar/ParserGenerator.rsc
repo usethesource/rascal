@@ -42,7 +42,7 @@ str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
 public str newGenerate(str package, str name, Grammar gr) {	
-    return job("Generating <name>", str (void (str m, int w) worked) { 
+    return job("Generating parser; <for (st <- gr.rules, st is sort || st is lex) {><type(st,())> <}>"[..-1], str (void (str m, int w) worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
   

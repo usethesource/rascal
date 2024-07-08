@@ -20,31 +20,31 @@ import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
 
-public class ConsoleRascalMonitor implements IRascalMonitor {
+public class BatchProgressMonitor implements IRascalMonitor {
 	PrintWriter out;
 
-	public ConsoleRascalMonitor() {
+	public BatchProgressMonitor() {
 		this.out = new PrintWriter(System.err);
 	}
 
-	public ConsoleRascalMonitor(PrintStream out) {
+	public BatchProgressMonitor(PrintStream out) {
 		this.out = new PrintWriter(out);
 	}
 
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
+		out.println("\tJob done: "  + name);
 		return 0;
 	}
 
 	@Override
 	public void jobStep(String name, String msg, int inc) {
-		//out.println(name);
-		//out.flush();
+		// not printing intermediate steps to keep the logs clean.
 	}
 
 	@Override
 	public void jobStart(String name, int workShare, int totalWork) {
-		out.println(name);
+		out.println("Job started: " + name);
 		out.flush();
 	}
 

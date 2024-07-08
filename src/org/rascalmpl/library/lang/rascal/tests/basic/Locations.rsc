@@ -8,6 +8,7 @@ import ListRelation;
 import IO;
 import util::Math;
 import Location;
+import util::FileSystem;
 
 int singleChar(str s) = charAt(s,0);
 
@@ -350,6 +351,30 @@ test bool isContainedIn2(int f, int len){
     return report(l1, l2, !isContainedIn(l2, l1));
 }
 
+// isStrictlyContainedIn
+
+test bool isStrictlyContainedIn1(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1 + delta, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn2(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn3(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    l1 = getLoc(f1, t1); 
+    return report(l1, l1, !isStrictlyContainedIn(l1, l1));
+}
+
 // beginsBefore
 
 @ignore{unknown}
@@ -519,3 +544,70 @@ test bool extensionSetSimple()
 
 // we don't want backslashes in windows
 test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;
+
+private data MavenLocalRepositoryPath
+    = path(str groupId, str artifactId, str version)
+    | error(str cause)
+    ;
+
+private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
+    if (jar.extension != "jar") {
+        return error("jar should have jar extension");
+    }
+
+    groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+    artifactId = jar.parent.parent.file;
+    version    = jar.parent.file;
+    file       = jar.file;
+
+    if (file != "<artifactId>-<version>.jar") {
+        return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
+    }
+
+    if (/!/ := artifactId) {
+        return error("ArtifactId contains exclamation mark: <artifactId>");
+    }
+
+    return path(groupId, artifactId, version);
+}
+
+test bool mvnSchemeTest() {
+    debug = false;
+    jarFiles = find(|mvn:///|, "jar");
+
+    // check whether the implementation of the scheme holds the contract specified in the assert
+    for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        // this is the contract:
+        mvnLoc = |mvn://<groupId>!<artifactId>!<version>|;
+
+        assert resolveLocation(mvnLoc) == resolveLocation(jar) : "<resolveLocation(mvnLoc)> != <resolveLocation(jar)>
+                                                                 '  jar: <jar>
+                                                                 '  mvnLoc: <mvnLoc>";
+
+        assert exists(mvnLoc) : "<mvnLoc> should exist because <jar> exists.";
+
+        assert exists(mvnLoc + "!") : "<mvnLoc + "!"> should resolve to the jarified root and exist";
+
+        // not all jars contain a META-INF folder
+        if (exists(mvnLoc + "!/META-INF")) {
+            // but if they do then this relation holds
+
+            assert exists(mvnLoc + "META-INF")
+                : "<mvnLoc + "META-INF"> should exist and resolved to the jarified location inside.";
+
+            assert resolveLocation(mvnLoc + "!/META-INF") == resolveLocation(mvnLoc + "META-INF")
+                : "Two different ways of resolving inside the jar (with and without !) should be equivalent";
+
+            assert (mvnLoc + "META-INF").ls == [e[path=e.path[2..]] | e <- (mvnLoc + "!/META-INF").ls]
+                : "listings should be equal mod ! for <mvnLoc + "META-INF">";
+        }
+    }
+
+    // report on all the failed attempts
+    for (debug, jar <- jarFiles, error(msg) := parseMavenLocalRepositoryPath(jar)) {
+        println(msg);
+    }
+
+
+    return true;
+}
