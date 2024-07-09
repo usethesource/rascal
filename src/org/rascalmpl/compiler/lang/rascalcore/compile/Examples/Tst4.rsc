@@ -1,24 +1,14 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-//alias T = tuple[int, str];
-void main() {
-  //set[tuple[int, str]] r = {};
-
-  // Error
-  // `Initialization of `ts1` should be subtype of `rel[int, str]`, found `rel[value, value]``
-  //set[tuple[int, str]] ts1 = {t | t:<int _, _> <- r};
-  
-  set[str] a = {};
-  set[str] b = { x| t: x <- a};
-
-  //// No errors
-  //set[T] ts2 = {t | t <- r};
-  //set[T] ts3 = {t | T t:<_, _> <- r};
-  //set[T] ts4 = {<i, s> | <i, s> <- r};
-  //set[T] ts5 = {t | t:<int _, str _> <- r};
+int outer1(){
+    int f(int n) = n;
+    return f(3);
 }
 
-//value main() = _f(3);
+int outer2(){
+    int f(int n) = n;
+    return f(4);
+}
 
 //data Tree;
 //anno set[int] Tree@messages;
