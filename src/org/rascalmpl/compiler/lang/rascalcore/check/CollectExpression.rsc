@@ -987,9 +987,14 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
     // that here by treating it as avalue(), which is comparable to all other types and will
     // thus work when calculating the type below.
     
-    for(e <- indexList, (Expression)`_` := e){
-        c.fact(e, avalue());
+    for(e <- indexList){
+        if((Expression)`_` := e){
+            c.fact(e, avalue());
+        } else {
+            collect(e, c);
+        }    
     }
+    collect(expression, c);
     
     c.calculate("subscription", current, expression + indexList,
                   AType(Solver s){ 
@@ -997,7 +1002,6 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
                     for(e <- indexList) checkNonVoid(e, s, "Subscript");
                     return computeSubscriptionType(current, s.getType(expression), [s.getType(e) | e <- indexList], indexList, s);  
                   });
-    collect(expression, indices, c);
 }
 
 // ---- slice
