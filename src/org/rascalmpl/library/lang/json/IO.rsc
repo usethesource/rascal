@@ -65,7 +65,8 @@ java &T readJSON(
   bool lenient=false, 
   bool trackOrigins=false, 
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
-  map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues);
+  map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues
+);
 
 public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
   #Maybe[value]     : nothing(), 
