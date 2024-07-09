@@ -37,6 +37,9 @@ import util::Reflective;
 
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
 
+    dataCounter = 0;
+    variantCounter = 0;
+    
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
     checkModuleName(getLoc(current), header.name, c);
@@ -220,6 +223,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
+    c.push(currentFunction, ppfname);
+    md5Contrib = md5Contrib4signature(signature);
     
     <expected, expectedTagString> = getExpected(decl.tags);
     if(expected){
@@ -260,6 +265,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              
              if("default" in modifiers){
                 ft.isDefault = true;
+                md5Contrib = "default" + md5Contrib;
              }
              
              if("test" in modifiers){
@@ -287,11 +293,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target _>;` := decl.body);
         if(!alwaysSucceeds) dt.canFail = true;
-        dt.md5 = md5Hash("<parentScope><decl>");
-       
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
-         
-        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
         
         beginUseBoundedTypeParameters(tpbounds, c);
         
@@ -319,6 +321,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             if(!myReturnsViaAllPath && "<signature.\type>" != "void"){
                 c.report(error(decl.signature, "Missing return statement"));
             }
+            if(!alwaysSucceeds){
+                md5Contrib += "<decl.body>";
+            }
         }
         
         if(decl is expression || decl is conditional){
@@ -333,6 +338,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         } 
         if(decl is conditional){
             conditions = [cond | cond <- decl.conditions];
+            
+            md5Contrib += "<decl.conditions>";
             storeAllowUseBeforeDef(decl, decl.expression, c);
             c.require("when conditions", decl.conditions, conditions,
                 void (Solver s){
@@ -351,11 +358,21 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         
         endUseBoundedTypeParameters(c);
         
+        surroundingFuns = c.getStack(currentFunction);
+        
+        dt.md5 = md5Hash(size(surroundingFuns) == 1 ? md5Contrib : "<intercalate("/", surroundingFuns)><md5Contrib>");
+        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
+    
     c.leaveScope(decl);
+    c.pop(currentFunction);
 }
 
 void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c){
     collect(statements, c);
+}
+
+str md5Contrib4signature(Signature signature){
+    return "<signature.\type><signature.name><signature.parameters.formals>";
 }
 
 tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c){

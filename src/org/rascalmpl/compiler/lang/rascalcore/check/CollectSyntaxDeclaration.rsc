@@ -35,6 +35,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 }
 
 int nalternatives = 0;
+int syndefCounter = 0;
 
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
    //println("declareSyntax: <current>");
@@ -52,7 +53,8 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         
         dt = defType(nonterminalType);
         dt.vis = vis; 
-        dt.md5 = md5Hash("<current>");       
+        dt.md5 = md5Hash("<adtName><syndefCounter>"); 
+        syndefCounter += 1;  
         
         // Define the syntax symbol itself and all labelled alternatives as constructors
         c.define(adtName, idRole, current, dt);

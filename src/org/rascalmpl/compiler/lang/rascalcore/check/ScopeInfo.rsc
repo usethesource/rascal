@@ -12,8 +12,9 @@ import lang::rascal::\syntax::Rascal;
 public /*const*/ str patternContainer = "patternContainer";
 public /*const*/ str patternNames     = "patternNames";
 
-public /*const*/ str currentAdt = "currentAdt";       // used to mark data declarations
-public /*const*/ str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
+public /*const*/ str currentAdt = "currentAdt";             // used to mark data declarations
+public /*const*/ str currentFunction = "currentFunction";   // used to mark function declarations
+public /*const*/ str inAlternative = "inAlternative";       // used to mark top-level alternative in syntax declaration
 public /*const*/ str typeContainer = "typeContainer";
 public /*const*/ str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
 
