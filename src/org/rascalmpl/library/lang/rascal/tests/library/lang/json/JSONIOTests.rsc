@@ -58,10 +58,10 @@ test bool json3() = writeRead(#DATA3, data3(123,kw="123"));
 test bool json4(Enum e) = writeRead(#DATA4, data4(e=e));
 
 test bool originTracking() {
-   example = readJSON(#node, |std:///lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
+   ex2 = readJSON(#node, |std:///lang/rascal/tests/library/lang/json/glossary.json|, trackOrigins=true);   
    content = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
 
-   poss = [<x.src, x.line> | /node x := example, x.line?]; // every node has a .src field, otherwise this fails with an exception
+   poss = [<x.src, x.line> | /node x := ex2, x.line?]; // every node has a .src field, otherwise this fails with an exception
 
    for (<loc p, int line> <- poss) {
       assert content[p.offset] == "{";                // all nodes start with a {
@@ -93,6 +93,35 @@ test bool dealWithNull() {
     // keyword parameters and null
     assert parseJSON(#Cons, "{\"bla\": \"foo\"}") == cons(bla="foo");
     assert parseJSON(#Cons, "{\"bla\": null}") == cons();
+
+    return true;
+}
+
+data Example = example(Prop ex = F());
+
+data Prop = T() | F() | and(Prop lhs, Prop rhs) | or(Prop lhs, Prop rhs);
+
+str format(T()) = "true";
+str format(F()) = "false";
+str format(and(Prop p1, Prop p2)) = "<format(p1)> && <format(p2)>";
+str format(or(Prop p1, Prop p2)) = "<format(p1)> || <format(p2)>";
+
+Prop parse(type[Prop] _, "true") = T();
+Prop parse(type[Prop] _, "false") = F();
+
+test bool formattingToStringsTest() {
+    ex1 = and(and(\T(), \F()),or(\T(), \F()));
+
+    writeJSON(|memory://test-json/formatted.json|, example(ex=ex1), formatter=format);
+    source = readFile(|memory://test-json/formatted.json|);
+
+    assert source == "{\"ex\":\"true && false && true || false\"}";
+
+    writeFile(|memory://test-json/printed.json|, "{\"ex\":\"true\"}");
+
+    Example result = readJSON(#Example, |memory://test-json/printed.json|, parser=parse);
+
+    assert result.ex == T();
 
     return true;
 }
