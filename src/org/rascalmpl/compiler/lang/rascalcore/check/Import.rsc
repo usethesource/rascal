@@ -133,8 +133,10 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 allImportsAndExtendsValid = true;
                 println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
-                //isCompatible(tm, domain(localImportsAndExtends), ms);
-                throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
+                if(isCompatible(tm, domain(localImportsAndExtends), ms)){
+                    throw rascalBinaryNeedsRecompilation(qualifiedModuleName);
+                }
+                //throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
             }
         }
         if(allImportsAndExtendsValid){
@@ -191,23 +193,23 @@ str getModuleFromLogical(loc l){
     return i >= 0 ? l.path[1..i+1] : l.path[1..];
 }
     
-//bool isCompatible(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
-//    provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
-//    println("<lib.modelName> provides:"); iprintln(provides);
-//    requires = {};
-//    for(m <- otherImportsAndExtends){
-//        <found, tm, ms> = getTModelForModule(m, ms);
-//        if(found){
-//            println("<m>:"); iprintln(domain(tm.logical2physical));
-//            requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
-//        }
-//    }
-//    println("requires:"); iprintln(requires);
-//    
-//    println("unstatisfied: <requires - provides>");
-//    
-//    return true;
-//}
+bool isCompatible(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
+    provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
+    println("<lib.modelName> provides:"); iprintln(provides);
+    requires = {};
+    for(m <- otherImportsAndExtends){
+        <found, tm, ms> = getTModelForModule(m, ms);
+        if(found){
+            println("<m>:"); iprintln(domain(tm.logical2physical));
+            requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
+        }
+    }
+    println("requires:"); iprintln(requires);
+    
+    println("unstatisfied: <requires - provides>");
+    
+    return true;
+}
 
 rel[str, PathRole, str] getModulePathsAsStr(Module m){
     moduleName = unescape("<m.header.name>");
