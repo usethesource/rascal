@@ -107,7 +107,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     
         scope = c.getScope();
         c.enterScope(current);
-            args = "<for(arg <- arguments){><arg.\type> <arg.name> <}>";
+            args = "<for(arg <- arguments){><arg is typedVariable ? "<arg.\type> <arg.name>" : "<arg>"> <}>";
             md5Contrib = "<currentModuleName><adtName><dataCounter><name><variantCounter>( <args>)";
             //println("<current>: <md5Contrib>");
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
