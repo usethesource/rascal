@@ -6,13 +6,15 @@ import IO;
 
 layout Layout = [\ ]* !>> [\ ];
 
-syntax S = A B C;
-syntax A = "a";
-syntax B = "b" "b";
-syntax C = "c";
+syntax S = A End;
+syntax A = "1" "2" "3";
+syntax End = "$";
 
-test bool parseTest() {
-    Tree t = parse(#S, "a b x c", allowRecovery=true);
-    iprintln(t);
-    return true;
+test bool parseOk() {
+    return !hasErrors(parse(#S, "1 2 3 $", allowRecovery=true));
+}
+
+test bool simpleRecovery() {
+    Tree t = parse(#S, "1 2 x $", allowRecovery=true);
+    return hasErrors(t) && size(findAllErrors(t)) == 1;
 }
