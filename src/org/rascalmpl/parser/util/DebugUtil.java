@@ -1,7 +1,5 @@
 package org.rascalmpl.parser.util;
 
-import java.util.Iterator;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
@@ -18,12 +16,18 @@ public class DebugUtil {
 
         builder.append(" ->");
 
-        IList children = (IList) prod.get(1);
-        for (IValue child : children) {
+        if (prod.getName() == "prod") {
+            IList children = (IList) prod.get(1);
+            for (IValue child : children) {
+                builder.append(" ");
+                IConstructor conChild = (IConstructor) child;
+                builder.append(stripQuotes(String.valueOf((conChild).get(0))));
+            }
+        } else {
             builder.append(" ");
-            IConstructor conChild = (IConstructor) child;
-            builder.append(stripQuotes(String.valueOf((conChild).get(0))));
+            builder.append(prod.toString());
         }
+
         builder.append("'");
 
         return builder.toString();
