@@ -89,7 +89,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><variantCounter><ta>");
+                dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><variantCounter><fieldType> <fieldName>");
                 c.define(fieldName, fieldId(), ta.name, dt);
             }
         }
@@ -107,13 +107,16 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     
         scope = c.getScope();
         c.enterScope(current);
+            args = "<for(arg <- arguments){><arg.\type> <arg.name> <}>";
+            md5Contrib = "<currentModuleName><adtName><dataCounter><name><variantCounter>( <args>)";
+            //println("<current>: <md5Contrib>");
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);
                     kwFormalTypes = [kwField(s.getType(kwf.\type)[alabel=prettyPrintName(kwf.name)], prettyPrintName(kwf.name), currentModuleName, kwf.expression) | kwf <- kwFormals /*+ commonKwFormals*/];
                     formalTypes = [f is named ? s.getType(f)[alabel=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[alabel=asUnqualifiedName(prettyPrintName(name))];
-                })[md5 = md5Hash("<currentModuleName><adtName><dataCounter><name><variantCounter>(<arguments>")]);
+                })[md5 = md5Hash(md5Contrib)]);
             variantCounter += 1;
             c.fact(current, name);
             beginUseTypeParameters(c, closed=false);

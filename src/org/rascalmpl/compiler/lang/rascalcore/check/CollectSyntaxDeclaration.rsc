@@ -34,8 +34,8 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
     declareSyntax(current, contextFreeSyntax(), nonterminalId(), c);
 }
 
-int nalternatives = 0;
-int syndefCounter = 0;
+public int nalternatives = 0;
+public int syndefCounter = 0;
 
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
    //println("declareSyntax: <current>");

@@ -133,7 +133,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 allImportsAndExtendsValid = true;
                 println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
-                throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
+                isCompatible(tm, domain(localImportsAndExtends), ms);
+                //throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
             }
         }
         if(allImportsAndExtendsValid){
@@ -183,6 +184,29 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
         }
     }
     return complete(ms);
+}
+
+str getModuleFromLogical(loc l){
+    i = findFirst(l.path[1..], "/");
+    return i >= 0 ? l.path[1..i+1] : l.path[1..];
+}
+    
+bool isCompatible(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
+    provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
+    println("<lib.modelName> provides:"); iprintln(provides);
+    requires = {};
+    for(m <- otherImportsAndExtends){
+        <found, tm, ms> = getTModelForModule(m, ms);
+        if(found){
+            println("<m>:"); iprintln(domain(tm.logical2physical));
+            requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
+        }
+    }
+    println("requires:"); iprintln(requires);
+    
+    println("unstatisfied: <requires - provides>");
+    
+    return true;
 }
 
 rel[str, PathRole, str] getModulePathsAsStr(Module m){
@@ -389,14 +413,17 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             ms.status[qualifiedModuleName] += tpl_saved();
             try {
                 writeBinaryValueFile(tplLoc, m1);
-                //if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
+                if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
                 save_time = (cpuTime() - start_save)/1000000;
-                println("Saved TPL .. <qualifiedModuleName> in <save_time> ms");
+                if(compilerConfig.verbose) {
+                    save_time = (cpuTime() - start_save)/1000000;
+                    println("Saved TPL .. <qualifiedModuleName> in <save_time> ms");
+                }
             } catch value e: {
                 throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
             ms = addTModel(qualifiedModuleName, m1, ms);
-            //println("doSaveModule"); iprintln(m1);
+            //println("doSaveModule"); iprintln(domain(m1.logical2physical));
             
         } catch value e: {
             ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];

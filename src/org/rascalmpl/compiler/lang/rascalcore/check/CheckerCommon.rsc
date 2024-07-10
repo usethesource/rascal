@@ -97,6 +97,8 @@ tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
     return <exists(tplLoc), tplLoc>;
 }
 
+datetime startOfEpoch = $2000-01-01T00:00:00.000+00:00$;
+
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     try {
@@ -110,7 +112,7 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
             //println("getLastModified <mloc> via lastModified: <res>");
             return res;
         } catch value _: {
-            return $2000-01-01T00:00:00.000+00:00$;
+            return startOfEpoch;
         }
     }
 }
