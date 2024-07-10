@@ -373,7 +373,7 @@ void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c)
 }
 
 str md5Contrib4signature(Signature signature){
-    fs = "<for(f <- signature.parameters.formals.formals){><f.\type> <f.name> <}>";
+    fs = "<for(f <- signature.parameters.formals.formals){><f is typeVariable ? "<f.\type> <f.name>" : "<f>"> <}>";
     res = "<signature.modifiers><signature.\type> <signature.name>( <fs>)";
     //println("<signature> =\> <res>");
     return res;
