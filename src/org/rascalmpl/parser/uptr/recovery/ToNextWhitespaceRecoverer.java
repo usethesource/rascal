@@ -12,7 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
@@ -79,9 +78,8 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
 				int startLocation = recoveryNode.getStartLocation();
-				
 				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), WHITESPACE, input, startLocation, prod, recoveryNode.getDot());
-				recoverLiteral = recoverLiteral.getCleanCopy(startLocation);
+				recoverLiteral = recoverLiteral.getCleanCopy(startLocation); // This copy might not be needed
 				recoverLiteral.initEdges();
 				EdgesSet<IConstructor> edges = new EdgesSet<>(1);
 				edges.add(continuer);
