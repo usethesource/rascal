@@ -189,7 +189,7 @@ data Production
      | \reference(Symbol def, str cons) // <5>
      ;
 
-data Production = skipped(Symbol def, Production prod, int validPrefix);
+data Production = skipped(Symbol def, Production prod, int dot);
 
 @synopsis{Attributes in productions.}
 @description{
@@ -766,3 +766,25 @@ bool isNonTerminalType(Symbol::\parameterized-sort(str _, list[Symbol] _)) = tru
 bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true;
 bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
+
+@synopsis{Check if a parse tree contains any skipped nodes, the result of error recovery.}
+bool hasErrors(Tree tree) = /appl(skipped(_, _, _), _) := tree;
+
+@synopsis{Find all skipped nodes in a parse tree.}
+list[Tree] findAllErrors(Tree tree) {
+    return for (/error:appl(_, [*_, appl(skipped(_, _, _), _)]) := tree) append(error);
+}
+
+@synopsis{Find the first skipped node in a parse tree.}
+Tree findFirstError(Tree tree) {
+    if (/error:appl(_, [*_, appl(skipped(_, _, _), _)]) := tree) return error;
+    fail;
+}
+
+Symbol getErrorSymbol(appl(skipped(Symbol symbol, _, _), _))  = symbol;
+
+Production getErrorProduction(appl(skipped(_, Production production, _), _)) = production;
+
+int getErrorPosition(appl(skipped(_, _, int dot), _)) = dot;
+
+str getErrorString(appl(skipped(_, _, _), list chars)) = "<chars>";
