@@ -13,6 +13,7 @@
 package org.rascalmpl.values;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
@@ -41,6 +42,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
+import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -51,6 +53,7 @@ import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
+import org.rascalmpl.parser.uptr.debug.DebugLogger;
 import org.rascalmpl.parser.uptr.recovery.ToNextWhitespaceRecoverer;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -575,10 +578,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IActionExecutor<ITree> exec = filters.isEmpty() ?  new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
             IGTD<IConstructor, ITree, ISourceLocation> parserInstance = getParser();
             IRecoverer<IConstructor> recoverer = null;
+            IDebugListener<IConstructor> debugListener = null;
             if (allowRecovery) {
                 recoverer = new ToNextWhitespaceRecoverer(new StackNodeIdDispenser(parserInstance));
+                debugListener = new DebugLogger(new PrintWriter(System.out, true));
             }
-            return (ITree) parserInstance.parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer);
+            return (ITree) parserInstance.parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);
         }
     }
     
