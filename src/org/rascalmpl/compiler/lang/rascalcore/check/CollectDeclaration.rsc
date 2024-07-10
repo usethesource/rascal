@@ -39,6 +39,8 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
 
     dataCounter = 0;
     variantCounter = 0;
+    nalternatives = 0;
+    syndefCounter = 0;
     
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
@@ -265,7 +267,6 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              
              if("default" in modifiers){
                 ft.isDefault = true;
-                md5Contrib = "default" + md5Contrib;
              }
              
              if("test" in modifiers){
@@ -322,7 +323,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                 c.report(error(decl.signature, "Missing return statement"));
             }
             if(!alwaysSucceeds){
-                md5Contrib += "<decl.body>";
+                md5Contrib += "{<decl.body>}";
             }
         }
         
@@ -339,7 +340,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(decl is conditional){
             conditions = [cond | cond <- decl.conditions];
             
-            md5Contrib += "<decl.conditions>";
+            md5Contrib += " when <decl.conditions>";
             storeAllowUseBeforeDef(decl, decl.expression, c);
             c.require("when conditions", decl.conditions, conditions,
                 void (Solver s){
@@ -359,7 +360,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         endUseBoundedTypeParameters(c);
         
         surroundingFuns = c.getStack(currentFunction);
-        
+
         dt.md5 = md5Hash(size(surroundingFuns) == 1 ? md5Contrib : "<intercalate("/", surroundingFuns)><md5Contrib>");
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
     
@@ -372,7 +373,10 @@ void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c)
 }
 
 str md5Contrib4signature(Signature signature){
-    return "<signature.\type><signature.name><signature.parameters.formals>";
+    fs = "<for(f <- signature.parameters.formals.formals){><f.\type> <f.name> <}>";
+    res = "<signature.modifiers><signature.\type> <signature.name>( <fs>)";
+    //println("<signature> =\> <res>");
+    return res;
 }
 
 tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c){
