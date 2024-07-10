@@ -7,4 +7,5 @@ data Exception
     | InternalCompilerError(Message msg)
     | rascalTplVersionError(str txt)
     | rascalSourceMissing(str txt)
+    | rascalBinaryNeedsRecompilation(str txt)
     ;
