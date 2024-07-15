@@ -44,6 +44,19 @@ list[KeywordFormal] getCommonKwFormals(Declaration decl)
    = decl.commonKeywordParameters is present ?  [kwf | kwf <- decl.commonKeywordParameters.keywordFormalList] : [];
 
 
+str md5Contrib4Tags(Tags tags){
+    for(tg <- tags.tags){
+        if("<tg.name>" == "javaClass"){  
+            if(tg has contents){
+                return"<tg.contents.contents>";
+            } else {
+                return "";
+            }
+        }
+    }
+    return "";
+}
+
 map[str,str] getTags(Tags tags){
     res = ();
     for(tg <- tags.tags){
