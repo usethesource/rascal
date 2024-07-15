@@ -19,6 +19,7 @@ import lang::rascalcore::check::CollectPattern;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Attributes;
+import lang::rascalcore::check::SyntaxGetters;
 
 import IO;
 import List;
@@ -135,6 +136,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             c.enterLubScope(var);
             dt = defType([varType], makeGetSyntaxType(varType));
             dt.vis = getVis(current.visibility, privateVis());
+            dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><varType><var.name>");
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
             vname = prettyPrintName(var.name);
             if(isWildCard(vname)){
@@ -173,7 +175,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     
     dt = defType([annoType, onType], AType(Solver s) { return aanno(pname, s.getType(onType), s.getType(annoType)); });
     dt.vis = getVis(current.visibility, publicVis());
-    dt.md5 = md5Hash("<current>");
+    dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><annoType><onType><name>");
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     if(isWildCard(pname)){
         c.report(error(name, "Cannot declare annotation name starting with `_`"));
@@ -226,8 +228,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         return;
     }
     c.push(currentFunction, ppfname);
-    md5Contrib = md5Contrib4signature(signature);
-    
+    md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><md5Contrib4signature(signature)>";
+
     <expected, expectedTagString> = getExpected(decl.tags);
     if(expected){
         expectedName = expectedTagString.contents;
@@ -363,7 +365,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
 
         dt.md5 = md5Hash(size(surroundingFuns) == 1 ? md5Contrib : "<intercalate("/", surroundingFuns)><md5Contrib>");
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
-    
+        // println("<md5Contrib> =\> <dt.md5>");
     c.leaveScope(decl);
     c.pop(currentFunction);
 }
@@ -373,7 +375,7 @@ void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c)
 }
 
 str md5Contrib4signature(Signature signature){
-    fs = "<for(f <- signature.parameters.formals.formals){><f is typeVariable ? "<f.\type> <f.name>" : "<f>"> <}>";
+    fs = "<for(f <- signature.parameters.formals.formals){><f is typedVariable ? "<f.\type> <f.name>" : "<f>"> <}>";
     res = "<signature.modifiers><signature.\type> <signature.name>( <fs>)";
     //println("<signature> =\> <res>");
     return res;
@@ -644,7 +646,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         c.report(error(name, "Cannot declare alias name starting with `_`"));
     }
     
-    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<current>")]);
+    c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><base>")]);
     c.enterScope(current);
         collect(tags, base, c);
     c.leaveScope(current);
@@ -679,7 +681,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         }
         
         return aalias(aliasName, params, s.getType(base));
-    })[md5 = md5Hash("<current>")]);
+    })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><parameters><base>")]);
     
     collect(tags, c);
     
