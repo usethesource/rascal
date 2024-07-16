@@ -5,8 +5,7 @@ import java.io.IOException;
 /**
  * A interface to be implemented by a depending project. The 
  * screenshot feature is injected into the tutor command executor 
- * by dynamic loading of the class mentioned in this resource:
- * org/rascalmpl/tutor/screenshotter.config
+ * by dynamic loading this class: org.rascalmpl.tutor.Screenshotter
  * 
  * The goal is to not have dependencies on large projects
  * like selenium and Chrome in the core of the rascal project.
