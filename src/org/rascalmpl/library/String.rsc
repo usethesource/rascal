@@ -519,14 +519,8 @@ import String;
 squeeze("hello", "el");
 ```
 }
-public str squeeze(str src, str charSet) {
-  if (charSet == "") {
-    return src;
-  }
-  return visit(src) {
-    case /<c:[<charSet>]><c>+/ => c
-  }
-}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str squeeze(str src, str charSet);
 
 
 
