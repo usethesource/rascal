@@ -638,6 +638,12 @@ test bool matchSetSpliceVars2() = {1, * int S, 4, 5}:= {1, 2, 3, 4, 5} && S == {
 test bool matchSetSpliceVars3() = {1, *_, 4, 5} := {1, 2, 3, 4, 5};
 test bool matchSetSpliceVars4() = {1, * int _, 4, 5} := {1, 2, 3, 4, 5};
 
+test bool matchSetSpliceVarInOr() 
+        = {1,2,3} == (({*int x} := {1,2,3} || {*int x} := {10,20,30}) ? x : {});
+
+test bool matchTypedSetVarInOr() =
+    1 == (({int x: 1} := {1} || {int x: 10} := {10}) ? x : -1);
+    
 // match set of tuples
 
 test bool matchSetTuples1() = {<1, 2, 3>} := {<1, 2, 3>};
