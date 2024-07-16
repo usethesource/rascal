@@ -42,7 +42,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class TutorCommandExecutor {
-    private static final String SCREENSHOTTER_CONFIG = "org/rascalmpl/tutor/screenshotter.config";
     private final RascalInterpreterREPL repl;
     private final ByteArrayOutputStream shellStandardOutput;
     private final ByteArrayOutputStream shellErrorOutput;
