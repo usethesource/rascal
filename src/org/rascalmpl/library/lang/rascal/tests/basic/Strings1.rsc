@@ -3,7 +3,6 @@ module lang::rascal::tests::basic::Strings1
 import String;
 import List;
 import util::Math;
-import IO;
 
 test bool subscription(str S){
   R = "";
