@@ -1,5 +1,7 @@
 package org.rascalmpl.tutor.lang.rascal.tutor.repl;
 
+import java.io.IOException;
+
 /**
  * A interface to be implemented by a depending project. The 
  * screenshot feature is injected into the tutor command executor 
@@ -24,7 +26,8 @@ public interface ITutorScreenshotFeature {
      * 
      * @param  url localhost url
      * @return a base64 encoded PNG snapshot.
+     * @throws IOExceptions when unexpected things happen
      */
-    String takeScreenshotAsBase64PNG(String url);
+    String takeScreenshotAsBase64PNG(String url) throws IOException;
 
 }
