@@ -258,6 +258,8 @@ test bool tstSqueeze3(str S) {
   return true;
 }
 
+test bool tstSqueezeUnicode() = squeeze("Hi 🍝🍝World", "🍝") == "Hi 🍝World";
+
 
 test bool tstStartsWith(str S1, str S2) = startsWith(S1+S2, S1);
 

@@ -3040,6 +3040,34 @@ public class Prelude {
 		return values.string(s.getValue().trim());
 	}
 	
+	public IString squeeze(IString src, IString charSet) {
+		if (charSet.getValue().isBlank()) {
+			return src;
+		}
+		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
+		StringBuilder result = new StringBuilder(src.length());
+		var chars = src.iterator();
+		int previousMatch = -1;
+		while (chars.hasNext()) {
+			int cp = chars.nextInt();
+			if (cp == previousMatch) {
+				// swallow
+				continue;
+			}
+
+			String c = Character.toString(cp);
+			if (isCharset.matcher(c).matches()) {
+				previousMatch = cp;
+				// swallow the next
+			}
+			else {
+				previousMatch = -1;
+			}
+			result.append(c);
+		}
+		return values.string(result.toString());
+	}
+	
 	public IString capitalize(IString src) {
 		StringBuilder result = new StringBuilder(src.length());
 		boolean lastWhitespace= true;
