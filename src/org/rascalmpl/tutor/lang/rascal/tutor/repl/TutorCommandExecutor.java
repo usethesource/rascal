@@ -105,7 +105,7 @@ public class TutorCommandExecutor {
             return null;
         }
 		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
-			throw new Error("WARNING: Could not load screenshot feature from " + SCREENSHOTTER_CONFIG, e);
+			throw new Error("WARNING: Could not load screenshot feature from org.rascalmpl.tutor.Screenshotter", e);
 		}
     }
 
