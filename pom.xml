@@ -122,6 +122,7 @@
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
+                        <src>${project.basedir}/src/org/rascalmpl/tutor</src>
                     </srcs>
                     <sourceLookup>|std:///|</sourceLookup>
                     <funding>${project.basedir}/FUNDING</funding>
