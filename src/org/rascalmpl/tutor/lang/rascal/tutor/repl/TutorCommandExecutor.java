@@ -1,4 +1,4 @@
-package lang.rascal.tutor.repl;
+package org.rascalmpl.tutor.lang.rascal.tutor.repl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
