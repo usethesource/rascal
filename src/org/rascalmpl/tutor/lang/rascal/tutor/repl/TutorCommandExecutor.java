@@ -95,16 +95,17 @@ public class TutorCommandExecutor {
 
     private ITutorScreenshotFeature loadScreenShotter() {
         try {
-            Enumeration<URL> resources = getClass().getClassLoader().getResources(SCREENSHOTTER_CONFIG);
-			
-            if (!resources.hasMoreElements()) {
-                return null;
-            }
-        
-            var content = new String(Prelude.consumeInputStream(resources.nextElement().openStream()), "UTF8");
-            return (ITutorScreenshotFeature) getClass().getClassLoader().loadClass(content.trim()).getDeclaredConstructor().newInstance();
+            return (ITutorScreenshotFeature) getClass()
+                .getClassLoader()
+                .loadClass("org.rascalmpl.tutor.Screenshotter")
+                .getDeclaredConstructor()
+                .newInstance();
 		}
-		catch (IOException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+        catch (ClassNotFoundException e) {
+            // that is normal; we just don't have the feature available.
+            return null;
+        }
+		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
 			throw new Error("WARNING: Could not load screenshot feature from " + SCREENSHOTTER_CONFIG, e);
 		}
     }
