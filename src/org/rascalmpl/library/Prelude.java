@@ -3070,7 +3070,7 @@ public class Prelude {
 	}
 	
 	public IString squeeze(IString src, IString charSet) {
-		if (charSet.getValue().isBlank()) {
+		if (charSet.getValue().isEmpty()) {
 			return src;
 		}
 		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
