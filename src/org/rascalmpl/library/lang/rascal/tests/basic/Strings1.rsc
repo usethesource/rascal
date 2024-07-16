@@ -259,6 +259,11 @@ test bool tstSqueeze3(str S) {
 }
 
 test bool tstSqueezeUnicode() = squeeze("Hi 🍝🍝World", "🍝") == "Hi 🍝World";
+test bool tstSqueezeCase1() = squeeze("abc", "a-c") == "abc";
+test bool tstSqueezeCase2() = squeeze("aabc", "a-c") == "abc";
+test bool tstSqueezeCase3() = squeeze("aabcc", "a-c") == "abc";
+test bool tstSqueezeCase4() = squeeze("aabbcc", "a-c") == "abc";
+test bool tstSqueezeCase5() = squeeze("aaabc", "a-c") == "abc";
 
 
 test bool tstStartsWith(str S1, str S2) = startsWith(S1+S2, S1);
