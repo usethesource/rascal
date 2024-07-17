@@ -528,7 +528,7 @@ public java str squeeze(str src, str charSet);
 
 @synopsis{Squeeze repeated occurrences of characters.}
 @description{
-Squeeze repeated occurrences in `src` of characters, if they are a member of `charSet`, removed.
+Squeeze repeated occurrences in `src` of characters, if they are a member of `&CharClass`, removed.
 
 * `src` is any string
 * `&CharClass` is a character class type such as `[a-z]` (a type that is a subtype of the class of all characters `![]`)
@@ -542,7 +542,7 @@ import String;
 squeeze("hello", #[el]);
 ```
 }
-public str squeeze(str src, type[&CharClass <: ![]] _) = visit(src) {
+public str squeeze(str src, type[&CharClass] _:type[![]] _) = visit(src) {
     case /<c:.><c>+/ => c
       when &CharClass _ := Tree::char(charAt(c, 0))
 };
