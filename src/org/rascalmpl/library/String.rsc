@@ -20,6 +20,7 @@ module String
 
 extend Exception;
 import List;
+import ParseTree;
 
 @synopsis{All functions in this module that have a charset parameter use this as default.}
 private str DEFAULT_CHARSET = "UTF-8";
@@ -522,8 +523,29 @@ squeeze("hello", "el");
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@deprecated{Use the other squeence function that accepts Rascal character classes.}
 public java str squeeze(str src, str charSet);
 
+@synopsis{Squeeze repeated occurrences of characters.}
+@description{
+Squeeze repeated occurrences in `src` of characters, if they are a member of `charSet`, removed.
+
+* `src` is any string
+* `&CharClass` is a character class type such as `[a-z]` (a type that is a subtype of the class of all characters `![]`)
+}
+@pitfalls{
+* `![]` excludes the `0` character, so we can never squeeze the unicode codepoint `0`. We _can_ squeeze the number `0` of course, using `#[0-9]` for example.
+}
+@examples{
+```rascal-shell
+import String;
+squeeze("hello", #[el]);
+```
+}
+public str squeeze(str src, type[&CharClass <: ![]] _) = visit(src) {
+    case /<c:.><c>+/ => c
+      when &CharClass _ := Tree::char(charAt(c, 0))
+};
 
 
 @synopsis{Split a string into a list of strings based on a literal separator.}
