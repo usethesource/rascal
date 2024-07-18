@@ -25,6 +25,7 @@ import org.rascalmpl.parser.gtd.util.IdDispenser;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.util.visualize.DebugVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -67,9 +68,6 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		for (int i = 0; i<recoveryNodes.size(); i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
-			//Pair<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> elem = elems.get(i);
-			//AbstractStackNode<IConstructor> recoveryNode = elem.getLeft();
-			//ArrayList<IConstructor> prods = elem.getRight();
 
 			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
 			for (int j = prods.size() - 1; j >= 0; --j) {
@@ -183,10 +181,12 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 
 	    int dot = node.getDot();
 
+		System.err.println("collect productions for node: " + node);
 	    if (node.isEndNode()) {
 	        IConstructor parentProduction = node.getParentProduction();
 	        if (ProductionAdapter.isContextFree(parentProduction)){
 	            productions.add(parentProduction);
+				System.err.println("adding production: " + parentProduction);
 
 	            if (ProductionAdapter.isList(parentProduction)) {
 	                return; // Don't follow productions in lists productions, since they are 'cyclic'.
@@ -200,6 +200,7 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	            IConstructor parentProduction = currentNode.getParentProduction();
 	            if (ProductionAdapter.isContextFree(parentProduction)) {
 	                productions.add(parentProduction);
+					System.err.println("adding production at " + i + ": " + parentProduction);
 	            }
 	        }
 

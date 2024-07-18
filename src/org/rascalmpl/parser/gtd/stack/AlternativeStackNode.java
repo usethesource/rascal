@@ -47,7 +47,7 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 
 		children = original.children;
 	}
-	
+
 	/**
 	 * Generates and initializes the alternatives for this alternative.
 	 */
