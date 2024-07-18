@@ -14,6 +14,7 @@ package org.rascalmpl.parser.uptr.recovery;
 
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
@@ -75,8 +76,17 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 				
 				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
+				int dot = recoveryNode.getDot();
 				int startLocation = recoveryNode.getStartLocation();
-				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), WHITESPACE, input, startLocation, prod, recoveryNode.getDot());
+
+				SkippedNode result;
+				if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
+					result = SkippingStackNode.createResultUntilEndOfInput(input, startLocation, prod, dot);
+				} else {
+					result = SkippingStackNode.createResultUntilCharClass(WHITESPACE, input, startLocation, prod, dot);
+				}
+
+				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result);
 				recoverLiteral = recoverLiteral.getCleanCopy(startLocation); // This copy might not be needed
 				recoverLiteral.initEdges();
 				EdgesSet<IConstructor> edges = new EdgesSet<>(1);
@@ -91,6 +101,35 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		}
 		
 		return recoveredNodes;
+	}
+
+	// Check if a node is a top-level production (i.e., its parent production node has no parents and starts at position -1)
+	// As this is experimental code, this method is extremely conservative.
+	// Any sharing will result in returning 'false'.
+	// We will need to change this strategy in the future to improve error recovery.
+	private boolean isTopLevelProduction(AbstractStackNode<IConstructor> node) {
+		while (node != null && node.getDot() != 0) {
+			node = getSinglePredecessor(node);
+		}
+
+		if (node != null) {
+			node = getSinglePredecessor(node);
+			return node != null && node.getStartLocation() == -1;
+		}
+
+		return false;
+	}
+
+	private AbstractStackNode<IConstructor> getSinglePredecessor(AbstractStackNode<IConstructor> node) {
+		IntegerObjectList<EdgesSet<IConstructor>> edgeMap = node.getEdges();
+		if (edgeMap.size() == 1) {
+			EdgesSet<IConstructor> edges = edgeMap.getValue(0);
+			if (edges.size() == 1) {
+				return edges.get(0);
+			}
+		}
+
+		return null;
 	}
 	
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(int[] input, int location, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {

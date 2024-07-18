@@ -1,8 +1,9 @@
 module lang::rascal::tests::recovery::BasicRecoveryTests
 
 import ParseTree;
+import IO;
 
-layout Layout = [\ ]; //* !>> [\ ];
+layout Layout = [\ ]* !>> [\ ];
 
 syntax S = ABC End;
 syntax ABC = "a" "b" "c";
@@ -13,7 +14,8 @@ test bool ok() {
 }
 
 test bool abx() {
-    Tree t = parse(#S, "a b x $", allowRecovery=true);
+    Tree t = parse(#S, "a b x $", allowRecovery=true, allowAmbiguity=true);
+    iprintln(t);
     return hasErrors(t) && size(findAllErrors(t)) == 1;
 }
 
@@ -24,5 +26,10 @@ test bool axc() {
 
 test bool ax() {
     Tree t = parse(#S, "a x $", allowRecovery=true);
+    return hasErrors(t) && size(findAllErrors(t)) == 1;
+}
+
+test bool missingEnd() {
+    Tree t = parse(#S, "a b c", allowRecovery=true);
     return hasErrors(t) && size(findAllErrors(t)) == 1;
 }

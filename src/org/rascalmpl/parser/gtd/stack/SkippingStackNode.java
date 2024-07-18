@@ -14,13 +14,39 @@ package org.rascalmpl.parser.gtd.stack;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 
+import io.usethesource.vallang.IConstructor;
+
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
 	
-	public SkippingStackNode(int id, int[] until, int[] input, int startLocation, P parentProduction, int dot){
+	public static SkippedNode createResultUntilCharClass(int[] until, int[] input, int startLocation, IConstructor production, int dot) {
+		for (int to = startLocation ; to < input.length; ++to) {
+			for (int i = 0; i < until.length; ++i) {
+				if (input[to] == until[i]) {
+					int length = to - startLocation;
+					return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
+				}
+			}
+		}
+
+		return new SkippedNode(production, dot, new int[0], startLocation);
+	}
+
+	public static SkippedNode createResultUntilEndOfInput(int[] input, int startLocation, IConstructor production, int dot) {
+		int length = input.length - startLocation;
+		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
+	}
+
+	private static int[] createSkippedToken(int[] input, int startLocation, int length) {
+		int[] token = new int[length];
+		System.arraycopy(input, startLocation, token, 0, length);
+		return token;
+	}
+
+	public SkippingStackNode(int id, P parentProduction, SkippedNode result) {
 		super(id, 0);
 		
-		this.result = buildResult(input, until, startLocation, parentProduction, dot);
+		this.result = result;
 		setAlternativeProduction(parentProduction);
 	}
 	
@@ -35,23 +61,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		this.result = result;
 	}
-	
-	private SkippedNode buildResult(int[] input, int[] until, int startLocation, P production, int dot){
-		for (int to = startLocation ; to < input.length; ++to) {
-			for (int i = 0; i < until.length; ++i) {
-				if (input[to] == until[i]) {
-					int length = to - startLocation;
-					int[] chars = new int[length];
-					System.arraycopy(input, startLocation, chars, 0, length);
-					
-					return new SkippedNode(production, dot, chars, startLocation);
-				}
-			}
-		}
 		
-		return new SkippedNode(production, dot, new int[0], startLocation);
-	}
-	
 	public boolean isEmptyLeafNode(){
 		return result.isEmpty();
 	}
