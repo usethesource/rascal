@@ -879,7 +879,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 		}
 		
-		if (recoverer != null) {
+		if (recoverer != null && location < input.length) {
 			if (debugListener != null) {
 				visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
 				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
