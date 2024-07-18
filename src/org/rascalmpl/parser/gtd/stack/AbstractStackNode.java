@@ -35,7 +35,7 @@ public abstract class AbstractStackNode<P>{
 	protected AbstractStackNode<P>[][] alternateProductions;
 
 	// Our edges
-	protected IntegerObjectList<EdgesSet<P>> edgesMap; // <PO>: key=startLocation, value=EdgesSet a that location
+	protected IntegerObjectList<EdgesSet<P>> edgesMap; // <PO>: key=startLocation, value=EdgesSet at that location
 	// Edges of our children
 	protected ArrayList<Link>[] prefixesMap;
 	
@@ -187,7 +187,7 @@ public abstract class AbstractStackNode<P>{
 	 * Returns the name associated with the symbol in this node (optional operation).
 	 */
 	public abstract String getName();
-	
+
 	/**
 	 * Check whether of this this node is equal to the given node.
 	 */
@@ -745,7 +745,7 @@ public abstract class AbstractStackNode<P>{
 	}
 
 	public String toShortString() {
-		return "id=" + id + ",dot=" + dot + ",start=" + startLocation;
+		return "." + dot + "@" + startLocation;
 	}
 
 	@Override
@@ -765,7 +765,7 @@ public abstract class AbstractStackNode<P>{
 				} else {
 					builder.append(",");
 				}
-				builder.append(prodElem.getId());
+				builder.append(prodElem.toShortString());
 			}
 			builder.append("]");
 		}
@@ -782,9 +782,10 @@ public abstract class AbstractStackNode<P>{
 		if (alternateProductions != null && alternateProductions.length != 0) {
 			builder.append(",alternateProductions=" + Arrays.toString(alternateProductions));
 		}
+		/*
 		if (edgesMap != null && edgesMap.size() != 0) {
 			builder.append(",edges=" + edgesMap);
-		}
+		}*/
 		if (prefixesMap != null && prefixesMap.length != 0) {
 			builder.append(",prefixes=" + Arrays.toString(prefixesMap));
 		}

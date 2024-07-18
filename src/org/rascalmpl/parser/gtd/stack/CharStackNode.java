@@ -89,7 +89,7 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append('[');
+		sb.append("CharStackNode[class=");
 		int[] range = ranges[0];
 		sb.append(range[0]);
 		sb.append('-');
@@ -101,12 +101,9 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 			sb.append('-');
 			sb.append(range[1]);
 		}
+		sb.append(",");
+		sb.append(super.toString());
 		sb.append(']');
-		
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
 		
 		return sb.toString();
 	}
