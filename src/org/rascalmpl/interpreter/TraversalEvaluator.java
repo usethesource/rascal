@@ -45,6 +45,7 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.types.RascalType;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -689,11 +690,11 @@ public class TraversalEvaluator {
 	 * Performance issue: we create a lot of garbage by producing all these substrings.
 	 */
 	public IValue traverseString(IValue subject, CaseBlockList casesOrRules, TraverseResult tr){
-		String subjectString = ((IString) subject).getValue();
+		IString subjectString = (IString) subject;
 		int len = subjectString.length();
 		int subjectCursor = 0;
 		int subjectCursorForResult = 0;
-		StringBuffer replacementString = null; 
+		IString replacementString = null; 
 		boolean hasMatched = false;
 		boolean hasChanged = false;
 
@@ -703,7 +704,7 @@ public class TraversalEvaluator {
 		
 		while (subjectCursor < len) {			
 			try {
-				IString substring = eval.getValueFactory().string(subjectString.substring(subjectCursor, len));
+				IString substring = subjectString.substring(subjectCursor, len);
 				IValue subresult  = substring;
 				tr.matched = false;
 				tr.changed = false;
@@ -741,16 +742,16 @@ public class TraversalEvaluator {
 					
 					// Create replacementString when this is the first replacement
 					if (replacementString == null) {
-						replacementString = new StringBuffer();
+						replacementString = IRascalValueFactory.getInstance().string("");
 					}
 					
 					// Copy string before the match to the replacement string
 					for (; subjectCursorForResult < subjectCursor + start; subjectCursorForResult++){
-						replacementString.append(subjectString.charAt(subjectCursorForResult));
+						replacementString = replacementString.concat(IRascalValueFactory.getInstance().string(subjectString.charAt(subjectCursorForResult)));
 					}
 					subjectCursorForResult = subjectCursor + end;
 					// Copy replacement into replacement string
-					replacementString.append(((IString)repl).getValue());
+					replacementString = replacementString.concat((IString) repl);
 
 					tr.matched = true;
 					tr.changed = true;
@@ -770,9 +771,9 @@ public class TraversalEvaluator {
 		
 		// Copy remaining characters of subject string into replacement string
 		for (; subjectCursorForResult < len; subjectCursorForResult++){
-			replacementString.append(subjectString.charAt(subjectCursorForResult));
+			replacementString = replacementString.concat(IRascalValueFactory.getInstance().string(subjectString.charAt(subjectCursorForResult)));
 		}
 		
-		return eval.getValueFactory().string(replacementString.toString());
+		return replacementString;
 	}
 }
