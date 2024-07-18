@@ -861,7 +861,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	private boolean findStacksToReduce(){
 		visualize("Finding stacks to reduce", DebugVisualizer.TODO_LISTS_ID);
 		int queueDepth = todoLists.length;
-		for(int i = 1; i < queueDepth; ++i){
+		for(int i = 1; i < queueDepth-1; ++i){
 			queueIndex = (queueIndex + 1) % queueDepth;
 			
 			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex];
@@ -879,7 +879,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 		}
 		
-		if (recoverer != null && location < input.length) {
+		if (recoverer != null) {
 			if (debugListener != null) {
 				visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
 				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
