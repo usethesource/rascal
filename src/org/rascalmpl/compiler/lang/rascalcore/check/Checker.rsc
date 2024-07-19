@@ -167,11 +167,11 @@ public PathConfig getRascalCorePathConfigDev() {
                 |project://rascal/src/org/rascalmpl/library|, 
                 |std:///|,
                 |project://rascal-core/src/org/rascalmpl/core/library|,
-                |project://typepal/src|,
-                |project://rascal-tutor/src|,
-                |project://flybytes/src|,
-                |project://salix/src|,
-                |project://rascal-lsp/src/main/rascal/|
+                 |project://typepal/src|,
+                 |project://rascal-tutor/src|,
+                 |project://flybytes/src|,
+                 |project://salix/src|,
+                 |project://rascal-lsp/src/main/rascal/|
                 ],
         bin = |project://rascal-core/target/test-classes|,
         generatedSources = |project://rascal-core/target/generated-test-sources|,
