@@ -42,7 +42,7 @@ public AType sym2AType(Sym sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
       return AType::aadt("<n>", [], dataSyntax());
     case \start(Nonterminal n) : 
-        return \start(AType::aadt("<n>", [], dataSyntax));
+        return \start(AType::aadt("<n>", [], dataSyntax()));
     case literal(StringConstant l): 
       return AType::alit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
@@ -104,6 +104,9 @@ public AType defsym2AType(Sym sym, SyntaxRole sr) {
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
         return AType::aadt("<n>",separgs2ATypes(syms), sr); 
     
+    case \start(Nonterminal n) : 
+        return \start(AType::aadt("<n>", [], sr));
+        
     default: {
       iprintln(sym);
       throw "defsym2AType, missed a case <sym>";
