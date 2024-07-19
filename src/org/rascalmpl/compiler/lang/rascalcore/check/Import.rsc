@@ -423,7 +423,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                 throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
             ms = addTModel(qualifiedModuleName, m1, ms);
-            //println("doSaveModule"); iprintln(domain(m1.logical2physical));
+            //println("doSaveModule"); iprintln(m1);
             
         } catch value e: {
             ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];

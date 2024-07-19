@@ -38,7 +38,7 @@ public int nalternatives = 0;
 public int syndefCounter = 0;
 
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
-   //println("declareSyntax: <current>");
+    // println("declareSyntax: <current>");
     Sym defined = current.defined;
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
@@ -53,7 +53,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         
         dt = defType(nonterminalType);
         dt.vis = vis; 
-        dt.md5 = md5Hash("<adtName><syndefCounter>"); 
+        dt.md5 = md5Hash("<current is language ? current.\start : ""><adtName><syndefCounter><md5ContribSym(defined)>"); 
         syndefCounter += 1;  
         
         // Define the syntax symbol itself and all labelled alternatives as constructors
@@ -77,6 +77,17 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
     }
 }
 
+// ---- ProdModifier ---------------------------------------------------------
+
+str md5ContribProdMod(Tag \tag)
+    = "";
+
+default str md5ContribProdMod(ProdModifier pm)
+    = "<pm>";
+
+str md5ContribProdMods(ProdModifier* pms)
+    = "<for(pm <- pms){><md5ContribProdMod(pm)><}>";
+
 // ---- Prod ------------------------------------------------------------------
         
 AProduction getProd(AType adtType, Tree tree, Solver s){
@@ -89,6 +100,9 @@ void collect(current: (Prod) `: <Name referenced>`, Collector c){
     c.use(referenced, {constructorId()});
     c.fact(current, referenced);
 }
+
+str md5ContribProd((Prod) `: <Name referenced>`)
+    = "REF<referenced>";
 
 void requireNonLayout(Tree current, AType u, str msg, Solver s){
     if(isLayoutAType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
@@ -165,7 +179,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
                     return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
-            })[md5=md5Hash("<adt><current>")]);
+            })[md5=md5Hash("<adt><md5ContribProd(current)>")]);
         beginUseTypeParameters(c,closed=true);
             collect(symbols, c);
         endUseTypeParameters(c);
@@ -173,6 +187,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
         throw "collect Named Prod: currentAdt not found";
     }
 }
+
+str md5ContribProd((Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`)
+    = "<md5ContribProdMods(modifiers)><unescape("<name>")>C<for(s <- syms){><md5ContribSym(s)><}>";
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
@@ -193,6 +210,10 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
     } else {
         throw "collect Unnamed Prod: currentAdt not found";
     }
+}
+
+str md5ContribProd(p:(Prod) `<ProdModifier* modifiers> <Sym* syms>`){
+    return "<md5ContribProdMods(modifiers)><for(s <- syms){><md5ContribSym(s)><}>";
 }
 
 private AProduction associativity(AType nt, nothing(), AProduction p) = p;
@@ -224,6 +245,9 @@ list[Prod] normalizeAlt((Prod) `<Prod lhs> | <Prod rhs>`)
 
 default list[Prod] normalizeAlt(Prod p) = [p];
 
+str md5ContribProd((Prod) `<Assoc ass> ( <Prod group> )`)
+    = "<ass>L<md5ContribProd(group)>R";
+
 void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
     if(<Tree adt, _,  _, _> := c.top(currentAdt)){
         alts = normalizeAlt(current);
@@ -237,13 +261,15 @@ void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
         c.pop(inAlternative);
         if(isEmpty(c.getStack(inAlternative))){
             nalternatives += 1;
-              c.define("alternative-<nalternatives>", nonterminalId(), current, defType(current)[md5=md5Hash("<current>")]);
+              c.define("alternative-<nalternatives>", nonterminalId(), current, defType(current)[md5=md5ContribProd(current)]);
         }
     } else {
         throw "collect alt: currentAdt not found";
     }
 }
- 
+str md5ContribProd((Prod) `<Prod lhs> | <Prod rhs>`)
+    = "<md5ContribProd(lhs)>A<md5ContribProd(rhs)>";
+
 void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("first production", current, [adt, lhs, rhs],
@@ -256,6 +282,9 @@ void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
         throw "collect alt: currentAdt not found";
     }
 }
+
+str md5ContribProd((Prod) `<Prod lhs> \> <Prod rhs>`)
+    = "<md5ContribProd(lhs)>R<md5ContribProd(rhs)>";
 
 //default void collect(Prod current, Collector c){
 //    throw "collect Prod, missed case <current>";
