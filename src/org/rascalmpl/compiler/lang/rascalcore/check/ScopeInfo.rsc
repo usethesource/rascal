@@ -17,6 +17,8 @@ public /*const*/ str currentFunction = "currentFunction";   // used to mark func
 public /*const*/ str inAlternative = "inAlternative";       // used to mark top-level alternative in syntax declaration
 public /*const*/ str typeContainer = "typeContainer";
 public /*const*/ str inConcreteLiteral = "concreteLiteral"; // used to mark that we are inside a concrete literal
+public /*const*/ str currentAlternative = "currentAlternative";
+                                                            // used to mark that we are inside an alternative of syntax declaration
 
 // Some utilities on patterns
     
