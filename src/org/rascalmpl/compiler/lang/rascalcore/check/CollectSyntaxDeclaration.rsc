@@ -181,7 +181,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                  } else throw "Unexpected type of production: <ptype>";
             })[md5=md5Hash("<adt><md5ContribProd(current)>")]);
         beginUseTypeParameters(c,closed=true);
-            collect(symbols, c);
+            c.push(currentAlternative, <adt, "<name>", syms>);
+                collect(symbols, c);
+            c.pop(currentAlternative);
         endUseTypeParameters(c);
     } else {
         throw "collect Named Prod: currentAdt not found";
@@ -193,10 +195,6 @@ str md5ContribProd((Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`)
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
-    //typeParametersInSymbols = {*getTypeParameters(sym) | sym <- symbols };
-    //for(tv <- typeParametersInSymbols){
-    //    c.use(tv.nonterminal, {typeVarId()});
-    //}
  
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
@@ -205,7 +203,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
                 return res;
             });
         beginUseTypeParameters(c,closed=true);
-            collect(symbols, c);
+            c.push(currentAlternative, <adt, "", syms>);
+                collect(symbols, c);
+            c.pop(currentAlternative);
         endUseTypeParameters(c);
     } else {
         throw "collect Unnamed Prod: currentAdt not found";

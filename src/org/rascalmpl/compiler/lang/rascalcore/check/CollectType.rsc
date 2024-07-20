@@ -498,10 +498,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
         c.fact(current, n);
         return;
     }     
-    
-    //c.use(n, {typeVarId()});
-    ////c.fact(current, n);
-    //closed = !insideSignature(c);
+   
     c.fact(current, aparameter(prettyPrintName("<n>"),treeType(),closed=true));
 }
 
@@ -542,16 +539,26 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
 str md5ContribSym((Sym) `start [ <Nonterminal n> ]`)
     = "S<n>";
 
+str removeLayout(str s){
+    return "<for(int i <- [0..size(s)]){><s[i] in {" ", "\t", "\n"} ? "" : s[i]><}>";
+}
+
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
+    md5Contrib = "";
+    if(!isEmpty(c.getStack(currentAlternative)) && <Tree adt, str cname, syms> := c.top(currentAlternative)){
+        md5Contrib += "<adt.defined><cname><isEmpty(cname) ? removeLayout("<syms>") : "">";
+    } else if(!isEmpty(c.getStack(currentAdt)) && <Tree adt, _, _, _> := c.top(currentAdt)){
+        md5Contrib += "<adt.defined>";
+    }
+    
     // TODO require symbol is nonterminal
     c.define(un, fieldId(), n, defType([symbol], 
         AType(Solver s){ 
             res = s.getType(symbol)[alabel=un]; 
           return res;
-        })[md5=md5Hash(md5ContribSym(current))]);
+        })[md5=md5Hash("<md5Contrib><md5ContribSym(current)>")]);
       
-        //return getSyntaxType(symbol, s)[alabel=un]; }));
     c.fact(current, n);
     collect(symbol, c);
 }
