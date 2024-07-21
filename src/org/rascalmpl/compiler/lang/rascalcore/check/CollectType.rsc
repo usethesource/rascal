@@ -536,10 +536,8 @@ void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
     collect(n, c);
 }
 
-str md5ContribSym((Sym) `start [ <Nonterminal n> ]`)
-    = "S<n>";
-
-str removeLayout(str s){
+str unparseNoLayout(Tree t){
+    s = "<t>";
     return "<for(int i <- [0..size(s)]){><s[i] in {" ", "\t", "\n"} ? "" : s[i]><}>";
 }
 
@@ -547,7 +545,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
     md5Contrib = "";
     if(!isEmpty(c.getStack(currentAlternative)) && <Tree adt, str cname, syms> := c.top(currentAlternative)){
-        md5Contrib += "<adt.defined><cname><removeLayout("<syms>")>";
+        md5Contrib += "<adt.defined><cname><unparseNoLayout(syms)>";
     } else if(!isEmpty(c.getStack(currentAdt)) && <Tree adt, _, _, _> := c.top(currentAdt)){
         md5Contrib += "<adt.defined>";
     }
@@ -557,7 +555,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
         AType(Solver s){ 
             res = s.getType(symbol)[alabel=un]; 
           return res;
-        })[md5=md5Hash("<md5Contrib><md5ContribSym(current)>")]);
+        })[md5=md5Hash("<md5Contrib><unparseNoLayout(current)>")]);
       
     c.fact(current, n);
     collect(symbol, c);
@@ -572,21 +570,13 @@ void collect(current:(Sym) `<Class cc>`, Collector c){
     c.fact(current, cc2ranges(cc));
 }
 
-str md5ContribSym((Sym) `<Class cc>`)
-    = reduceToURIChars("<cc>");
-
 void collect(current:(Sym) `<StringConstant l>`, Collector c){
     c.fact(current, AType::alit(unescapeLiteral(l)));
 }
 
-str md5ContribSym((Sym) `<StringConstant l>`)
-    = reduceToURIChars("<l>");
-
 void collect(current:(Sym) `<CaseInsensitiveStringConstant l>`, Collector c){
     c.fact(current, AType::acilit(unescapeLiteral(l)));
 }
-str md5ContribSym((Sym) `<CaseInsensitiveStringConstant l>`)
-    = reduceToURIChars("<l>");
 
 // ---- regular expressions
 
@@ -834,9 +824,6 @@ void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
 str md5ContribSym((Sym) `<Sym symbol> \\ <Sym match>`)
     = "<md5ContribSym(symbol)>NOTEQUAL<md5ContribSym(match)>";
 
-default str md5ContribSym(Sym sym)
-    = reduceToURIChars("<sym>");
-    
 void collect(Sym current, Collector c){
     throw "collect Sym, missed case <current>";
 }
