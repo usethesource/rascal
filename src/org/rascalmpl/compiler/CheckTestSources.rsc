@@ -17,7 +17,11 @@ PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-c
 
 void main() = checkTestSources(manualTestConfig);
 
-void checkTestSources(PathConfig pcfg) {
+// if cmdLineArgs contains "all", then all files in the rascal project are used (~400 files)
+// otherwise only standard library and test files (~200 files) 
+void main(list[str] cmdLineArgs) = checkTestSources(cmdLineArgs, manualTestConfig);
+
+void checkTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
      testConfig = pathConfig(
      bin=pcfg.bin,
      generatedSources=|project://rascal-core/target/generated-test-sources2|,
@@ -33,63 +37,74 @@ void checkTestSources(PathConfig pcfg) {
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
-
-   libraryModules = ["Boolean", 
-                     "DateTime", 
-                     "Exception", 
-                     "Grammar", 
-                     "IO", 
-                     "List", 
-                     "ListRelation", 
-                     "Location", 
-                     "Map", 
-                     "Message", 
-                     "Node", 
-                     "ParseTree", 
-                     "Prelude", 
-                     "Relation", 
-                     "Set", "String", 
-                     /*"Traversal",*/
-                     "Type", 
-                     "ValueIO",
-                     "analysis::graphs::Graph", 
-                     "analysis::statistics::Correlation",
-                     "analysis::statistics::Descriptive",
-                     "analysis::statistics::Frequency",
-                     "analysis::statistics::Inference",
-                     "analysis::statistics::SimpleRegression",
-                     "lang::csv::IO",
-                     "lang::json::IO",
-                     "lang::manifest::IO",
-                     "lang::rascal::syntax::Rascal",
-                     "lang::xml::DOM",
-                     "lang::xml::IO",
-                     "util::FileSystem", 
-                     "util::Math",
-                     "util::Maybe",
-                     "util::Memo",
-                     "util::PriorityQueue",
-                     "util::Reflective",
-                     "util::SemVer",
-                     "util::UUID",
-                    
-                     "analysis::m3::AST", 
-                     "analysis::m3::Core", 
-                     "analysis::m3::FlowGraph", 
-                     "analysis::m3::Registry",
-                     "analysis::m3::TypeSymbol"];  
-
-   for (m <- libraryModules) {
-     <e,d> = safeCompile(m, testCompilerConfig);
-     total += d;
-   }
-     
-   testFolder = |std:///|;
-   //testFolder = |std:///lang/rascal/tests|;
    
-   testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
-                 | loc file <- find(testFolder, "rsc")     // all Rascal source files
-                 ];
+   testModules = [];
+   
+   if("all" in cmdLineArgs){
+        rootFolder = |std:///|;
+   
+        testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
+                      | loc file <- find(rootFolder, "rsc") 
+                      ];           
+   } else {         
+
+       libraryModules = ["Boolean", 
+                         "DateTime", 
+                         "Exception", 
+                         "Grammar", 
+                         "IO", 
+                         "List", 
+                         "ListRelation", 
+                         "Location", 
+                         "Map", 
+                         "Message", 
+                         "Node", 
+                         "ParseTree", 
+                         "Prelude", 
+                         "Relation", 
+                         "Set", "String", 
+                         /*"Traversal",*/
+                         "Type", 
+                         "ValueIO",
+                         "analysis::graphs::Graph", 
+                         "analysis::statistics::Correlation",
+                         "analysis::statistics::Descriptive",
+                         "analysis::statistics::Frequency",
+                         "analysis::statistics::Inference",
+                         "analysis::statistics::SimpleRegression",
+                         "lang::csv::IO",
+                         "lang::json::IO",
+                         "lang::manifest::IO",
+                         "lang::rascal::syntax::Rascal",
+                         "lang::xml::DOM",
+                         "lang::xml::IO",
+                         "util::FileSystem", 
+                         "util::Math",
+                         "util::Maybe",
+                         "util::Memo",
+                         "util::PriorityQueue",
+                         "util::Reflective",
+                         "util::SemVer",
+                         "util::UUID",
+                        
+                         "analysis::m3::AST", 
+                         "analysis::m3::Core", 
+                         "analysis::m3::FlowGraph", 
+                         "analysis::m3::Registry",
+                         "analysis::m3::TypeSymbol"];  
+    
+       for (m <- libraryModules) {
+         <e,d> = safeCheck(m, testCompilerConfig);
+         total += d;
+       }
+         
+       testFolder = |std:///|;
+       //testFolder = |std:///lang/rascal/tests|;
+       
+       testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
+                     | loc file <- find(testFolder, "rsc")     // all Rascal source files
+                     ];
+   }
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
@@ -100,7 +115,7 @@ void checkTestSources(PathConfig pcfg) {
    for (i <- index(testModules)) {
       m = testModules[i];
       println("Checking test module <m> [<i>/<n>]");
-      <e, d> = safeCompile(m, testCompilerConfig);
+      <e, d> = safeCheck(m, testCompilerConfig);
       total += d;
       if(!isEmpty(e)){
         exceptions += e;
@@ -113,7 +128,7 @@ void checkTestSources(PathConfig pcfg) {
    println("Time: <secs> seconds");
 }
 
-tuple[str, int]  safeCompile(str \module, RascalCompilerConfig compilerConfig) {
+tuple[str, int]  safeCheck(str \module, RascalCompilerConfig compilerConfig) {
     start_time = cpuTime();
     
     try {

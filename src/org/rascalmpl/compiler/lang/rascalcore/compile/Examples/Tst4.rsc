@@ -1,3 +1,8 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-start syntax A = "a";
+import IO;
+
+value main(list[str] args){
+    println(args);
+    return "all" in args;
+}
