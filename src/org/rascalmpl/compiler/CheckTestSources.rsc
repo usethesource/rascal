@@ -15,7 +15,7 @@ PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-c
                                         resources = |project://rascal-core/target/generated-test-resources2|
                                        );
 
-void main() = checkTestSources(manualTestConfig);
+void main() = checkTestSources([], manualTestConfig);
 
 // if cmdLineArgs contains "all", then all files in the rascal project are used (~400 files)
 // otherwise only standard library and test files (~200 files) 
