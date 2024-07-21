@@ -547,7 +547,7 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
     md5Contrib = "";
     if(!isEmpty(c.getStack(currentAlternative)) && <Tree adt, str cname, syms> := c.top(currentAlternative)){
-        md5Contrib += "<adt.defined><cname><isEmpty(cname) ? removeLayout("<syms>") : "">";
+        md5Contrib += "<adt.defined><cname><removeLayout("<syms>")>";
     } else if(!isEmpty(c.getStack(currentAdt)) && <Tree adt, _, _, _> := c.top(currentAdt)){
         md5Contrib += "<adt.defined>";
     }

@@ -15,11 +15,13 @@ import util::SystemAPI;
 
 PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|);
 
-void main(list[str] args) = generateTestSources(manualTestConfig);
+// if cmdLineArgs contains "all", then all files in the rascal project are used (~400 files)
+// otherwise only standard library and test files (~200 files) 
+void main(list[str] cmdLineArgs) = generateTestSources(cmdLineArgs, manualTestConfig);
 
 void main() = main([]);
 
-void generateTestSources(PathConfig pcfg) {
+void generateTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
    if ("rascal.generateSources.skip" in getSystemProperties()) {
      println("Skipping the generation of test sources.");
      return;
@@ -43,100 +45,74 @@ void generateTestSources(PathConfig pcfg) {
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 
-   libraryModules = ["Boolean", 
-                     "DateTime", 
-                     "Exception", 
-                     "Grammar", 
-                     "IO", 
-                     "List", 
-                     "ListRelation", 
-                     "Location", 
-                     "Map", 
-                     "Message", 
-                     "Node", 
-                     "ParseTree", 
-                     "Prelude", 
-                     "Relation", 
-                     "Set", "String", 
-                     /*"Traversal",*/
-                     "Type", 
-                     "ValueIO",
-                     "analysis::graphs::Graph", 
-                     "analysis::statistics::Correlation",
-                     "analysis::statistics::Descriptive",
-                     "analysis::statistics::Frequency",
-                     "analysis::statistics::Inference",
-                     "analysis::statistics::SimpleRegression",
-                     "lang::csv::IO",
-                     "lang::json::IO",
-                     "lang::manifest::IO",
-                     "lang::rascal::syntax::Rascal",
-                     "lang::xml::DOM",
-                     "lang::xml::IO",
-                     "util::FileSystem", 
-                     "util::Math",
-                     "util::Maybe",
-                     "util::Memo",
-                     "util::PriorityQueue",
-                     "util::Reflective",
-                     "util::SemVer",
-                     "util::UUID",
-                     
-                     //"demo::lang::Pico::Syntax",
-                    
-                     "analysis::m3::AST", 
-                     "analysis::m3::Core", 
-                     "analysis::m3::FlowGraph", 
-                     "analysis::m3::Registry",
-                     "analysis::m3::TypeSymbol"];  
-                     
-   list[str] checkerTestModules = [
-        "lang::rascalcore::check::tests::AccumulatingTCTests",
-        "lang::rascalcore::check::tests::AliasTests",
-        "lang::rascalcore::check::tests::AllStaticIussues",
-        "lang::rascalcore::check::tests::AllStaticIssuesUsingStdLib", 
-        "lang::rascalcore::check::tests::AnnotationTCTests",
-        "lang::rascalcore::check::tests::AnnotationUsingStdLibTCTests",
-        "lang::rascalcore::check::tests::AssignmentTCTests",
-        "lang::rascalcore::check::tests::ATypeInstantiationTests",
-        "lang::rascalcore::check::tests::ATypeTests",
-        "lang::rascalcore::check::tests::BooleanTCTests",
-        "lang::rascalcore::check::tests::BooleanUsingStdLibTCTests",
-        "lang::rascalcore::check::tests::CallTCTests",
-        "lang::rascalcore::check::tests::CallUsingStdLibTCTests",
-        "lang::rascalcore::check::tests::ComprehensionTCTests",
-        "lang::rascalcore::check::tests::DataDeclarationTCTests",
-        "lang::rascalcore::check::tests::DataTypeTCTests",
-        "lang::rascalcore::check::tests::DeclarationTCTests",
-        "lang::rascalcore::check::tests::ImportTCTests",
-        "lang::rascalcore::check::tests::InferenceTCTests",
-        "lang::rascalcore::check::tests::ParameterizedTCTests",
-        "lang::rascalcore::check::tests::PatternTCTests",
-        "lang::rascalcore::check::tests::PatternUsingStdLibTCTests",
-        "lang::rascalcore::check::tests::ProjectTCTests",
-        "lang::rascalcore::check::tests::RegExpTCTests",
-        "lang::rascalcore::check::tests::ScopeTCTests",
-        "lang::rascalcore::check::tests::StatementTCTests",
-        "lang::rascalcore::check::tests::StaticTestsingUtilsTests",
-        "lang::rascalcore::check::tests::StaticTestingUsingStdLibTests",
-        "lang::rascalcore::check::tests::SubscriptTCTests",
-        "lang::rascalcore::check::tests::VisitTCTests"
-   ];
+   testModules = [];
+  
+   if("all" in cmdLineArgs){
+        rootFolder = |std:///|;
    
-
-   for (m <- libraryModules) {
-     safeCompile(m, testCompilerConfig, (int d) { durations[m] = d; });
-   }
+        testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
+                      | loc file <- find(rootFolder, "rsc") 
+                      ];           
+   } else {         
    
-   //for (m <- checkerTestModules) {
-   //  safeCompile(m, testConfig, testCompilerConfig, (int d) { durations[m] = d; });
-   //}
+       libraryModules = ["Boolean", 
+                         "DateTime", 
+                         "Exception", 
+                         "Grammar", 
+                         "IO", 
+                         "List", 
+                         "ListRelation", 
+                         "Location", 
+                         "Map", 
+                         "Message", 
+                         "Node", 
+                         "ParseTree", 
+                         "Prelude", 
+                         "Relation", 
+                         "Set", "String", 
+                         /*"Traversal",*/
+                         "Type", 
+                         "ValueIO",
+                         "analysis::graphs::Graph", 
+                         "analysis::statistics::Correlation",
+                         "analysis::statistics::Descriptive",
+                         "analysis::statistics::Frequency",
+                         "analysis::statistics::Inference",
+                         "analysis::statistics::SimpleRegression",
+                         "lang::csv::IO",
+                         "lang::json::IO",
+                         "lang::manifest::IO",
+                         "lang::rascal::syntax::Rascal",
+                         "lang::xml::DOM",
+                         "lang::xml::IO",
+                         "util::FileSystem", 
+                         "util::Math",
+                         "util::Maybe",
+                         "util::Memo",
+                         "util::PriorityQueue",
+                         "util::Reflective",
+                         "util::SemVer",
+                         "util::UUID",
+                         
+                         //"demo::lang::Pico::Syntax",
+                        
+                         "analysis::m3::AST", 
+                         "analysis::m3::Core", 
+                         "analysis::m3::FlowGraph", 
+                         "analysis::m3::Registry",
+                         "analysis::m3::TypeSymbol"];  
+                     
+       for (m <- libraryModules) {
+         safeCompile(m, testCompilerConfig, (int d) { durations[m] = d; });
+       }
+   
      
-   testFolders = [|std:///lang/rascal/tests| ];
-   
-   testModules = [ *[ replaceAll(file[extension=""].path[1..], "/", "::") | loc file <- find(testFolder, "rsc") ]
-                 | testFolder <- testFolders
-                 ];  
+       testFolders = [|std:///lang/rascal/tests| ];
+       
+       testModules = [ *[ replaceAll(file[extension=""].path[1..], "/", "::") | loc file <- find(testFolder, "rsc") ]
+                     | testFolder <- testFolders
+                     ];
+   }  
 
    ignored = ["lang::rascal::tests::concrete::Patterns3"
              ];           

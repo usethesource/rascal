@@ -91,7 +91,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><name><consArity><i><fieldType> <fieldName>");
+                dt.md5 = md5Hash("<currentModuleName><adtName><name><consArity><i><fieldType> <fieldName><removeLayout("<current>")>");
                 c.define(fieldName, fieldId(), ta.name, dt);
             }
         }
