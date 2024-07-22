@@ -6,10 +6,9 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
+@synopsis{Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar).}
 module lang::sdf2::util::SDF2Grammar
        
-// Convert SDF2 grammars to an (unnormalized) Rascal internal grammar representation (Grammar)
-   
 // Todo List:
 // - Some tests are marked with @ignore (and commented out) since they trigger a Rascal bug:
 //   . The expression: `(Group) `A -\> B <1>`; triggers a bug in AST construction
@@ -29,15 +28,11 @@ public Symbol label(str s, conditional(Symbol t, set[Condition] cs)) = condition
 public Symbol conditional(conditional(Symbol s, set[Condition] c1), set[Condition] c2) = conditional(s, c1 + c2);
 
 public GrammarDefinition sdf2grammar(loc input) {
-  return sdf2grammar("Main", parse(#SDF, input)); 
+  return sdf2grammar("Main", input); 
 }
 
 public GrammarDefinition sdf2grammar(str main, loc input) {
   return sdf2grammar(main, parse(#SDF, input)); 
-}
-
-public GrammarDefinition sdf2grammar(loc input) {
-  return sdf2grammar(parse(#SDF, input)); 
 }
 
 public GrammarDefinition sdf2grammar(SDF def) {

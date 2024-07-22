@@ -234,7 +234,16 @@ test bool emptyCatchStatement2() {
     return f_using_empty_catch() == 10;
 }
 
-// empty catch band finally lock
+// case with wildcard pattern
+
+int f() { throw "abc"; }
+
+test bool afterCatch(){
+    try f(); catch _: x=3;
+    return true;
+}
+
+// empty catch and finally lock
 
 test bool emptyCatchAndFinallyBlock() {
 	try {

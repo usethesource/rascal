@@ -7,22 +7,22 @@ import lang::rascal::tests::extends1::Base;
 
 int add1(int n) = n + 1;
 
-test bool base1() { S s = [S] "a";  return s == [S] "a";}
+test bool b1base1() { S s = [S] "a";  return s == [S] "a";}
 
-test bool base2() { Sstar s = [Sstar] "aaa";  return s == [Sstar] "aaa";}
+test bool b1base2() { Sstar s = [Sstar] "aaa";  return s == [Sstar] "aaa";}
 
-test bool base3() { INTEGER n = 13; return n == 13;}
+test bool b1base3() { INTEGER n = 13; return n == 13;}
 
-test bool base4() { D x = d1(); return x == d1();}
+test bool b1base4() { D x = d1(); return x == d1();}
 
-test bool base5() { return ident(13) == 13; }
+test bool b1base5() { return ident(13) == 13; }
 
-test bool base6() { return f(0) == "zero"; }
+test bool b1base6() { return f(0) == "zero"; }
 
-test bool base7() { return f(9) == "value"; }
+test bool b1base7() { return f(9) == "value"; }
 
 // Defined in B[1-3]
 
-test bool tadd1() = add1(5) == 6;
-test bool tadd2() = add2(5) == 7;
-test bool tadd3() = add3(5) == 8;
+test bool b1tadd1() = add1(5) == 6;
+test bool b1tadd2() = add2(5) == 7;
+test bool b1tadd3() = add3(5) == 8;

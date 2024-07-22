@@ -12,7 +12,6 @@
 module lang::rascal::tests::library::ValueIO
 
 import ValueIO;
-import util::Reflective;
 import util::UUID;
 
 data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
@@ -24,7 +23,7 @@ alias X[&T] = list[&T];
 
 alias Y = int;
 
-loc value_io_test = |test-temp:///value-io-<"<uuidi()>">.test|;
+loc value_io_test = |memory://test-tmp/value-io-<"<uuidi()>">.test|;
 
 /*TODO: cleanup generated files as in Java version */
 
@@ -64,7 +63,7 @@ test bool binParamAliasListInt() = binaryWriteRead(#X[int], [1]);
  
 test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
 
-loc value_io2_test = |test-temp:///value-io2-<"<uuidi()>">.test|;
+loc value_io2_test = |memory://test-tmp/value-io2-<"<uuidi()>">.test|;
 
  bool textWriteRead(type[&T] g, value exp) {
    writeTextValueFile(value_io2_test,exp);
@@ -122,7 +121,7 @@ test bool listBinary(list[value] v) = binaryWriteRead(#list[value], v);
 test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value,value,value], v);
 test bool numBinary(num v) = binaryWriteRead(#num, v);
 
-loc compression_off = |test-temp:///compression-off-<"<uuidi()>">.test|;
+loc compression_off = |memory://test-tmp/compression-off-<"<uuidi()>">.test|;
 
 test bool disablingCompressionWorks(value v) {
    writeBinaryValueFile(compression_off,v, compression=false);
@@ -135,7 +134,7 @@ data NestedValue
 	| inItself(NestedValue nv)
 	;
 
-loc compression_shared = |test-temp:///compression-shared-<"<uuidi()>">.test|;
+loc compression_shared = |memory://test-tmp/compression-shared-<"<uuidi()>">.test|;
 
 @maxDepth{20}
 test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
@@ -145,7 +144,7 @@ test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[Nest
    return readBinaryValueFile(compression_shared) == joined;
 }
 
-loc parsetree1 = |test-temp:///parsetree1-<"<uuidi()>">.test|;
+loc parsetree1 = |memory://test-tmp/parsetree1-<"<uuidi()>">.test|;
 
 @Ignore{FOR NOW}
 test bool writingParseTreeWorks() {
@@ -195,7 +194,7 @@ test bool reifyRel2()   = binaryWriteRead(#rel[int i, str s]);
 test bool reifyMap1()   = binaryWriteRead(#map[int,str]);
 test bool reifyMap2()   = binaryWriteRead(#map[int k,str v]);
 test bool reifyFun1()   = binaryWriteRead(#int (int));
-test bool reifyFun2()   = binaryWriteRead(#int (int n));
+test bool reifyFun2()   = binaryWriteRead(#int (int _n));
 test bool reifyPar1()   = binaryWriteRead(#&T);
 test bool reifyPar2()   = binaryWriteRead(#&T <: num);
 

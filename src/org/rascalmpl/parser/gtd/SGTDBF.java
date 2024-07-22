@@ -121,6 +121,15 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		unmatchableMidProductionNodes = new DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>>();
 		filteredNodes = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
 	}
+
+	/**
+	 * Return a stack node id that is guaranteed not to be in use. 
+	 * The parser generator generates an override for this method as it knows which ids have been dispensed.
+	 * Tests that need this should override this method, probably using a common base class.
+	 */
+	protected int getFreeStackNodeId() {
+		throw new UnsupportedOperationException();
+	}
 	
 	/**
 	 * Triggers the gathering of alternatives for the given non-terminal.

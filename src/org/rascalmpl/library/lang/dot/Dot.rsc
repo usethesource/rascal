@@ -12,23 +12,20 @@ import String;
 import Set;
 import Map;
 
-public alias Id = str;
+alias Id = str;
 
-@doc{Abstract Data Type of Dot language}
+@synopsis{Abstract Data Type of Dot language}
+data DotGraph =  graph(Id id, Stms stmts) | digraph(Id id, Stms stmts);
 
-public data DotGraph =  graph(Id id, Stms stmts) | digraph(Id id, Stms stmts);
+alias Stms = list[Stm];
 
-public alias Stms = list[Stm];
+alias NodeId = tuple[Id, PortId];
 
-public alias NodeId = tuple[Id, PortId];
+alias PortId = tuple[Id, CompassPt];
 
-public alias PortId = tuple[Id, CompassPt];
+data CompassPt = N()|NE()|E()|SE()|S()|SW()|W()|NW()|C()|_();
 
-public data CompassPt = N()|NE()|E()|SE()|S()|SW()|W()|NW()|C()|_();
-
-
-
-public data Stm 
+data Stm 
   = N(Id id, Attrs attrs) 
   | N(Id id) 
   | N(NodeId nid, Attrs attrs) 
@@ -59,34 +56,34 @@ public data Stm
   | EDGE(Attrs attrs)
   ;
 
-public alias Attr =  tuple[str prop,  Id val];
+alias Attr =  tuple[str prop,  Id val];
 
-public alias Attrs = list[Attr];
+alias Attrs = list[Attr];
 
-public alias Outline = map[int key, list[str] args];
+alias Outline = map[int key, list[str] args];
 
-public alias Dotline = tuple[DotGraph graph, Outline outline];
+alias Dotline = tuple[DotGraph graph, Outline outline];
 
 
-@doc{Dummy function call needed to tag initialized global variables of type DotGraph.
+@synopsis{Dummy function call needed to tag initialized global variables of type DotGraph.
 It is possible to select that variable on the outline menu of the Rascal Editor.
 An application is for example to display dotgraphs.}  
  
-public DotGraph export(DotGraph g) {return g;}
+DotGraph export(DotGraph g) {return g;}
 
-public Dotline export(Dotline g) {return g;}
+Dotline export(Dotline g) {return g;}
 
-public bool hasOutline(Dotline _) {return true;}
+bool hasOutline(Dotline _) {return true;}
 
-public bool hasOutline(DotGraph _) {return false;}
+bool hasOutline(DotGraph _) {return false;}
 
-public Outline currentOutline;
+Outline currentOutline;
 
-public void setCurrentOutline(Dotline current) {
+void setCurrentOutline(Dotline current) {
    currentOutline = current.outline;
 }
 
-@doc{Translates DotGraph to String input for dot}
+@synopsis{Translates DotGraph to String input for dot}
 str toString(digraph(Id id,Stms stms)) 
   = "digraph <id> {<for (x<-stms) {>
     '<oStm(x)>;<}>
@@ -120,7 +117,7 @@ private str oCompassPt(E())  = "e";
 private str oCompassPt(SE())  = "se";
 private str oCompassPt(S())  = "s";
 private str oCompassPt(SW())  = "sw";
-private str oCompassPt(E())  = "w";
+private str oCompassPt(W())  = "w";
 private str oCompassPt(NW())  = "nw";
 private default str oCompassPt(CompassPt _) = "_";
     
@@ -140,7 +137,7 @@ str oStm( E(Id from, Id to)) = "<from>-\><to>";
 str oStm( E(Id from, Id to, Attrs attrs)) = "<from>-\><to><oAttrs(attrs)>";
         
 str oStm( E(NodeId from, Id to)) = "<oNodeId(from)>-\><to>";
-str oStm( E(Id from, Id to, Attrs attrs)) = "<from>-\><to><oAttrs(attrs)>";
+//str oStm( E(Id from, Id to, Attrs attrs)) = "<from>-\><to><oAttrs(attrs)>";
         
 str oStm( E(Stm from, Id to)) = "<oStm(from)>-\><to>";
 str oStm( E(Stm from, Id to, Attrs attrs)) = "<oStm(from)>-\><to><oAttrs(attrs)>";
@@ -149,7 +146,7 @@ str oStm( E(Id from, NodeId to)) = "<from>-\><oNodeId(to)>";
 str oStm( E(Id from, NodeId to, Attrs attrs)) = "<from>-\><oNodeId(to)><oAttrs(attrs)>";
         
 str oStm( E(NodeId from, NodeId to)) = "<oNodeId(from)>-\><oNodeId(to)>";
-str oStm( E(Id from, NodeId to, Attrs attrs)) = "<from>-\><oNodeId(to)><oAttrs(attrs)>";
+//str oStm( E(Id from, NodeId to, Attrs attrs)) = "<from>-\><oNodeId(to)><oAttrs(attrs)>";
         
 str oStm( E(Stm from, NodeId to)) = "<oStm(from)>-\><oNodeId(to)>";
 str oStm( E(Stm from, NodeId to, Attrs attrs)) = "<oStm(from)>-\><oNodeId(to)><oAttrs(attrs)>";
@@ -158,7 +155,7 @@ str oStm( E(Id from, Stm to)) = "<from>-\><oStm(to)>";
 str oStm( E(Id from, Stm to, Attrs attrs)) = "<from>-\><oStm(to)><oAttrs(attrs)>";
         
 str oStm( E(NodeId from, Stm to)) = "<oNodeId(from)>-\><oStm(to)>";
-str oStm( E(Id from, Stm to, Attrs attrs)) = "<from>-\><oStm(to)><oAttrs(attrs)>";
+//str oStm( E(Id from, Stm to, Attrs attrs)) = "<from>-\><oStm(to)><oAttrs(attrs)>";
         
 str oStm( E(Stm from, Stm to)) = "<oStm(from)>-\><oStm(to)>";
 str oStm( E(Stm from, Stm to, Attrs attrs)) = "<oStm(from)>-\><oStm(to)><oAttrs(attrs)>";

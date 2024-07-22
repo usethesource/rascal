@@ -12,7 +12,7 @@ import List;
 import Set;
 import analysis::formalconcepts::FCA;
 
-@doc{Read object attribute in .cxt format.}   
+@synopsis{Read object attribute in .cxt format.}   
 public FormalContext[str, str] readCxt(loc input)  {
     list[str] d = readFileLines(input);
     int nRows = toInt(d[2]);

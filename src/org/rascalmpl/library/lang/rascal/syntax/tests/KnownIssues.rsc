@@ -5,11 +5,9 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-This module documents known issues in Rascal that still need solving.
+@synopsis{This module documents known issues in Rascal that still need solving.
 Perhaps they are hard to solve, but one day the inversion of these tests will
-end up in SolvedIssues
-}
+end up in SolvedIssues}
 @bootstrapParser
 module lang::rascal::\syntax::tests::KnownIssues
 

@@ -69,7 +69,7 @@ public class Cases  {
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConcreteSyntaxPattern(d) && !isIUPTRPattern(d)) {
+					if (isConcreteSyntaxPattern(d) && !isParseTreePattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -77,14 +77,14 @@ public class Cases  {
 					}
 				}
 				blocks.add(b);
-			} else if (isIUPTRPattern(c)) {
+			} else if (isParseTreePattern(c)) {
 				blocks.add(new DefaultBlock(c));
 			} else if (isConstantTreePattern(c)) {
 				NodeCaseBlock b = new NodeCaseBlock();
 				b.add(c);
 				for (int j = i + 1; j < cases.size(); j++) {
 					Case d = cases.get(j);
-					if (isConstantTreePattern(d) && !isIUPTRPattern(d)) {
+					if (isConstantTreePattern(d) && !isParseTreePattern(d)) {
 						b.add(d);
 						i++;
 					} else {
@@ -119,7 +119,7 @@ public class Cases  {
 		return false;
 	}
 	
-	private static boolean isIUPTRPattern(Case d) {
+	private static boolean isParseTreePattern(Case d) {
 		if (d.isDefault()) {
 			return false;
 		}
@@ -218,8 +218,17 @@ public class Cases  {
 				List<DefaultBlock> alts = table.get(TreeAdapter.getProduction((org.rascalmpl.values.parsetrees.ITree) value));
 				if (alts != null) {
 					for (CaseBlock c : alts) {
-						if (c.matchAndEval(eval, subject)) {
-							return true;
+						Environment old = eval.getCurrentEnvt();
+						try {
+							if (c.matchAndEval(eval, subject)) {
+								return true;
+							}
+						}
+						catch (Failure f) {
+							continue;
+						}
+						finally {
+							eval.unwind(old);
 						}
 					}
 				}
@@ -391,8 +400,19 @@ public class Cases  {
 
 			if (alts != null) {
 				for (DefaultBlock c : alts) {
-					if (c.matchAndEval(eval, subject)) {
-						return true;
+					Environment old = eval.getCurrentEnvt();
+					try {
+						eval.pushEnv();
+						if (c.matchAndEval(eval, subject)) {
+							return true;
+						}
+					}
+					catch (Failure e) {
+						// just continue with the next case
+						continue;
+					}
+					finally {
+						eval.unwind(old);
 					}
 				}
 			}

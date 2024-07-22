@@ -36,6 +36,10 @@ public class DebugMessageFactory {
 	public static IDebugMessage requestStepOver() {
 		return new DebugMessage(IDebugMessage.Action.RESUME, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.STEP_OVER);
 	}
+
+	public static IDebugMessage requestStepOut(){
+		return new DebugMessage(IDebugMessage.Action.RESUME, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.STEP_OUT);
+	}
 	
 	public static IDebugMessage requestTermination() {
 		return new DebugMessage(IDebugMessage.Action.TERMINATE, IDebugMessage.Subject.INTERPRETER, IDebugMessage.Detail.UNKNOWN);

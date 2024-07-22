@@ -568,25 +568,55 @@ test bool rascalRuntimeExceptionsPlusOverloading(){
 }
 
 test bool untypedCatch1() {
+    x = 1;
 	try {
 		throw "exception";
 	} 
-	catch _: return true;
+	catch _: x += 1;
+	return x == 2;
 }
 
 test bool untypedCatch2() {
+    x = 1;
 	try {
 		throw "exception";
 	} 
 	catch int _: return false;
-	catch _:     return true;
+	catch _:     x += 1;
+	return x == 2;
 }
 
 test bool untypedCatch3() {
+    x = 1;
 	try {
 		throw "exception";
 	} 
 	catch int _: return false;
-	catch _:     return true;
+	catch _:     x += 1;
 	finally;
-}			
+	
+	return x == 2;
+}		
+
+test bool definedVarCatch() {
+    x = 1;
+    try {
+        throw 1;
+    } 
+    catch x:     x += 1;
+    finally;
+    
+    return x == 2;
+}   
+
+test bool valueCatch() {
+    x = 1;
+    try {
+        throw "exception";
+    } 
+    catch value _:     x += 1;
+    finally;
+    
+    return x == 2;
+}           
+    	

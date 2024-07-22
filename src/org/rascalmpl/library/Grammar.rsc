@@ -8,19 +8,15 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl - CWI}
 @contributor{Vadim Zaytsev - Vadim.Zaytsev@cwi.nl - CWI}
-@doc{
-.Synopsis
-A simple but effective internal format for the representation of context-free grammars.
-}
+
+@synopsis{A simple but effective internal format for the representation of context-free grammars.}
 module Grammar
 
 extend ParseTree;
 
-@doc{
-.Synopsis
-The Grammar datatype
 
-.Description
+@synopsis{The Grammar datatype}
+@description{
 Grammar is the internal representation (AST) of syntax definitions used in Rascal.
 A grammar is a set of productions and set of start symbols. The productions are 
 stored in a map for efficient access.
@@ -34,9 +30,6 @@ data GrammarModule
  
 data GrammarDefinition
   = \definition(str main, map[str name, GrammarModule \mod] modules);
-
-anno loc Production@\loc;
- 
  
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   map[Symbol, Production] rules = ();
@@ -63,17 +56,13 @@ Grammar grammar(type[&T <: Tree] sym)
 	= grammar({sym.symbol}, sym.definitions);
 
   
-@doc{
-.Synopsis
-An item is an index into the symbol list of a production rule.
-}  
+
+@synopsis{An item is an index into the symbol list of a production rule.}  
 data Item = item(Production production, int index);
 
-@doc{
-.Synopsis
-Compose two grammars.
 
-.Description
+@synopsis{Compose two grammars.}
+@description{
 Compose two grammars by adding the rules of g2 to the rules of g1.
 The start symbols of g1 will be the start symbols of the resulting grammar.
 }
@@ -118,12 +107,33 @@ public Grammar compose(Grammar g1, Grammar g2) {
 //  };
 //}    
 
-public rel[str, str] extends(GrammarDefinition def) {
+@synopsis{Compute a relation from extender to extended module for the given grammar}
+@description{
+Note that this relation is already transitively closed because that is the semantics of extend.
+}
+rel[str \module, str extended] extends(GrammarDefinition def) {
   return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
 }
 
-public rel[str,str] imports(GrammarDefinition def) {
+@synopsis{Compute a relation from importer to imported modules for the given grammar}
+rel[str \module, str imported] imports(GrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
+}
+
+@synopsis{Compute which modules directly depend on which other modules.}
+@description{
+This function computes dependencies via import and extend relations. Every module
+X that imports Y or extends Y ends up in the result as <X, Y>. The extends relation
+that we use is already transitively closed. Next to this we also add dependencies
+<X, Z> for all modules X that import Y which extends Z. Because of the transitive
+nature of module extension, a module that extends another module exposes all
+rules to any importing module. 
+}
+rel[str \module, str dependency] dependencies(GrammarDefinition def) {
+  imps = imports(def);
+  exts = extends(def);
+
+  return imps + exts + imps o exts;
 }
 
 

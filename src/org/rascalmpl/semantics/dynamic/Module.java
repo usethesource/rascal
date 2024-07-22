@@ -18,8 +18,6 @@ import java.util.List;
 
 import org.rascalmpl.ast.Body;
 import org.rascalmpl.ast.Header;
-import org.rascalmpl.ast.Tag;
-import org.rascalmpl.ast.TagString;
 import org.rascalmpl.ast.Toplevel;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
@@ -28,6 +26,8 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -61,7 +61,7 @@ public abstract class Module {
 			  eval.__getTypeDeclarator().evaluateDeclarations(decls, eval.getCurrentEnvt(), false);
 
 			  for (Toplevel l : decls) {
-			    l.interpret(eval);
+				l.interpret(eval);
 			  }
 			}
 			catch (RuntimeException e) {

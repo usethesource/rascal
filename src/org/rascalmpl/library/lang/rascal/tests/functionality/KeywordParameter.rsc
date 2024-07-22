@@ -236,3 +236,12 @@ test bool when2() = f13(10, s="a") == -10;
 data E[&T] = e(&T t, int j = 0);
 
 test bool parametrizedDataTypeWithKwParam() = e(1).j == 0 && e(1,j=2).j == 2;
+
+// static types
+
+data GGG = ggg(rel[int a, int b] r = {<1,2>});
+
+test bool fieldsNamesOfKeywordParametersIssue1851() {
+    ax = ggg();
+    return ax.r.a == {1};
+}
