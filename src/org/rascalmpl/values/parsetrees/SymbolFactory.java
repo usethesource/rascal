@@ -354,7 +354,7 @@ public class SymbolFactory {
 				case '<' : return factory.integer('<');
 				case '>' : return factory.integer('>');
 				case '\\' : return factory.integer('\\');
-				default: return factory.integer(s.codePointAt(1));
+				default: return factory.integer(cha);
 			}
 		}
 		else {
