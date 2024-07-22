@@ -29,7 +29,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <lucence-version>7.5.0</lucence-version>
-        <maven-version>3.8.6</maven-version>
+        <maven-version>3.9.8</maven-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
@@ -492,7 +492,7 @@
         <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.7.1</version>
         </dependency>
         <dependency> <!-- needed for maven-embedder-->
             <groupId>org.slf4j</groupId>
