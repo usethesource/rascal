@@ -38,7 +38,7 @@ public int nalternatives = 0;
 public int syndefCounter = 0;
 
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, Vis vis=publicVis()){
-   //println("declareSyntax: <current>");
+    // println("declareSyntax: <current>");
     Sym defined = current.defined;
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
@@ -53,7 +53,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
         
         dt = defType(nonterminalType);
         dt.vis = vis; 
-        dt.md5 = md5Hash("<adtName><syndefCounter>"); 
+        dt.md5 = md5Hash("<current is language ? current.\start : ""><adtName><syndefCounter><unparseNoLayout(defined)>"); 
         syndefCounter += 1;  
         
         // Define the syntax symbol itself and all labelled alternatives as constructors
@@ -165,9 +165,11 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
                     return acons(def, fields, [], alabel=unescape("<name>"));
                  } else throw "Unexpected type of production: <ptype>";
-            })[md5=md5Hash("<adt><current>")]);
+            })[md5=md5Hash("<adt><unparseNoLayout(current)>")]);
         beginUseTypeParameters(c,closed=true);
-            collect(symbols, c);
+            c.push(currentAlternative, <adt, "<name>", syms>);
+                collect(symbols, c);
+            c.pop(currentAlternative);
         endUseTypeParameters(c);
     } else {
         throw "collect Named Prod: currentAdt not found";
@@ -176,10 +178,6 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
-    //typeParametersInSymbols = {*getTypeParameters(sym) | sym <- symbols };
-    //for(tv <- typeParametersInSymbols){
-    //    c.use(tv.nonterminal, {typeVarId()});
-    //}
  
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
@@ -188,7 +186,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
                 return res;
             });
         beginUseTypeParameters(c,closed=true);
-            collect(symbols, c);
+            c.push(currentAlternative, <adt, "", syms>);
+                collect(symbols, c);
+            c.pop(currentAlternative);
         endUseTypeParameters(c);
     } else {
         throw "collect Unnamed Prod: currentAdt not found";
@@ -237,13 +237,13 @@ void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
         c.pop(inAlternative);
         if(isEmpty(c.getStack(inAlternative))){
             nalternatives += 1;
-              c.define("alternative-<nalternatives>", nonterminalId(), current, defType(current)[md5=md5Hash("<current>")]);
+              c.define("alternative-<nalternatives>", nonterminalId(), current, defType(current)[md5=md5Hash(unparseNoLayout(current))]);
         }
     } else {
         throw "collect alt: currentAdt not found";
     }
 }
- 
+
 void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("first production", current, [adt, lhs, rhs],
@@ -256,7 +256,3 @@ void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
         throw "collect alt: currentAdt not found";
     }
 }
-
-//default void collect(Prod current, Collector c){
-//    throw "collect Prod, missed case <current>";
-//}
