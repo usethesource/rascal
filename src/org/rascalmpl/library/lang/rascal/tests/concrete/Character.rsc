@@ -84,6 +84,12 @@ test bool unicodeCharacterClassSubtype2() {
   return false;
 }
 
+test bool literalAsciiEscape1() = lit("\n") == #"\a0A".symbol;
+test bool literalAsciiEscape2() = lit("w") == #"\a77".symbol;
+test bool literalUtf16Escape() = lit("\n") == #"\u000A".symbol;
+test bool literalUtf24Escape1() = lit("\n") == #"\U00000A".symbol;
+test bool literalUtf24Escape2() = lit("🍕") == #"\U01F355".symbol;
+
 // ambiguity in this syntax must be resolved first
 //test bool differenceCC() = (#[a-zA-Z] - [A-Z]).symbol == (#[a-z]).symbol;
 //test bool unionCC()      = (#[a-z] || [A-Z]).symbol == (#[A-Za-z]).symbol;
