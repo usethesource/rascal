@@ -7,16 +7,25 @@ import util::Reflective;
 import IO;
 import lang::rascalcore::check::Import;
 import Map;
+import lang::rascal::\syntax::Rascal;
+import ParseTree;
+import String;
 
 data PathConfig(loc resources=|unknown:///|, loc generatedSources=|unknown:///|);
 
 data Project 
     = project(str name, map[str moduleName, str moduleText] modules, PathConfig pcfg);
     
-str makeModule(str mname, str mtext)
-    = "module <mname>
-      '<mtext>
-      ";
+str makeModule(str mname, str mtext){
+    msrc = "module <mname>
+           '<trim(mtext)>";
+    println(msrc);
+    try {
+        parse(#lang::rascal::\syntax::Rascal::Module, msrc);
+        return msrc;
+    } catch _:
+        throw "Parse error in <msrc>";
+}
 
 Project createProject(str pname, map[str mname, str mtext] modules, PathConfig pcfg){
     remove(|memory://<pname>/|, recursive=true);
@@ -50,6 +59,9 @@ Project changeModule(str mname, str mtext, Project pd){
 
     pd.modules[mname] = makeModule(mname, mtext);
     writeFile(|memory://<pd.name>/src/<mname>.rsc|, pd.modules[mname]);
+    println("changeModule:\n<readFile(|memory://<pd.name>/src/<mname>.rsc|)>");
+    println("changeModule:\n<pd.modules[mname]>");
+    iprintln(pd);
     return pd;
 }
 
@@ -77,6 +89,28 @@ bool checkExpectNoErrors(str mname, RascalCompilerConfig cfg){
     println("checkExpectNoErrors: <mname>");
     try {
         return expectNoErrors(checkModules([mname], cfg[verbose=true][logWrittenFiles=true]));
+    } catch e:{
+        println("ERROR: <e>");
+        return false;
+    }
+}
+
+bool expectErrors(map[str, list[Message]] msgsMap, list[str] expected){
+    errors = {e | /e:error(_,_) := msgsMap};
+    
+    for(e <- errors){
+        if(any(ex <- expected, findFirst(e.msg, ex)>= 0)){
+                return true;
+        }
+    }
+    println("expectErrors, found: <errors>");
+    return false;
+}
+
+bool checkExpectErrors(str mname, list[str] expected, RascalCompilerConfig cfg){
+    println("checkExpectErrors: <mname>, <expected>");
+    try {
+        return expectErrors(checkModules([mname], cfg[verbose=true][logWrittenFiles=true]), expected);
     } catch e:{
         println("ERROR: <e>");
         return false;
@@ -156,19 +190,21 @@ test bool incompatibelBinaryOnlyImport(){
                      ("M1": "int f(int n) = n;"),
                      createPathConfig(aName)
          );
-    assert checkExpectNoErrors("M1", rascalCompilerConfig(a.pcfg));
+    assert checkExpectNoErrors("M1", rascalCompilerConfig(a.pcfg)[forceCompilationTopModule=true]);
 
     bName = "b";
     b = createProject(bName,
                      ("M2": "import M1;
-                      'int main() = f(42),
+                      'int main() = f(42);
                     "),
                      createPathConfig(bName)
                         [libs = [|memory://a/resources|] ]
          );
-    assert checkExpectNoErrors("M2", rascalCompilerConfig(b.pcfg));
-    a = changeModule("M1", "int f(int n) = n;", a);
-    return checkExpectNoErrors("M2", rascalCompilerConfig(b.pcfg));
+    assert checkExpectNoErrors("M2", rascalCompilerConfig(b.pcfg)[forceCompilationTopModule=true]);
+    a = changeModule("M1", "int f(int n, int m) = n+m;", a);
+    assert checkExpectNoErrors("M1", rascalCompilerConfig(a.pcfg)[forceCompilationTopModule=true]);
+ 
+    return checkExpectErrors("M2", ["Expected 2 argument(s), found 1"], rascalCompilerConfig(b.pcfg)[forceCompilationTopModule=true]);
 }
 test bool incompatibleExtendsionOfBinaryLibrary(){
     rascalName = "rascal";
