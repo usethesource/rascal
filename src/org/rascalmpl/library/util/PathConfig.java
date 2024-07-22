@@ -708,7 +708,7 @@ public class PathConfig {
         var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
         cons.setAccessible(true);
         var result = cons.newInstance(args, null);
-        setField(result, "workingDirectory", manifestRoot.getPath());
+        setField(result, "workingDirectory", new File(manifestRoot.getPath()).getPath());
         setField(result, "multiModuleProjectDirectory", new File(manifestRoot.getPath()));
         return result;
     }
