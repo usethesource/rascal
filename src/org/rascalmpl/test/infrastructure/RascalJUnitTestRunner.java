@@ -25,9 +25,9 @@ import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.TestEvaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -36,6 +36,7 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -48,6 +49,14 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
+    private static class InstanceHolder {
+		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+    }
+   
+   	public static IRascalMonitor getCommonMonitor() {
+	    return InstanceHolder.monitor;
+   	}
+
     private static Evaluator evaluator;
     private static GlobalEnvironment heap;
     private static ModuleEnvironment root;
@@ -59,10 +68,13 @@ public class RascalJUnitTestRunner extends Runner {
 
     static {
         try {
+            RascalShell.setupWindowsCodepage();
+            RascalShell.enableWindowsAnsiEscapesIfPossible();
+
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap);
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, getCommonMonitor());
+        
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
         } 
@@ -77,8 +89,8 @@ public class RascalJUnitTestRunner extends Runner {
         this.projectRoot = inferProjectRoot(clazz);
         this.clazz = clazz;
         
-        System.err.println("Rascal Junit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
-        System.err.println("Rascal JUnit Project root: " + projectRoot);
+        System.err.println("Rascal JUnit test runner uses Rascal version " + RascalManifest.getRascalVersionNumber());
+        System.err.println("Rascal JUnit project root: " + projectRoot);
         
 
         if (projectRoot != null) {
@@ -99,7 +111,7 @@ public class RascalJUnitTestRunner extends Runner {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
             
             for (IValue path : pcfg.getSrcs()) {
-                System.err.println("Adding evaluator search path: " + path);
+
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
             }
             
@@ -158,9 +170,17 @@ public class RascalJUnitTestRunner extends Runner {
 
     public static List<String> getRecursiveModuleList(ISourceLocation root, List<String> result) throws IOException {
         Queue<ISourceLocation> todo = new LinkedList<>();
+        
         todo.add(root);
+
         while (!todo.isEmpty()) {
             ISourceLocation currentDir = todo.poll();
+
+            if (!URIResolverRegistry.getInstance().exists(currentDir)) {
+                // this happens due to searching in the entire classpath
+                 continue;
+            }
+
             String prefix = currentDir.getPath().replaceFirst(root.getPath(), "").replaceFirst("/", "").replaceAll("/", "::");
             for (ISourceLocation ent : URIResolverRegistry.getInstance().list(currentDir)) {
                 if (ent.getPath().endsWith(".rsc")) {
@@ -182,60 +202,71 @@ public class RascalJUnitTestRunner extends Runner {
 
     }
     @Override
-    public Description getDescription() {		
+    public Description getDescription() {	
         Description desc = Description.createSuiteDescription(prefix);
         this.desc = desc;
 
-        try {
-            List<String> modules = new ArrayList<>(10);
-            for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
-                getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), modules);
-            }
-            
-            Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
-
-            for (String module : modules) {
-                String name = prefix + "::" + module;
-                Description modDesc = Description.createSuiteDescription(name);
-
-                try {
-                    System.err.println("Loading module:" + name);
-                    evaluator.doImport(new NullRascalMonitor(), name);
-                    List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
+        evaluator.job(Evaluator.LOADING_JOB_CONSTANT, 1, (jobName) -> {	
+            try {
+                List<String> modules = new ArrayList<>(10);
+                evaluator.jobTodo(jobName, modules.size());
+                for (String src : new RascalManifest().getSourceRoots(projectRoot)) {
+                    getRecursiveModuleList(URIUtil.getChildLocation(projectRoot, src + "/" + prefix.replaceAll("::", "/")), modules);
+                }
                 
-                    if (tests.isEmpty()) {
-                        System.err.println("\tskipping. Module has no tests.");
-                        continue;
-                    }
+                Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
+                
+                for (String module : modules) {
+                    String name = prefix + "::" + module;
+                    Description modDesc = Description.createSuiteDescription(name);
+
+                    try {
+                        evaluator.doNextImport(jobName, name);
+                        List<AbstractFunction> tests = heap.getModule(name.replaceAll("\\\\","")).getTests();
                     
-                    System.err.println("\t adding " + tests.size() + " tests for " + name);
-                    desc.addChild(modDesc);
+                        if (tests.isEmpty()) {
+                            continue;
+                        }
+                        
+                        desc.addChild(modDesc);
 
-                    // the order of the tests aren't decided by this list so no need to randomly order them.
-                    for (AbstractFunction f : tests) {
-                        modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
+                        // the order of the tests aren't decided by this list so no need to randomly order them.
+                        for (AbstractFunction f : tests) {
+                            modDesc.addChild(Description.createTestDescription(clazz, computeTestName(f.getName(), f.getAst().getLocation())));
+                        }
+                    }
+                    catch (Throwable e) {
+                        desc.addChild(modDesc);
+
+                        Description testDesc = Description.createTestDescription(clazz, name + " compilation failed", new CompilationFailed() {
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return getClass();
+                            }
+                        });
+
+                        modDesc.addChild(testDesc);
                     }
                 }
-                catch (Throwable e) {
-                    System.err.println("[ERROR] " + e);
-                    desc.addChild(modDesc);
 
-                    Description testDesc = Description.createTestDescription(clazz, name + "compilation failed", new CompilationFailed() {
-                        @Override
-                        public Class<? extends Annotation> annotationType() {
-                            return getClass();
-                        }
-                    });
+                return true;
+            } catch (IOException e) {
+                Description testDesc = Description.createTestDescription(clazz, prefix + " compilation failed: " + e.getMessage(), new CompilationFailed() {
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return getClass();
+                            }
+                        });
 
-                    modDesc.addChild(testDesc);
-                }
-            }
+                desc.addChild(testDesc);
 
-            return desc;
-        } catch (IOException e) {
-            System.err.println("[ERROR] Could not create tests suite: " + e);
-            throw new RuntimeException("could not create test suite", e);
-        } 
+                evaluator.warning("Could not create tests suite: " + e, URIUtil.rootLocation("unknown"));
+                
+                return false;
+            } 
+        });
+
+        return desc;
     }
 
     @Override
@@ -246,11 +277,15 @@ public class RascalJUnitTestRunner extends Runner {
         notifier.fireTestRunStarted(desc);
 
         for (Description mod : desc.getChildren()) {
+            // TODO: this will never match because we are on the level of module descriptions now.
+            // This the reason that modules with errors in them silently succeed with 0 tests run.
             if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
                 notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
-                continue;
+                break;
             }
 
+            // TODO: we lose the link here with the test Descriptors for specific test functions
+            // and this impacts the accuracy of the reporting (only module name, not test name which failed)
             Listener listener = new Listener(notifier, mod);
             TestEvaluator runner = new TestEvaluator(evaluator, listener);
             runner.test(mod.getDisplayName());

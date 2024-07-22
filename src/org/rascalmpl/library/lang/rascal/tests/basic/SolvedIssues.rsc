@@ -1,8 +1,6 @@
 @bootstrapParser
-@doc{
-In this test module we collect test cases that are associated with bugs from the past.
-This is just to make sure the bugs are not re-introduced accidentally.
-}
+@synopsis{In this test module we collect test cases that are associated with bugs from the past.
+This is just to make sure the bugs are not re-introduced accidentally.}
 module lang::rascal::tests::basic::SolvedIssues
 
 test bool emptySetEquals1(set[value] x, set[value] y) = x - x == y - y;

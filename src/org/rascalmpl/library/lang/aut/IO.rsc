@@ -10,17 +10,18 @@
 
 module lang::aut::IO
 
-@doc{Read relations from an AUT file. An AUT file contains tuples of ternary relation as lines with the following format
-   (<int>,<str>,<int>)
-   
-   where each field is separated by a comma 
-   readAUT takes an AUT file nameAUTFile and generates rel[int, str,int]].
+@synopsis{Read relations from an AUT file.}
+@description{
+An AUT file contains tuples of ternary relation as lines with the following format:
+* `(<int>,<str>,<int>)`
+*  each field is separated by a comma 
 
+readAUT takes an AUT file and generates a value of type `rel[int, str,int]`.
 }
 @javaClass{org.rascalmpl.library.lang.aut.IO}
 public java rel[int, str, int] readAUT(str nameAUTFile);
 
-@doc{write an AUT file}
+@synopsis{write an AUT file}
 @javaClass{org.rascalmpl.library.lang.aut.IO}
 public java void writeAUT(str nameAUTFile, rel[int, str, int] r);
 

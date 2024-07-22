@@ -17,7 +17,7 @@ import Grammar;
 import Set;
 
 @memo
-@doc{Converts internal module representation of Rascal interpreter to single grammar definition}
+@synopsis{Converts internal module representation of Rascal interpreter to single grammar definition}
 public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
   // note that we ignore extends here because they're resolved by the interpreter at the moment by 
   // cloning definitions into the module that extends.
@@ -31,31 +31,30 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
 }
 
 @memo
-@doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
+@synopsis{Converts concrete syntax definitions and fuses them into one single grammar definition}     
 public Grammar modules2grammar(str main, set[Module] modules) {
   return resolve(fuse(layouts(modules2definition(main, modules))));
 }
 
-@doc{Converts concrete syntax definitions to abstract grammar definitions}
+@synopsis{Converts concrete syntax definitions to abstract grammar definitions}
 public GrammarDefinition modules2definition(str main, set[Module] modules) {
   return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2grammar(m)));
 }
 
-@doc{
-  Combines a set of modules into one big Grammar, projecting only the rules that
-  are visible locally, or via import and extend.
-}
+@synopsis{Combines a set of modules into one big Grammar, projecting only the rules that
+  are visible locally, or via import and extend.}
 public Grammar fuse(GrammarDefinition def) {
   result = grammar({},());
   todo = {def.main};
   done = {};
+  deps = dependencies(def);
   
   while (todo != {}) {
     <nm,todo> = takeOneFrom(todo);
     done += nm; 
     if(def.modules[nm]?){
         \mod = def.modules[nm];
-        result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends, def.modules[i]?);
+        result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- deps[nm], def.modules[i]?);
         todo += (\mod.extends - done);
     }
   }

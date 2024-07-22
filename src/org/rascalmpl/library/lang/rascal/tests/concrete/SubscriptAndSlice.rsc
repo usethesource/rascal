@@ -2,6 +2,7 @@ module lang::rascal::tests::concrete::SubscriptAndSlice
 
 import Exception;
 import Node;
+import ParseTree;
 
 lexical X = [xyzXYZ];
 lexical XStar = X* xs;

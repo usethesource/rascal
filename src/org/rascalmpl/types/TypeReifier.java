@@ -15,8 +15,6 @@ package org.rascalmpl.types;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Map.Entry;
-
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;

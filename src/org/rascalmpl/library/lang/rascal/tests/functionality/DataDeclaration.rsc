@@ -112,6 +112,15 @@ test bool escape1c() = \g(1, "a").\rht == "a";
 test bool escape1d() = \g(1, "a") is \g;
 test bool escape1e() = \g(1, "a") has \lft;
 
+// Overloading
+ int f(Exp1[str] e) = 1;
+ int f(Exp1[int] e) = 3;
+ default int f(Exp1[&T] e) = 10;
+ 
+ test bool overload1() = f(tval("abc")) == 1;
+ test bool overload2() = f(tval(1)) == 3;
+ test bool overload3() = f(tval(true)) == 10;
+
 //// has
 //
 //data D = d(int n) | d(str s) | d(int n, str s);

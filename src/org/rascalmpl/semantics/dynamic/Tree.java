@@ -302,6 +302,7 @@ public abstract class Tree  extends org.rascalmpl.ast.Expression {
 					if (nestedArgs.length() > 0) {
 						appendPreviousSeparators(args, result, delta, i, previousWasEmpty);
 						result.appendAll(nestedArgs);
+						previousWasEmpty = false;
 					}
 					else {
 						previousWasEmpty = true;

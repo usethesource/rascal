@@ -192,10 +192,13 @@ test bool concreteMatchVisitLayout() {
   }
   return result;
 }
-test bool concreteReplaceInLayout() 
-  = visit([start[XorY]] ".x;") {
+
+test bool concreteReplaceInLayout(){
+  result = visit([start[XorY]] ".x;") {
     case (Layout)`.` => (Layout)`;`
-  } == [start[XorY]] ";x;";
+  } 
+  return result := [start[XorY]] ";x;";
+}
 
 test bool concreteMatchWithStart()
   = /XorY _ := [start[XorY]]";x;";
@@ -342,8 +345,6 @@ test bool matchInsideSyntax()
 test bool matchInsideSyntax2()
     = /A2 _ := [AB2]"AABBAA";
 
-value main() = ["<x>" | F x <- ((Fs) `ffffff`).fs] ;
-
 // Calls with concrete parameters
 
 int cntAs0(A* as) = size([a | A a <- as ]);
@@ -388,6 +389,13 @@ test bool callNoTree() = cntTrees([]) == 0;
 test bool callOneTree() = cntTrees([[A]"a"]) == 1;
 test bool callTwoTrees() = cntTrees([[A]"a",[A]"a"]) == 2;
 test bool callTreeTrees() = cntTrees([[A]"a",[A]"a",[A]"a"]) == 3;
+
+void f([1,*int L,3]) {}
+
+test bool listArgAndEmptyBody(){
+    f([1,2,2,3]);
+    return true;
+}
 
 // Descendant in parameterized concrete sort
 

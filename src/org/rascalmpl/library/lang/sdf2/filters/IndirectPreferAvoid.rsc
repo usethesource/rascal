@@ -11,10 +11,8 @@ private default bool isAvoided(Tree _) = false;
 private bool isAvoided(appl(prod(_,_,{\tag("avoid"()),*_}),_)) = true;
 private bool isAvoided(appl(prod(Symbol _,[Symbol _],set[Attr] _), [Tree arg])) = isAvoided(arg);
 
-@doc{
-Import his module if you want prefer/avoid filtering enabled for your grammar. Use @prefer and @avoid to
-label alternatives.
-}
+@synopsis{Import his module if you want prefer/avoid filtering enabled for your grammar. Use @prefer and @avoid to
+label alternatives.}
 &T <:Tree indirectPreferAvoidFilter(amb(set[&T <:Tree] alternatives)) {
   prefers = { t | t <- alternatives, isPreferred(t)};
   
