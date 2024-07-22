@@ -49,6 +49,41 @@ test bool charClassOrderedRanges() = (#[a-z A-Z]).symbol == \char-class([range(6
 test bool charClassMergedRanges() = (#[A-Z F-G]).symbol == \char-class([range(65,90)]);
 test bool charClassExtendedRanges() = (#[A-M N-Z]).symbol == \char-class([range(65,90)]);
 
+test bool asciiEscape() = \char-class([range(0,127)]) := #[\a00-aFF].symbol;
+test bool utf16Escape() = \char-class([range(0,65535)]) := #[\u0000-\uFFFF].symbol;
+test bool utf24Escape() = \char-class([range(0,1114111)]) := #[\U000000-\U10FFFF].symbol;
+test bool highLowSurrogateRange1() = \char-class([range(9312,12991)]) := #[①-㊿].symbol;
+test bool highLowSurrogateRange2() = \char-class([range(127829,127829)]) := #[🍕].symbol;
+test bool differentEscapesSameResult1() = #[\a00-aFF] == #[\u0000-\u00FF];
+test bool differentEscapesSameResult2() = #[\a00-aFF] == #[\u0000-\u00FF];
+
+/* to avoid a known ambiguity */
+alias NotAZ = ![A-Z];
+
+test bool unicodeCharacterClassSubtype1() {
+  Tree t = char(charAt("⑭", 0));
+
+  if ([①-㊿] circled := t) {
+    assert [⑭] _ := circled;
+    assert NotAZ _ := circled;
+    return true;
+  }
+
+  return false;
+}
+
+test bool unicodeCharacterClassSubtype2() {
+  Tree t = char(charAt("🍕", 0));
+
+  if ([🍕] pizza := t) {
+    assert [\a00-🍕] _ := pizza;
+    assert NotAZ _ := pizza;
+    return true;
+  }
+
+  return false;
+}
+
 // ambiguity in this syntax must be resolved first
 //test bool differenceCC() = (#[a-zA-Z] - [A-Z]).symbol == (#[a-z]).symbol;
 //test bool unionCC()      = (#[a-z] || [A-Z]).symbol == (#[A-Za-z]).symbol;
