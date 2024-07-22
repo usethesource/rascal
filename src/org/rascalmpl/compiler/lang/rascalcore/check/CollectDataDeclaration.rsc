@@ -76,20 +76,22 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
        && str adtName := "<adt.user.name>"
        ){
         formals = getFormals(current);
+        consArity = size(formals);
         kwFormals = getKwFormals(current);
         
         declaredFieldNames = {};
            
         // Define all fields in the outer scope of the data declaration in order to be easily found there.
         
-        for(ta <- formals){
+        for(int i <- index(formals)){
+            ta = formals[i];
             if(ta is named){
                 fieldName = prettyPrintName(ta.name);
                 if(fieldName in declaredFieldNames) c.report(error(ta, "Double declaration of field `%v`", fieldName));
                 declaredFieldNames += fieldName;
                 fieldType = ta.\type;
                 dt = defType([fieldType], makeFieldType(fieldName, fieldType));
-                dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><variantCounter><fieldType> <fieldName>");
+                dt.md5 = md5Hash("<currentModuleName><adtName><name><unparseNoLayout(current)>");
                 c.define(fieldName, fieldId(), ta.name, dt);
             }
         }
@@ -100,7 +102,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             declaredFieldNames += fieldName;
             kwfType = kwf.\type;
             dt = defType([kwfType], makeFieldType(fieldName, kwfType));
-            dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><variantCounter><kwfType><fieldName>");
+            dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><name><consArity><kwfType><fieldName>");
             c.define(fieldName, keywordFieldId(), kwf.name, dt);  
             c.requireSubType(kwf.expression, kwfType, error(kwf, "Default expression of type %t expected, found %t", kwfType, kwf.expression));
         }
@@ -108,8 +110,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         scope = c.getScope();
         c.enterScope(current);
             args = "<for(arg <- arguments){><arg is named ? "<arg.\type> <arg.name>" : "<arg>"> <}>";
-            md5Contrib = "<currentModuleName><adtName><dataCounter><name><variantCounter>( <args>)";
-            //println("<current>: <md5Contrib>");
+            md5Contrib = "<currentModuleName><adtName><dataCounter><name>( <args>)";
             c.defineInScope(adtParentScope, prettyPrintName(name), constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
                 AType(Solver s){
                     adtType = s.getType(adt);

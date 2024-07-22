@@ -194,7 +194,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     } catch TypeUnavailable(): {
          dt = defType([kwType], makeFieldType(kwformalName, kwType));
     }
-    dt.md5 = md5Hash("<current>");
+    dt.md5 = md5Hash(unparseNoLayout(current));
     c.define(kwformalName, keywordFormalId(), current, dt);
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
