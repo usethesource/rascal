@@ -13,17 +13,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.repl.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.io.StandardTextWriter;
 
-public class DefaultTestResultListener implements ITestResultListener{
-	private PrintWriter err;
+public class DefaultTestResultListener implements ITestResultListener {
 	private int successes;
 	private int failures;
 	private int errors;
@@ -31,15 +27,16 @@ public class DefaultTestResultListener implements ITestResultListener{
 	private int ignored;
     private String context;
     private final boolean verbose;
-	private static char[] roller = new char[] {'|', '/', '-', '\\', '|', '/', '-', '\\', '|'};
+	private PrintWriter out;
 	
-	public DefaultTestResultListener(PrintWriter errorStream){
-	    this(errorStream, true);
+	public DefaultTestResultListener(PrintWriter out) {
+	    this(out, true);
 	}
-	public DefaultTestResultListener(PrintWriter errorStream, boolean verbose){
+
+	public DefaultTestResultListener(PrintWriter out, boolean verbose){
 		super();
 
-		this.err = errorStream;
+		this.out = out;
 		this.verbose = verbose;
 		reset();
 	}
@@ -52,7 +49,7 @@ public class DefaultTestResultListener implements ITestResultListener{
     }
 	
 	public void setErrorStream(PrintWriter errorStream) {
-		this.err = errorStream;
+		this.out = errorStream;
 	}
 	
 	@Override
@@ -64,87 +61,58 @@ public class DefaultTestResultListener implements ITestResultListener{
 	public void start(String context, int count) {
 	    this.context = context;
 	    reset();
-	    if (count != 0 && verbose) {
-	        err.println("Running tests for " + context);
-	    }
 		this.count = count;
-		progress();
 	}
-
-    private void progress() {
-        if (count > 0 && verbose) {
-            err.print(String.format("%s testing %d/%d ", 
-                    roller[getNumberOfTests() % roller.length], getNumberOfTests(), count));
-        }
-    }
 	
 	@Override
 	public void done() {
-	    progress();
 	    if (count > 0) {
 	        if (!verbose) {
 	            // make sure results are reported on a newline
-	            err.println();
+	            out.println();
 	        }
-	        err.println("\rTest report for " + context);
+	        out.println("\rTest report for " + context);
 	        if (errors + failures == 0) {
-	            err.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
+	            out.println("\tall " + (count - ignored) + "/" + count + " tests succeeded");
 	        }
 	        else {
-	            err.println("\t" + successes + "/" + count + " tests succeeded");
-	            err.println("\t" + failures + "/" + count + " tests failed");
-	            err.println("\t" + errors + "/" + count + " tests threw exceptions");
+	            out.println("\t" + successes + "/" + count + " tests succeeded");
+	            out.println("\t" + failures + "/" + count + " tests failed");
+	            out.println("\t" + errors + "/" + count + " tests threw exceptions");
 	        }
 
 	        if (ignored != 0) {
-	            err.println("\t" + ignored + "/" + count + " tests ignored");
+	            out.println("\t" + ignored + "/" + count + " tests ignored");
 	        }
+			
+			out.flush();
 	    }
 	}
 	
 
 	@Override
 	public void report(boolean successful, String test, ISourceLocation loc, String message, Throwable t) {
-		progress();
-		
 		if (successful) {
 		    successes++;
-		    if (verbose) {
-		        err.print("success                                                       \r");
-		    }
 		}
 		else if (t != null) {
 		    errors++;
 		    if (!verbose) {
-		        err.println();
+		        out.println();
 		    }
-		    err.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
-		    err.println("\t" + t.getMessage());
-		    
-		    if (t instanceof Throw) {
-		        try {
-                    ((Throw) t).getTrace().prettyPrintedString(err, new StandardTextWriter(true));
-                }
-                catch (IOException e) {
-                    // should not happen
-                }
-		    }
-		    else {
-		        t.printStackTrace(err);
-		    }
+		    out.println("error: " + test + " @ " + ReplTextWriter.valueToString(loc));
+		    out.println(message);
 		}
 		else {
 		    failures++;
 		    if (!verbose) {
-		        err.println();
+		        out.println();
 		    }
-		    err.println("failure: " + test + " @ " + ReplTextWriter.valueToString(loc));
-		    err.println(message);
+		    out.println("failure: " + test + " @ " + ReplTextWriter.valueToString(loc));
+		    out.println(message);
 		}
 		
-	
-		
-		err.flush();
+		out.flush();
 	}
 
 

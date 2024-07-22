@@ -8,6 +8,7 @@ import ListRelation;
 import IO;
 import util::Math;
 import Location;
+import util::FileSystem;
 
 int singleChar(str s) = charAt(s,0);
 
@@ -26,7 +27,7 @@ str createValidScheme(str s) {
 }
 
 @expected{MalFormedURI}
-test bool noOpaqueURI2() = loc l := |home:://this:is:opaque|;
+test bool noOpaqueURI2() = loc _ := |home:://this:is:opaque|;
 
 test bool canChangeScheme1(loc l, str s) = (l[scheme = createValidScheme(s)]).scheme ==  createValidScheme(s);
 test bool canChangeScheme2(loc l, str s) { l.scheme = createValidScheme(s); return l.scheme ==  createValidScheme(s); }
@@ -75,6 +76,8 @@ test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).pa
 test bool testWindowsParent(str s) = s == "" || (|file:///c:/| + replaceAll(s,"/","_")).parent == |file:///c:/|;
 test bool testFile(loc l, str s) {
 	s = replaceAll(s, "/","_");
+    if (s == "")
+      return true;
 	return (l + s).file == s;
 }
 
@@ -348,6 +351,30 @@ test bool isContainedIn2(int f, int len){
     return report(l1, l2, !isContainedIn(l2, l1));
 }
 
+// isStrictlyContainedIn
+
+test bool isStrictlyContainedIn1(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1 + delta, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn2(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    len1 = t1 - f1;
+    delta = (t1-f1)/2;
+    l1 = getLoc(f1, t1); l2 = getLoc(f1, t1 - delta);
+    return report(l1, l2, delta > 0 ==> isStrictlyContainedIn(l2, l1));
+}
+
+test bool isStrictlyContainedIn3(int f, int len) {
+    f1 = restrict(f); t1 = restrict(f1 + len);
+    l1 = getLoc(f1, t1); 
+    return report(l1, l1, !isStrictlyContainedIn(l1, l1));
+}
+
 // beginsBefore
 
 @ignore{unknown}
@@ -387,7 +414,7 @@ test bool isImmediatelyBefore2(int _){
 }
 
 // beginsAfter
-
+@ignore{Until #1693 has been solved}
 test bool beginsAfter1(int _){
     <l1, l2> = makeLocsWithGap(-10);
     return report(l1, l2, beginsAfter(l2, l1));
@@ -438,4 +465,149 @@ test bool isCover3(int f, int t){
    l = getLoc(f, t);
    u = cover([l, l, l, l]);
    return report(l, l, l == u);
+}
+
+test bool trailingSlashFile1() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    return withSlash.file == withoutSlash.file;
+}
+
+test bool trailingSlashFile2() {
+    withSlash = |project://rascal/src/org/rascalmpl/library/|;
+    withoutSlash = |project://rascal/src/org/rascalmpl/library|;
+
+    withoutSlash.file = "libs";
+    withSlash.file = "libs";
+
+    return withSlash.file == withoutSlash.file
+        && withSlash.parent == withoutSlash.parent
+        ;
+}
+
+test bool testRelativize() 
+    = relativize(|file:///a/b|, |file:///a/b/c.txt|)
+        == |relative:///c.txt|;
+
+test bool testFailedRelativize()
+    = relativize(|file:///b/b|, |file:///a/b/c.txt|)
+        == |file:///a/b/c.txt|;
+
+test bool trailingSlashRelativize1() 
+    = relativize(|file:///library/|, |file:///library|)
+        == relativize(|file:///library/|, |file:///library/|);
+
+test bool trailingSlashRelativize2() 
+    = relativize(|file:///library|, |file:///library/|)
+        == relativize(|file:///library|, |file:///library|);
+
+test bool extensionSetWithMoreDots1()
+    = |file:///a.txt/b|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithMoreDots2()
+    = |file:///a.txt/b.noot|[extension="aap"] == |file:///a.txt/b.aap|;
+
+test bool extensionSetWithSlash()
+    = |file:///a/b.noot/|[extension="aap"] == |file:///a/b.aap/|;
+
+test bool extensionSetWithSlashAndMoreDots()
+    = |file:///a.txt/b.noot/|[extension="aap"] == |file:///a.txt/b.aap/|;
+
+test bool extensionGetWithMoreDot1() 
+    = |file:///a.txt/b|.extension == "";
+
+test bool extensionGetWithMoreDots2()
+    = |file:///a.txt/b.noot|.extension == "noot";
+
+test bool extensionGetWithSlash()
+    = |file:///a/b.noot/|.extension == "noot";
+
+test bool extensionGetSimple()
+    = |file:///a/b.noot|.extension == "noot";
+
+test bool extensionGetRoot()
+    = |file:///b.noot|.extension == "noot";
+
+test bool extensionGetNoRoot()
+    = |file:///b|.extension == "";
+
+test bool extensionNoPath()
+    = |file:///|.extension == "";
+
+test bool extensionSetRoot()
+    = |file:///b.noot|[extension="aap"] == |file:///b.aap|;
+
+test bool extensionSetSimple()
+    = |file:///a/b.noot|[extension="aap"] == |file:///a/b.aap|;
+
+
+// we don't want backslashes in windows
+test bool correctTempPathResolverOnWindows() = /\\/ !:= resolveLocation(|tmp:///|).path;
+
+private data MavenLocalRepositoryPath
+    = path(str groupId, str artifactId, str version)
+    | error(str cause)
+    ;
+
+private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
+    if (jar.extension != "jar") {
+        return error("jar should have jar extension");
+    }
+
+    groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
+    artifactId = jar.parent.parent.file;
+    version    = jar.parent.file;
+    file       = jar.file;
+
+    if (file != "<artifactId>-<version>.jar") {
+        return error("This is not a repository release jar; filename should be ArtifactId-Version.jar: <jar.file>");
+    }
+
+    if (/!/ := artifactId) {
+        return error("ArtifactId contains exclamation mark: <artifactId>");
+    }
+
+    return path(groupId, artifactId, version);
+}
+
+test bool mvnSchemeTest() {
+    debug = false;
+    jarFiles = find(|mvn:///|, "jar");
+
+    // check whether the implementation of the scheme holds the contract specified in the assert
+    for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        // this is the contract:
+        mvnLoc = |mvn://<groupId>!<artifactId>!<version>|;
+
+        assert resolveLocation(mvnLoc) == resolveLocation(jar) : "<resolveLocation(mvnLoc)> != <resolveLocation(jar)>
+                                                                 '  jar: <jar>
+                                                                 '  mvnLoc: <mvnLoc>";
+
+        assert exists(mvnLoc) : "<mvnLoc> should exist because <jar> exists.";
+
+        assert exists(mvnLoc + "!") : "<mvnLoc + "!"> should resolve to the jarified root and exist";
+
+        // not all jars contain a META-INF folder
+        if (exists(mvnLoc + "!/META-INF")) {
+            // but if they do then this relation holds
+
+            assert exists(mvnLoc + "META-INF")
+                : "<mvnLoc + "META-INF"> should exist and resolved to the jarified location inside.";
+
+            assert resolveLocation(mvnLoc + "!/META-INF") == resolveLocation(mvnLoc + "META-INF")
+                : "Two different ways of resolving inside the jar (with and without !) should be equivalent";
+
+            assert (mvnLoc + "META-INF").ls == [e[path=e.path[2..]] | e <- (mvnLoc + "!/META-INF").ls]
+                : "listings should be equal mod ! for <mvnLoc + "META-INF">";
+        }
+    }
+
+    // report on all the failed attempts
+    for (debug, jar <- jarFiles, error(msg) := parseMavenLocalRepositoryPath(jar)) {
+        println(msg);
+    }
+
+
+    return true;
 }

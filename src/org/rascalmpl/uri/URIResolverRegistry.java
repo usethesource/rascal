@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -33,14 +34,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -320,7 +322,7 @@ public class URIResolverRegistry {
 	public ISourceLocation logicalToPhysical(ISourceLocation loc) throws IOException {
 		ISourceLocation result = physicalLocation(loc);
 		if (result == null) {
-			throw new FileNotFoundException(loc.toString());
+			throw new FileNotFoundException(loc == null ? "null loc passed!" : loc.toString());
 		}
 		return result;
 	}
@@ -718,7 +720,13 @@ public class URIResolverRegistry {
 		if (resolver == null) {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
-		return resolver.list(uri);
+
+		String[] results = resolver.list(uri);
+		if (results == null) {
+			throw new FileNotFoundException(uri.toString());
+		}
+
+		return results;
 	}
 
 	/**
@@ -764,6 +772,10 @@ public class URIResolverRegistry {
 	private void copyFile(ISourceLocation source, ISourceLocation target, boolean overwrite) throws IOException {
 		if (exists(target) && !overwrite) {
 			throw new IOException("file exists " + source);
+		}
+
+		if (exists(target) && overwrite) {
+			remove(target, false);
 		}
 		
 		if (supportsReadableFileChannel(source) && supportsWritableFileChannel(target)) {
@@ -825,6 +837,20 @@ public class URIResolverRegistry {
 		}
 	}
 
+	/**
+	 * Return a character Writer for the given uri, using the given character encoding.
+	 * 
+	 * @param uri       file to write to or append to
+	 * @param encoding  how to encode individual characters @see Charset
+	 * @param append    whether to append or start at the beginning.
+	 * @return
+	 * @throws IOException 
+	 */
+	public Writer getCharacterWriter(ISourceLocation uri, String encoding, boolean append) throws IOException {
+		uri = safeResolve(uri);
+		return new UnicodeOutputStreamWriter(getOutputStream(uri, append), encoding);
+	}
+
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
 		IClassloaderLocationResolver resolver = getClassloaderResolver(safeResolve(uri).getScheme());
 
@@ -857,7 +883,27 @@ public class URIResolverRegistry {
 		return resolver.getReadableFileChannel(uri);
 	}
 
+	public Charset detectCharset(ISourceLocation sloc) {
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		
+		// in case the file already has a encoding, we have to correctly append that.
+		Charset detected = null;
+		try (InputStream in = reg.getInputStream(sloc);) {
+			detected = reg.getCharset(sloc);
 
+			if (detected == null) {
+				detected = UnicodeDetector.estimateCharset(in);
+			}
+		}
+		catch (IOException e) {
+			// we stick with the default if something happened above.
+			// if the writing hereafter fails as well, the exception will
+			// be just as descriptive
+			detected = null; 
+		} 
+
+		return detected != null ? Charset.forName(detected.name()) : Charset.defaultCharset();
+	}
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
@@ -918,29 +964,41 @@ public class URIResolverRegistry {
 		}
 	}
 
-	public void watch(ISourceLocation loc, boolean recursive, Consumer<ISourceLocationChanged> callback)
+	public void watch(ISourceLocation loc, boolean recursive, final Consumer<ISourceLocationChanged> callback)
 		throws IOException {
-		loc = safeResolve(loc);
-
 		if (!isDirectory(loc)) {
 			// so underlying implementations of ISourceLocationWatcher only have to support
 			// watching directories (the native NEO file watchers are like that)
 			loc = URIUtil.getParentLocation(loc);
 		}
 
-		ISourceLocationWatcher watcher = watchers.getOrDefault(loc.getScheme(), fallbackWatcher);
+		final ISourceLocation finalLocCopy = loc;
+		final ISourceLocation resolvedLoc  = safeResolve(loc);
+
+		Consumer<ISourceLocationChanged> newCallback = !resolvedLoc.equals(loc) ? 
+			// we resolved logical resolvers in order to use native watchers as much as possible
+			// for efficiency sake, but this breaks the logical URI abstraction. We have to undo
+			// this renaming before we trigger the callback.
+			changes -> {
+				ISourceLocation relative = URIUtil.relativize(resolvedLoc, changes.getLocation());
+				ISourceLocation unresolved = URIUtil.getChildLocation(finalLocCopy, relative.getPath());
+				callback.accept(ISourceLocationWatcher.makeChange(unresolved, changes.getChangeType(), changes.getType()));
+			}
+			: callback;
+
+		ISourceLocationWatcher watcher = watchers.getOrDefault(resolvedLoc.getScheme(), fallbackWatcher);
 		if (watcher != null) {
-			watcher.watch(loc, callback);
+			watcher.watch(resolvedLoc, callback);
 		}
 		else {
-			watching.computeIfAbsent(loc, k -> ConcurrentHashMap.newKeySet()).add(callback);
+			watching.computeIfAbsent(resolvedLoc, k -> ConcurrentHashMap.newKeySet()).add(newCallback);
 		}
 
-		if (isDirectory(loc) && recursive) {
-			for (ISourceLocation elem : list(loc)) {
+		if (isDirectory(resolvedLoc) && recursive) {
+			for (ISourceLocation elem : list(resolvedLoc)) {
 				if (isDirectory(elem)) {
 					try {
-						watch(elem, recursive, callback);
+						watch(elem, recursive, newCallback);
 					}
 					catch (IOException e) {
 						// we swallow recursive IO errors which can be caused by file permissions.

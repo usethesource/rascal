@@ -5,11 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.Map;
 
-import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.BaseREPL;
@@ -33,14 +31,14 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
         return historyFile;
     }
 
-    public REPLRunner(InputStream stdin, OutputStream stderr, OutputStream stdout, Terminal term)
+    public REPLRunner(InputStream stdin, OutputStream stderr, OutputStream stdout, Terminal term, IDEServices services)
         throws IOException, URISyntaxException {
         super(makeInterpreter(stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term), null,
-            stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, new BasicIDEServices(new PrintWriter(stderr)));
+            stdin, stderr, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, services);
     }
 
-    public REPLRunner(ILanguageProtocol language) throws IOException, URISyntaxException {
-        super(language, null, null, null, null, true, true, new File(""), null, new BasicIDEServices(new PrintWriter(System.err)));
+    public REPLRunner(ILanguageProtocol language, IDEServices services) throws IOException, URISyntaxException {
+        super(language, null, null, null, null, true, true, new File(""), null, services);
     }
 
     private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stderr, OutputStream stdout,
@@ -50,9 +48,7 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
             new RascalInterpreterREPL(prettyPrompt, allowColors, getHistoryFile()) {
                 @Override
                 protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
-                    Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr);
-                    eval.setMonitor(services);
-                    return eval;
+                    return ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
                 }
 
                 @Override
@@ -63,8 +59,7 @@ public class REPLRunner extends BaseREPL implements ShellRunner {
                     try {
                         // Note that Desktop.isDesktopSupported can not be factored into a class constant because
                         // it may throw exceptions on headless machines which are ignored below.
-                        if ("true".equals(System.getProperty("rascal.useSystemBrowser"))
-                            && Desktop.isDesktopSupported()) {
+                        if (Desktop.isDesktopSupported()) {
                             for (String mimetype : output.keySet()) {
                                 if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
                                     continue;

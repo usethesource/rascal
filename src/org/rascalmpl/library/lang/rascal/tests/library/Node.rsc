@@ -147,7 +147,7 @@ test bool setKW3() = setKeywordParameters(z(x=3), ("x" : 4)).x == 4;
 /*TODO: clean up tmp */
 
 private bool textWriteRead(type[&T] typ, str termString, value termValue){
-   tmp = |test-temp:///xxx-node-<"<uuidi()>">.test|; 
+   tmp = |memory://test-tmp/xxx-node-<"<uuidi()>">.test|; 
    writeFile(tmp, termString);
    try {
         return readTextValueFile(typ, tmp) == termValue;

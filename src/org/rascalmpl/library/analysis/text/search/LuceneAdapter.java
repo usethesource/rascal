@@ -135,7 +135,7 @@ public class LuceneAdapter {
         lockFactories = new HashMap<>();
     }
     
-    public void createIndex(ISourceLocation indexFolder, ISet documents, IConstructor analyzer) {
+    public void createIndex(ISourceLocation indexFolder, ISet documents, IConstructor analyzer, IString charset, IBool inferCharset) {
         try {
             IndexWriterConfig config = new IndexWriterConfig(makeAnalyzer(analyzer));
             SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
@@ -143,7 +143,7 @@ public class LuceneAdapter {
 
             try (IndexWriter index = new IndexWriter(dir, config)) {
                 for (IValue elem : documents) {
-                    index.addDocument(makeDocument((IConstructor) elem));
+                    index.addDocument(makeDocument((IConstructor) elem, charset, inferCharset));
                 }
                 
                 index.commit();
@@ -171,7 +171,7 @@ public class LuceneAdapter {
                 int countDown = max.intValue();
 
                 while ((bytes = list.next()) != null && countDown-- > 0) {
-                    IString val = vf.string(new String(bytes.bytes, bytes.offset, bytes.length, "UTF8"));
+                    IString val = vf.string(bytes.utf8ToString());
                     IInteger freq = vf.integer(reader.totalTermFreq(new Term(label, bytes)));
                     result.insert(vf.tuple(val, freq));
                 }
@@ -203,10 +203,10 @@ public class LuceneAdapter {
         return new SourceLocationDirectory(vf, lockFactory, indexFolder);
     }
 
-    public IList searchDocument(ISourceLocation doc, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException, InvalidTokenOffsetsException {
-        String entireDocument = Prelude.readFile(vf, false, doc).getValue();
+    public IList searchDocument(ISourceLocation doc, IString query, IConstructor analyzer, IInteger max, IString charset, IBool inferCharset) throws IOException, ParseException, InvalidTokenOffsetsException {
+        String entireDocument = Prelude.readFile(vf, false, doc, charset.getValue(), inferCharset.getValue()).getValue();
         
-        try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc)) {
+        try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc, charset.getValue())) {
             TokenStream tokenStream = makeAnalyzer(analyzer).tokenStream(SRC_FIELD_NAME, reader);
             QueryParser parser = makeQueryParser(analyzer);
             Query queryExpression = parser.parse(query.getValue());
@@ -688,7 +688,7 @@ public class LuceneAdapter {
         }
     }
 
-    private Document makeDocument(IConstructor elem) {
+    private Document makeDocument(IConstructor elem, IString charset, IBool inferCharset) {
         Document luceneDoc = new Document();
         ISourceLocation loc = (ISourceLocation) elem.get("src");
         
@@ -696,7 +696,7 @@ public class LuceneAdapter {
         luceneDoc.add(idField);
         
         if (URIResolverRegistry.getInstance().exists(loc)) {
-            Field srcField = new Field(SRC_FIELD_NAME, Prelude.readFile(vf, false, loc).getValue(), SOURCELOCATION_TYPE);
+            Field srcField = new Field(SRC_FIELD_NAME, Prelude.readFile(vf, false, loc, charset.getValue(), inferCharset.getValue()).getValue(), SOURCELOCATION_TYPE);
             luceneDoc.add(srcField);
         }
         
@@ -709,7 +709,7 @@ public class LuceneAdapter {
                 luceneDoc.add(new Field(label, ((IString) val).getValue() ,TextField.TYPE_STORED));
             }
             else if (val.getType().isSourceLocation()) {
-                luceneDoc.add(new Field(label, Prelude.readFile(vf, false, (ISourceLocation) val).getValue(), SOURCELOCATION_TYPE));
+                luceneDoc.add(new Field(label, Prelude.readFile(vf, false, (ISourceLocation) val, charset.getValue(), inferCharset.getValue()).getValue(), SOURCELOCATION_TYPE));
             }
             else {
                 luceneDoc.add(new Field(label, val.toString() ,TextField.TYPE_STORED));

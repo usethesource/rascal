@@ -7,16 +7,11 @@
 }
 @contributor{Paul Klint - Paul.Klint@swat.engineering - SWAT.engineering}
 
-@doc{
-.Synopsis
-Library functions for source locations.
 
-.Description
-
-For a description of source locations see link:/Rascal#Values-Location[Location] in the Rascal Language Reference.
-
-The following functions are defined for source locations:
-loctoc::[1]
+@synopsis{Library functions for source locations.}
+@description{
+The following library functions are defined for source locations:
+(((TOC)))
 
 A source location `l` refers to a text fragment in another file or resource. To ease the description we will
 talk about _`l` 's text_ instead of _the text `l` refers to_.
@@ -29,36 +24,60 @@ import Set;
 import String;
 import Exception;
 
-@doc{
-.Synopsis
-Extracts a path relative to a parent location. 
+import lang::paths::Windows;
+import lang::paths::Unix;
 
-.Description
-So from `x:///a/b`` and `x:///a/b/c`` this makes `relative:///c`.
+@synopsis{Extracts a path relative to a parent location.}
+@description{
+So from `x:///a/b` and `x:///a/b/c` this makes `relative:///c`.
 If the outside does not envelop the inside, then the original loc is returned.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 java loc relativize(loc outside, loc inside);
 
-@doc{
-.Synopsis
-Check that two locations refer to the same file.
-}    
-bool isSameFile(loc l, loc r)
-    = (isEmpty(l.fragment) ? l.top : l.top[fragment=""])
-      == 
-      (isEmpty(r.fragment) ? r.top : r.top[fragment=""])
-    ;
-    
-@doc{
-.Synopsis
-Compare two location values lexicographically.
+@synopsis{Find the first `haystack` folder the `needle` can be found in and relativize it, or fail.}
+loc relativize(list[loc] haystack, loc needle) {
+    if (h <- haystack, loc r := relativize(h, needle), r != needle) {
+        return r;
+    }
+    else {
+        fail relativize;
+    }
+}
 
-.Description
+@synopsis{Convert Windows path syntax to a `loc` value}
+@description{
+This conversion supports generic Windows path syntax, including:
+* Absolute drive-specific: `C:\Program Files`
+* Relative drive-specific: `C:hello.txt`
+* Relative: `hello.txt`
+* Directory-relative: `\hello.txt`
+* UNC format: `\\system07\C$\`
+
+Windows paths, against popular believe, support both `/` and `\` as path separators.
+}
+loc locFromWindowsPath(str path) = parseWindowsPath(path);
+
+@synopsis{Convert Unix path syntax to a `loc` value}
+@description{
+This conversion supports generic Unix path syntax, including:
+* Absolute: `/usr/local/bin`
+* Relative: `hello.txt`
+* Home: `~/hello.txt`
+* User: `~userName\hello.txt`
+}
+loc locFromUnixPath(str path) = parseUnixPath(path);
+
+@synopsis{Check that two locations refer to the same file.}    
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isSameFile(loc l, loc r);
+
+@synopsis{Compare two location values lexicographically.}
+@description{
 When the two locations refer to different files, their paths are compared as string.
 When they refer to the same file, their offsets are compared when present.
-
-.Pittfalls
+}
+@pittfalls{
 This ordering regards the location value itself as opposed to the text it refers to.
 }
 bool isLexicallyLess(loc l, loc r)
@@ -66,18 +85,14 @@ bool isLexicallyLess(loc l, loc r)
 
 
 
-@doc{
-.Synopsis
-Get the textual content a location refers to.
-}
+
+@synopsis{Get the textual content a location refers to.}
 str getContent(loc l)
     = readFile(l);
 
-@doc{
-.Synopsis
-Is a location textually (strictly) contained in another location?
 
-.Description
+@synopsis{Is a location textually (strictly) contained in another location?}
+@description{
 Strict containment between two locations `inner` and `outer` holds when
 
 
@@ -86,24 +101,12 @@ Strict containment between two locations `inner` and `outer` holds when
 - both.
 }
 
-bool isStrictlyContainedIn(loc inner, loc outer){
-    if(isSameFile(inner, outer)){
-       if(inner.offset?){
-          return outer.offset? ==> (  inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
-                                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length
-                                   );
-       } else {
-         return inner.offset > 0 && !outer.offset?;
-       }
-    }
-    return false;
-}
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isStrictlyContainedIn(loc inner, loc outer);
 
-@doc{
-.Synopsis
-Is a location textually contained in another location?
 
-.Description
+@synopsis{Is a location textually contained in another location?}
+@description{
 Containment between two locations `inner` and `outer` holds when
 
 
@@ -111,83 +114,57 @@ Containment between two locations `inner` and `outer` holds when
 - `inner` is strictly contained in `outer`.
 }
 
-bool isContainedIn(loc inner, loc outer){
-    if(isSameFile(inner, outer)){
-       if(inner.offset?){
-          return outer.offset? ==> (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
-       } else {
-         return !outer.offset?;
-       }
-    }
-    return false;
-}
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isContainedIn(loc inner, loc outer);
 
-@doc{
-.Synopsis
-Begins a location's text before (but may overlap with) another location's text?
-}
+
+@synopsis{Begins a location's text before (but may overlap with) another location's text?}
 bool beginsBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset < r.offset;
     
-@doc{
-.Synopsis
-Begins and ends a location's text before another location's text?
 
-.Description
+@synopsis{Begins and ends a location's text before another location's text?}
+@description{
 `isBefore(l, r)` holds when `l` 's text occurs textually before `r` 's text.
 }
 bool isBefore(loc l, loc r)
     = isSameFile(l, r)  && l.offset + l.length <= r.offset;
 
-@doc{
-.Synopsis
-Occurs a location's text _immediately_ before another location's text?
 
-.Description
+@synopsis{Occurs a location's text _immediately_ before another location's text?}
+@description{
 `isImmediatelyBefore(l, r)` holds when `l` 's text occurs textually before, and is adjacent to, `r` 's text.
 }
 bool isImmediatelyBefore(loc l, loc r)
     = isSameFile(l, r) && l.offset + l.length == r.offset;
  
- @doc{
-.Synopsis
-Begins a location's text after (but may overlap with) another location's text?
+ 
+@synopsis{Begins a location's text after (but may overlap with) another location's text?
 
 Description
 `beginsAfter(l, r)` holds when `l` 's text begins after `r` 's text. No assumption is made about the end of both texts.
-In other words, `l` 's text may end before or after the end of `r` 's text.
-}
+In other words, `l` 's text may end before or after the end of `r` 's text.}
 bool beginsAfter(loc l, loc r)
     = isSameFile(l, r) && l.offset > r.offset;
        
-@doc{
-.Synopsis
-Is a location's text completely after another location's text?
-}
+
+@synopsis{Is a location's text completely after another location's text?}
 bool isAfter(loc l, loc r)
     = isBefore(r, l);
 
-@doc{
-.Synopsis
-Is a location's text _immediately_ after another location's text?
-}
+
+@synopsis{Is a location's text _immediately_ after another location's text?}
 bool isImmediatelyAfter(loc l, loc r)
     = isImmediatelyBefore(r, l);
 
-@doc{
-.Synopsis
-Refer two locations to text that overlaps?
-}
-bool isOverlapping(loc l, loc r)
-    = isSameFile(l, r) && (  (l.offset <= r.offset && l.offset + l.length > r.offset) 
-                          || (r.offset <= l.offset && r.offset + r.length > l.offset)
-                          );
 
-@doc{
-.Synopsis
-Compute a location that textually covers the text of a list of locations.
+@synopsis{Refer two locations to text that overlaps?}
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isOverlapping(loc l, loc r);
 
-.Description
+
+@synopsis{Compute a location that textually covers the text of a list of locations.}
+@description{
 Create a new location that refers to the smallest text area that overlaps with the text of the given locations.
 The given locations should all refer to the same file but they may be overlapping or be contained in each other.
 }

@@ -357,7 +357,8 @@ data Y = weird2(list[int] y);
  * This would require the following:
  * - maintain a path from the root of the subject to the current subtree
  * - use this path to determine the static type of the current subtree.
- */}
+ */
+}
 test bool visit22() = 
 	visit (weird2([])) { case list[int] _ => [1] } == weird2([1]);
 
@@ -655,8 +656,6 @@ public &T delAnnotationsRec2(&T v) = visit(v) {
      case node n: { insert delAnnotations(n); }
   };
 
-anno int NODE@pos;
-
 public NODE A1 = leaf(3);
 public NODE A2 = leaf(3)[@pos = 1];
 
@@ -751,6 +750,48 @@ test bool StringVisit73() = deescape("\\\\") == "\\";
 test bool StringVisit74() = deescape("\\\<") == "\<";
 test bool StringVisit75() = deescape("\\\>") == "\>";
 test bool StringVisit76() = deescape("\\n") == "n";
+
+// test some unicode features of string visiting
+test bool StringUnicodeVisitEmoji1() {
+	return visit ("Hello 🌈World") {
+		case /🌈/ => ""
+	} == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji2() {
+	return visit ("Hello World") {
+		case / / => "🌈"
+	} == "Hello🌈World";
+}
+test bool StringUnicodeVisitEmoji3() {
+	return visit ("Hello👍🏽World") {
+		case /👍🏽/ => "🌈"
+	} == "Hello🌈World";
+}
+
+test bool StringUnicodeVisitEmoji4() {
+	return visit ("Hello🫂🌈World") {
+		case /🫂/ => "🌈"
+	} == "Hello🌈🌈World";
+}
+test bool StringUnicodeVisitEmoji5() {
+	return visit ("Hello🫂🫂🫂World") {
+		case /[🫂]+/ => "🌈"
+	} == "Hello🌈World";
+}
+
+test bool StringUnicodeVisitEmoji6() {
+	return visit ("Hello🫂🫂🫂World") {
+		case /🫂[🫂]*/ => "🌈"
+	} == "Hello🌈World";
+}
+
+
+test bool StringUnicodeVisitEmoji7() {
+	return visit ("Hello🌈World") {
+		case /World/ => "🌍"
+	} == "Hello🌈🌍";
+}
 
 // Keywords and visit
 

@@ -128,7 +128,6 @@ public class RascalFunction extends NamedFunction {
         return getAst().clone(body);
     }
 
-
     private String computeIndexedLabel(int pos, AbstractAST ast) {
         return ast.accept(new NullASTVisitor<String>() {
             @Override
@@ -258,7 +257,7 @@ public class RascalFunction extends NamedFunction {
 
         try {
             ctx.setCurrentAST(ast);
-            if (callTracing) {
+            if (eval.getCallTracing()) {
                 printStartTrace(actuals);
             }
 
@@ -293,7 +292,7 @@ public class RascalFunction extends NamedFunction {
 //                    checkReturnTypeIsNotVoid(formals, actuals);
                     result = runBody();
                     result = storeMemoizedResult(actuals,keyArgValues, result);
-                    if (callTracing) {
+                    if (eval.getCallTracing()) {
                         printEndTrace(result.getValue());
                     }
                     return result;
@@ -358,20 +357,20 @@ public class RascalFunction extends NamedFunction {
             
             result = computeReturn(e, renamings, dynamicRenamings);
             storeMemoizedResult(actuals, keyArgValues, result);
-            if (callTracing) {
+            if (eval.getCallTracing()) {
                 printEndTrace(result.getValue());
             }
             return result;
         } 
         catch (Throwable e) {
-            if (callTracing) {
+            if (eval.getCallTracing()) {
                 printExcept(e);
             }
             throw e;
         }
         finally {
-            if (callTracing) {
-                callNesting--;
+            if (eval.getCallTracing()) {
+                eval.decCallNesting();
             }
             ctx.setCurrentEnvt(old);
             ctx.setAccumulators(oldAccus);

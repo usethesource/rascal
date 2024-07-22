@@ -83,7 +83,7 @@ public class SymbolAdapter {
 	
 	public static IConstructor delabel(IConstructor sym) {
 		if (isLabel(sym)) {
-			return (IConstructor) sym.get("symbol"); // do not use getSymbol() here!
+			return (IConstructor) sym.get(1 /*symbol*/); // do not use getSymbol() here!
 		}
 		return sym;
 	}
@@ -147,7 +147,7 @@ public class SymbolAdapter {
 	public static IConstructor getStart(IConstructor tree) {
 		if (isStartSort(tree)) {
 			tree = delabel(tree);
-			return (IConstructor) tree.get("symbol");
+			return (IConstructor) tree.get(0 /* symbol */);
 		}
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
@@ -160,7 +160,7 @@ public class SymbolAdapter {
 	public static IConstructor getSymbol(IConstructor tree) {
 		tree = delabel(tree);
 		if (isOpt(tree) || isIterPlus(tree) || isIterStar(tree)  || isIterPlusSeps(tree) || isIterStarSeps(tree) || isMeta(tree) || isConditional(tree)) {
-			return ((IConstructor) tree.get("symbol"));
+			return ((IConstructor) tree.get(0 /*"symbol" */));
 		}
 		
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
@@ -194,6 +194,7 @@ public class SymbolAdapter {
 	}
 
 	public static boolean isParameterizedSort(IConstructor tree) {
+		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_ParameterizedSort;
 	}
 	
@@ -652,11 +653,6 @@ public class SymbolAdapter {
 		return symbol.getConstructorType() == Symbol_Parameter;
 	}
 
-	public static IConstructor getRhs(IConstructor symbol) {
-		symbol = delabel(symbol);
-		return (IConstructor) symbol.get("rhs");
-	}
-	
 	public static boolean isIterStarSeps(IConstructor rhs) {
 		rhs = delabel(rhs);
 		return rhs.getConstructorType() == Symbol_IterStarSeps;
@@ -1074,11 +1070,11 @@ public class SymbolAdapter {
     }
     
     private static int rangeBegin(IConstructor range) {
-        return ((IInteger) range.get("begin")).intValue();
+        return ((IInteger) range.get(0 /*begin */)).intValue();
     }
     
     private static int rangeEnd(IConstructor range) {
-        return ((IInteger) range.get("end")).intValue();
+        return ((IInteger) range.get(1 /*end*/)).intValue();
     }
 
 	public static boolean isParametrizableType(IConstructor sort) {

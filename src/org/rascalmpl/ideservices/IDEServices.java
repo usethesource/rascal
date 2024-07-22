@@ -38,7 +38,7 @@ public interface IDEServices extends IRascalMonitor {
    * Open a browser for the give uri.
    * @param uri
    */
-  void browse(URI uri);
+  void browse(URI uri, String title, int viewColumn);
 
   /**
    * Open an editor for file at given path.

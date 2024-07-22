@@ -42,6 +42,7 @@ import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
 import org.rascalmpl.interpreter.matching.BasicBooleanResult;
@@ -1061,18 +1062,37 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new GuardedPattern(eval, this, type, absPat);
 		}
 
+		private boolean isBootstrapped(IEvaluatorContext eval) {
+			Environment root = eval.getCurrentEnvt().getRoot();
+			if (root instanceof ModuleEnvironment) {
+				return ((ModuleEnvironment) root).getBootstrap();
+			}
+			return false;
+		}
+
     	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-        	IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
-
-        	return (ITree) parser.call(vf.string(new String(input)), location);
+			IString str = vf.string(new String(input));
+		
+			if (isBootstrapped(eval)) {
+				return (ITree) vf.bootstrapParsers().call(grammar, str, location);
+			}
+			else {
+        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+				return (ITree) parser.call(vf.string(new String(input)), location);
+			}
     	}
 
 		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-        	IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
-
-        	return (ITree) parser.call(location, location);
+			
+			if (isBootstrapped(eval)) {
+				return (ITree) vf.bootstrapParsers().call(grammar, location, location);
+			}
+			else {
+				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+        		return (ITree) parser.call(location, location);
+			}
     	}
 
 		@Override
@@ -1101,7 +1121,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			try {
 				IConstructor tree = null;
 				
-				IMap gr = (IMap) __eval.getEvaluator().getGrammar(__eval.getCurrentEnvt()).get("rules");
+				IMap gr = isBootstrapped(__eval) ? __eval.getValueFactory().map() : (IMap) __eval.getEvaluator().getGrammar(__eval.getCurrentEnvt()).get("rules");
 				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
             
 				if (result.getStaticType().isString()) {

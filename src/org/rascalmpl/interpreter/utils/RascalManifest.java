@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import java.util.zip.ZipEntry;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarURIResolver;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -38,9 +38,7 @@ public class RascalManifest {
     public static final String DEFAULT_MAIN_MODULE = "Plugin";
     public static final String DEFAULT_MAIN_FUNCTION = "main";
     public static final String DEFAULT_SRC = "src";
-    public static final String DEFAULT_COURSES = "courses";
     protected static final String SOURCE = "Source";
-    protected static final String COURSES = "Courses";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
     protected static final String MAIN_MODULE = "Main-Module";
@@ -76,7 +74,6 @@ public class RascalManifest {
         mainAttributes.put(new Attributes.Name(SOURCE), DEFAULT_SRC);
         mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
-        mainAttributes.put(new Attributes.Name(COURSES), DEFAULT_COURSES);
         mainAttributes.put(new Attributes.Name(PROJECT_NAME), projectName);
         mainAttributes.put(new Attributes.Name(REQUIRE_LIBRARIES), "");
         return manifest;
@@ -136,33 +133,12 @@ public class RascalManifest {
         return getManifestMainFunction(manifest(jarStream));
     }
 
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getCoursesFolder(File jarFile) {
-        return getManifestCourses(manifest(jarFile));
-    }
-
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getCourses(Class<?> clazz) {
-        return getManifestCourses(manifest(clazz));
-    }
-
     public String getProjectName(Class<?> clazz) {
         return getManifestProjectName(manifest(clazz));
     }
 
     public String getManifestProjectName(InputStream manifest) {
         return getManifestAttribute(manifest, PROJECT_NAME, "");
-    }
-
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getCoursesFolder(JarInputStream jarStream) {
-        return getManifestCourses(manifest(jarStream));
     }
 
     /**
@@ -262,13 +238,6 @@ public class RascalManifest {
     public String getManifestMainFunction(InputStream project) {
         return getManifestAttribute(project, MAIN_FUNCTION, null);
     }
-
-    /**
-     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
-     */
-    public List<String> getManifestCourses(InputStream project) {
-        return getManifestAttributeList(project, COURSES, null);
-    }
     
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
@@ -287,7 +256,7 @@ public class RascalManifest {
 
     public InputStream manifest(ISourceLocation root) {
         try {
-            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(jarify(root), META_INF_RASCAL_MF));
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_RASCAL_MF));
         } catch (IOException e) {
             return null;
         }
@@ -318,22 +287,6 @@ public class RascalManifest {
         }
 
         return new PathConfig(srcs, libs, binFolder);
-    }
-
-    public static ISourceLocation jarify(ISourceLocation loc) {
-        if (!loc.getPath().endsWith(".jar")) {
-            return loc;
-        }
-        
-        try {
-            loc = URIUtil.changeScheme(loc, "jar+" + loc.getScheme());
-            loc = URIUtil.changePath(loc, loc.getPath() + "!/");
-            return loc;
-        }
-        catch (URISyntaxException e) {
-            assert false;  // this can never happen;
-            return loc;
-        }
     }
 
     public InputStream manifest(JarInputStream stream) {

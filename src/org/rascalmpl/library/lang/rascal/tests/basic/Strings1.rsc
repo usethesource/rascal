@@ -248,6 +248,23 @@ test bool tstSplit(str S1, str S2) = areOverlapping(S1,S2) || isEmpty(S1) || isE
 
 // squeeze
 
+test bool tstSqueeze1(str S) = /<c:[a-zA-Z]><c>/ !:= squeeze(S, "a-zA-Z");
+test bool tstSqueeze2(str S) = squeeze(S, "") == S;
+test bool tstSqueeze3(str S) {
+  if (/<c:[a-zA-Z]><c>/ := S) {
+    return /<c><c>/ := squeeze(S, "0-9");
+  }
+  return true;
+}
+
+test bool tstSqueezeUnicode() = squeeze("Hi 🍝🍝World", "🍝") == "Hi 🍝World";
+test bool tstSqueezeCase1() = squeeze("abc", "a-c") == "abc";
+test bool tstSqueezeCase2() = squeeze("aabc", "a-c") == "abc";
+test bool tstSqueezeCase3() = squeeze("aabcc", "a-c") == "abc";
+test bool tstSqueezeCase4() = squeeze("aabbcc", "a-c") == "abc";
+test bool tstSqueezeCase5() = squeeze("aaabc", "a-c") == "abc";
+
+
 test bool tstStartsWith(str S1, str S2) = startsWith(S1+S2, S1);
 
 test bool tstSubstring1(str S){

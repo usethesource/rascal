@@ -41,4 +41,9 @@ public class NullRascalMonitor implements IRascalMonitor {
 	public void warning(String message, ISourceLocation src) {
 		return;
 	}
+
+	@Override
+	public void endAllJobs() {
+		// nothing
+	}
 }

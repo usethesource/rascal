@@ -5,9 +5,7 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@doc{
-	Synopsis: Translate the SMTLIBv2 AST to string so that it can be interpreted by a SMTLIBv2 compliant solver 
-}
+@synopsis{Synopsis: Translate the SMTLIBv2 AST to string so that it can be interpreted by a SMTLIBv2 compliant solver}
 @contributor{Jouke Stoel - stoel@cwi.nl (CWI)}
 
 module lang::smtlib2::Compiler
@@ -34,7 +32,7 @@ str toString(getUnsatCore()) = "(get-unsat-core)";
 str toString(push(nr)) = "(push <nr>)";
 str toString(pop(nr)) = "(pop <nr>)";
 str toString(exit()) = "(exit)";
-default str toString(Command command) = "(unkown command)";
+default str toString(Command command) = "(unknown command)";
 
 // Options
 str toString(interactiveMode(val)) = ":interactive-mode <val>";

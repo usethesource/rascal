@@ -141,7 +141,7 @@ public class RascalYAML {
 		// Structural types may be shared.
 		if (visited.containsKey(obj)) {
 			assert anchors.get(obj) != - 1;
-			return values.constructor(Node_reference, values.integer(anchors.get(obj)));
+			return values.constructor(Node_reference).asWithKeywordParameters().setParameter(ANCHOR_ANNO, values.integer(anchors.get(obj)));
 		}
 		visited.put(obj, true);
 		
@@ -169,9 +169,13 @@ public class RascalYAML {
 			result = values.constructor(Node_mapping, w.done());
 		}
 		else {
-			throw RuntimeExceptionFactory.illegalArgument(
-					values.string(obj.toString() + " (class=" + obj.getClass() + ")"), 
-					null, null);
+			if (obj == null) {
+				throw RuntimeExceptionFactory.illegalTypeArgument(values.string("missing input"));		
+			}
+			else {
+				throw RuntimeExceptionFactory.illegalArgument(
+						values.string(obj.toString() + " (class=" + obj.getClass() + ")"));
+			}
 		}
 		if (anchors.get(obj) != -1) {
 			result = result.asWithKeywordParameters().setParameter(ANCHOR_ANNO, values.integer(anchors.get(obj)));

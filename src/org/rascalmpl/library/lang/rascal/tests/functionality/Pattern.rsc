@@ -11,6 +11,7 @@
 module lang::rascal::tests::functionality::Pattern
  
 import List;
+import Set;
 
 data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
 data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
@@ -122,7 +123,9 @@ test bool matchVariableBecomes1() = N : 3 := 3 && N == 3;
   
 // variableBecomesEquality
 
-@IgnoreCompiler{TODO: fails, assignment to N is not undone}        
+@IgnoreCompiler{
+TODO: fails, assignment to N is not undone
+}        
 test bool matchVariableBecomesEquality1() {int N = 5; return N : 3 !:= 3 && N != 3;}
 
 test bool matchVariableBecomesEquality2() {int N = 3; return N : 3 := 3 && N == 3;}
@@ -167,6 +170,14 @@ test bool antiPattern20() = !(!<1,2,3> := <1,2,3>);
 test bool antiPattern21() = !<1,2> := <1,2,4>;
 @ignoreInterpreter{to be determined}
 test bool antiPattern22() = !<1,2,3> := <1,2>;
+
+data MuExp = muCon(value v);
+
+bool tcc(muCon(list[value] lst)) = isEmpty(lst);
+bool tcc(muCon(set[value] lst)) = isEmpty(lst);
+
+test bool overloadedConstructorArg1() = tcc(muCon({}));
+test bool overloadedConstructorArg2() = tcc(muCon([]));
   	
 // Match in loops
 

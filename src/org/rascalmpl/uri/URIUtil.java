@@ -11,14 +11,13 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -26,6 +25,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 
 public class URIUtil {
+	public static final String URI_PATH_SEPARATOR = "/";
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	/**
 	 * Create a new URI, non-encoded input is assumed.
@@ -56,8 +56,14 @@ public class URIUtil {
 	 * @throws URISyntaxException
 	 */
 	public static URI createFile(String path) throws URISyntaxException {
-		path = fixWindowsPath(path);
-		return fixUnicode(new File(path).toURI());
+		File file = new File(fixWindowsPath(path));
+		try {
+			file = file.getCanonicalFile();
+		}
+		catch (IOException e) {
+			// swallow, let's keep the old file
+		}
+		return fixUnicode(file.toURI());
 	}
 	
 	/**
@@ -92,8 +98,8 @@ public class URIUtil {
 	}
 	
 	private static String fixWindowsPath(String path) {
-		if (!path.startsWith("/")) {
-			path = "/" + path;
+		if (!path.startsWith(URI_PATH_SEPARATOR)) {
+			path = URI_PATH_SEPARATOR + path;
 		}
 		
 		return path;
@@ -194,7 +200,7 @@ public class URIUtil {
 	
 	public static ISourceLocation rootLocation(String scheme) {
 		try {
-			return vf.sourceLocation(scheme, "", "/");
+			return vf.sourceLocation(scheme, "", URI_PATH_SEPARATOR);
 		} catch (URISyntaxException e) {
 			assert false;
 			return null;
@@ -293,8 +299,8 @@ public class URIUtil {
 	
 	public static ISourceLocation getParentLocation(ISourceLocation loc) {
 	    String currentPath = loc.getPath();
-	    assert currentPath.startsWith("/");
-	    if (currentPath.equals("/")) {
+	    assert currentPath.startsWith(URI_PATH_SEPARATOR);
+	    if (currentPath.equals(URI_PATH_SEPARATOR)) {
 	        return loc;
 	    }
 	    try {
@@ -309,13 +315,13 @@ public class URIUtil {
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
 		String childPath = loc.getPath();
 		if (childPath == null || childPath.isEmpty()) {
-			childPath = "/";
+			childPath = URI_PATH_SEPARATOR;
 		}
-		else if (!childPath.endsWith("/")) {
-			childPath += "/";
+		else if (!childPath.endsWith(URI_PATH_SEPARATOR)) {
+			childPath += URI_PATH_SEPARATOR;
 		}
 		
-		if (!child.equals("/")) {
+		if (!child.equals(URI_PATH_SEPARATOR)) {
 		    childPath += child;
 		}
 
@@ -347,8 +353,8 @@ public class URIUtil {
 		}
 
 		String parentPath = parent.getPath();
-		if (!parentPath.endsWith("/")) {
-			parentPath += "/"; 
+		if (!parentPath.endsWith(URI_PATH_SEPARATOR)) {
+			parentPath += URI_PATH_SEPARATOR; 
 		}
 
 		String childPath = child.getPath();
@@ -369,16 +375,40 @@ public class URIUtil {
 	}
 
 	public static ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
+		// first we normalize trailing slashes, since "relativize" does not consider them meaningful
+		// while ISourceLocation does.
+		try {
+			if (outside.getPath().endsWith(URI_PATH_SEPARATOR)) {
+				outside = changePath(outside, outside.getPath().substring(0, outside.getPath().length() - 1));
+			}
+			if (inside.getPath().endsWith(URI_PATH_SEPARATOR)) {
+				inside = changePath(inside, inside.getPath().substring(0, inside.getPath().length() - 1));
+			}
+		}
+		catch (URISyntaxException e) {
+			// can not happen by removing only a slash
+		}
+
+		if (outside.equals(inside)) {
+			return URIUtil.correctLocation("relative", "", "/");
+		}
+
 		if (!isParentOf(outside, inside)) {
 			return inside;
 		}
 
-		Path outsidePath = Paths.get(outside.getURI());
-		Path insidePath = Paths.get(inside.getURI());
+		String[] outsidePath = outside.getPath().split(URI_PATH_SEPARATOR);
+		String[] insidePath = inside.getPath().split(URI_PATH_SEPARATOR);
 
-		Path relPath = outsidePath.relativize(insidePath);
+		// we already know that outsidePath is a parent of insidePath, so
+		// all we need to do is skip over the prefix
+		StringBuilder relativePath = new StringBuilder();
+		for (int i = outsidePath.length; i < insidePath.length; i++) {
+			relativePath.append(URI_PATH_SEPARATOR);
+			relativePath.append(insidePath[i]);
+		}
 	
-		return URIUtil.correctLocation("relative", "", relPath.toString());
+		return URIUtil.correctLocation("relative", "", relativePath.toString());
 	}
 
 	public static ISourceLocation removeAuthority(ISourceLocation loc) {
@@ -402,5 +432,33 @@ public class URIUtil {
 	}
     public static ISourceLocation createFromURI(String value) throws URISyntaxException {
         return vf.sourceLocation(createFromEncoded(value));
+    }
+    public static ISourceLocation changeExtension(ISourceLocation location, String ext) throws URISyntaxException {
+        String path = location.getPath();
+		boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
+		if (endsWithSlash) {
+			path = path.substring(0, path.length() - 1);
+		}
+
+		if (path.length() > 1) {
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			int index = path.substring(slashIndex).lastIndexOf('.');
+
+			if (index == -1 && !ext.isEmpty()) {
+				path = path + (!ext.startsWith(".") ? "." : "") + ext;
+			}
+			else if (!ext.isEmpty()) {
+				path = path.substring(0, slashIndex + index) + (!ext.startsWith(".") ? "." : "") + ext;
+			}
+			else if (index != -1) {
+				path = path.substring(0, slashIndex + index);
+			}
+
+			if (endsWithSlash) {
+				path = path + URIUtil.URI_PATH_SEPARATOR;
+			}
+		}
+
+		return URIUtil.changePath(location, path);
     }
 }

@@ -19,6 +19,7 @@ package org.rascalmpl.library;
 import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -50,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Base64.Encoder;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -68,15 +70,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.CharSetUtils;
+import org.apache.commons.codec.CodecPolicy;
+import org.apache.commons.codec.binary.Base32;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
-import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
@@ -131,7 +134,9 @@ import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
 public class Prelude {
-	private static final int FILE_BUFFER_SIZE = 8 * 1024;
+    private static final int FILE_BUFFER_SIZE = 8 * 1024;
+
+    protected final URIResolverRegistry REGISTRY = URIResolverRegistry.getInstance();
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
 	private final Random random;
@@ -140,8 +145,9 @@ public class Prelude {
     private final PrintWriter out;
 	private final TypeStore store;
 	private final IRascalMonitor monitor;
+	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
@@ -150,6 +156,8 @@ public class Prelude {
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
+		this.resourceProvider = resourceProvider;
+
 		random = new Random();
 	}
 
@@ -913,30 +921,30 @@ public class Prelude {
 		try {
 		    w.write(arg, output);
 		} 
-	    catch (IOLimitReachedException e) {
+	    catch (/*IOLimitReachedException*/ RuntimeException e) {
 	        // ignore, it's what we wanted
 	    }
 		catch (IOException e) {
-			RuntimeExceptionFactory.io(values.string("Could not print indented value"));
+			throw RuntimeExceptionFactory.io(values.string("Could not print indented value"));
 		}
 		finally {
-		    try {
-		        output.flush();
-		        output.close();
-		    }
-		    catch (IOException e) {
-		    }
+			try {
+				output.flush();
+			}
+			catch (IOException e) {
+				// ignore
+			}
 		}
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public void iprintToFile(ISourceLocation sloc, IValue arg) {
+	public void iprintToFile(ISourceLocation sloc, IValue arg, IString charset) {
 		StandardTextWriter w = new StandardTextWriter(true, 2);
 		StringWriter sw = new StringWriter();
 
 		try {
 			w.write(arg, sw);
-			writeFile(sloc, values.list(values.string(sw.toString())));
+			writeFile(sloc, values.list(values.string(sw.toString())), charset);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
@@ -1020,14 +1028,14 @@ public class Prelude {
 	}
 
 	public IValue exists(ISourceLocation sloc) {
-		IValue result =  values.bool(URIResolverRegistry.getInstance().exists(sloc));
+		IValue result =  values.bool(REGISTRY.exists(sloc));
 		if(trackIO) System.err.println("exists: " + sloc + " => " + result);
 		return result;
 	}
 	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
-		    IValue result = values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
+		    IValue result = values.datetime(REGISTRY.lastModified(sloc));
 		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
 			return result;
 		} catch(FileNotFoundException e){
@@ -1040,7 +1048,7 @@ public class Prelude {
 
 	public IValue created(ISourceLocation sloc) {
 		try {
-		    IValue result = values.datetime(URIResolverRegistry.getInstance().created(sloc));
+		    IValue result = values.datetime(REGISTRY.created(sloc));
 		    if(trackIO) System.err.println("lastModified: " + sloc + " => " + result);
 			return result;
 		} catch(FileNotFoundException e){
@@ -1057,7 +1065,7 @@ public class Prelude {
 	
 	private void setLastModified(ISourceLocation sloc, long timestamp) {
         try {
-            URIResolverRegistry.getInstance().setLastModified(sloc, timestamp);
+            REGISTRY.setLastModified(sloc, timestamp);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1065,16 +1073,16 @@ public class Prelude {
     }
 	
 	public IBool isDirectory(ISourceLocation sloc) {
-		return values.bool(URIResolverRegistry.getInstance().isDirectory(sloc));
+		return values.bool(REGISTRY.isDirectory(sloc));
 	}
 	
 	public IBool isFile(ISourceLocation sloc) {
-		return values.bool(URIResolverRegistry.getInstance().isFile(sloc));
+		return values.bool(REGISTRY.isFile(sloc));
 	}
 	
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
-			URIResolverRegistry.getInstance().remove(sloc, recursive.getValue());
+			REGISTRY.remove(sloc, recursive.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1083,7 +1091,7 @@ public class Prelude {
 	
 	public void mkDirectory(ISourceLocation sloc) {
 	  try {
-	    URIResolverRegistry.getInstance().mkDirectory(sloc);
+	    REGISTRY.mkDirectory(sloc);
 	  }
 	  catch (IOException e) {
 	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1092,7 +1100,7 @@ public class Prelude {
 	
 	public IList listEntries(ISourceLocation sloc) {
 		try {
-			String [] entries = URIResolverRegistry.getInstance().listEntries(sloc);
+			String [] entries = REGISTRY.listEntries(sloc);
 			if (entries == null) {
 			    throw RuntimeExceptionFactory.illegalArgument(sloc);
 			}
@@ -1118,31 +1126,21 @@ public class Prelude {
 		return w.done();
 	} 
 	
-	public IString readFile(ISourceLocation sloc){
-	    return readFile(values, trackIO, sloc);
+	public IString readFile(ISourceLocation sloc, IString charset, IBool inferCharset) {
+	    return readFile(values, trackIO, sloc, charset.getValue(), inferCharset.getValue());
 	}
 	
-	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc){
+	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset, boolean inferCharset){
 		if(trackIO) System.err.println("readFile: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
+
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
+		try (Reader reader = inferCharset ? reg.getCharacterReader(sloc) : reg.getCharacterReader(sloc, charset);){
 			return values.string(consumeInputStream(reader));
 		} 
 		catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
-	}
-	
-	public IString readFileEnc(ISourceLocation sloc, IString charset){
-		if(trackIO) System.err.println("readFileEnc: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
-			return values.string(consumeInputStream(reader));
-		} 
-		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		} 
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
@@ -1157,13 +1155,23 @@ public class Prelude {
 		}
 		return res.toString();
 	}
+
+	public static byte[] consumeInputStream(InputStream in) throws IOException {
+		ByteArrayOutputStream res = new ByteArrayOutputStream();
+		byte[] chunk = new byte[FILE_BUFFER_SIZE];
+		int read;
+		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
+		    res.write(chunk, 0, read);
+		}
+		return res.toByteArray();
+	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            boolean useInputStream = !URIResolverRegistry.getInstance().supportsReadableFileChannel(sloc);
+            boolean useInputStream = !REGISTRY.supportsReadableFileChannel(sloc);
             if (!useInputStream) {
-                try (FileChannel file = URIResolverRegistry.getInstance().getReadableFileChannel(sloc)) {
+                try (FileChannel file = REGISTRY.getReadableFileChannel(sloc)) {
                     ByteBuffer contents = null;
                     if (file.size() > FILE_BUFFER_SIZE) {
                         try {
@@ -1184,7 +1192,7 @@ public class Prelude {
                 }
             }
             if (useInputStream) {
-                try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
+                try (InputStream in = REGISTRY.getInputStream(sloc)) {
                     byte[] buf = new byte[FILE_BUFFER_SIZE];
                     int count;
 
@@ -1249,7 +1257,7 @@ public class Prelude {
 	
 	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
 		try {
-			URIResolverRegistry.getInstance().copy(source, target, recursive.getValue(), overwrite.getValue());
+			REGISTRY.copy(source, target, recursive.getValue(), overwrite.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1258,7 +1266,7 @@ public class Prelude {
 
 	public void move(ISourceLocation source, ISourceLocation target, IBool overwrite) {
 		try {
-			URIResolverRegistry.getInstance().rename(source, target, overwrite.getValue());
+			REGISTRY.rename(source, target, overwrite.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
@@ -1266,56 +1274,27 @@ public class Prelude {
 	}
 
 	public void touch(ISourceLocation sloc) {
-	    if (URIResolverRegistry.getInstance().exists(sloc)) {
+	    if (REGISTRY.exists(sloc)) {
 	        setLastModified(sloc, System.currentTimeMillis());
 	    }
 	    else {
-	        writeFile(sloc, values.list(values.string("")));
+	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"));
 	    }
 	}
 	
-	public void writeFile(ISourceLocation sloc, IList V) {
-		writeFile(sloc, V, false);
+	public void writeFile(ISourceLocation sloc, IList V, IString charset) {
+		writeFile(sloc, V, false, charset, values.bool(false));
 	}
 	
-	public void writeFileEnc(ISourceLocation sloc, IString charset, IList V) {
-		writeFileEnc(sloc, charset, V, false);
-	}
-	
-	private void writeFile(ISourceLocation sloc, IList V, boolean append){
+	private void writeFile(ISourceLocation sloc, IList V, boolean append, IString charset, IBool inferCharset){
 		if(trackIO) System.err.println("writeFile: " + sloc);
-		IString charset = values.string("UTF8");
-		if (append) {
-			charset = detectCharSet(sloc);
-		}
+	
+		// if inferCharset we overwrite the given charset (which is usually the default in that case)
+		if (append && inferCharset.getValue()) {
+			charset = values.string(REGISTRY.detectCharset(sloc).name());
+		} 
 		
 		writeFileEnc(sloc, charset, V, append);
-	}
-
-	private IString detectCharSet(ISourceLocation sloc) {
-		IString charset;
-		// in case the file already has a encoding, we have to correctly append that.
-		Charset detected = null;
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc);){
-			detected = URIResolverRegistry.getInstance().getCharset(sloc);
-			if (detected == null) {
-				
-				detected = UnicodeDetector.estimateCharset(in);
-			}
-		} 
-		catch (FileNotFoundException fnfex) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		} 
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
-		
-		if (detected != null)
-			charset = values.string(detected.name());
-		else {
-			charset = values.string(Charset.defaultCharset().name());
-		}
-		return charset;
 	}
 	
 	public IBool canEncode(IString charset) {
@@ -1323,7 +1302,7 @@ public class Prelude {
 	}
 	
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append){
-		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		URIResolverRegistry reg = REGISTRY;
 
 		if (!Charset.forName(charset.getValue()).canEncode()) {
 		    throw RuntimeExceptionFactory.illegalArgument(charset);
@@ -1334,7 +1313,6 @@ public class Prelude {
 		
 		try {
 			sloc = reg.logicalToPhysical(sloc);
-
 
 			if (sloc.hasOffsetLength()) {
 				try {
@@ -1365,8 +1343,8 @@ public class Prelude {
 					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					  TreeAdapter.yield((IConstructor) elem, out);
 					}
-					else{
-						out.append(elem.toString());
+					else {
+						new StandardTextWriter().write(elem, out);
 					}
 				}
 				if (postfix != null) {
@@ -1408,7 +1386,7 @@ public class Prelude {
 	}
 	
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(sloc, false)) {
+		try (OutputStream out = REGISTRY.getOutputStream(sloc, false)) {
 			Iterator<IValue> iter = blist.iterator();
 			while (iter.hasNext()){
 				IValue ival = iter.next();
@@ -1424,17 +1402,13 @@ public class Prelude {
 		return;
 	}
 	
-	public void appendToFile(ISourceLocation sloc, IList V){
-		writeFile(sloc, V, true);
+	public void appendToFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset){
+		writeFile(sloc, V, true, charset, inferCharset);
 	}
 	
-	public void appendToFileEnc(ISourceLocation sloc, IString charset, IList V){
-		writeFileEnc(sloc, charset, V, true);
-	}
-	
-	public IList readFileLines(ISourceLocation sloc){
+	public IList readFileLines(ISourceLocation sloc, IString charset){
 		if(trackIO) System.err.println("readFileLines: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc)) {
+		try (Reader reader = REGISTRY.getCharacterReader(sloc, charset.getValue())) {
 			return consumeInputStreamLines(reader);
 		}
 		catch (MalformedURLException e) {
@@ -1448,22 +1422,6 @@ public class Prelude {
 		} 
 	}
 	
-	public IList readFileLinesEnc(ISourceLocation sloc, IString charset){
-		if(trackIO) System.err.println("readFileLinesEnc: " + sloc);
-		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc,charset.getValue())) {
-			return consumeInputStreamLines(reader);
-		}
-		catch (MalformedURLException e) {
-		    throw RuntimeExceptionFactory.malformedURI(sloc.toString());
-		}
-		catch (FileNotFoundException e) {
-			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
-	}
-
 	private IList consumeInputStreamLines(Reader in) throws IOException {
 		try (BufferedReader buf = new BufferedReader(in)) {
 			String line = null;
@@ -1476,12 +1434,11 @@ public class Prelude {
 	}
 	
 	public IList readFileBytes(ISourceLocation sloc) {
-		
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
 		
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
-			byte bytes[] = new byte[FILE_BUFFER_SIZE];
+		try (InputStream in = REGISTRY.getInputStream(sloc)) {
+			byte[] bytes = new byte[FILE_BUFFER_SIZE];
 			int read;
 
 			while ((read = in.read(bytes, 0, bytes.length)) != -1) {
@@ -1500,24 +1457,27 @@ public class Prelude {
 		return w.done();
 	}
 	
-    public IString uuencode(ISourceLocation sloc) {
-        int BUFFER_SIZE = 3 * 512;
+    public IString readBase64(ISourceLocation sloc, IBool includePadding) {
+        final int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
+		if (!includePadding.getValue()) {
+			encoder = encoder.withoutPadding();
+		}
         
-        try  (BufferedInputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(sloc), BUFFER_SIZE); ) {
+        try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
             StringBuilder result = new StringBuilder();
             byte[] chunk = new byte[BUFFER_SIZE];
             int len = 0;
             
             // read multiples of 3 until not possible anymore
             while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-                 result.append( encoder.encodeToString(chunk) );
+				result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             // read final chunk which is not a multiple of 3
             if ( len > 0 ) {
                  chunk = Arrays.copyOf(chunk,len);
-                 result.append( encoder.encodeToString(chunk) );
+				 result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
             
             return values.string(result.toString());
@@ -1526,7 +1486,43 @@ public class Prelude {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
+
+	public void writeBase64(ISourceLocation sloc, IString base64content) {
+        final int BUFFER_SIZE = 3 * 512;
+        Base64.Decoder decoder = Base64.getDecoder();
+        
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
+			output.write(decoder.decode(base64content.getValue()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
 	
+	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
+		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
+			Base32 encoder = new Base32();
+			String encoded = encoder.encodeToString(input.readAllBytes());
+			if (!includePadding.getValue()) {
+				encoded = encoded.replace("=", "");
+			}
+			return values.string(encoded);
+		} catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+    }
+
+	public void writeBase32(ISourceLocation sloc, IString base32Content) {
+        try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false))) {
+			// The only relevant field we want to change set is the policy
+			Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+			output.write(decoder.decode(base32Content.getValue()));
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+    }
+
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
@@ -1746,6 +1742,16 @@ public class Prelude {
 	{
 	   if(lst.length() > 0){
 	      return lst.get(0);
+	   }
+	   
+	   throw RuntimeExceptionFactory.emptyList();
+	}
+
+	public IValue last(IList lst)
+	// @doc{head -- get the last element of a list}
+	{
+	   if(lst.length() > 0){
+	      return lst.get(lst.length() - 1);
 	   }
 	   
 	   throw RuntimeExceptionFactory.emptyList();
@@ -2223,6 +2229,12 @@ public class Prelude {
 		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
 		return node.asWithKeywordParameters().setParameters(map);
 	}
+
+	public INode mergeKeywordParameters(INode node, IMap kwargs) {
+		Map<String,IValue> map = node.asWithKeywordParameters().getParameters();
+		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
+		return node.asWithKeywordParameters().setParameters(map);
+	}
 	
 	public INode unset(INode node, IString label) {
         return node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetParameter(label.getValue()) : node;
@@ -2365,13 +2377,51 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, IBool firstAmbiguity, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, firstAmbiguity, filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
     }
+
+	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+    }
+
+	public void storeParsers(IValue start, ISourceLocation saveLocation) {
+		try {
+			rascalValues.storeParsers(start, saveLocation);
+		}
+		catch (JavaCompilation e) {
+			throw RuntimeExceptionFactory.javaCompilerException(e);
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+		try {
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+		try {
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+		}
+		catch (IOException | ClassNotFoundException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
@@ -2498,7 +2548,10 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
-						return ast.asWithKeywordParameters().setParameter("location", loc);
+						String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+						
+						return ast.asWithKeywordParameters().setParameter(locLabel, loc);
 					}
 					catch (Backtrack b) {
 					    failReason = b;
@@ -2675,7 +2728,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args));
-				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2693,9 +2746,12 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args);
 					IConstructor ast = makeConstructor(store, type, constructorName, implodedArgs);
+					String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
+						  "location" : "src";
+
 					return ast
 					        .asWithKeywordParameters()
-					        .setParameter("location", loc)
+					        .setParameter(locLabel, loc)
 					        .asWithKeywordParameters()
 					        .setParameter("comments", comments);
 				}
@@ -2806,6 +2862,23 @@ public class Prelude {
 		
 		throw RuntimeExceptionFactory.emptySet();
 	}
+	
+	public IValue getFirstFrom(ISet st)
+    // @doc{getOneFrom -- pick the "first" element from a set}
+    {
+        int sz = st.size();
+
+        if (sz == 0) {
+            throw RuntimeExceptionFactory.emptySet();
+        }
+
+        for (IValue v : st) {
+                return v;
+        }
+        
+        throw RuntimeExceptionFactory.emptySet();
+    }
+
 
 	public IValue isEmpty(ISet st)
 	//@doc{isEmpty -- is set empty?}
@@ -2997,9 +3070,31 @@ public class Prelude {
 	}
 	
 	public IString squeeze(IString src, IString charSet) {
-		//@{http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html}
-		String s = CharSetUtils.squeeze(src.getValue(), charSet.getValue());
-		return values.string(s);
+		if (charSet.getValue().isEmpty()) {
+			return src;
+		}
+		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
+		StringBuilder result = new StringBuilder(src.length());
+		var chars = src.iterator();
+		int previousMatch = -1;
+		while (chars.hasNext()) {
+			int cp = chars.nextInt();
+			if (cp == previousMatch) {
+				// swallow
+				continue;
+			}
+
+			String c = Character.toString(cp);
+			if (isCharset.matcher(c).matches()) {
+				previousMatch = cp;
+				// swallow the next
+			}
+			else {
+				previousMatch = -1;
+			}
+			result.append(c);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString capitalize(IString src) {
@@ -3294,48 +3389,63 @@ public class Prelude {
 		}
 	}
 
-
-	private String toBase64(InputStream src, int estimatedSize) throws IOException {
+	private String toBase64(InputStream src, int estimatedSize, boolean includePadding) throws IOException {
 	  ByteArrayOutputStream result = new ByteArrayOutputStream(estimatedSize);
-	  OutputStream encoder = Base64.getEncoder().wrap(result);
-	  copy(src, encoder);
-	  encoder.close();
+	  Encoder encoder = Base64.getEncoder();
+	  if (!includePadding) {
+	  	encoder = encoder.withoutPadding();
+	  }
+	  OutputStream dest = encoder.wrap(result);
+	  copy(src, dest);
+	  dest.close();
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
 
-	public IString toBase64(IString in) {
+	public IString toBase64(IString in, IString charsetName, IBool includePadding) {
 	  try {
-	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	      return values.string(toBase64(bytes, in.length() * 2));
+		Charset charset = Charset.forName(charsetName.getValue());
+	    InputStream bytes = new ByteBufferBackedInputStream(charset.encode(in.getValue()));
+	    return values.string(toBase64(bytes, in.length() * 2, includePadding.getValue()));
 	  } catch (IOException e) {
 	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
 
-	public IString toBase64(ISourceLocation file) {
-	    try (InputStream in = URIResolverRegistry.getInstance().getInputStream(file)) {
-	        return values.string(toBase64(in, 1024));
-	    }
-	    catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	    }
+	public IString toBase64(ISourceLocation file, IBool includePadding) {
+		return readBase64(file, includePadding);
 	}
-	
-	
 
 	private void fromBase64(String src, OutputStream target) throws IOException {
 	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.ISO_8859_1.encode(src));
 	  copy(Base64.getDecoder().wrap(bytes), target);
 	}
 
-	public IString fromBase64(IString in) {
+	public IString fromBase64(IString in, IString charset) {
 	    try {
 	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
 	        fromBase64(in.getValue(), result);
-	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	        return values.string(result.toString(charset.getValue()));
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	    }
+	}
+
+	public IString toBase32(IString in, IString charsetName, IBool includePadding) {
+		Base32 encoder = new Base32();
+		Charset charset = Charset.forName(charsetName.getValue());
+		String encoded = encoder.encodeToString(in.getValue().getBytes(charset));
+		if (!includePadding.getValue()) {
+			encoded = encoded.replace("=", "");
+		}
+		return values.string(encoded);
+	}
+
+	public IString fromBase32(IString in, IString charsetName) {
+		// The only relevant field we want to change is the policy
+		Base32 decoder = new Base32(0, new byte[0], false, (byte) '=', CodecPolicy.LENIENT);
+		byte[] data = decoder.decode(in.getValue());
+		Charset charset = Charset.forName(charsetName.getValue());
+		return values.string(new String(data, charset));
 	}
 
 	public IValue toLowerCase(IString s)
@@ -3523,7 +3633,18 @@ public class Prelude {
 			return values.integer(f.length());
 		}
 		else {
-			return values.integer(((IString) readFile(g)).getValue().getBytes().length);
+			try (InputStream in = REGISTRY.getInputStream(g)) {
+				long total = 0;
+				byte[] buffer = new byte[2048];
+				int block;
+				while ((block = in.read(buffer)) != -1) {
+					total += block;
+				}
+				return values.integer(total);
+			}
+			catch (IOException e) {
+				throw RuntimeExceptionFactory.io(e.getMessage());
+			}
 		}
 	}
 	
@@ -3531,9 +3652,8 @@ public class Prelude {
 		if (monitor instanceof IDEServices) {
 			((IDEServices) monitor).registerLocations(scheme, auth, map);
 		}
-		else {
-			URIResolverRegistry.getInstance().registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
-		}
+		
+		REGISTRY.registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
 	}
 	
 	public void unregisterLocations(IString scheme, IString auth) {
@@ -3541,22 +3661,26 @@ public class Prelude {
 			((IDEServices) monitor).unregisterLocations(scheme, auth);
 		}
 		else {
-			URIResolverRegistry.getInstance().unregisterLogical(scheme.getValue(), auth.getValue());
+			REGISTRY.unregisterLogical(scheme.getValue(), auth.getValue());
 		}
 	}
 	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
 		try {
-			return URIResolverRegistry.getInstance().logicalToPhysical(loc);
+			return REGISTRY.logicalToPhysical(loc);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
 	}
 
+	public ISet findResources(IString fileName) {
+		return resourceProvider.findResources(fileName.getValue()).stream().collect(values.setWriter());
+	}
+
 	public ISourceLocation relativize(ISourceLocation outside, ISourceLocation inside) {
 		return URIUtil.relativize(outside, inside);
 	}
-	
+
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
@@ -3582,7 +3706,7 @@ public class Prelude {
 	}
 
     private IValueInputStream constructValueReader(ISourceLocation loc) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        URIResolverRegistry registry = REGISTRY;
         if (registry.supportsReadableFileChannel(loc)) {
             FileChannel channel = registry.getReadableFileChannel(loc);
             if (channel != null) {
@@ -3616,7 +3740,7 @@ public class Prelude {
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
+		try (Reader in = REGISTRY.getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (FactParseError e) {
@@ -3665,7 +3789,7 @@ public class Prelude {
     }
 
     private IValueOutputStream constructValueWriter(ISourceLocation loc, CompressionRate compression) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        URIResolverRegistry registry = REGISTRY;
         if (registry.supportsWritableFileChannel(loc)) {
             FileChannel channel = registry.getWriteableFileChannel(loc, false);
             if (channel != null) {
@@ -3713,24 +3837,11 @@ public class Prelude {
 	}
 	
 	public IBool rexpMatch(IString s, IString re) {
-		if (Pattern.matches(re.getValue(), s.getValue())) {
-			return values.bool(true);
-		}
-		else {
-			return values.bool(false);
-		}
+		return values.bool(Pattern.matches(re.getValue(), s.getValue()));
 	}
 
 	public ISourceLocation uuid() {
-		String uuid = UUID.randomUUID().toString();
-		
-		try {
-			return values.sourceLocation("uuid",uuid,"");
-		} 
-		catch (URISyntaxException e) {
-			assert false;
-			throw RuntimeExceptionFactory.malformedURI("uuid://" + uuid);
-		}
+		return URIUtil.correctLocation("uuid", UUID.randomUUID().toString(), "");
 	}
 	
 	public IInteger uuidi() {
@@ -3820,7 +3931,7 @@ public class Prelude {
 			IFunction callback = target.get();
 			if (callback == null) {
 				try {
-					URIResolverRegistry.getInstance().unwatch(src, recursive, this);
+				    URIResolverRegistry.getInstance().unwatch(src, recursive, this);
 				}
 				catch (IOException ex) {
 					// swallow our own unregister
@@ -3899,7 +4010,7 @@ public class Prelude {
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it
-				URIResolverRegistry.getInstance().watch(src, recursive.getValue(), wrappedCallback);
+				REGISTRY.watch(src, recursive.getValue(), wrappedCallback);
 			}
 		}
 		catch (IOException e) {
@@ -3914,7 +4025,7 @@ public class Prelude {
 			for (ReleasableCallback rc: registered) {
 				// we do a linear scan, as we cannot do a lookup since we want to get the original reference
 				if (rc.recursive == isRecursive && callback.equals(rc.target.get())) {
-					URIResolverRegistry.getInstance().unwatch(src, isRecursive, rc);
+					REGISTRY.unwatch(src, isRecursive, rc);
 					registered.remove(rc);
 					return;
 				}
@@ -3923,6 +4034,95 @@ public class Prelude {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
+	}
+
+
+	// this fact that this is just a java function helps the jitter with inline it
+	private static boolean isSameFilePure(ISourceLocation a, ISourceLocation b) {
+		a = a.top();
+		b = b.top();
+		if (!a.hasFragment() && !b.hasFragment()) {
+			// fast path: use equals of ISourceLocations
+			return a.equals(b);
+		} 
+		// fallback, just compare everything except the fragment
+		return a.getScheme().equals(b.getScheme())
+			&& a.getAuthority().equals(b.getAuthority())
+			&& a.getPath().equals(b.getPath())
+			&& a.getQuery().equals(b.getQuery())
+			;
+	}
+
+	public IBool isSameFile(ISourceLocation a, ISourceLocation b) {
+		return values.bool(isSameFilePure(a, b));
+	}
+
+	public IBool isStrictlyContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		// original code would also do full equality, but we don't need that due to the logic in the outer &
+		// inner offset compares
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					(innerStart == outerStart && innerEnd < outerEnd)
+					|| (innerStart > outerStart && innerEnd <= outerEnd)
+				);
+			}
+			else {
+				return values.bool(inner.getLength() > 0);
+			}
+		}
+		return values.bool(false);
+	}
+
+	public IBool isContainedIn(ISourceLocation inner, ISourceLocation outer) {
+		if (!isSameFilePure(inner, outer)) {
+			return values.bool(false);
+		}
+		if (inner.hasOffsetLength()) {
+			if (outer.hasOffsetLength()) {
+				int innerStart = inner.getOffset();
+				int innerEnd = innerStart + inner.getLength();
+				int outerStart = outer.getOffset();
+				int outerEnd = outerStart + outer.getLength();
+
+				return values.bool(
+					outerStart <= innerStart && innerEnd <= outerEnd
+				);
+			}
+			return values.bool(true);
+		}
+
+		return values.bool(!outer.hasOffsetLength());
+	}
+
+	public IBool isOverlapping(ISourceLocation first, ISourceLocation second) {
+		if (!isSameFilePure(first, second)) {
+			return values.bool(false);
+		}
+		if (first.hasOffsetLength()) {
+			if (second.hasOffsetLength()) {
+				int firstStart = first.getOffset();
+				int firstEnd = firstStart + first.getLength();
+				int secondStart = second.getOffset();
+				int secondEnd = secondStart + second.getLength();
+
+				return values.bool(
+					   (firstStart <= secondStart && secondStart <= firstEnd)
+					|| (secondStart <= firstStart && firstStart <= secondEnd)
+				);
+
+			}
+		}
+		return values.bool(true);
+
 	}
 
 

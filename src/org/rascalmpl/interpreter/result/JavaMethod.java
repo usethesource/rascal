@@ -37,7 +37,6 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
-
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -145,7 +144,7 @@ public class JavaMethod extends NamedFunction {
 			oActuals = addCtxActual(oActuals);
 		}
 
-		if (callTracing) {
+		if (eval.getCallTracing()) {
 			printStartTrace(actuals);
 		}
 
@@ -184,8 +183,8 @@ public class JavaMethod extends NamedFunction {
 		finally {
 		   
 		    
-			if (callTracing) {
-				callNesting--;
+			if (eval.getCallTracing()) {
+				eval.decCallNesting();
 			}
 			ctx.unwind(old);
 		}
