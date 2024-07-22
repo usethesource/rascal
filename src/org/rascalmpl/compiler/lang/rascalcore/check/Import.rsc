@@ -11,15 +11,16 @@ import lang::rascalcore::check::RascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ADTandGrammar;
+import lang::rascalcore::compile::CompileTimeError;
 
 import DateTime;
-import Exception;
 import IO;
 import List;
 import ListRelation;
 import Location;
 import Map;
 import Set;
+import Relation;
 import String;
 import ValueIO;
 
@@ -105,6 +106,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
         
         if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
+        iprintln(bom);
            for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
                if(!ms.status[m]?){
                     ms.status[m] = {};
@@ -113,9 +115,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
-               ms.moduleLastModified[m] = lm;
+               //ms.moduleLastModified[m] = lm == startOfEpoch ? timestampInBom : lm;
                //NOTE: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
-               if(decrementMilliseconds(/*getLastModified(m, ms.moduleLastModified, pcfg)*/ lm, 1000) > timestampInBom) {
+               if(lm == startOfEpoch || decrementMilliseconds(/*getLastModified(m, ms.moduleLastModified, pcfg)*/ lm, 1000) > timestampInBom) {
                     allImportsAndExtendsValid = false;
                     if(tpl_uptodate() notin ms.status[m] ){
                         println("--- using <lm /*getLastModified(m, ms.moduleLastModified, pcfg)*/> (most recent) version of <m>, 
@@ -133,7 +135,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             } catch value _:{
                 allImportsAndExtendsValid = true;
                 println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
-                if(isCompatible(tm, domain(localImportsAndExtends), ms)){
+                if(!isCompatible(tm, domain(localImportsAndExtends), ms)){
                     throw rascalBinaryNeedsRecompilation(qualifiedModuleName);
                 }
                 //throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
@@ -307,7 +309,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
                 + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
                 + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
-            
+            println("write bom:"); iprintln(bom);
             extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
             extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
             filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
