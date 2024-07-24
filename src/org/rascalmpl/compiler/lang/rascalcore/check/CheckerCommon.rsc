@@ -12,6 +12,7 @@ extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
 import analysis::typepal::Collector;
+import lang::rascalcore::check::RascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import DateTime;
