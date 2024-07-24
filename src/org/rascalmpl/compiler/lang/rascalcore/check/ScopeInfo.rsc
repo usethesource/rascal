@@ -97,7 +97,7 @@ tuple[bool yes, bool closed] defineOrReuseTypeParameters(Collector c){
 }
 
 void beginUseTypeParameters(Collector c, bool closed = false){
-    if(debugTP)println("beginUseTypeParameters, closed=<closed>, <c.getStack(key_TypeParameterHandling)>");
+    //if(debugTP)println("beginUseTypeParameters, closed=<closed>, <c.getStack(key_TypeParameterHandling)>");
     c.push(key_TypeParameterHandling, useTP(closed));
 }
 
