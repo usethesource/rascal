@@ -17,6 +17,7 @@ import Map;
 import Set;
 import List;
 import String;
+import Node;
 
 void checkConditions(list[Expression] condList, Solver s){
     for(Expression cond <- condList){
@@ -252,7 +253,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         aiU = actualTypesU[i];
         if(!s.isFullyInstantiated(aiU) && isExpression){
             if(identicalFormals[i]){
-               s.requireUnify(aiU, iformalsU[i], error(current, "Cannot unify %t with %t", ai, iformals[i]));
+               s.requireUnify(aiU, iformalsU[i], error(current, "Cannot unify %t with %t", aiU, iformalsU[i]));
                aiU = s.instantiate(aiU);
             } else
                 continue;
@@ -1154,7 +1155,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
                try {
                      validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
                      validOverloads += ovl;
-                    } catch e: checkFailed(list[FailMessage] _): {
+                    } catch _: checkFailed(list[FailMessage] _): {
                             continue next_cons;
                       }
                       catch NoBinding():
