@@ -71,7 +71,7 @@ int variantCounter = 0;
 
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
     
-    if(<Declaration adt, list[TypeVar] dataTypeParameters, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt) 
+    if(<Declaration adt, list[TypeVar] _dataTypeParameters, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt) 
        && str currentModuleName := c.top(key_current_module)
        && str adtName := "<adt.user.name>"
        ){
