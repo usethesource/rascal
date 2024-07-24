@@ -405,15 +405,16 @@ ModuleStatus rascalTModelForLocs(
         for(str mname <- topModuleNames){
             ms.messages[mname] = [error("<txt>", ms.moduleLocs[mname] ? |unknown:///|)];
         }
-    } catch rascalSourceMissing(str txt):{
-        for(str mname <- topModuleNames){
-            ms.messages[mname] = [error("<txt>", ms.moduleLocs[mname] ? |unknown:///|)];
-        }
     } catch Message msg: {
         for(str mname <- topModuleNames){
             ms.messages[mname] = [error("During type checking: <msg>", msg.at)];
         }
+    } catch rascalBinaryNeedsRecompilation(str txt): {
+        for(str mname <- topModuleNames){
+            ms.messages[mname] = [error("Binary module `<txt>` needs recompilation", |unknown:///|)];
+        }
     }
+
 
     return ms;
 }
@@ -555,7 +556,9 @@ list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
 map[str, list[Message]] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
     ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
     tmodels = ms.tmodels;
-    return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
+    tmMsgs = (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
+    return //(mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages))
+         (mname : ms.messages[mname] + (tmMsgs[mname] ? []) | mname <- ms.messages, !isEmpty(ms.messages[mname]));
 }
 
 // ---- Convenience check function during development -------------------------

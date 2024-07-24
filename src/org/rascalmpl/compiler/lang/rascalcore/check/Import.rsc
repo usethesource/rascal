@@ -106,7 +106,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
         
         if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
-        iprintln(bom);
            for(<str m, datetime timestampInBom, PathRole pathRole> <- bom){
                if(!ms.status[m]?){
                     ms.status[m] = {};
@@ -115,11 +114,10 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
-               //ms.moduleLastModified[m] = lm == startOfEpoch ? timestampInBom : lm;
                //NOTE: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
                if(lm == startOfEpoch || decrementMilliseconds(/*getLastModified(m, ms.moduleLastModified, pcfg)*/ lm, 1000) > timestampInBom) {
                     allImportsAndExtendsValid = false;
-                    if(tpl_uptodate() notin ms.status[m] ){
+                    if(tpl_uptodate() notin ms.status[m] && lm != timestampInBom){
                         println("--- using <lm /*getLastModified(m, ms.moduleLastModified, pcfg)*/> (most recent) version of <m>, 
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                     }
@@ -133,12 +131,15 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
             } catch value _:{
-                allImportsAndExtendsValid = true;
-                println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
-                if(!isCompatible(tm, domain(localImportsAndExtends), ms)){
+                if(!isCompatibleBinary(tm, domain(localImportsAndExtends), ms)){
+                    msg = error("Binary module `qualifiedModuleName` needs recompilation", |unknown:///|);
+                    tm.messages += [msg];
+                    ms.messages[qualifiedModuleName] ? [] += [msg];     
                     throw rascalBinaryNeedsRecompilation(qualifiedModuleName);
+                } else {
+                    allImportsAndExtendsValid = true;
+                    println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
                 }
-                //throw rascalSourceMissing("Source of <qualifiedModuleName> is not accessible");
             }
         }
         if(allImportsAndExtendsValid){
@@ -195,9 +196,8 @@ str getModuleFromLogical(loc l){
     return i >= 0 ? l.path[1..i+1] : l.path[1..];
 }
     
-bool isCompatible(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
+bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
     provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
-    println("<lib.modelName> provides:"); iprintln(provides);
     requires = {};
     for(m <- otherImportsAndExtends){
         <found, tm, ms> = getTModelForModule(m, ms);
@@ -206,11 +206,9 @@ bool isCompatible(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
             requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
         }
     }
-    println("requires:"); iprintln(requires);
     
-    println("unstatisfied: <requires - provides>");
-    
-    return true;
+    println("isCompatibleBinary, unsatisfied: <requires - provides>");
+    return isEmpty(requires - provides);
 }
 
 rel[str, PathRole, str] getModulePathsAsStr(Module m){
@@ -309,7 +307,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
             bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
                 + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
                 + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
-            println("write bom:"); iprintln(bom);
+
             extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
             extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
             filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
