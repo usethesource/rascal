@@ -499,7 +499,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
         return;
     }     
    
-    c.fact(current, aparameter(prettyPrintName("<n>"),treeType(),closed=true));
+    c.fact(current, aparameter(prettyPrintName("<n>"),treeType,closed=true));
 }
 
 str md5ContribSym((Sym) `& <Nonterminal n>`)
@@ -544,10 +544,10 @@ str unparseNoLayout(Tree t){
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
     md5Contrib = "";
-    if(!isEmpty(c.getStack(currentAlternative)) && <Tree adt, str cname, syms> := c.top(currentAlternative)){
+    if(!isEmpty(c.getStack(currentAlternative)) && <SyntaxDefinition adt, str cname, syms> := c.top(currentAlternative)){
         md5Contrib += "<adt.defined><cname><unparseNoLayout(syms)>";
-    } else if(!isEmpty(c.getStack(currentAdt)) && <Tree adt, _, _, _> := c.top(currentAdt)){
-        md5Contrib += "<adt.defined>";
+    } else {
+        throw "Cannot compute md5 for <current>";
     }
     
     // TODO require symbol is nonterminal
@@ -828,7 +828,7 @@ void collect(Sym current, Collector c){
     throw "collect Sym, missed case <current>";
 }
 
-bool debugTP = false;
+//public bool debugTP = false;
 @doc{Convert Rascal type variables into their abstract representation.}
 
 void collect(current:(TypeVar) `& <Name n>`, Collector c){
@@ -837,7 +837,7 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
-            if(debugTP)println("Use <pname> at <current@\loc>");
+            //if(debugTP)println("Use <pname> at <current@\loc>");
         } else {
             bound = avalue();
             if(isEmpty(c.getStack(currentAdt))){
@@ -848,34 +848,33 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
                 throw "collect TypeVar: currentAdt not found";
             }
             c.define(pname, typeVarId(), n, defType(aparameter(pname, bound, closed=closed)));
-            if(debugTP)println("Define <pname> at <current@\loc>, closed=<closed>");
         }
         c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
       
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
-        if(debugTP)println("Use <pname> at <current@\loc>, closed=<closed>");
+        //if(debugTP)println("Use <pname> at <current@\loc>, closed=<closed>");
         c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
     } else {        
         if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
             if(tpbounds[pname]?){
                 bnds = toList(tpbounds[pname]);
-                if(debugTP)println("collect: Adding calculator for <pname>");
+                //if(debugTP)println("collect: Adding calculator for <pname>");
                 c.calculate("type parameter with bound", current, bnds,
                     AType(Solver s){ 
                         new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                         return  aparameter(pname, new_bnd, closed=true);
                     });  
             } else {
-                if(debugTP)println("collect: fact for <pname>, closed=<closed>");
+                //if(debugTP)println("collect: fact for <pname>, closed=<closed>");
                 c.fact(current, aparameter(pname, avalue(), closed=true));
             }
             return;
         }
     }
-    if(debugTP)println("collect: postponing processing of <pname>");
+    //if(debugTP)println("collect: postponing processing of <pname>");
 }
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
@@ -884,16 +883,16 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
-            if(debugTP)println("Use <pname> at <current@\loc>");
+            //if(debugTP)println("Use <pname> at <current@\loc>");
         } else { 
             c.define(pname, typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
-            if(debugTP)println("Define <pname> at <current@\loc>");
+            //if(debugTP)println("Define <pname> at <current@\loc>");
         }
         c.fact(current, n);
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
         c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
-        if(debugTP)println("Use <pname> at <current@\loc>");
+        //if(debugTP)println("Use <pname> at <current@\loc>");
     } else if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
         if(tpbounds[pname]?){
             bnds = toList(tpbounds[pname]);
