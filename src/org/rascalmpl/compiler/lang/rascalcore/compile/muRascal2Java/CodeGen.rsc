@@ -147,7 +147,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     <constant_decls, constant_inits, constants> = jg.getConstants();
     
     packagePath = replaceAll(asPackagePath(moduleName),".","/");
-    constantsFile = "rascal/" +  packagePath + (isEmpty(packagePath) ? "" : "/") + "<baseClassName>.constants";
+    constantsFile = "org/rascalmpl/" + packagePath + (isEmpty(packagePath) ? "" : "/") + "<baseClassName>.constants";
   
     class_constructor = "public <baseClassName>(RascalExecutionContext rex){
                         '    this(rex, null);
@@ -196,7 +196,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                     '  <if (!hasListStrArgs && !hasDefaultArgs) {>
                     '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>();
                     '  <}><if (hasListStrArgs) {>
-                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>(java.util.Arrays.stream(args).map(a -\> $VF.string(a)).collect($VF.listWriter()));
+                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>(java.util.Arrays.stream(args).map(a -\> instance.$VF.string(a)).collect(instance.$VF.listWriter()));
                     '  <}><if (hasDefaultArgs) {>
                     '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>($parseCommandlineParameters(\"<baseClassName>\", args, <atype2vtype(atuple(atypeList([kw.fieldType | Keyword kw <- mainFunction.ftype.kwFormals])), jg)>));
                     '  <}>
@@ -420,7 +420,7 @@ str getMemoCache(MuFunction fun)
     = "$memo_<asJavaName(getUniqueFunctionName(fun))>";
     
 tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(MuFunction fun, JGenie jg){
-   //iprintln(fun); // print function
+   iprintln(fun); // print function
     
     if(!isContainedIn(fun.src, jg.getModuleLoc())) return <"", "", "">;
     
@@ -975,7 +975,7 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
             //externals = [ var.fuid == fn.scopeIn ? newValueRef(var.atype, var, jg) /*"new ValueRef\<<atype2javatype(var.atype)>\>(<var.name>_<var.pos>)"*/ : varName(var, jg) | var <- sort(externalRefs) ];
             arg_list = "(<intercalate(", ", actuals + kwactuals + externals)>)"; 
             
-            fun_name = isEmpty(fn.scopeIn) ? "$me.<getFunctionName(fn)>" : (isClosureName(fn.name) ? fn.name : "<fn.scopeIn>_<fn.name>");
+            fun_name = isEmpty(fn.scopeIn) ? "$me.<asJavaName(getFunctionName(fn))>" : (isClosureName(fn.name) ? fn.name : "<fn.scopeIn>_<fn.name>");
             //fun_name = isEmpty(fn.scopeIn) ? "$me.<getFunctionName(fn)>" : "<fn.scopeIn>_<fn.name><isClosureName(fn.name) ? "" : "_<fn.src.begin.line>A<fn.src.offset>">";
             
             result = "<asJavaName(fun_name)><arg_list>";
