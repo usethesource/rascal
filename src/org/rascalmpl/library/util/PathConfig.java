@@ -19,9 +19,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.maven.cli.CliRequest;
-import org.apache.maven.cli.MavenCli;
-import org.codehaus.plexus.classworlds.ClassWorld;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.shared.invoker.InvocationRequest;
+import org.apache.maven.shared.invoker.Invoker;
+import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
@@ -68,8 +70,6 @@ public class PathConfig {
 	private static List<ISourceLocation> defaultClassloaders;
 	private static ISourceLocation defaultBin;
     
-    private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
-
 	public static enum RascalConfigMode {
         INTERPETER,
         COMPILER
@@ -637,7 +637,7 @@ public class PathConfig {
     }
 	
 
-    private static final Pattern FIND_CLASS_PATH = Pattern.compile("org.apache.maven.plugin.dependency.fromDependencies.BuildClasspathMojo - Dependencies classpath:\\s+(.+)$", Pattern.MULTILINE);
+    private static final Pattern FIND_CLASS_PATH = Pattern.compile("\\[INFO\\] Dependencies classpath:\\s+(.+)\\s+\\[INFO\\]", Pattern.MULTILINE);
 
 
     /**
@@ -660,19 +660,26 @@ public class PathConfig {
                 return vf.list();
             }
 
-            var maven = new MavenCli();
+            
             try (var output = new ByteArrayOutputStream()) {
-                var oldOut = System.out;
-                var oldErr = System.err;
+                InvocationRequest request = new DefaultInvocationRequest();
+                request.setPomFile(new File(pomxml.getURI()))
+                    .setOffline(true)
+                    .addArg("-DincludeScope=compile")
+                    .setBatchMode(true)
+                    .setGoals(Collections.singletonList("dependency:build-classpath"));
+                
+                Invoker invoker = new DefaultInvoker();
+                invoker.setMavenHome(new File("C:/Users/Rodin/bin/apache-maven-3.8.2"));
+                
                 try (var out = new PrintStream(output, false, StandardCharsets.UTF_8)) {
-                    System.setOut(out);
-                    System.setErr(out);
-                    maven.doMain(buildRequest(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile"}, manifestRoot));
+                    request.setOutputHandler(out::println);
+                    invoker.execute(request);
+                } catch (MavenInvocationException e) {
+                    e.printStackTrace();
                 }
-                finally {
-                    System.setOut(oldOut);
-                    System.setErr(oldErr);
-                }
+
+                
                 var mavenOutput = new String(output.toByteArray(), StandardCharsets.UTF_8);
                 var match = FIND_CLASS_PATH.matcher(mavenOutput);
                 var foundClassPath = match.find() ? match.group(1) : "";
@@ -691,26 +698,9 @@ public class PathConfig {
                     .collect(vf.listWriter());
             }
         }
-        catch (IOException | RuntimeException | ReflectiveOperationException e) {
+        catch (IOException e) {
             return vf.list();
         }
-    }
-
-    private static void setField(CliRequest req, String fieldName, Object value)  throws ReflectiveOperationException {
-        var field = CliRequest.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(req, value);
-    }
-
-    private static CliRequest buildRequest(String[] args, ISourceLocation manifestRoot) throws ReflectiveOperationException {
-        // we need to set a field that the default class doesn't set
-        // it's a work around around a bug in the MavenCli code
-        var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
-        cons.setAccessible(true);
-        var result = cons.newInstance(args, null);
-        setField(result, "workingDirectory", new File(manifestRoot.getPath()).getPath());
-        setField(result, "multiModuleProjectDirectory", new File(manifestRoot.getPath()));
-        return result;
     }
 
     public ISourceLocation getBin() {
