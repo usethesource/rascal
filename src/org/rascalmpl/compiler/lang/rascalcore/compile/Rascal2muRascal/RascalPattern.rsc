@@ -931,7 +931,7 @@ MuExp inlineVar(MuExp var, MuExp replacement, MuExp cont){
         case muVarInit(MuExp v1, MuExp exp) => muVarInit(v1, inlineVar(var, replacement, exp))
         case muConInit(MuExp v1, MuExp exp) => muConInit(v1, inlineVar(var, replacement, exp))
         case muVarDecl(MuExp v1): ;
-        case MuExp v1 => replacement when v1 is muVar, v1.name == var.name, v1.fuid == var.fuid, v1.pos == var.pos
+        case MuExp v1 => replacement when v1 is muVar, isSameVar(v1, var)
       };
     return res;
 }
@@ -942,9 +942,9 @@ bool maybeUsedAsExternal(MuExp var, MuExp cont){
 
 bool maybeAssignedTo(MuExp var, MuExp cont){
     visit(cont){
-        case muAssign(MuExp v1, MuExp exp) : if(v1.name == var.name && v1.fuid == var.fuid && v1.pos == var.pos) return true;
-        case muVarInit(MuExp v1, MuExp exp) : if( v1.name == var.name && v1.fuid == var.fuid && v1.pos == var.pos) return true;
-        case muConInit(MuExp v1, MuExp exp) : if(v1.name == var.name &&  v1.fuid == var.fuid && v1.pos == var.pos) return true;
+        case muAssign(MuExp v1, MuExp exp) : if(isSameVar(v1, var)) return true;
+        case muVarInit(MuExp v1, MuExp exp) : if(isSameVar(v1, var)) return true;
+        case muConInit(MuExp v1, MuExp exp) : if(isSameVar(v1, var)) return true;
     }
     return false;
 }
@@ -993,10 +993,14 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
     	   ppname = prettyPrintName(name);
     	   <fuid, pos> = getVariableScope(ppname, name@\loc);
     	   var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
-    	   
-    	   trueBranch = inliningBlocked(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
-    	                                               : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
-    	   return var == subjectExp ? trueCont : muIfElse(minSizeCheck, trueBranch, falseCont);
+    	   if(isSameVar(var, subjectExp)){
+    	       return trueCont;
+    	   } else {
+    	       trueBranch = inliningBlocked(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
+    	                                                   : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+    	       return muIfElse(minSizeCheck, trueBranch, falseCont);
+    	   }
+    	   //return var == subjectExp ? trueCont : muIfElse(minSizeCheck, trueBranch, falseCont);
        }
        precond = muAndNativeBool(inSignatureSection() ? muValueIsComparable(subjectExp, trType) : muValueIsSubtypeOf(subjectExp, trType), minSizeCheck);
        if(isWildCard("<name>") || subjectAssigned){
@@ -1005,10 +1009,15 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
        ppname = prettyPrintName(name);
        <fuid, pos> = getVariableScope(ppname, name@\loc);
        var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
-       trueBranch = inliningBlocked(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
-                                                   : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
-       return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
-                                : muIfElse(precond, trueBranch, falseCont);
+       if(isSameVar(var, subjectExp)){
+            return muIfElse(precond, trueCont, falseCont);
+       } else {
+            trueBranch = inliningBlocked(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
+                                                        : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+            return muIfElse(precond, trueBranch, falseCont);
+       }
+       //return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
+       //                         : muIfElse(precond, trueBranch, falseCont);
     } else {
     
         if(inSignatureSection()){
@@ -1031,10 +1040,15 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
             ppname = prettyPrintName(name);
             <fuid, pos> = getVariableScope(ppname, name@\loc);
             var = muVar(prettyPrintName(name), fuid, pos, trType[alabel=ppname], patternVariableId());
-            trueBranch = maybeUsedAsExternal(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
-                                                            : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
-            return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
-                                     : muIfElse(precond, trueBranch, falseCont);
+            if(isSameVar(var, subjectExp)){
+                return muIfElse(precond, trueCont, falseCont);
+            } else {
+                trueBranch = maybeUsedAsExternal(var, trueCont) ? muValueBlock(abool(), [muVarInit(var, subjectExp), trueCont])
+                                                                : muValueBlock(abool(), [muVarDecl(var), inlineVar(var, subjectExp, trueCont)]);
+                return muIfElse(precond, trueBranch, falseCont);
+            }
+            //return var == subjectExp ? muIfElse(precond, trueCont, falseCont)
+            //                         : muIfElse(precond, trueBranch, falseCont);
         }
     }
 }  
