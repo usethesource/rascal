@@ -571,6 +571,11 @@ JCode transPrim("transitive_closure", AType r, [AType a], [str x], JGenie jg)   
 
 JCode transPrim("transitive_reflexive_closure", AType r, [AType a], [str x], JGenie jg)  = "<x>.asRelation().closureStar()";
 
+
+// ---- toIString --------------------------------------------------------------
+
+JCode transPrim("toIString", astr(), [AType a], [str x], JGenie jg) = "$toIString(<x>)";
+
 //JCode transPrim("typeOf", AType r, [AType a], [str x], JGenie jg)                       = "$typeOf(<x>)";
 
 // ---- update ----------------------------------------------------------------
