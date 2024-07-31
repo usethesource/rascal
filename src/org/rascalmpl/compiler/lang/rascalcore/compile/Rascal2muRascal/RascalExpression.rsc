@@ -395,27 +395,41 @@ MuExp translateLiteral((Literal) `<LocationLiteral src>`) =
    lexical PostPathChars
         = "\>" URLChars "|" ;
  */
- 
+
+private MuExp toIString(MuExp e, loc src)
+    = muPrim("toIString", astr(), [avalue()], [e], src);
+
+private MuExp translateToIString(Expression e)
+    = isStrAType(getType(e)) ? translate(e)
+                             : muPrim("toIString", astr(), [avalue()], [translate(e)], e@\loc);
+    
 private MuExp translateLocationLiteral(l: (LocationLiteral) `<ProtocolPart protocolPart> <PathPart pathPart>`) =
-     muPrim("create_loc", aloc(), [astr()], [muPrim("add", astr(), [astr(), astr()], [translateProtocolPart(protocolPart), translatePathPart(pathPart)], l@\loc)], l@\loc);
+     muPrim("create_loc", aloc(), [astr()], 
+            [muPrim("add", astr(), [astr(), astr()], 
+                [ translateProtocolPart(protocolPart),
+                  translatePathPart(pathPart)
+                ],
+                l@\loc)
+            ],
+            l@\loc);
  
 private MuExp translateProtocolPart((ProtocolPart) `<ProtocolChars protocolChars>`) = muCon("<protocolChars>"[1..]);
  
 private MuExp translateProtocolPart(p: (ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`) =
-    muPrim("add", astr(), [astr(), astr(), astr()], [muCon("<pre>"[1..-1]), translate(expression), translateProtocolTail(tail)], p@\loc);
+    muPrim("add", astr(), [astr(), astr(), astr()], [muCon("<pre>"[1..-1]), translateToIString(expression), translateProtocolTail(tail)], p@\loc);
  
 private MuExp  translateProtocolTail(p: (ProtocolTail) `<MidProtocolChars mid> <Expression expression> <ProtocolTail tail>`) =
-   muPrim("add", astr(), [astr(), astr(), astr()], [muCon("<mid>"[1..-1]), translate(expression), translateProtocolTail(tail)], p@\loc);
+   muPrim("add", astr(), [astr(), astr(), astr()], [muCon("<mid>"[1..-1]), translateToIString(expression), translateProtocolTail(tail)], p@\loc);
    
 private MuExp translateProtocolTail((ProtocolTail) `<PostProtocolChars post>`) = muCon("<post>"[1 ..]);
 
 private MuExp translatePathPart((PathPart) `<PathChars pathChars>`) = muCon("<pathChars>"[..-1]);
 
 private MuExp translatePathPart(p: (PathPart) `<PrePathChars pre> <Expression expression> <PathTail tail>`) =
-   muPrim("add", astr(), [astr(), astr(), astr()], [ muCon("<pre>"[..-1]), translate(expression), translatePathTail(tail)], p@\loc);
+   muPrim("add", astr(), [astr(), astr(), astr()], [ muCon("<pre>"[..-1]), translateToIString(expression), translatePathTail(tail)], p@\loc);
 
 private MuExp translatePathTail(p: (PathTail) `<MidPathChars mid> <Expression expression> <PathTail tail>`) =
-   muPrim("add", astr(), [astr(), astr(), astr()], [ muCon("<mid>"[1..-1]), translate(expression), translatePathTail(tail)], p@\loc);
+   muPrim("add", astr(), [astr(), astr(), astr()], [ muCon("<mid>"[1..-1]), translateToIString(expression), translatePathTail(tail)], p@\loc);
    
 private MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-1]);
 
