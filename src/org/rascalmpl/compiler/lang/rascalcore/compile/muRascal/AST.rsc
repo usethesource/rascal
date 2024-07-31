@@ -344,6 +344,10 @@ MuExp muVarKwp(str name, str _fuid, AType _atype) {
 
 // ==== Utilities =============================================================
 
+
+bool isSameVar(MuExp x, MuExp y)
+    = x is muVar && y is muVar && x.name == y.name && x.fuid == y.fuid && x.pos == y.pos;
+    
 bool isSyntheticFunctionName(str name)
     = contains(name, "$");
     
