@@ -346,7 +346,10 @@ void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- function type ---------------------------------------------------------
 
 AType(Solver _) makeGetTypeArg(TypeArg targ)
-    = AType(Solver s) { return s.getType(targ.\type)[alabel="<targ.name>"]; };
+    = AType(Solver s) { 
+        res = s.getType(targ.\type)[alabel="<targ.name>"]; 
+        return res;
+     };
     
 tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){  
     return <[], afunc(returnType, argTypes, [])>;
@@ -362,26 +365,22 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
     endUseTypeParameters(c);
     
     targs = [ta | ta <- tas];
-    //<inBody, tpbounds> = useBoundedTypeParameters(c);
-    //println("collect: <current>, inBody: <inBody>");
+   
     // When a function type occurs in a body, just use closed type parameters
-    /*if(inBody) beginUseTypeParameters(c, closed=true); else */beginDefineOrReuseTypeParameters(c,closed=false);
+    beginDefineOrReuseTypeParameters(c,closed=false);
         for(targ <- targs){
-            collect(targ.\type, c);
-            c.fact(targ, targ.\type);
-            if(targ has name) {
-                c.define("<targ.name>", formalId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
-                c.fact(targ, targ.name);
-             }
+            collect(targ, c);
         }
-    /*if(inBody) endUseTypeParameters(c); else */endDefineOrReuseTypeParameters(c);
+    endDefineOrReuseTypeParameters(c);
     
     c.calculate("function type", current, t + targs,
         AType(Solver s){
+            for(ta <- targs){
+                println("<ta@\loc>: <s.getType(ta)>");
+            }
             <msgs, result> = handleFunctionType(tas, s.getType(t), [s.getType(ta) | ta <- targs]);
             for(m <- msgs) s.report(m);
             s.fact(current, result);
-            //println("collect: <current> =\> <result>, inBody: <inBody>");
             return result;
         });
 }
