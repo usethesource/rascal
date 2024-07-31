@@ -248,8 +248,13 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType,
     return atype2IValue(ftype, defs);
 }
 
-str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs)
-    = "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"), <atype2IValue(bound, defs)>)";
+str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs){
+    if(avalue() := bound){
+        return "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"))";
+    } else {
+        return "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"), <atype2IValue(bound, defs)>)";
+    }
+  }
     //= "$aparameter(<atype2IValue(bound,defs)>)"; 
     
 //str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) {
@@ -259,7 +264,7 @@ str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions)
     = "$reifiedAType((IConstructor) <atype2IValue(atype, definitions)>, <defs(definitions)>)";
     
 str atype2IValue1(at:avalue(), _)               
-     = "$avalue(<lab(at)>)";
+     = "RascalValueFactory.Symbol_Value"; // "$avalue(<lab(at)>)";
 //default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
 
 str atype2IValue(list[AType] ts, map[AType, set[AType]] defs) 
@@ -413,10 +418,10 @@ private str atype2IValue1(acilit(str string), map[AType, set[AType]] defs)
 //    = "$char_class(<tree2IValue(ranges, defs)>)";   
  
 private str atype2IValue1(\aempty(), map[AType, set[AType]] defs)
-    = "$aempty()";     
+    = "$VF.constructor(RascalValueFactory.Symbol_Empty())";     
 
 private str atype2IValue1(AType::\opt(AType symbol), map[AType, set[AType]] defs)
-    = "$opt(<atype2IValue(symbol, defs)>)";     
+    = "$VF.constructor(RascalValueFactory.Symbol_Opt(<atype2IValue(symbol, defs)>)";     
 
 private str atype2IValue1(AType::\iter(AType symbol), map[AType, set[AType]] defs)
     = "$iter(<atype2IValue(symbol, defs)>)";     
@@ -431,12 +436,13 @@ private str atype2IValue1(AType::\iter-star-seps(AType symbol, list[AType] separ
     = "$iter_star_seps(<atype2IValue(symbol, defs)>, <atype2IValue(separators, defs)>)";   
     
 private str atype2IValue1(AType::\alt(set[AType] alternatives) , map[AType, set[AType]] defs)
-    = "$alt(<atype2IValue(alternatives, defs)>)";     
-private str atype2IValue1(AType::\seq(list[AType] symbols) , map[AType, set[AType]] defs)
-    = "$seq(<atype2IValue(symbols, defs)>)";     
+    = "$VF.constructor(RascalValueFactory.Symbol_Alt, <atype2IValue(alternatives, defs)>)"; 
+        
+private str atype2IValue1(AType::\seq(list[AType] symbols) , map[AType, set[AType]] defs)   
+    = "$VF.constructor(RascalValueFactory.Symbol_Seq, <atype2IValue(symbols, defs)>)";
  
 private str atype2IValue1(AType::\start(AType symbol), map[AType, set[AType]] defs)
-    = "$start(<atype2IValue(symbol, defs)>)";   
+    = "$VF.constructor(RascalValueFactory.Symbol_Start, <atype2IValue(symbol, defs)>)";   
 
 //private str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
 //    = "$conditional(<atype2IValue(symbol, defs)>, <cond2IValue(conditions, defs)>)";   
@@ -932,7 +938,9 @@ str atype2vtype(\iter-star(AType atype), JGenie jg, bool inTest=false){
 str atype2vtype(\iter-star-seps(AType atype, list[AType] separators), JGenie jg, bool inTest=false){
     sort = atype2IValue(atype, ());
     seps = [ atype2IValue(sep, ()) | sep <- separators ];
-    return "$RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_IterStarSeps, <sort>, $RVF.list(<intercalate(", ", seps)>)))";
+    res = "$RTF.nonTerminalType($RVF.constructor(RascalValueFactory.Symbol_IterStarSeps, <sort>, $RVF.list(<intercalate(", ", seps)>)))";
+    
+    return res;
 }
 
 str atype2vtype(\iter-seps(AType atype, list[AType] separators), JGenie jg, bool inTest=false){
