@@ -12,7 +12,6 @@ extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
 import analysis::typepal::Collector;
-import lang::rascalcore::check::RascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import DateTime;
@@ -80,7 +79,7 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     dirName = makeDirName(qualifiedModuleName);
     
     for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?     
-        fileLoc = dir + "<compiled_rascal_package>" + fileName;
+        fileLoc = dir + "<compiled_rascal_package_as_path>" + fileName;
         if(exists(fileLoc)){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
            return <true, fileLoc>;
@@ -94,7 +93,7 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
 
 tuple[bool,loc] getTPLWriteLoc(str qualifiedModuleName, PathConfig pcfg){
     fileName = "<asBaseClassName(qualifiedModuleName)>.tpl";
-    tplLoc = getDerivedResourcesDir(qualifiedModuleName, pcfg) + fileName;
+    tplLoc = getGeneratedResourcesDir(qualifiedModuleName, pcfg) + fileName;
     return <exists(tplLoc), tplLoc>;
 }
 
