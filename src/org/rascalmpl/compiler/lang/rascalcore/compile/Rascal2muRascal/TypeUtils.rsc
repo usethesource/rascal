@@ -403,7 +403,7 @@ void extractScopes(TModel tm){
         ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
         kwpDelta = (ftype has kwFormals && size(ftype.kwFormals) > 0 ||
                     ftype has kwFields && size(ftype.kwFields) > 0) ? 1 : 0;
-        formal_base = /*size(formals) + */kwpDelta; 
+        formal_base = -size(dummies) + kwpDelta; 
         for(int i <- index(vars)){
             vdefine = vars[i];
             if(vdefine.idRole != keywordFormalId()){
