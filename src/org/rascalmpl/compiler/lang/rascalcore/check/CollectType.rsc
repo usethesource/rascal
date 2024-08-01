@@ -344,12 +344,6 @@ void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
 }      
 
 // ---- function type ---------------------------------------------------------
-
-AType(Solver _) makeGetTypeArg(TypeArg targ)
-    = AType(Solver s) { 
-        res = s.getType(targ.\type)[alabel="<targ.name>"]; 
-        return res;
-     };
     
 tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){  
     return <[], afunc(returnType, argTypes, [])>;
@@ -375,9 +369,6 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
     
     c.calculate("function type", current, t + targs,
         AType(Solver s){
-            for(ta <- targs){
-                println("<ta@\loc>: <s.getType(ta)>");
-            }
             <msgs, result> = handleFunctionType(tas, s.getType(t), [s.getType(ta) | ta <- targs]);
             for(m <- msgs) s.report(m);
             s.fact(current, result);
