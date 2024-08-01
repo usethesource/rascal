@@ -4157,6 +4157,11 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
 			}
 		}
+		
+		protected IString $toIString(IString s) { return s; }
+		protected IString $toIString(ITree t) { return $VF.string(TreeAdapter.yield(t)); }
+		protected IString $toIString(IValue v) { return $VF.string(v.toString()); }
+		
 }
 
 enum SliceOperator {
