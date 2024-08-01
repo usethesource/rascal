@@ -245,3 +245,32 @@ test bool fieldsNamesOfKeywordParametersIssue1851() {
     ax = ggg();
     return ax.r.a == {1};
 }
+
+// Keyword parameters used in closures
+
+test bool keywordParameterInClosure1(){
+    int f(int n, int(int) fun) = n + fun(n);
+
+    int g(int d = 3){
+        return f(7, int(int x) { return x + d; });
+    }
+    return g(d = 5) == 19;
+}
+
+test bool keywordParameterInClosure2(){
+    int f(int n, int(int) fun) = n + fun(n);
+
+    int g(int n, int d = 2 * n){
+        return f(n, int(int x) { return x + d; });
+    }
+    return g(7) == 28;
+}
+
+test bool keywordParameterInClosure3(){
+    int f(int n, int(int) fun) = n+ fun(n);
+
+    int g(int n, int d = 2 * n){
+        return f(n, int(int x) { return x + d; });
+    }
+    return g(7, d=5) == 19;
+}
