@@ -40,8 +40,6 @@ data JGenie
         lrel[str name, AType atype, MuExp defaultExp] (MuFunction fun) collectKwpDefaults,
         list[str] (MuFunction fun) collectRedeclaredKwps,
         list[str] (MuFunction fun) collectDeclaredKwps,
-        void(str name) setKwpDefaultsName,
-        str() getKwpDefaultsName,
         bool(AType) hasCommonKeywordFields,
         str(AType atype) shareType,
         str(AType atype) accessType,
@@ -72,7 +70,6 @@ JGenie makeJGenie(MuModule m,
     MuModule currentModule = m;
     str moduleName = m.name;
     map[AType, map[str,AType]] commonKeywordFieldsNameAndType = m.commonKeywordFields;
-    str kwpDefaults = "$kwpDefaults";
     map[value,int] constant2idx = ();
     map[int,value] idx2constant = ();
     list[value] constantlist = [];
@@ -411,13 +408,7 @@ JGenie makeJGenie(MuModule m,
         }
         return declared;
     }
-    
-    void _setKwpDefaultsName(str name){
-        kwpDefaults = name;
-    }
-    
-    str _getKwpDefaultsName() = kwpDefaults;
-    
+       
     bool _hasCommonKeywordFields(AType ctype){
         switch(ctype){
             case aadt(_,_,_):
@@ -726,8 +717,6 @@ JGenie makeJGenie(MuModule m,
                 _collectKwpDefaults,
                 _collectRedeclaredKwps,
                 _collectDeclaredKwps,
-                _setKwpDefaultsName,
-                _getKwpDefaultsName,
                 _hasCommonKeywordFields,
                 _shareType,
                 _accessType,
