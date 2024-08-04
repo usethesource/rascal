@@ -840,8 +840,8 @@ list[AType] getListRelFields(AType t) {
 Determine if the given type is a tuple.
 }
 bool isTupleAType(aparameter(_,AType tvb)) = isTupleAType(tvb);
-bool isTupleAType(t:atuple(_)) { /*println("isTupleAType: <t> =\> true");*/ return true; }
-default bool isTupleAType(AType t) { /*println("isTupleAType: <t> =\> false");*/ return false; }
+bool isTupleAType(t:atuple(_)) { return true; }
+default bool isTupleAType(AType t) { return false; }
 
 @doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
 AType makeTupleType(AType elementTypes...) {
