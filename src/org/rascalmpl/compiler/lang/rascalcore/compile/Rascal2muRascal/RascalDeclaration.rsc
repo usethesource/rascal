@@ -275,7 +275,7 @@ public void translateFunctionDeclaration(FunctionDeclaration fd){
       }
       
       leaveSignatureSection();
-      externals = getExternalRefs(tbody, fuid);
+      externals = getExternalRefs(tbody, fuid, formalVars);
       extendedFormalVars = getExtendedFunctionFormals(fd.src, fuid);
       localRefs = getLocalRefs(tbody);
        
@@ -356,8 +356,10 @@ public set[MuExp] getLocalRefs(MuExp exp)
 /*
  * Get all variables that have been introduced outside the given function scope
  */
-public set[MuExp] getExternalRefs(MuExp exp, str fuid){
-   res = { v1 | /v:muVar(str _, str fuid2, int _, AType t, IdRole idRole) := exp, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+public set[MuExp] getExternalRefs(MuExp exp, str fuid, list[MuExp] formals){
+   formalNames = {f.name | f <- formals};
+   res = { v1 | /v:muVar(str name2, str fuid2, int _, AType t, IdRole idRole) := exp, name2 notin formalNames, fuid2 != fuid, fuid2 != "", t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+   //println("getExternalRefs, <fuid>, <formals>: <res>");
    return res;
 }
 /*
@@ -476,9 +478,7 @@ public tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname,
                         
      funCode = functionBody(isVoidAType(ftype.ret) || !addReturn ? params_when_body : muReturn1(ftype.ret, params_when_body), ftype, formalVars, isMemo);
      funCode = visit(funCode) { case muFail(fname) => muFailReturn(ftype) };
-     
      funCode = removeDeadCode(funCode);
-     //iprintln(funCode);
      
      alwaysReturns = ftype.returnsViaAllPath || isVoidAType(getResult(ftype));
      formalsBTFree = isEmpty(formalsList) || all(f <- formalsList, backtrackFree(f));
