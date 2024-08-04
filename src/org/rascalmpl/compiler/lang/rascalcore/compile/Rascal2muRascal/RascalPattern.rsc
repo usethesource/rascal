@@ -1117,7 +1117,13 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
     
       MuExp arg_val = muTmpIValue(nextTmp("arg<i>_"), fuid, avalue());
       AType arg_type  = getType(lpats[i]);
-      body = muBlock([ muConInit(arg_val, arg),
+      // Replace all occurrences of the argument by the var representing its computed value
+      body = visit(body){
+        case muVar(str name, str fuid, int pos, AType atype, IdRole idRole) => arg_val
+             when name == arg_type.alabel, arg_type := atype
+      };
+      
+      body = muBlock([ muVarInit(arg_val, arg),
                        muIfElse(muValueIsComparable(arg_val, arg_type), 
                                 translatePat(lpats[i], getType(lpats[i]), arg_val, btscopes, body, arg_fail, restore=restore),
                                 arg_fail)
@@ -1141,9 +1147,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
         throw "Cannot get name in call pattern: <expType>";
       }
       fun_name = asUnqualifiedName(prettyPrintName(qname));
-      //code = muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), muBlock([subjectInit, body]), falseCont);
       code = muBlock([subjectInit, muIfElse(muHasNameAndArity(subjectType, expType, muCon(fun_name), size(lpats), subject), body, falseCont)]);
-      //code = muBlock([subjectInit, muIfElse(muHasTypeAndArity(expType, size(lpats), subject), body, falseCont)]);
       
       return code;
    } else if(expression is literal){ // StringConstant
