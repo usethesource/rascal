@@ -187,30 +187,30 @@ void leaveWriter(){
 }
 
 private list[loc] functionDeclarations = []; // *** state
-private bool _inSignatureSection = false;
-private bool _usingTypeParams = false;
+private bool state_inSignatureSection = false;
+private bool state_usingTypeParams = false;
 
 void enterFunctionDeclaration(loc src, bool useTypeParams){
     functionDeclarations = src + functionDeclarations;
     initLabelledStats();
-    _inSignatureSection = false;
-    _usingTypeParams = useTypeParams;
+    state_inSignatureSection = false;
+    state_usingTypeParams = useTypeParams;
 }
 
-bool usingTypeParams() = _usingTypeParams;
+bool usingTypeParams() = state_usingTypeParams;
 
-bool inSignatureSection() = _inSignatureSection;
+bool inSignatureSection() = state_inSignatureSection;
 
 void enterSignatureSection(){
-    _inSignatureSection = true;
+    state_inSignatureSection = true;
 }
 void leaveSignatureSection() {
-    _inSignatureSection = false;
+    state_inSignatureSection = false;
 }
 
 void leaveFunctionDeclaration(){
     functionDeclarations = tail(functionDeclarations);
-    _inSignatureSection = false;
+    state_inSignatureSection = false;
 }
 
 loc currentFunctionDeclaration(){
