@@ -7,7 +7,7 @@ import util::Reflective;
 import util::Benchmark;
 import IO;
 import ValueIO;
-import util::Monitor;
+import util::Monitor; 
 
 import lang::rascal::\syntax::Rascal;
  
@@ -37,12 +37,13 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     }
     className = asBaseClassName(qualifiedModuleName);
     interfaceName = asBaseInterfaceName(qualifiedModuleName);
-    genSourcesDir = getDerivedSrcsDir(qualifiedModuleName, pcfg);  
+    genSourcesDir = getGeneratedSrcsDir(qualifiedModuleName, pcfg);  
     interfaceFile =  genSourcesDir + "<interfaceName>.java";
     classFile = genSourcesDir + "<className>.java";
-    testClassFile = genSourcesDir + "<className>Tests.java";
+    genTestSourcesDir = getGeneratedTestSrcsDir(qualifiedModuleName, pcfg);  
+    testClassFile = genTestSourcesDir + "<className>Tests.java";
     
-    resourcesDir = getDerivedResourcesDir(qualifiedModuleName, pcfg);
+    resourcesDir = getGeneratedResourcesDir(qualifiedModuleName, pcfg);
     constantsFile = resourcesDir + "<className>.constants";
     
     <tplFound, tplFile> = getTPLReadLoc(qualifiedModuleName, pcfg);
