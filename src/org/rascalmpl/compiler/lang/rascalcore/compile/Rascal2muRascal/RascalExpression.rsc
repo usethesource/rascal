@@ -126,7 +126,7 @@ private MuExp translateAddFunction(Expression e){
  
   leaveFunctionScope();
   funType = afunc(resType, lhsFormals, []);
-  fun = muFunction(add_name, add_name, funType, lactuals, [], [], scopeId, false, false, false, getExternalRefs(body, add_fuid), {}, {}, e@\loc, [], (), body);
+  fun = muFunction(add_name, add_name, funType, lactuals, [], [], scopeId, false, false, false, getExternalRefs(body, add_fuid, []), {}, {}, e@\loc, [], (), body);
   loc uid = declareGeneratedFunction(add_name, add_fuid, funType, e@\loc);
   addFunctionToModule(fun);  
   addDefineAndType(<currentFunctionDeclaration(), add_name, add_name, functionId(), /*1000+e@\loc.offset,*/ e@\loc, defType(funType)>, funType); // TODO: replace arbitrary number
@@ -689,7 +689,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   isVarArgs, 
   								   false,
   								   false,
-  								   getExternalRefs(funBody, fuid),  // << TODO
+  								   getExternalRefs(funBody, fuid, formalVars),  // << TODO
   								   getLocalRefs(funBody),
   								   {},
   								   e@\loc,
