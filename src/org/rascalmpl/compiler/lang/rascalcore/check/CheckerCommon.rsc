@@ -185,7 +185,7 @@ void analyzeTModels(ModuleStatus ms){
     hardwire = [tp | tuple[str s, int n] tp <- sorted_freq , tp.n > cutoff][0..maxHardwired];
     if(traceTModelCache){
         println("analyzeTModels: <nmodules> modules, imports/extends: <total>, cutoff: <cutoff>");
-      iprintln(hardwire);
+        iprintln(hardwire);
     }
     hardwired = toSet(domain(hardwire));
 }
