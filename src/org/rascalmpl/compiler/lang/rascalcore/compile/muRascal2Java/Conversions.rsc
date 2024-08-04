@@ -795,17 +795,6 @@ default str value2outertype(AType t) = "IValue";
 /*******************************************************************************/
 /*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
 /*******************************************************************************/
-//AType setScopeInfoType = afunc(
-//          avoid(),
-//          [
-//            aloc(alabel="scope"),
-//            aadt(
-//              "ScopeRole",
-//              [],
-//              dataSyntax()),
-//            avalue()
-//          ],
-//          []);
           
 str refType(AType t, JGenie jg, bool inTest)
     = inTest ? "$me.<jg.shareType(t)>" : jg.shareType(t);
@@ -900,9 +889,7 @@ str atype2vtype(c:acons(AType adt,
 str atype2vtype(aparameter(str pname, AType bound), JGenie jg, bool inTest=false) = "$TF.parameterType(\"<pname>\", <refType(bound, jg, inTest)>)";
 
 str atype2vtype(atypeList(list[AType] atypes), JGenie jg, bool inTest=false)
-    = (atypes[0].alabel? && atypes[0].alabel != "_")
-         ? intercalate(", ", [*[refType(t, jg, inTest), "\"<t.alabel>\""] | t <- atypes])
-         : intercalate(", ", [refType(t, jg, inTest) | t <- atypes]);
+    = intercalate(", ", [refType(t, jg, inTest) | t <- atypes]);
                        
 str atype2vtype(areified(AType atype), JGenie jg, bool inTest=false) {
     return "$RTF.reifiedType(<refType(atype, jg, inTest)>)";
