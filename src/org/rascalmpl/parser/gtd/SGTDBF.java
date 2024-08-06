@@ -949,8 +949,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
      * Inserts a recovery node into the todo-list, and possibly
      * rewinds the parser to an earlier location in the input
      */
-	// TODO: look for original code:
-	// - queueMatchableNode (just above here)
     @SuppressWarnings("unchecked")
     private void queueRecoveryNode(AbstractStackNode<P> node, int startPosition, int length, AbstractNode result){
         assert result != null;
