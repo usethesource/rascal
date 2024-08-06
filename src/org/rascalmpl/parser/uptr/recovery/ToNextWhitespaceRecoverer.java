@@ -26,7 +26,6 @@ import org.rascalmpl.parser.gtd.util.IdDispenser;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.util.visualize.DebugVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;

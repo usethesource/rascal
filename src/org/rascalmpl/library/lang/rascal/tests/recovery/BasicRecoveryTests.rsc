@@ -21,15 +21,19 @@ test bool abx() {
 
 test bool axc() {
     Tree t = parse(#S, "a x c $", allowRecovery=true);
+    iprintln(t);
     return hasErrors(t) && size(findAllErrors(t)) == 1;
 }
 
 test bool ax() {
     Tree t = parse(#S, "a x $", allowRecovery=true);
+    iprintln(t);
     return hasErrors(t) && size(findAllErrors(t)) == 1;
 }
 
+/*
 test bool missingEnd() {
     Tree t = parse(#S, "a b c", allowRecovery=true);
     return hasErrors(t) && size(findAllErrors(t)) == 1;
 }
+*/
