@@ -919,7 +919,12 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
     if(muOFun(list[loc] srcs, AType _) := fun){   
         kwactuals = hasKeywordParameters(ftype) ? getKwpActuals(ftype has kwFields ? ftype.kwFields : getFunctionOrConstructorKeywords(ftype), kwargs, jg) : [];
         externalRefs = { *jg.getExternalRefs(fsrc) | fsrc <- srcs };
-        externals = [ varName(var, jg) | var <- sort(externalRefs)/*, var notin ftype.formals*//*, jtype := atype2javatype(var.atype)*/];
+        externals = [ varName(var, jg) | var <- sort(externalRefs)];
+        kwParams = jg.collectKwpFormals(jg.getFunction());
+             
+        if(!isEmpty(kwParams) && isEmpty(kwactuals)){
+            externals = "$kwpActuals" + externals;
+        }
         return "<jg.getAccessor(srcs)>(<intercalate(", ", actuals + kwactuals + externals)>)";
     }
     
