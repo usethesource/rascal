@@ -55,6 +55,7 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.debug.DebugLogger;
 import org.rascalmpl.parser.uptr.recovery.ToNextWhitespaceRecoverer;
+import org.rascalmpl.parser.uptr.recovery.ToTokenRecoverer;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.ReifiedType;
@@ -580,7 +581,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IRecoverer<IConstructor> recoverer = null;
             IDebugListener<IConstructor> debugListener = null;
             if (allowRecovery) {
-                recoverer = new ToNextWhitespaceRecoverer(new StackNodeIdDispenser(parserInstance));
+                recoverer = new ToTokenRecoverer(new StackNodeIdDispenser(parserInstance));
                 debugListener = new DebugLogger(new PrintWriter(System.out, true));
             }
             return (ITree) parserInstance.parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);
