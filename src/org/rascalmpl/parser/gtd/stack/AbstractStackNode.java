@@ -63,17 +63,21 @@ public abstract class AbstractStackNode<P>{
 	private IntegerList propagatedReductions;
 	
 	protected AbstractStackNode(int id, int dot){
+		this(id, dot, DEFAULT_START_LOCATION);
+	}
+
+	protected AbstractStackNode(int id, int dot, int startLocation) {
 		super();
 		
 		this.id = id;
 		this.dot = dot;
 		
-		this.startLocation = DEFAULT_START_LOCATION;
+		this.startLocation = startLocation;
 		
 		this.enterFilters = null;
 		this.completionFilters = null;
 	}
-	
+
 	protected AbstractStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super();
 		
@@ -745,7 +749,7 @@ public abstract class AbstractStackNode<P>{
 	}
 
 	public String toShortString() {
-		return "." + dot + "@" + startLocation;
+		return null;
 	}
 
 	@Override

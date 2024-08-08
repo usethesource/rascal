@@ -143,6 +143,7 @@ extend Type;
 extend Message;
 extend List;
 
+import String;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -770,21 +771,38 @@ default bool isNonTerminalType(Symbol s) = false;
 @synopsis{Check if a parse tree contains any skipped nodes, the result of error recovery.}
 bool hasErrors(Tree tree) = /appl(skipped(_, _, _), _) := tree;
 
-@synopsis{Find all skipped nodes in a parse tree.}
+@synopsis{Find all error productions in a parse tree.}
 list[Tree] findAllErrors(Tree tree) {
     return for (/error:appl(_, [*_, appl(skipped(_, _, _), _)]) := tree) append(error);
 }
 
-@synopsis{Find the first skipped node in a parse tree.}
+@synopsis{Find the first production containing an error.}
 Tree findFirstError(Tree tree) {
     if (/error:appl(_, [*_, appl(skipped(_, _, _), _)]) := tree) return error;
     fail;
 }
 
-Symbol getErrorSymbol(appl(skipped(Symbol symbol, _, _), _))  = symbol;
+private Production getSkipped(appl(_, [*_, appl(skip:skipped(_, _, _), _)])) = skip;
 
-Production getErrorProduction(appl(skipped(_, Production production, _), _)) = production;
+Symbol getErrorSymbol(Tree error) {
+  if (skipped(Symbol s, _, _) := getSkipped(error)) {
+    return s;
+  }
+  fail;
+}
 
-int getErrorPosition(appl(skipped(_, _, int dot), _)) = dot;
+Production getErrorProduction(Tree error) {
+  if (skipped(_, Production p, _) := getSkipped(error)) {
+    return p;
+  }
+  fail;
+}
 
-str getErrorString(appl(skipped(_, _, _), list chars)) = "<chars>";
+int getErrorPosition(Tree error) {
+  if (skipped(_, _, int dot) := getSkipped(error)) {
+    return dot;
+  }
+  fail;
+}
+
+str getErrorText(appl(_, [*_, appl(skipped(_, _, _), chars)])) = stringChars([c | ch <- chars, char(c) := ch]);

@@ -210,6 +210,12 @@ public class DebugVisualizer {
         DotNode node = new DotNode(getNodeId(stackNode));
         String label = String.format("%s: %s\n.%d@%d", 
             type, nodeName, stackNode.getDot(), stackNode.getStartLocation());
+
+        String shortString = stackNode.toShortString();
+        if (shortString != null) {
+            label += "\n" + shortString;
+        }
+
         P parentProduction = stackNode.getParentProduction();
         if (parentProduction instanceof IConstructor) {
             label += "\nin: " + DebugUtil.prodToString((IConstructor) parentProduction);
@@ -461,13 +467,22 @@ public class DebugVisualizer {
         graph.addNode(arrayNode);
 
         for (int i=0; i<doubleList.size(); i++) {
+            NodeId entryId = new NodeId(nodeId.getId() + "-entry" + i);
+            DotRecord entryRecord = new DotRecord();
+            entryRecord.addEntry(new DotField("Stack", "stack"));
+            entryRecord.addEntry(new DotField("Node", "node"));
+            graph.addRecordNode(entryId, entryRecord);
+
             AbstractStackNode<P> stack = doubleList.getFirst(i);
             DotNode stackDotNode = addStack(graph, stack);
-            graph.addEdge(new NodeId(nodeId, String.valueOf(i), CompassPoint.SW), stackDotNode.getId(), "Stack");
+            graph.addEdge(new NodeId(entryId, "stack", CompassPoint.SW), stackDotNode.getId(), "Stack");
 
             AbstractNode node = doubleList.getSecond(i);
             addParserNode(graph, node);
-            graph.addEdge(new NodeId(nodeId, String.valueOf(i), CompassPoint.SE), getNodeId(node), "Node");
+            graph.addEdge(new NodeId(entryId, "node", CompassPoint.SE), getNodeId(node), "Node");
+
+
+            graph.addEdge(new NodeId(nodeId, String.valueOf(i)), entryId);
         }
     }
 
