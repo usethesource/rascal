@@ -37,6 +37,28 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
 	}
 
+	public static SkippedNode createResultUntilToken(String token, int[] input, int startLocation, IConstructor production, int dot) {
+		int length = token.length();
+		for (int start=startLocation; start+length < input.length; start++) {
+			boolean match = true;
+			for (int j=0; j<length && match; j++) {
+				if (token.codePointAt(j) != input[start+j]) {
+					match = false;
+				}
+
+				if (match) {
+					return createResultUntilChar(input, startLocation, start+length-startLocation, production, dot);
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static SkippedNode createResultUntilChar(int[] input, int startLocation, int length, IConstructor production, int dot) {
+		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
+	}
+
 	private static int[] createSkippedToken(int[] input, int startLocation, int length) {
 		int[] token = new int[length];
 		System.arraycopy(input, startLocation, token, 0, length);
@@ -49,7 +71,14 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		this.result = result;
 		setAlternativeProduction(parentProduction);
 	}
-	
+
+	public SkippingStackNode(int id, P parentProduction, SkippedNode result, int startLocation) {
+		super(id, 0, startLocation);
+		
+		this.result = result;
+		setAlternativeProduction(parentProduction);
+	}
+
 	private SkippingStackNode(SkippingStackNode<P> original, int startLocation){
 		super(original, startLocation);
 		
