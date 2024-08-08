@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.values.parsetrees;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
@@ -34,6 +36,8 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -197,63 +201,16 @@ public class SymbolFactory {
 	}
 
 	private static IValue literal2Symbol(StringConstant sep) {
-		String lit = ((StringConstant.Lexical) sep).getString();
-		StringBuilder builder = new StringBuilder(lit.length());
-		
-		// TODO: did we deal with all escapes here? probably not!
-		for (int i = 1; i < lit.length() - 1; i++) {
-			if (lit.charAt(i) == '\\') {
-				i++;
-				switch (lit.charAt(i)) {
-				case 'b':
-					builder.append('\b');
-					break;
-				case 'f':
-					builder.append('\f');
-					break;
-				case 'n':
-					builder.append('\n');
-					break;
-				case 't':
-					builder.append('\t');
-					break;
-				case 'r':
-					builder.append('\r');
-					break;
-				case '\\':
-					builder.append('\\');
-					break;
-				case '\"':
-					builder.append('\"');
-					break;
-				case '>':
-					builder.append('>');
-					break;
-				case '<':
-					builder.append('<');
-					break;
-				case '\'':
-					builder.append('\'');
-					break;
-				case 'u':
-					while (lit.charAt(i++) == 'u');
-					builder.append((char) Integer.decode("0x" + lit.substring(i, i+4)).intValue());
-					i+=4;
-					break;
-				default:
-					// octal escape
-					int a = lit.charAt(i++);
-					int b = lit.charAt(i++);
-					int c = lit.charAt(i);
-					builder.append( (char) (100 * a + 10 * b + c));	
-				}
-			}
-			else {
-				builder.append(lit.charAt(i));
-			}
+		try {
+			String lit = ((StringConstant.Lexical) sep).getString();
+			// this should be the exact notation for string literals in vallang
+			IValue string = new StandardTextReader().read(factory, new StringReader(lit));
+
+			return factory.constructor(RascalValueFactory.Symbol_Lit, string);
 		}
-		
-		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
+		catch (FactTypeUseException | IOException e) {
+			throw new RuntimeException("Internal error: parsed stringconstant notation does not coincide with vallang stringconstant notation");
+		}
 	}
 	
 	private static IValue ciliteral2Symbol(CaseInsensitiveStringConstant constant) {
@@ -337,31 +294,30 @@ public class SymbolFactory {
 
 	private static IValue char2int(Char character) {
 		String s = ((Char.Lexical) character).getString();
-		if (s.startsWith("\\")) {
-			if (s.length() > 1 && java.lang.Character.isDigit(s.charAt(1))) { // octal escape
-				// TODO
-				throw new NotYetImplemented("octal escape sequence in character class types");
-			}
-			if (s.length() > 1 && s.charAt(1) == 'u') { // octal escape
-				// TODO
-				throw new NotYetImplemented("unicode escape sequence in character class types");
-			}
-			char cha = s.charAt(1);
-			switch (cha) {
-			case 't': return factory.integer('\t');
-			case 'n': return factory.integer('\n');
-			case 'r': return factory.integer('\r');
-			case '\"' : return factory.integer('\"');
-			case '\'' : return factory.integer('\'');
-			case '-' : return factory.integer('-');
-			case '<' : return factory.integer('<');
-			case '>' : return factory.integer('>');
-			case '\\' : return factory.integer('\\');
-			}
-			s = s.substring(1);
+		if (s.matches("\\\\[auU][0-9A-F]+")) {
+			// ascii escape (a), utf16 escape (u) or utf24 escape (U)
+			return factory.integer(Integer.parseInt(s.substring(2), 16));
 		}
-		char cha = s.charAt(0);
-		return factory.integer(cha);
+		else if (s.startsWith("\\")) {
+			// builtin escape
+			int cha = s.codePointAt(1);
+			switch (cha) {
+				case 't': return factory.integer('\t');
+				case 'n': return factory.integer('\n');
+				case 'r': return factory.integer('\r');
+				case '\"' : return factory.integer('\"');
+				case '\'' : return factory.integer('\'');
+				case '-' : return factory.integer('-');
+				case '<' : return factory.integer('<');
+				case '>' : return factory.integer('>');
+				case '\\' : return factory.integer('\\');
+				default: return factory.integer(cha);
+			}
+		}
+		else {
+			// just a single character (but possibly two char's)
+			return factory.integer(s.codePointAt(0));
+		}
 	}
 	
 	public static IConstructor charClass(int ch) {
