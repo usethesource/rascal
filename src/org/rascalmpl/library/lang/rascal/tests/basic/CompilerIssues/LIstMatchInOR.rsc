@@ -6,6 +6,7 @@ data Symbol
      = strt()
      | par(list[Symbol] parameters) // <6>>
      ;
+     
     
  @ignoreCompiler{Generates incorrect code}
 test bool listMatchInOR() {
@@ -33,7 +34,7 @@ test bool symbolDependenciesOld1()
 
 // Rewritten version with intended output, compiler behaves well on it
 set[Symbol] symbolDependenciesNew(set[Symbol] sses) =
-  { from | s <- sses, bprintln(s),  Symbol from := ((label(_,Symbol f) := s) ? f : s) };
+  { from | s <- sses, Symbol from := ((label(_,Symbol f) := s) ? f : s) };
 
 test bool symbolDependenciesNew1()
 = symbolDependenciesNew({sym("a"), label("x", sym("b"))}) == {sym("a"), sym("b")};
