@@ -53,16 +53,16 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
         return tm.messages;
     }
     
-    //jobStep("RascalCompiler", "Compiling <qualifiedModuleName>");// TODO: monitor
-    //if(compilerConfig.verbose) { println("Compiling .. <qualifiedModuleName>"); }
-    
     <tm, muMod> = r2mu(M, tm, compilerConfig);
    
     if(errorsPresent(tm)){
+        for(msg:error(_,_) <- tm.messages){
+            println(msg);
+        }
         return tm.messages;
     }
         
-    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == qualifiedModuleName };
+    imports = { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == qualifiedModuleName };
     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == qualifiedModuleName };
     tmodels = ();
     for(m <- imports + extends, tpl_uptodate() in ms.status[m]){
@@ -116,21 +116,14 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     if(!isEmpty(msgs)){
         return msgs;
     }
-    
-    jobStart("RascalCompiler");// TODO: monitor
-    jobStep("RascalCompiler", "Compiling <qualifiedModuleName>");// TODO: monitor
+
     if(compilerConfig.verbose) { println("Compiling .. <qualifiedModuleName>"); }
     
     start_comp = cpuTime();   
     ms = rascalTModelForNames([qualifiedModuleName], compilerConfig, compile1);
-    
-    //iprintln(convertTModel2PhysicalLocs(ms.tmodels[qualifiedModuleName]), lineLimit=10000);
-   
+      
     comp_time = (cpuTime() - start_comp)/1000000;
-   
-    jobStep("RascalCompiler", "Compiled <qualifiedModuleName> in <comp_time> ms [total]");// TODO: monitor
     if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleName> in <comp_time> ms [total]"); }
-    jobEnd("RascalCompiler");// TODO: monitor
 	
     return ms.messages[qualifiedModuleName] ? [];
 }
