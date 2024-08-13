@@ -276,7 +276,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         //g = expandKeywords(g);
         g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
-        tm = tmlayouts(tm, definedLayout, allManualLayouts);
+        //tm = tmlayouts(tm, definedLayout, allManualLayouts);
         tm.store[key_grammar] = [g];
         return <tm, ms>;
     } catch TypeUnavailable(): {
