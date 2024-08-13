@@ -65,7 +65,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.errwriter = new PrintWriter(errstream);
 		
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
-		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, ideServices) : ideServices;
+		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
 		$VF = ValueFactoryFactory.getValueFactory();
 		$TF = TypeFactory.getInstance();
@@ -149,33 +149,40 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
-		return ideServices.jobEnd(name, succeeded);
+		errstream.println(name + " ends");
+		return 0;
+		//return ideServices.jobEnd(name, succeeded);
 	}
 
 	@Override
 	public void jobStep(String name, String message, int worked) {
-		ideServices.jobStep(name, message, worked);
+		//errstream.println(name + ": " + message);
+		//ideServices.jobStep(name, message, worked);
 	}
 
 	@Override
 	public void jobStart(String name, int workShare, int totalWork) {
-		ideServices.jobStart(name, workShare, totalWork);
+		errstream.println(name + " starts");
+		//ideServices.jobStart(name, workShare, totalWork);
 	}
 
 
 	@Override
 	public void jobTodo(String name, int work) {
-		ideServices.jobTodo(name, work);
+		//ideServices.jobTodo(name, work);
 	}
 
 	@Override
 	public boolean jobIsCanceled(String name) {
-		return ideServices.jobIsCanceled(name);
+		errstream.println(name + " canceled");
+		return true;
+		//return ideServices.jobIsCanceled(name);
 	}
 
 	@Override
 	public void warning(String message, ISourceLocation src) {
-		ideServices.warning(message,  src);;
+		errstream.println(message);
+		//ideServices.warning(message,  src);;
 	}
 	
 	 public static ISourceLocation inferProjectRoot(Class<?> clazz) {
