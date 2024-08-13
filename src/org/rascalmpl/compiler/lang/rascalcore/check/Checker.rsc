@@ -59,6 +59,7 @@ import analysis::graphs::Graph;
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
     loc generatedSources=|unknown:///|,
+    loc generatedTestSources=|unknown:///|,
     loc resources = |unknown:///|,
     loc testResources =|unknown:///|
 );
@@ -165,17 +166,18 @@ public PathConfig getRascalCorePathConfigDev() {
    return pathConfig(   
         srcs = [
                 |project://rascal/src/org/rascalmpl/library|, 
-                |std:///|,
+                //|std:///|,
                 |project://rascal-core/src/org/rascalmpl/core/library|,
-                 |project://typepal/src|,
-                 |project://rascal-tutor/src|,
-                 |project://flybytes/src|,
-                 |project://salix/src|,
-                 |project://rascal-lsp/src/main/rascal/|
+                 |project://typepal/src|
+                //  |project://rascal-tutor/src|,
+                //  |project://flybytes/src|,
+                //  |project://salix/src|,
+                //  |project://rascal-lsp/src/main/rascal/|
                 ],
-        bin = |project://rascal-core/target/test-classes|,
-        generatedSources = |project://rascal-core/target/generated-test-sources|,
-        resources = |project://rascal-core/target/generated-test-resources|,
+        bin = |project://generated-sources/target/classes|,
+        generatedSources = |project://generated-sources/target/generated-sources/src/main/java/|,
+        generatedTestSources = |project://generated-sources/target/generated-sources/src/main/java/|,
+        resources = |project://generated-sources/target/generated-resources/src/main/java/|, //|project://rascal-core/target/generated-test-resources|,
         libs = []
     );
 }
@@ -250,7 +252,7 @@ ModuleStatus rascalTModelForLocs(
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){     
     jobName = "Rascal compiler";
-    jobStart(jobName, totalWork=2 * size(mlocs) + 1);
+    jobStart(jobName, totalWork=2 * (size(mlocs) + 2) + 10);
 
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
@@ -271,7 +273,7 @@ ModuleStatus rascalTModelForLocs(
     }
     
     try {
-        jobStep(jobName, "Computing and reducing import and extend graph", work=1);
+        jobStep(jobName, "Computing import and extend graph", work=1);
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
         if(compilerConfig.forceCompilationTopModule){
@@ -309,7 +311,7 @@ ModuleStatus rascalTModelForLocs(
        
         while(mi < nmodules) {
             component = module2component[ordered[mi]];
-            jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
+            jobStep(jobName, intercalate(" + ", [*component]), work=size(component)+1);
 
             recheck = !all(m <- component, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
             for(m <- component){
@@ -372,9 +374,9 @@ ModuleStatus rascalTModelForLocs(
                     }
                     if(ms.messages[m]?){
                         tm.messages += ms.messages[m];
-                    } else {
-                        ms.messages[m] = tm.messages;
-                    }
+                    } 
+                    ms.messages[m] ? [] += tm.messages;
+          
                     ms.status[m] += {tpl_uptodate(), checked()};
                     if(!isEmpty([ e | e:error(_,_) <- ms.messages[m] ])){
                         ms.status[m]  += {check_error()};
@@ -504,6 +506,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         s = newSolver(namedTrees, tm);
         tm = s.run();
     }
+    //iprintln(tm.messages);
     
     check_time = (cpuTime() - start_check)/1000000;
     
