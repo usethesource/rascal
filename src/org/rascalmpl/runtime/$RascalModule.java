@@ -4158,9 +4158,16 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 			}
 		}
 		
-		protected IString $toIString(IString s) { return s; }
-		protected IString $toIString(ITree t) { return $VF.string(TreeAdapter.yield(t)); }
-		protected IString $toIString(IValue v) { return $VF.string(v.toString()); }
+		protected IString $toIString(IValue v) { 
+			if(v instanceof IString) {
+					return (IString) v;
+			} else if(v instanceof ITree) {
+				return $VF.string(TreeAdapter.yield((ITree)v));
+			} else  {
+				return $VF.string(v.toString());
+			}
+		}
+		
 		
 }
 
