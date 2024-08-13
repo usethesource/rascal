@@ -493,11 +493,9 @@ data SwitchInfo = switchInfo(Expression e);
 // ---- fail ------------------------------------------------------------------
 
 void collect(current: (Statement)`fail <Target target>;`, Collector c){
-    //loopName = "";
-    //if(target is labeled){
-    //    loopName = prettyPrintName(target.name);
-    //    c.use(target.name, {labelId(), functionId()});
-    //}
+    if(target is labeled){
+        c.use(target.name, {labelId(), functionId()});
+    }
     c.fact(current, avoid());
 }
 
