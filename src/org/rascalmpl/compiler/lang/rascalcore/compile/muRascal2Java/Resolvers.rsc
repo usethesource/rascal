@@ -376,13 +376,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
         }
        
        actuals_text = intercalate(", ", call_actuals);
-       if(!onlyGlobalFuns){
-            externalRefs = getExternalRefs(def, loc2muFunction);
-            if(!isEmpty(externalRefs)){
-                actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalRefs ]);
-            }
-       }
-        
+       
        activeKwpFormals = [];
        if(def in relevant_fun_defs /*local_fun_defs*/){
           if(loc2muFunction[def.defined]?){
@@ -396,6 +390,12 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             actuals_text = isEmpty(actuals_text) ? "$kwpActuals" : "<actuals_text>, $kwpActuals";
         }
        
+       if(!onlyGlobalFuns){
+            externalRefs = getExternalRefs(def, loc2muFunction);
+            if(!isEmpty(externalRefs)){
+                actuals_text += (isEmpty(actuals_text) ? "" : ", ") +  intercalate(", ", [ varName(var) | var <- externalRefs ]);
+            }
+       }
        key = isConstructorAType(def_type) ? 0 : (def_type.isConcreteArg ? def_type.concreteFingerprint : def_type.abstractFingerprint);
         //key = /*def_type.isDefault ? 0 :*/ (def_type.isConcreteArg ? def_type.concreteFingerprint : def_type.abstractFingerprint);
        
