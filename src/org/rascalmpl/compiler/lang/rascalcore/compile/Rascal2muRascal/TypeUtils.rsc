@@ -387,11 +387,12 @@ void extractScopes(TModel tm){
         fundef = definitions[fun];
         ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
         dummies = dummyFormalsInReturnType(ftype);
+        dummies_with_name = [ d | d <- dummies, d.alabel? ];
         //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
-       // println("vars_per_scope:"); iprintln(vars_per_scope);
-        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionAType(getType(sc))) ? sc == fun : true};
+        //println("vars_per_scope:"); iprintln(vars_per_scope);
+        locally_defined0 = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], (facts[sc]? && isFunctionAType(getType(sc))) ? sc == fun : true};
         //locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], facts[sc]? ? isFunctionAType(getType(sc)) ==> sc == fun : true};
-        locally_defined = { v | v <- locally_defined, v.defInfo.atype notin dummies };
+        locally_defined = { v | v <- locally_defined0, v.defInfo.atype notin dummies_with_name };
         
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
@@ -403,7 +404,7 @@ void extractScopes(TModel tm){
         ftype = defType(AType atype) := fundef.defInfo ? atype : avalue();
         kwpDelta = (ftype has kwFormals && size(ftype.kwFormals) > 0 ||
                     ftype has kwFields && size(ftype.kwFields) > 0) ? 1 : 0;
-        formal_base = -size(dummies) + kwpDelta; 
+        formal_base = -size(dummies_with_name) + kwpDelta; 
         for(int i <- index(vars)){
             vdefine = vars[i];
             if(vdefine.idRole != keywordFormalId()){
