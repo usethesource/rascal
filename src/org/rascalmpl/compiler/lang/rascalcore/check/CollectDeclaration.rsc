@@ -74,10 +74,10 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
         try {   
             mloc1 = getModuleLocation(mname, pcfg);
             if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
-                c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
+                c.report(error(qualifiedModuleName, "Module name `%v` is incompatible with its file location %v", mname, mloc));
             }
         } catch str e: {
-            c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
+            c.report(error(qualifiedModuleName, "Module name `%v` is incompatible with its file location: %v", mname, e));
         }
     } else if(isEmpty(pcfgVal)){
         return;
