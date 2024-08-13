@@ -423,7 +423,7 @@ BTINFO getBTInfoConcrete(char(int i), BTSCOPE btscope, BTSCOPES btscopes){
 }
 
 BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter(Symbol elem)), list[Tree] args), BTSCOPE btscope, BTSCOPES btscopes) {
-    enterList = btscope.enter; //"<btscope.enter>_ITER";
+    enterList = btscope.enter;
     BTSCOPE btscopeLast = <enterList, btscope.resume, btscope.resume>;
     for(pat <- args){
         <btscopeLast, btscopes> = getBTInfoConcrete(pat, btscopeLast, btscopes);
@@ -431,7 +431,7 @@ BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter(Symbol elem)), lis
     return registerBTScope(t, <enterList, btscopeLast.resume, btscope.resume>, btscopes);
  }
 BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter-star(Symbol elem)), list[Tree] args), BTSCOPE btscope, BTSCOPES btscopes) {
-    enterList = btscope.enter; //"<btscope.enter>_ITER_STAR";
+    enterList = btscope.enter;
     BTSCOPE btscopeLast = <enterList, btscope.resume, btscope.resume>;
     for(pat <- args){
         <btscopeLast, btscopes> = getBTInfoConcrete(pat, btscopeLast, btscopes);
@@ -439,7 +439,7 @@ BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter-star(Symbol elem))
     return registerBTScope(t, <enterList, btscopeLast.resume, btscope.resume>, btscopes);
 } 
 BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter-seps(Symbol elem, list[Symbol] seps)), list[Tree] args), BTSCOPE btscope, BTSCOPES btscopes) {
-    enterList = btscope.enter; //"<btscope.enter>_ITER_SEPS";
+    enterList = btscope.enter;
     BTSCOPE btscopeLast = <enterList, btscope.resume, btscope.resume>;
     for(pat <- args){
         <btscopeLast, btscopes> = getBTInfoConcrete(pat, btscopeLast, btscopes);
@@ -447,7 +447,7 @@ BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter-seps(Symbol elem, 
     return registerBTScope(t, <enterList, btscopeLast.resume, btscope.resume>, btscopes);
 }
 BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter-star-seps(Symbol elem, list[Symbol] seps)), list[Tree] args), BTSCOPE btscope, BTSCOPES btscopes) {
-    enterList = btscope.enter; //"<btscope.enter>_ITER_STAR_SEPS";
+    enterList = btscope.enter;
     BTSCOPE btscopeLast = <enterList, btscope.resume, btscope.resume>;
     for(pat <- args){
         <btscopeLast, btscopes> = getBTInfoConcrete(pat, btscopeLast, btscopes);
@@ -458,17 +458,20 @@ BTINFO getBTInfoConcrete(t:appl(p:Production::regular(s:\iter-star-seps(Symbol e
 BTINFO getBTInfoConcrete(t:appl(Production prod, list[Tree] args),  BTSCOPE btscope, BTSCOPES btscopes){
     if(appl(prod(Symbol::label("$MetaHole", Symbol _),[Symbol::sort("ConcreteHole")], {\tag("holeType"(Symbol holeType))}), [ConcreteHole _]) := t){
         if(isIterSymbol(holeType)){
-            enter1 = btscope.enter;// + nextTmp("$MetaHole");
+            enter1 = btscope.enter;
             resume1 = enter1;
             fail1 = btscope.resume;
             return registerBTScope(t, <enter1, resume1, fail1>, btscopes);
         }
         return getBTInfo(t, btscope, btscopes);
     }
-    enterAppl =/*btscope.enter; */ nextLabel("<btscope.enter>_APPL");
+    enterAppl = nextLabel("<btscope.enter>_APPL");
     BTSCOPE btscopeLast = <enterAppl, btscope.resume, btscope.resume>;
-    for(arg <- args){
+    
+    for(int i <- index(args)){
+      arg = args[i];
       <btscopeLast, btscopes> = getBTInfoConcrete(arg, btscopeLast, btscopes);
+      btscopeLast.enter += "_<i>";
     }
     return registerBTScope(t, <enterAppl, btscopeLast.resume, btscope.resume>, btscopes);
 }
