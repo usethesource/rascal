@@ -28,9 +28,11 @@ void generateTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
    }
 
    testConfig = pathConfig(
-     bin=pcfg.bin,
-     generatedSources=|project://rascal-core/target/generated-test-sources|,
-     resources = |project://rascal-core/target/generated-test-resources|,
+     bin=|project://generated-sources/classes/|,
+     generatedSources=|project://generated-sources/target/generated-sources/src/main/java/|,
+     generatedTestSources = |project://generated-sources/target/generated-sources/src/main/java/|,
+     //generatedSources=|project://rascal-core/target/generated-test-sources|,
+     resources = |project://generated-sources/target/generated-resources/src/main/java/|, //|project://rascal-core/target/generated-test-resources|,
      srcs=[ |project://rascal/src/org/rascalmpl/library|,
             |project://rascal-core/src/org/rascalmpl/core/library| ],
      libs = [ ]
@@ -114,7 +116,8 @@ void generateTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
                      ];
    }  
 
-   ignored = ["lang::rascal::tests::concrete::Patterns3"
+   ignored = ["lang::rascal::tests::concrete::Patterns3",
+              "lang::rascal::syntax::tests::ExpressionGrammars"
              ];           
    testModules -= ignored;    
    

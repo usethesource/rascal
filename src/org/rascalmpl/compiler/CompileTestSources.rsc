@@ -17,7 +17,7 @@ import lang::rascalcore::compile::util::Names;
 
 PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|,
                                         generatedSources = |project://rascal-core/target/generated-test-sources|,
-                                        resources = |project://rascal-core/target/generated-test-resources|
+                                        resources = |project://rascal-core/target/test-classes| //|project://rascal-core/target/generated-test-resources|
                                        );
 
 void main() = compileTestSources(manualTestConfig);
@@ -25,8 +25,8 @@ void main() = compileTestSources(manualTestConfig);
 void compileTestSources(PathConfig pcfg) {
      testConfig = pathConfig(
         bin=pcfg.bin,
-        generatedSources=|project://rascal-core/target/generated-test-sources2|,
-        resources = |project://rascal-core/target/generated-test-resources2|,
+        generatedSources=|project://rascal-core/target/generated-test-sources|,
+        resources = pcfg.bin, //|project://rascal-core/target/generated-test-resources2|,
         srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
         libs = [ ]
      );
