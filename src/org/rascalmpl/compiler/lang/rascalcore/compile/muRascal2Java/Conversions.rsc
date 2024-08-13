@@ -250,7 +250,7 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType,
 
 str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs){
     if(avalue() := bound){
-        return "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"))";
+        return "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"), $RVF.constructor(RascalValueFactory.Symbol_Value))";
     } else {
         return "$RVF.constructor(RascalValueFactory.Symbol_Parameter, $RVF.string(\"<pname>\"), <atype2IValue(bound, defs)>)";
     }
