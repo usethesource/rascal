@@ -32,8 +32,10 @@ public class DotGraph {
     }
 
     public void addNode(DotNode node) {
-        addStatement(node);
-        nodes.put(node.getId(), node);
+        if (!nodes.containsKey(node.getId())) {
+            addStatement(node);
+            nodes.put(node.getId(), node);
+        }
     }
 
     public void addNode(String id, String label) {

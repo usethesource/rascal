@@ -15,6 +15,7 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.unicode.UnicodeConverter;
 
 public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[][] ranges;
@@ -86,6 +87,33 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
+	@Override
+	public String toShortString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<ranges.length; i++) {
+			if (i > 0) {
+				sb.append(',');
+			}
+
+			int[] range = ranges[i];
+			sb.append(codePointToString(range[0]));
+			if (range[0] != range[1]) {
+				sb.append('-');
+				sb.append(codePointToString(range[1]));
+			}
+		}
+
+		return sb.toString();
+	}
+
+	private String codePointToString(int codePoint) {
+		if (Character.isLetterOrDigit(codePoint)) {
+			return new String(Character.toChars(codePoint));
+		}
+
+		return String.valueOf(codePoint);
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
@@ -94,7 +122,7 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		sb.append(range[0]);
 		sb.append('-');
 		sb.append(range[1]);
-		for(int i = ranges.length - 2; i >= 0; --i){
+		for(int i = 1; i<ranges.length; i++){
 			sb.append(',');
 			range = ranges[i];
 			sb.append(range[0]);

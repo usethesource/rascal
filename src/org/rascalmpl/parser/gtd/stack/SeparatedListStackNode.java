@@ -31,8 +31,11 @@ public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode
 		this.children = generateChildren(child, separators);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
-	
 
+	public P getListProduction() {
+		return production;
+	}
+	
 	public SeparatedListStackNode(int id, int dot, P production, AbstractStackNode<P> child, AbstractStackNode<P>[] separators, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
 		

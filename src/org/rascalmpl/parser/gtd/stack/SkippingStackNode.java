@@ -55,8 +55,8 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return null;
 	}
 
-	public static SkippedNode createResultUntilChar(int[] input, int startLocation, int length, IConstructor production, int dot) {
-		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
+	public static SkippedNode createResultUntilChar(int[] input, int startLocation, int endLocation, IConstructor production, int dot) {
+		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
 	}
 
 	private static int[] createSkippedToken(int[] input, int startLocation, int length) {
