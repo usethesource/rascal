@@ -12,13 +12,22 @@
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 
+import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
+import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -28,17 +37,15 @@ import org.rascalmpl.parser.gtd.util.IdDispenser;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
+import org.rascalmpl.util.visualize.DebugVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
-	private static final int[] WHITESPACE = {' ', '\r', '\n', '\t' };
-	
 	private IdDispenser stackNodeIdDispenser;
 
 	public ToTokenRecoverer(IdDispenser stackNodeIdDispenser) {
@@ -71,6 +78,9 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
+		DebugVisualizer visualizer = new DebugVisualizer("Recovery");
+		visualizer.visualizeRecoveryNodes(recoveryNodes);
+		
 		for (int i = 0; i<recoveryNodes.size(); i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
@@ -114,40 +124,128 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 
 		// Try to find whitespace to skip to
+		/*
 		result = SkippingStackNode.createResultUntilCharClass(WHITESPACE, input, startLocation, prod, dot);
 		if (result != null) {
 			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
-		}
+		}*/
 
 		// Do something more clever: find the last token of this production and skip until after that
-		String lastLiteral = findLastLiteral(prod);
-		if (lastLiteral != null) {
-			result = SkippingStackNode.createResultUntilToken(lastLiteral, input, startLocation, prod, dot);
-			if (result != null) {
+		List<InputMatcher> endMatchers = findEndMatchers(prod);
+		for (InputMatcher endMatcher : endMatchers) {
+			MatchResult endMatch = endMatcher.findMatch(input, startLocation);
+			if (endMatch != null) {
+				result = SkippingStackNode.createResultUntilChar(input, startLocation, endMatch.getEnd(), prod, dot);
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			}
 		}
 
-		// TODO: or find the first token of the next production and skip until before that
+		// Find the first token of the next production and skip until before that
+		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
+		for (InputMatcher nextMatcher : nextMatchers) {
+			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation);
+			if (nextMatch != null) {
+				result = SkippingStackNode.createResultUntilChar(input, startLocation, nextMatch.getStart(), prod, dot);
+				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+			}
+		}
 
 		return nodes;
 	}
 
-	String findLastLiteral(IConstructor prod) {
+	// Gather matchers for the last token of a production
+	List<InputMatcher> findEndMatchers(IConstructor prod) {
 		IList args = (IList) prod.get(1);
 		if (args.isEmpty()) {
-			return null;
+			return Collections.emptyList();
 		}
 
 		IValue last = args.get(args.length()-1);
 		if (last instanceof IConstructor) {
-			IConstructor cons = (IConstructor) last;
-			if (cons.getConstructorType() == RascalValueFactory.Symbol_Lit) {
-				return ((IString) cons.get(0)).getValue();
+			return Collections.singletonList(InputMatcher.createMatcher((IConstructor) last));
+		}
+
+		return Collections.emptyList();
+	}
+
+	void forAllParents(AbstractStackNode<IConstructor> stackNode, Consumer<AbstractStackNode<IConstructor>> consumer) {
+		IntegerObjectList<EdgesSet<IConstructor>> edges = stackNode.getEdges();
+        if (edges != null) {
+		    for (int i = edges.size() - 1; i >= 0; --i) {
+		        EdgesSet<IConstructor> edgesList = edges.getValue(i);
+			    if (edgesList != null) {
+				    for (int j = edgesList.size() - 1; j >= 0; --j) {
+						consumer.accept(edgesList.get(j));
+					}
+				}
+			}
+		}
+	}
+
+	AbstractStackNode<IConstructor> getSingleParentStack(AbstractStackNode<IConstructor> stackNode) {
+		if (stackNode == null) {
+			return null;
+		}
+
+		IntegerObjectList<EdgesSet<IConstructor>> edges = stackNode.getEdges();
+		if (edges != null) {
+			EdgesSet<IConstructor> edgesList = edges.getValue(0);
+			if (edgesList != null) {
+				return edgesList.get(0);
 			}
 		}
 
 		return null;
+	}
+
+	// Find matchers for the first token after the current stack node
+	List<InputMatcher> findNextMatchers(AbstractStackNode<IConstructor> stackNode) {
+		DebugVisualizer visualizer = new DebugVisualizer("findNextMatcher");
+		visualizer.visualize(stackNode);
+
+		final List<InputMatcher> matchers = new java.util.ArrayList<>();
+
+		AbstractStackNode<IConstructor> parent = getSingleParentStack(stackNode);
+		if (parent == null) {
+			return matchers;
+		}
+
+		AbstractStackNode<IConstructor>[] prod = parent.getProduction();
+		if (prod == null) {
+			return matchers;
+		}
+
+		int nextDot = parent.getDot() + 1;
+		if (nextDot >= prod.length) {
+			return matchers;
+		}
+
+		AbstractStackNode<IConstructor> next = prod[nextDot];
+		if (next instanceof NonTerminalStackNode && next.getName().startsWith("layouts_")) {
+			// Look "through" layout for now, should be more general to look through any node that can be empty
+			nextDot++;
+			if (nextDot >= prod.length) {
+				return matchers;
+			}
+			next = prod[nextDot];
+		}
+
+		if (next instanceof LiteralStackNode) {
+			LiteralStackNode<IConstructor> nextLiteral = (LiteralStackNode<IConstructor>) next;
+			matchers.add(new LiteralMatcher(nextLiteral.getLiteral()));
+		}
+
+		if (next instanceof CaseInsensitiveLiteralStackNode) {
+			CaseInsensitiveLiteralStackNode<IConstructor> nextLiteral = (CaseInsensitiveLiteralStackNode<IConstructor>) next;
+			matchers.add(new CaseInsensitiveLiteralMatcher(nextLiteral.getLiteral()));
+		}
+
+		if (next instanceof NonTerminalStackNode) {
+			NonTerminalStackNode<IConstructor> nextNonTerminal = (NonTerminalStackNode<IConstructor>) next;
+			SGTDBF.opportunityToBreak();
+		}
+
+		return matchers;
 	}
 
 	// Check if a node is a top-level production (i.e., its parent production node has no parents and starts at position -1)
@@ -227,6 +325,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		
 		todo.push(failer);
 		
+		boolean useNext = true;	// Use this to only use the last active element from a production
 		while (!todo.isEmpty()) {
 			AbstractStackNode<IConstructor> node = todo.pop();
 			
@@ -236,13 +335,14 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			
 			visited.put(node, 0);
 			
-			if (node == failer || node.getDot() == 0) {
+			if (useNext) {
 				ArrayList<IConstructor> recoveryProductions = new ArrayList<IConstructor>();
 				collectProductions(node, recoveryProductions);
 				if (recoveryProductions.size() > 0) {
-					recoveryNodes.add(node, recoveryProductions);
+					addRecoveryNode(node, recoveryProductions, recoveryNodes);
 				}
 			}
+			useNext = node.getDot() == 0;
 			
 			IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
 			
@@ -259,6 +359,28 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			}
 		}
 	}
+
+	// Only add recovery nodes that are not already present.
+	private void addRecoveryNode(AbstractStackNode<IConstructor> node, ArrayList<IConstructor> productions, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
+		for (int i=0; i<recoveryNodes.size(); i++) {
+			if (recoveryNodes.getFirst(i) == node) {
+				ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
+				if (prods.size() == productions.size()) {
+					boolean equal = true;
+					for (int j=0; equal && j<prods.size(); j++) {
+						if (prods.get(j) != productions.get(j)) {
+							equal = false;
+						}
+					}
+					if (equal) {
+						return;
+					}
+				}
+			}
+		}
+
+		recoveryNodes.add(node, productions);
+	}
 	
 	// Gathers all productions that are marked for recovery (the given node can be part of a prefix shared production)
 	private void collectProductions(AbstractStackNode<IConstructor> node, ArrayList<IConstructor> productions) {
@@ -269,12 +391,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 	    int dot = node.getDot();
 
-		System.err.println("collect productions for node: " + node);
 	    if (node.isEndNode()) {
 	        IConstructor parentProduction = node.getParentProduction();
 	        if (ProductionAdapter.isContextFree(parentProduction)){
 	            productions.add(parentProduction);
-				System.err.println("adding production: " + parentProduction);
 
 	            if (ProductionAdapter.isList(parentProduction)) {
 	                return; // Don't follow productions in lists productions, since they are 'cyclic'.

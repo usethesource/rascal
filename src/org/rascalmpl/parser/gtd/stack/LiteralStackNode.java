@@ -40,6 +40,10 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		result = new LiteralNode(production, literal);
 	}
+
+	public int[] getLiteral() {
+		return literal;
+	}
 	
 	private LiteralStackNode(LiteralStackNode<P> original, int startLocation){
 		super(original, startLocation);

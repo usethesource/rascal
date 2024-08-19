@@ -41,6 +41,15 @@
         },
         {
             "type": "java",
+            "name": "Recovery tests",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalShell",
+            "projectName": "rascal",
+            "vmArgs": "-Xss80m -Xmx2g -ea",
+            "args": "lang::rascal::tests::recovery::RunRecoveryTests"
+        },
+        {
+            "type": "java",
             "name": "Launch RascalShell Tutor",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
