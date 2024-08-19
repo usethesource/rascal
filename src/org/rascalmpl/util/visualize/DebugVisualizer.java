@@ -12,7 +12,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,10 +32,10 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
+import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
@@ -53,7 +55,8 @@ import io.usethesource.vallang.IConstructor;
 
 public class DebugVisualizer {
     static final String BASE_DIR = "D:/debug/parser-traces/docs/";
-    private static final boolean VISUALIZATION_ENABLED = true;
+    public static final boolean VISUALIZATION_ENABLED = true;
+    private static final boolean INCLUDE_PRODUCTIONS = false;
 
     public static final NodeId PARSER_ID = new NodeId("Parser");
     public static final NodeId TODO_LISTS_ID= new NodeId("todoLists");
@@ -119,6 +122,14 @@ public class DebugVisualizer {
         }
     }
 
+    public void visualizeRecoveryNodes(DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
+        writeGraph(createGraph(recoveryNodes));
+    }
+
+    public void visualizeProductionTrees(AbstractStackNode<IConstructor>[] nodes) {
+        writeGraph(createProductionGraph(nodes));
+    }
+
     public int getFrame() {
         return frame;
     }
@@ -149,6 +160,76 @@ public class DebugVisualizer {
         return graph;
     }
 
+    private DotGraph createGraph(DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
+        reset();
+        graph = new DotGraph(name, true);
+        final NodeId RECOVERY_NODES_ID = new NodeId("recovery-nodes");
+
+        DotNode arrayNode = DotNode.createArrayNode(RECOVERY_NODES_ID, recoveryNodes.size());
+        graph.addNode(arrayNode);
+
+        for (int i=0; i<recoveryNodes.size(); i++) {
+            NodeId pairId = new NodeId("recovery-" + i);
+            DotRecord recoveryRecord = new DotRecord();
+            recoveryRecord.addEntry(new DotField("Node", "node"));
+            recoveryRecord.addEntry(new DotField("Productions", "productions"));
+            graph.addRecordNode(pairId, recoveryRecord);
+
+            graph.addEdge(new NodeId(RECOVERY_NODES_ID, String.valueOf(i)), pairId);
+
+            DotNode node = addStack(graph, recoveryNodes.getFirst(i));
+
+            graph.addEdge(new NodeId(pairId, "node"), node.getId());
+
+            NodeId productionsId = new NodeId("productions-" + i);
+            addProductionArray(graph, productionsId, recoveryNodes.getSecond(i));
+            graph.addEdge(new NodeId(pairId, "productions"), productionsId);
+        }
+        
+        return graph;
+    }
+
+    private DotGraph createProductionGraph(AbstractStackNode<IConstructor>[] stackNodes) {
+        reset();
+        graph = new DotGraph(name, true);
+        for (AbstractStackNode<IConstructor> stackNode : stackNodes) {
+            addProductionNodes(graph, stackNode);
+        }
+        return graph;
+    }
+
+    private <P> NodeId addProductionNodes(DotGraph graph, AbstractStackNode<P> stackNode) {
+        DotNode node = createDotNode(stackNode);
+        graph.addNode(node);
+
+        AbstractStackNode<P>[] prods = stackNode.getProduction();
+        if (prods != null) {
+            NodeId prodArrayId = new NodeId(node.getId() + "-prod");
+            graph.addArrayNode(prodArrayId, prods.length);
+            for (int i=0; i<prods.length; i++) {
+                AbstractStackNode<P> child = prods[i];
+                DotNode childNode = createDotNode(child);
+                graph.addNode(childNode);
+                graph.addEdge(new NodeId(prodArrayId, String.valueOf(i)), childNode.getId());
+            }
+
+            graph.addEdge(node.getId(), prodArrayId, "Production");
+        }
+
+        return node.getId();
+    }
+
+    private void addProductionArray(DotGraph graph, NodeId nodeId, ArrayList<IConstructor> productions) {
+        DotNode arrayNode = DotNode.createArrayNode(nodeId, productions.size());
+        graph.addNode(arrayNode);
+        for (int i=0; i<productions.size(); i++) {
+            IConstructor production = productions.get(i);
+             NodeId prodId = new NodeId(nodeId.getId() + "-prod-" + i);
+             graph.addNode(prodId, DebugUtil.prodToString(production));
+             graph.addEdge(new NodeId(nodeId, String.valueOf(i)), prodId);
+        }
+    }
+
     public synchronized <P> void addRecoveredNodes(DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes) {
         addStackAndNodeDoubleList(graph, RECOVERED_NODES_ID, recoveredNodes);
         graph.addEdge(ERROR_TRACKING_ID, RECOVERED_NODES_ID, "Nodes to revive");
@@ -166,6 +247,10 @@ public class DebugVisualizer {
         stackNodeNodes.put(stackNode.getId(), node);
 
         graph.addNode(node);
+
+        if (INCLUDE_PRODUCTIONS) {
+            addProductionNodes(graph, stackNode);
+        }
 
         IntegerObjectList<EdgesSet<P>> edges = stackNode.getEdges();
         if (edges != null) {
@@ -207,9 +292,28 @@ public class DebugVisualizer {
             }
         }
 
+        int dot = stackNode.getDot();
+
+        String extraInfo = "";
+        if (stackNode.isMatchable()) {
+            extraInfo += ",matchable";
+        }
+        if (stackNode.isSeparator()) {
+            extraInfo += ",sep";
+        }
+        if (stackNode.isExpandable()) {
+            extraInfo += ",expandable";
+        }
+        if (stackNode.isLayout()) {
+            extraInfo += ",layout";
+        }
+        if (stackNode.isEndNode()) {
+            extraInfo += ",end";
+        }
+
         DotNode node = new DotNode(getNodeId(stackNode));
-        String label = String.format("%s: %s\n.%d@%d", 
-            type, nodeName, stackNode.getDot(), stackNode.getStartLocation());
+        String label = String.format("%s: %s\n.%d@%d %s", 
+            type, nodeName, dot, stackNode.getStartLocation(), extraInfo);
 
         String shortString = stackNode.toShortString();
         if (shortString != null) {

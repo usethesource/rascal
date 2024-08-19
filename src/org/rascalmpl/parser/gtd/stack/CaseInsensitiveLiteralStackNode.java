@@ -117,7 +117,20 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 	public AbstractNode getResult(){
 		return result;
 	}
+
+	public int[][] getLiteral() {
+		return ciLiteral;
+	}
 	
+	@Override
+	public String toShortString() {
+		int[] codePoints = new int[ciLiteral.length];
+		for (int i=0; i<ciLiteral.length; i++) {
+			codePoints[i] = ciLiteral[i][0];
+		}
+		return new String(codePoints, 0, codePoints.length);
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < ciLiteral.length; ++i){

@@ -5,35 +5,35 @@ import IO;
 
 layout Layout = [\ ]* !>> [\ ];
 
-syntax S = ABC End;
-syntax ABC = "a" "b" "c";
+syntax S = T;
+
+syntax T = ABC End;
+syntax ABC = 'a' 'b' 'c';
 syntax End = "$";
 
-test bool ok() {
-    return !hasErrors(parse(#S, "a b c $", allowRecovery=true));
+private Tree parseS(str input, bool visualize=false) 
+    = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+
+test bool basicOk() {
+    return !hasErrors(parseS("a b c $", visualize=true));
 }
 
 test bool abx() {
-    Tree t = parse(#S, "a b x $", allowRecovery=true, allowAmbiguity=true);
-    iprintln(t);
-    return hasErrors(t) && size(findAllErrors(t)) == 1;
+    Tree t = parseS("a b x $", visualize=true);
+    return getErrorText(findFirstError(t)) == "x";    
 }
 
 test bool axc() {
-    Tree t = parse(#S, "a x c $", allowRecovery=true);
+    Tree t = parseS("a x c $", visualize=true);
     iprintln(t);
-    return hasErrors(t) && size(findAllErrors(t)) == 1;
+    return getErrorText(findFirstError(t)) == "x c";    
 }
 
 test bool ax() {
-    Tree t = parse(#S, "a x $", allowRecovery=true);
-    iprintln(t);
-    return hasErrors(t) && size(findAllErrors(t)) == 1;
+    Tree t = parseS("a x $", visualize=true);
+    return getErrorText(findFirstError(t)) = "x";    
 }
 
-/*
-test bool missingEnd() {
-    Tree t = parse(#S, "a b c", allowRecovery=true);
-    return hasErrors(t) && size(findAllErrors(t)) == 1;
+int main(list[str] args){
+    startRepl(REPL());
 }
-*/

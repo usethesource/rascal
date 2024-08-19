@@ -154,8 +154,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		unmatchableLeafNodes = new Stack<AbstractStackNode<P>>();
 		unmatchableMidProductionNodes = new DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>>();
 		filteredNodes = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
-
-		visualizer = new DebugVisualizer("Parser");
 	}
 
 	/**
@@ -835,8 +833,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		if (recoverer != null) {
 			if (debugListener != null) {
 				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
-				visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
 			}
+			visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (debugListener != null) {
 				debugListener.revived(recoveredNodes);
@@ -866,7 +864,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			
 			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
-				if (debugListener != null) {
+				if (DebugVisualizer.VISUALIZATION_ENABLED) {
 					NodeId reduceNodeId = new NodeId("todo-" + i);
 					visualize("Found stack to reduce", reduceNodeId);
 				}
@@ -881,18 +879,21 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		
 		if (recoverer != null && location < input.length) {
 			if (debugListener != null) {
-				visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
 				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			}
+			visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (debugListener != null) {
 				debugListener.revived(recoveredNodes);
+			}
+			if (DebugVisualizer.VISUALIZATION_ENABLED && visualizer != null) {
 				// Visualize state and include recovered nodes
 				visualizer.createGraph(this, "Reviving");
 				visualizer.addRecoveredNodes(recoveredNodes);
 				visualizer.writeGraph();
 				opportunityToBreak();
 			}
+			
 			if (recoveredNodes.size() > 0) {
 				// <PO> was: for (int i = recoveredNodes.size()-1; i>= 0; i--) {
 				for (int i = 0; i < recoveredNodes.size(); i++) {
@@ -902,8 +903,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 					
 					if (debugListener != null) {
 						debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
-						visualize("Queue recovery node", DebugVisualizer.getNodeId(recovered));
 					}
+					visualize("Queue recovery node", DebugVisualizer.getNodeId(recovered));
 					queueRecoveryNode(recovered, recovered.getStartLocation(), recovered.getLength(), recoveredNodes.getSecond(i));
 				}
 				return findStacksToReduce();
@@ -1261,6 +1262,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 
 	    this.recoverer = recoverer;
 	    this.debugListener = debugListener;
+		
+		String query = inputURI.getQuery();
+		visualizer = query != null && query.contains("visualize=true") ? new DebugVisualizer("Parser") : null;
 
 	    // Initialzed the position store.
 	    positionStore.index(input);
@@ -1466,7 +1470,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 
 	 private void visualize(String step, NodeId highlight) {
 		// Only visualize when debugging
-		if (debugListener != null) {
+		if (DebugVisualizer.VISUALIZATION_ENABLED && visualizer != null) {
 			visualizer.createGraph(this, step);
 			if (highlight != null) {
 				visualizer.highlight(highlight);
@@ -1477,7 +1481,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		}
 	 }
 
-	 private void opportunityToBreak() {
+	 public static void opportunityToBreak() {
 	 }
 
 
