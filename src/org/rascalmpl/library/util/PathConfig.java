@@ -1,14 +1,12 @@
 package org.rascalmpl.library.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -661,35 +659,26 @@ public class PathConfig {
             }
 
             var maven = new MavenCli();
-            try (var output = new ByteArrayOutputStream()) {
-                var oldOut = System.out;
-                var oldErr = System.err;
-                try (var out = new PrintStream(output, false, StandardCharsets.UTF_8)) {
-                    System.setOut(out);
-                    System.setErr(out);
-                    maven.doMain(buildRequest(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile"}, manifestRoot));
-                }
-                finally {
-                    System.setOut(oldOut);
-                    System.setErr(oldErr);
-                }
-                var mavenOutput = new String(output.toByteArray(), StandardCharsets.UTF_8);
-                var match = FIND_CLASS_PATH.matcher(mavenOutput);
-                var foundClassPath = match.find() ? match.group(1) : "";
+            var tempFile = Files.createTempFile("rascal-classpath-", ".tmp");
+            
+            maven.doMain(buildRequest(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()}, manifestRoot));
+            
+            var mavenOutput = Files.readAllLines(tempFile);
+            var match = FIND_CLASS_PATH.matcher(mavenOutput.get(0));
+            var foundClassPath = match.find() ? match.group(1) : "";
 
-                return Arrays.stream(foundClassPath.split(File.pathSeparator))
-                    .filter(fileName -> new File(fileName).exists())
-                    .map(elem -> {
-                        try {
-                            return URIUtil.createFileLocation(elem);
-                        }
-                        catch (URISyntaxException e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .collect(vf.listWriter());
-            }
+            return Arrays.stream(foundClassPath.split(File.pathSeparator))
+                .filter(fileName -> new File(fileName).exists())
+                .map(elem -> {
+                    try {
+                        return URIUtil.createFileLocation(elem);
+                    }
+                    catch (URISyntaxException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(vf.listWriter());
         }
         catch (IOException | RuntimeException | ReflectiveOperationException e) {
             return vf.list();
