@@ -1,5 +1,7 @@
 module lang::rascal::tests::basic::CompilerIssues::LIstMatchInOR
 
+import IO;
+
 data Symbol
      = strt()
      | par(list[Symbol] parameters) // <6>>
