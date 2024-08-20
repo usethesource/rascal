@@ -25,7 +25,7 @@ data Symbol
 
 // Simplified version from lang::rascal::grammar::analyze::Dependency
 set[Symbol] symbolDependenciesOld(set[Symbol] sses) =
-  { from | s <- sses, bprintln(s), (label(_,Symbol from) := s || Symbol from := s)};
+  { from | s <- sses, (label(_,Symbol from) := s || Symbol from := s)};
 
 // Test for original version (with probably unintended result)
 @ignoreCompiler{Generates incorrect code}
