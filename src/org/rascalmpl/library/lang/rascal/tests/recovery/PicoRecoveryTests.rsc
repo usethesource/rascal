@@ -93,7 +93,7 @@ end", visualize=true);
         println("   error: <getErrorText(error)>");
     }
 
-return !hasErrors(t);
+return hasErrors(t);
     /*str errorText = getErrorText(findFirstError(t));
     println("error text: <errorText>");
     return hasErrors(t) && size(findAllErrors(t)) == 1 && getErrorText(findFirstError(t)) == "input := input - 1
@@ -113,7 +113,7 @@ end", visualize=true);
         println("   error: <getErrorText(error)>");
     }
 
-return !hasErrors(t);
+return hasErrors(t);
     /*str errorText = getErrorText(findFirstError(t));
     println("error text: <errorText>");
     return hasErrors(t) && size(findAllErrors(t)) == 1 && getErrorText(findFirstError(t)) == "input := input - 1

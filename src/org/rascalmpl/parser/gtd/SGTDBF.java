@@ -46,6 +46,7 @@ import org.rascalmpl.parser.gtd.util.IntegerKeyedDoubleValueHashMap;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.util.visualize.DebugVisualizer;
 import org.rascalmpl.util.visualize.dot.NodeId;
 
@@ -763,9 +764,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 */
 	private void move(AbstractStackNode<P> node, AbstractNode result){
 		if(debugListener != null) debugListener.moving(node, result);
-		if (node instanceof RecoveryPointStackNode) {
-			opportunityToBreak();
-		}
+
 		// Handle filtering.
 		ICompletionFilter[] completionFilters = node.getCompletionFilters();
 		if(completionFilters != null){
@@ -891,7 +890,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 				visualizer.createGraph(this, "Reviving");
 				visualizer.addRecoveredNodes(recoveredNodes);
 				visualizer.writeGraph();
-				opportunityToBreak();
+				DebugUtil.opportunityToBreak();
 			}
 			
 			if (recoveredNodes.size() > 0) {
@@ -1477,14 +1476,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 			}
 			visualizer.writeGraph();
 
-			opportunityToBreak();
+			DebugUtil.opportunityToBreak();
 		}
 	 }
 
-	 public static void opportunityToBreak() {
-	 }
-
-
+	
 	/**
 	 * Getters used for graph generation/debugging
 	 */
