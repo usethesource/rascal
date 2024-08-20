@@ -677,7 +677,7 @@ public class PathConfig {
                 var match = FIND_CLASS_PATH.matcher(mavenOutput);
                 var foundClassPath = match.find() ? match.group(1) : "";
 
-                return Arrays.stream(foundClassPath.split(File.pathSeparator) )
+                return Arrays.stream(foundClassPath.split(File.pathSeparator))
                     .filter(fileName -> new File(fileName).exists())
                     .map(elem -> {
                         try {
@@ -696,7 +696,7 @@ public class PathConfig {
         }
     }
 
-    private static void setField(CliRequest req, String fieldName, Object value)  throws ReflectiveOperationException {
+    private static void setField(CliRequest req, String fieldName, Object value) throws ReflectiveOperationException {
         var field = CliRequest.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.set(req, value);
