@@ -637,7 +637,7 @@ public class PathConfig {
     }
 	
 
-    private static final Pattern FIND_CLASS_PATH = Pattern.compile("org.apache.maven.plugin.dependency.fromDependencies.BuildClasspathMojo - Dependencies classpath:\\s+(.+)$", Pattern.MULTILINE);
+    private static final Pattern FIND_CLASS_PATH = Pattern.compile("org.apache.maven.plugins.dependency.fromDependencies.BuildClasspathMojo - Dependencies classpath:\\s+(.+)$", Pattern.MULTILINE);
 
 
     /**
