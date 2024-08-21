@@ -25,7 +25,7 @@ test bool abx() {
 
 test bool axc() {
     Tree t = parseS("a x c $", visualize=true);
-    iprintln(getSkipped(findFirstError(t))@\loc);
+    iprintln(getSkipped(findFirstError(t)).src);
     return getErrorText(findFirstError(t)) == "x c";    
 }
 
