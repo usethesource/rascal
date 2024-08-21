@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -580,11 +581,12 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IGTD<IConstructor, ITree, ISourceLocation> parserInstance = getParser();
             IRecoverer<IConstructor> recoverer = null;
             IDebugListener<IConstructor> debugListener = null;
+            URI uri = location.getURI();
             if (allowRecovery) {
-                recoverer = new ToTokenRecoverer(new StackNodeIdDispenser(parserInstance));
+                recoverer = new ToTokenRecoverer(uri, new StackNodeIdDispenser(parserInstance));
                 //debugListener = new DebugLogger(new PrintWriter(System.out, true));
             }
-            return (ITree) parserInstance.parse(methodName, location.getURI(), input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);
+            return (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);
         }
     }
     

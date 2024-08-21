@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result.out;
 
+import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
-import org.rascalmpl.parser.gtd.util.ArrayList;
 
 /**
  * A converter for result nodes that contain skipped characters for error recovery
@@ -23,7 +23,15 @@ public class RecoveryNodeFlattener<T, P>{
 		super();
 	}
 	
-	public T convertToUPTR(INodeConstructorFactory<T, P> nodeConstructorFactory, SkippedNode node){
-		return nodeConstructorFactory.createRecoveryNode(node.getDot(), new ArrayList<>(), node.getSkippedChars(), node.getProduction());
+	public T convertToUPTR(INodeConstructorFactory<T, P> nodeConstructorFactory, SkippedNode node, PositionStore positionStore){
+		T result = nodeConstructorFactory.createSkippedNode(node.getSkippedChars());
+
+		// Add source location
+		int startOffset = node.getOffset();
+		int endOffset = startOffset + node.getLength();
+		P sourceLocation = nodeConstructorFactory.createPositionInformation(node.getInput(), startOffset, endOffset, positionStore);
+		result = nodeConstructorFactory.addPositionInformation(result, sourceLocation);
+
+		return result;
 	}
 }

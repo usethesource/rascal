@@ -190,7 +190,8 @@ data Production
      | \reference(Symbol def, str cons) // <5>
      ;
 
-data Production = skipped(Symbol def, Production prod, int dot);
+data Production = error(Symbol def, Production prod, int dot)
+     | skipped(Symbol symbol);
 
 @synopsis{Attributes in productions.}
 @description{
@@ -769,40 +770,32 @@ bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
 @synopsis{Check if a parse tree contains any skipped nodes, the result of error recovery.}
-bool hasErrors(Tree tree) = /appl(skipped(_, _, _), _) := tree;
+bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 
 @synopsis{Find all error productions in a parse tree.}
-list[Tree] findAllErrors(Tree tree) {
-    return for (/error:appl(_, [*_, appl(skipped(_, _, _), _)]) := tree) append(error);
-}
+list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tree];
 
 @synopsis{Find the first production containing an error.}
 Tree findFirstError(Tree tree) {
-    if (/error:appl(_, [*_, appl(skipped(_, _, _), _)]) := tree) return error;
+    if (/err:appl(error(_, _, _), _) := tree) return err;
     fail;
 }
 
-private Production getSkipped(appl(_, [*_, appl(skip:skipped(_, _, _), _)])) = skip;
+@synopsis{Get the symbol (sort) of the failing production}
+Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
 
-Symbol getErrorSymbol(Tree error) {
-  if (skipped(Symbol s, _, _) := getSkipped(error)) {
-    return s;
-  }
-  fail;
+@synopsis{Get the production that failed}
+Production getErrorProduction(appl(error(_, Production prod, _), _)) = prod;
+
+@synopsis{Get the dot (position in the production) of the failing element in a production}
+int getErrorDot(appl(error(_, _, int dot), _)) = dot;
+
+@synopsis{Get the skipped tree}
+Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) {
+  return skip;
 }
 
-Production getErrorProduction(Tree error) {
-  if (skipped(_, Production p, _) := getSkipped(error)) {
-    return p;
-  }
-  fail;
+@synopsis{Get the text that failed to parse}
+str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) {
+  return stringChars([c | ch <- chars, char(c) := ch]);
 }
-
-int getErrorPosition(Tree error) {
-  if (skipped(_, _, int dot) := getSkipped(error)) {
-    return dot;
-  }
-  fail;
-}
-
-str getErrorText(appl(_, [*_, appl(skipped(_, _, _), chars)])) = stringChars([c | ch <- chars, char(c) := ch]);

@@ -13,6 +13,7 @@ package org.rascalmpl.parser.gtd;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -34,7 +35,6 @@ import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
@@ -49,6 +49,13 @@ import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.util.visualize.DebugVisualizer;
 import org.rascalmpl.util.visualize.dot.NodeId;
+import org.rascalmpl.values.RascalValueFactory;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 /**
  * This is the core of the parser; it drives the parse process.
@@ -1445,8 +1452,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	    finally {
 	      actionExecutor.completed(rootEnvironment, (parseResult == null));
 	    }
-	    if(parseResult != null){
-	      return parseResult; // Success.
+	    if(parseResult != null) {
+			if (recoverer != null) {
+				parseResult = fixErrorNodes(parseResult, nodeConstructorFactory);
+			}
+			return parseResult; // Success.
 	    }
 
 	    int offset = filteringTracker.getOffset();
@@ -1461,6 +1471,97 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	  finally {
 	    checkTime("Unbinarizing, post-parse filtering, and mapping to UPTR");
 	  }
+	}
+
+	/**
+	 * Error nodes end up in a n inconvenient form because of the parser algorithm.
+	 * This post-processing step transforms the original tree into a more useful form.
+	 * In essence, error subtrees look like this after parsing:
+	 * `appl(prod(S,[<argtypes>]), [<child1>,<child2>,...,appl(skipped(S,prod(S,[<argtypes>]),<dot>),[<chars>)]])`
+	 * This method pulls up the skipped node, transforming these trees into:
+	 * `appl(skipped(S,prod(S,[<argtypes>]),<dot>), [<child1>,<child2>,...,[<chars>])])`
+	 * This means productions that failed to parse can be recognized at the top level.
+	 * Note that this can only be done when we know the actual type of T is IConstructor.
+	 */
+	@SuppressWarnings("unchecked")
+	T fixErrorNodes(T tree, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+		if (!(tree instanceof IConstructor)) {
+			return tree;
+		}
+
+		return (T) fixErrorNodes((IConstructor) tree, (INodeConstructorFactory<IConstructor, S>) nodeConstructorFactory);
+	}
+
+	IConstructor fixErrorNodes(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+		IConstructor result;
+		Type type = tree.getConstructorType();
+		if (type == RascalValueFactory.Tree_Appl) {
+			IValue prod = tree.get(0);
+			IList childList = (IList) tree.get(1);
+			int childCount = childList.length();
+
+			ArrayList<IConstructor> children = new ArrayList<>(childCount);
+			boolean anyChanges = false;
+			boolean errorTree = false;
+			for (int i=0; i<childCount; i++) {
+				if (i == childCount-1) {
+					// Last child could be a skipped child
+					IConstructor last = (IConstructor) childList.get(childCount-1);
+					if (last.getConstructorType() == RascalValueFactory.Tree_Appl) {
+						IConstructor lastProd = (IConstructor) last.get(0);
+						if (lastProd.getConstructorType() == RascalValueFactory.Production_Skipped) {
+							errorTree = true;
+							children.add(last);
+							break;
+						}
+					}
+				}
+
+				IConstructor child = (IConstructor) childList.get(i);
+				IConstructor resultChild = fixErrorNodes(child, nodeConstructorFactory);
+				children.add(resultChild);
+				if (resultChild != child) {
+					anyChanges = true;
+				}
+			}
+
+			if (errorTree) {
+				result = nodeConstructorFactory.createErrorNode(children, prod);
+			} else if (anyChanges) {
+				result = nodeConstructorFactory.createSortNode(children, prod);
+			} else {
+				result = tree;
+			}
+		} else if (type == RascalValueFactory.Tree_Char) {
+			result = tree;
+		} else if (type == RascalValueFactory.Tree_Amb) {
+			ISet alternativeSet = (ISet) tree.get(0);
+			ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
+			final AtomicBoolean anyChanges = new AtomicBoolean(false);
+			alternativeSet.forEach(alt -> {
+				IConstructor newAlt = fixErrorNodes((IConstructor) alt, nodeConstructorFactory);
+				if (newAlt != alt) {
+					anyChanges.setPlain(true);
+				}
+				alternatives.add(newAlt); 
+			});
+			if (anyChanges.getPlain()) {
+				result = nodeConstructorFactory.createAmbiguityNode(alternatives);
+			} else {
+				result = tree;
+			}
+		} else if (type == RascalValueFactory.Tree_Cycle) {
+			result = tree;
+		} else {
+			throw new RuntimeException("Unrecognized tree type: " + type);
+		}
+
+		if (result != tree) {
+			IValue loc = tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
+			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+		}
+
+		return result;
 	}
 
 	/**

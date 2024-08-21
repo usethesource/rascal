@@ -12,13 +12,11 @@
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.function.Consumer;
 
-import org.rascalmpl.parser.gtd.SGTDBF;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
@@ -27,7 +25,6 @@ import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
-import org.rascalmpl.parser.gtd.stack.SeparatedListStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -38,6 +35,7 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
+import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.util.visualize.DebugVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
@@ -46,9 +44,11 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
+	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 
-	public ToTokenRecoverer(IdDispenser stackNodeIdDispenser) {
+	public ToTokenRecoverer(URI uri, IdDispenser stackNodeIdDispenser) {
+		this.uri = uri;
 		this.stackNodeIdDispenser = stackNodeIdDispenser;
 	}
 
@@ -60,17 +60,17 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
 
-		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<AbstractStackNode<IConstructor>>();
+		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
 		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
-		// TODO: handle unmatchableLeafNodes
-		//collectFilteredNodes(filteredNodes, failedNodes);
+		// handle unmatchableLeafNodes
+		// collectFilteredNodes(filteredNodes, failedNodes);
 
 		return reviveFailedNodes(input, location, failedNodes);
 	}
 
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
-		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>();
+		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<>();
 		
 		// <PO> original: for (int i = recoveryNodes.size() - 1; i >= 0; --i) {
 		// But this caused problems because recovery nodes with a later position
@@ -118,7 +118,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// If we are the top-level node, just skip the rest of the input
 		if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
-			result = SkippingStackNode.createResultUntilEndOfInput(input, startLocation, prod, dot);
+			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation, prod, dot);
 			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			return nodes;	// No other nodes would be useful
 		}
@@ -135,7 +135,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		for (InputMatcher endMatcher : endMatchers) {
 			MatchResult endMatch = endMatcher.findMatch(input, startLocation);
 			if (endMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(input, startLocation, endMatch.getEnd(), prod, dot);
+				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd(), prod, dot);
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			}
 		}
@@ -145,7 +145,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		for (InputMatcher nextMatcher : nextMatchers) {
 			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation);
 			if (nextMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(input, startLocation, nextMatch.getStart(), prod, dot);
+				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart(), prod, dot);
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			}
 		}
@@ -241,8 +241,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 
 		if (next instanceof NonTerminalStackNode) {
-			NonTerminalStackNode<IConstructor> nextNonTerminal = (NonTerminalStackNode<IConstructor>) next;
-			SGTDBF.opportunityToBreak();
+			//NonTerminalStackNode<IConstructor> nextNonTerminal = (NonTerminalStackNode<IConstructor>) next;
+			DebugUtil.opportunityToBreak();
 		}
 
 		return matchers;
@@ -278,7 +278,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	}
 	
 	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(int[] input, int location, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
-		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>>();
+		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes = new DoubleArrayList<>();
 		
 		for (int i = failedNodes.size() - 1; i >= 0; --i) {
 			findRecoveryNodes(failedNodes.get(i), recoveryNodes);
@@ -320,8 +320,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	 * Travels up the parse graph in an attempt to find the closest recoverable parent nodes.
 	 */
 	private void findRecoveryNodes(AbstractStackNode<IConstructor> failer, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
-		ObjectKeyedIntegerMap<AbstractStackNode<IConstructor>> visited = new ObjectKeyedIntegerMap<AbstractStackNode<IConstructor>>();
-		Stack<AbstractStackNode<IConstructor>> todo = new Stack<AbstractStackNode<IConstructor>>();
+		ObjectKeyedIntegerMap<AbstractStackNode<IConstructor>> visited = new ObjectKeyedIntegerMap<>();
+		Stack<AbstractStackNode<IConstructor>> todo = new Stack<>();
 		
 		todo.push(failer);
 		
@@ -336,7 +336,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			visited.put(node, 0);
 			
 			if (useNext) {
-				ArrayList<IConstructor> recoveryProductions = new ArrayList<IConstructor>();
+				ArrayList<IConstructor> recoveryProductions = new ArrayList<>();
 				collectProductions(node, recoveryProductions);
 				if (recoveryProductions.size() > 0) {
 					addRecoveryNode(node, recoveryProductions, recoveryNodes);
@@ -389,8 +389,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	        return; // The root node does not have a production, so ignore it.
 	    }
 
-	    int dot = node.getDot();
-
 	    if (node.isEndNode()) {
 	        IConstructor parentProduction = node.getParentProduction();
 	        if (ProductionAdapter.isContextFree(parentProduction)){
@@ -402,13 +400,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	        }
 	    }
 
+	    int dot = node.getDot();
 	    for (int i = dot + 1; i < production.length; ++i) {
 	        AbstractStackNode<IConstructor> currentNode = production[i];
 	        if (currentNode.isEndNode()) {
 	            IConstructor parentProduction = currentNode.getParentProduction();
 	            if (ProductionAdapter.isContextFree(parentProduction)) {
 	                productions.add(parentProduction);
-					System.err.println("adding production at " + i + ": " + parentProduction);
 	            }
 	        }
 
@@ -419,7 +417,5 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 	            }
 	        }
 	    }
-	}
-
-	
+	}	
 }

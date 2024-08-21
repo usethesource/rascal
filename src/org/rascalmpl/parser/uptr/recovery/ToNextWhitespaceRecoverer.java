@@ -80,9 +80,9 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 
 				SkippedNode result;
 				if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
-					result = SkippingStackNode.createResultUntilEndOfInput(input, startLocation, prod, dot);
+					result = SkippingStackNode.createResultUntilEndOfInput(null, input, startLocation, prod, dot);
 				} else {
-					result = SkippingStackNode.createResultUntilCharClass(WHITESPACE, input, startLocation, prod, dot);
+					result = SkippingStackNode.createResultUntilCharClass(null, WHITESPACE, input, startLocation, prod, dot);
 				}
 
 				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result);

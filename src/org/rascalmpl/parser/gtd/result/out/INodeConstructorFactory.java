@@ -38,7 +38,9 @@ public interface INodeConstructorFactory<T, P> {
 	
 	T createListAmbiguityNode(ArrayList<T> alternatives);
 	
-	T createRecoveryNode(int dot, ArrayList<T> recognizedPrefix, int[] unrecognizedCharacters, Object production);
+	T createSkippedNode(int[] unrecognizedCharacters);
+
+	T createErrorNode(ArrayList<T> children, Object production);
 
 	ArrayList<T> getChildren(T node);
 	
