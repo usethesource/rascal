@@ -17,9 +17,8 @@ import org.rascalmpl.parser.gtd.result.SkippedNode;
 /**
  * A converter for result nodes that contain skipped characters for error recovery
  */
-public class RecoveryNodeFlattener<T, P>{
-	
-	public RecoveryNodeFlattener(){
+public class SkippedNodeFlattener<T, P>{
+	public SkippedNodeFlattener(){
 		super();
 	}
 	
