@@ -758,6 +758,42 @@ test bool StringUnicodeVisitEmoji1() {
 	} == "Hello World";
 }
 
+test bool StringUnicodeVisitEmoji1TD() {
+    return top-down visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1TDB() {
+    return top-down-break visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1BU() {
+    return bottom-up visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1BUB() {
+    return bottom-up-break visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1INNER() {
+    return innermost visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1OUTER() {
+    return outermost visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
 test bool StringUnicodeVisitEmoji2() {
 	return visit ("Hello World") {
 		case / / => "🌈"
