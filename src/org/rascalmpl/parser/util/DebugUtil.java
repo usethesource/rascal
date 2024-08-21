@@ -41,10 +41,8 @@ public class DebugUtil {
         return s;
     }
 
-    /*
-	  * Nop method that allows breakpoints to be set at the call site even if originally there is no code to break on
-	  */
 	public static void opportunityToBreak() {
+        // Nop method that allows breakpoints to be set at the call site even if originally there is no code to break on
     }
-    
+
 }

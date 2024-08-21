@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -13,7 +14,6 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -23,6 +23,8 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
 	private static final RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+	private static final IConstructor SKIPPED = VF.constructor(RascalValueFactory.Production_Skipped, VF.constructor(RascalValueFactory.Symbol_IterStar, VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Range, VF.integer(1), VF.integer(Character.MAX_CODE_POINT))))));
+
 	private boolean allowAmb;
 	
 	public UPTRNodeFactory(boolean allowAmbiguity){
@@ -142,7 +144,21 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 	}
 
     @Override
-    public ITree createRecoveryNode(int dot, ArrayList<ITree> recognizedPrefix, int[] unrecognizedCharacters, Object production) {
+    public ITree createSkippedNode(int[] characters) {
+        IList chars = Arrays.stream(characters).mapToObj(VF::character).collect(VF.listWriter());
+        return VF.appl(SKIPPED, chars);
+	}
+
+	public ITree createErrorNode(ArrayList<ITree> children, Object production) {
+		IConstructor prod = (IConstructor) production;
+		IConstructor errorProd = VF.constructor(RascalValueFactory.Production_Error, prod.get(0), prod, VF.integer(children.size()-1));
+		return buildAppl(children, errorProd);
+	}
+
+	/*
+		@Override
+    public ITree createRecoveryNode(int[] characters) {
+    }
 		IListWriter args = VF.listWriter();
 		for (int i=0; i<recognizedPrefix.size(); i++) {
 			args.append(recognizedPrefix.get(i));
@@ -157,4 +173,5 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		IConstructor skipped = VF.constructor(RascalValueFactory.Production_Skipped, prod.get(0), (IValue) production, VF.integer(dot));
         return VF.appl(skipped, args.done());
     }
+		*/
 }
