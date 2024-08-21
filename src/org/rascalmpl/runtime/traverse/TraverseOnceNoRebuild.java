@@ -264,7 +264,7 @@ public class TraverseOnceNoRebuild extends TraverseOnce implements ITraverseSpec
 	private IValue traverseString(final IValue subject, final TraversalState tr){
 		final IString subjectIString = (IString) subject;
 		final String subjectString = subjectIString.getValue();
-		final int len = subjectIString.length();
+		final int len = subjectString.length();
 		int subjectCursor = 0;
 
 		boolean hasMatched = false;
