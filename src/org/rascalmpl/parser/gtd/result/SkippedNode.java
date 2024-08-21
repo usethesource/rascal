@@ -11,22 +11,27 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
+import java.net.URI;
+
 import org.rascalmpl.unicode.UnicodeConverter;
 
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */
 public class SkippedNode extends AbstractNode {
-	public final static int ID = 9;
+	public static final int ID = 9;
 	
+	// TODO: only "skippedChars" is actually needed
+	private final URI input;
 	private final Object production;
 	private final int dot;
 	private final int[] skippedChars;
 	private final int offset;
 
-	public SkippedNode(Object production, int dot, int[] skippedChars, int offset) {
+	public SkippedNode(URI input, Object production, int dot, int[] skippedChars, int offset) {
 		super();
 		
+		this.input = input;
 		this.production = production;
 		this.dot = dot;
 		this.skippedChars = skippedChars;
@@ -35,6 +40,10 @@ public class SkippedNode extends AbstractNode {
 	
 	public int getTypeIdentifier(){
 		return ID;
+	}
+
+	public URI getInput() {
+		return input;
 	}
 
 	public Object getProduction() {

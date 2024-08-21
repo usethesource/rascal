@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
+import java.net.URI;
+
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 
@@ -19,25 +21,25 @@ import io.usethesource.vallang.IConstructor;
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
 	
-	public static SkippedNode createResultUntilCharClass(int[] until, int[] input, int startLocation, IConstructor production, int dot) {
+	public static SkippedNode createResultUntilCharClass(URI uri, int[] until, int[] input, int startLocation, IConstructor production, int dot) {
 		for (int to = startLocation ; to < input.length; ++to) {
 			for (int i = 0; i < until.length; ++i) {
 				if (input[to] == until[i]) {
 					int length = to - startLocation;
-					return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
+					return new SkippedNode(uri, production, dot, createSkippedToken(input, startLocation, length), startLocation);
 				}
 			}
 		}
 
-		return new SkippedNode(production, dot, new int[0], startLocation);
+		return new SkippedNode(uri, production, dot, new int[0], startLocation);
 	}
 
-	public static SkippedNode createResultUntilEndOfInput(int[] input, int startLocation, IConstructor production, int dot) {
+	public static SkippedNode createResultUntilEndOfInput(URI uri, int[] input, int startLocation, IConstructor production, int dot) {
 		int length = input.length - startLocation;
-		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, length), startLocation);
+		return new SkippedNode(uri, production, dot, createSkippedToken(input, startLocation, length), startLocation);
 	}
 
-	public static SkippedNode createResultUntilToken(String token, int[] input, int startLocation, IConstructor production, int dot) {
+	public static SkippedNode createResultUntilToken(URI uri, String token, int[] input, int startLocation, IConstructor production, int dot) {
 		int length = token.length();
 		for (int start=startLocation; start+length < input.length; start++) {
 			boolean match = true;
@@ -47,7 +49,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 				}
 
 				if (match) {
-					return createResultUntilChar(input, startLocation, start+length-startLocation, production, dot);
+					return createResultUntilChar(uri, input, startLocation, start+length-startLocation, production, dot);
 				}
 			}
 		}
@@ -55,8 +57,8 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return null;
 	}
 
-	public static SkippedNode createResultUntilChar(int[] input, int startLocation, int endLocation, IConstructor production, int dot) {
-		return new SkippedNode(production, dot, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
+	public static SkippedNode createResultUntilChar(URI uri, int[] input, int startLocation, int endLocation, IConstructor production, int dot) {
+		return new SkippedNode(uri, production, dot, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
 	}
 
 	private static int[] createSkippedToken(int[] input, int startLocation, int length) {

@@ -66,7 +66,7 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 			case RecoveredNode.ID:
 				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
 			case SkippedNode.ID:
-				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node); 
+				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
 			default:
 				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
