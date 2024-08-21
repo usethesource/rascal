@@ -381,13 +381,13 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 	private IValue traverseString(final IValue subject, final TraversalState tr){
 		final IString subjectIString = (IString) subject;
 		final String subjectString = subjectIString.getValue();
-		final int len = subjectIString.length();
+		final int len = subjectString.length();
 		int subjectCursor = 0;
 
 		boolean hasMatched = false;
 		boolean hasChanged = false;
 
-		StringBuffer replacementString = new StringBuffer(len); 
+		StringBuilder replacementString = new StringBuilder(len); 
 
 		while (subjectCursor < len){
 			tr.setMatchedAndChanged(false, false);
