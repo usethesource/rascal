@@ -1280,6 +1280,11 @@ set[str] typeParamNames(AType t) {
     return { tvn | aparameter(tvn,_) <- collectRascalTypeParams(t) };
 }
 
+@doc{Set "closed" to its default in all type parameters occurring in a value}
+&T uncloseTypeParams(&T v)
+    = visit(v) { case p:aparameter(_,_,closed=true) => unset(p,"closed") };
+    
+
 // ---- element & container types
 
 @doc{Is this type a non-container type?}
@@ -1345,24 +1350,24 @@ default AType getStartNonTerminalType(AType s) {
 
 //TODO labelled
 
-bool isLexicalType(aparameter(_,AType tvb)) = isLexicalType(tvb);
-bool isLexicalType(AType::\conditional(AType ss,_)) = isLexicalType(ss);
-bool isLexicalType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax();
-bool isLexicalType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalType(adt);
-bool isLexicalType(AType::\start(AType ss)) = isLexicalType(ss);
+bool isLexicalAType(aparameter(_,AType tvb)) = isLexicalAType(tvb);
+bool isLexicalAType(AType::\conditional(AType ss,_)) = isLexicalAType(ss);
+bool isLexicalAType(t:aadt(adtName,_,SyntaxRole sr)) = sr == lexicalSyntax() || sr == layoutSyntax();
+bool isLexicalAType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = isLexicalAType(adt);
+bool isLexicalAType(AType::\start(AType ss)) = isLexicalAType(ss);
 
-bool isLexicalType(AType:alit(str string)) = true;
-bool isLexicalType(AType:acilit(str string)) = true;
-bool isLexicalType(AType:\achar-class(list[ACharRange] ranges)) = true;
+bool isLexicalAType(AType:alit(str string)) = true;
+bool isLexicalAType(AType:acilit(str string)) = true;
+bool isLexicalAType(AType:\achar-class(list[ACharRange] ranges)) = true;
    
-bool isLexicalType(AType::\iter(AType s, isLexical=b)) = b; //isLexicalType(s);
-bool isLexicalType(AType::\iter-star(AType s, isLexical=b)) = b; //isLexicalType(s);
-bool isLexicalType(AType::\iter-seps(AType s,_, isLexical=b)) = b; //isLexicalType(s);
-bool isLexicalType(AType::\iter-star-seps(AType s,_, isLexical=b)) = b; //isLexicalType(s);
+bool isLexicalAType(AType::\iter(AType s, isLexical=b)) = b; //isLexicalAType(s);
+bool isLexicalAType(AType::\iter-star(AType s, isLexical=b)) = b; //isLexicalAType(s);
+bool isLexicalAType(AType::\iter-seps(AType s,_, isLexical=b)) = b; //isLexicalAType(s);
+bool isLexicalAType(AType::\iter-star-seps(AType s,_, isLexical=b)) = b; //isLexicalAType(s);
 
-bool isLexicalType(seq(list[AType] symbols)) = all(s <- symbols, isLexicalType(s));
-bool isLexicalType(alt(set[AType] alternatives)) = any(s <- alternatives, isLexicalType(s));
-bool isLexicalType(AType t) = false;
+bool isLexicalAType(seq(list[AType] symbols)) = all(s <- symbols, isLexicalAType(s));
+bool isLexicalAType(alt(set[AType] alternatives)) = any(s <- alternatives, isLexicalAType(s));
+bool isLexicalAType(AType t) = false;
 
 // ---- literal/terminal
 @doc{Synopsis: Determine if the given type is a terminal symbol (a literal or character class).}
