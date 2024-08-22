@@ -25,7 +25,9 @@ test bool abx() {
 
 test bool axc() {
     Tree t = parseS("a x c $", visualize=true);
-    iprintln(getSkipped(findFirstError(t)).src);
+    iprintln(t);
+    println("after disambiguation:");
+    iprintln(defaultErrorDisambiguationFilter(t));
     return getErrorText(findFirstError(t)) == "x c";    
 }
 

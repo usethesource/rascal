@@ -142,8 +142,11 @@ module ParseTree
 extend Type;
 extend Message;
 extend List;
+extend Set;
 
 import String;
+import IO;
+import Node;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -178,6 +181,8 @@ construct ordered and un-ordered compositions, and associativity groups.
 <4> `assoc`  means all alternatives are acceptable, but nested on the declared side;
 <5> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
+<6> `error` means a node produced by error recovery.
+<7> `skipped` means characters skipped during error recovery, always the last child of an `appl` with a `error` production.
 } 
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
@@ -799,3 +804,61 @@ Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) {
 str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) {
   return stringChars([c | ch <- chars, char(c) := ch]);
 }
+
+@synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
+This filter removes error trees until no ambiguities caused by error recovery are left.
+Note that regular ambiguous trees remain in the parse tree.
+}
+Tree defaultErrorDisambiguationFilter(t: appl(Production prod, args)) {
+  Tree result = appl(prod, [defaultErrorDisambiguationFilter(arg) | arg <- args]);
+  return setKeywordParameters(result, getKeywordParameters(t));
+}
+
+Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
+  // Go depth-first
+  set[Tree] disambiguatedAlts = { defaultErrorDisambiguationFilter(alt) | Tree alt <- alternatives };
+
+  set[Tree] errorTrees = { alt | Tree alt <- disambiguatedAlts, appl(error(_,_,_), _) := alt };
+  set[Tree] nonErrorTrees = { alt | Tree alt <- disambiguatedAlts, appl(error(_,_,_), _) !:= alt };
+
+  if (nonErrorTrees == {}) {
+    return getBestErrorTree(errorTrees);
+  } else if ({Tree single} := nonErrorTrees) {
+    // One ambiguity left, no ambiguity concerns here
+    return single;
+  }
+  
+  // Multiple non-error trees left, return an ambiguity node with just the non-error trees
+  return amb(nonErrorTrees);
+}
+
+private Tree getBestErrorTree(set[Tree] trees) {
+  Tree best = char(0);
+  int bestErrorCount = -1;
+  int bestErrorLength = 0;
+
+  for (tree <- trees) {
+    list[Tree] errors = findAllErrors(tree);
+    int errorCount = size(errors);
+    int errorLength = 0;
+    for (err <- errors) {
+      errorLength += getSkipped(err).src.length;
+    }
+
+    if (bestErrorCount == -1 || errorCount < bestErrorCount || (errorCount == bestErrorCount && errorLength < bestErrorLength)) { 
+      best = tree;
+      bestErrorCount = errorCount;
+      bestErrorLength = errorLength;
+    }
+  }
+
+  if (bestErrorCount != -1) {
+    return best;
+  }
+
+  // trees must have been empty
+  fail;
+}
+
+// Handle char and cycle nodes
+default Tree defaultErrorDisambiguationFilter(Tree t) = t;
