@@ -698,12 +698,13 @@ set[AType] getAccessibleADTs(AType root){
     res = { adt | adt <- getADTs(), getDefiningScopes(adt) <= accessible_scopes };
     return res;
 }
-
+    
 // Collect all types that are reachable from a given type
 
 map[AType,set[AType]] collectNeededDefs(AType t){
     map[AType, set[AType]] my_definitions = ();
     my_grammar_rules = current_grammar.rules;
+    
     list[AType] tparams = [];
     is_start = false;
     syntax_type = false;
@@ -741,24 +742,18 @@ map[AType,set[AType]] collectNeededDefs(AType t){
             for(uadt <- parameterized_uninstantiated_ADTs){
                 uadtParams = getADTTypeParameters(uadt);
                 if(t.adtName == uadt.adtName && size(iparams) == size(uadtParams)){
-                    return uadt;                  
+                    return uncloseTypeParams(uadt);                  
                 }
             }
         }
         return t;
     }
     
-    for(d <- domain(adt_constructors) + domain(my_grammar_rules)){
-        if(/par:aparameter(_,_) := d, !par.closed){
-            println("NOT CLOSED: <par> in <d>");
-        }
-    }
-    
     my_definitions =
         ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
         | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, 
-          adt0 := unset(uninstantiate(adt), "alabel"),
-          adt1 := visit(adt0) {case par:aparameter(_,_) => par[closed=true]}
+          adt1 := unset(uninstantiate(adt), "alabel")
+         
         );             
     
     if(syntax_type){
@@ -776,20 +771,12 @@ map[AType,set[AType]] collectNeededDefs(AType t){
     }
    
     solve(my_definitions){
-        //for(/adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions){
-        //    adt1 = uninstantiate(unsetRec(adt));
-        //    if((syntax_type ? syntaxRole != dataSyntax() : true) && !my_definitions[adt1]? && !my_grammar_rules[adt1]?){
-        //        my_definitions += ( adt1 : syntax_type ? {/*aprod(my_grammar_rules[adt1])*/} : (adt_constructors[adt1] ? {/*aprod(my_grammar_rules[adt1])*/})) ;
-        //     }
-        // }
-
         my_definitions =
             my_definitions +
             ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])}
                                  : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
             | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
-              adt0 := uninstantiate(unsetRec(adt)),
-              adt1 := visit(adt0) {case par:aparameter(_,_) => par[closed=true]},
+              adt1 := uninstantiate(unsetRec(adt)),
               syntax_type ? syntaxRole != dataSyntax() : true,
               !my_definitions[adt1]?,
               !my_grammar_rules[adt1]?
@@ -963,7 +950,7 @@ private  tuple[set[AType], set[AProduction]] getReachableAbstractTypes(AType sub
     
     //println("desiredTypes:"); iprintln(desiredTypes);
     
-    if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalType(t) ||*/ asubtype(t, treeType))){
+    if(any(t <- desiredTypes, isSyntaxType(t) || /*isLexicalAType(t) ||*/ asubtype(t, treeType))){
       // We just give up when abstract and concrete symbols occur together
       //println("descend_into (abstract) [1]: {value()}");
        return <{avalue()}, {}>;

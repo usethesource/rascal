@@ -158,12 +158,11 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
             prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, k != l, isStrictlyContainedIn(k, l)) };
 
             definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
-            //definedProductions += {<p1.def, p1> | loc k <- prodLocs2, aprod(p) := facts[k], p1 := p[def=unset(p.def)] };/*syn*/
  
             allStarts += { t | loc k <- facts, \start(t) := facts[k] };
         }
-        
-        rel[AType,AProduction] allProductions = definedProductions;
+        allStarts = uncloseTypeParams(allStarts);
+        rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
         
         allLayouts = {};
         allManualLayouts = {};
@@ -218,7 +217,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
         facts = tm.facts;
-        allADTs = { unset(adt, "alabel") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }; 
+        allADTs = uncloseTypeParams({ unset(adt, "alabel") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }); 
         //println("ADTandGrammar, allADTs:"); iprintln(allADTs);
         
         instantiated_in_grammar =
@@ -227,7 +226,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
               !isEmpty(parameters), 
               all(p <- parameters, !isTypeParameter(p)) 
             };
-         //println("ADTandGrammar, instantiated_in_grammar:"); iprintln(instantiated_in_grammar);
+        //println("ADTandGrammar, instantiated_in_grammar:"); iprintln(instantiated_in_grammar);
         
         instantiated =
             { unset(adt, "alabel") 
@@ -239,7 +238,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         instantiated_outside = instantiated - instantiated_in_grammar;
         //println("ADTandGrammar, instantiated_outside:"); iprintln(instantiated_outside);
         parameterized_uninstantiated_ADTs =
-            { unset(adt, "alabel") 
+            { unset(adt, "alabel")[parameters = uncloseTypeParams(params)]
             | adt <- allADTs, 
               adt.syntaxRole != dataSyntax(), 
               params := getADTTypeParameters(adt), 
@@ -276,7 +275,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         //g = expandKeywords(g);
         g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
-        //tm = tmlayouts(tm, definedLayout, allManualLayouts);
+        tm = tmlayouts(tm, definedLayout, allManualLayouts);
         tm.store[key_grammar] = [g];
         return <tm, ms>;
     } catch TypeUnavailable(): {
