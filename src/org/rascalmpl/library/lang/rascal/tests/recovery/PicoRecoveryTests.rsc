@@ -5,7 +5,7 @@ import lang::pico::\syntax::Main;
 import ParseTree;
 import IO;
 
-private Tree parsePico(str input, bool visualize=false) 
+Tree parsePico(str input, bool visualize=false) 
     = parser(#Program, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
 test bool picoOk() {
@@ -80,16 +80,24 @@ end");
       od";
 }
 
-test bool picoMissingTypoMinimal() {
+test bool picoTypoMinimal() {
     t = parsePico(
 "begin declare;
   while input do
     input x= 14;
     output := 0
   od
-end", visualize=true);
+end", visualize=false);
+
+    iprintln(t);
 
     for (error <- findAllErrors(t)) {
+        println("   error: <getErrorText(error)>");
+    }
+
+    disambiguated = defaultErrorDisambiguationFilter(t);
+    println("after disambiguation:");
+    for (error <- findAllErrors(disambiguated)) {
         println("   error: <getErrorText(error)>");
     }
 
