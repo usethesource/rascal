@@ -1,88 +1,68 @@
 module lang::rascalcore::compile::Examples::Tst4
+import Type;
+value main() = subtype(\int(), \num());
 
- 
-import ParseTree;
-
-layout Whitespace = [\ \t\n]*;
-
-start syntax D = "d";
-start syntax DS = D+ ds;
-//start syntax E = "e";
-//start syntax ES = {E ","}+ args;
-
-int cntDS(D+ ds) = size([d | d <- ds ]);
-
-value main() //test bool cntDS1() 
-    = cntDS(((DS) `d`).ds) == 1;
-    
-//test bool cntDS2() = cntDS(((DS) `dd`).ds) == 2;
-//test bool cntDS3() = cntDS(((DS) `d d`).ds) == 2;
+//test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 //
-//int cntES({E ","}+ es) = size([e | e <- es ]);
+//test bool allConstructorsAreDefined() 
+//  = (0 | it + 1 | /cons(_,_,_,_) := #P.definitions) == 7;
 //
-//test bool cntES1() = cntES(((ES) `e`).args) == 1;
-//test bool cntES2() = cntES(((ES) `e,e`).args) == 2;
-//test bool cntES3() = cntES(((ES) `e ,e`).args) == 2;
-//test bool cntES4() = cntES(((ES) `e, e`).args) == 2;
-//test bool cntES5() = cntES(((ES) `e , e`).args) == 2;   
+//test bool allConstructorsForAnAlternativeDefineTheSameSort() 
+//  = !(/choice(def, /cons(label(_,def),_,_,_)) !:= #P.definitions);
+//  
+//test bool typeParameterReificationIsStatic1(&F _) = #&F.symbol == \parameter("F",\value());
+//test bool typeParameterReificationIsStatic2(list[&F] _) = #list[&F].symbol == \list(\parameter("F",\value()));
+//
+//@ignore{issue #1007}
+//test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
+//
+//test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
+//
+//// New tests which can be enabled after succesful bootstrap
+//data P(int size = 0);
+//
+//@ignore{Does not work after changed TypeReifier in compiler}
+//test bool allConstructorsHaveTheCommonKwParam()
+//  =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
+//   
+//@ignoreCompiler{Does not work after changed TypeReifier in compiler}  
+//test bool axiomHasItsKwParam()
+//  =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
+//
+//@ignore{Does not work after changed TypeReifier in compiler}  
+//test bool axiomsKwParamIsExclusive()
+//  =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
+//  
+  
+  
 
 
- 
+//import List;
+//test bool listCount1(list[int] L){
+//   int cnt(list[int] L){
+//    int count = 0;
+//    while ([int _, *int _] := L) { 
+//           count = count + 1;
+//           L = tail(L);
+//    }
+//    return count;
+//  }
+//  return cnt(L) == size(L);
+//}
+//
+//value main()= listCount1([-8,1121836232,-5,0,1692910390]);
+
+
+//test bool testSimple1() 
+//    = int i <- [1,4] && int j <- [2,1] && int k := i + j && k >= 5;
+//
+//value main() = testSimple1();
+
 //int f(list[int] ds){
-//    if([*a, xxx, *b]:= ds){
+//    if([int xxx]:= ds, xxx > 0){
 //        return 1;
 //    } else {
 //        return 2;
 //    }
 //}
-
-//import lang::rascal::\syntax::Rascal;
-//import lang::rascal::grammar::definition::Symbols;
-//import lang::rascal::grammar::definition::Attributes;
-//import lang::rascal::grammar::definition::Names;
-//extend Grammar;
-//extend ParseTree;   
-//import util::Maybe;
-//  
-//private Production prod2prod(Symbol nt, Prod p) {
-//    Production pp;
-//  //switch(p) {
-//    if(labeled(ProdModifier* ms, Name n, Sym* args) := p){ 
-//      if ([Sym x] := args.args) {
-//        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), [], mods2attrs(ms)));
-//      }
-//      else {
-//        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), args2symbols(args), mods2attrs(ms)));
-//      }
-//    } else {
-//      return pp;
-//    }
-//    //case unlabeled(ProdModifier* ms, Sym* args) :
-//    //  if ([Sym x] := args.args, x is empty) {
-//    //    return associativity(nt, mods2assoc(ms), prod(nt, [], mods2attrs(ms)));
-//    //  }
-//    //  else {
-//    //    return associativity(nt, mods2assoc(ms), prod(nt,args2symbols(args),mods2attrs(ms)));
-//    //  }     
-//    //case \all(Prod l, Prod r) :
-//    //  return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
-//    //case \first(Prod l, Prod r) : 
-//    //  return priority(nt,[prod2prod(nt, l), prod2prod(nt, r)]);
-//    //case associativityGroup(\left(), Prod q) :
-//    //  return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
-//    //case associativityGroup(\right(), Prod q) :
-//    //  return associativity(nt, Associativity::\right(), {prod2prod(nt, q)});
-//    //case associativityGroup(\nonAssociative(), Prod q) :      
-//    //  return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
-//    //case associativityGroup(\associative(), Prod q) :      
-//    //  return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
-//    //case reference(Name n): return \reference(nt, unescape("<n>"));
-//   // default: throw "prod2prod, missed a case <p>"; 
-// // } 
-//  
-//}
-//
-//
-//
-//private Production associativity(Symbol nt, nothing(), Production p) = p;
-//private default Production associativity(Symbol nt, just(Associativity a), Production p) = associativity(nt, a, {p});
+//value main() = /*testSimple1() && */f([1]) == 1;
