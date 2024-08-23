@@ -15,15 +15,11 @@ import lang::rascalcore::check::ATypeUtils;
 /*
  *  Translate selected calls with constant arguments at compile time
  *  See lang::rascalcore::compile::muRascal::Primitives for constant folding of muPrimitives
- * TODO: size, isEmpty are overloaded, but that is not handled well by the compiler, see rascalPattern, call or tree pattern
  */
 
 MuExp translateConstantCall(str name, list[MuExp] args) {
 	return tcc(name, args);
 }
-
-// String
-//private MuExp tcc("size", [muCon(str s)]) = muCon(size(s));
 
 private MuExp tcc("size", [muCon(value v)]){
     switch(v){
@@ -54,27 +50,12 @@ private MuExp tcc("reverse", [muCon(value v)]){
 }
 
 // List
-//private MuExp tcc("size", [muCon(list[value] lst)]) = muCon(size(lst));
-private  MuExp tcc("index", [muCon(list[value] lst)]) = muCon(index(lst));
-//private MuExp tcc("isEmpty", [muCon(list[value] lst)]) = muCon(isEmpty(lst));
-//private  MuExp tcc("reverse", [muCon(list[value] lst)]) = muCon(reverse(lst));
- 
-// Set 
-//private MuExp tcc("size", [muCon(set[value] st)]) = muCon(size(st));
-//private MuExp tcc("isEmpty", [muCon(set[value] st)]) = muCon(isEmpty(st));
 
-// Map
-//private MuExp tcc("size", [muCon(map[value,value] mp)]) = muCon(size(mp));
-//private MuExp tcc("isEmpty", [muCon(map[value,value] mp)]) = muCon(isEmpty(mp));
+private  MuExp tcc("index", [muCon(list[value] lst)]) = muCon(index(lst));
 
 // Node
 private MuExp tcc("getName", [muCon(node nd)]) = muCon(getName(nd));
 private MuExp tcc("getChildren", [muCon(node nd)]) = muCon(getChildren(nd));
-
-// Type		
-private MuExp tcc("subtype", [muCon(AType lhs), muCon(AType rhs)]) = muCon(asubtype(lhs, rhs));
-private MuExp tcc("lub", [muCon(AType lhs), muCon(AType rhs)]) = muCon(alub(lhs, rhs));
-//private MuExp tcc("glb", [muCon(AType lhs), muCon(AType rhs)]) = muCon(aglb(lhs, rhs));
  
 // Tree
 
@@ -93,6 +74,7 @@ private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(Par
 private MuExp tcc("choice", [muCon(Symbol def), muCon(set[Production] alternatives)]) = muCon(Type::\choice(def, alternatives));
 
 // Attr
+
 private MuExp tcc("tag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
 private MuExp tcc("bracket", []) = muCon(ParseTree::\bracket());
 private MuExp tcc("assoc", [muCon(ParseTree::Associativity \assoc)]) = muCon(ParseTree::\assoc(\assoc));
@@ -105,7 +87,10 @@ private MuExp tcc("assoc", []) = muCon(ParseTree::\assoc());
 private MuExp tcc("non-assoc", []) = muCon(ParseTree::\non-assoc());
 
 // CharRange
+
 private MuExp tcc("range", [muCon(begin), muCon(end)]) = muCon(ParseTree::range(begin, end));
+
+// Symbols
 
 private MuExp tcc("int", []) = muCon(\int());
 private MuExp tcc("bool", []) = muCon(\bool());
@@ -134,10 +119,6 @@ private MuExp tcc("cons", [muCon(Symbol adt), muCon(str name), muCon(list[Symbol
 private MuExp tcc("alias", [muCon(str name), muCon(list[Symbol] parameters), muCon(Symbol aliased)]) = muCon(\alias(name, parameters, aliased));
 private MuExp tcc("func", [muCon(Symbol ret), muCon(list[Symbol] parameters), list[Symbol] kwparameters]) = muCon(func(ret, parameters, kwparameters));
 
-//     | \overloaded(set[Symbol] alternatives)
-//     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
-//     | \reified(Symbol symbol)
-//     ;
 private MuExp tcc("parameter", [muCon(str name), muCon(Symbol bound)]) = muCon(\parameter(name, bound));
 
 private MuExp tcc("start", [muCon(Symbol symbol)]) = muCon(ParseTree::\start(symbol));
