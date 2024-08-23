@@ -680,7 +680,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
       
     leaveSignatureSection();
     addFunctionToModule(muFunction("$CLOSURE_<uid.begin.line>A<uid.offset>", 
-                                   "$CLOSURE_<uid.begin.line>A<uid.offset>", 
+                                   fuid, //"$CLOSURE_<uid.begin.line>A<uid.offset>", 
                                    ftype, 
                                    formalVars,
                                    [],
@@ -1953,6 +1953,8 @@ list[Expression] normalizeAnd(list[Expression] exps)
 MuExp identity(MuExp exp) = exp;
 
 MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCont, MuExp falseCont, MuExp(MuExp) normalize = identity){
+    //pretty(btscopes);
+    
     if(isEmpty(conds)) return normalize(trueCont);
     conds = normalizeAnd(conds);
   
@@ -1965,7 +1967,15 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
         return normalize(trueCont);
     }
     for(i <- reverse(index(conds))){
-        cont = i == 0 ? falseCont : muFail(getResume(conds[i-1], btscopes), comment="translateAndConds, i=0");   // <<<
+         //cont = i == 0 ? falseCont : computeFail(conds, i-1, btscopes, falseCont);   // <<<
+        //altCont = i == 0 ? falseCont : computeFail(conds, i-1, btscopes, falseCont); 
+        cont = i == 0 ? falseCont : muFail(getResume(conds[i-1], btscopes));   // <<<
+        //if(altCont != cont){
+        //    println("<i>: <conds[i]>
+        //            '  cont    = <cont>,
+        //            '  altCont = <altCont>");
+        //}
+        //cont = altCont;
         trueCont = normalize(translateBool(conds[i], btscopes, trueCont, cont));
     }
     
@@ -1973,6 +1983,21 @@ MuExp translateAndConds(BTSCOPES btscopes, list[Expression] conds, MuExp trueCon
     res = muExists(getEnter(conds[0], btscopes), trueCont);
     //iprintln(res);
     return res;
+}
+
+MuExp computeFail(list[Expression] conds, int i, btscopes, MuExp falseCont){
+    //iprintln(btscopes);
+    if(i < 0) return falseCont;
+    
+    resume_0 = getResume(conds[0], btscopes);
+    enter_0 = getEnter(conds[0], btscopes);
+    fail_0 = getFail(conds[0], btscopes);
+    
+    
+    resume_i = getResume(conds[i], btscopes);
+    enter_i = getEnter(conds[i], btscopes);
+    fail_i = getFail(conds[i], btscopes);
+    return resume_i == fail_0 ? falseCont : muFail(resume_i);
 }
 
 // ==== or expression =========================================================

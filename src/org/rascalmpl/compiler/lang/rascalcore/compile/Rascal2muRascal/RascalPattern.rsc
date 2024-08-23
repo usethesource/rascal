@@ -184,6 +184,29 @@ bool haveEntered(str enter, BTSCOPES btscopes){
     return enter in range(btscopes)<0>;
 }
 
+void pretty(BTSCOPES btscopes){
+    sortedEntries = sort(domain(btscopes), 
+            bool(loc a, loc b) { return a.offset < b.offset ||  a.offset == b.offset && a.length > b.length;});
+        
+    emax = size("ENTER");
+    rmax = size("RESUME");
+    fmax = size("FAIL");
+    for(l <- sortedEntries){
+        btscope = btscopes[l];
+        if(size(btscope.enter) > emax) emax = size(btscope.enter);
+        if(size(btscope.resume) > rmax) rmax = size(btscope.resume);
+        if(size(btscope.\fail) > fmax) fmax = size(btscope.\fail);
+    }
+    emax += 1;
+    rmax += 1;
+    fmax += 1;
+    println("<left("ENTER", emax)><left("RESUME", rmax)><left("FAIL", fmax)>");
+    for(l <- sortedEntries){
+        btscope = btscopes[l];
+        println("<left(btscope.enter, emax)><left(btscope.resume, rmax)><left(btscope.\fail, fmax)>: <readFile(l)>");
+    }
+}
+
 /*********************************************************************/
 /*                  Patterns                                         */
 /*********************************************************************/
@@ -1889,10 +1912,18 @@ str nameSuffix(str s, QualifiedName name){
 }
 
 BTINFO getBTInfoList(p:(Pattern) `<QualifiedName name>`, BTSCOPE btscope, BTSCOPES btscopes){
+    //enter1 = btscope.enter + nameSuffix("VAR", name);
+    //resume1 = enter1;
+    //fail1 = btscope.\fail;
+    //return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
     btscope.enter += nameSuffix("VAR", name);
     return registerBTScope(p, btscope, btscopes);
 }    
 BTINFO getBTInfoList(p:(Pattern) `<Type tp> <Name name>`, BTSCOPE btscope, BTSCOPES btscopes) {
+    //enter1 = btscope.enter + nameSuffix("VAR", name);
+    //resume1 = enter1;
+    //fail1 = btscope.\fail;
+    //return registerBTScope(p, <enter1, resume1, fail1>, btscopes);
     btscope.enter += nameSuffix("VAR", name);
     return registerBTScope(p, btscope, btscopes);
 }
@@ -1926,11 +1957,14 @@ default BTINFO getBTInfoList(Pattern p, BTSCOPE btscope, BTSCOPES btscopes) = ge
 // ---- translate list pattern
 
 MuExp computeFail(Pattern p, list[Pattern] lpats, int i, btscopes, MuExp falseCont){
+//println("computeFail: <p>, <i>, <falseCont>");
     //iprintln(btscopes);
     if(i < 0) return falseCont;
     resume_elm = getResume(lpats[i], btscopes);
     fail_p = getFail(p, btscopes);
-    return resume_elm == fail_p ? falseCont : muFail(resume_elm, comment="computeFail");
+    res = resume_elm == fail_p ? falseCont : muFail(resume_elm, comment="computeFail");
+//    println("computeFail: <p>, <i>, <falseCont> ==\> <res>");
+    return res;
 }
 
 MuExp computeFail(Tree p, list[Tree] lpats, int i, btscopes, MuExp falseCont){
@@ -1968,6 +2002,13 @@ MuExp translateListPat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType,
     sublen = muTmpInt(subj + "_len", fuid);
     typecheckNeeded = asubtype(getType(p), subjectType);
   
+    //println("enter: <getEnter(p, btscopes)>");
+    //println("fail: <getFail(p, btscopes)>");
+    //println("resume: <getResume(lpats[-1], btscopes)>");
+    //println("computeFail: <computeFail(p, lpats, -1, btscopes, falseCont)>");
+    
+    //trueCont = muIfElse(muEqualNativeInt(cursor, sublen), trueCont, computeFail(p, lpats, -1, btscopes, falseCont));
+    
     trueCont = muIfElse(muEqualNativeInt(cursor, sublen), trueCont, muFail(getResume(lpats[-1], btscopes), comment="list match1"));
     for(i <- reverse(index(lpats))){
         trueCont = translatePatAsListElem(lpats[i], lookahead[i], subjectType, subject, sublen, cursor, i, btscopes, 
@@ -2077,16 +2118,19 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
    if(!asubtype(subjectType, alist(trType))){
         check = muAndNativeBool(lengthCheck, muValueIsComparable(muSubscript(subject, subjectType, cursor), trType));
    }
+   code = muBlock([]);
    if(isWildCard("<name>")){
-      return muIfElse(check, muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont ]),
+      code = muIfElse(check, muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont ]),
                              falseCont);
    } else {
        var = mkVar(prettyPrintName(name), name@\loc);
        var.atype = getType(tp);
        
-       return muIfElse(check, muBlock([ muVarInit(var, muSubscript(subject, subjectType, cursor)), muIncNativeInt(cursor, muCon(1)), trueCont ]),
+       code = muIfElse(check, muBlock([ muVarInit(var, muSubscript(subject, subjectType, cursor)), muIncNativeInt(cursor, muCon(1)), trueCont ]),
                               falseCont);
    }
+   return code;
+   //return muBlock([muExists(getEnter(p, btscopes), code), falseCont]);
  } 
 MuExp translatePat(p:(Pattern) `<RegExpLiteral r>`, AType subjectType, MuExp subject, BTSCOPES btscopes, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false, MuExp restore = muBlock([])) 
     = translateRegExpLiteral(r, subjectType, subject, btscopes, trueCont, falseCont);
