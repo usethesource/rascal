@@ -69,6 +69,11 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     solve(functions){
         functions  = [ addTransitiveRefs(f) | f <- functions ];
     }
+    for(int i <- index(functions)){
+        f = functions[i];
+        f.externalRefs = { er | er <- f.externalRefs, er.fuid != f.uniqueName };
+        functions[i] = f;
+    }
     m.functions = functions;
     
     muFunctions = (f.uniqueName : f | f <- m.functions);
@@ -278,8 +283,7 @@ MuFunction addTransitiveRefs(MuFunction fun){
     }
     usedFuns = { loc2muFunction[uid] | loc uid <- usedFunDefs, loc2muFunction[uid]? };
     
-    externalRefs = { *filteredExternalRefs(f) | f <- usedFuns };// - toSet(fun.extendedFormalVars);
-    //externalRefs = { *(f.externalRefs - toSet(f.extendedFormalVars) )| f <- usedFuns};
+    externalRefs = { *filteredExternalRefs(f) | f <- usedFuns };
     
     deltaExternalRefs = externalRefs - fun.externalRefs ;
     deltaLocalRefs =  { e | e <- externalRefs, e.fuid == fun.uniqueName } - fun.localRefs;
@@ -433,7 +437,7 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
     ftype = fun.ftype;
     jg.setFunction(fun);
     
-    shortName = asJavaName(getUniqueFunctionName(fun));
+    shortName = asJavaName(isClosureName(fun.name) ? fun.name : getUniqueFunctionName(fun));
     
     visibility = "public "; // isSyntheticFunctionName(shortName) ? "private " : "public "; $getkw_ should be public
     uncheckedWarning = "";
