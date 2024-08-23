@@ -40,6 +40,7 @@ import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -421,6 +422,29 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		return false;
 
 		//		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
+	}
+	
+	public io.usethesource.vallang.type.Type $sort(String adtName){
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(adtName)));
+	}
+	
+	public io.usethesource.vallang.type.Type $lex(String adtName){
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(adtName)));
+	}
+	
+	public io.usethesource.vallang.type.Type $layouts(String adtName){
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $VF.string(adtName)));
+	}
+	public io.usethesource.vallang.type.Type $keywords(String adtName){
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $VF.string(adtName)));
+	}
+	
+	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, IList params){
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), params));
+	}
+	
+	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, IList params){
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), params));
 	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path, int expected_length, String expected_md5Hash) {
@@ -2834,7 +2858,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 	public final Matcher $regExpCompile(String pat, String subject) {
 		//pat = pat.replaceAll("\\\\", "\\\\\\\\");
 		try {
-			Pattern p = Pattern.compile(pat);
+			Pattern p = Pattern.compile(pat, Pattern.UNICODE_CHARACTER_CLASS);
 			return p.matcher(subject);
 		} catch (java.util.regex.PatternSyntaxException e) {
 			throw RuntimeExceptionFactory.regExpSyntaxError(e.getMessage());
