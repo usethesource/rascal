@@ -52,7 +52,7 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
             def.idRole == functionId() ,//|| def.idRole == constructorId(),
             def.scope == escope, //isContainedIn(def.defined, escope),
             !(tp has isTest && tp.isTest),
-            !isNonTerminalAType(tp), !isLexicalType(tp),
+            !isNonTerminalAType(tp), !isLexicalAType(tp),
             !(isSyntheticFunctionName(def.id) || isMainName(def.id))){
             
             signatures += <def.id, getArity(tp), tp>;
