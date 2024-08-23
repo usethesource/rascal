@@ -414,7 +414,12 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
             tformals = s.getType(parameters);
             formalsList = atypeList(elems) := tformals ? elems : [tformals];
             rt = s.getType(returnType);
-            ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minimizeBounds(tpbounds, s));
+            minB = minimizeBounds(tpbounds, s);
+            rtU = updateBounds(rt, minB);
+            formalsList = [ updateBounds(fm, minB) | fm <- formalsList ];
+            kwFormalsList = [ kwf[fieldType = updateBounds(kwf.fieldType, minB)] | kwf <- computeKwFormals(kwFormals, s) ];
+            ft = afunc(rt, formalsList, kwFormalsList);
+            //ft = updateBounds(afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s)), minB);
             return ft;
         });
         
@@ -423,8 +428,9 @@ tuple[set[str], rel[str,Type]] collectSignature(Signature signature, Collector c
 
 @synopsis{Given a type t and a map of named bounds, update the bound in all type parameters occurring in t}
 private AType updateBounds(AType t, map[str,AType] bounds){
+    maxT = isSyntaxType(t) ? treeType : avalue();
     return visit(t) {case aparameter(pname, bnd, alabel=L,closed=closed) : {
-                            bnd = bounds[pname] ? avalue();
+                            bnd = bounds[pname] ? maxT;
                             insert isEmpty(L) ? aparameter(pname, bnd, closed=closed) : aparameter(pname, bnd, alabel=L, closed=closed);
                         }
                     };
