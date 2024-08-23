@@ -16,9 +16,6 @@ import Location;
 import util::Reflective;
 import util::SemVer;
 
-//TODO: eventually, parser generator will be called
-//extend lang::rascalcore::grammar::ParserGenerator;
-
 import IO;
 import List;
 import Map;
