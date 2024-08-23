@@ -1,8 +1,23 @@
 module lang::rascalcore::compile::Examples::Tst6
 
+import Grammar;
 
-data D = d0(int bar) | d1(str bar);
+import util::Monitor;
+  
+data Symbol(int id = 0, str prefix = "");
 
-//value f(D d)  = d.bar;
-//
-//value main() = f(d0(3));
+public str newGenerate(str package, str name, Grammar gr) { 
+    return job("Generating parser", str (void (str m, int w) worked) { 
+    int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
+    int newItem() { uniqueItem += 1; return uniqueItem; };
+
+    Production rewrite(Production p) = 
+      visit (p) { 
+        case Symbol s => s[id=newItem()] 
+      };
+    beforeUniqueGr = gr;   
+    gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
+    
+    return "";
+    }, totalWork=9);      
+}  
