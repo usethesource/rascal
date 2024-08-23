@@ -97,7 +97,6 @@ private MuExp tcc("tag", [muCon(value \tag)]) = muCon(Attr::\tag(\tag));
 private MuExp tcc("bracket", []) = muCon(ParseTree::\bracket());
 private MuExp tcc("assoc", [muCon(ParseTree::Associativity \assoc)]) = muCon(ParseTree::\assoc(\assoc));
 
-
 // Associativity
 
 private MuExp tcc("left", []) = muCon(ParseTree::\left());
@@ -142,15 +141,8 @@ private MuExp tcc("func", [muCon(Symbol ret), muCon(list[Symbol] parameters), li
 private MuExp tcc("parameter", [muCon(str name), muCon(Symbol bound)]) = muCon(\parameter(name, bound));
 
 private MuExp tcc("start", [muCon(Symbol symbol)]) = muCon(ParseTree::\start(symbol));
-//private MuExp tcc("sort", [muCon(str name)]) = muCon(sort(name));
 
-private MuExp tcc("sort", [muCon(value v)]){
-    switch(v){
-        case list[value] lst : return muCon(sort(lst));
-    }
-    throw "NotConstant"; 
-}
-
+//private MuExp tcc("sort", [muCon(str name)]) = muCon(Symbol::sort(name));
 private MuExp tcc("lex", [muCon(str name)]) = muCon(lex(name));
 private MuExp tcc("layouts", [muCon(str name)]) = muCon(ParseTree::layouts(name));
 private MuExp tcc("keywords", [muCon(str name)]) = muCon(ParseTree::keywords(name));
