@@ -152,7 +152,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                         s.fact(syms, ptype);
                     }
                     def = cprod.def;
-                    fields = [ inLexicalAdt && isLexicalType(stp) ? astr() : stp
+                    fields = [ inLexicalAdt && isLexicalAType(stp) ? astr() : stp
                              | 
                                sym <- symbols, 
                                !isTerminalSym(sym), 
