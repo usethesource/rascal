@@ -583,7 +583,7 @@ default bool isIterStarSym(Sym sym) = false;
 
 bool isLexicalContext(Collector c){
     adtStack = c.getStack(currentAdt);
-    if(!isEmpty(adtStack) && <Tree adt, list[KeywordFormal] _, _> := adtStack[0]){
+    if(!isEmpty(adtStack) && <Tree adt, list[KeywordFormal] _, _, _> := adtStack[0]){
         return !(adt is language);
     } 
     return false;
