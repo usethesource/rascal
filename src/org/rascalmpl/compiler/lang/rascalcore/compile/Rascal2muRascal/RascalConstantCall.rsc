@@ -142,7 +142,7 @@ private MuExp tcc("parameter", [muCon(str name), muCon(Symbol bound)]) = muCon(\
 
 private MuExp tcc("start", [muCon(Symbol symbol)]) = muCon(ParseTree::\start(symbol));
 
-//private MuExp tcc("sort", [muCon(str name)]) = muCon(Symbol::sort(name));
+private MuExp tcc("sort", [muCon(str name)]) = muCon(Symbol::sort(name));
 private MuExp tcc("lex", [muCon(str name)]) = muCon(lex(name));
 private MuExp tcc("layouts", [muCon(str name)]) = muCon(ParseTree::layouts(name));
 private MuExp tcc("keywords", [muCon(str name)]) = muCon(ParseTree::keywords(name));
