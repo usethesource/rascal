@@ -741,16 +741,17 @@ map[AType,set[AType]] collectNeededDefs(AType t){
             iparams = getADTTypeParameters(t);
             for(uadt <- parameterized_uninstantiated_ADTs){
                 uadtParams = getADTTypeParameters(uadt);
-                if(t.adtName == uadt.adtName && size(iparams) == size(uadtParams)){
-                    return uncloseTypeParams(uadt);                  
+                if(t.adtName == uadt.adtName && size(iparams) == size(uadtParams)){ 
+                    return uadt;               
                 }
             }
         }
         return t;
     }
-    
+    adt_constructors1 = uncloseTypeParams(adt_constructors);
+ 
     my_definitions =
-        ( adt1 : syntaxRole == dataSyntax() ? adt_constructors[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
+        ( adt1 : syntaxRole == dataSyntax() ? adt_constructors1[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
         | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t, 
           adt1 := unset(uninstantiate(adt), "alabel")
          
@@ -774,7 +775,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         my_definitions =
             my_definitions +
             ( adt1 : syntax_type ? {aprod(my_grammar_rules[adt1])}
-                                 : (adt_constructors[adt1] ? {aprod(my_grammar_rules[adt1])}) 
+                                 : (adt_constructors1[adt1] ? {aprod(my_grammar_rules[adt1])}) 
             | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
               adt1 := uninstantiate(unsetRec(adt)),
               syntax_type ? syntaxRole != dataSyntax() : true,
