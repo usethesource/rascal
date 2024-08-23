@@ -67,11 +67,12 @@ MuExp muPrim("create_list", AType r, [AType elm], list[MuExp] args, loc src) = m
 
 MuExp muPrim("create_set", AType r, [AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
       when allConstant(args);
- 
-// TODO: do not generate constant in case of multiple keys     
+    
 MuExp muPrim("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
-      when allConstant(args);
-     
+      when allConstant(args),
+           keyList := [ args[i]. c | int i <- [0, 2 .. size(args)] ],
+           size(keyList) == size(toSet(keyList));
+           
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1)], loc src) = muCon(<v1>);
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);
@@ -83,7 +84,7 @@ MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
 
-//MuExp muPrim("create_node", AType r, [*AType _], [muCon(str name), *MuExp args, muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)], loc src) 
-//    = isEmpty(kwpActuals) ? muCon(makeNode(name, [a | muCon(a) <- args])) 
-//                          : muCon(makeNode(name, [a | muCon(a) <- args], (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
-//      when allConstant(args), allConstant(kwpActuals<1>);
+MuExp muPrim("create_node", AType r, [*AType _], [muCon(str name), *MuExp args, muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)], loc src) 
+    = isEmpty(kwpActuals) ? muCon(makeNode(name, [a | muCon(a) <- args])) 
+                          : muCon(makeNode(name, [a | muCon(a) <- args], (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
+      when allConstant(args), allConstant(kwpActuals<1>);
