@@ -576,11 +576,11 @@ JGenie makeJGenie(MuModule m,
                                 if(isEmpty(parameters)){
                                      switch(sr){
                                           case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\")";
-                                          case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(\"<adtName>\")))";
-                                          case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(\"<adtName>\")))";
-                                          case layoutSyntax():      adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $VF.string(\"<adtName>\")))";
-                                          case keywordSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $VF.string(\"<adtName>\")))";
-                                     };
+                                          case contextFreeSyntax(): adtdef = "$sort(\"<adtName>\")";
+                                          case lexicalSyntax():     adtdef = "$lex(\"<adtName>\")";
+                                          case layoutSyntax():      adtdef = "$layouts(\"<adtName>\")";
+                                          case keywordSyntax():     adtdef = "$keywords(\"<adtName>\")";
+                                      };
                                      adtinits += "<type2id[s]> = <adtdef>;\n";
                                 } else {
                                     if(s in parameterized_ADTs || all(p <- parameters, !isTypeParameter(p))){
@@ -588,8 +588,8 @@ JGenie makeJGenie(MuModule m,
                                         paramsV = "$VF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
                                         switch(sr){
                                              case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
-                                             case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <paramsV>))";
-                                             case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(\"<adtName>\"), <paramsV>))";
+                                             case contextFreeSyntax(): adtdef = "$parameterizedSort(\"<adtName>\", <paramsV>)";
+                                             case lexicalSyntax():     adtdef = "$parameterizedLex(\"<adtName>\", <paramsV>)";
                                          }
                                         adtinits_param += "<type2id[s]> = <adtdef>;\n";
                                     } else {
@@ -675,7 +675,7 @@ JGenie makeJGenie(MuModule m,
     
     bool _isRef(MuExp var) { 
         var1 = unsetRec(var, "alabel"); 
-        return /*var1.fuid != function.uniqueName && */(varIn(var1, function.externalRefs) || varIn(var1, localRefs));
+        return (varIn(var1, function.externalRefs) || varIn(var1, localRefs));
     }
     
     bool _varHasLocalScope(MuExp var) = var.pos >= 0 && var.fuid == function.uniqueName;
