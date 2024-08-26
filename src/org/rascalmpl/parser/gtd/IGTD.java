@@ -22,7 +22,7 @@ import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
 /**
  * Parser interface.
  */
-public interface IGTD<P, T, S>{
+public interface IGTD<P, T, S> extends ExpectsProvider<P> {
 	/**
 	 * Parse the input string, using the given non-terminal as start node. If
 	 * the parse process successfully completes a result will be constructed

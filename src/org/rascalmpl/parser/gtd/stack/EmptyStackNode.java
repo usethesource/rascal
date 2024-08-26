@@ -80,6 +80,10 @@ public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
 		return emptyChild;
 	}
 
+	public String toShortString() {
+		return toString();
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
