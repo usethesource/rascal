@@ -543,3 +543,47 @@ int useExtraFormalInListPattern(f([*int ints])){
 } 
 
 test bool useExtraFormalInListPattern1() = useExtraFormalInListPattern(f([42])) == 42;
+
+int _f(int n) = n;
+
+test bool functionNameStartsWithUnderscore() = _f(13) == 13;
+
+test bool innerAndOuterFunctionUseSameParameterName1(){
+    int outer(int t) {
+        int inner(t:3) = t;
+        default int inner(int t) = 10*t;
+        return inner(t);
+    }
+    
+    return outer(3) == 3 && outer(5) == 50;
+}
+
+test bool innerAndOuterFunctionUseSameParameterName2(){
+    int outer(int t) {
+        int inner(int t:3) = t;
+        default int inner(int t) = 10*t;
+        return inner(t);
+    }
+    
+    return outer(3) == 3 && outer(5) == 50;
+}
+
+test bool innerAndOuterFunctionUseSameParameterName3(){
+    int outer(str t) {
+        int inner(t:3) = t;
+        default int inner(int t) = 10*t;
+        return inner(3);
+    }
+    
+    return outer("a") == 30;
+}
+
+test bool innerAndOuterFunctionUseSameParameterName4(){
+    int outer(str t) {
+        int inner(int t:3) = t;
+        default int inner(int t) = 10*t;
+        return inner(3);
+    }
+    
+    return outer("a") == 3;
+}
