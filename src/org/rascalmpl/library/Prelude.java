@@ -72,7 +72,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base32;
-import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -3071,9 +3070,31 @@ public class Prelude {
 	}
 	
 	public IString squeeze(IString src, IString charSet) {
-		//@{http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html}
-		String s = CharSetUtils.squeeze(src.getValue(), charSet.getValue());
-		return values.string(s);
+		if (charSet.getValue().isEmpty()) {
+			return src;
+		}
+		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
+		StringBuilder result = new StringBuilder(src.length());
+		var chars = src.iterator();
+		int previousMatch = -1;
+		while (chars.hasNext()) {
+			int cp = chars.nextInt();
+			if (cp == previousMatch) {
+				// swallow
+				continue;
+			}
+
+			String c = Character.toString(cp);
+			if (isCharset.matcher(c).matches()) {
+				previousMatch = cp;
+				// swallow the next
+			}
+			else {
+				previousMatch = -1;
+			}
+			result.append(c);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString capitalize(IString src) {

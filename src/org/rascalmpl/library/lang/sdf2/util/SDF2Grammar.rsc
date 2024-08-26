@@ -28,15 +28,11 @@ public Symbol label(str s, conditional(Symbol t, set[Condition] cs)) = condition
 public Symbol conditional(conditional(Symbol s, set[Condition] c1), set[Condition] c2) = conditional(s, c1 + c2);
 
 public GrammarDefinition sdf2grammar(loc input) {
-  return sdf2grammar("Main", parse(#SDF, input)); 
+  return sdf2grammar("Main", input); 
 }
 
 public GrammarDefinition sdf2grammar(str main, loc input) {
   return sdf2grammar(main, parse(#SDF, input)); 
-}
-
-public GrammarDefinition sdf2grammar(loc input) {
-  return sdf2grammar(parse(#SDF, input)); 
 }
 
 public GrammarDefinition sdf2grammar(SDF def) {
