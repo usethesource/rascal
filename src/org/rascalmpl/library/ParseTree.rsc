@@ -800,7 +800,9 @@ Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) {
   return skip;
 }
 
-@synopsis{Get the text that failed to parse}
+@synopsis{Get the text that failed to parse. This is only the text of the part that has been skipped to be able to continue parsing.
+If you want the text of the whole error tree, you can just use string interpolation: "<error>".
+}
 str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) {
   return stringChars([c | ch <- chars, char(c) := ch]);
 }

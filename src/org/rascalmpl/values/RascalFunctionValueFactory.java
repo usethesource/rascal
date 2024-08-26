@@ -583,7 +583,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             IDebugListener<IConstructor> debugListener = null;
             URI uri = location.getURI();
             if (allowRecovery) {
-                recoverer = new ToTokenRecoverer(uri, new StackNodeIdDispenser(parserInstance));
+                recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance));
                 //debugListener = new DebugLogger(new PrintWriter(System.out, true));
             }
             return (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);

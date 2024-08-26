@@ -60,7 +60,7 @@ import io.usethesource.vallang.type.Type;
 /**
  * This is the core of the parser; it drives the parse process.
  */
-public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
+public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
 	
 	private URI inputURI;
@@ -173,35 +173,38 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 		throw new UnsupportedOperationException();
 	}
 	
-	/**
-	 * Triggers the gathering of alternatives for the given non-terminal.
-	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractStackNode<P>[] invokeExpects(AbstractStackNode<P> nonTerminal){
-		String name = nonTerminal.getName();
-		AbstractStackNode<P>[] expects = expectCache.get(name);
-		if(expects == null){
+	public AbstractStackNode<P>[] getExpects(String nonTerminal) {
+		AbstractStackNode<P>[] expects = expectCache.get(nonTerminal);
+		if (expects == null) {
 			try{
-				Method method = getClass().getMethod(name);
-				try{
+				Method method = getClass().getMethod(nonTerminal);
+				try {
 					method.setAccessible(true); // Try to bypass the 'isAccessible' check to save time.
-				}catch(SecurityException sex){
+				} catch (SecurityException sex) {
 					// Ignore this if it happens.
 				}
 				
 				expects = (AbstractStackNode<P>[]) method.invoke(this);
-			}catch(NoSuchMethodException nsmex){
-				throw new UndeclaredNonTerminalException(name, getClass());
-			}catch(IllegalAccessException iaex){
+			} catch (NoSuchMethodException nsmex) {
+				throw new UndeclaredNonTerminalException(nonTerminal, getClass());
+			} catch (IllegalAccessException iaex) {
 				throw new RuntimeException(iaex);
-			}catch(InvocationTargetException itex){
+			} catch (InvocationTargetException itex) {
 				throw new RuntimeException(itex.getTargetException());
 			}
 			
-			expectCache.putUnsafe(name, expects);
+			expectCache.putUnsafe(nonTerminal, expects);
 		}
-		
-		 return expects;
+
+		return expects;
+	}
+
+	/**
+	 * Triggers the gathering of alternatives for the given non-terminal.
+	 */
+	protected AbstractStackNode<P>[] invokeExpects(AbstractStackNode<P> nonTerminal){
+		return getExpects(nonTerminal.getName());
 	}
 	
 	/**
