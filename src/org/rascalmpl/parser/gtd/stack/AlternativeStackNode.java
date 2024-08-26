@@ -88,6 +88,10 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+	public String toShortString() {
+		return toString();
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("alt");

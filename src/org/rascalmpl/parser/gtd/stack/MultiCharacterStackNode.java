@@ -104,6 +104,10 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
+	public String toShortString() {
+		return toString();
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		

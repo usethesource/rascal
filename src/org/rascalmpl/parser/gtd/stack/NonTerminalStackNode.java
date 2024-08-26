@@ -76,6 +76,10 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+	public String toShortString() {
+		return expectIdentifier;
+	}
+
 	public String toString(){
 		StringBuilder sb = new StringBuilder("NonTerminal[");
 		sb.append(expectIdentifier);

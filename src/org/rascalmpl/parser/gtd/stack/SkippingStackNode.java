@@ -127,6 +127,10 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return sb.toString();
 	}*/
 	
+	public String toShortString() {
+		return "skip(" + result.toString() + ")";
+	}
+
 	@Override
 	public String toString() {
 		return "SkippingStackNode[result=" + result + "," + super.toString() + "]";
