@@ -51,7 +51,7 @@ test bool charClassExtendedRanges() = (#[A-M N-Z]).symbol == \char-class([range(
 
 test bool asciiEscape() = \char-class([range(0,127)]) == #[\a00-\a7F].symbol;
 test bool utf16Escape() = \char-class([range(0,65535)]) == #[\u0000-\uFFFF].symbol;
-test bool utf24Escape() = \char-class([range(0,1114111)]) == #[\U000000-\U10FFFF].symbol;
+test bool utf32Escape() = \char-class([range(0,1114111)]) == #[\U000000-\U10FFFF].symbol;
 test bool highLowSurrogateRange1() = \char-class([range(9312,12991)]) == #[①-㊿].symbol;
 test bool highLowSurrogateRange2() = \char-class([range(127829,127829)]) == #[🍕].symbol;
 test bool differentEscapesSameResult1() = #[\a00-\a7F] == #[\u0000-\u007F];
@@ -86,9 +86,12 @@ test bool unicodeCharacterClassSubtype2() {
 
 test bool literalAsciiEscape1() = lit("\n") == #"\a0A".symbol;
 test bool literalAsciiEscape2() = lit("w") == #"\a77".symbol;
+test bool literalAsciiEscape3() = lit("\f") == #"\a0C".symbol;
+test bool literalAsciiEscape4() = lit("\n") == #"\n".symbol;
+test bool literalAsciiEscape5() = lit("\f") == #"\f".symbol;
 test bool literalUtf16Escape() = lit("\n") == #"\u000A".symbol;
-test bool literalUtf24Escape1() = lit("\n") == #"\U00000A".symbol;
-test bool literalUtf24Escape2() = lit("🍕") == #"\U01F355".symbol;
+test bool literalUtf32Escape1() = lit("\n") == #"\U00000A".symbol;
+test bool literalUtf32Escape2() = lit("🍕") == #"\U01F355".symbol;
 
 // ambiguity in this syntax must be resolved first
 //test bool differenceCC() = (#[a-zA-Z] - [A-Z]).symbol == (#[a-z]).symbol;
