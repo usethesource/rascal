@@ -634,10 +634,6 @@ public class PathConfig {
         }
     }
 	
-
-    private static final Pattern FIND_CLASS_PATH = Pattern.compile("org.apache.maven.plugins.dependency.fromDependencies.BuildClasspathMojo - Dependencies classpath:\\s+(.+)$", Pattern.MULTILINE);
-
-
     /**
      * See if there is a pom.xml and extract the compile-time classpath from a mvn run
      * if there is such a file.
@@ -661,11 +657,9 @@ public class PathConfig {
             var maven = new MavenCli();
             var tempFile = Files.createTempFile("rascal-classpath-", ".tmp");
             
-            maven.doMain(buildRequest(new String[] {"-o", "dependency:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()}, manifestRoot));
+            maven.doMain(buildRequest(new String[] {"-quiet", "-o", "dependency:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()}, manifestRoot));
             
-            var mavenOutput = Files.readAllLines(tempFile);
-            var match = FIND_CLASS_PATH.matcher(mavenOutput.get(0));
-            var foundClassPath = match.find() ? match.group(1) : "";
+            var foundClassPath = Files.readAllLines(tempFile).get(0);
 
             return Arrays.stream(foundClassPath.split(File.pathSeparator))
                 .filter(fileName -> new File(fileName).exists())
