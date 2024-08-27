@@ -16,6 +16,7 @@ package org.rascalmpl.values.parsetrees;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
@@ -292,18 +293,24 @@ public class SymbolFactory {
 		return result.done();
 	}
 
+	private static final Pattern IS_UNICODE_ESCAPE = Pattern.compile("\\\\[auU][0-9A-Fa-f]+");
+
 	private static IValue char2int(Char character) {
 		String s = ((Char.Lexical) character).getString();
 		if (s.startsWith("\\")) {
 			// builtin escape
 			int cha = s.codePointAt(1);
-			if (cha == 'a' | cha == 'u' | cha == 'U') {
-				if (s.matches("\\\\[auU][0-9A-Fa-f]+")) {
-					// ascii escape (a), utf16 escape (u) or utf32 escape (U)
-					return factory.integer(Integer.parseInt(s.substring(2), 16));
-				}
-			}
 			switch (cha) {
+				case 'a': // fallthrough
+				case 'u': // fallthrough
+				case 'U':
+					if (IS_UNICODE_ESCAPE.matcher(s).matches()) {
+						// ascii escape (a), utf16 escape (u) or utf32 escape (U)
+						return factory.integer(Integer.parseInt(s.substring(2), 16));
+					}
+					else {
+						return factory.integer(cha);
+					}
 				case 't': return factory.integer('\t');
 				case 'n': return factory.integer('\n');
 				case 'r': return factory.integer('\r');
