@@ -294,24 +294,22 @@ public class SymbolFactory {
 
 	private static IValue char2int(Char character) {
 		String s = ((Char.Lexical) character).getString();
-		if (s.matches("\\\\[auU][0-9A-F]+")) {
-			// ascii escape (a), utf16 escape (u) or utf24 escape (U)
-			return factory.integer(Integer.parseInt(s.substring(2), 16));
-		}
-		else if (s.startsWith("\\")) {
+		if (s.startsWith("\\")) {
 			// builtin escape
 			int cha = s.codePointAt(1);
+			if (cha == 'a' | cha == 'u' | cha == 'U') {
+				if (s.matches("\\\\[auU][0-9A-Fa-f]+")) {
+					// ascii escape (a), utf16 escape (u) or utf32 escape (U)
+					return factory.integer(Integer.parseInt(s.substring(2), 16));
+				}
+			}
 			switch (cha) {
 				case 't': return factory.integer('\t');
 				case 'n': return factory.integer('\n');
 				case 'r': return factory.integer('\r');
-				case '\"' : return factory.integer('\"');
-				case '\'' : return factory.integer('\'');
-				case '-' : return factory.integer('-');
-				case '<' : return factory.integer('<');
-				case '>' : return factory.integer('>');
-				case '\\' : return factory.integer('\\');
-				default: return factory.integer(cha);
+				case 'f': return factory.integer('\f');
+				case 'b': return factory.integer('\b');
+				default: return factory.integer(cha); //fallback is just the character thats escaped
 			}
 		}
 		else {
