@@ -114,7 +114,7 @@ public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
 	}
 
 	@Override
-	void accept(StackNodeVisitor<P> visitor) {
+	public void accept(StackNodeVisitor<P> visitor) {
 		visitor.visit(this);
 	}
 
