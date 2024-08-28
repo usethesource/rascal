@@ -53,6 +53,11 @@ public class StackNodeVisitorAdapter<P> implements StackNodeVisitor<P> {
     }
 
     @Override
+    public void visit(RecoveryPointStackNode<P> node) {
+        // Do nothing fallback
+    }
+
+    @Override
     public void visit(SeparatedListStackNode<P> node) {
         // Do nothing fallback
     }

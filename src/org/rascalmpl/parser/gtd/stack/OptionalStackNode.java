@@ -128,7 +128,8 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 		return hasEqualFilters(stackNode);
 	}
 
-	void accept(StackNodeVisitor<P> visitor) {
+	@Override
+	public void accept(StackNodeVisitor<P> visitor) {
 		visitor.visit(this);
 	}
 
