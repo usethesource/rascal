@@ -6,13 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Simple2",
-            "request": "launch",
-            "mainClass": "org.rascalmpl.test.parser.Simple2",
-            "projectName": "rascal"
-        },
-        {
-            "type": "java",
             "name": "Launch DocRunner",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.DocRunner",
@@ -38,15 +31,6 @@
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
             "vmArgs": "-Xss80m -Xmx2g -ea"
-        },
-        {
-            "type": "java",
-            "name": "Recovery tests",
-            "request": "launch",
-            "mainClass": "org.rascalmpl.shell.RascalShell",
-            "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g -ea",
-            "args": "lang::rascal::tests::recovery::RunRecoveryTests"
         },
         {
             "type": "java",

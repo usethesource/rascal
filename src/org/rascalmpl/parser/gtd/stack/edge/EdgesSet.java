@@ -22,9 +22,9 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 
 @SuppressWarnings({"unchecked", "cast"})
 public class EdgesSet<P>{
-	public final static int DEFAULT_RESULT_STORE_ID = -1;
+	public static final int DEFAULT_RESULT_STORE_ID = -1;
 	
-	private final static int DEFAULT_SIZE = 8;
+	private static final int DEFAULT_SIZE = 8;
 	
 	private AbstractStackNode<P>[] edges;
 	private int size;
