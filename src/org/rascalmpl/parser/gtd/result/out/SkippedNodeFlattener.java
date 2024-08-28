@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2024 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ public class SkippedNodeFlattener<T, P>{
 	public SkippedNodeFlattener(){
 		super();
 	}
-	
+
 	public T convertToUPTR(INodeConstructorFactory<T, P> nodeConstructorFactory, SkippedNode node, PositionStore positionStore){
 		T result = nodeConstructorFactory.createSkippedNode(node.getSkippedChars());
 

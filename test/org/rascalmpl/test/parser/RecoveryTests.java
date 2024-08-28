@@ -1,4 +1,18 @@
-package org.rascalmpl.test.parser;
+/**
+ * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+
+ package org.rascalmpl.test.parser;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -29,12 +43,12 @@ import io.usethesource.vallang.io.StandardTextReader;
  * A -> [a]
  * B -> [b] ws [b]
  * C -> [c]
- * 
+ *
  * ws -> [\ ]
  */
 public class RecoveryTests extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
 	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
-	
+
 	private final static IConstructor SYMBOL_ws = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("ws"));
 	private final static IConstructor SYMBOL_char_space = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(32))));
 
@@ -52,14 +66,14 @@ public class RecoveryTests extends SGTDBF<IConstructor, ITree, ISourceLocation> 
 	private final static IConstructor SYMBOL_c = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("c"));
 	private final static IConstructor SYMBOL_char_c = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(99))));
 	private final static IConstructor PROD_C_c = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_C, VF.list(SYMBOL_c), VF.set());
-	
+
 	private final static IConstructor PROD_S_A_B_C = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A, SYMBOL_ws, SYMBOL_B, SYMBOL_ws, SYMBOL_C), VF.set());
 
 	private final static IConstructor PROD_ws = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_ws, VF.list(SYMBOL_char_space), VF.set());
 	private final static IConstructor PROD_a_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
 	private final static IConstructor PROD_b_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
 	private final static IConstructor PROD_c_c = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_c, VF.list(SYMBOL_char_c), VF.set());
-		
+
 	public AbstractStackNode<IConstructor>[] S(){
 		return IParserTest.createExpectArray(PROD_S_A_B_C,
 			new NonTerminalStackNode<IConstructor>(1, 0, "A"),
@@ -100,7 +114,7 @@ public class RecoveryTests extends SGTDBF<IConstructor, ITree, ISourceLocation> 
     private ITree parse(String s) {
 		DebugLogger debugLogger = new DebugLogger(new PrintWriter(System.out));
 		IRecoverer<IConstructor> recoverer = new ToNextWhitespaceRecoverer(() -> nextFreeStackNodeId++);
-        return parse("S" /* NONTERMINAL_START_S */, null, s.toCharArray(), 
+        return parse("S" /* NONTERMINAL_START_S */, null, s.toCharArray(),
 			new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false), recoverer, debugLogger);
     }
 
@@ -132,5 +146,5 @@ public class RecoveryTests extends SGTDBF<IConstructor, ITree, ISourceLocation> 
 		String expected = "appl(prod(sort(\"S\"),[sort(\"A\"),lit(\"ws\"),sort(\"B\"),lit(\"ws\"),sort(\"C\")],{}),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(prod(sort(\"B\"),[lit(\"b\"),lit(\"ws\"),lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(skipped(sort(\"B\"),prod(sort(\"B\"),[lit(\"b\"),lit(\"ws\"),lit(\"b\")],{}),2),[char(120)])]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(prod(sort(\"C\"),[lit(\"c\")],{}),[appl(prod(lit(\"c\"),[\\char-class([single(99)])],{}),[char(99)])])])";
 		Assert.assertEquals(toTree(expected), parse("a b x c"));
 	}
-    
+
 }
