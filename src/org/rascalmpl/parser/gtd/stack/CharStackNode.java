@@ -15,7 +15,6 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.unicode.UnicodeConverter;
 
 public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[][] ranges;
@@ -72,11 +71,11 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new CharStackNode<P>(this, startLocation);
+		return new CharStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new CharStackNode<P>(this, startLocation, result);
+		return new CharStackNode<>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -114,6 +113,7 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		return String.valueOf(codePoint);
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
@@ -148,6 +148,11 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		return hash;
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof CharStackNode)) return false;
 		
@@ -168,4 +173,9 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }
