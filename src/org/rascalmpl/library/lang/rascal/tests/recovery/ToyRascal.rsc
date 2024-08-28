@@ -10,7 +10,7 @@ syntax Parameters = "(" ")";
 
 syntax FunctionBody = "{" Statement* statements "}" ;
 
-syntax Statement 
+syntax Statement
     = "{" Statement+ statements "}"
     | "s" ";";
 

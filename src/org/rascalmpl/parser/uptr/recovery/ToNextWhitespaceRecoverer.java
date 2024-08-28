@@ -32,7 +32,7 @@ import io.usethesource.vallang.IConstructor;
 
 public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	private static final int[] WHITESPACE = {' ', '\r', '\n', '\t' };
-	
+
 	private IdDispenser stackNodeIdDispenser;
 
 	public ToNextWhitespaceRecoverer(IdDispenser stackNodeIdDispenser) {
@@ -47,21 +47,17 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
 
-		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<AbstractStackNode<IConstructor>>();
+		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
 		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
-		// TODO: handle unmatchableLeafNodes
-		//collectFilteredNodes(filteredNodes, failedNodes);
+		// handle unmatchableLeafNodes?
+		// collectFilteredNodes(filteredNodes, failedNodes);
 
-		return reviveFailedNodes(input, location, failedNodes);
+		return reviveFailedNodes(input, failedNodes);
 	}
 
-	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
-		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>();
-		
-		// <PO> original: for (int i = recoveryNodes.size() - 1; i >= 0; --i) {
-		// But this caused problems because recovery nodes with a later position
-		// where queued before nodes with an earlier position which the parser cannot handle.
+	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes){
+		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<>();
 
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
@@ -72,17 +68,16 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
-				
+
 				AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
-				
-				int dot = recoveryNode.getDot();
+
 				int startLocation = recoveryNode.getStartLocation();
 
 				SkippedNode result;
 				if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
-					result = SkippingStackNode.createResultUntilEndOfInput(null, input, startLocation, prod, dot);
+					result = SkippingStackNode.createResultUntilEndOfInput(null, input, startLocation);
 				} else {
-					result = SkippingStackNode.createResultUntilCharClass(null, WHITESPACE, input, startLocation, prod, dot);
+					result = SkippingStackNode.createResultUntilCharClass(null, WHITESPACE, input, startLocation);
 				}
 
 				AbstractStackNode<IConstructor> recoverLiteral = new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result);
@@ -90,15 +85,15 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 				recoverLiteral.initEdges();
 				EdgesSet<IConstructor> edges = new EdgesSet<>(1);
 				edges.add(continuer);
-				
+
 				recoverLiteral.addEdges(edges, startLocation);
-				
+
 				continuer.setIncomingEdges(edges);
-				
+
 				recoveredNodes.add(recoverLiteral, recoverLiteral.getResult());
 			}
 		}
-		
+
 		return recoveredNodes;
 	}
 
@@ -130,23 +125,23 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 
 		return null;
 	}
-	
-	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(int[] input, int location, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
-		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes = new DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>>();
-		
+
+	private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(int[] input, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
+		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes = new DoubleArrayList<>();
+
 		for (int i = failedNodes.size() - 1; i >= 0; --i) {
 			findRecoveryNodes(failedNodes.get(i), recoveryNodes);
 		}
-		
-		return reviveNodes(input, location, recoveryNodes);
+
+		return reviveNodes(input, recoveryNodes);
 	}
-	
+
 	private static void collectUnexpandableNodes(Stack<AbstractStackNode<IConstructor>> unexpandableNodes, ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
 		for (int i = unexpandableNodes.getSize() - 1; i >= 0; --i) {
 			failedNodes.add(unexpandableNodes.get(i));
 		}
 	}
-	
+
 	/**
 	 * Make a fresh copy of  each unmatchable mid-production node and link in the predecessors of the original node.
 	 * The new copies are added to `failedNodes`
@@ -158,14 +153,14 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 		for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
 			DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
 			AbstractStackNode<IConstructor> failedNode = unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
-			
+
 			// Merge the information on the predecessors into the failed node.
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
-			
+
 			failedNodes.add(failedNode);
 		}
 	}
@@ -174,42 +169,42 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	 * Travels up the parse graph in an attempt to find the closest recoverable parent nodes.
 	 */
 	private void findRecoveryNodes(AbstractStackNode<IConstructor> failer, DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
-		ObjectKeyedIntegerMap<AbstractStackNode<IConstructor>> visited = new ObjectKeyedIntegerMap<AbstractStackNode<IConstructor>>();
-		Stack<AbstractStackNode<IConstructor>> todo = new Stack<AbstractStackNode<IConstructor>>();
-		
+		ObjectKeyedIntegerMap<AbstractStackNode<IConstructor>> visited = new ObjectKeyedIntegerMap<>();
+		Stack<AbstractStackNode<IConstructor>> todo = new Stack<>();
+
 		todo.push(failer);
-		
+
 		while (!todo.isEmpty()) {
 			AbstractStackNode<IConstructor> node = todo.pop();
-			
+
 			if (visited.contains(node)) {
 			    continue; // Don't follow cycles
 			}
-			
+
 			visited.put(node, 0);
-			
-			ArrayList<IConstructor> recoveryProductions = new ArrayList<IConstructor>();
+
+			ArrayList<IConstructor> recoveryProductions = new ArrayList<>();
 			collectProductions(node, recoveryProductions);
 			if (recoveryProductions.size() > 0) {
 				recoveryNodes.add(node, recoveryProductions);
 			}
-			
+
 			IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
-			
+
 			for (int i = edges.size() - 1; i >= 0; --i) { // Rewind
 				EdgesSet<IConstructor> edgesList = edges.getValue(i);
 
 				if (edgesList != null) {
 					for (int j = edgesList.size() - 1; j >= 0; --j) {
 						AbstractStackNode<IConstructor> parent = edgesList.get(j);
-						
+
 						todo.push(parent);
 					}
 				}
 			}
 		}
 	}
-	
+
 	// Gathers all productions that are marked for recovery (the given node can be part of a prefix shared production)
 	private void collectProductions(AbstractStackNode<IConstructor> node, ArrayList<IConstructor> productions) {
 	    AbstractStackNode<IConstructor>[] production = node.getProduction();
@@ -219,12 +214,10 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 
 	    int dot = node.getDot();
 
-		System.err.println("collect productions for node: " + node);
 	    if (node.isEndNode()) {
 	        IConstructor parentProduction = node.getParentProduction();
 	        if (ProductionAdapter.isContextFree(parentProduction)){
 	            productions.add(parentProduction);
-				System.err.println("adding production: " + parentProduction);
 
 	            if (ProductionAdapter.isList(parentProduction)) {
 	                return; // Don't follow productions in lists productions, since they are 'cyclic'.
@@ -238,7 +231,6 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	            IConstructor parentProduction = currentNode.getParentProduction();
 	            if (ProductionAdapter.isContextFree(parentProduction)) {
 	                productions.add(parentProduction);
-					System.err.println("adding production at " + i + ": " + parentProduction);
 	            }
 	        }
 
@@ -250,6 +242,4 @@ public class ToNextWhitespaceRecoverer implements IRecoverer<IConstructor> {
 	        }
 	    }
 	}
-
-	
 }

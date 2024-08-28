@@ -17,30 +17,28 @@ import java.net.URI;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 
-import io.usethesource.vallang.IConstructor;
-
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
 
-	public static SkippedNode createResultUntilCharClass(URI uri, int[] until, int[] input, int startLocation, IConstructor production, int dot) {
+	public static SkippedNode createResultUntilCharClass(URI uri, int[] until, int[] input, int startLocation) {
 		for (int to = startLocation ; to < input.length; ++to) {
 			for (int i = 0; i < until.length; ++i) {
 				if (input[to] == until[i]) {
 					int length = to - startLocation;
-					return new SkippedNode(uri, production, dot, createSkippedToken(input, startLocation, length), startLocation);
+					return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation);
 				}
 			}
 		}
 
-		return new SkippedNode(uri, production, dot, new int[0], startLocation);
+		return new SkippedNode(uri, new int[0], startLocation);
 	}
 
-	public static SkippedNode createResultUntilEndOfInput(URI uri, int[] input, int startLocation, IConstructor production, int dot) {
+	public static SkippedNode createResultUntilEndOfInput(URI uri, int[] input, int startLocation) {
 		int length = input.length - startLocation;
-		return new SkippedNode(uri, production, dot, createSkippedToken(input, startLocation, length), startLocation);
+		return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation);
 	}
 
-	public static SkippedNode createResultUntilToken(URI uri, String token, int[] input, int startLocation, IConstructor production, int dot) {
+	public static SkippedNode createResultUntilToken(URI uri, String token, int[] input, int startLocation) {
 		int length = token.length();
 		for (int start=startLocation; start+length < input.length; start++) {
 			boolean match = true;
@@ -50,7 +48,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 				}
 
 				if (match) {
-					return createResultUntilChar(uri, input, startLocation, start+length-startLocation, production, dot);
+					return createResultUntilChar(uri, input, startLocation, start+length-startLocation);
 				}
 			}
 		}
@@ -58,8 +56,8 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return null;
 	}
 
-	public static SkippedNode createResultUntilChar(URI uri, int[] input, int startLocation, int endLocation, IConstructor production, int dot) {
-		return new SkippedNode(uri, production, dot, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
+	public static SkippedNode createResultUntilChar(URI uri, int[] input, int startLocation, int endLocation) {
+		return new SkippedNode(uri, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
 	}
 
 	private static int[] createSkippedToken(int[] input, int startLocation, int length) {
@@ -103,11 +101,11 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new SkippingStackNode<P>(this, startLocation);
+		return new SkippingStackNode<>(this, startLocation);
 	}
 
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new SkippingStackNode<P>(this, (SkippedNode) result, startLocation);
+		return new SkippingStackNode<>(this, (SkippedNode) result, startLocation);
 	}
 
 	public int getLength(){
