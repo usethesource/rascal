@@ -47,7 +47,7 @@ import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.util.DebugUtil;
-import org.rascalmpl.util.visualize.DebugVisualizer;
+import org.rascalmpl.util.visualize.ParseStateVisualizer;
 import org.rascalmpl.util.visualize.dot.NodeId;
 import org.rascalmpl.values.RascalValueFactory;
 
@@ -133,7 +133,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	// Debugging
 	private IDebugListener<P> debugListener;
-	private DebugVisualizer visualizer;
+	private ParseStateVisualizer visualizer;
 
 	// Temporary instrumentation for accurate profiling
 	private long timestamp;
@@ -808,7 +808,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 */
 	private void reduceTerminals() {
 		// Reduce terminals
-		visualize("Reducing terminals", DebugVisualizer.TERMINALS_TO_REDUCE_ID);
+		visualize("Reducing terminals", ParseStateVisualizer.TERMINALS_TO_REDUCE_ID);
 		while(!stacksWithTerminalsToReduce.isEmpty()){
 			move(stacksWithTerminalsToReduce.peekFirst(), stacksWithTerminalsToReduce.popSecond());
 		}
@@ -816,7 +816,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	private void reduceNonTerminals() {
 		// Reduce non-terminals
-		visualize("Reducing non-terminals", DebugVisualizer.NON_TERMINALS_TO_REDUCE_ID);
+		visualize("Reducing non-terminals", ParseStateVisualizer.NON_TERMINALS_TO_REDUCE_ID);
 		while(!stacksWithNonTerminalsToReduce.isEmpty()){
 			move(stacksWithNonTerminalsToReduce.peekFirst(), stacksWithNonTerminalsToReduce.popSecond());
 		}
@@ -843,7 +843,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			if (debugListener != null) {
 				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			}
-			visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
+			visualize("Recovering", ParseStateVisualizer.ERROR_TRACKING_ID);
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (debugListener != null) {
 				debugListener.revived(recoveredNodes);
@@ -866,14 +866,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Locates the set of stacks that is queued for handling, for which the least amount of characters needs to be shifted.
 	 */
 	private boolean findStacksToReduce(){
-		visualize("Finding stacks to reduce", DebugVisualizer.TODO_LISTS_ID);
+		visualize("Finding stacks to reduce", ParseStateVisualizer.TODO_LISTS_ID);
 		int queueDepth = todoLists.length;
 		for(int i = 1; i < queueDepth-1; ++i){
 			queueIndex = (queueIndex + 1) % queueDepth;
 
 			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex];
 			if(!(terminalsTodo == null || terminalsTodo.isEmpty())){
-				if (DebugVisualizer.VISUALIZATION_ENABLED) {
+				if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
 					NodeId reduceNodeId = new NodeId("todo-" + i);
 					visualize("Found stack to reduce", reduceNodeId);
 				}
@@ -890,12 +890,12 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			if (debugListener != null) {
 				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			}
-			visualize("Recovering", DebugVisualizer.ERROR_TRACKING_ID);
+			visualize("Recovering", ParseStateVisualizer.ERROR_TRACKING_ID);
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 			if (debugListener != null) {
 				debugListener.revived(recoveredNodes);
 			}
-			if (DebugVisualizer.VISUALIZATION_ENABLED && visualizer != null) {
+			if (ParseStateVisualizer.VISUALIZATION_ENABLED && visualizer != null) {
 				// Visualize state and include recovered nodes
 				visualizer.createGraph(this, "Reviving");
 				visualizer.addRecoveredNodes(recoveredNodes);
@@ -913,7 +913,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 					if (debugListener != null) {
 						debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 					}
-					visualize("Queue recovery node", DebugVisualizer.getNodeId(recovered));
+					visualize("Queue recovery node", ParseStateVisualizer.getNodeId(recovered));
 					queueRecoveryNode(recovered, recovered.getStartLocation(), recovered.getLength(), recoveredNodes.getSecond(i));
 				}
 				return findStacksToReduce();
@@ -1235,7 +1235,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Initiate stack expansion for all queued stacks.
 	 */
 	private void expand(){
-		visualize("Expanding", DebugVisualizer.STACKS_TO_EXPAND_ID);
+		visualize("Expanding", ParseStateVisualizer.STACKS_TO_EXPAND_ID);
 		while(!stacksToExpand.isEmpty()){
 			expandStack(stacksToExpand.pop());
 		}
@@ -1269,7 +1269,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    this.debugListener = debugListener;
 
 		String query = inputURI.getQuery();
-		visualizer = query != null && query.contains("visualize=true") ? new DebugVisualizer("Parser") : null;
+		visualizer = query != null && query.contains("visualize=true") ? new ParseStateVisualizer("Parser") : null;
 
 	    // Initialzed the position store.
 	    positionStore.index(input);
@@ -1320,7 +1320,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	      } while(findStacksToReduce());
 	    }
 
-		visualize("Done", DebugVisualizer.PARSER_ID);
+		visualize("Done", ParseStateVisualizer.PARSER_ID);
 
 	    // Check if we were successful.
 	    if(location == input.length){
@@ -1569,7 +1569,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	 private void visualize(String step, NodeId highlight) {
 		// Only visualize when debugging
-		if (DebugVisualizer.VISUALIZATION_ENABLED && visualizer != null) {
+		if (ParseStateVisualizer.VISUALIZATION_ENABLED && visualizer != null) {
 			visualizer.createGraph(this, step);
 			if (highlight != null) {
 				visualizer.highlight(highlight);

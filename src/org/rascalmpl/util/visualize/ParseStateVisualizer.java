@@ -29,6 +29,7 @@ import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
+import org.rascalmpl.parser.gtd.stack.StackNodeVisitorAdapter;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
@@ -59,7 +60,7 @@ import io.usethesource.vallang.IConstructor;
  * The parser can generate a large number of snapshots of the parser state during a single parse.
  * The file 'replay.html' contains an simple example of a html file to navigate through these snapshots.
  */
-public class DebugVisualizer {
+public class ParseStateVisualizer {
     public static final boolean VISUALIZATION_ENABLED = true;
     private static final String PARSER_VISUALIZATION_PATH_ENV = "PARSER_VISUALIZATION_PATH";
     private static final boolean INCLUDE_PRODUCTIONS = false;
@@ -101,7 +102,7 @@ public class DebugVisualizer {
     private DotGraph graph;
     private int frame;
 
-    public DebugVisualizer(String name) {
+    public ParseStateVisualizer(String name) {
         // In the future we might want to offer some way to control the path from within Rascal.
         String path = System.getenv(PARSER_VISUALIZATION_PATH_ENV);
         if (path == null) {
@@ -284,19 +285,14 @@ public class DebugVisualizer {
 
         String nodeName;
 
-        if (stackNode instanceof RecoveryPointStackNode) {
-            RecoveryPointStackNode<P> recoveryNode = (RecoveryPointStackNode<P>) stackNode;
-            nodeName = String.valueOf(recoveryNode.getId());
-        } else {
-            try {
-                nodeName = stackNode.getName();
-            } catch (UnsupportedOperationException e) {
-                nodeName = "";
-            }
+        try {
+            nodeName = stackNode.getName();
+        } catch (UnsupportedOperationException e) {
+            nodeName = "";
+        }
 
-            if (nodeName.startsWith("layouts_")) {
-                nodeName = nodeName.substring("layouts_".length());
-            }
+        if (nodeName.startsWith("layouts_")) {
+            nodeName = nodeName.substring("layouts_".length());
         }
 
         int dot = stackNode.getDot();
