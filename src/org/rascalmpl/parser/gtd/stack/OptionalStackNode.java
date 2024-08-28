@@ -92,10 +92,12 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 		return emptyChild;
 	}
 
+	@Override
 	public String toShortString() {
 		return toString();
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
@@ -106,10 +108,16 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof OptionalStackNode)) return false;
 		
