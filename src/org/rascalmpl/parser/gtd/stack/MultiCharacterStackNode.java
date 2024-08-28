@@ -104,10 +104,12 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
+	@Override
 	public String toShortString() {
 		return toString();
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
@@ -128,12 +130,13 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		int hash = 0;
 		
 		for(int i = characters.length - 1; i >= 0; --i){
 			int[] chars = characters[i];
-			for(int j = chars.length - 1; j <= 0; --j){
+			for(int j = chars.length - 1; j >= 0; --j){
 				hash = hash << 3 + hash >> 5;
 				hash ^= chars[0] +  (chars[1] << 2);
 			}
@@ -142,6 +145,11 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 		return hash;
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof MultiCharacterStackNode)) return false;
 		
@@ -167,4 +175,9 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }
