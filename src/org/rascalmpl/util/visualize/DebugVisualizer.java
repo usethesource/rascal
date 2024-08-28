@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,9 +48,20 @@ import org.rascalmpl.util.visualize.dot.NodeId;
 
 import io.usethesource.vallang.IConstructor;
 
+/**
+ * The parser uses quite complex datastructures.
+ * In order to understand what is going on when parsing, this class can generate graphs (as dot files)
+ * representing the internal datastructurs of the parser.
+ *
+ * These graphs are written to files that are relative to a directory specified in the environment
+ * variable PARSER_VISUALIZATION_PATH.
+ *
+ * The parser can generate a large number of snapshots of the parser state during a single parse.
+ * The file 'replay.html' contains an simple example of a html file to navigate through these snapshots.
+ */
 public class DebugVisualizer {
-    static final String BASE_DIR = "D:/debug/parser-traces/docs/";
     public static final boolean VISUALIZATION_ENABLED = true;
+    private static final String PARSER_VISUALIZATION_PATH_ENV = "PARSER_VISUALIZATION_PATH";
     private static final boolean INCLUDE_PRODUCTIONS = false;
 
     public static final NodeId PARSER_ID = new NodeId("Parser");
@@ -68,15 +77,6 @@ public class DebugVisualizer {
     public static final NodeId FILTERED_NODES_ID = new NodeId("filteredNodes");
 
     private static final NodeId RECOVERED_NODES_ID = new NodeId("recoveredNodes");
-
-    /*static public class GraphObject {
-        static public class Kind {
-            private boolean dotGraph = true;
-        }
-
-        private Kind kind = new Kind();
-        private String text = "\ndigraph G {\n a -> b; \n}\n";
-    }*/
 
     private static class StreamGobbler implements Runnable {
         private InputStream inputStream;
@@ -95,14 +95,24 @@ public class DebugVisualizer {
     }
 
     private String name;
+    private File basePath;
+    private File frameDir;
     private Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
 
     public DebugVisualizer(String name) {
+        // In the future we might want to offer some way to control the path from within Rascal.
+        String path = System.getenv(PARSER_VISUALIZATION_PATH_ENV);
+        if (path == null) {
+            throw new RuntimeException("The environment variable '" + PARSER_VISUALIZATION_PATH_ENV + "' is not set.");
+        }
+        basePath = new File(System.getenv(PARSER_VISUALIZATION_PATH_ENV));
+
         this.name = name;
         stackNodeNodes = new HashMap<>();
-        File frameDir = new File(BASE_DIR + "/frames/" + name);
+
+        frameDir = new File(new File(basePath, "frames"), name);
         if (frameDir.exists()) {
             try {
                 FileUtils.deleteDirectory(frameDir);
@@ -603,11 +613,11 @@ public class DebugVisualizer {
 
     private void writeGraph(DotGraph graph) {
         try {
-            String dotFile =  BASE_DIR + name + ".dot";
-            String svgFile = BASE_DIR + name + ".svg";
-            String frameDir = BASE_DIR + "/frames/" + name + "/";
-            String frameSvgFile = frameDir + String.format("%04d", frame) + ".svg";
-            String frameDotFile = frameDir + String.format("%04d", frame) + ".dot";
+            File dotFile =  new File(basePath, name + ".dot");
+            File svgFile = new File(basePath, name + ".svg");
+            //File frameDir = new File(basePath, BASE_DIR + "/frames/" + name + "/";
+            File frameSvgFile = new File(frameDir, String.format("%04d", frame) + ".svg");
+            File frameDotFile = new File(frameDir, String.format("%04d", frame) + ".dot");
             FileWriter writer = new FileWriter(dotFile);
             writer.write(graph.toString());
             writer.close();
@@ -621,12 +631,8 @@ public class DebugVisualizer {
             process.waitFor();
             future.get(10, TimeUnit.SECONDS);
 
-            Path svgPath = Paths.get(svgFile);
-            Path dotPath = Paths.get(dotFile);
-            Path frameSvgPath = Paths.get(frameSvgFile);
-            Path frameDotPath = Paths.get(frameDotFile);
-            Files.copy(svgPath, frameSvgPath, StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(dotPath, frameDotPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(svgFile.toPath(), frameSvgFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(dotFile.toPath(), frameDotFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
