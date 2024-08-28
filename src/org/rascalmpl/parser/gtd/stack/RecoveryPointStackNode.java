@@ -93,6 +93,7 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(getName());
@@ -105,10 +106,16 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return getName().hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof RecoveryPointStackNode)) return false;
 		
