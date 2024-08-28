@@ -113,8 +113,8 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 	}
 
 	@Override
-	public void accept(StackNodeVisitor<P> visitor) {
-		visitor.visit(this);
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
 	}
 
 }

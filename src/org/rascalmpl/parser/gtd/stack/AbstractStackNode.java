@@ -811,7 +811,7 @@ public abstract class AbstractStackNode<P>{
 		return builder.toString();
 	}
 
-	public abstract void accept(StackNodeVisitor<P> visitor);
+	public abstract <R> R accept(StackNodeVisitor<P, R> visitor);
 
 	// Matchables.
 	/**

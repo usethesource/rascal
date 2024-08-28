@@ -130,8 +130,8 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 	}
 
 	@Override
-	public void accept(StackNodeVisitor<P> visitor) {
-		visitor.visit(this);
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
 	}
 
 }
