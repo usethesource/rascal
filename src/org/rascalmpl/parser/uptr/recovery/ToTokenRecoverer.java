@@ -194,24 +194,27 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// Future improvement: while (isNullable(last) addEndMatchers(prod, dot-1, matchers);
 
-		last.accept(new StackNodeVisitorAdapter<IConstructor>() {
+		last.accept(new StackNodeVisitorAdapter<IConstructor, Void>() {
 			@Override
-			public void visit(LiteralStackNode<IConstructor> literal) {
+			public Void visit(LiteralStackNode<IConstructor> literal) {
 				matchers.add(new LiteralMatcher(literal.getLiteral()));
+				return null;
 		}
 
 			@Override
-			public void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
+			public Void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
 				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
+				return null;
 		}
 
 			@Override
-			public void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
+			public Void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
 				String name = nonTerminal.getName();
 			AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
 			for (AbstractStackNode<IConstructor> alternative : alternatives) {
 				addEndMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
 			}
+				return null;
 		}
 		});
 	}
@@ -282,24 +285,27 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 		visitedNodes.add(next.getId());
 
-		next.accept(new StackNodeVisitorAdapter<IConstructor>() {
+		next.accept(new StackNodeVisitorAdapter<IConstructor, Void>() {
 			@Override
-			public void visit(LiteralStackNode<IConstructor> literal) {
+			public Void visit(LiteralStackNode<IConstructor> literal) {
 				matchers.add(new LiteralMatcher(literal.getLiteral()));
+				return null;
 		}
 
 			@Override
-			public void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
+			public Void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
 				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
+				return null;
 		}
 
 			@Override
-			public void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
+			public Void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
 				String name = nonTerminal.getName();
 			AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
 			for (AbstractStackNode<IConstructor> alternative : alternatives) {
 				addNextMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
 			}
+				return null;
 		}
 		});
 	}
