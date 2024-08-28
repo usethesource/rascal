@@ -170,9 +170,9 @@ public class DebugVisualizer {
     private DotGraph createGraph(DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
         reset();
         graph = new DotGraph(name, true);
-        final NodeId RECOVERY_NODES_ID = new NodeId("recovery-nodes");
+        final NodeId recoveryNodesId = new NodeId("recovery-nodes");
 
-        DotNode arrayNode = DotNode.createArrayNode(RECOVERY_NODES_ID, recoveryNodes.size());
+        DotNode arrayNode = DotNode.createArrayNode(recoveryNodesId, recoveryNodes.size());
         graph.addNode(arrayNode);
 
         for (int i=0; i<recoveryNodes.size(); i++) {
@@ -182,7 +182,7 @@ public class DebugVisualizer {
             recoveryRecord.addEntry(new DotField("Productions", "productions"));
             graph.addRecordNode(pairId, recoveryRecord);
 
-            graph.addEdge(new NodeId(RECOVERY_NODES_ID, String.valueOf(i)), pairId);
+            graph.addEdge(new NodeId(recoveryNodesId, String.valueOf(i)), pairId);
 
             DotNode node = addStack(graph, recoveryNodes.getFirst(i));
 
@@ -333,11 +333,10 @@ public class DebugVisualizer {
         }
         node.addAttribute(DotAttribute.ATTR_LABEL, label);
 
-        // TODO: add prefixes
-
         return node;
     }
 
+    @SuppressWarnings("unchecked")
     private void addParserNode(DotGraph graph, AbstractNode parserNode) {
         NodeId id = getNodeId(parserNode);
         DotNode dotNode = new DotNode(id);
@@ -543,13 +542,6 @@ public class DebugVisualizer {
     private <P, T, S> void addFilteredNodes(SGTDBF<P, T, S> parser, DotGraph graph) {
         addStackAndNodeDoubleStack(graph, FILTERED_NODES_ID, parser.getFilteredNodes());
     }
-        /*
-         * 	private final Stack<AbstractStackNode<P>> unexpandableNodes;
-	private final Stack<AbstractStackNode<P>> unmatchableLeafNodes; // Leaf nodes (for instance literals) that failed to match
-	private final DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>> unmatchableMidProductionNodes;
-	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
-
-         */
 
     private <P, N extends AbstractNode> void addStackAndNodeDoubleStack(DotGraph graph, NodeId nodeId, DoubleStack<AbstractStackNode<P>, N> doubleStack) {
         DotNode arrayNode = DotNode.createArrayNode(nodeId, doubleStack == null ? 0 : doubleStack.getSize());
