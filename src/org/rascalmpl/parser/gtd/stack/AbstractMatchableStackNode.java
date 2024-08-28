@@ -66,6 +66,7 @@ public abstract class AbstractMatchableStackNode<P> extends AbstractStackNode<P>
 		throw new UnsupportedOperationException();
 	}
 	
+	@Override
 	public final boolean isMatchable(){
 		return true;
 	}
