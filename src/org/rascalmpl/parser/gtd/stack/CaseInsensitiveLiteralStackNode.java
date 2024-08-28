@@ -18,51 +18,51 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 
 public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final Object production;
-	
+
 	private final int[][] ciLiteral;
-	
+
 	private final AbstractNode result;
-	
+
 	public CaseInsensitiveLiteralStackNode(int id, int dot, Object production, int[] ciLiteral){
 		super(id, dot);
-		
+
 		this.production = production;
-		
+
 		this.ciLiteral = fill(ciLiteral);
-		
+
 		result = null;
 	}
-	
+
 	public CaseInsensitiveLiteralStackNode(int id, int dot, P production, int[] ciLiteral, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
-		
+
 		this.production = production;
-		
+
 		this.ciLiteral = fill(ciLiteral);
-		
+
 		result = null;
 	}
-	
+
 	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode<P> original, int startLocation){
 		super(original, startLocation);
-		
+
 		production = original.production;
-		
+
 		ciLiteral = original.ciLiteral;
-		
+
 		result = null;
 	}
-	
+
 	private CaseInsensitiveLiteralStackNode(CaseInsensitiveLiteralStackNode<P> original, int startLocation, AbstractNode result){
 		super(original, startLocation);
-		
+
 		this.production = original.production;
-		
+
 		this.ciLiteral = original.ciLiteral;
-		
+
 		this.result = result;
 	}
-	
+
 	private static int[][] fill(int[] ciLiteral){
 		int nrOfCharacters = ciLiteral.length;
 		int[][] ciLiteralResult = new int[nrOfCharacters][];
@@ -79,11 +79,11 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		}
 		return ciLiteralResult;
 	}
-	
+
 	public boolean isEmptyLeafNode(){
 		return false;
 	}
-	
+
 	public AbstractNode match(int[] input, int location){
 		int literalLength = ciLiteral.length;
 		int[] resultLiteral = new int[literalLength];
@@ -98,22 +98,22 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 			}
 			return null; // Did not match.
 		}
-		
+
 		return new LiteralNode(production, resultLiteral);
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new CaseInsensitiveLiteralStackNode<P>(this, startLocation);
+		return new CaseInsensitiveLiteralStackNode<>(this, startLocation);
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new CaseInsensitiveLiteralStackNode<P>(this, startLocation, result);
+		return new CaseInsensitiveLiteralStackNode<>(this, startLocation, result);
 	}
-	
+
 	public int getLength(){
 		return ciLiteral.length;
 	}
-	
+
 	public AbstractNode getResult(){
 		return result;
 	}
@@ -121,7 +121,7 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 	public int[][] getLiteral() {
 		return ciLiteral;
 	}
-	
+
 	@Override
 	public String toShortString() {
 		int[] codePoints = new int[ciLiteral.length];
@@ -131,6 +131,7 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		return new String(codePoints, 0, codePoints.length);
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < ciLiteral.length; ++i){
@@ -140,21 +141,33 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		sb.append('(');
 		sb.append(startLocation);
 		sb.append(')');
-		
+
 		return sb.toString();
 	}
-	
+
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
-	
+
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
+	@Override
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof CaseInsensitiveLiteralStackNode)) return false;
-		
+
 		CaseInsensitiveLiteralStackNode<P> otherNode = (CaseInsensitiveLiteralStackNode<P>) stackNode;
-		
+
 		if(!production.equals(otherNode.production)) return false;
-		
+
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }

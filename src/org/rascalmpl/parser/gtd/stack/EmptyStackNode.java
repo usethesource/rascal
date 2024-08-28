@@ -25,82 +25,97 @@ public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
 
 	private final AbstractStackNode<P> emptyChild;
 	private static final AbstractStackNode<?>[] children = new AbstractStackNode[0];
-	
+
 	public EmptyStackNode(int id, int dot, P production){
 		super(id, dot);
-		
+
 		this.production = production;
 		this.name = "empty"+id; // Add the id to make it unique.
-		
+
 		this.emptyChild = generateEmptyChild();
 	}
-	
+
 	public EmptyStackNode(int id, int dot, P production, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters) {
 		super(id, dot, enterFilters, completionFilters);
-		
+
 		this.production = production;
 		this.name = "empty"+id;
-		this.emptyChild = generateEmptyChild(); 
+		this.emptyChild = generateEmptyChild();
 	}
-	
+
 	private EmptyStackNode(EmptyStackNode<P> original, int startLocation){
 		super(original, startLocation);
-		
+
 		production = original.production;
 		name = original.name;
 
 		emptyChild = original.emptyChild;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private AbstractStackNode<P> generateEmptyChild(){
 		AbstractStackNode<P> empty = (AbstractStackNode<P>) EMPTY.getCleanCopy(DEFAULT_START_LOCATION);
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
-	
+
 	public String getName(){
 		return name;
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
 		return new EmptyStackNode<P>(this, startLocation);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public AbstractStackNode<P>[] getChildren(){
 		return (AbstractStackNode<P>[]) children;
 	}
-	
+
 	public boolean canBeEmpty(){
 		return true;
 	}
-	
+
 	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
 
+	@Override
 	public String toShortString() {
 		return toString();
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
 		sb.append('(');
 		sb.append(startLocation);
 		sb.append(')');
-		
+
 		return sb.toString();
 	}
-	
+
+	@Override
 	public int hashCode(){
 		return 1;
 	}
-	
+
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
+	@Override
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof EmptyStackNode)) return false;
-		
+
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }

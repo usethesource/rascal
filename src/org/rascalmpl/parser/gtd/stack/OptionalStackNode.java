@@ -18,40 +18,40 @@ import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 	private final P production;
 	private final String name;
-	
+
 	private final AbstractStackNode<P>[] children;
 	private final AbstractStackNode<P> emptyChild;
-	
+
 	public OptionalStackNode(int id, int dot, P production, AbstractStackNode<P> optional){
 		super(id, dot);
-		
+
 		this.production = production;
 		this.name = String.valueOf(id); // Add the id to make it unique.
-		
+
 		this.children = generateChildren(optional);
 		this.emptyChild = generateEmptyChild();
 	}
-	
+
 	public OptionalStackNode(int id, int dot, P production, AbstractStackNode<P> optional, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
-		
+
 		this.production = production;
 		this.name = String.valueOf(id); // Add the id to make it unique.
-		
+
 		this.children = generateChildren(optional);
 		this.emptyChild = generateEmptyChild();
 	}
-	
+
 	private OptionalStackNode(OptionalStackNode<P> original, int startLocation){
 		super(original, startLocation);
-		
+
 		production = original.production;
 		name = original.name;
-		
+
 		children = original.children;
 		emptyChild = original.emptyChild;
 	}
-	
+
 	/**
 	 * Generates and initializes the alternative for this optional.
 	 */
@@ -61,7 +61,7 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 		child.setAlternativeProduction(production);
 		return (AbstractStackNode<P>[]) new AbstractStackNode[]{child};
 	}
-	
+
 	/**
 	 * Generates and initializes the empty child for this optional.
 	 */
@@ -71,23 +71,23 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
-	
+
 	public String getName(){
 		return name;
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
 		return new OptionalStackNode<P>(this, startLocation);
 	}
-	
+
 	public AbstractStackNode<P>[] getChildren(){
 		return children;
 	}
-	
+
 	public boolean canBeEmpty(){
 		return true;
 	}
-	
+
 	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
@@ -102,21 +102,26 @@ public final class OptionalStackNode<P> extends AbstractExpandableStackNode<P>{
 		sb.append('(');
 		sb.append(startLocation);
 		sb.append(')');
-		
+
 		return sb.toString();
 	}
-	
+
 	public int hashCode(){
 		return production.hashCode();
 	}
-	
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof OptionalStackNode)) return false;
-		
+
 		OptionalStackNode<P> otherNode = (OptionalStackNode<P>) stackNode;
-		
+
 		if(!production.equals(otherNode.production)) return false;
-		
+
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }

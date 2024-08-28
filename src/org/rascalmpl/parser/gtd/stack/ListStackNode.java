@@ -21,37 +21,37 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 
 	private final AbstractStackNode<P>[] children;
 	private final AbstractStackNode<P> emptyChild;
-	
+
 	public ListStackNode(int id, int dot, P production, AbstractStackNode<P> child, boolean isPlusList){
 		super(id, dot);
-		
+
 		this.production = production;
 		this.name = String.valueOf(id); // Add the id to make it unique.
-		
+
 		this.children = generateChildren(child);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
-	
+
 	public ListStackNode(int id, int dot, P production, AbstractStackNode<P> child, boolean isPlusList, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super(id, dot, enterFilters, completionFilters);
-		
+
 		this.production = production;
 		this.name = String.valueOf(id); // Add the id to make it unique.
-		
+
 		this.children = generateChildren(child);
 		this.emptyChild = isPlusList ? null : generateEmptyChild();
 	}
-	
+
 	private ListStackNode(ListStackNode<P> original, int startLocation){
 		super(original, startLocation);
-		
+
 		production = original.production;
 		name = original.name;
 
 		children = original.children;
 		emptyChild = original.emptyChild;
 	}
-	
+
 	/**
 	 * Generates and initializes the alternative for this list.
 	 */
@@ -62,7 +62,7 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 		listNode.setProduction((AbstractStackNode<P>[]) new AbstractStackNode[]{listNode, listNode});
 		return (AbstractStackNode<P>[]) new AbstractStackNode[]{listNode};
 	}
-	
+
 	/**
 	 * Generates and initializes the empty child for this list (in case this is a star list).
 	 */
@@ -72,52 +72,65 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 		empty.setAlternativeProduction(production);
 		return empty;
 	}
-	
+
 	public String getName(){
 		return name;
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new ListStackNode<P>(this, startLocation);
+		return new ListStackNode<>(this, startLocation);
 	}
-	
+
 	public AbstractStackNode<P>[] getChildren(){
 		return children;
 	}
-	
+
 	public boolean canBeEmpty(){
 		return emptyChild != null;
 	}
-	
+
 	public AbstractStackNode<P> getEmptyChild(){
 		return emptyChild;
 	}
 
+	@Override
 	public String toShortString() {
 		return toString();
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
 		sb.append('(');
 		sb.append(startLocation);
 		sb.append(')');
-		
+
 		return sb.toString();
 	}
-	
+
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
-	
+
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof ListStackNode)) return false;
-		
+
 		ListStackNode<P> otherNode = (ListStackNode<P>) stackNode;
-		
+
 		if(!production.equals(otherNode.production)) return false;
-		
+
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }
