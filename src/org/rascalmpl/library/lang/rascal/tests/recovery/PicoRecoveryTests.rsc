@@ -45,10 +45,8 @@ test bool picoTypo() {
           input := input - 1
       od
 end");
-    iprintln(findFirstError(t));
-    return hasErrors(t) && size(findAllErrors(t)) == 1 && getErrorText(findFirstError(t)) == "x rep;
-             repnr := repnr - 1
-          od";
+    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
+    return getErrorText(error) == "output x rep";
 }
 
 test bool picoMissingSemi() {
@@ -68,63 +66,32 @@ test bool picoMissingSemi() {
           input := input - 1
       od
 end");
-    str errorText = getErrorText(findFirstError(t));
-    println("error count: <size(findAllErrors(t))>");
-    println("error text: <errorText>");
-
-    for (error <- findAllErrors(t)) {
-        println("   error: <getErrorText(error)>");
-    }
-
-    return hasErrors(t) && size(findAllErrors(t)) == 1 && getErrorText(findFirstError(t)) == "input := input - 1
-      od";
+    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
+    return getErrorText(error) == "input := input - 1\n      od";
 }
 
-test bool picoTypoMinimal() {
+test bool picoTypoSmall() {
     t = parsePico(
 "begin declare;
   while input do
     input x= 14;
     output := 0
   od
-end", visualize=false);
+end");
 
-    iprintln(t);
-
-    for (error <- findAllErrors(t)) {
-        println("   error: <getErrorText(error)>");
+    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
+    return getErrorText(error) == "x= 14";
     }
 
-    disambiguated = defaultErrorDisambiguationFilter(t);
-    println("after disambiguation:");
-    for (error <- findAllErrors(disambiguated)) {
-        println("   error: <getErrorText(error)>");
-    }
-
-return hasErrors(t);
-    /*str errorText = getErrorText(findFirstError(t));
-    println("error text: <errorText>");
-    return hasErrors(t) && size(findAllErrors(t)) == 1 && getErrorText(findFirstError(t)) == "input := input - 1
-      od";
-      */
-}
-test bool picoMissingSemiMinimal() {
+test bool picoMissingSemiSmall() {
     t = parsePico(
 "begin declare;
   while input do
     input := 14
     output := 0
   od
-end", visualize=true);
+end");
 
-    for (error <- findAllErrors(t)) {
-        println("   error: <getErrorText(error)>");
-    }
-
-return hasErrors(t);
-    /*str errorText = getErrorText(findFirstError(t));
-    println("error text: <errorText>");
-    return hasErrors(t) && size(findAllErrors(t)) == 1 && getErrorText(findFirstError(t)) == "input := input - 1
-      od";
-      */
+    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
+    return getErrorText(error) == "output := 0\n  od";
 }
