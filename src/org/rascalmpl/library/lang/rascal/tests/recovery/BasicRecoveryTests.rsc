@@ -11,7 +11,7 @@ syntax T = ABC End;
 syntax ABC = 'a' 'b' 'c';
 syntax End = "$";
 
-private Tree parseS(str input, bool visualize=false) 
+private Tree parseS(str input, bool visualize=false)
     = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
 test bool basicOk() {
@@ -20,7 +20,7 @@ test bool basicOk() {
 
 test bool abx() {
     Tree t = parseS("a b x $", visualize=true);
-    return getErrorText(findFirstError(t)) == "x";    
+    return getErrorText(findFirstError(t)) == "x";
 }
 
 test bool axc() {
@@ -28,12 +28,10 @@ test bool axc() {
     iprintln(t);
     println("after disambiguation:");
     iprintln(defaultErrorDisambiguationFilter(t));
-    return getErrorText(findFirstError(t)) == "x c";    
+    return getErrorText(findFirstError(t)) == "x c";
 }
 
-/* We need to look through non-terminals to make this test work
 test bool ax() {
     Tree t = parseS("a x $", visualize=true);
-    return getErrorText(findFirstError(t)) = "x";    
+    return getErrorText(findFirstError(t)) == "x ";
 }
-*/

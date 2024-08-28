@@ -24,7 +24,7 @@ public interface IRecoverer<P> {
      * and some of its history. With this information new stack nodes may be generated for the parser
      * to continue with. It is up to the reviveStacks method to make sure the parser still generates
      * derivation trees that cover the entire input.
-     * 
+     *
      * @param input                  the 24-bit unicode input character array
      * @param location               the current character offset in the input that the parser got stuck on
      * @param unexpandableNodes      these are non-terminals that were predicted at this location but did not fly

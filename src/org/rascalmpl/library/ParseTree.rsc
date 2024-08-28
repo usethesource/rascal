@@ -829,7 +829,7 @@ Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
     // One ambiguity left, no ambiguity concerns here
     return single;
   }
-  
+
   // Multiple non-error trees left, return an ambiguity node with just the non-error trees
   return amb(nonErrorTrees);
 }
@@ -847,7 +847,7 @@ private Tree getBestErrorTree(set[Tree] trees) {
       errorLength += getSkipped(err).src.length;
     }
 
-    if (bestErrorCount == -1 || errorCount < bestErrorCount || (errorCount == bestErrorCount && errorLength < bestErrorLength)) { 
+    if (bestErrorCount == -1 || errorCount < bestErrorCount || (errorCount == bestErrorCount && errorLength < bestErrorLength)) {
       best = tree;
       bestErrorCount = errorCount;
       bestErrorLength = errorLength;

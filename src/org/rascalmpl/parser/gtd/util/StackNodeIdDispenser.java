@@ -25,7 +25,7 @@ public class StackNodeIdDispenser implements IdDispenser {
             // Custom IGTB implementation without "getFreeStackNodeId" method. No biggy, we just use nextNodeIdBackup.
         }
     }
-    
+
     @Override
     public int dispenseId() {
         if (dispenseMethod != null) {

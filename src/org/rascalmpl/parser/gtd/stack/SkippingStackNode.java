@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Pieter Olivier - Pieter.Olivier@swat.engineering
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
@@ -20,7 +21,7 @@ import io.usethesource.vallang.IConstructor;
 
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;
-	
+
 	public static SkippedNode createResultUntilCharClass(URI uri, int[] until, int[] input, int startLocation, IConstructor production, int dot) {
 		for (int to = startLocation ; to < input.length; ++to) {
 			for (int i = 0; i < until.length; ++i) {
@@ -69,34 +70,34 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 
 	public SkippingStackNode(int id, P parentProduction, SkippedNode result) {
 		super(id, 0);
-		
+
 		this.result = result;
 		setAlternativeProduction(parentProduction);
 	}
 
 	public SkippingStackNode(int id, P parentProduction, SkippedNode result, int startLocation) {
 		super(id, 0, startLocation);
-		
+
 		this.result = result;
 		setAlternativeProduction(parentProduction);
 	}
 
 	private SkippingStackNode(SkippingStackNode<P> original, int startLocation){
 		super(original, startLocation);
-		
+
 		this.result = original.result;
 	}
-	
+
 	private SkippingStackNode(SkippingStackNode<P> original, SkippedNode result, int startLocation){
 		super(original, startLocation);
-		
+
 		this.result = result;
 	}
-		
+
 	public boolean isEmptyLeafNode(){
 		return result.isEmpty();
 	}
-	
+
 	public AbstractNode match(int[] input, int location){
 		return result;
 	}
@@ -104,29 +105,20 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
 		return new SkippingStackNode<P>(this, startLocation);
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
 		return new SkippingStackNode<P>(this, (SkippedNode) result, startLocation);
 	}
-	
+
 	public int getLength(){
 		return result.getLength();
 	}
-	
+
 	public AbstractNode getResult(){
 		return result;
 	}
-	
-	/*Original: public String toString(){
-		StringBuilder sb = new StringBuilder();
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
-		
-		return sb.toString();
-	}*/
-	
+
+	@Override
 	public String toShortString() {
 		return "skip(" + result.toString() + ")";
 	}
@@ -155,9 +147,9 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		if ( !(stackNode instanceof SkippingStackNode)) {
 		    return false;
 		}
-		
+
 		SkippingStackNode<P> otherNode = (SkippingStackNode<P>) stackNode;
-		
+
 		return otherNode.id == id;
 	}
 }
