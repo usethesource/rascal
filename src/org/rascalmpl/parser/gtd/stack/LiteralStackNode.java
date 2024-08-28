@@ -87,6 +87,7 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		return "'" + UnicodeConverter.unicodeArrayToString(literal) + "'";
 	}
 	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("lit['");
 		sb.append(UnicodeConverter.unicodeArrayToString(literal));
@@ -98,10 +99,16 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof LiteralStackNode)) return false;
 		
@@ -111,4 +118,9 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }

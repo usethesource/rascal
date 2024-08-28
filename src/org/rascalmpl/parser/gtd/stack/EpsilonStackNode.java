@@ -54,11 +54,11 @@ public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new EpsilonStackNode<P>(this, startLocation);
+		return new EpsilonStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new EpsilonStackNode<P>(this, startLocation, result);
+		return new EpsilonStackNode<>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -69,6 +69,7 @@ public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append('(');
@@ -78,13 +79,24 @@ public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return 0;
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof EpsilonStackNode)) return false;
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }

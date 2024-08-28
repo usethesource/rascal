@@ -150,4 +150,8 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return otherNode.id == id;
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
 }

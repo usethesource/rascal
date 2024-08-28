@@ -103,11 +103,11 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new CaseInsensitiveLiteralStackNode<P>(this, startLocation);
+		return new CaseInsensitiveLiteralStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new CaseInsensitiveLiteralStackNode<P>(this, startLocation, result);
+		return new CaseInsensitiveLiteralStackNode<>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -131,6 +131,7 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		return new String(codePoints, 0, codePoints.length);
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < ciLiteral.length; ++i){
@@ -144,10 +145,17 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
+	@Override
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof CaseInsensitiveLiteralStackNode)) return false;
 		
@@ -157,4 +165,9 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }

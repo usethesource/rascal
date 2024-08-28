@@ -103,4 +103,9 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	void accept(StackNodeVisitor<P> visitor) {
+		visitor.visit(this);
+	}
+
 }
