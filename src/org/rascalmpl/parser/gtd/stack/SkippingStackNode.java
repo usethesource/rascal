@@ -131,14 +131,9 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return getParentProduction().hashCode();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object rhs) {
-		if (rhs instanceof AbstractStackNode) {
-			return isEqual((AbstractStackNode<P>)rhs);
-		}
-
-		return false;
+		return super.equals(rhs);
 	}
 
 	public boolean isEqual(AbstractStackNode<P> stackNode){
