@@ -124,7 +124,8 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 		return otherNode.name.equals(name) && otherNode.startLocation == startLocation;
 	}
 
-	void accept(StackNodeVisitor<P> visitor) {
+	@Override
+	public void accept(StackNodeVisitor<P> visitor) {
 		visitor.visit(this);
 	}
 
