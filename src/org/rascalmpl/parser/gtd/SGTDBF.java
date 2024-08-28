@@ -111,7 +111,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	
 	
 	// Reflection is used to get the expects for each non-terminal.
-	// This cache is used so the reflection call is only needed once.
+	// This cache is used so the reflection call is only needed once per non-terminal.
 	private final HashMap<String, AbstractStackNode<P>[]> expectCache;
 	
 	private final IntegerObjectList<AbstractStackNode<P>> sharedLastExpects;
@@ -984,11 +984,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
             queueIndex = 0;
             location = startPosition;
             
-            //<PO> was: DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex + 1];
 			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[length];
             if (terminalsTodo == null) {
                 terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
-                // <PO> was: todoLists[queueIndex + 1] = terminalsTodo; // <PO> Why the +1 and not length? To get the recovered node to be processed first?
 				todoLists[length] = terminalsTodo;
             }
             
@@ -1006,8 +1004,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
             throw new RuntimeException("discovered a future recovery? " + node);
         }
     }
-	
-	
 	
 	/**
 	 * Handles the retrieved alternatives for the given stack.
@@ -1480,14 +1476,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Error nodes end up in a n inconvenient form because of the parser algorithm.
 	 * This post-processing step transforms the original tree into a more useful form.
 	 * In essence, error subtrees look like this after parsing:
-	 * `appl(prod(S,[<argtypes>]), [<child1>,<child2>,...,appl(skipped(S,prod(S,[<argtypes>]),<dot>),[<chars>)]])`
-	 * This method pulls up the skipped node, transforming these trees into:
-	 * `appl(skipped(S,prod(S,[<argtypes>]),<dot>), [<child1>,<child2>,...,[<chars>])])`
+	 * `appl(prod(S,[<argtypes>]), [<child1>,<child2>,...,appl(skipped([<chars>]))])`
+	 * This method transforms these trees into:
+	 * `appl(error(S,prod(S,[<argtypes>]),<dot>), [<child1>,<child2>,...,appl(skipped([<chars>]))])`
 	 * This means productions that failed to parse can be recognized at the top level.
 	 * Note that this can only be done when we know the actual type of T is IConstructor.
 	 */
 	@SuppressWarnings("unchecked")
-	T fixErrorNodes(T tree, INodeConstructorFactory<T, S> nodeConstructorFactory) {
+	private T fixErrorNodes(T tree, INodeConstructorFactory<T, S> nodeConstructorFactory) {
 		if (!(tree instanceof IConstructor)) {
 			return tree;
 		}
@@ -1495,7 +1491,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return (T) fixErrorNodes((IConstructor) tree, (INodeConstructorFactory<IConstructor, S>) nodeConstructorFactory);
 	}
 
-	IConstructor fixErrorNodes(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+	private IConstructor fixErrorNodes(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
 		IConstructor result;
 		Type type = tree.getConstructorType();
 		if (type == RascalValueFactory.Tree_Appl) {
@@ -1584,9 +1580,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		}
 	 }
 
-	
 	/**
-	 * Getters used for graph generation/debugging
+	 * Getters used for graph generation for debugging (see DebugVisualizer)
 	 */
 
 	public int[] getInput() {
@@ -1636,6 +1631,4 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	public DoubleStack<AbstractStackNode<P>, AbstractNode> getFilteredNodes() {
 		return filteredNodes;
 	}
-
-	 
 }
