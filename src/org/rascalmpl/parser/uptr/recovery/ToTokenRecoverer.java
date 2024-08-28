@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2022 NWO-I Centrum Wiskunde & Informatica (CWI)
+ * Copyright (c) 2009-2024 NWO-I Centrum Wiskunde & Informatica (CWI)
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -87,14 +87,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
 
-			int dot = recoveryNode.getDot();
 			int startLocation = recoveryNode.getStartLocation();
 
 			// Handle every possible continuation associated with the recovery node (there can be more then one because of prefix-sharing).
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
-				List<SkippingStackNode<IConstructor>> skippingNodes = findSkippingNodes(input, recoveryNode, prod, dot, startLocation);
+				List<SkippingStackNode<IConstructor>> skippingNodes = findSkippingNodes(input, recoveryNode, prod, startLocation);
 				for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
 					AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
@@ -113,14 +112,14 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		return recoveredNodes;
 	}
 
-	List<SkippingStackNode<IConstructor>> findSkippingNodes(int[] input, AbstractStackNode<IConstructor> recoveryNode, IConstructor prod, int dot, int startLocation) {
+	List<SkippingStackNode<IConstructor>> findSkippingNodes(int[] input, AbstractStackNode<IConstructor> recoveryNode, IConstructor prod, int startLocation) {
 		List<SkippingStackNode<IConstructor>> nodes = new java.util.ArrayList<>();
 
 		SkippedNode result;
 
 		// If we are the top-level node, just skip the rest of the input
 		if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
-			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation, prod, dot);
+			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
 			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			return nodes;	// No other nodes would be useful
 		}
@@ -139,7 +138,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		for (InputMatcher endMatcher : endMatchers) {
 			MatchResult endMatch = endMatcher.findMatch(input, startLocation);
 			if (endMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd(), prod, dot);
+				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			}
 		}
@@ -149,7 +148,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		for (InputMatcher nextMatcher : nextMatchers) {
 			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1);
 			if (nextMatch != null) {
-				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart(), prod, dot);
+				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			}
 		}
