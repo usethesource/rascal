@@ -31,9 +31,7 @@ test bool axc() {
     return getErrorText(findFirstError(t)) == "x c";    
 }
 
-/* We need to look through non-terminals to make this test work
 test bool ax() {
     Tree t = parseS("a x $", visualize=true);
-    return getErrorText(findFirstError(t)) = "x";    
+    return getErrorText(findFirstError(t)) == "x ";
 }
-*/

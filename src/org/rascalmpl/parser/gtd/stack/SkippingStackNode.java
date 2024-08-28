@@ -8,6 +8,7 @@
  * Contributors:
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Pieter Olivier - Pieter.Olivier@swat.engineering
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
@@ -117,16 +118,7 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
-	/*Original: public String toString(){
-		StringBuilder sb = new StringBuilder();
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
-		
-		return sb.toString();
-	}*/
-	
+	@Override
 	public String toShortString() {
 		return "skip(" + result.toString() + ")";
 	}
