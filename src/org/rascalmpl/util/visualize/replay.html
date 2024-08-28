@@ -1,0 +1,36 @@
+<html>
+        <body id="body">
+        </body>
+</html>
+<script>
+const params = new URLSearchParams(window.location.search);
+const name = params.get('name');
+const frame = params.get('frame');
+
+let body = document.getElementById('body');
+
+let prev = document.createElement("a");
+prev.appendChild(document.createTextNode("Previous"));
+if (frame > 0) {
+  prev.setAttribute("href", "replay.html?name=" + name + "&frame=" + (frame-1));
+}
+document.body.appendChild(prev);
+
+
+document.body.appendChild(document.createTextNode(" " + frame + " "));
+
+let next = document.createElement("a");
+next.appendChild(document.createTextNode("Next"));
+const nextFrame = Number(frame) + 1;
+next.setAttribute("href", "replay.html?name=" + name + "&frame=" + nextFrame);
+document.body.appendChild(next);
+
+document.body.appendChild(document.createElement("br"));
+
+const frameFile = ("000" + frame).slice(-4) + ".svg";
+let img = document.createElement('img');
+img.src = 'frames/' + name + '/' + frameFile;
+
+
+body.appendChild(img);
+</script>
