@@ -30,6 +30,7 @@ import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
+import org.rascalmpl.parser.gtd.stack.StackNodeVisitorAdapter;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
@@ -194,25 +195,26 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		// Future improvement: while (isNullable(last) addEndMatchers(prod, dot-1, matchers);
 
-		if (last instanceof LiteralStackNode) {
-			LiteralStackNode<IConstructor> lastLiteral = (LiteralStackNode<IConstructor>) last;
-			matchers.add(new LiteralMatcher(lastLiteral.getLiteral()));
+		last.accept(new StackNodeVisitorAdapter<IConstructor>() {
+			@Override
+			public void visit(LiteralStackNode<IConstructor> literal) {
+				matchers.add(new LiteralMatcher(literal.getLiteral()));
 		}
 
-		if (last instanceof CaseInsensitiveLiteralStackNode) {
-			CaseInsensitiveLiteralStackNode<IConstructor> lastLiteral = (CaseInsensitiveLiteralStackNode<IConstructor>) last;
-			matchers.add(new CaseInsensitiveLiteralMatcher(lastLiteral.getLiteral()));
+			@Override
+			public void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
+				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
 		}
 
-		if (last instanceof NonTerminalStackNode) {
-			NonTerminalStackNode<IConstructor> nextNonTerminal = (NonTerminalStackNode<IConstructor>) last;
-			String name = nextNonTerminal.getName();
+			@Override
+			public void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
+				String name = nonTerminal.getName();
 			AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
 			for (AbstractStackNode<IConstructor> alternative : alternatives) {
-				// In the future we might want to use all prefix-sharing alternatives here
 				addEndMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
 			}
 		}
+		});
 	}
 
 	void forAllParents(AbstractStackNode<IConstructor> stackNode, Consumer<AbstractStackNode<IConstructor>> consumer) {
@@ -281,24 +283,26 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 		visitedNodes.add(next.getId());
 
-		if (next instanceof LiteralStackNode) {
-			LiteralStackNode<IConstructor> nextLiteral = (LiteralStackNode<IConstructor>) next;
-			matchers.add(new LiteralMatcher(nextLiteral.getLiteral()));
+		next.accept(new StackNodeVisitorAdapter<IConstructor>() {
+			@Override
+			public void visit(LiteralStackNode<IConstructor> literal) {
+				matchers.add(new LiteralMatcher(literal.getLiteral()));
 		}
 
-		if (next instanceof CaseInsensitiveLiteralStackNode) {
-			CaseInsensitiveLiteralStackNode<IConstructor> nextLiteral = (CaseInsensitiveLiteralStackNode<IConstructor>) next;
-			matchers.add(new CaseInsensitiveLiteralMatcher(nextLiteral.getLiteral()));
+			@Override
+			public void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
+				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
 		}
 
-		if (next instanceof NonTerminalStackNode) {
-			NonTerminalStackNode<IConstructor> nextNonTerminal = (NonTerminalStackNode<IConstructor>) next;
-			String name = nextNonTerminal.getName();
+			@Override
+			public void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
+				String name = nonTerminal.getName();
 			AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
 			for (AbstractStackNode<IConstructor> alternative : alternatives) {
 				addNextMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
 			}
 		}
+		});
 	}
 
 	// Check if a node is a top-level production (i.e., its parent production node has no parents and starts at position -1)
