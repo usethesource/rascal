@@ -49,7 +49,7 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 	}
 
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new NonTerminalStackNode<P>(this, startLocation);
+		return new NonTerminalStackNode<>(this, startLocation);
 	}
 
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
@@ -76,10 +76,12 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public String toShortString() {
 		return expectIdentifier;
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("NonTerminal[");
 		sb.append(expectIdentifier);
@@ -90,8 +92,14 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 		return sb.toString();
 	}
 
+	@Override
 	public int hashCode(){
 		return expectIdentifier.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
 	}
 
 	public boolean isEqual(AbstractStackNode<P> stackNode){
