@@ -10,11 +10,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -386,8 +383,7 @@ public class DebugVisualizer {
 
     private void enrichSkippedNode(DotNode dotNode, SkippedNode skippedNode) {
         String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
-        label += "\n." + skippedNode.getDot() + "@" + skippedNode.getOffset() + ": " + " \"" + UnicodeConverter.unicodeArrayToString(skippedNode.getSkippedChars()) + "\"";
-        label += "\nin: " + DebugUtil.prodToString((IConstructor) skippedNode.getProduction());
+        label += "\n@" + skippedNode.getOffset() + ": " + " \"" + UnicodeConverter.unicodeArrayToString(skippedNode.getSkippedChars()) + "\"";
 
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
@@ -397,8 +393,6 @@ public class DebugVisualizer {
         label += " " + sortNode.getOffset() + "-" + sortNode.getEndOffset();
         label += "\n" + DebugUtil.prodToString(sortNode.getFirstProduction());
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
-
-        // TODO: add links
     }
     
     private void enrichUnknownParserNode(DotNode dotNode, AbstractNode parserNode) {
@@ -415,7 +409,7 @@ public class DebugVisualizer {
         return new NodeId(String.valueOf(System.identityHashCode(node)));
     }
 
-    public <P, T, S> void writeGraph() {
+    public void writeGraph() {
         if (graph != null) {
             writeGraph(graph);
         }
