@@ -1,74 +1,88 @@
 package org.rascalmpl.parser.gtd.stack;
 
-public class StackNodeVisitorAdapter<P> implements StackNodeVisitor<P> {
+public class StackNodeVisitorAdapter<P, R> implements StackNodeVisitor<P, R> {
 
     @Override
-    public void visit(AlternativeStackNode<P> node) {
+    public R visit(AlternativeStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(CaseInsensitiveLiteralStackNode<P> node) {
+    public R visit(CaseInsensitiveLiteralStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(CharStackNode<P> node) {
+    public R visit(CharStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(EmptyStackNode<P> node) {
+    public R visit(EmptyStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(EpsilonStackNode<P> node) {
+    public R visit(EpsilonStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(ListStackNode<P> node) {
+    public R visit(ListStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(LiteralStackNode<P> node) {
+    public R visit(LiteralStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(MultiCharacterStackNode<P> node) {
+    public R visit(MultiCharacterStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(NonTerminalStackNode<P> node) {
+    public R visit(NonTerminalStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(OptionalStackNode<P> node) {
+    public R visit(OptionalStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(RecoveryPointStackNode<P> node) {
+    public R visit(RecoveryPointStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(SeparatedListStackNode<P> node) {
+    public R visit(SeparatedListStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(SequenceStackNode<P> node) {
+    public R visit(SequenceStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 
     @Override
-    public void visit(SkippingStackNode<P> node) {
+    public R visit(SkippingStackNode<P> node) {
         // Do nothing fallback
+        return null;
     }
 }

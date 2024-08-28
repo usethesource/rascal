@@ -1,18 +1,18 @@
 package org.rascalmpl.parser.gtd.stack;
 
-public interface StackNodeVisitor<P> {
-    void visit(AlternativeStackNode<P> node);
-    void visit(CaseInsensitiveLiteralStackNode<P> node);
-    void visit(CharStackNode<P> node);
-    void visit(EmptyStackNode<P> node);
-    void visit(EpsilonStackNode<P> node);
-    void visit(ListStackNode<P> node);
-    void visit(LiteralStackNode<P> node);
-    void visit(MultiCharacterStackNode<P> node);
-    void visit(NonTerminalStackNode<P> node);
-    void visit(OptionalStackNode<P> node);
-    void visit(RecoveryPointStackNode<P> node);
-    void visit(SeparatedListStackNode<P> node);
-    void visit(SequenceStackNode<P> node);
-    void visit(SkippingStackNode<P> node);
+public interface StackNodeVisitor<P, R> {
+    R visit(AlternativeStackNode<P> node);
+    R visit(CaseInsensitiveLiteralStackNode<P> node);
+    R visit(CharStackNode<P> node);
+    R visit(EmptyStackNode<P> node);
+    R visit(EpsilonStackNode<P> node);
+    R visit(ListStackNode<P> node);
+    R visit(LiteralStackNode<P> node);
+    R visit(MultiCharacterStackNode<P> node);
+    R visit(NonTerminalStackNode<P> node);
+    R visit(OptionalStackNode<P> node);
+    R visit(RecoveryPointStackNode<P> node);
+    R visit(SeparatedListStackNode<P> node);
+    R visit(SequenceStackNode<P> node);
+    R visit(SkippingStackNode<P> node);
 }
