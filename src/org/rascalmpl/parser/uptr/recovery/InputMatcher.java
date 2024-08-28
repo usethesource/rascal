@@ -3,6 +3,7 @@ package org.rascalmpl.parser.uptr.recovery;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.StackNodeVisitorAdapter;
 import org.rascalmpl.values.RascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -53,14 +54,16 @@ public interface InputMatcher {
     }
 
     public static <P> InputMatcher createMatcher(AbstractStackNode<P> stackNode) {
-        if (stackNode instanceof LiteralStackNode) {
-            return new LiteralMatcher(((LiteralStackNode<P>) stackNode).getLiteral());
+        return stackNode.accept(new StackNodeVisitorAdapter<P,InputMatcher>() {
+            @Override
+            public InputMatcher visit(LiteralStackNode<P> literal) {
+                return new LiteralMatcher(literal.getLiteral());
         }
 
-        if (stackNode instanceof CaseInsensitiveLiteralStackNode) {
-            return new CaseInsensitiveLiteralMatcher(((CaseInsensitiveLiteralStackNode<P>) stackNode).getLiteral());
+            @Override
+            public InputMatcher visit(CaseInsensitiveLiteralStackNode<P> literal) {
+                return new CaseInsensitiveLiteralMatcher(literal.getLiteral());
         }
-
-        return null;
+        });
     }
 }
