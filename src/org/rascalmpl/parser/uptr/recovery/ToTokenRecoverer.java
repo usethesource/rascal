@@ -9,7 +9,6 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *   * Pieter Olviier - Pieter.Olivier@swat.engineering
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
@@ -40,7 +39,7 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
-import org.rascalmpl.util.visualize.DebugVisualizer;
+import org.rascalmpl.util.visualize.ParseStateVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -81,7 +80,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Sort nodes by start location
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
-		DebugVisualizer visualizer = new DebugVisualizer("Recovery");
+		ParseStateVisualizer visualizer = new ParseStateVisualizer("Recovery");
 		visualizer.visualizeRecoveryNodes(recoveryNodes);
 		
 		for (int i = 0; i<recoveryNodes.size(); i++) {

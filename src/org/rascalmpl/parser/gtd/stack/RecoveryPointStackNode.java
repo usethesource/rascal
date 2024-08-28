@@ -58,7 +58,7 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 
 	@Override
 	public String getName(){
-		return "***robust:" + name + "***";
+		return name;
 	}
 	
 	public AbstractNode match(int[] input, int location){
