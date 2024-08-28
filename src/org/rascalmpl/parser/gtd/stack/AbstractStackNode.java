@@ -811,6 +811,8 @@ public abstract class AbstractStackNode<P>{
 		return builder.toString();
 	}
 
+	abstract void accept(StackNodeVisitor<P> visitor);
+
 	// Matchables.
 	/**
 	 * Matches the symbol associated with this node to the input at the specified location.
