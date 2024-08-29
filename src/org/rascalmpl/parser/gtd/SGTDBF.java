@@ -868,7 +868,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private boolean findStacksToReduce(){
 		visualize("Finding stacks to reduce", ParseStateVisualizer.TODO_LISTS_ID);
 		int queueDepth = todoLists.length;
-		for(int i = 1; i < queueDepth-1; ++i){
+		for(int i = 1; i < queueDepth; ++i){
 			queueIndex = (queueIndex + 1) % queueDepth;
 
 			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[queueIndex];
