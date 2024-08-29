@@ -1497,6 +1497,26 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IConstructor result;
 		Type type = tree.getConstructorType();
 		if (type == RascalValueFactory.Tree_Appl) {
+			result = fixErrorAppl(tree, nodeConstructorFactory);
+		} else if (type == RascalValueFactory.Tree_Char) {
+			result = tree;
+		} else if (type == RascalValueFactory.Tree_Amb) {
+			result = fixErrorAmb(tree, nodeConstructorFactory);
+		} else if (type == RascalValueFactory.Tree_Cycle) {
+			result = tree;
+		} else {
+			throw new RuntimeException("Unrecognized tree type: " + type);
+		}
+
+		if (result != tree && tree.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
+			IValue loc = tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
+			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+		}
+
+		return result;
+	}
+
+	private IConstructor fixErrorAppl(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
 			IValue prod = tree.get(0);
 			IList childList = (IList) tree.get(1);
 			int childCount = childList.length();
@@ -1527,15 +1547,15 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			}
 
 			if (errorTree) {
-				result = nodeConstructorFactory.createErrorNode(children, prod);
+			return nodeConstructorFactory.createErrorNode(children, prod);
 			} else if (anyChanges) {
-				result = nodeConstructorFactory.createSortNode(children, prod);
-			} else {
-				result = tree;
+			return nodeConstructorFactory.createSortNode(children, prod);
 			}
-		} else if (type == RascalValueFactory.Tree_Char) {
-			result = tree;
-		} else if (type == RascalValueFactory.Tree_Amb) {
+
+		return tree;
+	}
+
+	private IConstructor fixErrorAmb(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
 			ISet alternativeSet = (ISet) tree.get(0);
 			ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
 			final AtomicBoolean anyChanges = new AtomicBoolean(false);
@@ -1546,24 +1566,15 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				}
 				alternatives.add(newAlt); 
 			});
+
 			if (anyChanges.getPlain()) {
-				result = nodeConstructorFactory.createAmbiguityNode(alternatives);
-			} else {
-				result = tree;
-			}
-		} else if (type == RascalValueFactory.Tree_Cycle) {
-			result = tree;
-		} else {
-			throw new RuntimeException("Unrecognized tree type: " + type);
+			return nodeConstructorFactory.createAmbiguityNode(alternatives);
 		}
 
-		if (result != tree) {
-			IValue loc = tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
-			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+		return tree;
 		}
 
-		return result;
-	}
+
 
 	/**
 	 * Datastructure visualization for debugging purposes
