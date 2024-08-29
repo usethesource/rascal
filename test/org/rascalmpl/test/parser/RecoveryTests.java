@@ -47,32 +47,32 @@ import io.usethesource.vallang.io.StandardTextReader;
  * ws -> [\ ]
  */
 public class RecoveryTests extends SGTDBF<IConstructor, ITree, ISourceLocation> implements IParserTest{
-	private final static IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
+	private static final IConstructor SYMBOL_START_S = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("S"));
 	
-	private final static IConstructor SYMBOL_ws = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("ws"));
-	private final static IConstructor SYMBOL_char_space = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(32))));
+	private static final IConstructor SYMBOL_ws = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("ws"));
+	private static final IConstructor SYMBOL_char_space = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(32))));
 
-	private final static IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
-	private final static IConstructor SYMBOL_a = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("a"));
-	private final static IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
-	private final static IConstructor PROD_A_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_a), VF.set());
+	private static final IConstructor SYMBOL_A = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("A"));
+	private static final IConstructor SYMBOL_a = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("a"));
+	private static final IConstructor SYMBOL_char_a = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(97))));
+	private static final IConstructor PROD_A_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_A, VF.list(SYMBOL_a), VF.set());
 
-	private final static IConstructor SYMBOL_B = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("B"));
-	private final static IConstructor SYMBOL_b = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("b"));
-	private final static IConstructor SYMBOL_char_b = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(98))));
-	private final static IConstructor PROD_B_b_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_b, SYMBOL_ws, SYMBOL_b), VF.set());
+	private static final IConstructor SYMBOL_B = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("B"));
+	private static final IConstructor SYMBOL_b = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("b"));
+	private static final IConstructor SYMBOL_char_b = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(98))));
+	private static final IConstructor PROD_B_b_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_B, VF.list(SYMBOL_b, SYMBOL_ws, SYMBOL_b), VF.set());
 
-	private final static IConstructor SYMBOL_C = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("C"));
-	private final static IConstructor SYMBOL_c = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("c"));
-	private final static IConstructor SYMBOL_char_c = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(99))));
-	private final static IConstructor PROD_C_c = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_C, VF.list(SYMBOL_c), VF.set());
+	private static final IConstructor SYMBOL_C = VF.constructor(RascalValueFactory.Symbol_Sort, VF.string("C"));
+	private static final IConstructor SYMBOL_c = VF.constructor(RascalValueFactory.Symbol_Lit, VF.string("c"));
+	private static final IConstructor SYMBOL_char_c = VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Single, VF.integer(99))));
+	private static final IConstructor PROD_C_c = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_C, VF.list(SYMBOL_c), VF.set());
 	
-	private final static IConstructor PROD_S_A_B_C = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A, SYMBOL_ws, SYMBOL_B, SYMBOL_ws, SYMBOL_C), VF.set());
+	private static final IConstructor PROD_S_A_B_C = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_START_S, VF.list(SYMBOL_A, SYMBOL_ws, SYMBOL_B, SYMBOL_ws, SYMBOL_C), VF.set());
 
-	private final static IConstructor PROD_ws = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_ws, VF.list(SYMBOL_char_space), VF.set());
-	private final static IConstructor PROD_a_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
-	private final static IConstructor PROD_b_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
-	private final static IConstructor PROD_c_c = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_c, VF.list(SYMBOL_char_c), VF.set());
+	private static final IConstructor PROD_ws = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_ws, VF.list(SYMBOL_char_space), VF.set());
+	private static final IConstructor PROD_a_a = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_a, VF.list(SYMBOL_char_a), VF.set());
+	private static final IConstructor PROD_b_b = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_b, VF.list(SYMBOL_char_b), VF.set());
+	private static final IConstructor PROD_c_c = VF.constructor(RascalValueFactory.Production_Default,  SYMBOL_c, VF.list(SYMBOL_char_c), VF.set());
 		
 	public AbstractStackNode<IConstructor>[] S(){
 		return IParserTest.createExpectArray(PROD_S_A_B_C,
@@ -143,7 +143,7 @@ public class RecoveryTests extends SGTDBF<IConstructor, ITree, ISourceLocation> 
 
 	@Test
 	public void testIncorrectCharacter() {
-		String expected = "appl(prod(sort(\"S\"),[sort(\"A\"),lit(\"ws\"),sort(\"B\"),lit(\"ws\"),sort(\"C\")],{}),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(prod(sort(\"B\"),[lit(\"b\"),lit(\"ws\"),lit(\"b\")],{}),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(skipped(sort(\"B\"),prod(sort(\"B\"),[lit(\"b\"),lit(\"ws\"),lit(\"b\")],{}),2),[char(120)])]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(prod(sort(\"C\"),[lit(\"c\")],{}),[appl(prod(lit(\"c\"),[\\char-class([single(99)])],{}),[char(99)])])])";
+		String expected = "appl(prod(sort(\"S\"),[sort(\"A\"),lit(\"ws\"),sort(\"B\"),lit(\"ws\"),sort(\"C\")],{}),[appl(prod(sort(\"A\"),[lit(\"a\")],{}),[appl(prod(lit(\"a\"),[\\char-class([single(97)])],{}),[char(97)])]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(error(sort(\"B\"),prod(sort(\"B\"),[lit(\"b\"),lit(\"ws\"),lit(\"b\")],{}),2),[appl(prod(lit(\"b\"),[\\char-class([single(98)])],{}),[char(98)]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(skipped(\\iter-star(\\char-class([range(1,1114111)]))),[char(120)])]),appl(prod(lit(\"ws\"),[\\char-class([single(32)])],{}),[char(32)]),appl(prod(sort(\"C\"),[lit(\"c\")],{}),[appl(prod(lit(\"c\"),[\\char-class([single(99)])],{}),[char(99)])])])";
 		Assert.assertEquals(toTree(expected), parse("a b x c"));
 	}
     
