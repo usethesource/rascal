@@ -1453,7 +1453,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    finally {
 	      actionExecutor.completed(rootEnvironment, (parseResult == null));
 	    }
-	    if(parseResult != null) {
+	    if (parseResult != null) {
 			if (recoverer != null) {
 				parseResult = fixErrorNodes(parseResult, nodeConstructorFactory);
 			}
@@ -1497,73 +1497,84 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IConstructor result;
 		Type type = tree.getConstructorType();
 		if (type == RascalValueFactory.Tree_Appl) {
-			IValue prod = tree.get(0);
-			IList childList = (IList) tree.get(1);
-			int childCount = childList.length();
-
-			ArrayList<IConstructor> children = new ArrayList<>(childCount);
-			boolean anyChanges = false;
-			boolean errorTree = false;
-			for (int i=0; i<childCount; i++) {
-				if (i == childCount-1) {
-					// Last child could be a skipped child
-					IConstructor last = (IConstructor) childList.get(childCount-1);
-					if (last.getConstructorType() == RascalValueFactory.Tree_Appl) {
-						IConstructor lastProd = (IConstructor) last.get(0);
-						if (lastProd.getConstructorType() == RascalValueFactory.Production_Skipped) {
-							errorTree = true;
-							children.add(last);
-							break;
-						}
-					}
-				}
-
-				IConstructor child = (IConstructor) childList.get(i);
-				IConstructor resultChild = fixErrorNodes(child, nodeConstructorFactory);
-				children.add(resultChild);
-				if (resultChild != child) {
-					anyChanges = true;
-				}
-			}
-
-			if (errorTree) {
-				result = nodeConstructorFactory.createErrorNode(children, prod);
-			} else if (anyChanges) {
-				result = nodeConstructorFactory.createSortNode(children, prod);
-			} else {
-				result = tree;
-			}
+			result = fixErrorAppl(tree, nodeConstructorFactory);
 		} else if (type == RascalValueFactory.Tree_Char) {
 			result = tree;
 		} else if (type == RascalValueFactory.Tree_Amb) {
-			ISet alternativeSet = (ISet) tree.get(0);
-			ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
-			final AtomicBoolean anyChanges = new AtomicBoolean(false);
-			alternativeSet.forEach(alt -> {
-				IConstructor newAlt = fixErrorNodes((IConstructor) alt, nodeConstructorFactory);
-				if (newAlt != alt) {
-					anyChanges.setPlain(true);
-				}
-				alternatives.add(newAlt);
-			});
-			if (anyChanges.getPlain()) {
-				result = nodeConstructorFactory.createAmbiguityNode(alternatives);
-			} else {
-				result = tree;
-			}
+			result = fixErrorAmb(tree, nodeConstructorFactory);
 		} else if (type == RascalValueFactory.Tree_Cycle) {
 			result = tree;
 		} else {
 			throw new RuntimeException("Unrecognized tree type: " + type);
 		}
 
-		if (result != tree) {
+		if (result != tree && tree.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
 			IValue loc = tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
 			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
 		}
 
 		return result;
 	}
+
+	private IConstructor fixErrorAppl(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+		IValue prod = tree.get(0);
+		IList childList = (IList) tree.get(1);
+		int childCount = childList.length();
+
+		ArrayList<IConstructor> children = new ArrayList<>(childCount);
+		boolean anyChanges = false;
+		boolean errorTree = false;
+		for (int i=0; i<childCount; i++) {
+			if (i == childCount-1) {
+				// Last child could be a skipped child
+				IConstructor last = (IConstructor) childList.get(childCount-1);
+				if (last.getConstructorType() == RascalValueFactory.Tree_Appl) {
+					IConstructor lastProd = (IConstructor) last.get(0);
+					if (lastProd.getConstructorType() == RascalValueFactory.Production_Skipped) {
+						errorTree = true;
+						children.add(last);
+						break;
+					}
+				}
+			}
+
+			IConstructor child = (IConstructor) childList.get(i);
+			IConstructor resultChild = fixErrorNodes(child, nodeConstructorFactory);
+			children.add(resultChild);
+			if (resultChild != child) {
+				anyChanges = true;
+			}
+		}
+
+		if (errorTree) {
+			return nodeConstructorFactory.createErrorNode(children, prod);
+		} else if (anyChanges) {
+			return nodeConstructorFactory.createSortNode(children, prod);
+		}
+
+		return tree;
+	}
+
+	private IConstructor fixErrorAmb(IConstructor tree, INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+		ISet alternativeSet = (ISet) tree.get(0);
+		ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
+		final AtomicBoolean anyChanges = new AtomicBoolean(false);
+		alternativeSet.forEach(alt -> {
+			IConstructor newAlt = fixErrorNodes((IConstructor) alt, nodeConstructorFactory);
+			if (newAlt != alt) {
+				anyChanges.setPlain(true);
+			}
+			alternatives.add(newAlt);
+		});
+
+		if (anyChanges.getPlain()) {
+			return nodeConstructorFactory.createAmbiguityNode(alternatives);
+		}
+
+		return tree;
+}
+
+
 
 	/**
 	 * Datastructure visualization for debugging purposes
