@@ -63,7 +63,14 @@ lrel[str, AType] getInterfaceSignature(str moduleName, list[MuFunction] function
     names_and_arities = signatures<0,1>;
     for(<name, arity> <- names_and_arities){
         overloads = signatures[name, arity];
-        result += <name, lubList(toList(overloads))>;
+        overloads_with_kwparams = { tp | tp <- overloads, !isEmpty(tp.kwFormals) };
+        overloads_without_kwparams = overloads - overloads_with_kwparams;
+        if(!isEmpty(overloads_with_kwparams)){
+            result += <name, lubList(toList(overloads_with_kwparams))>;
+        }
+        if(!isEmpty(overloads_without_kwparams)){
+            result += <name, lubList(toList(overloads_without_kwparams))>;
+        }
     }
     return sort(result);
 }

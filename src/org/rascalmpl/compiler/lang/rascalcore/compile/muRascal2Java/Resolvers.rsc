@@ -138,15 +138,30 @@ str generateResolvers(str moduleName, map[loc, MuFunction] loc2muFunction, set[s
     for(<fname, farity> <- domain(functions_and_constructors), !isClosureName(fname)){
         // Group all functions of same name and arity by scope
         set[Define] defs = functions_and_constructors[<fname, farity>];
-        
+                
         defs_in_disjoint_scopes = mygroup(defs, bool(Define a, Define b) { 
                                                     return a.scope notin module_scopes && b.scope notin module_scopes && a.scope == b.scope 
                                                            || a.scope in module_scopes && b.scope in module_scopes
                                                            ;
                                               });
+
         // ... and generate a resolver for each group
         for(sdefs <- defs_in_disjoint_scopes){
-            resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+            if(any(d <- sdefs, d.scope notin module_scopes)){
+                // All local functions trated samw wrt keyword parameters
+                resolvers += generateResolver(moduleName, fname, sdefs, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+                
+            } else {
+                // For global functions we differentiate wrt keyword oarameters
+                kwpFormals = {};
+                for(d <- sdefs, defType(AType tp) := d.defInfo, isFunctionAType(tp)){
+                    kwpFormals += <d, tp.kwFormals>;
+                }
+                with_kwp = {d | <d, kwps> <- kwpFormals, !isEmpty(kwps)};
+                without_kwp = sdefs - with_kwp;
+                resolvers += generateResolver(moduleName, fname, with_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+                resolvers += generateResolver(moduleName, fname, without_kwp, loc2muFunction, module_scope, import_scopes, extend_scopes, tmodels[moduleName].paths, tmodels[moduleName], loc2module, jg);
+            }
         }
     }
     return resolvers;
@@ -179,9 +194,6 @@ tuple[bool,loc] findImplementingModule(set[Define] fun_defs, set[loc] import_sco
 str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map[loc, MuFunction] loc2muFunction, loc module_scope, set[loc] import_scopes, set[loc] extend_scopes, Paths paths, TModel tm, map[loc, str] loc2module, JGenie jg){
     //println("generate resolver for <moduleName>, <functionName>");
     
-    //if(functionName == "conditional"){
-    //    println("conditional");
-    //}
     module_scopes = domain(loc2module);
     
     set[Define] local_fun_defs = {def | def <- fun_defs, /**/isContainedIn(def.defined, module_scope)/*, "test" notin loc2muFunction[def.defined].modifiers*/ };
@@ -237,7 +249,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
     resolver_name = "<inner_scope><asJavaName(functionName)>";
     
     fun_kwFormals = acons_kwfields;
-    for(def <- relevant_fun_defs /*local_fun_defs*/, def notin cons_defs, defType(AType tp) := def.defInfo){
+    for(def <- relevant_fun_defs, def notin cons_defs, defType(AType tp) := def.defInfo){
         if(loc2muFunction[def.defined]?){
             fun = loc2muFunction[def.defined];
             fun_kwFormals += jg.collectKwpFormals(fun);
@@ -245,6 +257,7 @@ str generateResolver(str moduleName, str functionName, set[Define] fun_defs, map
             fun_kwFormals += tp.kwFormals;
         }
     }
+    
     resolver_fun_type = resolver_fun_type[kwFormals=fun_kwFormals];
 
     resolver_formals_types = [ avalue() | _ <- resolver_fun_type.formals ];

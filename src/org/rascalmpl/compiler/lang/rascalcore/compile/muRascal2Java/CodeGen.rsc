@@ -452,7 +452,7 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
             <secondsTimeout, maxSize> = getMemoSettings(fun.tags["memo"] ? "");
             memoCache = "private final ExpiringFunctionResultCache\<IValue\> <getMemoCache(fun)> = new ExpiringFunctionResultCache\<IValue\>(<secondsTimeout>, <maxSize>);\n";
         }
-        body = refInits + trans2Void(fun.body, jg);
+        body = trans2Void(fun.body, jg);
         containsVisit = /muVisit(_,_,_,_,_) := fun.body;
         if(containsVisit){
             body = "try {
@@ -466,6 +466,7 @@ tuple[str constantKwpDefaults, str constantKwpDefaultsInit, JCode jcode] trans(M
                 constantKwpDefaultsInits,
                 "// Source: <fun.src> 
                 '<memoCache><visibility><returnType> <shortName>(<argTypes>){ 
+                '    <refInits>
                 '    <nonConstantKwpDefaults><removeRedeclaredKwps>
                 '    <body>
                 '}\n\n">;
@@ -506,7 +507,7 @@ JCode trans(muFun(loc uid, AType ftype), JGenie jg){
   
     actuals = intercalate(", ", ["<needs_no_cast ? "" : "(<atype2javatype(ftype.formals[i])>)">$<uniq>_<i>" | i <- [0..nformals]]);
     
-    if(!isEmpty(ftype.kwFormals)){
+    if(!isEmpty(ftype.kwFormals)){// || !isEmpty(jg.collectKwpDefaults(jg.getFunction()))){
         actuals = isEmpty(actuals) ?  "$kwpActuals" : "<actuals>, $kwpActuals";
     } else if(loc2muFunction[uid]?){
         fun = loc2muFunction[uid];
@@ -553,20 +554,32 @@ JCode trans(muOFun(list[loc] srcs, AType ftype), JGenie jg){
     sep = nformals > 0 ? "," : "";
     uniq = abs(uuidi());
     
-    formals = intercalate(", ", ["$<uniq>_<i>" | i <- [0..nformals]]);
-    formalsWithCast = intercalate(", ", ["(<atype2javatype(getFormals(ftype)[i])>)$<uniq>_<i>" | i <- [0..nformals]]);
-    nexternals = 0;
-    if(size(srcs) == 1 && !isSyntheticFunctionName(fname) && loc2muFunction[srcs[0]]?){
-        fun = loc2muFunction[srcs[0]];
-        if(!isEmpty(fun.externalRefs)){
-           nexternals = size(fun.externalRefs);
-           ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalRefs]);
-           formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
+    formals = ["$<uniq>_<i>" | i <- [0..nformals]];
+    //formals = intercalate(", ", posFormals);
+    actualsWithCast = ["(<atype2javatype(getFormals(ftype)[i])>)<formals[i]>" | int i <- index(formals)];
+    
+    fun_kwFormals = [];
+    ext_actuals = [];
+    for(src <- srcs){
+        if(loc2muFunction[src]?){
+            fun = loc2muFunction[src];
+            fun_kwFormals += jg.collectKwpFormals(fun);
+            if(!isEmpty(fun.externalRefs)){
+                ext_actuals += [varName(v, jg) | v <- fun.externalRefs]; 
+            }
         }
     }
+    
+    if(!isEmpty(fun_kwFormals)){
+        actualsWithCast += ["$kwpActuals"];
+    }
+    actualsWithCast += ext_actuals;
+    
     funInstance = "new TypedFunctionInstance<nformals>\<<"IValue"><sep><intercalate(",", ["IValue" | int _ <- [0 ..nformals]])>\>";
     
-    return "<funInstance>((<formals>) -\> { return <fname>(<formalsWithCast>); }, <jg.accessType(ftype)>)";
+    formalsAsStr = intercalate(", ", formals);
+    actualsWithCastAsStr = intercalate(", ", actualsWithCast);
+    return "<funInstance>((<formalsAsStr>) -\> { return <fname>(<actualsWithCastAsStr>); }, <jg.accessType(ftype)>)";
 }
 
 // ---- muComposedFun ---------------------------------------------------------
@@ -954,6 +967,7 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
             arg_list = "(<intercalate(", ", actuals + kwactuals + externals)>)"; 
             
             fun_name = isEmpty(fn.scopeIn) ? "$me.<asJavaName(getFunctionName(fn))>" : (isClosureName(fn.name) ? fn.name : "<fn.scopeIn>_<fn.name>");           
+
             result = "<asJavaName(fun_name)><arg_list>";
             
             return result; //isEmpty(cst) ? result : "<cst><result>";
