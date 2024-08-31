@@ -162,10 +162,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     
     <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms);
     if(success){
-        imports_and_extends = getModulePathsAsStr(pt);
-        ms.strPaths += imports_and_extends;
+        <ms, imports_and_extends> = getModulePathsAsStr(pt, ms);
    
-        for(<_, kind, imp> <- imports_and_extends){
+        for(<_, kind, imp> <- imports_and_extends, not_found() notin ms.status[imp]){
             ms.strPaths += {<qualifiedModuleName, kind, imp>};
             ms = getImportAndExtendGraph(imp, ms);
         }
@@ -184,8 +183,7 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
             ms.moduleLocs[qualifiedModuleName] = getLoc(m);
-            imports_and_extends = getModulePathsAsStr(m);
-            ms.strPaths += imports_and_extends;
+            <ms, imports_and_extends> = getModulePathsAsStr(m, c);
         }
     }
     return complete(ms);
@@ -211,13 +209,23 @@ bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatu
     return isEmpty(requires - provides);
 }
 
-rel[str, PathRole, str] getModulePathsAsStr(Module m){
+tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, ModuleStatus ms){
     moduleName = unescape("<m.header.name>");
-    return { <moduleName, imod is \default ? importPath() : extendPath(), unescape("<imod.\module.name>")> |  imod <- m.header.imports, imod has \module};
+    imports_and_extends = {};
+    for(imod <- m.header.imports, imod has \module){
+        iname = unescape("<imod.\module.name>");
+        imports_and_extends += <moduleName, imod is \default ? importPath() : extendPath(), iname>;
+        ms.status[iname] = ms.status[iname] ? {};
+        try {
+            getModuleLocation(iname, ms.pathConfig);
+         } catch str msg: {
+            ms.messages[moduleName] ? [] += [ error(msg, imod@\loc) ];
+            ms.status[iname] += { not_found() };
+         }
+    }
+    ms.strPaths += imports_and_extends;
+    return <ms, imports_and_extends>;
 }
-
-set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
-    = { getLoc(imod) | m <- modules, imod <- m.header.imports, imod has \module, "<imod.\module>" == qualifiedModuleName };
 
 // ---- Save modules ----------------------------------------------------------
 
@@ -381,7 +389,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
             m1.logical2physical = tm.logical2physical;
-                            
+            //println("Import, tmodel:"); iprintln(m1);               
             m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
             
             ////TODO temporary check: are external locations present in the TModel? If so, throw exception
