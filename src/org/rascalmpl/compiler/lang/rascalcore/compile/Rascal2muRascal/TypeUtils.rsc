@@ -374,7 +374,7 @@ void extractScopes(TModel tm){
     // Scopes goes inside out, compute an inverted version and take transitive closure
     scopes_rel = toRel(scopes);
     td_reachable_scopes = invert(scopes_rel)*;
-    declaredIn = (d.defined : findContainer(d) | d <- defines, d.id != "type");
+    declaredIn = (d.defined : findContainer(d) | d <- defines/*, d.id != "type"*/);
     declares = invert(toRel(declaredIn));
     
     
