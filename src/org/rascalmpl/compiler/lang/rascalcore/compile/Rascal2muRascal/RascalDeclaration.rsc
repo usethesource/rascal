@@ -98,32 +98,7 @@ public void generateAllFieldGetters(loc module_scope){
 private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] constructors, list[Keyword] common_keyword_fields){
 
     adtName = getUniqueADTName(adtType); 
-    /*
-     * Create getters for common keyword fields of this data type
-     */
-    seen = {};
-    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope)){
-        kwType = kw.fieldType;
-        defaultExp = kw.defaultExp;
-        seen += kwType;
-        str kwFieldName = unescape(kwType.alabel);
-        if(asubtype(adtType, treeType)){
-            if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
-        }
-        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
-        str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
-        if(getterName == "$getkw_Tree_message"){ // TODO: remove when annotations are gone
-                continue;
-        }
-       
-        getterType = afunc(kwType, [adtType], []);
-        adtVar = muVar(getterName, getterName, 0, adtType, variableId());
-        
-        defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar, kw.definingModule);
-        body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
-        addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
-    }
-    
+  
     /*
      * Create getters for constructor specific keyword fields.
      */
@@ -131,6 +106,8 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
     lrel[str, AType, AType] kwfield2cons = [];
     
     set[str] generated_getters = {};
+    
+    set[str] generated_common_getters = {};
        
     for(consType <- constructors){
        /*
@@ -174,14 +151,53 @@ private void generateGettersForAdt(AType adtType, loc module_scope, set[AType] c
         returnType = lubList(conses<0>);
         getterType = afunc(returnType, [adtType], []);
         adtVar = muVar(adtName, getterName, 0, adtType, dataId());
+        failCode = muFailReturn(returnType);
+        for(Keyword kw <- common_keyword_fields, kw has defaultExp, isContainedIn(kw.defaultExp@\loc, module_scope)){
+            kwType = kw.fieldType;
+            str commonKwFieldName = unescape(kwType.alabel);
+            if(commonKwFieldName == kwFieldName){
+               generated_common_getters += commonKwFieldName;
+               defExprCode = promoteVarsToFieldReferences(translate(kw.defaultExp), adtType, adtVar, kw.definingModule);
+               failCode = muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muReturn1( returnType, muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName)), muReturn1(returnType, defExprCode));
+            }
+        }
         body = muBlock([ muIf(muHasNameAndArity(adtType, consType, muCon(asUnqualifiedName(consType.alabel)), size(consType.fields), adtVar),
                               muReturn1(kwType, muGetKwField(kwType, consType, adtVar, kwFieldName, findDefiningModule(getLoc(consType.kwFields[0].defaultExp)))))
                        | <kwType, consType> <- conses, isContainedIn(getLoc(consType.kwFields[0].defaultExp), module_scope)
                        ]
-                       + muFailReturn(returnType)
+                       + failCode
                       );
         addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
     }
+    
+        /*
+     * Create getters for common keyword fields of this data type
+     */
+    seen = {};
+    for(Keyword kw <- common_keyword_fields, kw has defaultExp, kw.fieldType notin seen, isContainedIn(kw.defaultExp@\loc, module_scope)){
+        kwType = kw.fieldType;
+        defaultExp = kw.defaultExp;
+        seen += kwType;
+        str kwFieldName = unescape(kwType.alabel);
+        if(kwFieldName in generated_common_getters) continue;
+        generated_common_getters += kwFieldName;
+        if(asubtype(adtType, treeType)){
+            if(kwFieldName == "loc") kwFieldName = "src"; // TODO: remove when .src is gone
+        }
+        //str fuid = getGetterNameForKwpField(adtType, kwFieldName);
+        str getterName = unescapeAndStandardize("$getkw_<adtName>_<kwFieldName>");
+        if(getterName == "$getkw_Tree_message"){ // TODO: remove when annotations are gone
+                continue;
+        }
+       
+        getterType = afunc(kwType, [adtType], []);
+        adtVar = muVar(getterName, getterName, 0, adtType, variableId());
+        
+        defExprCode = promoteVarsToFieldReferences(translate(defaultExp), adtType, adtVar, kw.definingModule);
+        body = muReturn1(kwType, muIfElse(muIsKwpConstructorDefined(adtVar, kwFieldName), muGetKwFieldFromConstructor(kwType, adtVar, kwFieldName), defExprCode));
+        addFunctionToModule(muFunction(getterName, getterName, getterType, [adtVar], [], [], "", false, true, false, {}, {}, {}, getModuleScope(), [], (), body));               
+    }
+  
     
     /*
      * Ordinary fields are directly accessed via information in the constructor type
@@ -343,15 +359,16 @@ private default bool hasParameterName(Pattern p, int i) = false;
 /*
  * Get all variables that are assigned inside a visit but are not locally introduced in that visit
  */
-private set[MuExp] getAssignedInVisit(list[MuCase] cases, MuExp def){
+private set[MuExp] getVarsUsedInVisit(list[MuCase] cases, MuExp def){
     exps = [c.exp | c <- cases] + def;
-    return { v1 | exp <- exps, /muAssign(v:muVar(str _name, str _scope, int _, AType t, IdRole idRole), MuExp _) := exp, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
+    return { v1 | exp <- exps, /v:muVar(str _name, str _scope, int _, AType t, IdRole idRole) := exp, /muVarInit(v, _) !:= exp, t1 := unsetRec(t, "alabel"), v1 := v[atype=t1]};
 }
+
 /*
  * Get all assigned variables in all visits that need to be treated as reference variables
  */
 public set[MuExp] getLocalRefs(MuExp exp)
-    = { *getAssignedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
+    = { *getVarsUsedInVisit(cases, defaultExp) | /muVisit(str _, MuExp _, list[MuCase] cases, MuExp defaultExp, VisitDescriptor _) := exp };
 
 /*
  * Get all variables that have been introduced outside the given function scope
