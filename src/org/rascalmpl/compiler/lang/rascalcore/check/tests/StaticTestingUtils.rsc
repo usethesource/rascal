@@ -196,7 +196,8 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	
 bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
-	      "Reference to name _ cannot be resolved"
+	      "Reference to name _ cannot be resolved",
+	      "Undefined module _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
