@@ -44,6 +44,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
            'import org.rascalmpl.exceptions.Throw;
            'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+           'import org.rascalmpl.values.parsetrees.ITree;
            '
            '@SuppressWarnings(\"unused\")
            'class <className>Tests extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
