@@ -86,5 +86,5 @@ MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v
 
 MuExp muPrim("create_node", AType r, [*AType _], [muCon(str name), *MuExp args, muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)], loc src) 
     = isEmpty(kwpActuals) ? muCon(makeNode(name, [a | muCon(a) <- args])) 
-                          : muCon(makeNode(name, [a | muCon(a) <- args], (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
+                          : muCon(makeNode(name, [a | muCon(a) <- args], keywordParameters = (kwpName: exp | <kwpName, muCon(exp)> <- kwpActuals)))  
       when allConstant(args), allConstant(kwpActuals<1>);
