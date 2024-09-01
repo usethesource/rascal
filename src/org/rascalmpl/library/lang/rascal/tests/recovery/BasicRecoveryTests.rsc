@@ -15,6 +15,7 @@
 module lang::rascal::tests::recovery::BasicRecoveryTests
 
 import ParseTree;
+import IO;
 
 layout Layout = [\ ]* !>> [\ ];
 
@@ -33,7 +34,7 @@ test bool basicOk() {
 
 test bool abx() {
     Tree t = parseS("a b x $", visualize=true);
-    return getErrorText(findFirstError(t)) == "x";    
+    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
 }
 
 test bool axc() {

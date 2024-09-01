@@ -35,12 +35,10 @@ test bool listOk() {
 
 test bool listTypo() {
     Tree t = parseList("a b, a x, ab $", visualize=true);
-    iprintln(t);
     return hasErrors(t);
 }
 
 test bool listTypoWs() {
     Tree t = parseList("a b , a x , a b $", visualize=true);
-    iprintln(t);
     return hasErrors(t);
 }
