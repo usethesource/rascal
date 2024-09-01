@@ -820,8 +820,8 @@ Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
   // Go depth-first
   set[Tree] disambiguatedAlts = { defaultErrorDisambiguationFilter(alt) | Tree alt <- alternatives };
 
-  set[Tree] errorTrees = { alt | Tree alt <- disambiguatedAlts, appl(error(_,_,_), _) := alt };
-  set[Tree] nonErrorTrees = { alt | Tree alt <- disambiguatedAlts, appl(error(_,_,_), _) !:= alt };
+  set[Tree] errorTrees = { alt | Tree alt <- disambiguatedAlts, /appl(error(_,_,_), _) := alt };
+  set[Tree] nonErrorTrees = { alt | Tree alt <- disambiguatedAlts, /appl(error(_,_,_), _) !:= alt };
 
   if (nonErrorTrees == {}) {
     return getBestErrorTree(errorTrees);
@@ -843,6 +843,7 @@ private Tree getBestErrorTree(set[Tree] trees) {
     list[Tree] errors = findAllErrors(tree);
     int errorCount = size(errors);
     int errorLength = 0;
+
     for (err <- errors) {
       errorLength += getSkipped(err).src.length;
     }
