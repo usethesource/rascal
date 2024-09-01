@@ -42,10 +42,10 @@ test bool toyRascalOk() {
 
 test bool toyRascalMissingOpenParen() {
     Tree t = parseToyRascal("f){}", visualize=true);
-    return hasErrors(t) && getErrorText(findFirstError(t)) == ")";
+    return hasErrors(t) && getErrorText(findBestError(t)) == ")";
 }
 
 test bool toyRascalMissingCloseParen() {
     Tree t = parseToyRascal("f({}", visualize=true);
-    return hasErrors(t) && getErrorText(findFirstError(t)) == ")";
+    return hasErrors(t) && getErrorText(findBestError(t)) == "(";
 }
