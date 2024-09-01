@@ -786,6 +786,11 @@ Tree findFirstError(Tree tree) {
     fail;
 }
 
+@synopsis{Find the best error from a tree containing errors.}
+Tree findBestError(Tree tree) {
+  return findFirstError(defaultErrorDisambiguationFilter(tree));
+}
+
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
 
