@@ -354,6 +354,7 @@ JGenie makeJGenie(MuModule m,
     }
     
     list[Keyword] _collectKwpFormals(MuFunction fun){
+        if(isSyntheticFunctionName(fun.name)) return []; // closures, function compositions ...
         scopes = currentTModel.scopes;
         kwFormals = fun.ftype.kwFormals;
         outer = scopes[fun.src];
