@@ -78,11 +78,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 		ISourceLocation projectRoot = inferProjectRoot(clazz);
 	    URIResolverRegistry reg = URIResolverRegistry.getInstance();
 	    String projectName = new RascalManifest().getProjectName(projectRoot);
-	    reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-	    reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+	    if(!projectName.isEmpty()) {
+	    	reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+	    	reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+	    }
 	    
 	    String projectPath =  projectRoot.getPath();
-	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-2);
+	    String projectsDirPath = projectPath.substring(0, projectPath.length() - projectName.length()-1);
 	    
 		try {
 			ISourceLocation projectsDir = $RVF.sourceLocation(projectRoot.getScheme(), projectRoot.getAuthority(),projectsDirPath);
