@@ -90,14 +90,11 @@ test bool rascalOperatorTypo() {
     int f() = 1 x 1;
     ");
 
-    println("error text: <getErrorText(findFirstError(t))>");
     return getErrorText(findFirstError(t)) == "x 1";
 }
 
 test bool rascalIllegalStatement() {
     Tree t = parseRascal("module A void f(){a}");
-
-    println("error text: <getErrorText(findFirstError(t))>");
     return getErrorText(findFirstError(t)) == "a}";
 }
 
