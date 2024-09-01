@@ -20,6 +20,6 @@ import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
 
 @RunWith(RascalJUnitTestRunner.class)
 @RascalJUnitTestPrefix("lang::rascal::tests::recovery")
-public class ErrorRecoveryModules {
+public class RunRascalTestModules {
 
 }
