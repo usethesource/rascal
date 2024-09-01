@@ -1,59 +1,31 @@
 module lang::rascalcore::compile::Examples::Tst4
-import analysis::diff::TextEdits;  
 
-//int chartServer(str s, bool b = false)
-//    = chartServer(d(s, b));
-//    
-//int chartServer(D d) = 0;
+import ParseTree;
+value main() //test bool reifyParameterWithBound() 
+    = #&T <: list[&U].symbol;// == \parameter("T", \list(\parameter("U",\value())));
 
-//int outer2(int t, int tabSize=4){
-//    int rec(int t, int innerKwp = 5) = t + tabSize + innerKwp when t > 10;
-//    default int rec(int t) = t;
-////    return rec(t);
-//}
+//syntax OptTestGrammar = A? a B b;
+//
+//syntax A = "a";
+//syntax B = "b";
+//
+//layout L = " "*;
+//
+//value main() //test bool optionalNotPresentIsFalse() 
+//    = !(int a <- []);
+//    //= !((A)`a` <- ([OptTestGrammar] "b").a);
+//    //= ([OptTestGrammar] "b").a;
 
-//int outer4(int t, int tabSize=4){
-//    int rec(int t){
-//        int rec_inner(int t, int innerKwp = 5) = t + tabSize + innerKwp  when t > 10;
-//        default int rec_inner(int t) = t;
-//        return rec_inner(t);
-//    }
-//    return rec(t);
-//}
-
-//int outer2(int t, int tabSize=4){
-//    int rec(int t, int innerKwp = 5) = t + tabSize + innerKwp when t > 10;
-//    default int rec(int t) = t;
-//    return rec(t);
-//}
+//layout Layout = " "*;
+//syntax AB = "a" | "b";
+//syntax ABPlus = AB+ abs;
+//syntax ABStar = AB* abs;
+//syntax ABStarSep = {AB ","}* abs;
+//value main() //test bool sizeABStar2() 
+//    = size(([ABStar]"a a").abs);// == 2;
 //
-//test bool outer2_1() = outer2(1) == 1;
-
-//import lang::html::IO;
-//import lang::rascal::format::Grammar;
-//import util::IDEServices;
-//import Content;
-//import ValueIO;
-//
-//Response (Request) valueServer(value v) {
-//    Response reply(get(/^\/editor/, parameters=pms)) {
-//        if (pms["src"]?) {
-//            edit(readTextValueString(#loc, pms["src"]));
-//            return response(writeHTMLString(text("done")));
-//        }
-//
-//        return response(writeHTMLString(text("could not edit <pms>")));
-//    }
-//
-//    default Response reply(get(_)) {
-//        return response(writeHTMLString(toHTML(v)));
-//    }
-//
-//    return reply;
-//}
-//
-//HTMLElement toHTML(value v) = text("<v>");
-
+//int size({&E &S}* l) = (0 | it + 1 | _ <- l);
+//int size(&E* l) = (0 | it + 1 | _ <- l);
 //
 //// ---- test1 ----
 //
