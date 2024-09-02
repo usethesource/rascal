@@ -26,10 +26,10 @@ public class SkippedNode extends AbstractNode {
 	private final int[] skippedChars;
 	private final int offset;
 
-	public SkippedNode(URI input, int[] skippedChars, int offset) {
+	public SkippedNode(URI inputUri, int[] skippedChars, int offset) {
 		super();
 		
-		this.input = input;
+		this.input = inputUri;
 		this.skippedChars = skippedChars;
 		this.offset = offset;
 	}
@@ -38,7 +38,7 @@ public class SkippedNode extends AbstractNode {
 		return ID;
 	}
 
-	public URI getInput() {
+	public URI getInputUri() {
 		return input;
 	}
 
