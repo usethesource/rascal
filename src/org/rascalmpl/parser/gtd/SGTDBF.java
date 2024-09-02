@@ -904,12 +904,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			}
 			
 			if (recoveredNodes.size() > 0) {
-				// <PO> was: for (int i = recoveredNodes.size()-1; i>= 0; i--) {
 				for (int i = 0; i < recoveredNodes.size(); i++) {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
-					
-//					int levelsFromHere = recovered.getLength() - (location - recovered.getStartLocation());
-					
 					if (debugListener != null) {
 						debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 					}
@@ -930,7 +926,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	}
 	
 	/**
-	 * Inserts a stack bottom into the todo-list.
+	 * Inserts a stack bottom into the todoList.
 	 */
 	@SuppressWarnings("unchecked")
 	private void queueMatchableNode(AbstractStackNode<P> node, int length, AbstractNode result){
@@ -949,14 +945,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		int insertLocation = (queueIndex + length) % queueDepth;
 		DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[insertLocation];
 		if(terminalsTodo == null){
-			terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
+			terminalsTodo = new DoubleStack<>();
 			todoLists[insertLocation] = terminalsTodo;
 		}
 		terminalsTodo.push(node, result);
 	}
 	
 	/**
-     * Inserts a recovery node into the todo-list, and possibly
+     * Inserts a recovery node into the todoList, and possibly
      * rewinds the parser to an earlier location in the input
      */
     @SuppressWarnings("unchecked")
@@ -986,7 +982,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
             
 			DoubleStack<AbstractStackNode<P>, AbstractNode> terminalsTodo = todoLists[length];
             if (terminalsTodo == null) {
-                terminalsTodo = new DoubleStack<AbstractStackNode<P>, AbstractNode>();
+                terminalsTodo = new DoubleStack<>();
 				todoLists[length] = terminalsTodo;
             }
             
