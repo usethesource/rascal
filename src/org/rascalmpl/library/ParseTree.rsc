@@ -195,7 +195,8 @@ data Production
      | \reference(Symbol def, str cons) // <5>
      ;
 
-data Production = error(Symbol def, Production prod, int dot)
+data Production
+     = error(Symbol def, Production prod, int dot)
      | skipped(Symbol symbol);
 
 @synopsis{Attributes in productions.}
@@ -426,8 +427,8 @@ The parse function behaves differently depending of the given keyword parameters
      * `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
                          the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
                          if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
-     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover on a parse error. if a parse error is encountered that can be recovered from, special `skipped` nodes
-                         are included in the resulting parse tree. More documentation will be added here when this feature matures.
+     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
+                         special `error` and `skipped` nodes are included in the resulting parse tree. More documentation will be added here when this feature matures.
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
@@ -814,7 +815,7 @@ str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) {
 
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
-Note that regular ambiguous trees remain in the parse tree.
+Note that regular ambiguous trees remain in the parse forest.
 }
 Tree defaultErrorDisambiguationFilter(t: appl(Production prod, args)) {
   Tree result = appl(prod, [defaultErrorDisambiguationFilter(arg) | arg <- args]);
