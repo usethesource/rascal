@@ -145,7 +145,6 @@ extend List;
 extend Set;
 
 import String;
-import IO;
 import Node;
 
 @synopsis{The Tree data type as produced by the parser.}
@@ -401,6 +400,7 @@ catch ParseError(loc l): {
 }
 ```
 }
+
 &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
