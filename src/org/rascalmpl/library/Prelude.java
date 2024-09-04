@@ -2381,6 +2381,10 @@ public class Prelude {
 	    return rascalValues.parser(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 	}
 
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, values.bool(false), hasSideEffects, values.bool(false), filters);
+	}
+
 	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
 	    return rascalValues.parser(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
