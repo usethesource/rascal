@@ -951,7 +951,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		terminalsTodo.push(node, result);
 	}
 
-	/**
+    /**
      * Inserts a recovery node into the todoList, and possibly
      * rewinds the parser to an earlier location in the input
      */
@@ -1043,7 +1043,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				first = first.getCleanCopyWithResult(location, result);
 
 				queueMatchableNode(first, length, result);
-			}else{
+			} else {
 				first = first.getCleanCopy(location);
 				stacksToExpand.push(first);
 			}
