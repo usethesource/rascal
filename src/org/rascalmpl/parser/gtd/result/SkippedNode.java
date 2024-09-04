@@ -22,14 +22,14 @@ import org.rascalmpl.unicode.UnicodeConverter;
 public class SkippedNode extends AbstractNode {
 	public static final int ID = 9;
 	
-	private final URI input;
+	private final URI inputUri;
 	private final int[] skippedChars;
 	private final int offset;
 
 	public SkippedNode(URI inputUri, int[] skippedChars, int offset) {
 		super();
 		
-		this.input = inputUri;
+		this.inputUri = inputUri;
 		this.skippedChars = skippedChars;
 		this.offset = offset;
 	}
@@ -39,7 +39,7 @@ public class SkippedNode extends AbstractNode {
 	}
 
 	public URI getInputUri() {
-		return input;
+		return inputUri;
 	}
 
 	public int[] getSkippedChars(){
