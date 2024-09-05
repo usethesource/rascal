@@ -251,9 +251,6 @@ ModuleStatus rascalTModelForLocs(
     RascalCompilerConfig compilerConfig,
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){     
-    jobName = "Rascal compiler";
-    jobStart(jobName, totalWork=2 * (size(mlocs) + 2) + 10);
-
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
     
@@ -267,13 +264,11 @@ ModuleStatus rascalTModelForLocs(
     
     for (mloc <- mlocs) {
         m = getModuleName(mloc, pcfg);
-        jobStep(jobName, "Retrieving module name <mloc>", work=1);
         topModuleNames += {m};
         ms.moduleLocs[m] = mloc;
     }
     
     try {
-        jobStep(jobName, "Computing import and extend graph", work=1);
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
        
         if(compilerConfig.forceCompilationTopModule){
@@ -308,10 +303,13 @@ ModuleStatus rascalTModelForLocs(
         map[str,str] path2module = (ms.moduleLocs[mname].path : mname | mname <- ms.moduleLocs);
         mi = 0;
         nmodules = size(ordered);
-       
+        
+        jobName = "Compiling <intercalate(" ", [*topModuleNames])>";
+        jobStart(jobName, totalWork=nmodules);
+        
         while(mi < nmodules) {
             component = module2component[ordered[mi]];
-            jobStep(jobName, intercalate(" + ", [*component]), work=size(component)+1);
+            jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
 
             recheck = !all(m <- component, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
             for(m <- component){
