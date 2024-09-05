@@ -41,7 +41,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final IDEServices ideServices;
 	private final Traverse $TRAVERSE;
 	private final ModuleStore mstore;
-	private final TypeStore tstore;
+	private final TypeStore $TS;
 	private final TypeFactory $TF;
 	private final RascalTypeFactory $RTF;
 	private IValueFactory $VF;
@@ -72,7 +72,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		$RTF = RascalTypeFactory.getInstance();
 		$TRAVERSE = new Traverse($RVF);
 		mstore = new ModuleStore();
-		tstore = new TypeStore();
+		$TS = new TypeStore();
 		rascalSearchPath = new RascalSearchPath();
 		
 		ISourceLocation projectRoot = inferProjectRoot(clazz);
@@ -139,7 +139,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public ModuleStore getModuleStore() { return mstore; }
 	
-	public TypeStore getTypeStore() { return tstore; }
+	public TypeStore getTypeStore() { return $TS; }
 	
 	public TypeFactory getTypeFactory() { return $TF; }
 	
