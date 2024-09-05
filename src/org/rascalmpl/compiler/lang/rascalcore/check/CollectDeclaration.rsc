@@ -36,12 +36,15 @@ import util::Reflective;
 
 // ---- Rascal declarations ---------------------------------------------------
 
+int localFunCounter = 0;
+
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
 
     dataCounter = 0;
     variantCounter = 0;
     nalternatives = 0;
     syndefCounter = 0;
+    localFunCounter = 0;
     
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
@@ -227,9 +230,13 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
+    // Make md5hash of nested functions unique with counter
+    if(size(c.getStack(currentFunction)) > 0){ 
+        localFunCounter += 1;
+    }
     c.push(currentFunction, ppfname);
-    md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><md5Contrib4signature(signature)>";
-
+    md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><md5Contrib4signature(signature)>-<localFunCounter>";
+    
     <expected, expectedTagString> = getExpected(decl.tags);
     if(expected){
         expectedName = expectedTagString.contents;
@@ -368,6 +375,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         // println("<md5Contrib> =\> <dt.md5>");
     c.leaveScope(decl);
     c.pop(currentFunction);
+    if(size(c.getStack(currentFunction)) == 0){ 
+        localFunCounter = 0;
+    }
 }
 
 void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c){
