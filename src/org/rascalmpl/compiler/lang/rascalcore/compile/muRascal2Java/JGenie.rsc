@@ -576,7 +576,7 @@ JGenie makeJGenie(MuModule m,
                                 adtdef = "";
                                 if(isEmpty(parameters)){
                                      switch(sr){
-                                          case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\")";
+                                          case dataSyntax():        adtdef = "$adt(\"<adtName>\")"; //"$TF.abstractDataType($TS, \"<adtName>\")";
                                           case contextFreeSyntax(): adtdef = "$sort(\"<adtName>\")";
                                           case lexicalSyntax():     adtdef = "$lex(\"<adtName>\")";
                                           case layoutSyntax():      adtdef = "$layouts(\"<adtName>\")";
@@ -589,8 +589,8 @@ JGenie makeJGenie(MuModule m,
                                         paramsV = "$VF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
                                         switch(sr){
                                              case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
-                                             case contextFreeSyntax(): adtdef = "$parameterizedSort(\"<adtName>\", <paramsV>)";
-                                             case lexicalSyntax():     adtdef = "$parameterizedLex(\"<adtName>\", <paramsV>)";
+                                             case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <paramsV>))";
+                                             case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(\"<adtName>\"), <paramsV>))";
                                          }
                                         adtinits_param += "<type2id[s]> = <adtdef>;\n";
                                     } else {
