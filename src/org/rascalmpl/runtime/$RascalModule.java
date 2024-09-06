@@ -424,28 +424,54 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		//		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
 	}
 	
+	public io.usethesource.vallang.type.Type $adt(String adtName){
+		Type adtType = $TF.abstractDataType($TS, adtName);
+		//$TS.declareAbstractDataType(adtType);
+		return adtType;
+	}
+	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
+		Type adtType = $TF.abstractDataType($TS, adtName);
+		$TS.declareAbstractDataType(adtType);
+		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $VF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
+		Type adtType = $TF.abstractDataType($TS, adtName);
+		$TS.declareAbstractDataType(adtType);
+		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $VF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $layouts(String adtName){
+		Type adtType = $TF.abstractDataType($TS, adtName);
+		$TS.declareAbstractDataType(adtType);
+//		return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $VF.string(adtName)));
 	}
 	public io.usethesource.vallang.type.Type $keywords(String adtName){
+		Type adtType = $TF.abstractDataType($TS, adtName);
+		$TS.declareAbstractDataType(adtType);
+		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $VF.string(adtName)));
 	}
 	
-	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, IList params){
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), params));
-	}
-	
-	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, IList params){
-		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), params));
-	}
+//	private Type[] paramsAsArray(IList params) {
+//		Type[] paramsAsArray = new Type[params.length()];
+//		for(int i = 0; i < params.length(); i++) paramsAsArray[i] = (Type) params.get(i);
+//		return paramsAsArray;
+//	}
+//	
+//	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, IList params){
+//		$TF.abstractDataType($TS, adtName, paramsAsArray(params));
+//		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(adtName), params));
+//	}
+//	
+//	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, IList params){
+//		$TF.abstractDataType($TS, adtName, paramsAsArray(params));
+//		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(adtName), params));
+//	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path, int expected_length, String expected_md5Hash) {
 		// The constants file has the structure: <int nconstants, str md5Hash, list[value] constants>
