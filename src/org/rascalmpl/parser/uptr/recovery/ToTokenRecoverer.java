@@ -6,7 +6,9 @@
  *
  * Contributors:
  * 
- * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI 
+ *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
+ *   * Pieter Oliver - Pieter.Olivier@swat.engineering
 *******************************************************************************/
 package org.rascalmpl.parser.uptr.recovery;
 
