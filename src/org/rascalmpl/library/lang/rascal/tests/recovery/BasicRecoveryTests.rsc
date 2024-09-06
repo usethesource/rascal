@@ -28,20 +28,20 @@ private Tree parseS(str input, bool visualize=false)
     = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
 test bool basicOk() {
-    return !hasErrors(parseS("a b c $", visualize=true));
+    return !hasErrors(parseS("a b c $"));
 }
 
 test bool abx() {
-    Tree t = parseS("a b x $", visualize=true);
+    Tree t = parseS("a b x $");
     return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
 }
 
 test bool axc() {
-    Tree t = parseS("a x c $", visualize=true);
+    Tree t = parseS("a x c $");
     return getErrorText(findFirstError(t)) == "x c";
 }
 
 test bool ax() {
-    Tree t = parseS("a x $", visualize=true);
+    Tree t = parseS("a x $");
     return getErrorText(findFirstError(t)) == "x ";
 }

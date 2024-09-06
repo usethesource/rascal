@@ -107,16 +107,21 @@ public class DoubleArrayList<F, S>{
 		return size;
 	}
 
-	public void sort(Comparator<Pair<F,S>> comparator) {
-		java.util.List<Pair<F,S>> elems = new java.util.ArrayList<>(size);
+    private java.util.List<Pair<F,S>> zip() {
+		java.util.List<Pair<F,S>> entries = new java.util.ArrayList<>(size);
 		for (int i=0; i<size; i++) {
-			elems.add(Pair.of(first[i], second[i]));
+			entries.add(Pair.of(first[i], second[i]));
+		}
+        return entries;
 		}
 
-		elems.sort(comparator);
+	public void sort(Comparator<Pair<F,S>> comparator) {
+		java.util.List<Pair<F,S>> entries = zip();
+
+		entries.sort(comparator);
 
 		for (int i=0; i<size; i++) {
-			Pair<F,S> elem = elems.get(i);
+			Pair<F,S> elem = entries.get(i);
 			first[i] = elem.getLeft();
 			second[i] = elem.getRight();
 		}

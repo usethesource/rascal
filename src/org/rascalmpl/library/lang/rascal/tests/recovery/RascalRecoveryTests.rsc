@@ -108,13 +108,12 @@ test bool rascalMissingCloseParen() {
 }
 
 test bool rascalFunctionDeclarationMissingCloseParen() {
-    Tree t = parseFunctionDeclaration("void f({} void g() {}", visualize=false);
+    Tree t = parseFunctionDeclaration("void f({} void g() {}");
 
     assert getErrorText(findFirstError(t)) == "void g(";
 
     Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
     assert getErrorText(error) == "(";
-    Tree skipped = getSkipped(error);
     loc location = getSkipped(error).src;
     assert location.begin.column == 16 && location.length == 1;
 
