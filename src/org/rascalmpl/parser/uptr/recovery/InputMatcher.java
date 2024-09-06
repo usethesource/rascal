@@ -26,11 +26,12 @@ import io.usethesource.vallang.IString;
 public interface InputMatcher {
     public static InputMatcher FAIL = new FailingMatcher();
 
+    // Find a match in the input. Returning `null` means no match has been found.
     MatchResult findMatch(int[] input, int startLocation);
 
     public static class MatchResult {
-        private int start;
-        private int length;
+        private final int start;
+        private final int length;
 
         public MatchResult(int start, int length) {
             this.start = start;

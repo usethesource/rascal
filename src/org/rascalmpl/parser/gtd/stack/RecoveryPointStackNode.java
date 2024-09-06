@@ -93,6 +93,11 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+    @Override
+    public String toShortString() {
+        return toString();
+    }
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();

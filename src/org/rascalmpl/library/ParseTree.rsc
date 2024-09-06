@@ -195,8 +195,8 @@ data Production
      ;
 
 data Production
-     = error(Symbol def, Production prod, int dot)
-     | skipped(Symbol symbol);
+     = \error(Symbol def, Production prod, int dot)
+     | \skipped(Symbol symbol);
 
 @synopsis{Attributes in productions.}
 @description{
@@ -775,22 +775,17 @@ bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true
 bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
-@synopsis{Check if a parse tree contains any skipped nodes, the result of error recovery.}
+@synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
 bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 
 @synopsis{Find all error productions in a parse tree.}
 list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tree];
 
 @synopsis{Find the first production containing an error.}
-Tree findFirstError(Tree tree) {
-    if (/err:appl(error(_, _, _), _) := tree) return err;
-    fail;
-}
+Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
 
-@synopsis{Find the best error from a tree containing errors.}
-Tree findBestError(Tree tree) {
-  return findFirstError(defaultErrorDisambiguationFilter(tree));
-}
+@synopsis{Find the best error from a tree containing errors. This function will fail if `tree` does not contain an error.}
+Tree findBestError(Tree tree) = findFirstError(defaultErrorDisambiguationFilter(tree));
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
@@ -802,16 +797,12 @@ Production getErrorProduction(appl(error(_, Production prod, _), _)) = prod;
 int getErrorDot(appl(error(_, _, int dot), _)) = dot;
 
 @synopsis{Get the skipped tree}
-Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) {
-  return skip;
-}
+Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) = skip;
 
 @synopsis{Get the text that failed to parse. This is only the text of the part that has been skipped to be able to continue parsing.
 If you want the text of the whole error tree, you can just use string interpolation: "<error>".
 }
-str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) {
-  return stringChars([c | ch <- chars, char(c) := ch]);
-}
+str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
 
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
@@ -831,7 +822,9 @@ Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
 
   if (nonErrorTrees == {}) {
     return getBestErrorTree(errorTrees);
-  } else if ({Tree single} := nonErrorTrees) {
+  }
+  
+  if ({Tree single} := nonErrorTrees) {
     // One ambiguity left, no ambiguity concerns here
     return single;
   }

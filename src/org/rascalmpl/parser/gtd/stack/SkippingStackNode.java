@@ -38,24 +38,6 @@ public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 		return new SkippedNode(uri, createSkippedToken(input, startLocation, length), startLocation);
 	}
 
-	public static SkippedNode createResultUntilToken(URI uri, String token, int[] input, int startLocation) {
-		int length = token.length();
-		for (int start=startLocation; start+length < input.length; start++) {
-			boolean match = true;
-			for (int j=0; j<length && match; j++) {
-				if (token.codePointAt(j) != input[start+j]) {
-					match = false;
-				}
-
-				if (match) {
-					return createResultUntilChar(uri, input, startLocation, start+length-startLocation);
-				}
-			}
-		}
-
-		return null;
-	}
-
 	public static SkippedNode createResultUntilChar(URI uri, int[] input, int startLocation, int endLocation) {
 		return new SkippedNode(uri, createSkippedToken(input, startLocation, endLocation - startLocation), startLocation);
 	}

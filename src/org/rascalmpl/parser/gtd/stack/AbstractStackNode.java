@@ -748,9 +748,7 @@ public abstract class AbstractStackNode<P>{
 		return propagatedReductions;
 	}
 
-	public String toShortString() {
-		return null;
-	}
+	public abstract String toShortString();
 
 	@Override
 	public String toString() {
@@ -786,10 +784,6 @@ public abstract class AbstractStackNode<P>{
 		if (alternateProductions != null && alternateProductions.length != 0) {
 			builder.append(",alternateProductions=" + Arrays.toString(alternateProductions));
 		}
-		/*
-		if (edgesMap != null && edgesMap.size() != 0) {
-			builder.append(",edges=" + edgesMap);
-		}*/
 		if (prefixesMap != null && prefixesMap.length != 0) {
 			builder.append(",prefixes=" + Arrays.toString(prefixesMap));
 		}
