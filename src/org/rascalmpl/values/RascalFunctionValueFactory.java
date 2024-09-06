@@ -13,7 +13,6 @@
 package org.rascalmpl.values;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -54,8 +53,6 @@ import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.parser.uptr.debug.DebugLogger;
-import org.rascalmpl.parser.uptr.recovery.ToNextWhitespaceRecoverer;
 import org.rascalmpl.parser.uptr.recovery.ToTokenRecoverer;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;

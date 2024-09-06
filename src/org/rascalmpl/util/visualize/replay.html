@@ -11,7 +11,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 <html>
-        <body id="body">
+        <body id='body'>
         </body>
 </html>
 <script>
@@ -21,27 +21,27 @@ const frame = params.get('frame');
 
 let body = document.getElementById('body');
 
-let prev = document.createElement("a");
-prev.appendChild(document.createTextNode("Previous"));
+let prev = document.createElement('a');
+prev.appendChild(document.createTextNode('Previous'));
 if (frame > 0) {
-  prev.setAttribute("href", "replay.html?name=" + name + "&frame=" + (frame-1));
+  prev.setAttribute('href', `replay.html?name=${name}&frame=${frame-1}`);
 }
 document.body.appendChild(prev);
 
 
-document.body.appendChild(document.createTextNode(" " + frame + " "));
+document.body.appendChild(document.createTextNode(` ${frame} `));
 
-let next = document.createElement("a");
-next.appendChild(document.createTextNode("Next"));
+let next = document.createElement('a');
+next.appendChild(document.createTextNode('Next'));
 const nextFrame = Number(frame) + 1;
-next.setAttribute("href", "replay.html?name=" + name + "&frame=" + nextFrame);
+next.setAttribute('href', `replay.html?name=${name}&frame=${nextFrame}`);
 document.body.appendChild(next);
 
 document.body.appendChild(document.createElement("br"));
 
-const frameFile = ("000" + frame).slice(-4) + ".svg";
+const frameFile = `000${frame}`.slice(-4) + '.svg';
 let img = document.createElement('img');
-img.src = 'frames/' + name + '/' + frameFile;
+img.src = `frames/${name}/${frameFile}`;
 
 
 body.appendChild(img);

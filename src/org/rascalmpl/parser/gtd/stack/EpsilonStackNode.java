@@ -69,6 +69,11 @@ public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
+    @Override
+    public String toShortString() {
+        return toString();
+    }
+
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();

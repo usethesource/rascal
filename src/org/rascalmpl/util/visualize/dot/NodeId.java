@@ -15,6 +15,7 @@
 package org.rascalmpl.util.visualize.dot;
 
 import java.io.PrintWriter;
+import java.util.Objects;
 
 public class NodeId {
     public static void writeId(PrintWriter stream, String id) {
@@ -104,21 +105,10 @@ public class NodeId {
         if (getClass() != obj.getClass())
             return false;
         NodeId other = (NodeId) obj;
-        if (id == null) {
-            if (other.id != null)
-                return false;
-        }
-        else if (!id.equals(other.id))
-            return false;
-        if (portId == null) {
-            if (other.portId != null)
-                return false;
-        }
-        else if (!portId.equals(other.portId))
-            return false;
-        if (direction != other.direction)
-            return false;
-        return true;
+
+        return Objects.equals(id, other.id)
+            && Objects.equals(portId, other.portId)
+            && direction == other.direction;
     }
 
     @Override
