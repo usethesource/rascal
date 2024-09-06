@@ -14,6 +14,8 @@
 
  package org.rascalmpl.util.visualize.dot;
 
+
+ // Note: C means Center, X means unspecified.
 public enum CompassPoint {
     N, NE, E, SE, S, SW, W, NW, C, X;
 }

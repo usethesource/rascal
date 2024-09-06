@@ -74,7 +74,7 @@ public class DotAttribute {
             if (first) {
                 first = false;
             } else {
-                value.append("| ");
+                value.append(" | ");
             }
 
             value.append('<');

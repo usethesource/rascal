@@ -30,7 +30,7 @@ public class DebugUtil {
         StringBuilder builder = new StringBuilder("'");
 
         IConstructor sort = (IConstructor) prod.get(0);
-        builder.append(stripQuotes(String.valueOf(sort.get(0))));
+        builder.append(quotedStringToPlain(String.valueOf(sort.get(0))));
 
         builder.append(" ->");
 
@@ -39,7 +39,7 @@ public class DebugUtil {
             for (IValue child : children) {
                 builder.append(" ");
                 IConstructor conChild = (IConstructor) child;
-                builder.append(stripQuotes(String.valueOf((conChild).get(0))));
+                builder.append(quotedStringToPlain(String.valueOf((conChild).get(0))));
             }
         } else {
             builder.append(" ");
@@ -51,7 +51,7 @@ public class DebugUtil {
         return builder.toString();
     }
 
-    private static String stripQuotes(String s) {
+    private static String quotedStringToPlain(String s) {
         if (s.charAt(0) == '"' && s.charAt(s.length()-1) == '"') {
             return s.substring(1, s.length()-1).replace("\\", "");
         }
@@ -59,7 +59,7 @@ public class DebugUtil {
         return s;
     }
 
-	public static void opportunityToBreak() {
+    public static void opportunityToBreak() {
         // Nop method that allows breakpoints to be set at the call site even if originally there is no code to break on
     }
 

@@ -107,10 +107,10 @@ public class ParseStateVisualizer {
         }
     }
 
-    private String name;
-    private File basePath;
-    private File frameDir;
-    private Map<Integer, DotNode> stackNodeNodes;
+    private final String name;
+    private final File basePath;
+    private final File frameDir;
+    private final Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
 
@@ -274,14 +274,14 @@ public class ParseStateVisualizer {
 
         IntegerObjectList<EdgesSet<P>> edges = stackNode.getEdges();
         if (edges != null) {
-		    for (int i = edges.size() - 1; i >= 0; --i) {
-		        EdgesSet<P> edgesList = edges.getValue(i);
-			    if (edgesList != null) {
-				    for (int j = edgesList.size() - 1; j >= 0; --j) {
-					    AbstractStackNode<P> parentStackNode = edgesList.get(j);
+            for (int i = edges.size() - 1; i >= 0; --i) {
+                EdgesSet<P> edgesList = edges.getValue(i);
+                if (edgesList != null) {
+                    for (int j = edgesList.size() - 1; j >= 0; --j) {
+                        AbstractStackNode<P> parentStackNode = edgesList.get(j);
                         DotNode parentDotNode = addStack(graph, parentStackNode);
                         graph.addEdge(node.getId(), parentDotNode.getId());
-				    }
+                    }
                 }
             }
         }
@@ -382,19 +382,14 @@ public class ParseStateVisualizer {
     }
 
     private void enrichCharNode(DotNode dotNode, CharNode charNode) {
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         int c = charNode.getCharacter();
-        label += "\nchar=" + c + "('" + (char) c + "')";
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + "\nchar=" + c + "('" + (char) c + "')";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
     private void enrichLiteralNode(DotNode dotNode, LiteralNode literalNode) {
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         int[] content = literalNode.getContent();
-        label += " \"" + UnicodeConverter.unicodeArrayToString(content) + "\"";
-        /* Maybe include production?
-          label += "\nprod=" + DebugUtil.prodToString((IConstructor)literalNode.getProduction());
-        */
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + " \"" + UnicodeConverter.unicodeArrayToString(content) + "\"";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
@@ -535,8 +530,8 @@ public class ParseStateVisualizer {
             graph.addRecordNode(failureId, failureRecord);
             graph.addEdge(new NodeId(UNMATCHABLE_MID_PRODUCTION_NODES_ID, String.valueOf(i)), failureId);
 
-			DoubleArrayList<AbstractStackNode<P>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
-			AbstractStackNode<P> failedNode = unmatchableMidProductionNodes.getSecond(i);
+            DoubleArrayList<AbstractStackNode<P>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
+            AbstractStackNode<P> failedNode = unmatchableMidProductionNodes.getSecond(i);
 
             DotNode node = addStack(graph, failedNode);
             NodeId predecessorsId = new NodeId("unmatchable-mid-production-predecessors-" + i);
