@@ -107,10 +107,10 @@ public class ParseStateVisualizer {
         }
     }
 
-    private String name;
-    private File basePath;
-    private File frameDir;
-    private Map<Integer, DotNode> stackNodeNodes;
+    private final String name;
+    private final File basePath;
+    private final File frameDir;
+    private final Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
 
@@ -382,19 +382,14 @@ public class ParseStateVisualizer {
     }
 
     private void enrichCharNode(DotNode dotNode, CharNode charNode) {
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         int c = charNode.getCharacter();
-        label += "\nchar=" + c + "('" + (char) c + "')";
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + "\nchar=" + c + "('" + (char) c + "')";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
     private void enrichLiteralNode(DotNode dotNode, LiteralNode literalNode) {
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         int[] content = literalNode.getContent();
-        label += " \"" + UnicodeConverter.unicodeArrayToString(content) + "\"";
-        /* Maybe include production?
-          label += "\nprod=" + DebugUtil.prodToString((IConstructor)literalNode.getProduction());
-        */
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + " \"" + UnicodeConverter.unicodeArrayToString(content) + "\"";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
