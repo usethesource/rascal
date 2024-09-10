@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.maven.cli.CliRequest;
 import org.apache.maven.cli.MavenCli;
@@ -66,8 +65,6 @@ public class PathConfig {
 	private static List<ISourceLocation> defaultClassloaders;
 	private static ISourceLocation defaultBin;
     
-    private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
-
 	public static enum RascalConfigMode {
         INTERPETER,
         COMPILER
