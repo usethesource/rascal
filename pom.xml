@@ -528,7 +528,7 @@
         </dependency>
         <dependency> <!-- needed for maven-embedder-->
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
+            <artifactId>slf4j-nop</artifactId>
             <version>1.7.36</version>
         </dependency>
         <dependency> <!-- needed for maven-embedder-->
