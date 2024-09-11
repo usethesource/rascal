@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,9 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.maven.cli.CliRequest;
-import org.apache.maven.cli.MavenCli;
-import org.codehaus.plexus.classworlds.ClassWorld;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
@@ -639,26 +635,11 @@ public class PathConfig {
      */
 	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
         try {
-            ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
-            pomxml = URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
-            manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
+            var tempFile = Maven.getTempFile("classpath");
+            var mavenOutput = Maven.runCommand(List.of("-quiet", "-o", "dependency:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
 
-            if (!"file".equals(manifestRoot.getScheme())) {
-                return vf.list();
-            }
-
-            if (!URIResolverRegistry.getInstance().exists(pomxml)) {
-                return vf.list();
-            }
-
-            var maven = new MavenCli();
-            var tempFile = Files.createTempFile("rascal-classpath-", ".tmp");
-            
-            maven.doMain(buildRequest(new String[] {"-quiet", "-o", "dependency:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()}, manifestRoot));
-            
-            var foundClassPath = Files.readAllLines(tempFile).get(0);
-
-            return Arrays.stream(foundClassPath.split(File.pathSeparator))
+            // The classpath will be written to the temp file on a single line
+            return Arrays.stream(mavenOutput.get(0).split(File.pathSeparator))
                 .filter(fileName -> new File(fileName).exists())
                 .map(elem -> {
                     try {
@@ -671,26 +652,9 @@ public class PathConfig {
                 .filter(Objects::nonNull)
                 .collect(vf.listWriter());
         }
-        catch (IOException | RuntimeException | ReflectiveOperationException e) {
+        catch (IOException | RuntimeException e) {
             return vf.list();
         }
-    }
-
-    private static void setField(CliRequest req, String fieldName, Object value) throws ReflectiveOperationException {
-        var field = CliRequest.class.getDeclaredField(fieldName);
-        field.setAccessible(true);
-        field.set(req, value);
-    }
-
-    private static CliRequest buildRequest(String[] args, ISourceLocation manifestRoot) throws ReflectiveOperationException {
-        // we need to set a field that the default class doesn't set
-        // it's a work around around a bug in the MavenCli code
-        var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
-        cons.setAccessible(true);
-        var result = cons.newInstance(args, null);
-        setField(result, "workingDirectory", new File(manifestRoot.getPath()).getPath());
-        setField(result, "multiModuleProjectDirectory", new File(manifestRoot.getPath()));
-        return result;
     }
 
     public ISourceLocation getBin() {
