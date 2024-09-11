@@ -1,9 +1,78 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import ParseTree;
-value main() //test bool reifyParameterWithBound() 
-    = #&T <: list[&U].symbol;// == \parameter("T", \list(\parameter("U",\value())));
 
+int f() = X;
+
+int Y = X + 1;
+int X = 2;
+value main() = X + Y;
+
+    
+//import ParseTree;
+//import lang::pico::\syntax::Main;
+//
+//value main() //test bool Pico1() 
+// {t1 = (Program) `begin declare x: natural; x := 10 end`; return true;}
+
+//import ParseTree;
+//
+//syntax A = a: "a";
+//
+//syntax As = as: A+ alist;
+//
+//syntax C = c: A a "x" As as;
+//
+//layout W = [\ ]*;
+//
+//value main() {//test bool testFieldSelectC(){
+//    pt = parse(#C, "axaaa");
+//    return c(A a, As _) := pt && pt.a == a;
+//}
+//import ParseTree;
+
+//value main() // test bool ifThen3() 
+//    {int n = 10; l:if(int i <- [1,2,3]){ if (i % 2 != 0) { n = n + 4; fail l; } n = n - 4;} return n == 10;}
+
+//lexical Whitespace 
+//  = 
+//  [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000]
+//  ; 
+//
+//lexical Comment = "//" ![\n]* $;
+//
+//layout Standard 
+//  = WhitespaceOrComment* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//";
+//  
+//lexical WhitespaceOrComment 
+//  = Whitespace
+//  | comment: Comment
+//  ; 
+
+//syntax A = "a";
+//syntax AA = a: A;
+//
+//value main() = 1;
+
+//import IO;
+//
+//syntax As = "begin" A* as "end";
+//
+//syntax A = "a" | "b";
+//
+//value main() { //test bool issue1913() {
+//    A* bs = (As)`begin b a b end`.as;
+//
+//    As prog = (As)`begin b a a end`;
+//
+//    prog = visit (prog) {
+//        case (As)`begin <A* as1> b <A* as2> end` 
+//            => (As)`begin <A* as1> <A* bs> <A* as2> end`
+//    }
+//
+//    println(prog);
+//    // don't loose a space
+//    return "<prog>" == "begin b a b a a end";
+//}
 //syntax OptTestGrammar = A? a B b;
 //
 //syntax A = "a";

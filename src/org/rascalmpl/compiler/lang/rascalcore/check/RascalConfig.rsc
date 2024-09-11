@@ -75,13 +75,20 @@ set[IdRole] defBeforeUseRoles = {variableId(), moduleVariableId(), formalId(), k
 @memo{expireAfter(minutes=5),maximumSize(1000)}
 Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
     //println("rascalIsAcceptableSimple: *** <use.id> *** def=<def>, use=<use>");
-    
-    if(isBefore(use.occ, def) &&                        // If we encounter a use before def
-       !isEmpty(use.idRoles & defBeforeUseRoles) &&     // in an idRole that requires def before use
-       isContainedIn(def, use.scope)){                  // and the definition is in the same scope as the use
-    
-      // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
-                  
+    Define d = s.getDefine(def);
+    if(isBefore(use.occ, def)){
+       if(moduleVariableId() == d.idRole){
+            // Module variables should adhere to def before use, unless they are used inside a function.
+            for(some_def <- s.getAllDefines(), some_def.idRole == functionId()){
+                if(isContainedIn(use.occ, some_def.defined)){
+                    return acceptBinding();
+                }
+            }
+            return ignoreContinue();
+       } else if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def                                              
+                 && isContainedIn(def, use.scope)          // in an idRole that requires def before use
+                ){                                         // and the definition is in the same scope as the use
+      // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)      
       if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
          list[loc] parts = allowedParts[use.scope];
          return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
@@ -89,7 +96,8 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
             throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStack(key_allow_use_before_def)>";
        }
     }
-    Define d = s.getDefine(def);
+    }
+    
     // Uses of a keyword formal inside its initializing expression are rejected
     if(d.idRole == keywordFormalId() && isContainedIn(use.occ, d.defined)){
         return ignoreContinue();
