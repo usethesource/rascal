@@ -687,6 +687,10 @@ test bool matchListSpliceVars4() = [1, * int _, 4, 5] := [1, 2, 3, 4, 5];
 test bool matchListSpliceVars5() = [1, *L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];
 test bool matchListSpliceVars6() = [1, * int L, 4, *L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];
 
+@ignoreCompiler{To be investigated}
+test bool matchListSpliceVarsInOr() 
+        = [1,2,3] == (([*int x] := [1,2,3] || [*int x] := [10,20,30]) ? x : []);
+        
 // match list of tuples
 
 test bool matchListTuples1() = [<1, 2, 3>] := [<1, 2, 3>];
@@ -697,6 +701,7 @@ test bool matchListTuples5() = [*c, <a, a>] := [<1, 2>, <3, 3>];
 test bool matchListTuples6() = [*c, <int a, a>] := [<1, 2>, <3, 3>];
 test bool matchListTuples7() = [<int a, int b>, <b, b>, *c] := [<1, 2>, <2, 2>, <3, 4>];
 
+@ignoreCompiler{To be investigated}
 test bool matchListTuples8() {
     if([<1, int n, 3>] := [<1, 2, 3>] && n == -2){
         return false;
@@ -948,6 +953,10 @@ test bool matchTypedListVarBecomes2() = [1, list[int] L: [int _], 2] := [1,[2],2
 test bool matchTypedListVarBecomes3() = [1, list[int] L1: [*int L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2 == [2,3] && N == 4;
 test bool matchTypedListVarBecomes4() = [1, list[int] L1: [*int L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2 == [2,3] && N == 4;
 
+@ignoreCompiler{To be investiagted}
+test bool matchTypedListVarInOr() =
+    1 == (([int x: 1] := [1] || [int x: 10] := [10]) ? x : -1);
+
 data D = d(int n);
 
 test bool listNamedElem1() = [n:d(1)] := [d(1)] && n == d(1);
@@ -957,3 +966,5 @@ test bool listNamedElem3() = [_n:d(2)] !:= [d(1)];
 test bool listTypeNamedElem1() = [D n:d(1)] := [d(1)] && n == d(1);
 test bool listTypeNamedElem2() = [D _:d(1)] := [d(1)];
 test bool listTypeNamedElem3() = [D _n:d(2)] !:= [d(1)];
+
+

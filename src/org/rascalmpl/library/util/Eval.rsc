@@ -31,7 +31,6 @@ data Result[&T]
 }
 data RuntimeException 
   = StaticError(str message, loc location)
-  | Timeout()
   ; 
 
 @synopsis{A reusable instance of the Rascal runtime system configured by a specific PathConfig.}
