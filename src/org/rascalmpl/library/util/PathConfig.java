@@ -561,7 +561,9 @@ public class PathConfig {
                 }
             }
 
-            if (!projectName.equals(URIUtil.getLocationName(manifestRoot))) {
+            ISourceLocation projectLoc = URIUtil.correctLocation("project", projectName, "");
+
+            if (!projectLoc.equals(manifestRoot) && !projectName.equals(URIUtil.getLocationName(manifestRoot))) {
                 messages.append(Messages.error("Project-Name in RASCAL.MF (" + projectName + ") should be equal to folder name (" + URIUtil.getLocationName(manifestRoot) + ")", getRascalMfLocation(manifestRoot)));
             }
 
