@@ -708,6 +708,24 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
         AType(Solver s) { 
                    nameType = s.getType(name);
          		   asgType = computeAssignmentRhsType(current, nameType, operator, s.getType(statement), s);
+         		   
+         		   bindings = ();
+                   try   bindings = unifyRascalTypeParams(nameType, asgType, bindings);
+                   catch invalidMatch(str reason):
+                         s.report(error(current, reason));
+                
+                   if(!isEmpty(bindings)){
+                        try {
+                            nameType = instantiateRascalTypeParameters(name, nameType, bindings, s);
+                        } catch invalidInstantiation(str msg): {
+                            s.report(error(current, "Cannot instantiate lhs type `<prettyAType(nameType)>` of assignment: " + msg));
+                        }
+                        try {
+                            asgType = instantiateRascalTypeParameters(statement, asgType, bindings, s);
+                        } catch invalidInstantiation(str msg): {
+                            s.report(error(current, "Cannot instantiate rhs type `<prettyAType(defType)>` of assignment: " + msg));
+                        }
+                   }        		   
                    if(operator == "=") 
                       s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q", asgType, nameType, "<name>")); 
                    return asgType;   
@@ -934,6 +952,27 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
    //collect(receiver, c);
 }
 
+private void requireAssignmentSubType(Tree current, AType a, AType b, FailMessage msg, Solver s){
+    bindings = ();
+    try   bindings = unifyRascalTypeParams(a, b, bindings);
+    catch invalidMatch(str reason):
+        s.report(error(current, reason));
+    
+    if(!isEmpty(bindings)){
+        try {
+            a = instantiateRascalTypeParameters(current, a, bindings, s);
+        } catch invalidInstantiation(str msg): {
+            s.report(error(current, "Cannot instantiate type `<prettyAType(a)>`: " + msg));
+        }
+        try {
+            b = instantiateRascalTypeParameters(current, b, bindings, s);
+        } catch invalidInstantiation(str msg): {
+            s.report(error(current, "Cannot instantiate type `<prettyAType(b)>`: " + msg));
+        }
+    }
+    s.requireSubType(a, b, msg);
+}
+
 private AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
     fieldName = unescape("<field>");
     if(isNonTerminalAType(receiverType) && fieldName == "top"){
@@ -941,8 +980,11 @@ private AType computeFieldAssignableType(Statement current, AType receiverType, 
     }
     fieldType = s.getTypeInType(receiverType, field, {fieldId(), keywordFieldId()}, scope);
     updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
-    s.requireSubType(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
-    return updatedFieldType;
+    requireAssignmentSubType(current, updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType), s);
+    
+    //s.requireSubType(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
+    //return updatedFieldType;
+    return fieldType;
 }
 
 private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){

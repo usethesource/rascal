@@ -67,6 +67,32 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
     = AType(Solver s) { return s.getType(fieldType)[alabel=fieldName]; };
 
+AType(Solver) makeKeywordFieldType(str fieldName, KeywordFormal kwf)
+    = AType(Solver s) { 
+        fldType = s.getType(kwf.\type);
+        defType = s.getType(kwf.expression);
+        bindings = ();
+        try   bindings = unifyRascalTypeParams(fldType, defType, bindings);
+        catch invalidMatch(str reason):
+            s.report(error(current, reason));
+        
+        if(!isEmpty(bindings)){
+            try {
+                fldType = instantiateRascalTypeParameters(kwf.\type, fldType, bindings, s);
+            } catch invalidInstantiation(str msg): {
+                s.report(error(kwf, "Cannot instantiate keyword parameter type `<prettyAType(fldType)>`: " + msg));
+            }
+            try {
+                defType = instantiateRascalTypeParameters(kwf.expression, defType, bindings, s);
+            } catch invalidInstantiation(str msg): {
+                s.report(error(kwf, "Cannot instantiate type of default expression `<prettyAType(defType)>`: " + msg));
+            }
+        }
+        s.requireSubType(defType, fldType, error(kwf.expression, "Default expression of type %t expected, found %t", fldType, defType));
+  
+        return fldType[alabel=fieldName]; 
+      };
+         
 int variantCounter = 0;
 
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
@@ -101,10 +127,9 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
             if(fieldName in declaredFieldNames) c.report(error(kwf, "Double declaration of field `%v`", fieldName));
             declaredFieldNames += fieldName;
             kwfType = kwf.\type;
-            dt = defType([kwfType], makeFieldType(fieldName, kwfType));
+            dt = defType([kwfType], makeKeywordFieldType(fieldName, kwf));
             dt.md5 = md5Hash("<currentModuleName><adtName><dataCounter><name><consArity><kwfType><fieldName>");
             c.define(fieldName, keywordFieldId(), kwf.name, dt);  
-            c.requireSubType(kwf.expression, kwfType, error(kwf, "Default expression of type %t expected, found %t", kwfType, kwf.expression));
         }
     
         scope = c.getScope();
