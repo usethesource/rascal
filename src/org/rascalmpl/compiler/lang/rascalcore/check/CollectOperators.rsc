@@ -747,8 +747,15 @@ void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, Colle
 }
 
 private set[str] introducedVars(Expression exp, Collector c){
-    return exp is \bracket ? introducedVars(exp.expression, c)
-                           : (exp is match ? introducedVars(exp.pattern, c) : {});
+    if(exp is \bracket){
+        return introducedVars(exp.expression, c);
+    } else if (exp is match){
+        return introducedVars(exp.pattern, c);
+    } else if (exp is and || exp is implication || exp is equivalence){
+        return introducedVars(exp.lhs, c) + introducedVars(exp.rhs, c);
+    } else {
+        return {};
+    }
 }
 
 private set[str] introducedVars(Pattern e, Collector c){
@@ -778,7 +785,7 @@ private set[str] introducedVars(Pattern e, Collector c){
             if(keywordArguments is \default){
                 vars += { *introducedVars(kwa.expression, c) | kwa <- keywordArguments.keywordArgumentList };
             }
-        } 
+        }
     }
     return vars;
 }
