@@ -43,6 +43,9 @@ extend ParseTree;
 import Node;
 import List;
 
+@synopsis{Remove outer label from symbol, if any}
+private Symbol delabel(Symbol s) = label(_, Symbol t) := s ? t : s;
+
 @synopsis{Computes a unique fingerprint for each kind of tree based on the identity of the top-level tree node.}
 @description{
 Concrete fingerprint implements the pattern matching contract:
@@ -56,8 +59,7 @@ To complete the function for the other kinds of trees, even though less importan
 implement a sensible encoding that follows the contract and tries to differentiate as much as possible between different values.
 }
 int concreteFingerprint(appl(Production p, list[Tree] _))                   = concreteFingerprint(p);
-int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashCode("amb")   + 43 * internalHashCode(t)
-    when label(_, Symbol t) := s || Symbol t := s;
+int concreteFingerprint(amb({appl(prod(Symbol s, _, _), list[Tree] _), _})) = internalHashCode("amb")   + 43 * internalHashCode(delabel(s));
 int concreteFingerprint(amb({}))                                            = internalHashCode("amb");
 int concreteFingerprint(char(int ch))                                       = internalHashCode("char")  + internalHashCode(ch);
 int concreteFingerprint(cycle(Symbol s, int _))                             = internalHashCode("cycle") + 13 * internalHashCode(s);
