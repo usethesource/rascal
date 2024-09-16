@@ -414,7 +414,7 @@ public set[Declaration] createAstsFromMavenProject(loc project, bool collectBind
       throw "<project> is not a valid directory";
     }
 
-    classPaths = getProjectPathConfig(project).javaCompilerPath;
+    classPaths = getProjectPathConfig(project).libs;
     sourcePaths = getPaths(project, "java");
     return createAstsFromFiles({ p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, collectBindings, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, errorRecovery = errorRecovery, javaVersion = javaVersion);
 }
