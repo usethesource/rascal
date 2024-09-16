@@ -35,9 +35,13 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     if(errorsPresent(tm)){
         return tm.messages;
     }
+    
     className = asBaseClassName(qualifiedModuleName);
     interfaceName = asBaseInterfaceName(qualifiedModuleName);
+    
     genSourcesDir = getGeneratedSrcsDir(qualifiedModuleName, pcfg);  
+    
+    
     interfaceFile =  genSourcesDir + "<interfaceName>.java";
     classFile = genSourcesDir + "<className>.java";
     genTestSourcesDir = getGeneratedTestSrcsDir(qualifiedModuleName, pcfg);  
@@ -75,7 +79,7 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     }
     tmodels[qualifiedModuleName] = tm;
         
-    <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs);
+    <the_interface, the_class, the_test_class, constants> = muRascal2Java(muMod, tmodels, ms.moduleLocs, pcfg);
      
     writeFile(interfaceFile, the_interface);
     writeFile(classFile, the_class);

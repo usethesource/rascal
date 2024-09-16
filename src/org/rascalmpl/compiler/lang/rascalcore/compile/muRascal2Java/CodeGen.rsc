@@ -47,7 +47,7 @@ int naux = 0;
 
 // Generate code and test class for a single Rascal module
 
-tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs, PathConfig pcfg){
 
     naux = 0;
     moduleName = m.name;
@@ -107,7 +107,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
  
     className = asClassName(moduleName);  
     baseClassName = asBaseClassName(moduleName); 
-    packageName = asPackageName(moduleName);
+    packageName = asPackageName(moduleName, pcfg);
     baseInterfaceName = asBaseInterfaceName(moduleName);
     
     module_variables  = "<for(var <- m.module_variables){>
@@ -131,14 +131,14 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     library_inits     = "<for(class <- jg.getImportedLibraries()){>
                         '<asBaseClassName(class)> = $initLibrary(\"<asQualifiedClassName(class)>\"); 
                         '<}>";
-    module_implements =  "implements <intercalate(",", [ "\n\t<module2interface(ext)>" | ext <- moduleName + extends])>";
+    module_implements =  "implements <intercalate(",", [ "\n\t<module2interface(ext,pcfg)>" | ext <- moduleName + extends])>";
                         
     module_imports    = "<for(imp <- imports + extends, contains(module2class(imp), ".")){>
                          'import <module2class(imp)>;
                         '<}>";
                        
     imp_ext_decls     = "<for(imp <- imports + extends){>
-                        'public final <asClassRef(imp)> <module2field(imp)>;<}>
+                        'public final <asClassRef(imp, pcfg)> <module2field(imp)>;<}>
                         '";
                            
     module_ext_inits  = "<for(ext <- extends){>
@@ -158,13 +158,13 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '   super(rex);
                         '   this.$me = extended == null ? this : (<baseInterfaceName>)extended;
                         '   ModuleStore mstore = rex.getModuleStore();
-                        '   mstore.put(<asClassRef(moduleName)>.class, this);
+                        '   mstore.put(<asClassRef(moduleName, pcfg)>.class, this);
                         '   <for(imp <- imports, imp notin extends){>
-                        '   mstore.importModule(<asClassRef(imp)>.class, rex, <asClassRef(imp)>::new);<}> 
+                        '   mstore.importModule(<asClassRef(imp, pcfg)>.class, rex, <asClassRef(imp, pcfg)>::new);<}> 
                         '   <for(imp <- imports, imp notin extends){>
-                        '   <module2field(imp)> = mstore.getModule(<asClassRef(imp)>.class);<}> 
+                        '   <module2field(imp)> = mstore.getModule(<asClassRef(imp, pcfg)>.class);<}> 
                         '   <for(ext <- extends){>
-                        '   <module2field(ext)> = mstore.extendModule(<asClassRef(ext)>.class, rex, <asClassRef(ext)>::new, $me);<}>
+                        '   <module2field(ext)> = mstore.extendModule(<asClassRef(ext, pcfg)>.class, rex, <asClassRef(ext, pcfg)>::new, $me);<}>
                       
                         '   <for(imp <- imports+extends){>
                         '   $TS.importStore(<module2field(imp)>.$TS);<}>

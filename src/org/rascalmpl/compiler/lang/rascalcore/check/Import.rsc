@@ -291,6 +291,12 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     if(any(c <- component, !isEmpty({parse_error(), not_found(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
+    if(any(c <- component, error(_,_) <- ms.messages[c])){
+        for(c <- component){
+            iprintln(ms.messages[c]);
+        }
+        return ms;
+    }
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
     set[loc] filteredModuleScopes = {};

@@ -55,16 +55,22 @@ str prefixLast(str pref, str qname){
     return res;
 }
 
-str asClassRef(str qname){
-    //return prefixLast("$", qname);
-    return "<compiled_rascal_package>.<prefixLast("$", qname)>";;
+str getCompiledPackage(str qname, PathConfig pcfg){
+    mloc = getModuleLocation(qname, pcfg);
+    return mloc.scheme == "project" ? mloc.authority : "other";
 }
 
-str asPackageName(str qname){
+str asClassRef(str qname, PathConfig pcfg){
+    //return prefixLast("$", qname);
+    return "<getCompiledPackage(qname, pcfg)>.<prefixLast("$", qname)>";;
+}
+
+str asPackageName(str qname, PathConfig pcfg){
     className = normalizeQName(qname);
     n = findLast(className, ".");
     //return n >= 0 ? "<className[0 .. n]>" : ""; //compiled_rascal_package;
-    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>" : compiled_rascal_package;
+    package = getCompiledPackage(qname, pcfg);
+    return n >= 0 ? "<package>.<className[0 .. n]>" : package;
 }
 
 str asPackagePath(str qname){
@@ -74,19 +80,19 @@ str asPackagePath(str qname){
 }
 
 loc getGeneratedClassesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.bin + compiled_rascal_package_as_path + makeDirName(qualifiedModuleName);
+    return pcfg.bin + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 
 loc getGeneratedSrcsDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.generatedSources + compiled_rascal_package_as_path + makeDirName(qualifiedModuleName);
+    return pcfg.generatedSources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 
 loc getGeneratedTestSrcsDir(str qualifiedModuleName, PathConfig pcfg){
-    return (pcfg.generatedTestSources ? pcfg.generatedSources) + compiled_rascal_package_as_path + makeDirName(qualifiedModuleName);
+    return (pcfg.generatedTestSources ? pcfg.generatedSources) + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 
 loc getGeneratedResourcesDir(str qualifiedModuleName, PathConfig pcfg){
-    return pcfg.resources + compiled_rascal_package_as_path + makeDirName(qualifiedModuleName);
+    return pcfg.resources + getCompiledPackage(qualifiedModuleName, pcfg) + makeDirName(qualifiedModuleName);
 }
 str makeDirName(str qualifiedModuleName){
     parts =  escapeJavaKeywords(normalize(split(qualifiedModuleName)));
@@ -134,10 +140,11 @@ str module2field(str qname){
     return "M_" + replaceAll(normalizeQName(qname), ".", "_");
 }
 
-str module2interface(str qname){
+str module2interface(str qname, PathConfig pcfg){
     className = normalizeQName(qname);
     n = findLast(className, ".");
-    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>.$<className[n+1..]>_$I" : "<compiled_rascal_package>.$<className>_$I";
+    package = getCompiledPackage(qname, pcfg);
+    return n >= 0 ? "<package>.<className[0 .. n]>.$<className[n+1..]>_$I" : "<package>.$<className>_$I";
 
 }
 
