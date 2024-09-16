@@ -629,6 +629,9 @@ void returnRequirement(Tree returnExpr, AType declaredReturnType, Solver s){
     }
     
     s.requireSubType(deUnique(returnExprTypeU), deUnique(declaredReturnTypeU), msg);
+    if(!isVoidAType(declaredReturnTypeU)){
+        checkNonVoid(returnExpr, returnExprTypeU, s, "Return value");
+    }
  }
 
 // ---- return statement (closely interacts with function declaration) --------

@@ -1148,7 +1148,7 @@ private default list[QualifiedName] getReceiver(Assignable asg, Collector c) { t
 // ---- throw -----------------------------------------------------------------
 
 void collect(current:(Statement) `throw <Statement statement>`, Collector c){
-    c.calculate("throw", current, [statement], AType(Solver _) { return abool(); });
+    c.calculate("throw", current, [statement], AType(Solver _) { return avoid(); });
     collect(statement, c);
 }
 
