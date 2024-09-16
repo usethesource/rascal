@@ -338,7 +338,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         
         if(decl is expression || decl is conditional){
             if(decl.expression is nonEmptyBlock){
-                c.report(warning(decl.expression, "Non-empty block, maybe redundant `=` sign after function signature?"));
+                c.report(warning(decl.expression, "Expression expected, found non-empty block: maybe redundant `=` sign after function signature?"));
             }
             if(containsReturn(decl.expression)){
                 ; // We assume that the expression returns a value via a return (and that is checked for compatibility with return type);
