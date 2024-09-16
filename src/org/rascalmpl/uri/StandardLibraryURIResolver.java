@@ -37,7 +37,7 @@ public class StandardLibraryURIResolver implements ILogicalSourceLocationResolve
             return PathConfig.resolveCurrentRascalRuntimeJar(); 
         }
         catch (IOException e) {
-            // this will be reported elsewhere in PathConfi - 
+            // this will be reported elsewhere in PathConfig.messages - 
             return null;
         }
     }

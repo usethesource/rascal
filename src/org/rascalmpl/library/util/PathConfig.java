@@ -354,14 +354,15 @@ public class PathConfig {
                         // parser to make sense of it and then convert it to an ISourceLocation
                         loc = vf.sourceLocation("file", null, URIUtil.fromURL(new URL(url.getPath())).getPath());
 
+                          // unjarify the path
+                          loc = URIUtil.changePath(loc, loc.getPath().replace("!/" + RascalManifest.META_INF_RASCAL_MF, ""));
                     }
                     else {
                         // this is typically a target folder
                         loc = vf.sourceLocation(URIUtil.fromURL(url));
+                        loc = URIUtil.getParentLocation(URIUtil.getParentLocation(loc));
                     }
 
-                    // unjarify the path
-                    loc = URIUtil.changePath(loc, loc.getPath().replace("!/" + RascalManifest.META_INF_RASCAL_MF, ""));
                     
                     return loc;
                 }
