@@ -491,9 +491,9 @@ public class PathConfig {
                     try {
                         var loadedRascalLsp = resolveDependencyFromResourcesOnCurrentClasspath("rascal-lsp");
 
-                        try (InputStream in = reg.getInputStream(loadedRascalLsp), InputStream in2 = reg.getInputStream(dep)) {
+                        try (InputStream in = reg.getInputStream(loadedRascalLsp); InputStream in2 = reg.getInputStream(dep)) {
                             var version = new Manifest(in).getMainAttributes().getValue("Specification-Version");
-                            var otherVersion = new Manifest(in2).getfMainAttributes().getValue("Specification-Version");
+                            var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
                             if (version.equals(otherVersion)) {
                                 messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing.", getPomXmlLocation(manifestRoot)));
