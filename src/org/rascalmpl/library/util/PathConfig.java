@@ -20,7 +20,6 @@ import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
-import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
