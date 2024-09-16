@@ -128,6 +128,7 @@ public class RascalJUnitTestRunner extends Runner {
     }
 
     public static ISourceLocation inferProjectRoot(Class<?> clazz) {
+        
         try {
             String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
             if (file.endsWith(".jar")) {
