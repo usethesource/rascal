@@ -1,15 +1,57 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import IO;
-void main(set[value] y, set[value] z) {
-    //if(/int x := y || /int x := z) {
-    //    println(x);
-    //}
 
-    if ((/int x := y && /x := z) || (/int x := z && /x := y)) {
-        println(x);
-    }
-}
+str f() = {
+  throw "Not implemented"; // error: Return type `str` expected, found `bool`
+};
+
+//data D
+//  = a(str s, D d)
+//  | b()
+//  ;
+//
+//void f() {
+//  set[D] ds1 = {};
+//  set[D] ds2 = {d
+//    | D d: a(_, child: b()) <- ds1
+//    , s2: "bar" := "foo" // Warning: "Unused patternvariable `s2`"
+//    , /s2 := child
+//  };
+//}
+
+//int sepInOthers(list[int] sep)
+//    {
+//      if([_] := sep) { return  1; }
+//      else {
+//        return 2;
+//      }
+//    }
+//data Symbol = seq(list[Symbol] syms);
+//
+//bool sepInOthers2(Symbol sep, set[Symbol] others)    // TODO: factored out due to compiler issue
+//     //= sep in others || (seq([a,_,b]) := sep && (a in others || b in others));
+//    //= sep in others ? true
+//    //                : (seq([a,_,b]) := sep) ? (a in others || b in others) : false;
+//    { //if(sep in others) return true;
+//      if(seq([a,_,b]) := sep) return (a in others || b in others);
+//      else return false;
+//    }
+//    
+//    //{ if(sep in others) return true;
+//    //  if(seq([a,_,b]) := sep) return (a in others || b in others);
+//    //  return false;
+//    //}
+
+//import IO;
+//void main(set[value] y, set[value] z) {
+//    //if(/int x := y || /int x := z) {
+//    //    println(x);
+//    //}
+//
+//    if ((/int x := y && /x := z) || (/int x := z && /x := y)) {
+//        println(x);
+//    }
+//}
 
 //import ParseTree;
 //import String;
