@@ -350,19 +350,19 @@ MuExp translate(s:(Statement) `<Label label> if ( <{Expression ","}+ conditions>
         if(hasSequentialExit(thenCode) && !exitViaReturn(thenCode)){
             thenCode = muBlock([thenCode, muFail(ifName)]); // fail to potential backtracking alternative
         }
-        //code = muBlock([muExists(ifName, 
-        //                translateAndConds(btscopes, 
-        //                                  conds, 
-        //                                  thenCode, 
-        //                                  muBlock([]), 
-        //                                  normalize=toStat)),
-        //                elseCode]);
-        code = muExists(ifName, 
+        code = muBlock([muExists(ifName, 
                         translateAndConds(btscopes, 
                                           conds, 
                                           thenCode, 
-                                          elseCode, 
-                                          normalize=toStat));
+                                          muBlock([]), 
+                                          normalize=toStat)),
+                        elseCode]);
+        //code = muExists(ifName, 
+        //                translateAndConds(btscopes, 
+        //                                  conds, 
+        //                                  thenCode, 
+        //                                  elseCode, 
+        //                                  normalize=toStat));
     }
     leaveLabelled();
     return code;
