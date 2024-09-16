@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -15,6 +16,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Manifest;
+
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -479,6 +482,28 @@ public class PathConfig {
                 
                 if (libProjectName.equals("rascal")) {
                     rascalProject = dep;
+                }
+
+                // Rascal LSP is special because the VScode extension pre-loads it into the parametric DSL VM.
+                // If the version is different, then the debugger may point to the wrong code, and also the Rascal
+                // IDE features like "jump-to-definition" could be off.
+                if (libProjectName.equals("rascal-lsp")) {
+                    try {
+                        var loadedRascalLsp = resolveDependencyFromResourcesOnCurrentClasspath("rascal-lsp");
+
+                        try (InputStream in = reg.getInputStream(loadedRascalLsp), InputStream in2 = reg.getInputStream(dep)) {
+                            var version = new Manifest(in).getMainAttributes().getValue("Specification-Version");
+                            var otherVersion = new Manifest(in2).getfMainAttributes().getValue("Specification-Version");
+
+                            if (version.equals(otherVersion)) {
+                                messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing.", getPomXmlLocation(manifestRoot)));
+                            }
+                        }
+                    }
+                    catch (FileNotFoundException e) {
+                        // this is ok. there is not a duplicate presence of rascal-lsp.
+                    }
+
                 }
 
                 if (libProjectName != null) {
