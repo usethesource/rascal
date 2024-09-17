@@ -14,8 +14,6 @@ package org.rascalmpl.parser.gtd.result;
 
 import java.net.URI;
 
-import org.rascalmpl.unicode.UnicodeConverter;
-
 /**
  * Result tree node that represents a skipped portion of the input sentence.
  */
