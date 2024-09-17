@@ -636,7 +636,7 @@ public class PathConfig {
 	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
         try {
             var tempFile = Maven.getTempFile("classpath");
-            var mavenOutput = Maven.runCommand(List.of("-quiet", "-o", "dependency:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
+            var mavenOutput = Maven.runCommand(List.of("-o", "org.apache.maven.plugins:maven-dependency-plugin:3.8.0:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
 
             // The classpath will be written to the temp file on a single line
             return Arrays.stream(mavenOutput.get(0).split(File.pathSeparator))
