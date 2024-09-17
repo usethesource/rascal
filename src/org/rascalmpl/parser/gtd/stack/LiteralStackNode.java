@@ -15,7 +15,6 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.unicode.UnicodeConverter;
 
 public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[] literal;
