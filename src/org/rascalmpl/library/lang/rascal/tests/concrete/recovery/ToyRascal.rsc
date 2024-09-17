@@ -12,29 +12,20 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-module lang::rascal::tests::recovery::NestedRecoveryTests
+module lang::rascal::tests::concrete::recovery::ToyRascal
 
-import ParseTree;
-import IO;
+start syntax FunctionDeclaration = Signature FunctionBody;
 
-layout Layout = [\ ]* !>> [\ ];
+syntax Signature = Name Parameters;
 
-syntax S = T;
+syntax Name = "f" | "g";
 
-syntax T = A B C;
+syntax Parameters = "(" ")";
 
-syntax A = "a";
-syntax B = "b" "b";
-syntax C = "c";
+syntax FunctionBody = "{" Statement* statements "}" ;
 
-private Tree parseS(str input, bool visualize=false)
-    = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+syntax Statement
+    = "{" Statement+ statements "}"
+    | "s" ";";
 
-test bool nestedOk() {
-    return !hasErrors(parseS("a b b c"));
-}
-
-test bool nestedTypo() {
-    Tree t = parseS("a b x c");
-    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
-}
+layout Layout = [ \n\r\t]*;

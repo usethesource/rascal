@@ -12,36 +12,40 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-module lang::rascal::tests::recovery::BasicRecoveryTests
+module lang::rascal::tests::concrete::recovery::ToyRascalRecoveryTests
+
+import lang::rascal::tests::concrete::recovery::ToyRascal;
 
 import ParseTree;
+import IO;
 
-layout Layout = [\ ]* !>> [\ ];
+Tree parseToyRascal(str input, bool visualize=false) {
+    Tree result = parser(#start[FunctionDeclaration], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+    list[Tree] errors = findAllErrors(result);
+    if (errors != []) {
+        println("Tree has <size(errors)> errors");
+        for (error <- errors) {
+            println("- <getErrorText(error)>");
+        }
 
-syntax S = T;
+        Tree disambiguated = defaultErrorDisambiguationFilter(result);
+        println("Best error: <getErrorText(findFirstError(disambiguated))>");
+    }
 
-syntax T = ABC End;
-syntax ABC = 'a' 'b' 'c';
-syntax End = "$";
-
-private Tree parseS(str input, bool visualize=false)
-    = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
-
-test bool basicOk() {
-    return !hasErrors(parseS("a b c $"));
+    return result;
 }
 
-test bool abx() {
-    Tree t = parseS("a b x $");
-    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
+test bool toyRascalOk() {
+    Tree t = parseToyRascal("f(){s;}");
+    return !hasErrors(t);
 }
 
-test bool axc() {
-    Tree t = parseS("a x c $");
-    return getErrorText(findFirstError(t)) == "x c";
+test bool toyRascalMissingOpenParen() {
+    Tree t = parseToyRascal("f){}", visualize=true);
+    return hasErrors(t) && getErrorText(findBestError(t)) == ")";
 }
 
-test bool ax() {
-    Tree t = parseS("a x $");
-    return getErrorText(findFirstError(t)) == "x ";
+test bool toyRascalMissingCloseParen() {
+    Tree t = parseToyRascal("f({}", visualize=true);
+    return hasErrors(t) && getErrorText(findBestError(t)) == "(";
 }
