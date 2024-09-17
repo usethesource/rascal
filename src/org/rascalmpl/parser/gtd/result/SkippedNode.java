@@ -67,6 +67,6 @@ public class SkippedNode extends AbstractNode {
 
 	@Override
 	public String toString() {
-		return "SkippedNode[skippedChars=" + UnicodeConverter.unicodeArrayToString(skippedChars) + ",offset=" + offset + "]";
+		return "SkippedNode[skippedChars=" + new String(skippedChars, 0, skippedChars.length) + ",offset=" + offset + "]";
 	}
 }

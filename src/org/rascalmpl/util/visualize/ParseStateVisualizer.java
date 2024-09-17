@@ -389,13 +389,14 @@ public class ParseStateVisualizer {
 
     private void enrichLiteralNode(DotNode dotNode, LiteralNode literalNode) {
         int[] content = literalNode.getContent();
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + " \"" + UnicodeConverter.unicodeArrayToString(content) + "\"";
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + " \"" + new String(content, 0, content.length) + "\"";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
     private void enrichSkippedNode(DotNode dotNode, SkippedNode skippedNode) {
         String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
-        label += "\n@" + skippedNode.getOffset() + ": " + " \"" + UnicodeConverter.unicodeArrayToString(skippedNode.getSkippedChars()) + "\"";
+        int[] skipped = skippedNode.getSkippedChars();
+        label += "\n@" + skippedNode.getOffset() + ": " + " \"" + new String(skipped, 0, skipped.length) + "\"";
 
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
@@ -439,7 +440,8 @@ public class ParseStateVisualizer {
 
         DotNode parserNode = new DotNode(PARSER_ID);
 
-        String input = UnicodeConverter.unicodeArrayToString(parser.getInput());
+        int[] inputChars = parser.getInput();
+        String input = new String(inputChars, 0, inputChars.length);
 
         char lookahead = (char) parser.getLookAheadChar();
         if (lookahead == '\0') {

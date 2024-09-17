@@ -142,7 +142,6 @@ module ParseTree
 extend Type;
 extend Message;
 extend List;
-extend Set;
 
 import String;
 import Node;
