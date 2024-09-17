@@ -752,12 +752,7 @@ public abstract class AbstractStackNode<P>{
 
 	@Override
 	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(id);
-		builder.append('.');
-		builder.append(dot);
-		builder.append('@');
-		builder.append(startLocation);
+		StringBuilder builder = new StringBuilder(id + "." + dot + "@" + startLocation);
 		if (production != null) {
 			builder.append(",prod=[");
 			boolean first = true;

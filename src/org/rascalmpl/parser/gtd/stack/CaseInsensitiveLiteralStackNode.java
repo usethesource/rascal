@@ -68,10 +68,9 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		int[][] ciLiteralResult = new int[nrOfCharacters][];
 		for(int i = nrOfCharacters - 1; i >= 0; --i){
 			int character = ciLiteral[i];
-			int type = Character.getType(character);
-			if(type == Character.LOWERCASE_LETTER){
+			if (Character.isLowerCase(character)) {
 				ciLiteralResult[i] = new int[]{character, Character.toUpperCase(character)};
-			}else if(type == Character.UPPERCASE_LETTER){
+			} else if(Character.isUpperCase(character)) {
 				ciLiteralResult[i] = new int[]{character, Character.toLowerCase(character)};
 			}else{
 				ciLiteralResult[i] = new int[]{character};
