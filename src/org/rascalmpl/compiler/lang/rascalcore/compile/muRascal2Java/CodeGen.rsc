@@ -148,7 +148,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     <constant_decls, constant_inits, constants> = jg.getConstants();
     
     packagePath = replaceAll(asPackagePath(moduleName),".","/");
-    constantsFile = "org/rascalmpl/" + packagePath + (isEmpty(packagePath) ? "" : "/") + "<baseClassName>.constants";
+    constantsFile = "<getCompiledPackage(moduleName, pcfg)>/<packagePath>/<baseClassName>.constants";
   
     class_constructor = "public <baseClassName>(RascalExecutionContext rex){
                         '    this(rex, null);
