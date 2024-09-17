@@ -25,18 +25,12 @@ public class CaseInsensitiveLiteralMatcher implements InputMatcher {
         for(int i = 0; i<length; i++){
             int character = literal.codePointAt(i);
             chars[i] = character;
-            switch (Character.getType(character)) {
-            case Character.LOWERCASE_LETTER:
+            if (Character.isLowerCase(character)) {
                 altChars[i] = Character.toUpperCase(character);
-                break;
-
-                case Character.UPPERCASE_LETTER:
+            } else if (Character.isUpperCase(character)) {
                 altChars[i] = Character.toLowerCase(character);
-                break;
-
-                default:
+            } else {
                 altChars[i] = character;
-                break;
             }
         }
     }

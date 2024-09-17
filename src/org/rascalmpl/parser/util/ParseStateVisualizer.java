@@ -20,6 +20,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
@@ -49,7 +51,6 @@ import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.util.DebugUtil;
-import org.rascalmpl.unicode.UnicodeConverter;
 import org.rascalmpl.util.visualize.dot.CompassPoint;
 import org.rascalmpl.util.visualize.dot.DotAttribute;
 import org.rascalmpl.util.visualize.dot.DotEdge;
@@ -74,6 +75,7 @@ import io.usethesource.vallang.IConstructor;
  */
 public class ParseStateVisualizer {
     public static final boolean VISUALIZATION_ENABLED = true;
+    private static final String VISUALIZATION_URI_PATTERN_ENV = "PARSER_VISUALIZATION_URI_PATTERN";
     private static final String PARSER_VISUALIZATION_PATH_ENV = "PARSER_VISUALIZATION_PATH";
     private static final boolean INCLUDE_PRODUCTIONS = false;
 
@@ -90,6 +92,19 @@ public class ParseStateVisualizer {
     public static final NodeId FILTERED_NODES_ID = new NodeId("filteredNodes");
 
     private static final NodeId RECOVERED_NODES_ID = new NodeId("recoveredNodes");
+
+    public static boolean shouldVisualizeUri(URI inputUri) {
+        if (!VISUALIZATION_ENABLED) {
+            return false;
+        }
+
+        String pattern = System.getenv(VISUALIZATION_URI_PATTERN_ENV);
+        if (pattern == null) {
+            return false;
+        }
+
+        return inputUri.toString().matches(pattern);
+    }
 
     private static class StreamGobbler implements Runnable {
         private InputStream inputStream;
@@ -113,6 +128,7 @@ public class ParseStateVisualizer {
     private final Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
+
 
     public ParseStateVisualizer(String name) {
         // In the future we might want to offer some way to control the path from within Rascal.
