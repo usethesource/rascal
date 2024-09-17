@@ -1425,11 +1425,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    this.recoverer = recoverer;
 	    this.debugListener = debugListener;
 		
-			if (ParseStateVisualizer.VISUALIZATION_ENABLED && inputURI != null) {
-		String query = inputURI.getQuery();
-				visualizer =
-					query != null && query.contains("visualize=true") ? new ParseStateVisualizer("Parser") : null;
-		}
+			visualizer = ParseStateVisualizer.shouldVisualizeUri(inputURI) ? new ParseStateVisualizer("Parser") : null;
 
 	    // Initialzed the position store.
 	    positionStore.index(input);
