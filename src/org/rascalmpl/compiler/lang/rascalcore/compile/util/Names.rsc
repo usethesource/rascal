@@ -55,10 +55,8 @@ str prefixLast(str pref, str qname){
     return res;
 }
 
-str getCompiledPackage(str qname, PathConfig pcfg){
-    mloc = getModuleLocation(qname, pcfg);
-    return mloc.scheme == "project" ? mloc.authority : "other";
-}
+str getCompiledPackage(str qname, PathConfig pcfg)
+    = "rascal";
 
 str asClassRef(str qname, PathConfig pcfg){
     //return prefixLast("$", qname);
