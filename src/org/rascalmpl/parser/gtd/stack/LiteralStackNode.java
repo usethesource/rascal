@@ -84,13 +84,13 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 
 	@Override
 	public String toShortString() {
-		return "'" + UnicodeConverter.unicodeArrayToString(literal) + "'";
+		return "'" + new String(literal, 0, literal.length) + "'";
 	}
 	
 	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("lit['");
-		sb.append(UnicodeConverter.unicodeArrayToString(literal));
+		sb.append(new String(literal, 0, literal.length));
 		sb.append("',");
 		sb.append(super.toString());
 		

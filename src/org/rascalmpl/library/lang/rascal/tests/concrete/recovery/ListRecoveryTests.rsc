@@ -12,40 +12,32 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-module lang::rascal::tests::recovery::ToyRascalRecoveryTests
-
-import lang::rascal::tests::recovery::ToyRascal;
+module lang::rascal::tests::concrete::recovery::ListRecoveryTests
 
 import ParseTree;
-import IO;
 
-Tree parseToyRascal(str input, bool visualize=false) {
-    Tree result = parser(#start[FunctionDeclaration], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
-    list[Tree] errors = findAllErrors(result);
-    if (errors != []) {
-        println("Tree has <size(errors)> errors");
-        for (error <- errors) {
-            println("- <getErrorText(error)>");
-        }
+layout Layout = [\ ]* !>> [\ ];
 
-        Tree disambiguated = defaultErrorDisambiguationFilter(result);
-        println("Best error: <getErrorText(findFirstError(disambiguated))>");
-    }
+syntax S = T End;
 
-    return result;
+syntax T = { AB "," }*;
+syntax AB = "a" "b";
+syntax End = "$";
+
+Tree parseList(str s, bool visualize=false) {
+    return parser(#S, allowRecovery=true, allowAmbiguity=true)(s, |unknown:///?visualize=<"<visualize>">|);
 }
 
-test bool toyRascalOk() {
-    Tree t = parseToyRascal("f(){s;}");
-    return !hasErrors(t);
+test bool listOk() {
+    return !hasErrors(parseList("a b , a b , a b $", visualize=true));
 }
 
-test bool toyRascalMissingOpenParen() {
-    Tree t = parseToyRascal("f){}", visualize=true);
-    return hasErrors(t) && getErrorText(findBestError(t)) == ")";
+test bool listTypo() {
+    Tree t = parseList("a b, a x, ab $", visualize=true);
+    return hasErrors(t);
 }
 
-test bool toyRascalMissingCloseParen() {
-    Tree t = parseToyRascal("f({}", visualize=true);
-    return hasErrors(t) && getErrorText(findBestError(t)) == "(";
+test bool listTypoWs() {
+    Tree t = parseList("a b , a x , a b $", visualize=true);
+    return hasErrors(t);
 }
