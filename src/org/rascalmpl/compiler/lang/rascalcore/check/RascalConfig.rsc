@@ -350,8 +350,10 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                    s.addMessages(msgs);
                 }
                 if(comparableList(t1.formals, t2.formals)){
-                    if(!comparable(t1.ret, t2.ret)){
-                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(t2.ret)>` of other declaration with comparable arguments", d1.defined) ];
+                    r1 = visit(t1.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
+                    r2 = visit(t2.ret) {case p:aparameter(_,_,closed=true) => p[closed=false] };
+                    if(!comparable(r1, r2)){
+                        msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined) ];
                         s.addMessages(msgs);
                     }
             
