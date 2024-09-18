@@ -1409,7 +1409,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	          filteredNodes.dirtyClear();
 
 							debugListener.shifting(location, input, positionStore);
-
+					}
 	        // Reduce-expand loop.
 	        do {
 							debugListener.iterating();
