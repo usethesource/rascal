@@ -103,8 +103,14 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
-    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
+str makeFileName(str qualifiedModuleName, str extension = "rsc") {
+    str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
+    int n = findLast(qnameSlashes, "/");
+    str prefix = extension == "rsc" ? "" : "$";
+    str package = extension == "rsc" ? "" : "rascal/";
+    qnameSlashes = n < 0 ? "<prefix>" + qnameSlashes : qnameSlashes[0..n] + "/<prefix>" + qnameSlashes[n+1..];
+    return "<package><qnameSlashes><isEmpty(extension) ? "" : ".<extension>">";
+}
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
