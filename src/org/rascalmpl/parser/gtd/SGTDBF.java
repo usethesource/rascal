@@ -1359,6 +1359,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	@SuppressWarnings("unchecked")
 	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer,
 		IDebugListener<P> debugListener) {
+		if (debugListener == null) {
+			debugListener = new NopDebugListener<>();
+		}
+
 	    initTime();
 
 	  try {
@@ -1375,7 +1379,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    this.input = input;
 
 	    this.recoverer = recoverer;
-			this.debugListener = debugListener == null ? new NopDebugListener<>() : debugListener;
+			this.debugListener = debugListener;
 		
 			visualizer = ParseStateVisualizer.shouldVisualizeUri(inputURI) ? new ParseStateVisualizer("Parser") : null;
 
