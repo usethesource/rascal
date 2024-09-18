@@ -120,7 +120,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
-    for(loc dir <- pcfg.srcs){
+    for(loc dir <- pcfg.srcs + pcfg.libs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
             return fileLoc;
@@ -174,7 +174,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePathAsList = split("/", modulePathNoExt);
     modulePathAsListReversed = reverse(modulePathAsList);
 
-    for(loc dir <- pcfg.srcs){
+    for(loc dir <- pcfg.srcs + pcfg.libs){
         if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
            moduleName = replaceFirst(modulePath, dir.path, "");
            <moduleName, ext> = splitFileExtension(moduleName);
