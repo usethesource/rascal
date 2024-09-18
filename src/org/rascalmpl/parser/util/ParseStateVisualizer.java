@@ -44,6 +44,7 @@ import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
@@ -353,6 +354,16 @@ public class ParseStateVisualizer {
         P parentProduction = stackNode.getParentProduction();
         if (parentProduction instanceof IConstructor) {
             label += "\nin: " + DebugUtil.prodToString((IConstructor) parentProduction);
+        } else {
+            if (stackNode.getProduction() != null) {
+                label += "\nin:";
+                for (AbstractStackNode<P> n : stackNode.getProduction()) {
+                    String s = n.toShortString();
+                    if (!s.startsWith("layouts_")) {
+                        label += " " + n.toShortString();
+                    }
+                }
+            }
         }
         node.addAttribute(DotAttribute.ATTR_LABEL, label);
 
