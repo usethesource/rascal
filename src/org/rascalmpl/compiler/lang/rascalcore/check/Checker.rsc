@@ -208,8 +208,8 @@ public PathConfig getTypePalProjectPathConfig() {
         bin = git + "generated-sources/target/classes",
         generatedSources = git + "generated-sources/target/generated-sources/src/main/java/",
         generatedTestSources = git + "generated-sources/target/generated-sources/src/main/java/",
-        resources = git + "generated-sources/target/generated-resources/src/main/java/", //|project://rascal-core/target/generated-test-resources|,
-        libs = [ |lib://rascal/| ]
+        resources = git + "generated-sources/target/generated-resources/src/main/java/",
+        libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/| ]
     );
 }
 
