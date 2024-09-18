@@ -95,7 +95,7 @@ public final class ListStackNode<P> extends AbstractExpandableStackNode<P>{
 
 	@Override
 	public String toShortString() {
-		return toString();
+		return name;
 	}
 
 	@Override

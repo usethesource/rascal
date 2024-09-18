@@ -95,7 +95,7 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 
     @Override
     public String toShortString() {
-        return toString();
+        return name;
     }
 
 	@Override
