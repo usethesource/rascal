@@ -440,44 +440,6 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 
 bool isLogicalLoc(loc l)
     = startsWith(l.scheme, "rascal+");
-
-// TODO: temporary, fix should be in util::Reflective
-str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", "tpl"}){
-    modulePath = moduleLoc.path;
-    
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
-    }
-   
-    for(loc dir <- pcfg.srcs + pcfg.libs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           moduleName = replaceLast(moduleName, ".rsc", "");
-           if(moduleName[0] == "/"){
-              moduleName = moduleName[1..];
-           }
-           moduleName = replaceAll(moduleName, "/", "::");
-           return moduleName;
-        }
-    }
-    
-     for(loc dir <- pcfg.libs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(ext in extensions){
-               if(moduleName[0] == "/"){
-                  moduleName = moduleName[1..];
-               }
-               moduleName = replaceAll(moduleName, "/", "::");
-               return moduleName;
-           }
-        }
-    }
-    
-    
-    throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
-}
     
 loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
