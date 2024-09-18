@@ -37,7 +37,7 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
-import org.rascalmpl.util.visualize.ParseStateVisualizer;
+import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -277,7 +277,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             }
 
             @Override
-
             public Void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
                 String name = nonTerminal.getName();
                 AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
@@ -287,7 +286,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
                 return null;
             }
-
         });
     }
 
