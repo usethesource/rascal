@@ -82,7 +82,7 @@ public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
 
 	@Override
 	public String toShortString() {
-		return toString();
+		return name;
 	}
 
 	@Override
