@@ -112,7 +112,7 @@ public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode
 
 	@Override
 	public String toShortString() {
-		return toString();
+		return name;
 	}
 
 	@Override

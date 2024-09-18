@@ -82,7 +82,7 @@ public final class NonTerminalStackNode<P> extends AbstractStackNode<P>{
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		StringBuilder sb = new StringBuilder("NonTerminal[");
 		sb.append(expectIdentifier);
 		sb.append(",");

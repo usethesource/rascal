@@ -88,7 +88,7 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 
 	@Override
 	public String toShortString() {
-		return toString();
+		return name;
 	}
 
 	@Override

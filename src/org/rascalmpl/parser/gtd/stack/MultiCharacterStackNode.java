@@ -106,13 +106,7 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 
 	@Override
 	public String toShortString() {
-		return toString();
-	}
-
-	@Override
-	public String toString(){
 		StringBuilder sb = new StringBuilder();
-
 		sb.append('[');
 		for(int i = characters.length - 1; i >= 0; --i){
 			int[] range = characters[i];
@@ -121,13 +115,12 @@ public class MultiCharacterStackNode<P> extends AbstractMatchableStackNode<P>{
 			sb.append(range[1]);
 		}
 		sb.append(']');
+		return toString();
+	}
 
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
-
-		return sb.toString();
+	@Override
+	public String toString(){
+		return toShortString();
 	}
 
 	@Override

@@ -71,7 +71,7 @@ public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 
     @Override
     public String toShortString() {
-        return toString();
+        return "\u03B5";
     }
 
 	@Override
