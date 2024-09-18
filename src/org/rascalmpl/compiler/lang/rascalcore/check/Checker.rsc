@@ -201,6 +201,26 @@ public PathConfig getRascalProjectPathConfig() {
     );  
 }  
 
+public PathConfig getTypePalProjectPathConfig() {
+    git = |file:///Users/paulklint/git/|;
+    return pathConfig(   
+        srcs = [ git + "typepal/src" ],
+        bin = git + "generated-sources/target/classes",
+        generatedSources = git + "generated-sources/target/generated-sources/src/main/java/",
+        generatedTestSources = git + "generated-sources/target/generated-sources/src/main/java/",
+        resources = git + "generated-sources/target/generated-resources/src/main/java/", //|project://rascal-core/target/generated-test-resources|,
+        libs = [ |lib://rascal/| ]
+    );
+}
+
+public RascalCompilerConfig getTypePalCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getTypePalCompilerConfig(){
+    return rascalCompilerConfig(getTypePalProjectPathConfig());
+}
+
 
 
 list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
@@ -255,10 +275,7 @@ ModuleStatus rascalTModelForLocs(
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
     
     msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
-    if(error(_,_) <- msgs){
-        throw msgs;
-    }
-
+    
     ModuleStatus ms = newModuleStatus(pcfg); 
     topModuleNames = {};
     
@@ -266,10 +283,15 @@ ModuleStatus rascalTModelForLocs(
         m = getModuleName(mloc, pcfg);
         topModuleNames += {m};
         ms.moduleLocs[m] = mloc;
+        msgs += ms.messages[m] ? [];
     }
     
     try {
         ms = getImportAndExtendGraph(topModuleNames, pcfg);
+        
+        if(/error(_,_) := ms.messages){
+            return ms;
+        }
        
         if(compilerConfig.forceCompilationTopModule){
             for(str nm <- topModuleNames){
