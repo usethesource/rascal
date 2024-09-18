@@ -49,3 +49,8 @@ test bool toyRascalMissingCloseParen() {
     Tree t = parseToyRascal("f({}", visualize=true);
     return hasErrors(t) && getErrorText(findBestError(t)) == "(";
 }
+
+test bool toyRascalMissingIfBody() {
+    Tree t = parseToyRascal("f(){if(1){}}", visualize=true);
+    return hasErrors(t) && getErrorText(findBestError(t)) == "}";
+}

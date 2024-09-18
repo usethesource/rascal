@@ -26,6 +26,13 @@ syntax FunctionBody = "{" Statement* statements "}" ;
 
 syntax Statement
     = "{" Statement+ statements "}"
+    | "if" "(" {  Expression "," }+ ")" Statement
     | "s" ";";
+
+syntax Expression = "1";
+
+syntax Label
+	= "l" ":" 
+	| ;
 
 layout Layout = [ \n\r\t]*;
