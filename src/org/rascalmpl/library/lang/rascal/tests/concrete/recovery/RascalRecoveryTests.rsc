@@ -19,8 +19,8 @@ import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
 
-Tree parseRascal(str input, bool visualize=false) {
-    Tree result = parser(#start[Module], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+Tree parseRascal(type[&T] t, str input, bool visualize=false) {
+    Tree result = parser(t, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
     list[Tree] errors = findAllErrors(result);
     if (errors != []) {
         println("Tree has <size(errors)> errors");
@@ -35,21 +35,11 @@ Tree parseRascal(str input, bool visualize=false) {
     return result;
 }
 
-Tree parseFunctionDeclaration(str input, bool visualize=false) {
-    Tree result = parser(#FunctionDeclaration, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
-    list[Tree] errors = findAllErrors(result);
-    if (errors != []) {
-        println("Tree has <size(errors)> errors");
-        for (error <- errors) {
-            println("- <getErrorText(error)>");
-        }
+Tree parseRascal(str input, bool visualize=false) = parseRascal(#start[Module], input, visualize=visualize);
 
-        Tree disambiguated = defaultErrorDisambiguationFilter(result);
-        println("Best error: <getErrorText(findFirstError(disambiguated))>");
-    }
+Tree parseFunctionDeclaration(str input, bool visualize=false) = parseRascal(#FunctionDeclaration, input, visualize=visualize);
 
-    return result;
-}
+Tree parseStatement(str input, bool visualize=false) = parseRascal(#Statement, input, visualize=visualize);
 
 test bool rascalOk() {
     Tree t = parseRascal("
@@ -120,6 +110,20 @@ test bool rascalFunctionDeclarationMissingCloseParen() {
     return true;
 }
 
+test bool rascalIfMissingExpr() {
+    Tree t = parseFunctionDeclaration("void f(){if(){1;}}", visualize=false);
+    return getErrorText(findFirstError(t)) == ")";
+}
+
+test bool rascalIfBodyEmpty() {
+    Tree t = parseRascal("module A void f(){1;} void g(){if(1){}} void h(){1;}");
+
+    println("error: <getErrorText(findFirstError(t))>");
+    assert getErrorText(findBestError(t)) == "} void h(){1";
+
+    return true;
+}
+
 // Not working yet:
 /*
 test bool rascalMissingOpeningParen() {
@@ -136,13 +140,6 @@ test bool rascalFunFunMissingCloseParen() {
     return getErrorText(findFirstError(t)) == "a}";
 }
 
-test bool rascalIfMissingExpr() {
-    Tree t = parseRascal("module A void f(){if(){}} 1;", visualize=false);
-
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == ";";
-}
-
 test bool rascalIfMissingOpeningParen() {
     Tree t = parseRascal("module A void f(){if 1){}}", visualize=false);
 
@@ -152,13 +149,6 @@ test bool rascalIfMissingOpeningParen() {
 
 test bool rascalIfMissingCloseParen() {
     Tree t = parseRascal("module A void f(){if(1{}}", visualize=false);
-
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == ";";
-}
-
-test bool rascalIfEmptyBody() {
-    Tree t = parseRascal("module A void f(){if(1){}} 1;");
 
     println("error text: <getErrorText(findFirstError(t))>");
     return getErrorText(findFirstError(t)) == ";";
