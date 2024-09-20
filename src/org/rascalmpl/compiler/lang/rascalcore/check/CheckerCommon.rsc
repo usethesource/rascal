@@ -67,7 +67,7 @@ data ModuleStatus =
 
 ModuleStatus newModuleStatus(PathConfig pcfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), pcfg);
 
-bool traceTPL = true;
+bool traceTPL = false;
 bool traceParseTreeCache = false;
 bool traceTModelCache = false;
 
