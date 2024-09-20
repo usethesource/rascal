@@ -137,7 +137,9 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
             mloc = |unknown:///<qualifiedModuleName>|;
             try {
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);      
+                mloc = getModuleLocation(qualifiedModuleName, pcfg); 
+                // Make sure we found a real source module (as opposed to a tpl module in  a library
+                if(mloc.extension != "rsc") throw "";     
             } catch _: {
                 //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
                 //ms.status[qualifiedModuleName] += {not_found()};
