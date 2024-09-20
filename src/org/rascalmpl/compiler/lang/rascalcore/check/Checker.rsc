@@ -217,8 +217,26 @@ public RascalCompilerConfig getTypePalCompilerConfig(PathConfig pcfg){
     return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
 }
 
-public RascalCompilerConfig getTypePalCompilerConfig(){
-    return rascalCompilerConfig(getTypePalProjectPathConfig());
+public PathConfig getFlyBytesProjectPathConfig() {
+    git = |file:///Users/paulklint/git/|;
+    return pathConfig(   
+        srcs = [ git + "flybytes/src" ],
+        bin = git + "generated-sources/target/classes",
+        generatedSources = git + "generated-sources/target/generated-sources/src/main/java/",
+        generatedTestSources = git + "generated-sources/target/generated-sources/src/main/java/",
+        resources = git + "generated-sources/target/generated-resources/src/main/java/",
+        libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/|,
+                 |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.13.5-SNAPSHOT/typepal-0.13.5-SNAPSHOT.jar!/|
+               ]
+    );
+}
+
+public RascalCompilerConfig getFlyBytesCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getFlyBytesCompilerConfig(){
+    return rascalCompilerConfig(getFlyBytesProjectPathConfig());
 }
 
 
