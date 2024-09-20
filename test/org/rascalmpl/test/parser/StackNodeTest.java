@@ -3,7 +3,6 @@ package org.rascalmpl.test.parser;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
-import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
 import org.rascalmpl.parser.gtd.stack.filter.follow.AtEndOfLineRequirement;

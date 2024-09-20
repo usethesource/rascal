@@ -19,24 +19,29 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.internal.IValueAdapter;
 import org.rascalmpl.library.lang.json.internal.JSONReadingTypeVisitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -49,10 +54,10 @@ import com.google.gson.stream.JsonWriter;
 import com.ibm.icu.text.DateFormat;
 
 public class IO {
-	private final IValueFactory values;
+	private final IRascalValueFactory values;
 	private final IRascalMonitor monitor;
 
-	public IO(IValueFactory values, IRascalMonitor monitor) {
+	public IO(IRascalValueFactory values, IRascalMonitor monitor) {
 		super();
 		this.values = values;
 		this.monitor = monitor;
@@ -100,33 +105,49 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
+	  if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+		// ignore the default parser
+		parsers = null;
+	  }
+	  
       try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
 		in.setLenient(lenient.getValue());
         return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
             .setCalendarFormat(dateTimeFormat.getValue())
+			.setParsers(parsers)
+			.setNulls(unreify(nulls))
             .read(in, start);
       }
       catch (IOException e) {
         throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
       }
       catch (NullPointerException e) {
-        e.printStackTrace();
-        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+        throw RuntimeExceptionFactory.io(values.string("NPE in error handling code"), null, null);
       }
     }
 	
-	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins) {
+	private Map<Type, IValue> unreify(IMap nulls) {
+		var tr = new TypeReifier(values);
+		return nulls.stream()
+			.map(t -> (ITuple) t)
+			.collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
+	}
+
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-	      
+
+
 	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
 			in.setLenient(lenient.getValue());
 	        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
 	            .setCalendarFormat(dateTimeFormat.getValue())
+				.setParsers(parsers)
+				.setNulls(unreify(nulls))
 	            .read(in, start);
 	      }
 	      catch (IOException e) {
@@ -137,7 +158,7 @@ public class IO {
 	      }
 	    }
 	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins) {
+	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter) {
 	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
 	        if (indent.intValue() > 0) {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
@@ -148,13 +169,14 @@ public class IO {
 	        .setDatesAsInt(dateTimeAsInt.getValue())
 	        .setUnpackedLocations(unpackedLocations.getValue())
 			.setDropOrigins(dropOrigins.getValue())
+			.setFormatters(formatter)
 	        .write(out, value);
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 	    } 
 	}
 	
-	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins) {
+	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter) {
 	    StringWriter string = new StringWriter();
 
 	    try (JsonWriter out = new JsonWriter(string)) {
@@ -166,6 +188,7 @@ public class IO {
 	        	.setDatesAsInt(dateTimeAsInt.getValue())
 	        	.setUnpackedLocations(unpackedLocations.getValue())
 				.setDropOrigins(dropOrigins.getValue())
+				.setFormatters(formatter)
 	        	.write(out, value);
 
 	        return values.string(string.toString());
