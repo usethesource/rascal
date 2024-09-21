@@ -38,7 +38,8 @@ void checkSupportedByParserGenerator(Tree t, Collector c){
  }
 
 data MStatus =
-      not_found()
+      rsc_not_found()
+    | tpl_not_found()
     | parsed()
     | parse_error()
     | module_dependencies_extracted()
@@ -138,11 +139,13 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             mloc = |unknown:///<qualifiedModuleName>|;
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg); 
-                // Make sure we found a real source module (as opposed to a tpl module in  a library
-                if(mloc.extension != "rsc") throw "";     
+                // Make sure we found a real source module (as opposed to a tpl module in a library
+                if(mloc.extension != "rsc") {
+                    ms.status[qualifiedModuleName] += {rsc_not_found()};
+                    throw ""; 
+                }    
             } catch _: {
                 //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
-                //ms.status[qualifiedModuleName] += {not_found()};
                 mpt = [Module] "module <qualifiedModuleName>";
                 //ms.parseTrees[qualifiedModuleName] = mpt;
                 ms.moduleLocs[qualifiedModuleName] = mloc;
@@ -258,7 +261,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
              //   //return <true, tpl, ms>; 
              //}
         } catch e: {
-            //ms.status[qualifiedModuleName] ? {} += not_found();
+            //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
         }
@@ -269,7 +272,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     //if(qualifiedModuleName notin hardwired){
     //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
     //}
-    //ms.status[qualifiedModuleName] ? {} += not_found();
+    //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
