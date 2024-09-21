@@ -205,10 +205,10 @@ public PathConfig getTypePalProjectPathConfig() {
     git = |file:///Users/paulklint/git/|;
     return pathConfig(   
         srcs = [ git + "typepal/src" ],
-        bin = git + "generated-sources/target/classes",
-        generatedSources = git + "generated-sources/target/generated-sources/src/main/java/",
-        generatedTestSources = git + "generated-sources/target/generated-sources/src/main/java/",
-        resources = git + "generated-sources/target/generated-resources/src/main/java/",
+        bin = git + "generated-sources/typepal/target/classes",
+        generatedSources = git + "generated-sources/typepal/target/generated-sources/src/main/java/",
+        generatedTestSources = git + "generated-sources/typepal/target/generated-sources/src/main/java/",
+        resources = git + "generated-sources/typepal/target/generated-resources/src/main/java/",
         libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/| ]
     );
 }
@@ -217,16 +217,19 @@ public RascalCompilerConfig getTypePalCompilerConfig(PathConfig pcfg){
     return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
 }
 
+public RascalCompilerConfig getTypePalCompilerConfig(){
+    return rascalCompilerConfig(getTypePalProjectPathConfig())[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+}
+
 public PathConfig getFlyBytesProjectPathConfig() {
     git = |file:///Users/paulklint/git/|;
     return pathConfig(   
         srcs = [ git + "flybytes/src" ],
-        bin = git + "generated-sources/target/classes",
-        generatedSources = git + "generated-sources/target/generated-sources/src/main/java/",
-        generatedTestSources = git + "generated-sources/target/generated-sources/src/main/java/",
-        resources = git + "generated-sources/target/generated-resources/src/main/java/",
-        libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/|,
-                 |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.13.5-SNAPSHOT/typepal-0.13.5-SNAPSHOT.jar!/|
+        bin = git + "generated-sources/flybytes/target/classes",
+        generatedSources = git + "generated-sources/flybytes/target/generated-sources/src/main/java/",
+        generatedTestSources = git + "generated-sources/flybytes/target/generated-sources/src/main/java/",
+        resources = git + "generated-sources/flybytes/target/generated-resources/src/main/java/",
+        libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/|
                ]
     );
 }
@@ -369,7 +372,7 @@ ModuleStatus rascalTModelForLocs(
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
                 map[str,set[str]] m_extends = ();
-                for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
+                for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
                     imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
                     m_imports[m] =  imports;
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
@@ -398,7 +401,7 @@ ModuleStatus rascalTModelForLocs(
                                    if(ms.moduleLocs[iname]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                     continue check_imports;
                                    }
-                                   if(checked() in ms.status[iname] && not_found() notin ms.status[iname]){
+                                   if(checked() in ms.status[iname] && rsc_not_found() notin ms.status[iname]){
                                        if(imod is \default){
                                          msgs += warning("Unused import of `<iname>`", imod@\loc);
                                        } else {
