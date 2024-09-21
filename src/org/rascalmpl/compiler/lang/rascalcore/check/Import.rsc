@@ -164,13 +164,13 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     if(success){
         <ms, imports_and_extends> = getModulePathsAsStr(pt, ms);
    
-        for(<_, kind, imp> <- imports_and_extends, not_found() notin ms.status[imp]){
+        for(<_, kind, imp> <- imports_and_extends, rsc_not_found() notin ms.status[imp]){
             ms.strPaths += {<qualifiedModuleName, kind, imp>};
             ms = getImportAndExtendGraph(imp, ms);
         }
     } else {
-        if(not_found() notin ms.status[qualifiedModuleName]){
-            ms.status[qualifiedModuleName] += not_found();
+        if(rsc_not_found() notin ms.status[qualifiedModuleName]){
+            ms.status[qualifiedModuleName] += rsc_not_found();
         }
     }
     
@@ -220,7 +220,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
             getModuleLocation(iname, ms.pathConfig);
          } catch str msg: {
             ms.messages[moduleName] ? [] += [ error(msg, imod@\loc) ];
-            ms.status[iname] += { not_found() };
+            ms.status[iname] += { rsc_not_found() };
          }
     }
     ms.strPaths += imports_and_extends;
@@ -249,15 +249,15 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
     pcfg = ms.pathConfig;
     
     dependencies_ok = true;
-    for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
+    for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
         if(parse_error() in ms.status[m]){
             return <(m : tmodel(modelName=m,messages=ms.messages[m])) ,ms>;
         }
-        for(imp <- m_imports[m] + m_extends[m], not_found() notin ms.status[imp], MStatus::ignored() notin ms.status[m]){
+        for(imp <- m_imports[m] + m_extends[m], rsc_not_found() notin ms.status[imp], MStatus::ignored() notin ms.status[m]){
             imp_status = ms.status[imp];
             if(parse_error() in imp_status || checked() notin imp_status){
                 dependencies_ok = false;
-                cause = (not_found() in imp_status) ? "module not found" : "due to syntax error";
+                cause = (rsc_not_found() in imp_status) ? "module not found" : "due to syntax error";
                 ms.messages[m] = (ms.messages[imp] ? []) + error("<imp in m_imports[imp] ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", moduleScopes[m]); 
             }
         }
@@ -267,7 +267,7 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
     }
     transient_tms = (m : tm | m <- component);
     org_tm = tm;
-    for(m <- component, not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
+    for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
         tm = org_tm;
         tm.modelName = m;
         mScope = getModuleScope(m, moduleScopes, pcfg);
@@ -288,7 +288,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     pcfg = ms.pathConfig;
     
     start_save = cpuTime();  
-    if(any(c <- component, !isEmpty({parse_error(), not_found(), MStatus::ignored()} & ms.status[c]))){
+    if(any(c <- component, !isEmpty({parse_error(), rsc_not_found(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
     if(any(c <- component, error(_,_) <- ms.messages[c])){
