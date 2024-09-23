@@ -15,7 +15,6 @@ import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.unicode.UnicodeConverter;
 
 public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[] literal;
@@ -84,12 +83,13 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 
 	@Override
 	public String toShortString() {
-		return "'" + UnicodeConverter.unicodeArrayToString(literal) + "'";
+		return "'" + new String(literal, 0, literal.length) + "'";
 	}
 	
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder("lit['");
-		sb.append(UnicodeConverter.unicodeArrayToString(literal));
+		sb.append(new String(literal, 0, literal.length));
 		sb.append("',");
 		sb.append(super.toString());
 		
@@ -98,10 +98,16 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof LiteralStackNode)) return false;
 		
@@ -111,4 +117,10 @@ public final class LiteralStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

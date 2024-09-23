@@ -1,4 +1,18 @@
-package org.rascalmpl.util.visualize;
+/**
+ * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
+
+package org.rascalmpl.parser.util;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -6,15 +20,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,15 +44,13 @@ import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
+import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
 import org.rascalmpl.parser.gtd.util.DoubleStack;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.Stack;
-import org.rascalmpl.parser.util.DebugUtil;
-import org.rascalmpl.unicode.UnicodeConverter;
 import org.rascalmpl.util.visualize.dot.CompassPoint;
 import org.rascalmpl.util.visualize.dot.DotAttribute;
 import org.rascalmpl.util.visualize.dot.DotEdge;
@@ -53,9 +62,21 @@ import org.rascalmpl.util.visualize.dot.NodeId;
 
 import io.usethesource.vallang.IConstructor;
 
-public class DebugVisualizer {
-    static final String BASE_DIR = "D:/debug/parser-traces/docs/";
+/**
+ * The parser uses quite complex datastructures.
+ * In order to understand what is going on when parsing, this class can generate graphs (as dot files)
+ * representing the internal datastructurs of the parser.
+ *
+ * These graphs are written to files that are relative to a directory specified in the environment
+ * variable PARSER_VISUALIZATION_PATH.
+ *
+ * The parser can generate a large number of snapshots of the parser state during a single parse.
+ * The file 'replay.html' contains an simple example of a html file to navigate through these snapshots.
+ */
+public class ParseStateVisualizer {
     public static final boolean VISUALIZATION_ENABLED = true;
+    private static final String VISUALIZATION_URI_PATTERN_ENV = "PARSER_VISUALIZATION_URI_PATTERN";
+    private static final String PARSER_VISUALIZATION_PATH_ENV = "PARSER_VISUALIZATION_PATH";
     private static final boolean INCLUDE_PRODUCTIONS = false;
 
     public static final NodeId PARSER_ID = new NodeId("Parser");
@@ -72,14 +93,18 @@ public class DebugVisualizer {
 
     private static final NodeId RECOVERED_NODES_ID = new NodeId("recoveredNodes");
 
-    /*static public class GraphObject {
-        static public class Kind {
-            private boolean dotGraph = true;
+    public static boolean shouldVisualizeUri(URI inputUri) {
+        if (!VISUALIZATION_ENABLED) {
+            return false;
         }
 
-        private Kind kind = new Kind();
-        private String text = "\ndigraph G {\n a -> b; \n}\n";
-    }*/
+        String pattern = System.getenv(VISUALIZATION_URI_PATTERN_ENV);
+        if (pattern == null) {
+            return false;
+        }
+
+        return inputUri.toString().matches(pattern);
+    }
 
     private static class StreamGobbler implements Runnable {
         private InputStream inputStream;
@@ -97,15 +122,26 @@ public class DebugVisualizer {
         }
     }
 
-    private String name;
-    private Map<Integer, DotNode> stackNodeNodes;
+    private final String name;
+    private final File basePath;
+    private final File frameDir;
+    private final Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
 
-    public DebugVisualizer(String name) {
+
+    public ParseStateVisualizer(String name) {
+        // In the future we might want to offer some way to control the path from within Rascal.
+        String path = System.getenv(PARSER_VISUALIZATION_PATH_ENV);
+        if (path == null) {
+            throw new RuntimeException("The environment variable '" + PARSER_VISUALIZATION_PATH_ENV + "' is not set.");
+        }
+        basePath = new File(System.getenv(PARSER_VISUALIZATION_PATH_ENV));
+
         this.name = name;
         stackNodeNodes = new HashMap<>();
-        File frameDir = new File(BASE_DIR + "/frames/" + name);
+
+        frameDir = new File(new File(basePath, "frames"), name);
         if (frameDir.exists()) {
             try {
                 FileUtils.deleteDirectory(frameDir);
@@ -163,9 +199,9 @@ public class DebugVisualizer {
     private DotGraph createGraph(DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
         reset();
         graph = new DotGraph(name, true);
-        final NodeId RECOVERY_NODES_ID = new NodeId("recovery-nodes");
+        final NodeId recoveryNodesId = new NodeId("recovery-nodes");
 
-        DotNode arrayNode = DotNode.createArrayNode(RECOVERY_NODES_ID, recoveryNodes.size());
+        DotNode arrayNode = DotNode.createArrayNode(recoveryNodesId, recoveryNodes.size());
         graph.addNode(arrayNode);
 
         for (int i=0; i<recoveryNodes.size(); i++) {
@@ -175,7 +211,7 @@ public class DebugVisualizer {
             recoveryRecord.addEntry(new DotField("Productions", "productions"));
             graph.addRecordNode(pairId, recoveryRecord);
 
-            graph.addEdge(new NodeId(RECOVERY_NODES_ID, String.valueOf(i)), pairId);
+            graph.addEdge(new NodeId(recoveryNodesId, String.valueOf(i)), pairId);
 
             DotNode node = addStack(graph, recoveryNodes.getFirst(i));
 
@@ -185,7 +221,7 @@ public class DebugVisualizer {
             addProductionArray(graph, productionsId, recoveryNodes.getSecond(i));
             graph.addEdge(new NodeId(pairId, "productions"), productionsId);
         }
-        
+
         return graph;
     }
 
@@ -241,7 +277,7 @@ public class DebugVisualizer {
         if (node != null) {
             return node;
         }
-        
+
         node = createDotNode(stackNode);
 
         stackNodeNodes.put(stackNode.getId(), node);
@@ -254,14 +290,14 @@ public class DebugVisualizer {
 
         IntegerObjectList<EdgesSet<P>> edges = stackNode.getEdges();
         if (edges != null) {
-		    for (int i = edges.size() - 1; i >= 0; --i) {
-		        EdgesSet<P> edgesList = edges.getValue(i);
-			    if (edgesList != null) {
-				    for (int j = edgesList.size() - 1; j >= 0; --j) {
-					    AbstractStackNode<P> parentStackNode = edgesList.get(j);
+            for (int i = edges.size() - 1; i >= 0; --i) {
+                EdgesSet<P> edgesList = edges.getValue(i);
+                if (edgesList != null) {
+                    for (int j = edgesList.size() - 1; j >= 0; --j) {
+                        AbstractStackNode<P> parentStackNode = edgesList.get(j);
                         DotNode parentDotNode = addStack(graph, parentStackNode);
                         graph.addEdge(node.getId(), parentDotNode.getId());
-				    }
+                    }
                 }
             }
         }
@@ -277,19 +313,14 @@ public class DebugVisualizer {
 
         String nodeName;
 
-        if (stackNode instanceof RecoveryPointStackNode) {
-            RecoveryPointStackNode<P> recoveryNode = (RecoveryPointStackNode<P>) stackNode;
-            nodeName = String.valueOf(recoveryNode.getId());
-        } else {
-            try {
-                nodeName = stackNode.getName();
-            } catch (UnsupportedOperationException e) {
-                nodeName = "";
-            }
+        try {
+            nodeName = stackNode.getName();
+        } catch (UnsupportedOperationException e) {
+            nodeName = "";
+        }
 
-            if (nodeName.startsWith("layouts_")) {
-                nodeName = nodeName.substring("layouts_".length());
-            }
+        if (nodeName.startsWith("layouts_")) {
+            nodeName = nodeName.substring("layouts_".length());
         }
 
         int dot = stackNode.getDot();
@@ -312,7 +343,7 @@ public class DebugVisualizer {
         }
 
         DotNode node = new DotNode(getNodeId(stackNode));
-        String label = String.format("%s: %s\n.%d@%d %s", 
+        String label = String.format("%s: %s\n.%d@%d %s",
             type, nodeName, dot, stackNode.getStartLocation(), extraInfo);
 
         String shortString = stackNode.toShortString();
@@ -323,14 +354,23 @@ public class DebugVisualizer {
         P parentProduction = stackNode.getParentProduction();
         if (parentProduction instanceof IConstructor) {
             label += "\nin: " + DebugUtil.prodToString((IConstructor) parentProduction);
+        } else {
+            if (stackNode.getProduction() != null) {
+                label += "\nin:";
+                for (AbstractStackNode<P> n : stackNode.getProduction()) {
+                    String s = n.toShortString();
+                    if (!s.startsWith("layouts_")) {
+                        label += " " + n.toShortString();
+                    }
+                }
+            }
         }
         node.addAttribute(DotAttribute.ATTR_LABEL, label);
-
-        // TODO: add prefixes
 
         return node;
     }
 
+    @SuppressWarnings("unchecked")
     private void addParserNode(DotGraph graph, AbstractNode parserNode) {
         NodeId id = getNodeId(parserNode);
         DotNode dotNode = new DotNode(id);
@@ -368,26 +408,21 @@ public class DebugVisualizer {
     }
 
     private void enrichCharNode(DotNode dotNode, CharNode charNode) {
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         int c = charNode.getCharacter();
-        label += "\nchar=" + c + "('" + (char) c + "')";
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + "\nchar=" + c + "('" + (char) c + "')";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
     private void enrichLiteralNode(DotNode dotNode, LiteralNode literalNode) {
-        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         int[] content = literalNode.getContent();
-        label += " \"" + UnicodeConverter.unicodeArrayToString(content) + "\"";
-        /* Maybe include production? 
-          label += "\nprod=" + DebugUtil.prodToString((IConstructor)literalNode.getProduction());
-        */
+        String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL) + " \"" + new String(content, 0, content.length) + "\"";
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
     private void enrichSkippedNode(DotNode dotNode, SkippedNode skippedNode) {
         String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
-        label += "\n." + skippedNode.getDot() + "@" + skippedNode.getOffset() + ": " + " \"" + UnicodeConverter.unicodeArrayToString(skippedNode.getSkippedChars()) + "\"";
-        label += "\nin: " + DebugUtil.prodToString((IConstructor) skippedNode.getProduction());
+        int[] skipped = skippedNode.getSkippedChars();
+        label += "\n@" + skippedNode.getOffset() + ": " + " \"" + new String(skipped, 0, skipped.length) + "\"";
 
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
@@ -397,10 +432,8 @@ public class DebugVisualizer {
         label += " " + sortNode.getOffset() + "-" + sortNode.getEndOffset();
         label += "\n" + DebugUtil.prodToString(sortNode.getFirstProduction());
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
-
-        // TODO: add links
     }
-    
+
     private void enrichUnknownParserNode(DotNode dotNode, AbstractNode parserNode) {
         String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
         label += "\ntype=" + parserNode.getTypeIdentifier();
@@ -415,7 +448,7 @@ public class DebugVisualizer {
         return new NodeId(String.valueOf(System.identityHashCode(node)));
     }
 
-    public <P, T, S> void writeGraph() {
+    public void writeGraph() {
         if (graph != null) {
             writeGraph(graph);
         }
@@ -433,14 +466,15 @@ public class DebugVisualizer {
 
         DotNode parserNode = new DotNode(PARSER_ID);
 
-        String input = UnicodeConverter.unicodeArrayToString(parser.getInput());
+        int[] inputChars = parser.getInput();
+        String input = new String(inputChars, 0, inputChars.length);
 
         char lookahead = (char) parser.getLookAheadChar();
         if (lookahead == '\0') {
             lookahead = '$';
         }
 
-        String label = String.format("Parser\nInput: \"%s\"\nLocation: %d ('%c')\nStep %d: %s", 
+        String label = String.format("Parser\nInput: \"%s\"\nLocation: %d ('%c')\nStep %d: %s",
             input, location, lookahead, frame, step);
         parserNode.setAttribute(DotAttribute.ATTR_LABEL, label);
         graph.addNode(parserNode);
@@ -524,8 +558,8 @@ public class DebugVisualizer {
             graph.addRecordNode(failureId, failureRecord);
             graph.addEdge(new NodeId(UNMATCHABLE_MID_PRODUCTION_NODES_ID, String.valueOf(i)), failureId);
 
-			DoubleArrayList<AbstractStackNode<P>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
-			AbstractStackNode<P> failedNode = unmatchableMidProductionNodes.getSecond(i);
+            DoubleArrayList<AbstractStackNode<P>, AbstractNode> failedNodePredecessors = unmatchableMidProductionNodes.getFirst(i);
+            AbstractStackNode<P> failedNode = unmatchableMidProductionNodes.getSecond(i);
 
             DotNode node = addStack(graph, failedNode);
             NodeId predecessorsId = new NodeId("unmatchable-mid-production-predecessors-" + i);
@@ -535,17 +569,10 @@ public class DebugVisualizer {
             graph.addEdge(new NodeId(failureId, "predecessors"), predecessorsId);
         }
     }
-    
+
     private <P, T, S> void addFilteredNodes(SGTDBF<P, T, S> parser, DotGraph graph) {
         addStackAndNodeDoubleStack(graph, FILTERED_NODES_ID, parser.getFilteredNodes());
     }
-        /*
-         * 	private final Stack<AbstractStackNode<P>> unexpandableNodes;
-	private final Stack<AbstractStackNode<P>> unmatchableLeafNodes; // Leaf nodes (for instance literals) that failed to match
-	private final DoubleStack<DoubleArrayList<AbstractStackNode<P>, AbstractNode>, AbstractStackNode<P>> unmatchableMidProductionNodes;
-	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
-
-         */
 
     private <P, N extends AbstractNode> void addStackAndNodeDoubleStack(DotGraph graph, NodeId nodeId, DoubleStack<AbstractStackNode<P>, N> doubleStack) {
         DotNode arrayNode = DotNode.createArrayNode(nodeId, doubleStack == null ? 0 : doubleStack.getSize());
@@ -609,11 +636,11 @@ public class DebugVisualizer {
 
     private void writeGraph(DotGraph graph) {
         try {
-            String dotFile =  BASE_DIR + name + ".dot";
-            String svgFile = BASE_DIR + name + ".svg";
-            String frameDir = BASE_DIR + "/frames/" + name + "/";
-            String frameSvgFile = frameDir + String.format("%04d", frame) + ".svg";
-            String frameDotFile = frameDir + String.format("%04d", frame) + ".dot";
+            File dotFile =  new File(basePath, name + ".dot");
+            File svgFile = new File(basePath, name + ".svg");
+            //File frameDir = new File(basePath, BASE_DIR + "/frames/" + name + "/";
+            File frameSvgFile = new File(frameDir, String.format("%04d", frame) + ".svg");
+            File frameDotFile = new File(frameDir, String.format("%04d", frame) + ".dot");
             FileWriter writer = new FileWriter(dotFile);
             writer.write(graph.toString());
             writer.close();
@@ -627,12 +654,8 @@ public class DebugVisualizer {
             process.waitFor();
             future.get(10, TimeUnit.SECONDS);
 
-            Path svgPath = Paths.get(svgFile);
-            Path dotPath = Paths.get(dotFile);
-            Path frameSvgPath = Paths.get(frameSvgFile);
-            Path frameDotPath = Paths.get(frameDotFile);
-            Files.copy(svgPath, frameSvgPath, StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(dotPath, frameDotPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(svgFile.toPath(), frameSvgFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(dotFile.toPath(), frameDotFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
