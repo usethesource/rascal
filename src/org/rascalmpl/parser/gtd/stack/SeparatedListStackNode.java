@@ -110,10 +110,12 @@ public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode
 		return emptyChild;
 	}
 
+	@Override
 	public String toShortString() {
-		return toString();
+		return name;
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
@@ -124,10 +126,16 @@ public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof SeparatedListStackNode)) return false;
 		
@@ -137,4 +145,10 @@ public final class SeparatedListStackNode<P> extends AbstractExpandableStackNode
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

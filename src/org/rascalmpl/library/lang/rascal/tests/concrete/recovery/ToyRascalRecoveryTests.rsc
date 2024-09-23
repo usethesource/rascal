@@ -12,10 +12,45 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
 
-package org.rascalmpl.util.visualize.dot;
+module lang::rascal::tests::concrete::recovery::ToyRascalRecoveryTests
 
-import java.io.PrintWriter;
+import lang::rascal::tests::concrete::recovery::ToyRascal;
 
-public interface DotRecordEntry {
-        void writeSource(PrintWriter writer, boolean topLevel);
+import ParseTree;
+import IO;
+
+Tree parseToyRascal(str input, bool visualize=false) {
+    Tree result = parser(#start[FunctionDeclaration], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+    list[Tree] errors = findAllErrors(result);
+    if (errors != []) {
+        println("Tree has <size(errors)> errors");
+        for (error <- errors) {
+            println("- <getErrorText(error)>");
+        }
+
+        Tree disambiguated = defaultErrorDisambiguationFilter(result);
+        println("Best error: <getErrorText(findFirstError(disambiguated))>");
+    }
+
+    return result;
+}
+
+test bool toyRascalOk() {
+    Tree t = parseToyRascal("f(){s;}");
+    return !hasErrors(t);
+}
+
+test bool toyRascalMissingOpenParen() {
+    Tree t = parseToyRascal("f){}", visualize=true);
+    return hasErrors(t) && getErrorText(findBestError(t)) == ")";
+}
+
+test bool toyRascalMissingCloseParen() {
+    Tree t = parseToyRascal("f({}", visualize=true);
+    return hasErrors(t) && getErrorText(findBestError(t)) == "(";
+}
+
+test bool toyRascalMissingIfBody() {
+    Tree t = parseToyRascal("f(){if(1){}}", visualize=true);
+    return hasErrors(t) && getErrorText(findBestError(t)) == "}";
 }

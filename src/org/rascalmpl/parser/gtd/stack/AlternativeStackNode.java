@@ -88,10 +88,12 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public String toShortString() {
-		return toString();
+		return name;
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("alt");
@@ -103,10 +105,16 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof AlternativeStackNode)) return false;
 		
@@ -116,4 +124,10 @@ public class AlternativeStackNode<P> extends AbstractExpandableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P, R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

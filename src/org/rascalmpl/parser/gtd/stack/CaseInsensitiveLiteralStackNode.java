@@ -68,10 +68,9 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		int[][] ciLiteralResult = new int[nrOfCharacters][];
 		for(int i = nrOfCharacters - 1; i >= 0; --i){
 			int character = ciLiteral[i];
-			int type = Character.getType(character);
-			if(type == Character.LOWERCASE_LETTER){
+			if (Character.isLowerCase(character)) {
 				ciLiteralResult[i] = new int[]{character, Character.toUpperCase(character)};
-			}else if(type == Character.UPPERCASE_LETTER){
+			} else if(Character.isUpperCase(character)) {
 				ciLiteralResult[i] = new int[]{character, Character.toLowerCase(character)};
 			}else{
 				ciLiteralResult[i] = new int[]{character};
@@ -103,11 +102,11 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new CaseInsensitiveLiteralStackNode<P>(this, startLocation);
+		return new CaseInsensitiveLiteralStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new CaseInsensitiveLiteralStackNode<P>(this, startLocation, result);
+		return new CaseInsensitiveLiteralStackNode<>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -131,6 +130,7 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		return new String(codePoints, 0, codePoints.length);
 	}
 
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < ciLiteral.length; ++i){
@@ -144,10 +144,17 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
+	@Override
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof CaseInsensitiveLiteralStackNode)) return false;
 		
@@ -157,4 +164,10 @@ public final class CaseInsensitiveLiteralStackNode<P> extends AbstractMatchableS
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P, R> visitor) {
+		return visitor.visit(this);
+	}
+
 }
