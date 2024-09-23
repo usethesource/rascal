@@ -1125,12 +1125,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
             
 				if (result.getStaticType().isString()) {
-					// TODO: discuss if we want to allow recovery here
 					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray(), true, false, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					// TODO: discuss if we want to allow recovery here
 					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false, false);
 				}
 				

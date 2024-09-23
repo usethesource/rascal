@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2024 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,12 @@ public class SkippedNodeFlattener<T, P>{
 		T result = nodeConstructorFactory.createSkippedNode(node.getSkippedChars());
 
 		// Add source location
+		if (node.getInputUri() != null) {
 		int startOffset = node.getOffset();
 		int endOffset = startOffset + node.getLength();
-		P sourceLocation = nodeConstructorFactory.createPositionInformation(node.getInput(), startOffset, endOffset, positionStore);
+			P sourceLocation = nodeConstructorFactory.createPositionInformation(node.getInputUri(), startOffset, endOffset, positionStore);
 		result = nodeConstructorFactory.addPositionInformation(result, sourceLocation);
+		}
 
 		return result;
 	}
