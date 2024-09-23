@@ -80,7 +80,7 @@ test bool rascalOperatorTypo() {
     int f() = 1 x 1;
     ");
 
-    return getErrorText(findFirstError(t)) == "x 1";
+    return getErrorText(findFirstError(t)) == "x 1;";
 }
 
 test bool rascalIllegalStatement() {
@@ -125,7 +125,6 @@ test bool rascalIfBodyEmpty() {
 }
 
 // Not working yet:
-/*
 test bool rascalMissingOpeningParen() {
     Tree t = parseRascal("module A void f){} void g() { }");
 
@@ -160,4 +159,3 @@ test bool rascalIfMissingSemi() {
     println("error text: <getErrorText(findFirstError(t))>");
     return getErrorText(findFirstError(t)) == ";";
 }
-*/

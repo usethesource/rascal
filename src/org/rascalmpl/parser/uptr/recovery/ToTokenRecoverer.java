@@ -20,11 +20,17 @@ import java.util.Set;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
+import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
+import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
+import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
+import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.stack.OptionalStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.StackNodeVisitorAdapter;
@@ -180,7 +186,9 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 		visitedNodes.add(last.getId());
 
-		// Future improvement: while (isNullable(last) addEndMatchers(prod, dot-1, matchers);
+        if (isNullable(last)) {
+             addEndMatchers(prod, dot-1, matchers, visitedNodes);
+        }
 
 		last.accept(new StackNodeVisitorAdapter<IConstructor, Void>() {
 			@Override
@@ -245,21 +253,15 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 
 		AbstractStackNode<IConstructor> next = prod[dot];
-		while (next instanceof NonTerminalStackNode && next.getName().startsWith("layouts_")) {
-            // Look "through" layout for now, this should really be more general and look through any node that
-            // can be empty
-			// When a node can be empty, we should also consider all prefix-shared alternatives.
-			dot++;
-			if (dot >= prod.length) {
-				return;
-			}
-			next = prod[dot];
-		}
-
 		if (visitedNodes.contains(next.getId())) {
 			return;
 		}
 		visitedNodes.add(next.getId());
+
+        if (isNullable(next)) {
+            // In the future, when a node can be empty, we should also consider all prefix-shared alternatives.
+            addNextMatchers(prod, dot+1, matchers, visitedNodes);
+        }
 
 		next.accept(new StackNodeVisitorAdapter<IConstructor, Void>() {
 			@Override
@@ -288,6 +290,22 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		}
 		});
 	}
+
+    private boolean isNullable(AbstractStackNode<IConstructor> stackNode) {
+        if (stackNode instanceof NonTerminalStackNode && stackNode.getName().startsWith("layouts_")) {
+            return true;
+        }
+
+        if (stackNode instanceof EpsilonStackNode || stackNode instanceof EmptyStackNode) {
+            return true;
+        }
+
+        if (stackNode instanceof AbstractExpandableStackNode) {
+            return stackNode.canBeEmpty();
+        }
+
+        return false;
+    }
 
     // Check if a node is a top-level production (i.e., its parent production node has no parents and
     // starts at position -1)
