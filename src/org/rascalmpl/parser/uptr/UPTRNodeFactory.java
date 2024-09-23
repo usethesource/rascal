@@ -155,23 +155,4 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		return buildAppl(children, errorProd);
 	}
 
-	/*
-		@Override
-    public ITree createRecoveryNode(int[] characters) {
-    }
-		IListWriter args = VF.listWriter();
-		for (int i=0; i<recognizedPrefix.size(); i++) {
-			args.append(recognizedPrefix.get(i));
-		}
-
-		for (int c : unrecognizedCharacters) {
-			args.append(VF.character(c));
-		}
-
-		IConstructor prod = (IConstructor) production;
-
-		IConstructor skipped = VF.constructor(RascalValueFactory.Production_Skipped, prod.get(0), (IValue) production, VF.integer(dot));
-        return VF.appl(skipped, args.done());
-    }
-		*/
 }
