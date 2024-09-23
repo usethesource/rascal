@@ -130,6 +130,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                if(mloc.extension != "rsc") throw ""; //There is only a tpl file available
             } catch value _:{
                 if(!isCompatibleBinary(tm, domain(localImportsAndExtends), ms)){
                     msg = error("Binary module `qualifiedModuleName` needs recompilation", |unknown:///|);
@@ -295,7 +296,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         for(c <- component){
             iprintln(ms.messages[c]);
         }
-        return ms;
+        //return ms;
     }
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
