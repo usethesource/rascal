@@ -142,10 +142,8 @@ module ParseTree
 extend Type;
 extend Message;
 extend List;
-extend Set;
 
 import String;
-import IO;
 import Node;
 
 @synopsis{The Tree data type as produced by the parser.}
@@ -195,8 +193,9 @@ data Production
      | \reference(Symbol def, str cons) // <5>
      ;
 
-data Production = error(Symbol def, Production prod, int dot)
-     | skipped(Symbol symbol);
+data Production
+     = \error(Symbol def, Production prod, int dot)
+     | \skipped(Symbol symbol);
 
 @synopsis{Attributes in productions.}
 @description{
@@ -400,6 +399,7 @@ catch ParseError(loc l): {
 }
 ```
 }
+
 &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
   = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
@@ -426,8 +426,8 @@ The parse function behaves differently depending of the given keyword parameters
      * `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
                          the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
                          if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
-     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover on a parse error. if a parse error is encountered that can be recovered from, special `skipped` nodes
-                         are included in the resulting parse tree. More documentation will be added here when this feature matures.
+     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
+                         special `error` and `skipped` nodes are included in the resulting parse tree. More documentation will be added here when this feature matures.
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
@@ -774,17 +774,17 @@ bool isNonTerminalType(Symbol::\parameterized-lex(str _, list[Symbol] _)) = true
 bool isNonTerminalType(Symbol::\start(Symbol s)) = isNonTerminalType(s);
 default bool isNonTerminalType(Symbol s) = false;
 
-@synopsis{Check if a parse tree contains any skipped nodes, the result of error recovery.}
+@synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
 bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 
 @synopsis{Find all error productions in a parse tree.}
 list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tree];
 
 @synopsis{Find the first production containing an error.}
-Tree findFirstError(Tree tree) {
-    if (/err:appl(error(_, _, _), _) := tree) return err;
-    fail;
-}
+Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
+
+@synopsis{Find the best error from a tree containing errors. This function will fail if `tree` does not contain an error.}
+Tree findBestError(Tree tree) = findFirstError(defaultErrorDisambiguationFilter(tree));
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
@@ -796,20 +796,16 @@ Production getErrorProduction(appl(error(_, Production prod, _), _)) = prod;
 int getErrorDot(appl(error(_, _, int dot), _)) = dot;
 
 @synopsis{Get the skipped tree}
-Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) {
-  return skip;
-}
+Tree getSkipped(appl(error(_, _, _), [*_, skip:appl(skipped(_), _)])) = skip;
 
 @synopsis{Get the text that failed to parse. This is only the text of the part that has been skipped to be able to continue parsing.
 If you want the text of the whole error tree, you can just use string interpolation: "<error>".
 }
-str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) {
-  return stringChars([c | ch <- chars, char(c) := ch]);
-}
+str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
 
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
-Note that regular ambiguous trees remain in the parse tree.
+Note that regular ambiguous trees remain in the parse forest.
 }
 Tree defaultErrorDisambiguationFilter(t: appl(Production prod, args)) {
   Tree result = appl(prod, [defaultErrorDisambiguationFilter(arg) | arg <- args]);
@@ -820,12 +816,14 @@ Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
   // Go depth-first
   set[Tree] disambiguatedAlts = { defaultErrorDisambiguationFilter(alt) | Tree alt <- alternatives };
 
-  set[Tree] errorTrees = { alt | Tree alt <- disambiguatedAlts, appl(error(_,_,_), _) := alt };
-  set[Tree] nonErrorTrees = { alt | Tree alt <- disambiguatedAlts, appl(error(_,_,_), _) !:= alt };
+  set[Tree] errorTrees = { alt | Tree alt <- disambiguatedAlts, /appl(error(_,_,_), _) := alt };
+  set[Tree] nonErrorTrees = { alt | Tree alt <- disambiguatedAlts, /appl(error(_,_,_), _) !:= alt };
 
   if (nonErrorTrees == {}) {
     return getBestErrorTree(errorTrees);
-  } else if ({Tree single} := nonErrorTrees) {
+  }
+  
+  if ({Tree single} := nonErrorTrees) {
     // One ambiguity left, no ambiguity concerns here
     return single;
   }
@@ -843,6 +841,7 @@ private Tree getBestErrorTree(set[Tree] trees) {
     list[Tree] errors = findAllErrors(tree);
     int errorCount = size(errors);
     int errorLength = 0;
+
     for (err <- errors) {
       errorLength += getSkipped(err).src.length;
     }
