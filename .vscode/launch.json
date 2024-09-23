@@ -38,7 +38,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "cwd" : "${workspaceFolder}/../rascal-tutor",
+            "cwd": "${workspaceFolder}/../rascal-tutor",
             "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {

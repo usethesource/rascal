@@ -55,8 +55,8 @@ public class ProductionAdapter {
 	}
 	
 	public static IConstructor setDefined(IConstructor tree, IConstructor sym) {
-    return (IConstructor) tree.set(0 /*def */, sym);
-  }
+		return (IConstructor) tree.set(0 /*def */, sym);
+    }
 	
 	public static IList getSymbols(IConstructor tree) {
 		if (isDefault(tree)) {
@@ -138,6 +138,10 @@ public class ProductionAdapter {
 	
 	public static boolean isRegular(IConstructor tree) {
 		return tree.getConstructorType() == RascalValueFactory.Production_Regular;
+	}
+	
+	public static boolean isSkipped(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Production_Skipped;
 	}
 
 	public static boolean isSeparatedList(IConstructor tree) {

@@ -27,4 +27,9 @@ public class SortContainerNode<P> extends AbstractContainerNode<P>{
 	public int getTypeIdentifier(){
 		return ID;
 	}
+
+	@Override
+	public String toString() {
+		return "SortContainerNode[" + super.toString() + "]";
+	}
 }

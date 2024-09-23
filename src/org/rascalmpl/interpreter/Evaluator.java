@@ -989,7 +989,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IMap syntaxDefinition = curMod.getSyntaxDefinition();
         IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
         IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
     }
 
     private Result<IValue> evalMore(String command, ISourceLocation location)

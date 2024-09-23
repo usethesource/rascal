@@ -21,7 +21,7 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 	public RecoveryPointStackNode(int id, P parent, AbstractStackNode<P> robustNode){
 		super(id, robustNode, robustNode.startLocation);
 		this.prefixesMap = robustNode.prefixesMap;
-		
+
 		// Modify the production, so it ends 'here'.
 		int productionLength = robustNode.dot + 1;
 		if(productionLength == robustNode.production.length){
@@ -30,27 +30,27 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 			this.production = (AbstractStackNode<P>[]) new AbstractStackNode[productionLength];
 			System.arraycopy(robustNode.production, 0, this.production, 0, productionLength);
 		}
-		
+
 		this.parent = parent;
 		this.name = "recovery " + id;
 		this.edgesMap = robustNode.edgesMap;
 	}
-	
+
 	@Override
 	public P getParentProduction() {
 		return parent;
 	}
-	
+
 	@Override
 	public boolean isRecovered() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isEmptyLeafNode(){
 		return false;
 	}
-	
+
 	@Override
 	public boolean isEndNode() {
 		return true;
@@ -58,41 +58,47 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 
 	@Override
 	public String getName(){
-		return "***robust:" + name + "***";
+		return name;
 	}
-	
+
 	public AbstractNode match(int[] input, int location){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public int getLength(){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public AbstractStackNode<P>[] getChildren(){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public boolean canBeEmpty(){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public AbstractStackNode<P> getEmptyChild(){
 		throw new UnsupportedOperationException();
 	}
-	
+
 	public AbstractNode getResult(){
 		throw new UnsupportedOperationException();
 	}
 
+    @Override
+    public String toShortString() {
+        return name;
+    }
+
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(getName());
@@ -101,19 +107,31 @@ public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{
 		sb.append('(');
 		sb.append(startLocation);
 		sb.append(')');
-		
+
 		return sb.toString();
 	}
-	
+
+	@Override
 	public int hashCode(){
 		return getName().hashCode();
 	}
-	
+
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof RecoveryPointStackNode)) return false;
-		
+
 		RecoveryPointStackNode<P> otherNode = (RecoveryPointStackNode<P>) stackNode;
 
 		return otherNode.name.equals(name) && otherNode.startLocation == startLocation;
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

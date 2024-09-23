@@ -1,6 +1,7 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
@@ -21,7 +22,9 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
-	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+	private static final RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+	private static final IConstructor SKIPPED = VF.constructor(RascalValueFactory.Production_Skipped, VF.constructor(RascalValueFactory.Symbol_IterStar, VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list(VF.constructor(RascalValueFactory.CharRange_Range, VF.integer(1), VF.integer(Character.MAX_CODE_POINT))))));
+
 	private boolean allowAmb;
 	
 	public UPTRNodeFactory(boolean allowAmbiguity){
@@ -141,7 +144,15 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 	}
 
     @Override
-    public ITree createRecoveryNode(int[] characters) {
-       throw new UnsupportedOperationException(); 
-    }
+    public ITree createSkippedNode(int[] characters) {
+        IList chars = Arrays.stream(characters).mapToObj(VF::character).collect(VF.listWriter());
+        return VF.appl(SKIPPED, chars);
+	}
+
+	public ITree createErrorNode(ArrayList<ITree> children, Object production) {
+		IConstructor prod = (IConstructor) production;
+		IConstructor errorProd = VF.constructor(RascalValueFactory.Production_Error, prod.get(0), prod, VF.integer(children.size()-1));
+		return buildAppl(children, errorProd);
+	}
+
 }
