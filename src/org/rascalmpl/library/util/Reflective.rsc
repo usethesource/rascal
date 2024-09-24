@@ -110,9 +110,6 @@ PathConfig applyManifests(PathConfig cfg) {
    cfg.libs = [*expandlibs(p) | p <- cfg.libs];
    cfg.bin  = expandBin(cfg.bin);
    
-   // TODO: here we add features for Require-Libs by searching in a repository of installed
-   // jars. This has to be resolved recursively.
-   
    return cfg;
 }
 
@@ -397,7 +394,6 @@ private str rascalMF(str name)
   = "Manifest-Version: 0.0.1
     'Project-Name: <name>
     'Source: src/main/rascal
-    'Require-Libraries: 
     ";
 
 private str pomXml(str name, str group, str version)  
