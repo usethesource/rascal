@@ -815,7 +815,7 @@ public class PathConfig {
 	        throw new IOException("Not a Rascal source file: " + moduleLoc);
 	    }
 
-	    if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("lib")) {
+	    if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("mvn")) {
             return pathToModulename(modulePath, "/");
 	    }
 
@@ -840,7 +840,7 @@ public class PathConfig {
         if(moduleName.startsWith("/")){
             moduleName = moduleName.substring(1, moduleName.length());
         }
-        return moduleName.replace("/", "::");
+        return moduleName.replace(Configuration.RASCAL_PATH_SEP, Configuration.RASCAL_MODULE_SEP);
     }
 
 	private String moduleToDir(String module) {
@@ -852,7 +852,7 @@ public class PathConfig {
     }
 
 	public List<String> listModuleEntries(String moduleRoot) {
-        assert !moduleRoot.endsWith("::");
+        assert !moduleRoot.endsWith(Configuration.RASCAL_MODULE_SEP);
         final URIResolverRegistry reg = URIResolverRegistry.getInstance();
         try {
             String modulePath = moduleToDir(moduleRoot);
@@ -871,7 +871,7 @@ public class PathConfig {
                             }
                             else if (module.indexOf('.') == -1 && reg.isDirectory(getFullURI(module, full))) {
                                 // a sub folder path
-                                result.add(module + "::");
+                                result.add(module + Configuration.RASCAL_MODULE_SEP);
                             }
                         }
                     }
