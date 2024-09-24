@@ -177,7 +177,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
         }
         else {
             // the authority encodes the group, name and version of a maven dependency
-            // org.rascalmpl.rascal-34.2.0-RC2
+            // org.rascalmpl--rascal--34.2.0-RC2
             var m = authorityRegEx.matcher(authority);
 
             if (m.matches()) {
