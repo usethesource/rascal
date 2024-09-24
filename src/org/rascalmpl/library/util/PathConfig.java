@@ -62,7 +62,7 @@ public class PathConfig {
 	private static final List<ISourceLocation> defaultIgnores = Collections.emptyList();
 	private static final ISourceLocation defaultGeneratedSources = URIUtil.rootLocation("unknown");
 	private static final List<IConstructor> defaultMessages = Collections.emptyList();
-	private static final ISourceLocation defaultBin = URIUtil.rootLocation("unknown");
+	private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
     
     /** implementation detail of communicating with the `mvn` command */

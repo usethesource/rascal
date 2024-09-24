@@ -172,21 +172,11 @@ public class URIUtil {
 			String path) throws URISyntaxException {
 		return vf.sourceLocation(scheme, authority, path);
 	}
-
-	private static final URI invalidURI = URI.create("unknown:///");
 	
-	/**
-	 * Returns an URI which cannot be read/write to.
-	 * @return
-	 */
-	public static URI invalidURI() {
-		return invalidURI;
-	}
+	private static final ISourceLocation unknownLocation = rootLocation("unknown");
 	
-	private static final ISourceLocation invalidLocation = vf.sourceLocation(invalidURI);
-	
-	public static ISourceLocation invalidLocation() {
-		return invalidLocation;
+	public static ISourceLocation unknownLocation() {
+		return unknownLocation;
 	}
 	
 	/**

@@ -500,7 +500,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         protected IValue firstAmbiguity(String methodName, IString input) {
             try {
-                return parseObject(methodName, URIUtil.invalidLocation(), input.getValue().toCharArray(), false, false, vf.set());
+                return parseObject(methodName, URIUtil.unknownLocation(), input.getValue().toCharArray(), false, false, vf.set());
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
