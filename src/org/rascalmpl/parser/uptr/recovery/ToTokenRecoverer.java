@@ -20,17 +20,14 @@ import java.util.Set;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
-import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.gtd.stack.OptionalStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
 import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.StackNodeVisitorAdapter;
@@ -49,6 +46,8 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import io.usethesource.vallang.IConstructor;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
+    private static final boolean VISUALIZE_RECOVERY_NODES = false;
+    
     private URI uri;
     private IdDispenser stackNodeIdDispenser;
     private ExpectsProvider<IConstructor> expectsProvider;
@@ -84,8 +83,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
         recoveryNodes
             .sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
-        ParseStateVisualizer visualizer = new ParseStateVisualizer("Recovery");
-        visualizer.visualizeRecoveryNodes(recoveryNodes);
+        if (VISUALIZE_RECOVERY_NODES) {
+            ParseStateVisualizer visualizer = new ParseStateVisualizer("Recovery");
+            visualizer.visualizeRecoveryNodes(recoveryNodes);
+        }
 
         for (int i = 0; i < recoveryNodes.size(); i++) {
             AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
