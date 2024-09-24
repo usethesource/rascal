@@ -1,9 +1,16 @@
+
+@bootstrapParser
 module lang::rascal::tests::concrete::recovery::RecoveryTestSupport
 
+import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import String;
 import IO;
 import util::Benchmark;
+import Grammar;
+
+import lang::rascal::grammar::definition::Modules;
+
 
 public data TestStats = testStats(int totalAttempts=0, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, list[tuple[loc,int]] slowParses = []);
 
@@ -94,7 +101,27 @@ void printStats(TestStats stats) {
     }
 }
 
-void testRecovery(type[&T] grammar, loc input) {
-    TestStats stats = testSingleCharDeletions(grammar, readFile(input));
-    printStats(stats);
+private str syntaxLocToModuleName(loc syntaxFile) {
+    str path = replaceLast(substring(syntaxFile.path, 1), ".rsc", "");
+    return replaceAll(path, "/", "::");
+}
+
+loc zippedFile(str zip, str path) {
+    loc res = getResource("m3/snakes-and-ladders-project-source.zip");
+    loc zipFile = res[scheme="jar+<res.scheme>"][path=res.path + "!/"];
+    return zipFile + path;
+}
+
+void testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
+    Module \module = parse(#start[Module], syntaxFile).top;
+    str modName = syntaxLocToModuleName(syntaxFile);
+    gram = modules2grammar(modName, {\module});
+
+    if (sym:\start(\sort(topSort)) <- gram.starts) {
+        println("Error recovery of <syntaxFile> (<topSort>) on <testInput>:");
+        TestStats stats = testSingleCharDeletions(type(sym, gram.rules), readFile(testInput));
+        printStats(stats);
+    } else {
+        println("Cannot find top sort <topSort> in <gram>");
+    }
 }
