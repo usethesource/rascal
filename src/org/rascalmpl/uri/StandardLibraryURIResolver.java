@@ -38,7 +38,7 @@ public class StandardLibraryURIResolver implements ILogicalSourceLocationResolve
         }
         catch (IOException e) {
             // this will be reported elsewhere in PathConfig.messages - 
-            return null;
+            return URIUtil.unknownLocation();
         }
     }
 
