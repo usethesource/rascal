@@ -81,6 +81,15 @@ public class Reflective {
 	    return values.string(RascalManifest.getRascalVersionNumber());
 	}
 	
+	public ISourceLocation resolveDependencyFromResourcesOnCurrentClasspath(IString projectName) {
+		try {
+			return PathConfig.resolveDependencyFromResourcesOnCurrentClasspath(projectName.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
 	public IString getLineSeparator() {
         return values.string(System.lineSeparator());
     }
