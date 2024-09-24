@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,6 +33,9 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -137,15 +141,6 @@ public class PathConfig {
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, ISourceLocation generatedSources, IList messages) {
-        this.srcs = initializeLocList(srcs);
-        this.libs = initializeLocList(libs);
-        this.bin = bin;
-        this.ignores = initializeLocList(ignores);
-        this.generatedSources = generatedSources;
-        this.messages = convertMessages(messages);
-    }
-	
-    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, ISourceLocation generatedSources, IList messages, ISourceLocation repo) {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
@@ -400,6 +395,36 @@ public class PathConfig {
 
         return current;
     }
+
+    public PathConfig parse(String pathConfigString) throws IOException {
+        try {
+            IConstructor cons = (IConstructor) new StandardTextReader().read(vf, store, PathConfigType, new StringReader(pathConfigString));
+            IWithKeywordParameters<?> kwp = cons.asWithKeywordParameters();
+
+            IList srcs = (IList) kwp.getParameter("srcs");
+            IList libs =  (IList) kwp.getParameter("libs");
+            IList ignores = (IList) kwp.getParameter("ignores");
+            ISourceLocation generated = (ISourceLocation) kwp.getParameter("generatedSources");
+            IList messages = (IList) kwp.getParameter("message");
+
+            ISourceLocation bin = (ISourceLocation) kwp.getParameter("bin");
+
+            PathConfig pcfg = new PathConfig(
+                srcs != null ? srcs : vf.list(), 
+                libs != null ? libs : vf.list(),
+                bin != null ? bin : URIUtil.rootLocation("cwd"),
+                ignores != null ? ignores : vf.list(),
+                generated != null ? generated : null,
+                messages != null ? messages : vf.list()
+            );
+
+            return pcfg;
+        } 
+        catch (FactTypeUseException e) {
+            throw new IOException(e);
+        }
+    }
+
 	/**
 	 * This creates a PathConfig instance by learning from the `MANIFEST/RASCAL.MF` file where the sources
      * are, and from `pom.xml` which libraries to reference. If this PathConfig is
