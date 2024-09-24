@@ -79,6 +79,8 @@ import io.usethesource.vallang.ISourceLocation;
  * idea; but there is currently no way to register read-only logical schemes.
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
+    private static String localRepoLocationCache;
+
     private final Pattern authorityRegEx 
         = Pattern.compile("^([a-zA-Z0-9-_.]+?)[!]([a-zA-Z0-9-_.]+)([!][a-zA-Z0-9\\-_.]+)$");
     //                               groupId         !  artifactId      ! optionAlComplexVersionString
@@ -113,7 +115,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             // note that since it does not exist this will make all downstream resolutions fail
             // to "file does not exist"
         }
-        
+
         return m2HomeFolder;
     }
 
@@ -132,9 +134,14 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
     /**
      * This (slow) code runs only if the ~/.m2 folder does not exist and nobody -D'ed its location either.
      * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
-     * get a quick enough answer most of the time.
+     * get a quick enough answer most of the time. It caches its result to make sure repeated calls
+     * to here are faster than the first.
      */
     private static String getLocalRepositoryLocationFromMavenCommand() {
+        if (localRepoLocationCache != null) {
+            return localRepoLocationCache;
+        }
+        
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(computeMavenCommandName(), 
                 "-q", 
@@ -150,7 +157,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             }
             
             try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                return reader.lines().collect(Collectors.joining()).trim(); 
+                return (localRepoLocationCache = reader.lines().collect(Collectors.joining()).trim()); 
             }
         }
         catch (IOException | InterruptedException e) {
@@ -158,7 +165,6 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             return null;
         }
     }
-
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
