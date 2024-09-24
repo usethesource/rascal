@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Manifest;
 
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -808,6 +809,85 @@ public class PathConfig {
 		return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
 	}
 	
+    public String getModuleName(ISourceLocation moduleLoc) throws IOException{
+	    String modulePath = moduleLoc.getPath();
+	    if(!modulePath.endsWith(".rsc")){
+	        throw new IOException("Not a Rascal source file: " + moduleLoc);
+	    }
+
+	    if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("lib")) {
+            return pathToModulename(modulePath, "/");
+	    }
+
+	    for(ISourceLocation dir : srcs){
+	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+	            return pathToModulename(modulePath, dir.getPath());
+	        }
+	    }
+
+	    for (ISourceLocation dir : libs) {
+	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+                return pathToModulename(modulePath, dir.getPath());
+            }
+	    }
+
+	    throw new IOException("No module name found for " + moduleLoc + "\n" + this);
+
+	}
+
+    private String pathToModulename(String modulePath, String folder) {
+        String moduleName = modulePath.replaceFirst(folder, "").replace(".rsc", "");
+        if(moduleName.startsWith("/")){
+            moduleName = moduleName.substring(1, moduleName.length());
+        }
+        return moduleName.replace("/", "::");
+    }
+
+	private String moduleToDir(String module) {
+        return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+    }
+
+    private ISourceLocation getFullURI(String path, ISourceLocation dir) throws URISyntaxException {
+        return URIUtil.getChildLocation(dir, path);
+    }
+
+	public List<String> listModuleEntries(String moduleRoot) {
+        assert !moduleRoot.endsWith("::");
+        final URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        try {
+            String modulePath = moduleToDir(moduleRoot);
+            List<String> result = new ArrayList<>();
+            for (ISourceLocation dir : srcs) {
+                ISourceLocation full = getFullURI(modulePath, dir);
+                if (reg.exists(full)) {
+                    try {
+                        String[] entries = reg.listEntries(full);
+                        if (entries == null) {
+                            continue;
+                        }
+                        for (String module: entries ) {
+                            if (module.endsWith(Configuration.RASCAL_FILE_EXT)) {
+                                result.add(module.substring(0, module.length() - Configuration.RASCAL_FILE_EXT.length()));
+                            }
+                            else if (module.indexOf('.') == -1 && reg.isDirectory(getFullURI(module, full))) {
+                                // a sub folder path
+                                result.add(module + "::");
+                            }
+                        }
+                    }
+                    catch (IOException e) {
+                    }
+                }
+            }
+            if (result.size() > 0) {
+                return result;
+            }
+            return null;
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+    
     /**
      * Convert PathConfig Java object to pathConfig Rascal constructor for use
      * in Rascal code or for serialization and printing.
