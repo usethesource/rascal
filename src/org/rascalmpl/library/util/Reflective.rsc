@@ -52,6 +52,7 @@ transparantly. A PathConfig is also a log of the configuration process.
 * `ignores` list of directories and files to not compile or not interpret (these are typically subtracted from the `srcs` tree, or skipped when the compiler arives there.)
 * `bin` is the target root directory for the output of a compiler. Typically this directory would be linked into a zip or a jar or an executable file later.
 * `libs` is a list of binary dependency files (typically jar files or target folders) on other projects, for checking and linking purposes.
+* `generatedSources` is where generated (intermediate) source code that has to be compiled further is located.
 * `messages` is a list of info, warning and error messages informing end-users about the quality of the configuration process. Typically missing dependencies would be reported here, and clashing versions.
 }
 data PathConfig 
@@ -88,7 +89,23 @@ data JavaBundleManifest
       list[str] \Bundle-ClassPath = [],
       list[str] \Import-Package = [] 
     );
-          
+
+@synopsis{Makes the location of a jar file explicit, based on the project name}
+@description{
+The classpath of the current JVM is searched and jar files are searched that contain
+META-INF/MANIFEST.MF file that match the given `projectName`.
+}
+@benefits{
+* The classpath is not used implicitly in this way, but rather explicitly. This helps
+in making configuration issues tractable.
+* The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
+}
+@javaClass{org.rascalmpl.library.util.Reflective}
+java loc resolveDependencyFromResourcesOnCurrentClasspath(str projectName);
+
+@synopsis{Makes the location of the currently running rascal jar explicit.}
+loc resolvedCurrentRascalJar() = resolveDependencyFromResourcesOnCurrentClasspath("rascal");
+
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
 @synopsis{Converts a PathConfig and replaces all references to roots of projects or bundles
