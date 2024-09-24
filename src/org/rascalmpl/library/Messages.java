@@ -116,14 +116,15 @@ public class Messages {
                 line = loc.getBeginLine();
             }
 
-            String output
-            = loc.getPath()
-            + ":"
-            + String.format("%0" + lineWidth + "d", line)
-            + ":"
-            + String.format("%0" + colWidth + "d", col)
-            + ": "
-            + ((IString) msg.get("msg")).getValue();
+            String output 
+                = loc.getPath()
+                + ":"
+                + String.format("%0" + lineWidth + "d", line)
+                + ":"
+                + String.format("%0" + colWidth + "d", col)
+                + ": "
+                + ((IString) msg.get("msg")).getValue()
+            ;
 
             if (isError) {
                 out.println("[ERROR]   " + output);
