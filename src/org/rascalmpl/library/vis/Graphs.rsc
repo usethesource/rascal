@@ -336,7 +336,7 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         CytoLayoutName name = CytoLayoutName::breadthfirst(),
         num spacingFactor= 1,
         list[str] roots = [],
-        bool circle=faculse,
+        bool circle=false,
         bool grid=!circle,
         bool directed=false
     )
