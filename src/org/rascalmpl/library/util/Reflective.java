@@ -81,7 +81,7 @@ public class Reflective {
 	    return values.string(RascalManifest.getRascalVersionNumber());
 	}
 	
-	public ISourceLocation resolveDependencyFromResourcesOnCurrentClasspath(IString projectName) {
+	public ISourceLocation resolveProjectOnClasspath(IString projectName) {
 		try {
 			return PathConfig.resolveDependencyFromResourcesOnCurrentClasspath(projectName.getValue());
 		}
