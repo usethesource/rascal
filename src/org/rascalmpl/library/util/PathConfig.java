@@ -437,7 +437,7 @@ public class PathConfig {
      * some level of backward compatibility until everybody has moved to using pom.xml.
      * 
      * If library dependencies exist for _open_ projects in the same IDE, via the `project://<artifactId>`
-     * correspondence with `mvn://<groupId>!<artifactId>!<version>`, then the target and source folders of 
+     * correspondence with `mvn://<groupId>~<artifactId>~<version>`, then the target and source folders of 
      * those projects are added to the configuration instead of the jar files.
      * For compiler configs this works differently than for interpreter configs.
      * The latter adds source folders to the `srcs` while the former adds target folders to the `libs`.
