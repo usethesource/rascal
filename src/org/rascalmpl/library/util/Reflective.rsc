@@ -90,20 +90,22 @@ data JavaBundleManifest
       list[str] \Import-Package = [] 
     );
 
-@synopsis{Makes the location of a jar file explicit, based on the project name}
-@description{
-The classpath of the current JVM is searched and jar files are searched that contain
-META-INF/MANIFEST.MF file that match the given `projectName`.
-}
-@benefits{
-* The classpath is not used implicitly in this way, but rather explicitly. This helps
-in making configuration issues tractable.
-* The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
-}
-@javaClass{org.rascalmpl.library.util.Reflective}
-java loc resolveDependencyFromResourcesOnCurrentClasspath(str projectName);
+// @synopsis{Makes the location of a jar file explicit, based on the project name}
+// @description{
+// The classpath of the current JVM is searched and jar files are searched that contain
+// META-INF/MANIFEST.MF file that match the given `projectName`.
+// }
+// @benefits{
+// * This is typically used to link bootstrap libraries such as rascal.jar and rascal-lsp.jar
+// into testing ((PathConfig))s.
+// * The classpath is not used implicitly in this way, but rather explicitly. This helps
+// in making configuration issues tractable.
+// * The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
+// }
+// @javaClass{org.rascalmpl.library.util.Reflective}
+java loc resolveProjectOnClasspath(str projectName);
 
-@synopsis{Makes the location of the currently running rascal jar explicit.}
+// @synopsis{Makes the location of the currently running rascal jar explicit.}
 loc resolvedCurrentRascalJar() = resolveDependencyFromResourcesOnCurrentClasspath("rascal");
 
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
