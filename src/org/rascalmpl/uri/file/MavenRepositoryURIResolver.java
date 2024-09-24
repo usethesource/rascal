@@ -18,9 +18,9 @@ import io.usethesource.vallang.ISourceLocation;
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
  * For a discussion REMOTE repositories see below.
  * 
- * We use `mvn://<groupid>~<name>~<version>/<path-inside-jar>` as the general scheme;
- * also `mvn://<groupid>~<name>~<version>/~/<path-inside-jar>` is allowed to make sure the
- * root `mvn://<groupid>~<name>~<version>/` remains a jar file unambiguously.
+ * We use `mvn://<groupid>--<name>--<version>/<path-inside-jar>` as the general scheme;
+ * also `mvn://<groupid>--<name>--<version>/!/<path-inside-jar>` is allowed to make sure the
+ * root `mvn://<groupid>--<name>--<version>/` remains a jar file unambiguously.
  * 
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file. This is analogous to other schemes for projects
@@ -30,7 +30,7 @@ import io.usethesource.vallang.ISourceLocation;
  * Here `version` is an arbitrary string with lots of numbers, dots, dashed and underscores.
  * Typically we'd expect the semantic versioning scheme here with some release tag, but
  * real maven projects frequently do not adhere to that standard. Hence we have to be "free"
- * here and allow lots of funny version strings. This is also why we use ~ again to separate
+ * here and allow lots of funny version strings. This is also why we use -- to separate
  * the version from the artifactId.
  * 
  * Locations with the `mvn` scheme are typically produced by configuration code that uses 
@@ -82,8 +82,8 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
     private static String localRepoLocationCache;
 
     private final Pattern authorityRegEx 
-        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[~]([a-zA-Z0-9-_.]+)([~][a-zA-Z0-9\\-_.]+)$");
-    //                               groupId         ~  artifactId      ~ optionAlComplexVersionString
+        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[-][-]([a-zA-Z0-9-_.]+)([-][-][a-zA-Z0-9\\-_.]+)$");
+    //                               groupId         --  artifactId      -- optionAlComplexVersionString
 
     public MavenRepositoryURIResolver() throws IOException {
         super("mvn", inferMavenRepositoryLocation());
@@ -227,7 +227,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
     }
 
     public static ISourceLocation make(String groupId, String artifactId, String version, String path) {
-        return URIUtil.correctLocation("mvn", groupId + "~" + artifactId + "~" + version, path);
+        return URIUtil.correctLocation("mvn", groupId + "--" + artifactId + "--" + version, path);
     }
 
     /** 
