@@ -592,8 +592,10 @@ public class PathConfig {
                 messages.append(Messages.error("Project-Name in RASCAL.MF (" + projectName + ") should be equal to folder name (" + URIUtil.getLocationName(manifestRoot) + ")", getRascalMfLocation(manifestRoot)));
             }
 
-            if (!manifest.getRequiredLibraries(manifestRoot).isEmpty()) {
-                messages.append(Messages.info("Required-Libraries in RASCAL.MF are not used anymore. Please use Maven dependencies in pom.xml.", getRascalMfLocation(manifestRoot)));
+            try (InputStream mfi = manifest.manifest(manifestRoot)) {
+                if (!new Manifest(mfi).getMainAttributes().getValue("Require-Libraries").isEmpty()) {
+                    messages.append(Messages.info("Require-Libraries in RASCAL.MF are not used anymore. Please use Maven dependencies in pom.xml.", getRascalMfLocation(manifestRoot)));
+                }
             }
         }
         catch (IOException e) {
