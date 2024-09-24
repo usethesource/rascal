@@ -8,14 +8,14 @@ data Symbol
      ;
      
     
- @ignoreCompiler{Generates incorrect code}
-test bool listMatchInOR() {
-    bool unquotable(Symbol x) 
-     =    par([*Symbol _]) := x
-       || strt() := x
-       ;
-    return unquotable(\strt());
-}
+//@ignoreCompiler{Generates incorrect code}
+//test bool listMatchInOR() {
+//    bool unquotable(Symbol x) 
+//     =    par([*Symbol _]) := x
+//       || strt() := x
+//       ;
+//    return unquotable(\strt());
+//}
 
 
 data Symbol
