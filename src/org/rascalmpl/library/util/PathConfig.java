@@ -337,7 +337,7 @@ public class PathConfig {
      * Pitfall: Note however that the current JVM instance can never escape
      * from loading classes from the rascal.jar that was given on its classpath.
      */
-    public static ISourceLocation resolveDependencyFromResourcesOnCurrentClasspath(String projectName) throws IOException {
+    public static ISourceLocation resolveProjectOnClasspath(String projectName) throws IOException {
         RascalManifest mf = new RascalManifest();
         Enumeration<URL> mfs = PathConfig.class.getClassLoader().getResources(RascalManifest.META_INF_RASCAL_MF);
 
@@ -375,7 +375,7 @@ public class PathConfig {
     }
 
     public static ISourceLocation resolveCurrentRascalRuntimeJar() throws IOException {
-        return resolveDependencyFromResourcesOnCurrentClasspath("rascal");
+        return resolveProjectOnClasspath("rascal");
     }
 
     private static ISourceLocation inferProjectRoot(ISourceLocation member) {
@@ -515,7 +515,7 @@ public class PathConfig {
                 // IDE features like "jump-to-definition" could be off.
                 if (libProjectName.equals("rascal-lsp")) {
                     try {
-                        var loadedRascalLsp = resolveDependencyFromResourcesOnCurrentClasspath("rascal-lsp");
+                        var loadedRascalLsp = resolveProjectOnClasspath("rascal-lsp");
 
                         try (InputStream in = reg.getInputStream(loadedRascalLsp); InputStream in2 = reg.getInputStream(dep)) {
                             var version = new Manifest(in).getMainAttributes().getValue("Specification-Version");
