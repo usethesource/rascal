@@ -83,7 +83,7 @@ public class Reflective {
 	
 	public ISourceLocation resolveProjectOnClasspath(IString projectName) {
 		try {
-			return PathConfig.resolveDependencyFromResourcesOnCurrentClasspath(projectName.getValue());
+			return PathConfig.resolveProjectOnClasspath(projectName.getValue());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
