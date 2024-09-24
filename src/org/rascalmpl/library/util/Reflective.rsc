@@ -102,7 +102,7 @@ data JavaBundleManifest
 // in making configuration issues tractable.
 // * The resulting `loc` value can be used to configure a ((PathConfig)) instance directly.
 // }
-// @javaClass{org.rascalmpl.library.util.Reflective}
+@javaClass{org.rascalmpl.library.util.Reflective}
 java loc resolveProjectOnClasspath(str projectName);
 
 // @synopsis{Makes the location of the currently running rascal jar explicit.}
