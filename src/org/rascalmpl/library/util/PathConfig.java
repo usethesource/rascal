@@ -42,45 +42,45 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class PathConfig {
-	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private final TypeFactory tf = TypeFactory.getInstance();
-	private final TypeStore store = new TypeStore();
-	
-	// WARNING: these definitions must reflect the definitions in `util::Reflective`
-	private final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
-	private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
-	
-	private final List<ISourceLocation> srcs;		
-	private final List<ISourceLocation> libs;     
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private final TypeFactory tf = TypeFactory.getInstance();
+    private final TypeStore store = new TypeStore();
+    
+    // WARNING: these definitions must reflect the definitions in `util::Reflective`
+    private final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
+    private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+    
+    private final List<ISourceLocation> srcs;		
+    private final List<ISourceLocation> libs;     
     private final ISourceLocation bin;  
-	private final List<ISourceLocation> ignores; 	
-	private final ISourceLocation generatedSources;     
-	private final List<IConstructor> messages;     
-	
+    private final List<ISourceLocation> ignores; 	
+    private final ISourceLocation generatedSources;     
+    private final List<IConstructor> messages;     
+    
 
-	// defaults are shared here because they occur in different use places.
-	private static final List<ISourceLocation> defaultIgnores = Collections.emptyList();
-	private static final ISourceLocation defaultGeneratedSources = URIUtil.rootLocation("unknown");
-	private static final List<IConstructor> defaultMessages = Collections.emptyList();
-	private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
+    // defaults are shared here because they occur in different use places.
+    private static final List<ISourceLocation> defaultIgnores = Collections.emptyList();
+    private static final ISourceLocation defaultGeneratedSources = URIUtil.unknownLocation();
+    private static final List<IConstructor> defaultMessages = Collections.emptyList();
+    private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
     
     /** implementation detail of communicating with the `mvn` command */
     private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
 
-	public static enum RascalConfigMode {
+    public static enum RascalConfigMode {
         INTERPRETER,
         COMPILER
     }
-	
-	public PathConfig() {
-		srcs = Collections.emptyList();
-		ignores = defaultIgnores;
-		bin = defaultBin;
-		libs = Collections.emptyList();
-		generatedSources = defaultGeneratedSources;
-		messages = defaultMessages;
-	}
+    
+    public PathConfig() {
+        srcs = Collections.emptyList();
+        ignores = defaultIgnores;
+        bin = defaultBin;
+        libs = Collections.emptyList();
+        generatedSources = defaultGeneratedSources;
+        messages = defaultMessages;
+    }
 
     public PathConfig(IConstructor pcfg) throws IOException {
         this(
@@ -94,26 +94,26 @@ public class PathConfig {
     }
 
     public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
-		this(srcs, libs, bin, defaultIgnores);
-	}
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores) {
-	    this(srcs, libs, bin, ignores, defaultGeneratedSources);
-	}
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, ISourceLocation generatedSources) {
+        this(srcs, libs, bin, defaultIgnores);
+    }
+    
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores) {
+        this(srcs, libs, bin, ignores, defaultGeneratedSources);
+    }
+    
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, ISourceLocation generatedSources) {
         this(srcs, libs, bin, ignores, generatedSources, defaultMessages);
     }
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, ISourceLocation generatedSources, List<IConstructor> messages) {
-		this.srcs = dedup(srcs);
-		this.ignores = dedup(ignores);
-		this.libs = dedup(libs);
-		this.bin = bin;
-		this.generatedSources = generatedSources;
-		this.messages = messages;
-	}
-	
+    
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> ignores, ISourceLocation generatedSources, List<IConstructor> messages) {
+        this.srcs = dedup(srcs);
+        this.ignores = dedup(ignores);
+        this.libs = dedup(libs);
+        this.bin = bin;
+        this.generatedSources = generatedSources;
+        this.messages = messages;
+    }
+    
     public PathConfig(IList srcs, IList libs, ISourceLocation bin) {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
@@ -122,8 +122,8 @@ public class PathConfig {
         this.generatedSources = defaultGeneratedSources;
         this.messages = defaultMessages;
     }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores) {
+    
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores) {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
@@ -131,8 +131,8 @@ public class PathConfig {
         this.generatedSources = defaultGeneratedSources;
         this.messages = defaultMessages;
     }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, ISourceLocation generatedSources) {
+    
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, ISourceLocation generatedSources) {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
@@ -140,8 +140,8 @@ public class PathConfig {
         this.generatedSources = generatedSources;
         this.messages = defaultMessages;
     }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, ISourceLocation generatedSources, IList messages) {
+    
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList ignores, ISourceLocation generatedSources, IList messages) {
         this.srcs = initializeLocList(srcs);
         this.libs = initializeLocList(libs);
         this.bin = bin;
@@ -196,111 +196,111 @@ public class PathConfig {
         
         return filtered;
     }
-	
-	private static List<ISourceLocation> convertLocs(IList locs){
-		List<ISourceLocation> result = new ArrayList<>();
-		for(IValue p : locs){
-			if(p instanceof ISourceLocation){
-				result.add((ISourceLocation) p);
-			} else {
-				throw new RuntimeException("Path should contain source locations and not " + p.getClass().getName());
-			}
-		}
-		
-		return result;
-	}
+    
+    private static List<ISourceLocation> convertLocs(IList locs){
+        List<ISourceLocation> result = new ArrayList<>();
+        for(IValue p : locs){
+            if(p instanceof ISourceLocation){
+                result.add((ISourceLocation) p);
+            } else {
+                throw new RuntimeException("Path should contain source locations and not " + p.getClass().getName());
+            }
+        }
+        
+        return result;
+    }
 
     private static List<IConstructor> convertMessages(IList locs){
-		List<IConstructor> result = new ArrayList<>();
-		for(IValue p : locs){
-			if(p instanceof IConstructor){
-				result.add((IConstructor) p);
-			} else {
-				throw new RuntimeException("Messages should contain message constructors and not " + p.getClass().getName());
-			}
-		}
-		
-		return result;
-	}
-	
-	String makeFileName(String qualifiedModuleName) {
-		return makeFileName(qualifiedModuleName, "rsc");
-	}
-	
-	public static ISourceLocation getDefaultBin(){
+        List<IConstructor> result = new ArrayList<>();
+        for(IValue p : locs){
+            if(p instanceof IConstructor){
+                result.add((IConstructor) p);
+            } else {
+                throw new RuntimeException("Messages should contain message constructors and not " + p.getClass().getName());
+            }
+        }
+        
+        return result;
+    }
+    
+    String makeFileName(String qualifiedModuleName) {
+        return makeFileName(qualifiedModuleName, "rsc");
+    }
+    
+    public static ISourceLocation getDefaultBin(){
         return defaultBin;
     }
-	
-	public static ISourceLocation getDefaultGeneratedSources() {
-	    return defaultGeneratedSources;
-	}
+    
+    public static ISourceLocation getDefaultGeneratedSources() {
+        return defaultGeneratedSources;
+    }
 
-	public static IList getDefaultIgnoresList() {
-	    return convertLocs(defaultIgnores);
-	}
-	
-	private static IList convertLocs(List<ISourceLocation> locs) {
-	    IListWriter w = vf.listWriter();
-	    w.appendAll(locs);
-	    return w.done();
+    public static IList getDefaultIgnoresList() {
+        return convertLocs(defaultIgnores);
+    }
+    
+    private static IList convertLocs(List<ISourceLocation> locs) {
+        IListWriter w = vf.listWriter();
+        w.appendAll(locs);
+        return w.done();
     }
 
     public static List<ISourceLocation> getDefaultIgnores(){
-	    return  Collections.unmodifiableList(defaultIgnores);
-	}
-	
-	public IValueFactory getValueFactory() {
-	    return vf;
-	}
-	
-	public IList getSrcs() {
-	    return vf.list(srcs.toArray(new IValue[0]));
-	}
-	
-	public ISourceLocation getGeneratedSources() {
-	    return generatedSources;
-	}
-	
-	public IList getMessages() {
-	    return vf.list(messages.toArray(new IValue[messages.size()]));
-	}
-	
-	public PathConfig addSourceLoc(ISourceLocation dir) throws IOException {
-		List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
-		extendedsrcs.add(dir);
-		return new PathConfig(extendedsrcs, libs, bin, ignores, generatedSources, messages);
-	}
-	
+        return  Collections.unmodifiableList(defaultIgnores);
+    }
+    
+    public IValueFactory getValueFactory() {
+        return vf;
+    }
+    
+    public IList getSrcs() {
+        return vf.list(srcs.toArray(new IValue[0]));
+    }
+    
+    public ISourceLocation getGeneratedSources() {
+        return generatedSources;
+    }
+    
+    public IList getMessages() {
+        return vf.list(messages.toArray(new IValue[messages.size()]));
+    }
+    
+    public PathConfig addSourceLoc(ISourceLocation dir) throws IOException {
+        List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
+        extendedsrcs.add(dir);
+        return new PathConfig(extendedsrcs, libs, bin, ignores, generatedSources, messages);
+    }
+    
     public PathConfig setGeneratedSources(ISourceLocation dir) throws IOException {
         return new PathConfig(srcs, libs, bin, ignores, dir, messages);
     }
-	
-	public IList getIgnores() {
-	    return vf.list(ignores.toArray(new IValue[0]));
-	}
-	
-	public PathConfig addIgnoreLoc(ISourceLocation dir) throws IOException {
-		List<ISourceLocation> extendedignores = new ArrayList<ISourceLocation>(ignores);
-		extendedignores.add(dir);
-		return new PathConfig(srcs, libs, bin, extendedignores, generatedSources, messages);
-	}
-	
-	public IList getLibs() {
+    
+    public IList getIgnores() {
+        return vf.list(ignores.toArray(new IValue[0]));
+    }
+    
+    public PathConfig addIgnoreLoc(ISourceLocation dir) throws IOException {
+        List<ISourceLocation> extendedignores = new ArrayList<ISourceLocation>(ignores);
+        extendedignores.add(dir);
+        return new PathConfig(srcs, libs, bin, extendedignores, generatedSources, messages);
+    }
+    
+    public IList getLibs() {
         return vf.list(libs.toArray(new IValue[0]));
     }
 
     public IList getLibsAndTarget() {
         return getLibs().append(getBin());
     }
-	
-	public PathConfig addLibLoc(ISourceLocation dir) throws IOException {
-		List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
-		extendedlibs.add(dir);
-		return new PathConfig(srcs, extendedlibs, bin, ignores, generatedSources, messages);
-	}
-	
+    
+    public PathConfig addLibLoc(ISourceLocation dir) throws IOException {
+        List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
+        extendedlibs.add(dir);
+        return new PathConfig(srcs, extendedlibs, bin, ignores, generatedSources, messages);
+    }
+    
     /**
-	 * This will create a PathConfig by learning from the MANIFEST/RASCAL.MF file where the sources
+     * This will create a PathConfig by learning from the MANIFEST/RASCAL.MF file where the sources
      * are, which libraries to reference and which classpath entries to add. If this PathConfig is
      * for the interpreter it adds more folders to the source path than if its for the compiler.
      * 
@@ -308,12 +308,12 @@ public class PathConfig {
      * correspondence, then the target and source folders of the projects are added rather then
      * the jar files. For compiler configs this works differently than for interpreter configs.
      * The latter adds source folders to the sources while the former adds target folders to the libraries.
-	 * 
-	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
-	 * @return
+     * 
+     * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
+     * @return
      * @throws URISyntaxException
-	 */
-	public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) throws IOException {
+     */
+    public static PathConfig fromSourceProjectMemberRascalManifest(ISourceLocation projectMember, RascalConfigMode mode) throws IOException {
         if (!URIResolverRegistry.getInstance().isDirectory(projectMember)) {
             projectMember = URIUtil.getParentLocation(projectMember);
         }
@@ -426,8 +426,8 @@ public class PathConfig {
         }
     }
 
-	/**
-	 * This creates a PathConfig instance by learning from the `MANIFEST/RASCAL.MF` file where the sources
+    /**
+     * This creates a PathConfig instance by learning from the `MANIFEST/RASCAL.MF` file where the sources
      * are, and from `pom.xml` which libraries to reference. If this PathConfig is
      * for the interpreter it adds more folders to the source path than if its for the compiler. 
      * 
@@ -455,13 +455,13 @@ public class PathConfig {
      * 
      * Clients of this method must promote the messages list to a UI facing log, such as the diagnostics
      * or problems view in an IDE, an error LOG for a CI and stderr or stdout for console applications.
-	 * 
-	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
+     * 
+     * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
      * @param RascalConfigMode.INTERPRETER | RascalConfigMode.COMPILER
-	 * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter, and including a list of revelant info, warning and error messages.
-	 * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
-	 */
-	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode)  {
+     * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter, and including a list of revelant info, warning and error messages.
+     * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
+     */
+    public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode)  {
         RascalManifest manifest = new RascalManifest();
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
@@ -646,7 +646,7 @@ public class PathConfig {
                 vf.list(),
                 generatedSources, 
                 messages.done());
-	}
+    }
 
     private static void addLibraryToSourcePath(URIResolverRegistry reg, IListWriter srcsWriter, IListWriter messages, ISourceLocation jar) {
         if (!reg.exists(URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF))) {
@@ -695,7 +695,7 @@ public class PathConfig {
     private static ISourceLocation getRascalMfLocation(ISourceLocation project) {
         return URIUtil.getChildLocation(project, RascalManifest.META_INF_RASCAL_MF);
     }
-	
+    
     private static ISourceLocation getPomXmlLocation(ISourceLocation project) {
         try {
             ISourceLocation pomxml = URIUtil.getChildLocation(project, "pom.xml");
@@ -714,7 +714,7 @@ public class PathConfig {
      * @return
      * @throws IOException 
      */
-	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) throws IOException {
+    private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) throws IOException {
         var pomxml = getPomXmlLocation(manifestRoot);
         manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
 
@@ -804,36 +804,36 @@ public class PathConfig {
     public ISourceLocation getBin() {
         return bin;
     }
-	
-	String makeFileName(String qualifiedModuleName, String extension) {
-		return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
-	}
-	
+    
+    String makeFileName(String qualifiedModuleName, String extension) {
+        return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
+    }
+    
     public String getModuleName(ISourceLocation moduleLoc) throws IOException{
-	    String modulePath = moduleLoc.getPath();
-	    if(!modulePath.endsWith(".rsc")){
-	        throw new IOException("Not a Rascal source file: " + moduleLoc);
-	    }
+        String modulePath = moduleLoc.getPath();
+        if(!modulePath.endsWith(".rsc")){
+            throw new IOException("Not a Rascal source file: " + moduleLoc);
+        }
 
-	    if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("mvn")) {
+        if (moduleLoc.getScheme().equals("std") || moduleLoc.getScheme().equals("mvn")) {
             return pathToModulename(modulePath, "/");
-	    }
+        }
 
-	    for(ISourceLocation dir : srcs){
-	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
-	            return pathToModulename(modulePath, dir.getPath());
-	        }
-	    }
-
-	    for (ISourceLocation dir : libs) {
-	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+        for(ISourceLocation dir : srcs){
+            if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
                 return pathToModulename(modulePath, dir.getPath());
             }
-	    }
+        }
 
-	    throw new IOException("No module name found for " + moduleLoc + "\n" + this);
+        for (ISourceLocation dir : libs) {
+            if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+                return pathToModulename(modulePath, dir.getPath());
+            }
+        }
 
-	}
+        throw new IOException("No module name found for " + moduleLoc + "\n" + this);
+
+    }
 
     private String pathToModulename(String modulePath, String folder) {
         String moduleName = modulePath.replaceFirst(folder, "").replace(".rsc", "");
@@ -843,7 +843,7 @@ public class PathConfig {
         return moduleName.replace(Configuration.RASCAL_PATH_SEP, Configuration.RASCAL_MODULE_SEP);
     }
 
-	private String moduleToDir(String module) {
+    private String moduleToDir(String module) {
         return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
     }
 
@@ -851,7 +851,7 @@ public class PathConfig {
         return URIUtil.getChildLocation(dir, path);
     }
 
-	public List<String> listModuleEntries(String moduleRoot) {
+    public List<String> listModuleEntries(String moduleRoot) {
         assert !moduleRoot.endsWith(Configuration.RASCAL_MODULE_SEP);
         final URIResolverRegistry reg = URIResolverRegistry.getInstance();
         try {
@@ -892,25 +892,25 @@ public class PathConfig {
      * Convert PathConfig Java object to pathConfig Rascal constructor for use
      * in Rascal code or for serialization and printing.
      */
-	public IConstructor asConstructor() {
-	    Map<String, IValue> config = new HashMap<>();
+    public IConstructor asConstructor() {
+        Map<String, IValue> config = new HashMap<>();
 
-	    config.put("srcs", getSrcs());
-	    config.put("ignores", getIgnores());
-	    config.put("bin", getBin());
-	    config.put("libs", getLibs());
-	    config.put("generatedSources", getGeneratedSources());
-	    config.put("messages", getMessages());
+        config.put("srcs", getSrcs());
+        config.put("ignores", getIgnores());
+        config.put("bin", getBin());
+        config.put("libs", getLibs());
+        config.put("generatedSources", getGeneratedSources());
+        config.put("messages", getMessages());
 
-	    return vf.constructor(pathConfigConstructor, new IValue[0], config);
-	}
-	
+        return vf.constructor(pathConfigConstructor, new IValue[0], config);
+    }
+    
     /**
      * Overview of the contents of the current configuration for debugging purposes.
      * Not necessarily for end-user UI, although it's better than nothing.
      */
-	public String toString(){
-	  StringWriter w = new StringWriter();
+    public String toString(){
+      StringWriter w = new StringWriter();
       w.append("Path configuration items:")
        .append("srcs:            ").append(getSrcs().toString()).append("\n")
        .append("ignores:         ").append(getIgnores().toString()).append("\n")
