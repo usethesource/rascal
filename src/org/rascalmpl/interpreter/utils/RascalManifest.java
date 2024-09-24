@@ -43,9 +43,7 @@ public class RascalManifest {
     protected static final String MAIN_MODULE = "Main-Module";
     protected static final String MAIN_FUNCTION = "Main-Function";
     protected static final String PROJECT_NAME = "Project-Name";
-    protected static final String REQUIRE_BUNDLES = "Require-Bundles";
-    protected static final String REQUIRE_LIBRARIES = "Require-Libraries";
-
+   
     public static String getRascalVersionNumber() {
         try {
             Enumeration<URL> resources = RascalManifest.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
@@ -91,7 +89,6 @@ public class RascalManifest {
         mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
         mainAttributes.put(new Attributes.Name(PROJECT_NAME), projectName);
-        mainAttributes.put(new Attributes.Name(REQUIRE_LIBRARIES), "");
         return manifest;
     }
     
@@ -169,13 +166,6 @@ public class RascalManifest {
     }
     
     /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredLibraries(JarInputStream jarStream) {
-        return getManifestRequiredLibraries(manifest(jarStream));
-    }
-
-    /**
      * @return the name of the main module of a deployment unit, or 'null' if none is configured.
      */
     public String getMainModule(JarInputStream jarStream) {
@@ -212,20 +202,6 @@ public class RascalManifest {
     }  
 
     /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredLibraries(File jarFile) {
-        return getManifestRequiredLibraries(manifest(jarFile));
-    }
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredLibraries(Class<?> clazz) {
-        return getManifestRequiredLibraries(manifest(clazz));
-    }
-
-    /**
      * @return a list of paths relative to the root of the jar, if no such option is configured
      *         it will return ["src"].
      */
@@ -254,17 +230,6 @@ public class RascalManifest {
     public String getManifestMainFunction(InputStream project) {
         return getManifestAttribute(project, MAIN_FUNCTION, null);
     }
-    
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getManifestRequiredLibraries(InputStream project) {
-        return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
-    }
-    
-    public List<String> getManifestRequiredLibraries(ISourceLocation root) {
-        return getManifestAttributeList(manifest(root), REQUIRE_LIBRARIES, null);
-    }
 
     public InputStream manifest(Class<?> clazz) {
         return clazz.getResourceAsStream("/" + META_INF_RASCAL_MF);
@@ -292,10 +257,6 @@ public class RascalManifest {
     
     public List<String> getSourceRoots(ISourceLocation root) {
         return getManifestSourceRoots(manifest(root));
-    }
-
-    public List<String> getRequiredLibraries(ISourceLocation root) {
-        return getManifestRequiredLibraries(manifest(root));
     }
 
     public InputStream manifest(JarInputStream stream) {
