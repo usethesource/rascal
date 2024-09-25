@@ -501,6 +501,7 @@ public class PathConfig {
             // * Only the rascal project itself is never used from source project, to avoid 
             // complex bootstrapping situations. 
 
+
             for (IValue elem : mavenClasspath) {
                 ISourceLocation dep = (ISourceLocation) elem;
                 String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
@@ -552,6 +553,9 @@ public class PathConfig {
 
                         // error messages are transitively collected
                         messages.appendAll(childConfig.getMessages());
+                    }
+                    else if (dep == rascalProject) {
+                        // not adding it again (we added rascal already above)
                     }
                     else {
                         // just a pre-installed dependency in the local maven repository
