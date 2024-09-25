@@ -389,10 +389,10 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
         throw "Folder <name> should have only lowercase characters, digits and dashes from [a-z0-9\\-]";
     }
     
-    mkDirectory(pomFile(folder).parent);
+    
     newRascalPomFile(folder, name=name, group=group, version=version);
-    mkDirectory(metafile(folder).parent);
     newRascalMfFile(folder, name=name);
+    
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
 }
@@ -425,7 +425,7 @@ and a META-INF/RASCAL.MF file will be generated and written.
 The folder is created if it does not exist already.
 }
 void newRascalMfFile(loc folder, str name=folder.file) {
-    mkDirectory(folder);
+    mkDirectory(rascalMF(name).parent);
     writeFile(metafile(folder), rascalMF(name));
 }
 
