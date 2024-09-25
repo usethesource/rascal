@@ -70,180 +70,6 @@ void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
     c.push(key_allow_use_before_def, <|none:///|(0,0,<0,0>,<0,0>), |none:///|(0,0,<0,0>,<0,0>)>);
 }
 
-//TODO: renact this when we will generate parsers
-//void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-//    if(!s.reportedErrors()){
-//        for(mname <- namedTrees){
-//            pt = namedTrees[mname];
-//            g = addGrammar(getLoc(pt), s);
-//            if(!isEmpty(g.rules)){ 
-//                pname = "DefaultParser";
-//                if(Module m := pt) { 
-//                        moduleName = "<m.header.name>";
-//                        pname = parserName(moduleName);
-//                }
-//                //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-//                //s.addMessages(msgs);
-//                //TODO: generates too long file names
-//                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
-//            //s.addMessages(msgs);
-//            }
-//            addADTsAndCommonKeywordFields(s);
-//        }
-//   }
-//}
-
-// ----  Various PathConfigs  ---------------------------------------------
-
-private int npc = 0;
-@synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, not depending on any outside libraries.}
-@description{
-* gets source files exclusively from |memory://test-modules/| and |std:///| (for library code)
-* generates bin files in the in-memory file system  
-}
-public PathConfig getDefaultTestingPathConfig() {
-    npc += 1;
-    snpc = "<npc>";
-    return pathConfig(   
-        srcs = [ |memory:///test-modules/|, |std:///|  ],
-        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
-        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
-        libs = [ ]
-    );
-}
-
-@synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, dependent on a previously released standard library}
-@description{
-* gets source files exclusively from |memory://test-modules/|
-* generates bin files in the in-memory file system 
-* depends only on the pre-compiled standard library from the rascal project 
-}
-public PathConfig getReleasedStandardLibraryTestingPathConfig() {
-    npc += 1;
-    snpc = "<npc>";
-    return pathConfig(   
-        srcs = [ |memory:///test-modules/| ],
-        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
-        generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
-        resources = |memory:///test-modules/generated-test-resources-<snpc>|,
-        libs = [ |lib://rascal| ]
-    );
-}
-
-@synopsis{PathConfig for type-checking test modules in the rascal-core project}
-@description{
-* sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
-* binaries will be stored the target folder of the rascal-core project
-* has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
-}
-public PathConfig getRascalCorePathConfig() {
-   return pathConfig(   
-        srcs = [
-                |std:///|,
-                |project://rascal-core/src/org/rascalmpl/core/library|,
-                |project://typepal/src|
-               ],
-        bin = |project://rascal-core/target/test-classes|,
-        generatedSources = |project://rascal-core/target/generated-test-sources|,
-        resources = |project://rascal-core/target/generated-test-resources|,
-        libs = []
-    );
-}
-
-public RascalCompilerConfig getRascalCoreCompilerConfig(){
-    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
-}
-
-@synopsis{Developers version: PathConfig for type-checking modules in other (named) Rascal projects}
-@description{
-* sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
-* binaries will be stored the target folder of the rascal-core project
-* has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
-* Included projects: rascal-tutor, flybytes, rascal-lsp
-}
-public PathConfig getRascalCorePathConfigDev() {
-   return pathConfig(   
-        srcs = [
-                |project://rascal/src/org/rascalmpl/library|, 
-                //|std:///|,
-                |project://rascal-core/src/org/rascalmpl/core/library|,
-                 |project://typepal/src|
-                //  |project://rascal-tutor/src|,
-                //  |project://flybytes/src|,
-                //  |project://salix/src|,
-                //  |project://rascal-lsp/src/main/rascal/|
-                ],
-        bin = |project://generated-sources/target/classes|,
-        generatedSources = |project://generated-sources/target/generated-sources/src/main/java/|,
-        generatedTestSources = |project://generated-sources/target/generated-sources/src/main/java/|,
-        resources = |project://generated-sources/target/generated-resources/src/main/java/|, //|project://rascal-core/target/generated-test-resources|,
-        libs = []
-    );
-}
-
-public RascalCompilerConfig getRascalCoreCompilerConfigDev(){
-    return rascalCompilerConfig(getRascalCorePathConfigDev())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
-}
-
-public RascalCompilerConfig getRascalCoreCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg);
-}
-    
-@synopsis{a path config for testing type-checking of the standard library in the rascal project}    
-public PathConfig getRascalProjectPathConfig() {
-    npc += 1;
-    snpc = "<npc>";
-    return pathConfig(   
-        srcs = [|project://rascal/src/org/rascalmpl/library|], 
-        bin = |memory:///test-modules/rascal-lib-bin-<snpc>|, 
-        libs = []
-    );  
-}  
-
-public PathConfig getTypePalProjectPathConfig() {
-    git = |file:///Users/paulklint/git/|;
-    return pathConfig(   
-        srcs = [ git + "typepal/src" ],
-        bin = git + "generated-sources/typepal/target/classes",
-        generatedSources = git + "generated-sources/typepal/target/generated-sources/src/main/java/",
-        generatedTestSources = git + "generated-sources/typepal/target/generated-sources/src/main/java/",
-        resources = git + "generated-sources/typepal/target/generated-resources/src/main/java/",
-        libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/| ]
-    );
-}
-
-public RascalCompilerConfig getTypePalCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
-}
-
-public RascalCompilerConfig getTypePalCompilerConfig(){
-    return rascalCompilerConfig(getTypePalProjectPathConfig())[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
-}
-
-public PathConfig getFlyBytesProjectPathConfig() {
-    git = |file:///Users/paulklint/git/|;
-    return pathConfig(   
-        srcs = [ git + "flybytes/src" ],
-        bin = git + "generated-sources/flybytes/target/classes",
-        generatedSources = git + "generated-sources/flybytes/target/generated-sources/src/main/java/",
-        generatedTestSources = git + "generated-sources/flybytes/target/generated-sources/src/main/java/",
-        resources = git + "generated-sources/flybytes/target/generated-resources/src/main/java/",
-        libs = [ |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/|
-               ]
-    );
-}
-
-public RascalCompilerConfig getFlyBytesCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
-}
-
-public RascalCompilerConfig getFlyBytesCompilerConfig(){
-    return rascalCompilerConfig(getFlyBytesProjectPathConfig());
-}
-
-
-
 list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
     msgs = [];
     
@@ -302,6 +128,9 @@ ModuleStatus rascalTModelForLocs(
     
     for (mloc <- mlocs) {
         m = getModuleName(mloc, pcfg);
+        if(isModuleLocationInLibs(mloc, pcfg)){
+            ms.status[m] ? {} += rsc_not_found();
+        }
         topModuleNames += {m};
         ms.moduleLocs[m] = mloc;
         msgs += ms.messages[m] ? [];
@@ -506,6 +335,10 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     for(str nm <- moduleNames){
         ms.status[nm] = {};
         ms.messages[nm] = [];
+        mloc = getModuleLocation(nm, pcfg);
+        if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)){
+            continue;
+        }
         <success, pt, ms> = getModuleParseTree(nm, ms);
         if(success){
             tagsMap = getTags(pt.header.tags);
@@ -521,38 +354,43 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         //    ms.messages[nm] += error("Cannot get parse tree for module `<nm>`", ms.moduleLocs[nm]);
         //}
     }
-    
-    if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
-    
-    start_check = cpuTime();  
-    c = newCollector(modelName, namedTrees, compilerConfig);
-    c.push(key_pathconfig, pcfg);
-    
-    rascalPreCollectInitialization(namedTrees, c);
-    
-    added = {};
-    for(str nm <- domain(namedTrees)){
-        <a, ms> = loadImportsAndExtends(nm, ms, c, added);
-        added += a;
-    }
-  
-    for(str nm <- namedTrees){
-        collect(namedTrees[nm], c);
-    }
-    tm = c.run();
-    
-    tm.paths =  ms.paths;
-    
     if(!isEmpty(namedTrees)){
-        s = newSolver(namedTrees, tm);
-        tm = s.run();
+        if(compilerConfig.verbose) { println("Checking ... <modelName>"); }
+    
+        start_check = cpuTime();  
+        c = newCollector(modelName, namedTrees, compilerConfig);
+        c.push(key_pathconfig, pcfg);
+    
+        rascalPreCollectInitialization(namedTrees, c);
+    
+        added = {};
+        for(str nm <- domain(namedTrees)){
+            <a, ms> = loadImportsAndExtends(nm, ms, c, added);
+            added += a;
+        }
+  
+        for(str nm <- namedTrees){
+            collect(namedTrees[nm], c);
+        }
+        tm = c.run();
+    
+        tm.paths =  ms.paths;
+    
+        if(!isEmpty(namedTrees)){
+            s = newSolver(namedTrees, tm);
+            tm = s.run();
+        }
+        //iprintln(tm.messages);
+    
+        check_time = (cpuTime() - start_check)/1000000;
+    
+        if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
+        return <tm, ms>;
+    } else {
+        ms.status[modelName]? {} += tpl_saved();
+        <found, tm, ms> = getTModelForModule(modelName, ms);
+        return <tm, ms>;
     }
-    //iprintln(tm.messages);
-    
-    check_time = (cpuTime() - start_check)/1000000;
-    
-    if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
-    return <tm, ms>;
 }
 
 // ---- rascalTModelForName a checker version that works on module names
