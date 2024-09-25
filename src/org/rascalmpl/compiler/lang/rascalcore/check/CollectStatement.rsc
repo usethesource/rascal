@@ -15,6 +15,7 @@ import lang::rascal::\syntax::Rascal;
 import List;
 import Set;
 import String;
+import Map;
 
 // Rascal statements
 
