@@ -67,6 +67,24 @@ TestStats testSingleCharDeletions(&T (value input, loc origin) parser, str input
     return totalStats;
 }
 
+TestStats testDeleteUntilEol(&T (value input, loc origin) parser, str input) {
+    TestStats totalStats = testStats();
+    int lineStart = 0;
+    list[int] lineEndings = findAll(input, "\n");
+
+    for (int lineEnd <- lineEndings) {
+        lineLength = lineEnd - lineStart;
+        for (int pos <- [lineStart..lineEnd]) {
+            modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
+            TestStats singleRunStats = testRecovery(parser, modifiedInput, |uknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
+            totalStats = mergeStats(totalStats, singleRunStats);
+        }
+        lineStart = lineEnd+1;
+    }
+
+    return totalStats;
+}
+
 TestStats mergeStats(TestStats stats1, TestStats stats2) {
     TestStats result = stats1;
     result.totalAttempts += stats2.totalAttempts;
@@ -107,7 +125,7 @@ private str syntaxLocToModuleName(loc syntaxFile) {
 }
 
 loc zippedFile(str zip, str path) {
-    loc res = getResource("m3/snakes-and-ladders-project-source.zip");
+    loc res = getResource(zip);
     loc zipFile = res[scheme="jar+<res.scheme>"][path=res.path + "!/"];
     return zipFile + path;
 }
@@ -115,12 +133,27 @@ loc zippedFile(str zip, str path) {
 void testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
     Module \module = parse(#start[Module], syntaxFile).top;
     str modName = syntaxLocToModuleName(syntaxFile);
-    gram = modules2grammar(modName, {\module});
+    Grammar gram = modules2grammar(modName, {\module});
 
     if (sym:\start(\sort(topSort)) <- gram.starts) {
+        println("--------------------------------------------------------------------------------");
         println("Error recovery of <syntaxFile> (<topSort>) on <testInput>:");
-        TestStats stats = testSingleCharDeletions(type(sym, gram.rules), readFile(testInput));
-    printStats(stats);
+        type[value] begin = type(sym, gram.rules);
+        testParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
+        str input = readFile(testInput);
+
+        println("Single char deletions:");
+        TestStats singleCharDeletionStats = testSingleCharDeletions(testParser, input);
+        printStats(singleCharDeletionStats);
+        TestStats totalStats = singleCharDeletionStats;
+
+        println("Deletes until end-of-line:");
+        TestStats deleteUntilEolStats = testDeleteUntilEol(testParser, input);
+        printStats(deleteUntilEolStats);
+        totalStats = mergeStats(totalStats, deleteUntilEolStats);
+
+        println("Total stats:");
+        printStats(totalStats);
     } else {
         println("Cannot find top sort <topSort> in <gram>");
     }
