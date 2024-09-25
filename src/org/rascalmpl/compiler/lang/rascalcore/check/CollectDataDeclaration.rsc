@@ -11,6 +11,7 @@ import lang::rascalcore::compile::util::Names;
 import lang::rascalcore::grammar::definition::Attributes;
 import lang::rascal::\syntax::Rascal;
 import IO;
+import Map;
 
 // ---- data declaration ------------------------------------------------------
 
@@ -74,7 +75,7 @@ AType(Solver) makeKeywordFieldType(str fieldName, KeywordFormal kwf)
         bindings = ();
         try   bindings = unifyRascalTypeParams(fldType, defType, bindings);
         catch invalidMatch(str reason):
-            s.report(error(current, reason));
+            s.report(error(kwf, reason));
         
         if(!isEmpty(bindings)){
             try {
