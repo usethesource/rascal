@@ -11,6 +11,8 @@ extend lang::rascalcore::check::ComputeType;
 extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
+import lang::rascalcore::check::BasicRascalConfig;
+
 import analysis::typepal::Collector;
 
 import lang::rascal::\syntax::Rascal;
@@ -68,6 +70,9 @@ data ModuleStatus =
 
 ModuleStatus newModuleStatus(PathConfig pcfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), pcfg);
 
+bool isModuleLocationInLibs(loc l, PathConfig pcfg)
+    = !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
+    
 bool traceTPL = false;
 bool traceParseTreeCache = false;
 bool traceTModelCache = false;
@@ -140,9 +145,9 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg); 
                 // Make sure we found a real source module (as opposed to a tpl module in a library
-                if(mloc.extension != "rsc") {
+                if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)) {
                     ms.status[qualifiedModuleName] += {rsc_not_found()};
-                    throw ""; 
+                    throw "No src or library module"; 
                 }    
             } catch _: {
                 //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
