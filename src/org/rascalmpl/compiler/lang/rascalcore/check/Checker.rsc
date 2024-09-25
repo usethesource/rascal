@@ -39,6 +39,8 @@ extend lang::rascalcore::check::RascalConfig;
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::compile::CompileTimeError;
+extend lang::rascalcore::check::TestConfigs;
+
 import analysis::typepal::Exception;
 
 import IO;
