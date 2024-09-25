@@ -16,8 +16,9 @@ import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import io.usethesource.vallang.ISourceLocation;
-import org.rascalmpl.jline.Terminal;
-import org.rascalmpl.jline.internal.Configuration;
+import jline.Terminal;
+import jline.internal.Configuration;
+
 
 /**
  * The terminal progress bar monitor wraps the standard output stream to be able to monitor

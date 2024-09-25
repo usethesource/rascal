@@ -82,7 +82,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
     private static String localRepoLocationCache;
 
     private final Pattern authorityRegEx 
-        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[-][-]([a-zA-Z0-9-_.]+)([-][-][a-zA-Z0-9\\-_.]+)$");
+        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[\\-][\\-]([a-zA-Z0-9-_.]+)[\\-][\\-]([a-zA-Z0-9\\-_.]+)$");
     //                               groupId         --  artifactId      -- optionAlComplexVersionString
 
     public MavenRepositoryURIResolver() throws IOException {
@@ -185,7 +185,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                 String name = m.group(2);
                 String version = m.group(3);
 
-                version = version == null ? "" : version.substring(1);
+                // version = version == null ? "" : version.substring(1);
               
                 String jarPath 
                     = group.replaceAll("\\.", "/")
