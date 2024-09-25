@@ -390,9 +390,9 @@ void newRascalProject(loc folder, str group="org.rascalmpl", str version="0.1.0-
     }
     
     mkDirectory(pomFile(folder).parent);
-    writeFile(pomFile(folder), pomXml(name, group, version));
+    newRascalPomFile(folder, name=name, group=group, version=version);
     mkDirectory(metafile(folder).parent);
-    writeFile(metafile(folder), rascalMF(name));
+    newRascalMfFile(folder, name=name);
     mkDirectory(folder + "src/main/rascal");
     writeFile((folder + "src/main/rascal") + "Main.rsc", emptyModule());
 }
@@ -413,7 +413,34 @@ private str rascalMF(str name)
   = "Manifest-Version: 0.0.1
     'Project-Name: <name>
     'Source: src/main/rascal
-    ";
+    '
+    '";
+
+@synopsis{Create a new META-INF/RASCAL.MF file.}
+@description{
+The `folder` parameter should point to the root of a project folder.
+The name of the project will be derived from the name of that folder
+and a META-INF/RASCAL.MF file will be generated and written.
+
+The folder is created if it does not exist already.
+}
+void newRascalMfFile(loc folder, str name=folder.file) {
+    mkDirectory(folder);
+    writeFile(metafile(folder), rascalMF(name));
+}
+
+@synopsis{Create a new pom.xml for a Rascal project}
+@description{
+The `folder` parameter should point to the root of a project folder.
+The name of the project will be derived from the name of that folder
+and a pom.xml file will be generated and written.  
+
+The folder is created if it does not exist already.
+}
+void newRascalPomFile(loc folder, str name=folder.file, str group="org.rascalmpl", str version="0.1.0-SNAPSHOT") {
+    mkDirectory(folder);
+    writeFile(pomFile(folder), pomXml(name, group, version));
+} 
 
 private str pomXml(str name, str group, str version)  
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
