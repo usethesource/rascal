@@ -26,6 +26,7 @@ import ValueIO;
 
 import analysis::graphs::Graph;
 import util::Reflective;
+import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
@@ -97,7 +98,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
     
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-    if(found){
+    if(found && rsc_not_found() notin ms.status[qualifiedModuleName]){
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
         
@@ -130,7 +131,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
-                if(mloc.extension != "rsc") throw ""; //There is only a tpl file available
+                if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
                 if(!isCompatibleBinary(tm, domain(localImportsAndExtends), ms)){
                     msg = error("Binary module `qualifiedModuleName` needs recompilation", |unknown:///|);
@@ -196,18 +197,20 @@ str getModuleFromLogical(loc l){
 }
     
 bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
-    provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
-    requires = {};
-    for(m <- otherImportsAndExtends){
-        <found, tm, ms> = getTModelForModule(m, ms);
-        if(found){
-            println("<m>:"); iprintln(domain(tm.logical2physical));
-            requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
-        }
-    }
-    
-    println("isCompatibleBinary, unsatisfied: <requires - provides>");
-    return isEmpty(requires - provides);
+    return true; //TODO: enable in next bootstrap
+
+    //provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
+    //requires = {};
+    //for(m <- otherImportsAndExtends){
+    //    <found, tm, ms> = getTModelForModule(m, ms);
+    //    if(found){
+    //        println("<m>:"); iprintln(domain(tm.logical2physical));
+    //        requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
+    //    }
+    //}
+    //
+    //println("isCompatibleBinary, unsatisfied: <requires - provides>");
+    //return isEmpty(requires - provides);
 }
 
 tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, ModuleStatus ms){
@@ -218,7 +221,8 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         imports_and_extends += <moduleName, imod is \default ? importPath() : extendPath(), iname>;
         ms.status[iname] = ms.status[iname] ? {};
         try {
-            getModuleLocation(iname, ms.pathConfig);
+            mloc = getModuleLocation(iname, ms.pathConfig);
+            //if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, ms.pathConfig)) throw "No src or library module 2";
          } catch str msg: {
             ms.messages[moduleName] ? [] += [ error(msg, imod@\loc) ];
             ms.status[iname] += { rsc_not_found() };
