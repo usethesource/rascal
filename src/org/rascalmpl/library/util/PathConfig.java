@@ -619,7 +619,8 @@ public class PathConfig {
             }
 
             try (InputStream mfi = manifest.manifest(manifestRoot)) {
-                if (!new Manifest(mfi).getMainAttributes().getValue("Require-Libraries").isEmpty()) {
+                var reqlibs = new Manifest(mfi).getMainAttributes().getValue("Require-Libraries");
+                if (reqlibs != null && !reqlibs.isEmpty()) {
                     messages.append(Messages.info("Require-Libraries in RASCAL.MF are not used anymore. Please use Maven dependencies in pom.xml.", getRascalMfLocation(manifestRoot)));
                 }
             }
