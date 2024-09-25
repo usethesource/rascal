@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -779,6 +780,32 @@ public class PathConfig {
         else {
             return "mvn";
         }
+    }
+
+    /**
+     * Prints what users need to know about how the interpreter is configured with this PathConfig
+     */
+    public void printInterpreterConfigurationStatus(PrintWriter out) {
+        out.println("Module paths:");
+        getSrcs().forEach((f) -> out.println(" ".repeat(4) + f));
+        out.println("JVM library classpath:");
+        getLibsAndTarget().forEach((l) -> out.println(" ".repeat(4) + l));
+        out.flush();
+    }
+
+    /**
+     * Prints what users need to know about how the compiler is configured with this PathConfig
+     */
+    public void printCompilerConfigurationStatus(PrintWriter out) {
+        out.println("Source paths:");
+        getSrcs().forEach((f) -> out.println(" ".repeat(4) + f));
+        out.println("Compiler target folder:");
+        out.println(" ".repeat(4) + getBin());
+        out.println("Compiler generated sources folder:");
+        out.println(" ".repeat(4) + getGeneratedSources());
+        out.println("Rascal and Java library classpath:");
+        getLibsAndTarget().forEach((l) -> out.println(" ".repeat(4) + l));
+        out.flush();
     }
 
     private static void installNecessaryMavenPlugins(String mvnCommand) throws IOException {
