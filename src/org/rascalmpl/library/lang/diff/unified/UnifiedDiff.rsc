@@ -3,6 +3,8 @@
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 module lang::diff::unified::UnifiedDiff
 
+start syntax DiffFile = Diff;
+
 syntax Diff
   = Header old Header new Chunk* chunks
   ;
