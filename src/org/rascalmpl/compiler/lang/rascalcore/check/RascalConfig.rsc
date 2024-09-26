@@ -442,7 +442,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 bool isLogicalLoc(loc l)
     = startsWith(l.scheme, "rascal+");
     
-loc rascalCreateLogicalLoc(Define def, str modelName, PathConfig pcfg){
+loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        if(isLogicalLoc(def.defined)) return def.defined;
        moduleName = getModuleName(def.defined, pcfg);

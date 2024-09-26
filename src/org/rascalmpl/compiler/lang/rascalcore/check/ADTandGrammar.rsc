@@ -164,8 +164,8 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
         
-        allLayouts = {};
-        allManualLayouts = {};
+        set[AType] allLayouts = {};
+        set[AType] allManualLayouts = {};
         map[AType,AProduction] syntaxDefinitions = ();
         
         for(AType adtType <- domain(allProductions)){

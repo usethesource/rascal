@@ -97,7 +97,7 @@ public RascalCompilerConfig getRascalCompilerConfig(){
 }
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(   
-        srcs = [ REPO + "rascal-core/src/" ],
+        srcs = [ REPO + "rascal-core/src/org/rascalmpl/core/library" ],
         bin = |project://rascal-core/target/test-classes|,
         bin = REPO + "generated-sources/target/rascal-core/classes",
         generatedSources = REPO + "generated-sources/target/rascal-core/generated-sources/src/main/java/",

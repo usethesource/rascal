@@ -133,3 +133,4 @@ void endUseBoundedTypeParameters(Collector c){
         throw "beginUseBoundedTypeParameters/endUseBoundedTypeParameters not properly nested";
 }
  
+ data OrInfo = orInfo(set[str] vars);

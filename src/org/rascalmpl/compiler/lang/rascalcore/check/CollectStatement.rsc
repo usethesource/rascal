@@ -724,7 +724,7 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
                         try {
                             asgType = instantiateRascalTypeParameters(statement, asgType, bindings, s);
                         } catch invalidInstantiation(str msg): {
-                            s.report(error(current, "Cannot instantiate rhs type `<prettyAType(defType)>` of assignment: " + msg));
+                            s.report(error(current, "Cannot instantiate rhs type `<prettyAType(asgType)>` of assignment: " + msg));
                         }
                    }        		   
                    if(operator == "=") 
