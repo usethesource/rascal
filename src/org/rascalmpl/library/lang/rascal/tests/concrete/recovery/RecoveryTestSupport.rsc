@@ -7,6 +7,7 @@ import IO;
 import util::Benchmark;
 import Grammar;
 import analysis::statistics::Descriptive;
+import util::Math;
 
 import lang::rascal::grammar::definition::Modules;
 
@@ -135,23 +136,30 @@ void printStats(TestStats stats) {
     }
 
     println();
-    println("95th percentiles:");
+    println("Statistics (average/median/95th percentile):");
+
+    void printStats(str label, list[int] values, str unit) {
+        int mean = sum(values)/size(values);
+        print(left(label, 40));
+        print(": ");
+        println("<mean>/<round(median(values))>/<percentile(values, 95)> <unit>");
+    }
 
     list[int] successfulParseTimes = [ duration | successfulParse(duration=duration) <- stats.measurements ];
     list[int] successfulRecoveryTimes = [ duration | recovered(duration=duration, errorSize=errorSize) <- stats.measurements, errorSize <= stats.recoverySuccessLimit ];
     list[int] failedRecoveryTimes = [ duration | recovered(duration=duration, errorSize=errorSize) <- stats.measurements, errorSize > stats.recoverySuccessLimit  ];
     list[int] parseErrorTimes = [ duration | parseError(duration=duration) <- stats.measurements ];
 
-    println("Succesful parse time:     <percentile(successfulParseTimes, 95)> ms");
-    println("Succesful recovery time:  <percentile(successfulRecoveryTimes, 95)> ms");
-    println("Failed recovery time:     <percentile(failedRecoveryTimes, 95)> ms");
-    println("Parse error time:         <percentile(parseErrorTimes, 95)> ms");
+    printStats("Succesful parse time", successfulParseTimes, "ms");
+    printStats("Succesful recovery time", successfulRecoveryTimes, "ms");
+    printStats("Failed recovery time", failedRecoveryTimes, "ms");
+    printStats("Parse error time", parseErrorTimes, "ms");
 
     list[int] errorSizes = [ errorSize | recovered(errorSize=errorSize) <- stats.measurements  ];
-    println("Recovery error size       <percentile(errorSizes, 95)> characters");
+    printStats("Recovery error size", errorSizes, "characters");
 
     list[int] successfulErrorSizes = [ errorSize | recovered(errorSize=errorSize) <- stats.measurements, errorSize <= stats.recoverySuccessLimit ];
-    println("Successful recovery size: <percentile(successfulErrorSizes, 95)> characters");
+    printStats("Successful recovery size", successfulErrorSizes, "characters");
 }
 
 private str syntaxLocToModuleName(loc syntaxFile) {
@@ -181,7 +189,7 @@ TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
         int startTime = realTime();
         standardParser(input, testInput);
         int referenceDuration = realTime() - startTime;
-        int slowParseLimit = referenceDuration*100;
+        int slowParseLimit = referenceDuration*10;
         int recoverySuccessLimit = size(input)/4;
 
         println();
