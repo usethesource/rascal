@@ -137,8 +137,6 @@ public RascalCompilerConfig getRascalCoreCompilerConfigDev(PathConfig pcfg){
     return rascalCompilerConfig(pcfg);
 }
 
-
-
 // ---- typepal ---------------------------------------------------------------
 
 public PathConfig getTypePalProjectPathConfig() {
@@ -160,7 +158,7 @@ public RascalCompilerConfig getTypePalCompilerConfig(){
     return rascalCompilerConfig(getTypePalProjectPathConfig())[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
 }
 
-// ---- salix -----------------------------------------------------------------
+// ---- flybytes --------------------------------------------------------------
 
 public PathConfig getFlyBytesProjectPathConfig() {
     return pathConfig(   
@@ -181,7 +179,9 @@ public RascalCompilerConfig getFlyBytesCompilerConfig(){
     return rascalCompilerConfig(getFlyBytesProjectPathConfig());
 }
 
-public PathConfig getSalixProjectPathConfig() {
+// ---- salix -----------------------------------------------------------------
+
+public PathConfig getSalixPathConfig() {
     return pathConfig(   
         srcs = [ REPO + "salix/src" ],
         bin = REPO + "generated-sources/target/salix/classes",
@@ -197,5 +197,26 @@ public RascalCompilerConfig getSalixCompilerConfig(PathConfig pcfg){
 }
 
 public RascalCompilerConfig getSalixCompilerConfig(){
-    return rascalCompilerConfig(getSalixProjectPathConfig());
+    return rascalCompilerConfig(getSalixPathConfig());
+}
+
+// ---- drambiguity -----------------------------------------------------------
+
+public PathConfig getDrAmbiguityPathConfig() {
+    return pathConfig(   
+        srcs = [ REPO + "drambiguity/src", REPO + "salix-core/src/main/rascal" ],
+        bin = REPO + "generated-sources/target/drambiguity/classes",
+        generatedSources = REPO + "generated-sources/target/drambiguity/generated-sources/src/main/java/",
+        generatedTestSources = REPO + "generated-sources/target/drambiguity/generated-sources/src/main/java/",
+        resources = REPO + "generated-sources/target/drambiguity/generated-resources/src/main/java/",
+        libs = [ RASCAL_JAR ]
+    );
+}
+
+public RascalCompilerConfig getDrAmbiguityCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getDrAmbiguityCompilerConfig(){
+    return rascalCompilerConfig(getDrAmbiguityPathConfig());
 }
