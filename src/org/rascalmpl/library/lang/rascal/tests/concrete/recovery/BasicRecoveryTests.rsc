@@ -24,7 +24,7 @@ syntax T = ABC End;
 syntax ABC = 'a' 'b' 'c';
 syntax End = "$";
 
-Tree parseS(str input, bool visualize=false)
+private Tree parseS(str input, bool visualize=false)
     = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
 test bool basicOk() {
