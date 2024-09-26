@@ -145,8 +145,6 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 
     @Override
     public ITree createSkippedNode(int[] characters) {
-        //IList chars = Arrays.stream(characters).mapToObj(VF::character).collect(VF.listWriter());
-        //return VF.appl(SKIPPED, VF.list(charValues));
 		return createLiteralNode(characters, SKIPPED);
 	}
 
