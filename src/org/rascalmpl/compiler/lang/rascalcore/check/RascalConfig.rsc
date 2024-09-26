@@ -396,21 +396,22 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     consIds = domain(consNameDef);
     for(id <- consIds){
         defs = consNameDef[id];
-        if(size(defs) > 0 && any(d1 <- defs, d2 <- defs, d1.defined != d2.defined,
-                                t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-                                t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-                                /*d1.scope in moduleScopes && d2.scope in moduleScopes && */comparableList(t1.fields, t2.fields),
-                                ! (isSyntaxType(t1) && isSyntaxType(t2))
-                                )){
+        allDefs = { d.defined | d <- defs };
+        for(d1 <- defs, d2 <- defs, 
+            d1.defined != d2.defined,
+            t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            comparableList(t1.fields, t2.fields),
+            ! (isSyntaxType(t1) && isSyntaxType(t2))){
+
             msgs = [];
-            allDefs = { d.defined | d <- defs };
             if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
                 msgs = [ info("Constructor `<id>` is used without qualifier and overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
             } else {
                 msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
             }
             s.addMessages(msgs);
-        }      
+        }    
     }
     try {
         matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
