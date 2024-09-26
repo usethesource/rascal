@@ -122,11 +122,11 @@ void printStats(TestStats stats) {
     println();
     int measurementCount = size(stats.measurements);
     println("Total parses:         <measurementCount>");
-    println("Succesful parses:     <stats.successfulParses> (<percentage(stats.successfulParses, measurementCount)> % of total)");
+    println("Succesful parses:     <stats.successfulParses> (<percentage(stats.successfulParses, measurementCount)>% of total)");
     int totalFailed = measurementCount - stats.successfulParses;
-    println("Succesful recoveries: <stats.successfulRecoveries> (<percentage(stats.successfulRecoveries, totalFailed)> % of failed)");
-    println("Failed recoveries:    <stats.failedRecoveries> (<percentage(stats.failedRecoveries, totalFailed)> % of failed)");
-    println("Parse errors:         <stats.parseErrors> (<percentage(stats.parseErrors, totalFailed)> % of failed)");
+    println("Succesful recoveries: <stats.successfulRecoveries> (<percentage(stats.successfulRecoveries, totalFailed)>% of failed)");
+    println("Failed recoveries:    <stats.failedRecoveries> (<percentage(stats.failedRecoveries, totalFailed)>% of failed)");
+    println("Parse errors:         <stats.parseErrors> (<percentage(stats.parseErrors, totalFailed)>% of failed)");
 
     if (stats.slowParses == 0) {
         println("No slow parses.");
