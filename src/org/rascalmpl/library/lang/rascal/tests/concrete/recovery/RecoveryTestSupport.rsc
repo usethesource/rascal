@@ -1,5 +1,3 @@
-
-@bootstrapParser
 module lang::rascal::tests::concrete::recovery::RecoveryTestSupport
 
 import lang::rascal::\syntax::Rascal;
@@ -8,67 +6,97 @@ import String;
 import IO;
 import util::Benchmark;
 import Grammar;
+import analysis::statistics::Descriptive;
 
 import lang::rascal::grammar::definition::Modules;
 
+public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorSize=0) | parseError();
+public data TestStats = testStats(int slowParseLimit, int recoverySuccessLimit, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, list[TestMeasurement] measurements=[]);
 
-public data TestStats = testStats(int totalAttempts=0, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, list[tuple[loc,int]] slowParses = []);
-
-private TestStats testRecovery(&T (value input, loc origin) parser, str input, loc source) {
-    TestStats stats = testStats(totalAttempts=1);
-
-    int begin = realTime();
+private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source) {
+    int startTime = 0;
+    int duration = 0;
+    TestMeasurement measurement = successfulParse();
     try {
-        Tree t = parser(input, source);
-        if (hasErrors(t)) {
-            stats.successfulRecoveries = 1;
-            print("+");
-
-            //errors = findAllErrors(t);
-            //count = size(errors);
-            //best = findBestError(t);
-            //println("successful recovery, <count> errors found, best: <getSkipped(best)>, loc: <best@\src>");
-            //for (err <- errors) {
-            //    println("<getSkipped(err)>");
-            //}
-        } else {
-            stats.successfulParses = 1;
-            print(".");            
+        startTime = realTime();
+        Tree t = standardParser(input, source);
+        duration = realTime() - startTime;
+        measurement = successfulParse(source=source, duration=duration);
+    } catch ParseError(_): {
+        startTime = realTime();
+        try {
+            Tree t = recoveryParser(input, source);
+            duration = realTime() - startTime;
+            Tree best = findBestError(t);
+            errorSize = size(getErrorText(best));
+            measurement = recovered(source=source, duration=duration, errorSize=errorSize);
+        } catch ParseError(_): { 
+            duration = realTime() - startTime;
+            measurement = parseError(source=source, duration=duration);
         }
-    } catch ParseError(_): { 
-        stats.parseErrors = 1;
+    }
+
+    return measurement;
+}
+
+TestStats updateStats(TestStats stats, TestMeasurement measurement) {
+    switch (measurement) {
+        case successfulParse(): {
+            print(".");
+            stats.successfulParses += 1;
+        }
+        case recovered(errorSize=errorSize): 
+            if (errorSize <= stats.recoverySuccessLimit) {
+            print("+");
+                stats.successfulRecoveries += 1;
+        } else {
+                print("-");
+                stats.failedRecoveries += 1;
+        }
+        case parseError(): {
         print("?");
+            stats.parseErrors += 1;
+        }
     }
-    int duration = realTime() - begin;
         
-    slowParse = [];
-    if (duration > 200) {
-        stats.slowParses = [<source, duration>];
+    if (measurement.duration > stats.slowParseLimit) {
         print("!");
+        stats.slowParses += 1;
     }
+
+    stats.measurements = stats.measurements + measurement;
 
     return stats;
 }
 
-TestStats testSingleCharDeletions(type[&T] grammar, str input) = testSingleCharDeletions(parser(grammar, allowAmbiguity=true, allowRecovery=true), input);
+TestStats mergeStats(TestStats stats1, TestStats stats2) {
+    return testStats(
+        stats1.slowParseLimit, stats1.recoverySuccessLimit,
+        successfulParses = stats1.successfulParses + stats2.successfulParses,
+        successfulRecoveries = stats1.successfulRecoveries + stats2.successfulRecoveries,
+        failedRecoveries = stats1.failedRecoveries + stats2.failedRecoveries,
+        parseErrors = stats1.parseErrors + stats2.parseErrors,
+        slowParses = stats1.slowParses + stats2.slowParses,
+        measurements = stats1.measurements + stats2.measurements);
+}
 
-TestStats testSingleCharDeletions(&T (value input, loc origin) parser, str input) {
-    TestStats totalStats = testStats();
+TestStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int slowParseLimit, int recoverySuccessLimit) {
+    TestStats stats = testStats(slowParseLimit, recoverySuccessLimit);
     int len = size(input);
     int i = 0;
 
     while (i < len) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
-        TestStats singleRunStats = testRecovery(parser, modifiedInput, |uknown:///?deleted=<"<i>">|);
-        totalStats = mergeStats(totalStats, singleRunStats);
+        TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deleted=<"<i>">|);
+        stats = updateStats(stats, measurement);
         i = i+1;
     }
 
-    return totalStats;
+    return stats;
 }
 
-TestStats testDeleteUntilEol(&T (value input, loc origin) parser, str input) {
-    TestStats totalStats = testStats();
+TestStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int slowParseLimit, int recoverySuccessLimit) {
+    TestStats stats = testStats(slowParseLimit, recoverySuccessLimit);
     int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
 
@@ -76,24 +104,13 @@ TestStats testDeleteUntilEol(&T (value input, loc origin) parser, str input) {
         lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
-            TestStats singleRunStats = testRecovery(parser, modifiedInput, |uknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
-            totalStats = mergeStats(totalStats, singleRunStats);
+            TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
+            stats = updateStats(stats, measurement);
         }
         lineStart = lineEnd+1;
     }
 
-    return totalStats;
-}
-
-TestStats mergeStats(TestStats stats1, TestStats stats2) {
-    TestStats result = stats1;
-    result.totalAttempts += stats2.totalAttempts;
-    result.successfulParses += stats2.successfulParses;
-    result.successfulRecoveries += stats2.successfulRecoveries;
-    result.failedRecoveries += stats2.failedRecoveries;
-    result.parseErrors += stats2.parseErrors;
-    result.slowParses += stats2.slowParses;
-    return result;
+    return stats;
 }
 
 private int percentage(int number, int total) {
@@ -102,21 +119,39 @@ private int percentage(int number, int total) {
 
 void printStats(TestStats stats) {
     println();
-    println("Total parses:         <stats.totalAttempts>");
-    println("Succesful parses:     <stats.successfulParses> (<percentage(stats.successfulParses, stats.totalAttempts)> % of total)");
-    int totalFailed = stats.totalAttempts - stats.successfulParses;
+    int measurementCount = size(stats.measurements);
+    println("Total parses:         <measurementCount>");
+    println("Succesful parses:     <stats.successfulParses> (<percentage(stats.successfulParses, measurementCount)> % of total)");
+    int totalFailed = measurementCount - stats.successfulParses;
     println("Succesful recoveries: <stats.successfulRecoveries> (<percentage(stats.successfulRecoveries, totalFailed)> % of failed)");
     println("Failed recoveries:    <stats.failedRecoveries> (<percentage(stats.failedRecoveries, totalFailed)> % of failed)");
     println("Parse errors:         <stats.parseErrors> (<percentage(stats.parseErrors, totalFailed)> % of failed)");
 
-    if (stats.slowParses == []) {
+    if (stats.slowParses == 0) {
         println("No slow parses.");
     } else {
-        println("<size(stats.slowParses)> slow parses:");
-        for (<source,duration> <- stats.slowParses) {
-            println("<source>: <duration> ms.");
-        }
+        slowest = (getFirstFrom(stats.measurements) | it.duration < e.duration ? it : e | e <- stats.measurements);
+        println("<stats.slowParses> slow parses, slowest parse: <slowest.source> (<slowest.duration> ms)");
     }
+
+    println();
+    println("95th percentiles:");
+
+    list[int] successfulParseTimes = [ duration | successfulParse(duration=duration) <- stats.measurements ];
+    list[int] successfulRecoveryTimes = [ duration | recovered(duration=duration, errorSize=errorSize) <- stats.measurements, errorSize <= stats.recoverySuccessLimit ];
+    list[int] failedRecoveryTimes = [ duration | recovered(duration=duration, errorSize=errorSize) <- stats.measurements, errorSize > stats.recoverySuccessLimit  ];
+    list[int] parseErrorTimes = [ duration | parseError(duration=duration) <- stats.measurements ];
+
+    println("Succesful parse time:     <percentile(successfulParseTimes, 95)> ms");
+    println("Succesful recovery time:  <percentile(successfulRecoveryTimes, 95)> ms");
+    println("Failed recovery time:     <percentile(failedRecoveryTimes, 95)> ms");
+    println("Parse error time:         <percentile(parseErrorTimes, 95)> ms");
+
+    list[int] errorSizes = [ errorSize | recovered(errorSize=errorSize) <- stats.measurements  ];
+    println("Recovery error size       <percentile(errorSizes, 95)> characters");
+
+    list[int] successfulErrorSizes = [ errorSize | recovered(errorSize=errorSize) <- stats.measurements, errorSize <= stats.recoverySuccessLimit ];
+    println("Successful recovery size: <percentile(successfulErrorSizes, 95)> characters");
 }
 
 private str syntaxLocToModuleName(loc syntaxFile) {
@@ -130,31 +165,45 @@ loc zippedFile(str zip, str path) {
     return zipFile + path;
 }
 
-void testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
+TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
     Module \module = parse(#start[Module], syntaxFile).top;
     str modName = syntaxLocToModuleName(syntaxFile);
     Grammar gram = modules2grammar(modName, {\module});
 
     if (sym:\start(\sort(topSort)) <- gram.starts) {
-        println("--------------------------------------------------------------------------------");
+        println("==========================================================================");
         println("Error recovery of <syntaxFile> (<topSort>) on <testInput>:");
         type[value] begin = type(sym, gram.rules);
-        testParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
+        standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
+        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
         str input = readFile(testInput);
 
+        int startTime = realTime();
+        standardParser(input, testInput);
+        int referenceDuration = realTime() - startTime;
+        int slowParseLimit = referenceDuration*100;
+        int recoverySuccessLimit = size(input)/4;
+
+        println();
         println("Single char deletions:");
-        TestStats singleCharDeletionStats = testSingleCharDeletions(testParser, input);
+        TestStats singleCharDeletionStats = testSingleCharDeletions(standardParser, recoveryParser, input, slowParseLimit, recoverySuccessLimit);
         printStats(singleCharDeletionStats);
         TestStats totalStats = singleCharDeletionStats;
 
+        println();
         println("Deletes until end-of-line:");
-        TestStats deleteUntilEolStats = testDeleteUntilEol(testParser, input);
+        TestStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, input, slowParseLimit, recoverySuccessLimit);
         printStats(deleteUntilEolStats);
         totalStats = mergeStats(totalStats, deleteUntilEolStats);
 
-        println("Total stats:");
+        println();
+        println("Overall stats");
+        print("-------------");
         printStats(totalStats);
+        println();
+
+        return totalStats;
     } else {
-        println("Cannot find top sort <topSort> in <gram>");
+        throw "Cannot find top sort <topSort> in <gram>";
     }
 }
