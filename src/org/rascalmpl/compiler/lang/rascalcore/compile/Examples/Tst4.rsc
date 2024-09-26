@@ -1,9 +1,27 @@
 module lang::rascalcore::compile::Examples::Tst4
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T getOneFrom(set[&T] st);
 
-str f() = {
-  throw "Not implemented"; // error: Return type `str` expected, found `bool`
-};
+value main(){
+  set[int] allLayouts = {};
+  definedLayout = getOneFrom(allLayouts);
+  return definedLayout;
+}
+// import ParseTree;
+
+// // value f(Tree x){
+// //   return 
+// //  {<p,l> | /appl(p,[*_,l1:appl(prod(l2,_,_),_),*_]) := x};
+// // }
+
+// value g(Tree x)
+//   = Tree l:appl(prod(Symbol l,_,_),_) := x;
+
+// data D = d() | dd(str s, D d);
+
+// value h(D d)
+//   = l:dd(dd(l)) := d;
 
 //data D
 //  = a(str s, D d)

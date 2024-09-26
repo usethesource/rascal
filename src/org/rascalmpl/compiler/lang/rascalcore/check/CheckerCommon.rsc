@@ -12,6 +12,7 @@ extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
 import lang::rascalcore::check::BasicRascalConfig;
+//import lang::rascalcore::check::RascalConfig;
 
 import analysis::typepal::Collector;
 

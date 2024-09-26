@@ -9,6 +9,7 @@ extend analysis::typepal::TypePal;
  
 import lang::rascal::\syntax::Rascal;
 import Location;
+import util::SemVer;
 
 data IdRole
     = moduleId()
@@ -108,6 +109,18 @@ public str key_pathconfig = "pathconfig";
 public str key_grammar = "grammar";
 public str key_ADTs = "ADTs";
 public str key_common_keyword_fields = "CommonKeywordFields";
+
+data TModel (
+    str rascalTplVersion = "0.0.0"
+);
+
+private str currentRascalTplVersion = "2.0.0";
+
+bool isValidRascalTplVersion(str version){
+    return equalVersion(version, currentRascalTplVersion);
+}
+
+str getCurrentRascalTplVersion() = currentRascalTplVersion;
 
 // Define alias for TypePalConfig
 

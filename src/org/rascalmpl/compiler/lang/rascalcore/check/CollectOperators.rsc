@@ -791,8 +791,6 @@ private set[str] introducedVars(Pattern e, Collector c){
 }
 
 // ---- or
-
-data OrInfo = orInfo(set[str] vars);
  
 void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Collector c){
     c.fact(current, abool());
