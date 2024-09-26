@@ -24,7 +24,7 @@ syntax T = ABC End;
 syntax ABC = 'a' 'b' 'c';
 syntax End = "$";
 
-private Tree parseS(str input, bool visualize=false)
+Tree parseS(str input, bool visualize=false)
     = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
 test bool basicOk() {
@@ -38,10 +38,10 @@ test bool abx() {
 
 test bool axc() {
     Tree t = parseS("a x c $");
-    return getErrorText(findFirstError(t)) == "x c";
+    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x c";
 }
 
 test bool ax() {
     Tree t = parseS("a x $");
-    return getErrorText(findFirstError(t)) == "x ";
+    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
 }
