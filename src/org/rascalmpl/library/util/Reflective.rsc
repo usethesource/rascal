@@ -213,10 +213,13 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
             while(candidate[0] == "/"){
                 candidate = candidate[1..];
             }
-            if(candidate[0] == "$"){
-                candidate = candidate[1..];
-            }
+            
             candidateAsList = split("/", candidate);
+            lastName = candidateAsList[-1];
+            if(lastName[0] == "$"){
+                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
+            }
+            //println("cand: <candidateAsList>, modpath: <modulePathAsList>");
             n = commonPrefix(reverse(candidateAsList), modulePathReversed);
                         
             if(n > longestSuffix){
