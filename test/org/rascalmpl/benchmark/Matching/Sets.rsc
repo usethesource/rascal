@@ -2,7 +2,7 @@ module Matching::Sets
 
 import IO;
 import Math;
-import Benchmark;
+import util::Benchmark;
 
 import Grammar;import ParseTree;import IO;
 
