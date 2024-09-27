@@ -8,7 +8,7 @@ digraph Parser {
 "12860" -> "-1";
 "7226" -> "12860";
 "-2" -> "7226";
-"todo-1":"0" -> "-2"["label"="Stack"];
+"todo-1":"0":sw -> "-2"["label"="Stack"];
 "46484886"["shape"="octagon", "label"="Epsilon"];
 "todo-1":"0":se -> "46484886"["label"="Node"];
 "todoLists":"1" -> "todo-1";
