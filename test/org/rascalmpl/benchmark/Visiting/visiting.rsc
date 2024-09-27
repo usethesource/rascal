@@ -1,8 +1,8 @@
 module Visiting::visiting
 
 import IO;
-import Math;
-import Benchmark;
+import util::Math;
+import util::Benchmark;
 
 data ColoredTree =
      leaf(int n)
