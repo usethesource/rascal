@@ -610,7 +610,9 @@ test bool mvnSchemeTest() {
 
 
     return true;
-}@synopsis{Nested clones in different scopes are acceptable}
+}
+
+@synopsis{Nested clones in different scopes are acceptable}
 int fun_with_clone(int n){
     if(n > 0){
         int h(int n) = 2*n;
