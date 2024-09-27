@@ -173,7 +173,10 @@ loc zippedFile(str zip, str path) {
     return zipFile + path;
 }
 
-TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
+TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) = 
+testErrorRecovery(syntaxFile, topSort, testInput, readFile(testInput));
+
+TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str input, int slowParseLimit=0, int recoverySuccessLimit=0) {
     Module \module = parse(#start[Module], syntaxFile).top;
     str modName = syntaxLocToModuleName(syntaxFile);
     Grammar gram = modules2grammar(modName, {\module});
@@ -184,13 +187,17 @@ TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
         recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
-        str input = readFile(testInput);
 
-        int startTime = realTime();
-        standardParser(input, testInput);
-        int referenceDuration = realTime() - startTime;
-        int slowParseLimit = referenceDuration*10;
-        int recoverySuccessLimit = size(input)/4;
+        if (slowParseLimit == 0) {
+            int startTime = realTime();
+            standardParser(input, testInput);
+            int referenceDuration = realTime() - startTime;
+            slowParseLimit = referenceDuration*10;
+        }
+
+        if (recoverySuccessLimit == 0) {
+            recoverySuccessLimit = size(input)/4;
+        }
 
         println();
         println("Single char deletions:");
@@ -215,3 +222,38 @@ TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) {
         throw "Cannot find top sort <topSort> in <gram>";
     }
 }
+
+TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int maxFileSize) {
+    int count = 0;
+
+    int slowParseLimit = 200;
+    int recoverySuccessLimit = 100;
+
+    TestStats totalStats = testStats(slowParseLimit, recoverySuccessLimit);
+
+    println("Batch testing in directory <dir>");
+    for (entry <- listEntries(dir)) {
+        loc file = dir + entry;
+        if (isFile(file)) {
+            if (endsWith(file.path, ext)) {
+                str content = readFile(file);
+                if (size(content) <= maxFileSize) {
+                    TestStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content, slowParseLimit = slowParseLimit, recoverySuccessLimit = recoverySuccessLimit);
+                    mergeStats(totalStats, fileStats);
+                    count += 1;
+                }
+            }
+        } else if (isDirectory(file)) {
+            TestStats dirStats = batchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles-count, maxFileSize);
+            totalStats = mergeStats(totalStats, dirStats);
+            count += size(dirStats.measurements);
+        }
+
+        if (count > maxFiles) {
+            return totalStats;
+        }
+    }
+
+    return totalStats;
+}
+

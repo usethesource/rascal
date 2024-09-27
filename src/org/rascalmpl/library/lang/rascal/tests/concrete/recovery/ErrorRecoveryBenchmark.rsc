@@ -27,3 +27,7 @@ void runLanguageTests() {
     testRecoveryPico();
     testRecoveryRascal();
 }
+
+void runRascalBatchTest() {
+    batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", 3, 4096);
+}
