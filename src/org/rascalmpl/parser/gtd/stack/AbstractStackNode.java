@@ -590,7 +590,7 @@ public abstract class AbstractStackNode<P>{
 		
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
-		int possibleMaxSize = edgesMapSize + edgesMapSize;
+		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 		}else{
