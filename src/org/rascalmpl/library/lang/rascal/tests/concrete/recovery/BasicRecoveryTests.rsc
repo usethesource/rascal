@@ -33,15 +33,14 @@ test bool basicOk() {
 
 test bool abx() {
     Tree t = parseS("a b x $");
-    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
+    return getErrorText(findBestError(t)) == "x ";
 }
 
 test bool axc() {
     Tree t = parseS("a x c $");
-    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x c";
+    return getErrorText(findBestError(t)) == "x c";
 }
 
 test bool ax() {
-    Tree t = parseS("a x $");
-    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
+    return getErrorText(findBestError(t)) == "x ";
 }
