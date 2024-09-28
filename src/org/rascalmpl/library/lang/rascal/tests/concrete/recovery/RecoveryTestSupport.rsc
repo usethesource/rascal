@@ -12,7 +12,7 @@ import util::Math;
 import lang::rascal::grammar::definition::Modules;
 
 public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorSize=0) | parseError();
-public data TestStats = testStats(int slowParseLimit, int recoverySuccessLimit, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, list[TestMeasurement] measurements=[]);
+public data TestStats = testStats(int slowParseLimit, int recoverySuccessLimit, int filesTested=0, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, list[TestMeasurement] measurements=[]);
 
 private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source) {
     int startTime = 0;
@@ -73,6 +73,7 @@ TestStats updateStats(TestStats stats, TestMeasurement measurement) {
 TestStats mergeStats(TestStats stats1, TestStats stats2) {
     return testStats(
         stats1.slowParseLimit, stats1.recoverySuccessLimit,
+        filesTested = stats1.filesTested + stats2.filesTested,
         successfulParses = stats1.successfulParses + stats2.successfulParses,
         successfulRecoveries = stats1.successfulRecoveries + stats2.successfulRecoveries,
         failedRecoveries = stats1.failedRecoveries + stats2.failedRecoveries,
@@ -139,10 +140,14 @@ void printStats(TestStats stats) {
     println("Statistics (average/median/95th percentile):");
 
     void printStats(str label, list[int] values, str unit) {
-        int mean = sum(values)/size(values);
         print(left(label, 40));
         print(": ");
+        if (values == []) {
+            print("-/-/- <unit>");
+        } else {
+            int mean = sum(values)/size(values);
         println("<mean>/<round(median(values))>/<percentile(values, 95)> <unit>");
+    }
     }
 
     list[int] successfulParseTimes = [ duration | successfulParse(duration=duration) <- stats.measurements ];
@@ -210,10 +215,10 @@ TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
         TestStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, input, slowParseLimit, recoverySuccessLimit);
         printStats(deleteUntilEolStats);
         totalStats = mergeStats(totalStats, deleteUntilEolStats);
+        totalStats.filesTested = 1;
 
         println();
-        println("Overall stats");
-        print("-------------");
+        println("Cumulative stats for <testInput>");
         printStats(totalStats);
         println();
 
@@ -234,17 +239,18 @@ TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
         loc file = dir + entry;
         if (isFile(file)) {
             if (endsWith(file.path, ext)) {
+                println("Testing file <file> (<maxFiles-count> left)");
                 str content = readFile(file);
                 if (size(content) <= maxFileSize) {
                     TestStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content, slowParseLimit = slowParseLimit, recoverySuccessLimit = recoverySuccessLimit);
-                    mergeStats(totalStats, fileStats);
+                    totalStats = mergeStats(totalStats, fileStats);
                     count += 1;
                 }
             }
         } else if (isDirectory(file)) {
             TestStats dirStats = batchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles-count, maxFileSize);
             totalStats = mergeStats(totalStats, dirStats);
-            count += size(dirStats.measurements);
+            count += dirStats.filesTested;
         }
 
         if (count > maxFiles) {

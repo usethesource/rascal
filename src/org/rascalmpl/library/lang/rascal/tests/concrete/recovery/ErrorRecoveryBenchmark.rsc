@@ -2,6 +2,9 @@ module lang::rascal::tests::concrete::recovery::ErrorRecoveryBenchmark
 
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
+import IO;
+import util::Benchmark;
+
 void runTestC() { testRecoveryC(); }
 void runTestDiff() { testRecoveryDiff(); }
 void runTestDot() { testRecoveryDot(); }
@@ -28,5 +31,10 @@ void runLanguageTests() {
     testRecoveryRascal();
 }
 void runRascalBatchTest() {
-    batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", 3, 4096);
+    int startTime = realTime();
+    TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", 100, 4096);
+    int duration = realTime() - startTime;
+    println("================================================================");
+    println("Rascal batch test done in <duration/1000> seconds, total result:");
+    printStats(stats);
 }
