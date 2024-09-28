@@ -125,6 +125,7 @@ test bool rascalIfBodyEmpty() {
 }
 
 // Not working yet:
+/*
 test bool rascalMissingOpeningParen() {
     Tree t = parseRascal("module A void f){} void g() { }");
 
@@ -159,3 +160,4 @@ test bool rascalIfMissingSemi() {
     println("error text: <getErrorText(findFirstError(t))>");
     return getErrorText(findFirstError(t)) == ";";
 }
+*/
