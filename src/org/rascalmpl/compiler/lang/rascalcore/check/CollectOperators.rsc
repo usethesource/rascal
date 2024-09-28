@@ -223,40 +223,23 @@ private AType do_computeCompositionType(Tree current, AType t1, AType t2, Solver
     if (isRelAType(t1) && isRelAType(t2)) {
         list[AType] lflds = getRelFields(t1);
         list[AType] rflds = getRelFields(t2);
-        failures = [];
-        if (size(lflds) != 0 && size(lflds) != 2)
-            failures += error(current, "Relation %t should have arity of 0 or 2", t1); 
-        if (size(rflds) != 0 && size(rflds) != 2)
-            failures += error(current, "Relation %t should have arity of 0 or 2", t2);
-        if (!comparable(lflds[1],rflds[0]))
-            failures += error(current, "Range of relation %t must be comparable to domain of relation %t", t1, t2);
-        if (size(failures) > 0) {
-            s.reports(failures);
-        }
         if (size(lflds) == 0 || size(rflds) == 0)
             return arel(atypeList([]));
         else {
-            return arel(atypeList([lflds[0],rflds[1]])); 
+            s.requireComparable(current, lflds[-1], rflds[0], "Type of last element of relation %t must be comparable to type of first element of relation %t", t1, t2);
+            return arel(atypeList([*lflds[..-1],*rflds[1..]])); 
          }
     }
 
     if (isListRelAType(t1) && isListRelAType(t2)) {
         list[AType] lflds = getListRelFields(t1);
-        list[AType] rflds = getListRelFields(t2);
-        list[FailMessage] failures = [];
-        if (size(lflds) != 0 && size(lflds) != 2)
-            failures += error(current, "List relation %t should have arity of 0 or 2", t1); 
-        if (size(rflds) != 0 && size(rflds) != 2)
-            failures += error(current, "List relation %t should have arity of 0 or 2", t2);
-        if (!comparable(lflds[1],rflds[0]))
-            failures += error(current, "Range of list relation %t must be comparable to domain of list relation %t", t1, t2);
-        if (size(failures) > 0) {
-            s.reports(failures);
-        }
+        list[AType] rflds = getListRelFields(t2);    
+        
         if (size(lflds) == 0 || size(rflds) == 0)
             return alrel(atypeList([]));
         else {
-            return alrel(atypeList([lflds[0], rflds[1]])); 
+            s.requireComparable(lflds[-1], rflds[0], error(current, "Type of last element of listrelation %t must be comparable to type of first element of listrelation %t", t1, t2));
+            return alrel(atypeList([*lflds[..-1], *rflds[1..]])); 
         }
     }
     

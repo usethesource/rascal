@@ -1,13 +1,32 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T getOneFrom(set[&T] st);
+lrel[str, int, str] main(){
+    lrel[str, int] X = [<"a", 1>];
+    lrel[str, int] Y = [<"a", 1>];
 
-value main(){
-  set[int] allLayouts = {};
-  definedLayout = getOneFrom(allLayouts);
-  return definedLayout;
+    lrel[str,int,int] XP = X<0,1, 1>;
+    lrel[int, str] YP = Y<1,0>;
+    Z = XP o YP;
+    return Z;
+    //return {};
 }
+
+//data Face = top() | left() | right() | bottom();
+//
+//// https://docs.jsplumbtoolkit.com/community/lib/anchors
+//data Anchor
+//  = top() | topRight() | right() | bottomRight() | bottom() | bottomLeft() | left() | topLeft() | center()
+//  | autoDefault()
+//  | perimeter(Shape shape, int anchorCount = 60, int rotation = 0)
+//  | continuous(list[Face] faces = [Face::top(), 
+//        Face::left(), 
+//        Face::right(), 
+//        Face::bottom()]) 
+//  ;
+//
+//data Shape
+//  = circle() | ellipse() | triangle() | diamond() | rectangle() | square();
+
 // import ParseTree;
 
 // // value f(Tree x){
