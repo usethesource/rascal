@@ -52,6 +52,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
     private IdDispenser stackNodeIdDispenser;
     private ExpectsProvider<IConstructor> expectsProvider;
 
+    private Set<Long> processedNodes = new HashSet<>();
+
     public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
         this.uri = uri;
         this.expectsProvider = expectsProvider;
@@ -67,7 +69,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
         // For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
         // improve error recovery.
-
         ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
         collectUnexpandableNodes(unexpandableNodes, failedNodes);
         collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
@@ -346,6 +347,14 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             new DoubleArrayList<>();
 
         for (int i = failedNodes.size() - 1; i >= 0; --i) {
+            AbstractStackNode<IConstructor> failedNode = failedNodes.get(i);
+
+            // Protect against endless loop
+            long id = (long) failedNode.getId() << 32 | failedNode.getStartLocation();
+            if (!processedNodes.add(id)) {
+                continue;
+            }
+
             findRecoveryNodes(failedNodes.get(i), recoveryNodes);
         }
 
@@ -368,7 +377,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
      *        failed to match
      * @param failedNodes the list to which failed nodes must be added
      */
-    private static void collectUnmatchableMidProductionNodes(int location,
+    private void collectUnmatchableMidProductionNodes(int location,
         DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
         ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
         for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
@@ -377,7 +386,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             AbstractStackNode<IConstructor> failedNode =
                 unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference
                                                                                    // updates of the static version
-
             // Merge the information on the predecessors into the failed node.
             for (int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
                 AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
