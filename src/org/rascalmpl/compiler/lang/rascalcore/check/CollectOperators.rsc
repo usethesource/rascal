@@ -226,7 +226,7 @@ private AType do_computeCompositionType(Tree current, AType t1, AType t2, Solver
         if (size(lflds) == 0 || size(rflds) == 0)
             return arel(atypeList([]));
         else {
-            s.requireComparable(lflds[-1], rflds[0], "Type of last element of relation %t must be comparable to type of first element of relation %t", t1, t2);
+            s.requireComparable(lflds[-1], rflds[0], error(current, "Type of last element of relation %t must be comparable to type of first element of relation %t", t1, t2));
             return arel(atypeList([*lflds[..-1],*rflds[1..]])); 
          }
     }
