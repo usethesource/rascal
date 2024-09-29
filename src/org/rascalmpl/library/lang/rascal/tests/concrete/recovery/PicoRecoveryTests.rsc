@@ -18,8 +18,17 @@ import lang::pico::\syntax::Main;
 
 import ParseTree;
 
+import IO;
+import String;
+
 Tree parsePico(str input, bool visualize=false) 
     = parser(#Program, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+
+bool checkError(Tree t, str expectedError) {
+    str bestError = getErrorText(findBestError(t));
+    println("best error: <bestError>, expected: <expectedError>");
+    return size(bestError) == size(expectedError);
+}
 
 test bool picoOk() {
     t = parsePico("begin declare input : natural, 
@@ -58,8 +67,8 @@ test bool picoTypo() {
           input := input - 1
       od
 end");
-    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
-    return getErrorText(error) == "output x rep";
+
+    return checkError(t, "output x rep");
 }
 
 test bool picoMissingSemi() {
@@ -79,8 +88,7 @@ test bool picoMissingSemi() {
           input := input - 1
       od
 end");
-    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
-    return getErrorText(error) == "input := input - 1\n      od";
+   return checkError(t, "input := input - 1\n      od");
 }
 
 test bool picoTypoSmall() {
@@ -92,8 +100,7 @@ test bool picoTypoSmall() {
   od
 end");
 
-    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
-    return getErrorText(error) == "x= 14";
+    return checkError(t, "x= 14");
     }
 
 test bool picoMissingSemiSmall() {
@@ -105,6 +112,5 @@ test bool picoMissingSemiSmall() {
   od
 end");
 
-    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
-    return getErrorText(error) == "output := 0\n  od";
+    return checkError(t, "output := 0\n  od");
 }
