@@ -1053,8 +1053,26 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
     //c.use(field, {fieldId(), keywordFieldId()});
     c.calculate("field update of `<field>`", current, [expression, repl],
         AType(Solver s){ 
-                 fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
-                 replType = s.getType(repl);
+                fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
+                replType = s.getType(repl);
+
+                bindings = ();
+                try   bindings = unifyRascalTypeParams(fieldType, replType, bindings);
+                catch invalidMatch(str reason):
+                    s.report(error(current, reason));
+                
+                if(!isEmpty(bindings)){
+                    try {
+                        fieldType = instantiateRascalTypeParameters(field, fieldType, bindings, s);
+                    } catch invalidInstantiation(str msg): {
+                        s.report(error(current, "Cannot instantiate lhs type `<prettyAType(fieldType)>` of assignment: " + msg));
+                    }
+                    try {
+                        replType = instantiateRascalTypeParameters(current, replType, bindings, s);
+                    } catch invalidInstantiation(str msg): {
+                        s.report(error(current, "Cannot instantiate rhs type `<prettyAType(replype)>` of assignment: " + msg));
+                    }
+                   }        
                  checkNonVoid(expression, s, "Base expression of field update`");
                  checkNonVoid(repl, s, "Replacement expression of field update`");
                  s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to field %q of type %t", replType, field, fieldType));
