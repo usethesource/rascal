@@ -42,5 +42,6 @@ test bool axc() {
 }
 
 test bool ax() {
+    Tree t = parseS("a x $");
     return getErrorText(findBestError(t)) == "x ";
 }
