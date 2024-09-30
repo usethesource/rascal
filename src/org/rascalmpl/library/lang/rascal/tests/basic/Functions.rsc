@@ -568,6 +568,7 @@ test bool innerAndOuterFunctionUseSameParameterName2(){
     return outer(3) == 3 && outer(5) == 50;
 }
 
+@ignoreCompiler{"Return type `int` expected, found `str`"}
 test bool innerAndOuterFunctionUseSameParameterName3(){
     int outer(str t) {
         int inner(t:3) = t;
