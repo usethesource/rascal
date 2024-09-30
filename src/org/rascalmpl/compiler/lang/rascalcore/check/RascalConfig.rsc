@@ -12,6 +12,8 @@ import lang::rascalcore::check::ADTandGrammar;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
+import lang::rascalcore::check::CheckerCommon;
+
 import Location;
 import util::Reflective;
 import util::SemVer;
@@ -457,17 +459,17 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      return def.defined;
 }
 
-private str currentRascalTplVersion = "2.0.0";
+// private str currentRascalTplVersion = "2.0.0";
 
-bool isValidRascalTplVersion(str version){
-    return equalVersion(version, currentRascalTplVersion);
-}
+// bool isValidRascalTplVersion(str version){
+//     return equalVersion(version, currentRascalTplVersion);
+// }
 
-str getCurrentRascalTplVersion() = currentRascalTplVersion;
+// str getCurrentRascalTplVersion() = currentRascalTplVersion;
 
-data TModel (
-    str rascalTplVersion = "0.0.0"
-);
+// data TModel (
+//     str rascalTplVersion = "0.0.0"
+// );
 
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
 
