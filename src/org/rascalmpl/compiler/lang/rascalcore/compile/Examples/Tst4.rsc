@@ -1,36 +1,21 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-//lrel[str, int, str] main(){
-//    lrel[str, int] X = [<"a", 1>];
-//    lrel[str, int] Y = [<"a", 1>];
-//
-//    lrel[str,int,int] XP = X<0,1, 1>;
-//    lrel[int, str] YP = Y<1,0>;
-//    Z = XP o YP;
-//    return Z;
-//}
-value main(){
-    rel[value, tuple[int, value]] X = {<0,<1,1>>} ;
-    rel[tuple[value,int], int] Y = {<<1,1>,2>};
-    return X o Y;
-}
-//Met bijv: {<0,<1,1>>} o {<<1,1>,2>} als voorbeeld dat dit oplevert {<0,2>} .
 
-//data Face = top() | left() | right() | bottom();
-//
-//// https://docs.jsplumbtoolkit.com/community/lib/anchors
-//data Anchor
-//  = top() | topRight() | right() | bottomRight() | bottom() | bottomLeft() | left() | topLeft() | center()
-//  | autoDefault()
-//  | perimeter(Shape shape, int anchorCount = 60, int rotation = 0)
-//  | continuous(list[Face] faces = [Face::top(), 
-//        Face::left(), 
-//        Face::right(), 
-//        Face::bottom()]) 
-//  ;
-//
-//data Shape
-//  = circle() | ellipse() | triangle() | diamond() | rectangle() | square();
+data Face = top() | left() | right() | bottom();
+
+// https://docs.jsplumbtoolkit.com/community/lib/anchors
+data Anchor
+ = top() | topRight() | right() | bottomRight() | bottom() | bottomLeft() | left() | topLeft() | center()
+ | autoDefault()
+ | perimeter(Shape shape, int anchorCount = 60, int rotation = 0)
+ | continuous(list[Face] faces = [Face::top(), 
+       Face::left(), 
+       Face::right(), 
+       Face::bottom()]) 
+ ;
+
+data Shape
+ = circle() | ellipse() | triangle() | diamond() | rectangle() | square();
 
 // import ParseTree;
 
