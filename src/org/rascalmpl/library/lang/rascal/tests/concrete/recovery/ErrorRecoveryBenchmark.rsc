@@ -4,6 +4,8 @@ import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 import IO;
 import util::Benchmark;
+import String;
+import List;
 
 void runTestC() { testRecoveryC(); }
 void runTestDiff() { testRecoveryDiff(); }
@@ -30,12 +32,25 @@ void runLanguageTests() {
     testRecoveryPico();
     testRecoveryRascal();
 }
-void runRascalBatchTest() {
+
+void runRascalBatchTest(int maxFiles=1000, int maxFileSize=4000) {
     int startTime = realTime();
-    TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", 1000, 10000);
+    TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", maxFiles, maxFileSize);
     int duration = realTime() - startTime;
     println();
-    println("================================================================");
+    println("========================im========================================");
     println("Rascal batch test done in <duration/1000> seconds, total result:");
     printStats(stats);
+}int main(list[str] args) {
+    int maxFiles = 1000;
+    int maxFileSize = 4000;
+    if (size(args) == 2) {
+        maxFiles = toInt(args[0]);
+        maxFileSize = toInt(args[1]);
+    } else if (size(args) != 0) {
+        println("Usage: ErrorRecoveryBenchmark <max-files> <max-file-size>");
+    }
+
+    runRascalBatchTest(maxFiles=maxFiles, maxFileSize=maxFileSize);
+    return 0;
 }
