@@ -969,7 +969,7 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
 void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isEmpty(qualifier)){     
-       c.useQualified([qualifier, base], name, {functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
+       c.useQualified([qualifier, base], name, {moduleVariableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
         if(!isEmpty(c.getStack(currentAdt))){
             c.use(name, {variableId(), moduleVariableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
