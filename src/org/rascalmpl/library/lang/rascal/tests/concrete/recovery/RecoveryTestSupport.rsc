@@ -190,7 +190,7 @@ void printFileStats(FileStats fileStats) {
     void printStat(str label, int stat, int total, bool printPct=true) {
         int pct = total == 0 ? 0 : stat*100/total;
         print(left(label + ":", statLabelWidth));
-        str pctStr = printPct ? " (<pct> %)" : "";
+        str pctStr = printPct ? " (<pct>%)" : "";
         println(left("<stat><pctStr>", statFieldWidth));
     }
 
@@ -203,14 +203,14 @@ void printFileStats(FileStats fileStats) {
     printStat("Parse errors", fileStats.parseErrors, failedParses);
     printStat("Slow parses", fileStats.slowParses, failedParses);
     printFrequencyTableHeader();
-    printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2/%");
+    printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2(ratio)");
 }
 
 void printFrequencyTableHeader() {
     print(left("", statLabelWidth+1));
     print(right("mean", statFieldWidth));
     print(right("median", statFieldWidth));
-    print(right("95 %", statFieldWidth));
+    print(right("95%", statFieldWidth));
     print(right("min", statFieldWidth));
     println(right("max", statFieldWidth));
 }
@@ -327,11 +327,7 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
     }
 }
 
-TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int maxFileSize) {
-    int count = 0;
-
-    TestStats cumulativeStats = testStats();
-
+TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int maxFileSize, TestStats cumulativeStats=testStats()) {
     println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>)");
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
@@ -340,23 +336,20 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
                 str content = readFile(file);
                 if (size(content) <= maxFileSize) {
                     println("========================================================================");
-                    println("Testing file <file> (<maxFiles-count> left)");
+                    println("Testing file #<cumulativeStats.filesTested> <file> (<maxFiles-cumulativeStats.filesTested> of <maxFiles> left)");
                     FileStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content);
                     cumulativeStats = consolidateStats(cumulativeStats, fileStats);
                     println();
                     println("------------------------------------------------------------------------");
                     println("Cumulative stats after testing <file>:");
                     printStats(cumulativeStats);
-                    count += 1;
                 }
             }
         } else if (isDirectory(file)) {
-            TestStats dirStats = batchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles-count, maxFileSize);
-            cumulativeStats = mergeStats(cumulativeStats, dirStats);
-            count += dirStats.filesTested;
+            cumulativeStats = batchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles, maxFileSize, cumulativeStats=cumulativeStats);
         }
 
-        if (count >= maxFiles) {
+        if (cumulativeStats.filesTested >= maxFiles) {
             break;
         }
     }
