@@ -23,7 +23,7 @@ private map[int, int] distance =();
 private map[int, int] pred = ();
 private set[int] settled = {};
 //private set[int] Q = {};
-private PriorityQueue Q = priorityQueue();
+private PriorityQueue Q = priorityQueue([], -1);
 private int MAXDISTANCE = 10000;
 
 @doc{Shortest path between pair of nodes}
@@ -37,7 +37,7 @@ public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
     pred = ();
     settled = {};
     // Q = {From};
-    Q = priorityQueue(0, From);
+    Q = priorityQueue([], From);
     
  //   while (Q != {}){
     while(!isEmpty(Q)){
@@ -75,7 +75,6 @@ private int extractMinimum()
            min = q;
         }
      }
-     Q = Q - min;
      return min;
 }
   
@@ -105,19 +104,19 @@ public rel[int,int] Graph1 = {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7
                
 public rel[int,int] randomGraph(int N, list[int] interval)
 {
-	return {<getOneFrom(interval), getOneFrom(interval)> | int n <- [1 .. N]};
+	return {<getOneFrom(interval), getOneFrom(interval)> | int _ <- [1 .. N]};
 }
 
 public void measure1(rel[int,int] Graph1){
 
     G = Graph1;
 	/* warm up for JVM */
-	for(int i <- [1 .. 50])
+	for(int _ <- [1 .. 50])
 		shortestPathPair(G, 1, 0);
 
     jtime = 0.0; jmin = 10000.0; jmax = 0.0;
     rtime = 0.0; rmin = 10000.0; rmax = 0.0;
-    for(int i <- [1 .. 20]){
+    for(int _ <- [1 .. 20]){
  		time1 = getMilliTime(); P1 = shortestPathPair(G, 1, 0); time2 = getMilliTime();
                                 P2 = shortestPathPair1(G, 1, 0); time3 = getMilliTime();
                               
@@ -133,7 +132,7 @@ public void measure1(rel[int,int] Graph1){
 
 public void measure2(rel[int,int] Graph2)
 {
-   for(int i <- [1 .. 2000])
+   for(int _ <- [1 .. 2000])
      shortestPathPair1(Graph2, 1, 0);
 }
 
