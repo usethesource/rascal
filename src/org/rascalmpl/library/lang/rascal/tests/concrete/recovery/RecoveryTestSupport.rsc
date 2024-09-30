@@ -49,8 +49,8 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
 FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenceParseTime, int recoverySuccessLimit) {
     stats.totalParses += 1;
 
-    int ratio = measurement.duration/referenceParseTime;
-    int parseTimeRatio = ratio == 0 ? 0 : round(log2(measurement.duration/referenceParseTime));
+    int ratio = referenceParseTime == 0 ? measurement.duration : measurement.duration/referenceParseTime;
+    int parseTimeRatio = ratio == 0 ? 0 : round(log2(ratio));
 
     switch (measurement) {
         case successfulParse(): {
