@@ -8,11 +8,17 @@ import util::Benchmark;
 import Grammar;
 import analysis::statistics::Descriptive;
 import util::Math;
+import Set;
+import List;
 
 import lang::rascal::grammar::definition::Modules;
 
+alias FrequencyTable = map[int val, int count];
+
 public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorSize=0) | parseError();
-public data TestStats = testStats(int slowParseLimit, int recoverySuccessLimit, int filesTested=0, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, list[TestMeasurement] measurements=[]);
+public data FileStats = fileStats(int totalParses = 0, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, FrequencyTable parseTimeRatios=());
+
+public data TestStats = testStats(int filesTested=0, int testCount=0, FrequencyTable successfulParsePct=(), FrequencyTable successfulRecoveryPct=(), FrequencyTable failedRecoveryPct=(), FrequencyTable parseErrorPct=(), FrequencyTable slowParsePct=(), FrequencyTable parseTimeRatios=());
 
 private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source) {
     int startTime = 0;
@@ -40,65 +46,122 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     return measurement;
 }
 
-TestStats updateStats(TestStats stats, TestMeasurement measurement) {
+FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenceParseTime, int recoverySuccessLimit) {
+    stats.totalParses += 1;
+
+    int ratio = measurement.duration/referenceParseTime;
+    int parseTimeRatio = ratio == 0 ? 0 : round(log2(measurement.duration/referenceParseTime));
+
     switch (measurement) {
         case successfulParse(): {
             print(".");
             stats.successfulParses += 1;
         }
-        case recovered(errorSize=errorSize): 
-            if (errorSize <= stats.recoverySuccessLimit) {
+        case recovered(errorSize=errorSize): {
+            stats.parseTimeRatios = increment(stats.parseTimeRatios, parseTimeRatio);
+            if (errorSize <= recoverySuccessLimit) {
             print("+");
                 stats.successfulRecoveries += 1;
         } else {
                 print("-");
                 stats.failedRecoveries += 1;
         }
+        }
         case parseError(): {
+            stats.parseTimeRatios = increment(stats.parseTimeRatios, parseTimeRatio);
         print("?");
             stats.parseErrors += 1;
         }
     }
         
-    if (measurement.duration > stats.slowParseLimit) {
+    if (measurement.duration > referenceParseTime*10) {
         print("!");
         stats.slowParses += 1;
     }
 
-    stats.measurements = stats.measurements + measurement;
-
     return stats;
 }
 
-TestStats mergeStats(TestStats stats1, TestStats stats2) {
-    return testStats(
-        stats1.slowParseLimit, stats1.recoverySuccessLimit,
-        filesTested = stats1.filesTested + stats2.filesTested,
+FileStats mergeFileStats(FileStats stats1, FileStats stats2) {
+    return fileStats(
+        totalParses = stats1.totalParses + stats2.totalParses,
         successfulParses = stats1.successfulParses + stats2.successfulParses,
         successfulRecoveries = stats1.successfulRecoveries + stats2.successfulRecoveries,
         failedRecoveries = stats1.failedRecoveries + stats2.failedRecoveries,
         parseErrors = stats1.parseErrors + stats2.parseErrors,
         slowParses = stats1.slowParses + stats2.slowParses,
-        measurements = stats1.measurements + stats2.measurements);
+        parseTimeRatios = mergeFrequencyTables(stats1.parseTimeRatios, stats2.parseTimeRatios)
+    );
 }
 
-TestStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int slowParseLimit, int recoverySuccessLimit) {
-    TestStats stats = testStats(slowParseLimit, recoverySuccessLimit);
+FrequencyTable increment(FrequencyTable frequencyTable, int val) {
+    if (val in frequencyTable) {
+        frequencyTable[val] += 1;
+    } else {
+        frequencyTable[val] = 1;
+    }
+
+    return frequencyTable;
+}
+
+TestStats consolidateStats(TestStats cumulativeStats, FileStats fileStats) {
+    int totalFailed = fileStats.totalParses - fileStats.successfulParses;
+
+    cumulativeStats.successfulParsePct = increment(cumulativeStats.successfulParsePct, percentage(fileStats.successfulParses, fileStats.totalParses));
+    cumulativeStats.successfulRecoveryPct = increment(cumulativeStats.successfulRecoveryPct, percentage(fileStats.successfulRecoveries, totalFailed));
+    cumulativeStats.failedRecoveryPct = increment(cumulativeStats.failedRecoveryPct, percentage(fileStats.failedRecoveries, totalFailed));
+    cumulativeStats.parseErrorPct = increment(cumulativeStats.parseErrorPct, percentage(fileStats.parseErrors, totalFailed));
+    cumulativeStats.slowParsePct = increment(cumulativeStats.slowParsePct, percentage(fileStats.slowParses, totalFailed));
+    cumulativeStats.parseTimeRatios = mergeFrequencyTables(cumulativeStats.parseTimeRatios, fileStats.parseTimeRatios);
+
+    cumulativeStats.filesTested += 1;
+    cumulativeStats.testCount += fileStats.totalParses;
+
+    return cumulativeStats; 
+}
+
+map[int,int] mergeFrequencyTables(map[int,int] hist1, map[int,int] hist2) {
+    for (int pct <- hist2) {
+        if (pct in hist1) {
+            hist1[pct] += hist2[pct];
+        } else {
+            hist1[pct] = hist2[pct];
+        }
+    }
+
+    return hist1;
+}
+
+TestStats mergeStats(TestStats stats, TestStats stats2) {
+    stats.filesTested += stats2.filesTested;
+    stats.testCount += stats2.testCount;
+    stats.successfulParsePct = mergeFrequencyTables(stats.successfulParsePct, stats2.successfulParsePct);
+    stats.successfulRecoveryPct = mergeFrequencyTables(stats.successfulRecoveryPct, stats2.successfulRecoveryPct);
+    stats.failedRecoveryPct = mergeFrequencyTables(stats.failedRecoveryPct, stats2.failedRecoveryPct);
+    stats.parseErrorPct = mergeFrequencyTables(stats.parseErrorPct, stats2.parseErrorPct);
+    stats.slowParsePct = mergeFrequencyTables(stats.slowParsePct, stats2.slowParsePct);
+    stats.parseTimeRatios = mergeFrequencyTables(stats.parseTimeRatios, stats2.parseTimeRatios);
+
+    return stats; 
+}
+
+FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit) {
+    FileStats stats = fileStats();
     int len = size(input);
     int i = 0;
 
     while (i < len) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
         TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deleted=<"<i>">|);
-        stats = updateStats(stats, measurement);
+        stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         i = i+1;
     }
 
     return stats;
 }
 
-TestStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int slowParseLimit, int recoverySuccessLimit) {
-    TestStats stats = testStats(slowParseLimit, recoverySuccessLimit);
+FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit) {
+    FileStats stats = fileStats();
     int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
 
@@ -107,7 +170,7 @@ TestStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
         for (int pos <- [lineStart..lineEnd]) {
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
             TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
-            stats = updateStats(stats, measurement);
+            stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         }
         lineStart = lineEnd+1;
     }
@@ -116,55 +179,101 @@ TestStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
 }
 
 private int percentage(int number, int total) {
-    return (100*number)/total;
+    return total == 0 ? 0 : (100*number)/total;
+}
+
+int statLabelWidth = 40;
+int statFieldWidth = 7;
+
+
+void printFileStats(FileStats fileStats) {
+    void printStat(str label, int stat, int total, bool printPct=true) {
+        int pct = total == 0 ? 0 : stat*100/total;
+        print(left(label + ":", statLabelWidth));
+        str pctStr = printPct ? " (<pct> %)" : "";
+        println(left("<stat><pctStr>", statFieldWidth));
+    }
+
+    println();
+    printStat("Total parses", fileStats.totalParses, fileStats.totalParses);
+    printStat("Successful parses", fileStats.successfulParses, fileStats.totalParses);
+    int failedParses = fileStats.totalParses - fileStats.successfulParses;
+    printStat("Successful recoveries", fileStats.successfulRecoveries, failedParses);
+    printStat("Failed recoveries", fileStats.failedRecoveries, failedParses);
+    printStat("Parse errors", fileStats.parseErrors, failedParses);
+    printStat("Slow parses", fileStats.slowParses, failedParses);
+    printFrequencyTableHeader();
+    printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2/%");
+}
+
+void printFrequencyTableHeader() {
+    print(left("", statLabelWidth+1));
+    print(right("mean", statFieldWidth));
+    print(right("median", statFieldWidth));
+    print(right("95 %", statFieldWidth));
+    print(right("min", statFieldWidth));
+    println(right("max", statFieldWidth));
+    }
+
+void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%") {
+    print(left(label + " (<unit>):", statLabelWidth));
+
+    int totalCount = (0 | it+frequencyTable[val] | val <- frequencyTable);
+
+    int total = 0;
+    int median = 0;
+    int medianCount = 0;
+    int cumulativeCount = 0;
+    int ninetyFivePercentileLimit = round(totalCount * 0.95);
+    int ninetyFivePercentile = -1;
+    int minVal = 1000000000;
+    int maxVal = -1000000000;
+
+    for (val <- sort(toList(frequencyTable.val))) {
+        minVal = min(minVal, val);
+        maxVal = max(maxVal, val);
+
+        int count = frequencyTable[val];
+        cumulativeCount += count;
+
+        if (ninetyFivePercentile == -1 && cumulativeCount >= ninetyFivePercentileLimit) {
+            ninetyFivePercentile = val;
+    }
+
+        total += val*count;
+
+        if (count > medianCount) {
+            medianCount = count;
+            median = val;
+        }
+    }
+
+    if (totalCount == 0) {
+        print("-");
+    } else {
+        int mean = total/totalCount;
+        print(right("<mean>", statFieldWidth));
+        print(right("<median>", statFieldWidth));
+        print(right("<ninetyFivePercentile>", statFieldWidth));
+        print(right("<minVal>", statFieldWidth));
+        println(right("<maxVal>", statFieldWidth));
+    }
 }
 
 void printStats(TestStats stats) {
-    println();
-    int measurementCount = size(stats.measurements);
-    println("Total parses:         <measurementCount>");
-    println("Succesful parses:     <stats.successfulParses> (<percentage(stats.successfulParses, measurementCount)> % of total)");
-    int totalFailed = measurementCount - stats.successfulParses;
-    println("Succesful recoveries: <stats.successfulRecoveries> (<percentage(stats.successfulRecoveries, totalFailed)> % of failed)");
-    println("Failed recoveries:    <stats.failedRecoveries> (<percentage(stats.failedRecoveries, totalFailed)> % of failed)");
-    println("Parse errors:         <stats.parseErrors> (<percentage(stats.parseErrors, totalFailed)> % of failed)");
-
-    if (stats.slowParses == 0) {
-        println("No slow parses.");
-    } else {
-        slowest = (getFirstFrom(stats.measurements) | it.duration < e.duration ? it : e | e <- stats.measurements);
-        println("<stats.slowParses> slow parses, slowest parse: <slowest.source> (<slowest.duration> ms)");
+    if (stats.filesTested != 1) {
+        println("Files tested:         <stats.filesTested>");
     }
+    println("Total parses:         <stats.testCount>");
+    printFrequencyTableHeader();
+    printFrequencyTableStats("Succesful parses", stats.successfulParsePct);
+    printFrequencyTableStats("Succesful recoveries", stats.successfulRecoveryPct);
+    printFrequencyTableStats("Failed recoveries", stats.failedRecoveryPct);
+    printFrequencyTableStats("Parse errors", stats.parseErrorPct);
+    printFrequencyTableStats("Slow parses", stats.slowParsePct);
+    printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%");
 
     println();
-    println("Statistics (average/median/95th percentile):");
-
-    void printStats(str label, list[int] values, str unit) {
-        print(left(label, 40));
-        print(": ");
-        if (values == []) {
-            print("-/-/- <unit>");
-        } else {
-            int mean = sum(values)/size(values);
-        println("<mean>/<round(median(values))>/<percentile(values, 95)> <unit>");
-    }
-    }
-
-    list[int] successfulParseTimes = [ duration | successfulParse(duration=duration) <- stats.measurements ];
-    list[int] successfulRecoveryTimes = [ duration | recovered(duration=duration, errorSize=errorSize) <- stats.measurements, errorSize <= stats.recoverySuccessLimit ];
-    list[int] failedRecoveryTimes = [ duration | recovered(duration=duration, errorSize=errorSize) <- stats.measurements, errorSize > stats.recoverySuccessLimit  ];
-    list[int] parseErrorTimes = [ duration | parseError(duration=duration) <- stats.measurements ];
-
-    printStats("Succesful parse time", successfulParseTimes, "ms");
-    printStats("Succesful recovery time", successfulRecoveryTimes, "ms");
-    printStats("Failed recovery time", failedRecoveryTimes, "ms");
-    printStats("Parse error time", parseErrorTimes, "ms");
-
-    list[int] errorSizes = [ errorSize | recovered(errorSize=errorSize) <- stats.measurements  ];
-    printStats("Recovery error size", errorSizes, "characters");
-
-    list[int] successfulErrorSizes = [ errorSize | recovered(errorSize=errorSize) <- stats.measurements, errorSize <= stats.recoverySuccessLimit ];
-    printStats("Successful recovery size", successfulErrorSizes, "characters");
 }
 
 private str syntaxLocToModuleName(loc syntaxFile) {
@@ -178,86 +287,78 @@ loc zippedFile(str zip, str path) {
     return zipFile + path;
 }
 
-TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) = 
-testErrorRecovery(syntaxFile, topSort, testInput, readFile(testInput));
+FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) = testErrorRecovery(syntaxFile, topSort, testInput, readFile(testInput));
 
-TestStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str input, int slowParseLimit=0, int recoverySuccessLimit=0) {
+FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str input) {
     Module \module = parse(#start[Module], syntaxFile).top;
     str modName = syntaxLocToModuleName(syntaxFile);
     Grammar gram = modules2grammar(modName, {\module});
 
     if (sym:\start(\sort(topSort)) <- gram.starts) {
-        println("==========================================================================");
         println("Error recovery of <syntaxFile> (<topSort>) on <testInput>:");
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
         recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
 
-        if (slowParseLimit == 0) {
         int startTime = realTime();
         standardParser(input, testInput);
-        int referenceDuration = realTime() - startTime;
-            slowParseLimit = referenceDuration*10;
-        }
+        int referenceParseTime = realTime() - startTime;
 
-        if (recoverySuccessLimit == 0) {
             recoverySuccessLimit = size(input)/4;
-        }
 
         println();
         println("Single char deletions:");
-        TestStats singleCharDeletionStats = testSingleCharDeletions(standardParser, recoveryParser, input, slowParseLimit, recoverySuccessLimit);
-        printStats(singleCharDeletionStats);
-        TestStats totalStats = singleCharDeletionStats;
+        FileStats singleCharDeletionStats = testSingleCharDeletions(standardParser, recoveryParser, input, referenceParseTime, recoverySuccessLimit);
+        printFileStats(singleCharDeletionStats);
 
         println();
         println("Deletes until end-of-line:");
-        TestStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, input, slowParseLimit, recoverySuccessLimit);
-        printStats(deleteUntilEolStats);
-        totalStats = mergeStats(totalStats, deleteUntilEolStats);
-        totalStats.filesTested = 1;
+        FileStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, input, referenceParseTime, recoverySuccessLimit);
+        printFileStats(deleteUntilEolStats);
 
+        FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
         println();
-        println("Cumulative stats for <testInput>");
-        printStats(totalStats);
-        println();
-
-        return totalStats;
+        println("-----------------------------------------------------------");
+        println("Total test stats for <testInput>:");
+        printFileStats(stats);
+        return stats;
     } else {
         throw "Cannot find top sort <topSort> in <gram>";
     }
 }TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int maxFileSize) {
     int count = 0;
 
-    int slowParseLimit = 200;
-    int recoverySuccessLimit = 100;
+    TestStats cumulativeStats = testStats();
 
-    TestStats totalStats = testStats(slowParseLimit, recoverySuccessLimit);
-
-    println("Batch testing in directory <dir>");
+    println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>)");
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
         if (isFile(file)) {
             if (endsWith(file.path, ext)) {
-                println("Testing file <file> (<maxFiles-count> left)");
                 str content = readFile(file);
                 if (size(content) <= maxFileSize) {
-                    TestStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content, slowParseLimit = slowParseLimit, recoverySuccessLimit = recoverySuccessLimit);
-                    totalStats = mergeStats(totalStats, fileStats);
+                    println("========================================================================");
+                    println("Testing file <file> (<maxFiles-count> left)");
+                    FileStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content);
+                    cumulativeStats = consolidateStats(cumulativeStats, fileStats);
+                    println();
+                    println("------------------------------------------------------------------------");
+                    println("Cumulative stats after testing <file>:");
+                    printStats(cumulativeStats);
                     count += 1;
                 }
             }
         } else if (isDirectory(file)) {
             TestStats dirStats = batchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles-count, maxFileSize);
-            totalStats = mergeStats(totalStats, dirStats);
+            cumulativeStats = mergeStats(cumulativeStats, dirStats);
             count += dirStats.filesTested;
         }
 
-        if (count > maxFiles) {
-            return totalStats;
+        if (count >= maxFiles) {
+            break;
         }
     }
 
-    return totalStats;
+    return cumulativeStats;
 }
 
