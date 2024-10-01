@@ -34,6 +34,7 @@ extend analysis::diff::edits::TextEdits;
 import ParseTree;
 import List;
 import String;
+import Locations;
 
 @synopsis{Detects minimal differences between parse trees and makes them explicit as ((TextEdit)) instructions.}
 @description{
@@ -123,30 +124,114 @@ readFile(tmp://example.pico|);
 ```
 }
 // equal trees generate empty diffs (note this already ignores whitespace differences)
-default list[TextEdit] treeDiff(Tree a, a) = [];
+list[TextEdit] treeDiff(Tree a, a) = [];
+
+// skip production labels of original rules when diffing
+list[TextEdit] treeDiff(
+    appl(prod(label(_, Symbol s), syms, attrs), list[Tree] args), 
+    Tree u)
+    = treeDiff(appl(prod(s, syms, attrs), args), u);
+
+// skip production labels of replacement rules when diffing
+list[TextEdit] treeDiff(
+    Tree t,
+    appl(prod(label(_, Symbol s), syms, attrs), list[Tree] args))
+    = treeDiff(t, appl(prod(s, syms, attrs), args));
+
+// matched layout trees generate empty diffs such that the original is maintained
+list[TextEdit] treeDiff(
+    appl(prod(layouts(_), _, _), list[Tree] _), 
+    appl(prod(layouts(_), _, _), list[Tree] _))
+    = [];
+
+// matched literal trees generate empty diffs 
+list[TextEdit] treeDiff(
+    appl(prod(lit(str l), _, _), list[Tree] _), 
+    appl(prod(lit(l)    , _, _), list[Tree] _))
+    = [];
+
+// matched case-insensitive literal trees generate empty diffs such that the original is maintained 
+list[TextEdit] treeDiff(
+    appl(prod(cilit(str l), _, _), list[Tree] _), 
+    appl(prod(cilit(l)    , _, _), list[Tree] _))
+    = [];
+
+// different lexicals generate small diffs even if the parent is equal
+list[TextEdit] treeDiff(
+    t:appl(prod(lex(str l), _, _), list[Tree] _), 
+    r:appl(prod(lex(l)    , _, _), list[Tree] _))
+    = [replace(t@\loc, learnIndentation("<r>", "<t>"))]
+    when t != r;
 
 // When the productions are different, we've found an edit, and there is no need to recurse deeper.
 list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
     = t@\loc?  
-        ? [replace(t@\loc, learnIndentation("<r>", "<t>")] 
+        ? [replace(t@\loc, learnIndentation("<r>", "<t>"))] 
         : /* literals and layout (without @\loc) are ignored */ [];
 
-// If a first element is removed and there are elements left, skip the separator too
-list[TextEdit] treeDiff(
-    t:appl(Production p:regular(Symbol reg), list[Tree] aElems), 
-    appl(p, list[Tree] bElems))
-    = listDiff(t@\loc, prepareSeparators(aElems, seps(reg)), prepareSeparators(bElems, seps(reg)));
 
-// When the productions are equal, but the trees may be different, we dig deeper for differences
-list[TextEdit] treeDiff(appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
+// If list production are the same, then the element lists can still be of different length
+// and we switch to listDiff which has different heuristics than normal trees.
+list[TextEdit] treeDiff(
+    Tree t:appl(Production p:regular(Symbol reg), list[Tree] aElems), 
+    appl(p, list[Tree] bElems))
+    = listDiff(t@\loc, seps(reg), aElems, bElems);
+
+// When the productions are equal, but the children may be different, we dig deeper for differences
+default list[TextEdit] treeDiff(appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
     = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)];
 
 @synopsis{decide how many separators we have}
 int seps(\iter-seps(_,list[Symbol] s))      = size(s);
 int seps(\iter-star-seps(_,list[Symbol] s)) = size(s);
 default int seps(Symbol _) = 0;
+
+@synsopis{List diff is like text diff on lines; complex and easy to make slow}
+list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] replacements) {
+    assert originals != replacements && originals == [];
+    <originals, replacements> = trimEqualElements(originals, replacements);
+    span = cover([orig@\loc | orig <- originals, orig@\loc?]);
+
+    assert originals != replacements && originals != [];
+    <edits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
+
+    return [*edits, *genericListDiff(span, originals, replacements)];
+}
+
+@synopsis{trips equal elements from the front and the back of both lists, if any.}
+tuple[list[Tree], list[Tree]] trimEqualElements([Tree a, *Tree aTail], [ a, *Tree bTail])
+    = <aTail, bTail>;
+
+tuple[list[Tree], list[Tree]] trimEqualElements([*Tree aHead, Tree a], [*Tree bHead, a])
+    = <aHead, bHead>;
+
+default tuple[list[Tree], list[Tree]] trimEqualElements(list[Tree] a, list[Tree] b)
+    = <a, b>;
+
+// only one element removed in front, then we are done
+tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 0, [Tree a, *Tree tail], [*tail])
+    = <[replace(a@\loc, "", "<t>")], [], []>;
+
+// only one element removed in front, plus 1 separator, then we are done because everything is the same
+tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 1, 
+    [Tree a, Tree _sep, Tree tHead, *Tree tail], [tHead, *tail])
+    = <[replace(fromUntil(a, tHead), "", "<t>")], [], []>;
+
+@synopsis{Compute location span that is common between an element and a succeeding element}
+@description{
+The resulting loc is including the `from` but exclusing the `until`. It goes right
+up to `until`.
+```ascii-art
+ [from] gap [until]
+ <--------->
+````
+}
+private loc fromUntil(loc from, loc until) = from.top(from.offset, until.offset - from.offset);
+
+@synopsis{convenience overload for shorter code}
+private loc fromUntil(Tree from, Tree until) = fromUntil(fro@\loc, until@\loc);
 
 @synopsis{Finds minimal edits to list elements, taking extra care of removing separators when so required.}
 @description{
@@ -164,7 +249,7 @@ list[TextEdit] listDiff(loc span, list[Tree] elemsA, list[Tree] elemsB) = longer
   when size(elemsA) < size(elemsB);
 
 // fewer elements, and possibly other elements have changed.
-list[TextEdit] listDiff(list[Tree] elemsA, list[Tree] elemsB) = shorterLengthDiff(elemsA, elemsB) 
+list[TextEdit] listDiff(loc span, list[Tree] elemsA, list[Tree] elemsB) = shorterLengthDiff(span, elemsA, elemsB) 
   when size(elemsA) > size(elemsB);
 
 // this works only because we annotated the separators.
