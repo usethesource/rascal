@@ -33,6 +33,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         startTime = realTime();
         try {
             Tree t = recoveryParser(input, source);
+            rprintln(t);
             duration = realTime() - startTime;
             Tree best = findBestError(t);
             errorSize = size(getErrorText(best));
@@ -160,14 +161,23 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
     return stats;
 }
 
-FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit) {
+FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
-    int lineStart = 0;
+    int lineStart = begin;
     list[int] lineEndings = findAll(input, "\n");
 
     for (int lineEnd <- lineEndings) {
         lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
+
+            // Check boundaries (only used for quick bug testing)
+            if (end != -1 && end < pos) {
+                return stats;
+            }
+            if (pos < begin) {
+                continue;
+            }
+
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
             TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
@@ -295,7 +305,6 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
     Grammar gram = modules2grammar(modName, {\module});
 
     if (sym:\start(\sort(topSort)) <- gram.starts) {
-        println("Error recovery of <syntaxFile> (<topSort>) on <testInput>:");
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
         recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
@@ -305,6 +314,8 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
         int referenceParseTime = realTime() - startTime;
 
             recoverySuccessLimit = size(input)/4;
+
+        println("Error recovery of <syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
 
         println();
         println("Single char deletions:");
