@@ -1,38 +1,29 @@
 package org.rascalmpl.library.lang.rascal.tests.concrete.recovery;
 
-import java.io.PrintWriter;
-
-import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeStore;
 
-public class ErrorRecovery {
-	private final IValueFactory values;
+public class ParseErrorDisambiguator {
 	private final IRascalValueFactory rascalValues;
-    private final PrintWriter out;
-	private final TypeStore store;
+    private boolean allowAmbiguity;
 
-    public ErrorRecovery(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
+    public ParseErrorDisambiguator(IRascalValueFactory rascalValues) {
 		super();
 		
-		this.values = values;
 		this.rascalValues = rascalValues;
-		this.store = store;
-		this.out = out;
     }
 
     private static class ScoredTree {
@@ -77,12 +68,9 @@ private int scoreErrors(Tree t) = (0 | it + getSkipped(e).src.length | /e:appl(e
 default Tree defaultErrorDisambiguationFilter(Tree t) = t;
      **/
 
-    public IConstructor disambiguateErrors(IConstructor arg) {
-        long start = System.currentTimeMillis();
-        IConstructor result = disambiguate(arg).tree;
-        long duration = System.currentTimeMillis() - start;
-        System.err.println("disambiguateErrors took " + duration + " ms.");
-        return result;
+    public synchronized IConstructor disambiguateErrors(IConstructor arg, IBool allowAmbiguity) {
+        this.allowAmbiguity = allowAmbiguity != null && allowAmbiguity.getValue();
+        return disambiguate(arg).tree;
     }
 
     private ScoredTree disambiguate(IConstructor tree) {
@@ -91,7 +79,7 @@ default Tree defaultErrorDisambiguationFilter(Tree t) = t;
 		if (type == RascalValueFactory.Tree_Appl) {
             return disambiguateAppl((ITree) tree);
         } else if (type == RascalValueFactory.Tree_Amb) {
-            return disambiguateAmb(tree);
+            return disambiguateAmb((ITree) tree);
         }
 
         return new ScoredTree(tree, 0);
@@ -135,7 +123,7 @@ default Tree defaultErrorDisambiguationFilter(Tree t) = t;
         return new ScoredTree(resultTree, totalScore);
     }
 
-    private ScoredTree disambiguateAmb(IConstructor amb) {
+    private ScoredTree disambiguateAmb(ITree amb) {
         ISet alts = (ISet) amb.get(0);
 
         ISetWriter nonErrorAlts = null;
@@ -145,7 +133,7 @@ default Tree defaultErrorDisambiguationFilter(Tree t) = t;
             if (disambiguatedAlt.score == 0) {
                 // Non-error tree
                 if (nonErrorAlts == null) {
-                    nonErrorAlts = values.setWriter();
+                    nonErrorAlts = rascalValues.setWriter();
                 }
                 nonErrorAlts.insert(disambiguatedAlt.tree);
             } else {
@@ -163,16 +151,21 @@ default Tree defaultErrorDisambiguationFilter(Tree t) = t;
         ISet newAlts = nonErrorAlts.done();
         int altCount = newAlts.size();
 
-        IConstructor resultTree;
+        ITree resultTree;
         if (altCount == alts.size()) {
             // All children are without errors, return the original tree
             resultTree = amb;
         } else if (altCount == 1) {
             // One child without errors remains, dissolve the amb tree
-            resultTree = (IConstructor)newAlts.iterator().next();
+            resultTree = (ITree) newAlts.iterator().next();
         } else {
             // Create a new amb tree with the remaining non-error trees
             resultTree = rascalValues.amb(newAlts);
+
+            // We have an ambiguity between non-error trees
+            if (!allowAmbiguity) {
+                throw new Ambiguous(resultTree);
+            }
         }
 
         return new ScoredTree(resultTree, 0);

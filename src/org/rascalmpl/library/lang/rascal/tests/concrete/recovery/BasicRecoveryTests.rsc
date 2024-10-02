@@ -42,6 +42,14 @@ test bool axc() {
 }
 
 test bool ax() {
-    Tree t = parseS("a x $");
-    return getErrorText(findBestError(t)) == "x ";
+    str input = "a x $";
+
+    Tree t = parseS(input);
+    assert size(findAllErrors(t)) == 3;
+    assert getErrorText(findBestError(t)) == "x ";
+
+    Tree autoDisambiguated = parser(#S, allowRecovery=true, allowAmbiguity=false)(input, |unknown:///|);
+    assert size(findAllErrors(autoDisambiguated)) == 1;
+
+    return getErrorText(findFirstError(autoDisambiguated)) == getErrorText(findBestError(t));
 }
