@@ -1,22 +1,22 @@
 module lang::rascalcore::compile::Examples::Tst4
 
+import ParseTree;
 
-data Face = top() | left() | right() | bottom();
-
-// https://docs.jsplumbtoolkit.com/community/lib/anchors
-data Anchor
- = top() | topRight() | right() | bottomRight() | bottom() | bottomLeft() | left() | topLeft() | center()
- | autoDefault()
- | perimeter(Shape shape, int anchorCount = 60, int rotation = 0)
- | continuous(list[Face] faces = [Face::top(), 
-       Face::left(), 
-       Face::right(), 
-       Face::bottom()]) 
- ;
-
-data Shape
- = circle() | ellipse() | triangle() | diamond() | rectangle() | square();
-
+syntax Aas
+  = nil: [a]*
+  | a:   [a][a]*
+  | aas: [a][a][a]*
+  ;
+  
+&T <: Tree ambFilter(amb(set[&T <: Tree] alternatives)) {
+  result = {a | Aas a <- alternatives, !(a is nil)};
+  
+  if ({oneTree} := result) {
+    return oneTree;
+  }
+  
+  return ParseTree::amb(result);
+} 
 // import ParseTree;
 
 // // value f(Tree x){

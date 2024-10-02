@@ -123,7 +123,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Cannot instantiate formal parameter type _",
 	    "Bounds _ and _ are not comparable",
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
-	    "Returned type _ is not (or: not always) a subtype of expected return type _",
+	    "Returned type _ is not always a subtype of expected return type _",
 		"Type parameter _ should be less than _, found _",
 		"Ambiguous pattern type"
 	], importedModules=importedModules, initialDecls=initialDecls);
