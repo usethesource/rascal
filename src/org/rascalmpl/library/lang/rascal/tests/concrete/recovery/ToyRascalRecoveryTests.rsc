@@ -28,8 +28,7 @@ Tree parseToyRascal(str input, bool visualize=false) {
             println("- <getErrorText(error)>");
         }
 
-        Tree disambiguated = defaultErrorDisambiguationFilter(result);
-        println("Best error: <getErrorText(findFirstError(disambiguated))>");
+        println("Best error: <getErrorText(findBestError(result))>");
     }
 
     return result;
