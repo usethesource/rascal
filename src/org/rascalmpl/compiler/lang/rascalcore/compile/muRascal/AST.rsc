@@ -102,7 +102,8 @@ MuExp muTmpITree(str name, str fuid)                = muTmpNative(name, fuid, na
 // Be aware that the maps producesNativeBool, producesNativeInt*, etc. have to be in sync with the following MuExps
           
 public data MuExp = 
-            muNoValue()                                         // Absent value in optional construct
+            muCon(value c)                                      // Rascal Constant: an arbitrary IValue
+          | muNoValue()                                         // Absent value in optional construct
           | muATypeCon(AType atype, map[AType,set[AType]] defs) // AType as constant
           
           | muComment(str text)                                 // Add comment to code
