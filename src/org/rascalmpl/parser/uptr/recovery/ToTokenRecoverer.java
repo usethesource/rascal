@@ -52,6 +52,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
     private IdDispenser stackNodeIdDispenser;
     private ExpectsProvider<IConstructor> expectsProvider;
 
+    private Set<Long> processedNodes = new HashSet<>();
+
     public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
         this.uri = uri;
         this.expectsProvider = expectsProvider;
@@ -346,6 +348,14 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             new DoubleArrayList<>();
 
         for (int i = failedNodes.size() - 1; i >= 0; --i) {
+            AbstractStackNode<IConstructor> failedNode = failedNodes.get(i);
+
+            // Protect against endless loop
+            long id = (long) failedNode.getId() << 32 | failedNode.getStartLocation();
+            if (!processedNodes.add(id)) {
+                continue;
+            }
+
             findRecoveryNodes(failedNodes.get(i), recoveryNodes);
         }
 

@@ -144,7 +144,7 @@ extend Message;
 extend List;
 
 import String;
-import Node;
+import Set;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -807,20 +807,19 @@ str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringCh
 This filter removes error trees until no ambiguities caused by error recovery are left.
 Note that regular ambiguous trees remain in the parse forest.
 }
-Tree defaultErrorDisambiguationFilter(t: appl(Production prod, args)) {
-  Tree result = appl(prod, [defaultErrorDisambiguationFilter(arg) | arg <- args]);
-  return setKeywordParameters(result, getKeywordParameters(t));
+Tree defaultErrorDisambiguationFilter(Tree t) {
+  return visit(t) {
+    case a:amb(_) => ambDisambiguation(a)
+  };
 }
 
-Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
+private Tree ambDisambiguation(amb(set[Tree] alternatives)) {
   // Go depth-first
-  set[Tree] disambiguatedAlts = { defaultErrorDisambiguationFilter(alt) | Tree alt <- alternatives };
-
-  set[Tree] errorTrees = { alt | Tree alt <- disambiguatedAlts, /appl(error(_,_,_), _) := alt };
-  set[Tree] nonErrorTrees = { alt | Tree alt <- disambiguatedAlts, /appl(error(_,_,_), _) !:= alt };
+  rel[int score, Tree alt] scoredErrorTrees = { <scoreErrors(alt), alt> | Tree alt <- alternatives };
+  set[Tree] nonErrorTrees = scoredErrorTrees[0];
 
   if (nonErrorTrees == {}) {
-    return getBestErrorTree(errorTrees);
+    return (getFirstFrom(scoredErrorTrees) | it.score > c.score ? c : it | c <- scoredErrorTrees).alt;
   }
   
   if ({Tree single} := nonErrorTrees) {
@@ -832,34 +831,7 @@ Tree defaultErrorDisambiguationFilter(amb(set[Tree] alternatives)) {
   return amb(nonErrorTrees);
 }
 
-private Tree getBestErrorTree(set[Tree] trees) {
-  Tree best = char(0);
-  int bestErrorCount = -1;
-  int bestErrorLength = 0;
-
-  for (tree <- trees) {
-    list[Tree] errors = findAllErrors(tree);
-    int errorCount = size(errors);
-    int errorLength = 0;
-
-    for (err <- errors) {
-      errorLength += getSkipped(err).src.length;
-    }
-
-    if (bestErrorCount == -1 || errorCount < bestErrorCount || (errorCount == bestErrorCount && errorLength < bestErrorLength)) {
-      best = tree;
-      bestErrorCount = errorCount;
-      bestErrorLength = errorLength;
-    }
-  }
-
-  if (bestErrorCount != -1) {
-    return best;
-  }
-
-  // trees must have been empty
-  fail;
-}
+private int scoreErrors(Tree t) = (0 | it + getSkipped(e).src.length | /e:appl(error(_,_,_),_) := t);
 
 // Handle char and cycle nodes
 default Tree defaultErrorDisambiguationFilter(Tree t) = t;
