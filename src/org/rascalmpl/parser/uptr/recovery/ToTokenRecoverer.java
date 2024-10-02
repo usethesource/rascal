@@ -377,7 +377,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
      *        failed to match
      * @param failedNodes the list to which failed nodes must be added
      */
-    private void collectUnmatchableMidProductionNodes(int location,
+    private static void collectUnmatchableMidProductionNodes(int location,
         DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
         ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
         for (int i = unmatchableMidProductionNodes.getSize() - 1; i >= 0; --i) {
