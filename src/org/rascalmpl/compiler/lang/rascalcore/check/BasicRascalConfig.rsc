@@ -114,7 +114,7 @@ data TModel (
     str rascalTplVersion = "0.0.0"
 );
 
-private str currentRascalTplVersion = "2.0.0";
+str currentRascalTplVersion = "2.0.0";
 
 bool isValidRascalTplVersion(str version){
     return equalVersion(version, currentRascalTplVersion);
