@@ -888,7 +888,6 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
             bnds = toList(tpbounds[pname]);
             c.calculate("type parameter with bound", n, bnds, 
                 AType(Solver s){ 
-                    for(bnd <- bnds) println("<bnd>: <s.getType(bnd)>");
                     new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                     return  aparameter(prettyPrintName(n), s.getType(new_bnd), closed=true);
                 });  
