@@ -33,7 +33,6 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         startTime = realTime();
         try {
             Tree t = recoveryParser(input, source);
-            rprintln(t);
             duration = realTime() - startTime;
             Tree best = findBestError(t);
             errorSize = size(getErrorText(best));
@@ -156,6 +155,9 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
         TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deleted=<"<i>">|);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         i = i+1;
+        if (i < len && substring(input, i, i+1) == "\n") {
+            println();
+        }
     }
 
     return stats;
@@ -183,6 +185,7 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         }
         lineStart = lineEnd+1;
+        println();
     }
 
     return stats;
