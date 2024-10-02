@@ -154,10 +154,10 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
         TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deleted=<"<i>">|);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
-        i = i+1;
         if (i < len && substring(input, i, i+1) == "\n") {
             println();
         }
+        i = i+1;
     }
 
     return stats;
