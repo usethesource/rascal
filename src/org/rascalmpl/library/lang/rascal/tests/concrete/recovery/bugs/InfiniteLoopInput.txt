@@ -1,0 +1,3 @@
+module M
+alias G = rel[loc, set[E
+data P = t() | f();
