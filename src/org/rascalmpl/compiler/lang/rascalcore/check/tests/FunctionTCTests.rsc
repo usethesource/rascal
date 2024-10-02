@@ -18,7 +18,7 @@ test bool returnEmptyMapOK()  = checkOK("map[&K, &V] emptyMap(type[map[&K,&V]] _
 test bool typeParamsOK1()     = checkOK("&T add(&T x, &T y) = y;");
 test bool typeParamsOK2()     = checkOK("num sub(num x, num y) = x - y;");
 
-test bool typeParamVoidOK() = checkOK("list[&T] f(int _) = [];");
+test bool typeParamNotBound1() = unexpectedType("list[&T] f(int _) = [];");
 test bool typeParamNotBound2() = unexpectedType("rel[&T, &V] f(&T x) = {\<x,x\>};");
 @ignore{Depends on correct definition of S8}
 test bool returnNotOK3()       = unexpectedType("&T get(list[&T] _) = 1;");
