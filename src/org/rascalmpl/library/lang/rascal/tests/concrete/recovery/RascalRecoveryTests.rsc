@@ -28,8 +28,7 @@ Tree parseRascal(type[&T] t, str input, bool visualize=false) {
             println("- <getErrorText(error)>");
         }
 
-        Tree disambiguated = defaultErrorDisambiguationFilter(result);
-        println("Best error: <getErrorText(findFirstError(disambiguated))>");
+        println("Best error: <getErrorText(findBestError(result))>");
     }
 
     return result;
@@ -92,7 +91,7 @@ test bool rascalMissingCloseParen() {
     Tree t = parseRascal("module A void f({} void g(){}");
 
     assert getErrorText(findFirstError(t)) == "void g(";
-    assert getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "(";
+    assert getErrorText(findBestError(t)) == "(";
 
     return true;
 }
@@ -102,7 +101,7 @@ test bool rascalFunctionDeclarationMissingCloseParen() {
 
     assert getErrorText(findFirstError(t)) == "void g(";
 
-    Tree error = findFirstError(defaultErrorDisambiguationFilter(t));
+    Tree error = findBest(t);
     assert getErrorText(error) == "(";
     loc location = getSkipped(error).src;
     assert location.begin.column == 16 && location.length == 1;
