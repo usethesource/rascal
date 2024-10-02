@@ -69,6 +69,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
         // For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
         // improve error recovery.
+
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
 		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
@@ -386,6 +387,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             AbstractStackNode<IConstructor> failedNode =
                 unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference
                                                                                    // updates of the static version
+
 			// Merge the information on the predecessors into the failed node.
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
