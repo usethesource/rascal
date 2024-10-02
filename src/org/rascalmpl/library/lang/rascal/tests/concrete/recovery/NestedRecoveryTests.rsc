@@ -35,5 +35,5 @@ test bool nestedOk() {
 
 test bool nestedTypo() {
     Tree t = parseS("a b x c");
-    return getErrorText(findFirstError(defaultErrorDisambiguationFilter(t))) == "x ";
+    return getErrorText(findBestError(t)) == "x ";
 }
