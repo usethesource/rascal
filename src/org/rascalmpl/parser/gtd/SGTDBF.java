@@ -10,7 +10,6 @@ package org.rascalmpl.parser.gtd;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -881,18 +880,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		}
 
 		if (node.isEndNode()) {
-			if (!result.isEmpty() || node.getId() == AbstractExpandableStackNode.DEFAULT_LIST_EPSILON_ID) { // Only go
-																											// into the
-																											// nullable
-																											// fix path
-																											// for
-																											// nullables
-																											// (special
-																											// list
-																											// epsilons
-																											// can be
-																											// ignored
-																											// as well).
+			 // Only go into the nullable fix path for nullables (special list epsilons can be  ignored as well).
+			if (!result.isEmpty() || node.getId() == AbstractExpandableStackNode.DEFAULT_LIST_EPSILON_ID) {
 				updateEdges(node, result);
 			}
 			else {
@@ -1357,8 +1346,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Initiates parsing.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer,
-		IDebugListener<P> debugListener) {
+	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input,
+			IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
 		if (debugListener == null) {
 			debugListener = new NopDebugListener<>();
 		}

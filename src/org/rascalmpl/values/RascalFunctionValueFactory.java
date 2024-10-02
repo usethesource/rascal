@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.lang.rascal.tests.concrete.recovery.ParseErrorDisambiguator;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
@@ -583,7 +584,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
                 recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance));
                 //debugListener = new DebugLogger(new PrintWriter(System.out, true));
             }
-            return (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);
+            ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
+
+            if (!allowAmbiguity && allowRecovery && (filters == null || filters.isEmpty())) {
+                // Filter error-induced ambiguities
+                parseForest = (ITree) new ParseErrorDisambiguator((RascalValueFactory) ValueFactoryFactory.getValueFactory()).disambiguateErrors(parseForest, null);
+            }
+
+            return parseForest;
         }
     }
     

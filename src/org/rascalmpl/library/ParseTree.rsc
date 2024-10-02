@@ -803,9 +803,9 @@ If you want the text of the whole error tree, you can just use string interpolat
 }
 str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
 
-@javaClass{org.rascalmpl.library.lang.rascal.tests.concrete.recovery.ErrorRecovery}
+@javaClass{org.rascalmpl.library.lang.rascal.tests.concrete.recovery.ParseErrorDisambiguator}
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
-Note that regular ambiguous trees remain in the parse forest.
+Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 }
-java Tree disambiguateErrors(Tree t);
+java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
