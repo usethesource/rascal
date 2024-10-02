@@ -38,7 +38,7 @@ void runRascalBatchTest(int maxFiles=1000, int maxFileSize=4000) {
     TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", maxFiles, maxFileSize);
     int duration = realTime() - startTime;
     println();
-    println("========================im========================================");
+    println("================================================================");
     println("Rascal batch test done in <duration/1000> seconds, total result:");
     printStats(stats);
 }int main(list[str] args) {
@@ -48,7 +48,7 @@ void runRascalBatchTest(int maxFiles=1000, int maxFileSize=4000) {
         maxFiles = toInt(args[0]);
         maxFileSize = toInt(args[1]);
     } else if (size(args) != 0) {
-        println("Usage: ErrorRecoveryBenchmark <max-files> <max-file-size>");
+        println("Usage: ErrorRecoveryBenchmark \<max-files\> \<max-file-size\>");
     }
 
     runRascalBatchTest(maxFiles=maxFiles, maxFileSize=maxFileSize);

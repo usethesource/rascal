@@ -1,4 +1,4 @@
-module lang::rascal::tests::concrete::recovery::bugs::InfiniteLoop2Bug
+module lang::rascal::tests::concrete::recovery::bugs::SlowDisambiguationBug
 
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import lang::rascal::\syntax::Rascal;
