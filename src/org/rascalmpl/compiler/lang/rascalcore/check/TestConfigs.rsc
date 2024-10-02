@@ -15,7 +15,7 @@ data PathConfig(
 // ----  Various PathConfigs  ---------------------------------------------
 
 loc REPO =        |file:///Users/paulklint/git/|;
-loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!/|;
+loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.9-SNAPSHOT.jar!/|;
 loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.13.5-SNAPSHOT/typepal-0.13.5-SNAPSHOT.jar!/|;
  
 // ---- PathConfigs for testing purposes --------------------------------------
