@@ -784,7 +784,7 @@ list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tr
 Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
 
 @synopsis{Find the best error from a tree containing errors. This function will fail if `tree` does not contain an error.}
-Tree findBestError(Tree tree) = findFirstError(defaultErrorDisambiguationFilter(tree));
+Tree findBestError(Tree tree) = findFirstError(disambiguateErrors(tree));
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
@@ -803,35 +803,9 @@ If you want the text of the whole error tree, you can just use string interpolat
 }
 str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
 
+@javaClass{org.rascalmpl.library.lang.rascal.tests.concrete.recovery.ErrorRecovery}
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
 Note that regular ambiguous trees remain in the parse forest.
 }
-Tree defaultErrorDisambiguationFilter(Tree t) {
-  return visit(t) {
-    case a:amb(_) => ambDisambiguation(a)
-  };
-}
-
-private Tree ambDisambiguation(amb(set[Tree] alternatives)) {
-  // Go depth-first
-  rel[int score, Tree alt] scoredErrorTrees = { <scoreErrors(alt), alt> | Tree alt <- alternatives };
-  set[Tree] nonErrorTrees = scoredErrorTrees[0];
-
-  if (nonErrorTrees == {}) {
-    return (getFirstFrom(scoredErrorTrees) | it.score > c.score ? c : it | c <- scoredErrorTrees).alt;
-  }
-  
-  if ({Tree single} := nonErrorTrees) {
-    // One ambiguity left, no ambiguity concerns here
-    return single;
-  }
-
-  // Multiple non-error trees left, return an ambiguity node with just the non-error trees
-  return amb(nonErrorTrees);
-}
-
-private int scoreErrors(Tree t) = (0 | it + getSkipped(e).src.length | /e:appl(error(_,_,_),_) := t);
-
-// Handle char and cycle nodes
-default Tree defaultErrorDisambiguationFilter(Tree t) = t;
+java Tree disambiguateErrors(Tree t);
