@@ -73,7 +73,7 @@ public PathConfig getRascalProjectTestingPathConfig() {
 
 public PathConfig getRascalPathConfig() {
    return pathConfig(   
-        srcs = [ REPO + "rascal/src/org/rascalmpl/library" ],
+        srcs = [ REPO + "rascal/src/org/rascalmpl/library", REPO + "rascal/test/org/rascalmpl/benchmark/" ],
         bin = REPO + "generated-sources/target/rascal/test-classes",
         bin = REPO + "generated-sources/target/rascal/classes",
         generatedSources = REPO + "generated-sources/target/rascal/generated-sources/src/main/java/",
@@ -183,7 +183,7 @@ public RascalCompilerConfig getFlyBytesCompilerConfig(){
 
 public PathConfig getSalixPathConfig() {
     return pathConfig(   
-        srcs = [ REPO + "salix/src", REPO + "salix-core/src/main/rascal", REPO + "salix-contrib/src/main/rascal" ],
+        srcs = [ REPO + "salix-core/src/main/rascal", REPO + "salix-contrib/src/main/rascal" ],
         bin = REPO + "generated-sources/target/salix/classes",
         generatedSources = REPO + "generated-sources/target/salix/generated-sources/src/main/java/",
         generatedTestSources = REPO + "generated-sources/target/salix/generated-sources/src/main/java/",
