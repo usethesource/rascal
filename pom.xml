@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.40.8-SNAPSHOT</version>
+    <version>0.40.9-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.28.1</rascal-maven.version>
+        <rascal-maven.version>0.28.2</rascal-maven.version>
     </properties>
 
     <licenses>

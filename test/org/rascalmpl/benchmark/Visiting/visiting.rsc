@@ -1,8 +1,8 @@
 module Visiting::visiting
 
 import IO;
-import Math;
-import Benchmark;
+import util::Math;
+import util::Benchmark;
 
 data ColoredTree =
      leaf(int n)
@@ -20,7 +20,7 @@ public ColoredTree genTree(int leafChance, int minDepth,int maxDepth){
    switch(arbInt(3)){
      case 0: return red(left,right);
      case 1: return black(left,right);
-     case 2: return green(left,right);
+     default: return green(left,right);
    }
 }
 
