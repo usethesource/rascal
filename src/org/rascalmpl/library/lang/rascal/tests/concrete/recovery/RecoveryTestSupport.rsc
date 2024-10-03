@@ -36,9 +36,9 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             Tree t = recoveryParser(input, source);
             duration = realTime() - startTime;
             Maybe[Tree] best = findBestError(t);
-            totalDuration = realTime() - startTime;
-            println("parse time: <duration>, disamb time: <totalDuration-duration>");
-            if (nothing() := best) {
+            //totalDuration = realTime() - startTime;
+            //println("parse time: <duration>, disamb time: <totalDuration-duration>");
+            if (best == nothing()) {
                 measurement = successfulDisambiguation(source=source, duration=duration);
             } else {
                 errorSize = size(getErrorText(best.val));
@@ -75,6 +75,7 @@ FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenc
         }
         }
         case successfulDisambiguation(): {
+            stats.parseTimeRatios = increment(stats.parseTimeRatios, parseTimeRatio);
             print("&");
             stats.successfulDisambiguations += 1;
         }
@@ -209,7 +210,7 @@ private int percentage(int number, int total) {
 }
 
 int statLabelWidth = 40;
-int statFieldWidth = 8;
+int statFieldWidth = 10;
 
 
 void printFileStats(FileStats fileStats) {
@@ -225,11 +226,12 @@ void printFileStats(FileStats fileStats) {
     printStat("Successful parses", fileStats.successfulParses, fileStats.totalParses);
     int failedParses = fileStats.totalParses - fileStats.successfulParses;
     printStat("Successful recoveries", fileStats.successfulRecoveries, failedParses);
+    printStat("Successful disambiguations", fileStats.successfulDisambiguations, failedParses);
     printStat("Failed recoveries", fileStats.failedRecoveries, failedParses);
     printStat("Parse errors", fileStats.parseErrors, failedParses);
     printStat("Slow parses", fileStats.slowParses, failedParses);
     printFrequencyTableHeader();
-    printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2(ratio)");
+    printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2(ratio)", printTotal=false);
 }
 
 void printFrequencyTableHeader() {
@@ -242,7 +244,7 @@ void printFrequencyTableHeader() {
     println(right("total", statFieldWidth));
     }
 
-void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%") {
+void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%", bool printTotal=true) {
     print(left(label + " (<unit>):", statLabelWidth));
 
     int totalCount = (0 | it+frequencyTable[val] | val <- frequencyTable);
@@ -284,7 +286,7 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
         print(right("<ninetyFivePercentile>", statFieldWidth));
         print(right("<minVal>", statFieldWidth));
         print(right("<maxVal>", statFieldWidth));
-        println(right("<totalCount>", statFieldWidth));
+        println(right("<printTotal ? total : totalCount>", statFieldWidth));
     }
 }
 
@@ -296,11 +298,11 @@ void printStats(TestStats stats) {
     printFrequencyTableHeader();
     printFrequencyTableStats("Succesful parses", stats.successfulParses);
     printFrequencyTableStats("Succesful recoveries", stats.successfulRecoveries);
-    printFrequencyTableStats("Succesful disambiguations", stats.successfulRecoveries);
+    printFrequencyTableStats("Succesful disambiguations", stats.successfulDisambiguations);
     printFrequencyTableStats("Failed recoveries", stats.failedRecoveries);
     printFrequencyTableStats("Parse errors", stats.parseErrors);
     printFrequencyTableStats("Slow parses", stats.slowParses);
-    printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%");
+    printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%", printTotal=false);
 
     println();
 }
