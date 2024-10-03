@@ -21,7 +21,7 @@ rel[int,int] trans0(rel[int,int] R){
 }
 
 map[int, set[int]] mappify(rel[int,int] r){
-    m = ();
+    map[int, set[int]] m = ();
     for(<a, b> <- r){
        defs = m[a] ? {};
        m[a] = defs + b;
@@ -71,7 +71,7 @@ rel[int,int] build(int n) = {<arbInt(3000), arbInt(3000)> | i <- [0..n]};
 value measure(){
     r = build(100000);
     println("r+:        <cpuTimeOf((){ r+; })/1000000>");
-    println("trans0(r): <cpuTimOf((){ trans0(r); })/1000000>");
-    println("trans1(r):  <cpuTimOf((){ trans1(r); })/1000000>");
+    println("trans0(r): <cpuTimeOf((){ trans0(r); })/1000000>");
+    println("trans1(r):  <cpuTimeOf((){ trans1(r); })/1000000>");
     return true;
 }
