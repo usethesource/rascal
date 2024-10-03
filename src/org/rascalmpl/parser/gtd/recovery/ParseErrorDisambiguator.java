@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.rascal.tests.concrete.recovery;
+package org.rascalmpl.parser.gtd.recovery;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.values.IRascalValueFactory;
