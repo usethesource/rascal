@@ -136,6 +136,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	// Error reporting guards
 	private boolean parseErrorEncountered;
+	private boolean parseErrorRecovered;
 
 	// Error recovery
 	private IRecoverer<P> recoverer;
@@ -946,6 +947,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
 					queueMatchableNode(recovered, recovered.getLength(), recoveredNodes.getSecond(i));
 				}
+				parseErrorRecovered = true;
 				return findStacksToReduce();
 			}
 
@@ -1004,6 +1006,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 					queueRecoveryNode(recovered, recovered.getStartLocation(), recovered.getLength(),
 						recoveredNodes.getSecond(i));
 				}
+				parseErrorRecovered = true;
 				return findStacksToReduce();
 			}
 
@@ -1585,7 +1588,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				actionExecutor.completed(rootEnvironment, (parseResult == null));
 			}
 			if (parseResult != null) {
-				if (recoverer != null && parseErrorEncountered) {
+				if (recoverer != null && parseErrorRecovered) {
 					parseResult = introduceErrorNodes(parseResult, nodeConstructorFactory);
 				}
 				return parseResult; // Success.
