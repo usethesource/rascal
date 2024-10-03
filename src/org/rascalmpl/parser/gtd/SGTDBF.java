@@ -1641,13 +1641,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IConstructor result;
 		Type type = tree.getConstructorType();
 		if (type == RascalValueFactory.Tree_Appl) {
-			result = fixErrorAppl(tree, nodeConstructorFactory);
+			result = fixErrorAppl((ITree) tree, nodeConstructorFactory);
 		}
 		else if (type == RascalValueFactory.Tree_Char) {
 			result = tree;
 		}
 		else if (type == RascalValueFactory.Tree_Amb) {
-			result = fixErrorAmb(tree, nodeConstructorFactory);
+			result = fixErrorAmb((ITree) tree, nodeConstructorFactory);
 		}
 		else if (type == RascalValueFactory.Tree_Cycle) {
 			result = tree;
@@ -1664,15 +1664,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return result;
 	}
 
-	private IConstructor fixErrorAppl(IConstructor tree,
+	private IConstructor fixErrorAppl(ITree tree,
 		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
-		IValue prod = tree.get(0);
-		IList childList = (IList) tree.get(1);
-		int childCount = childList.length();
+		IValue prod = TreeAdapter.getProduction(tree);
+		IList childList = TreeAdapter.getArgs(tree);
 
-		//ArrayList<IConstructor> children = new ArrayList<>(childCount);
 		ArrayList<IConstructor> newChildren = null;
 		boolean errorTree = false;
+		int childCount = childList.length();
 		for (int i = 0; i < childCount; i++) {
 			IConstructor child = (IConstructor) childList.get(i);
 			IConstructor newChild = null;
@@ -1708,9 +1707,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return tree;
 	}
 
-	private IConstructor fixErrorAmb(IConstructor tree,
+	private IConstructor fixErrorAmb(ITree tree,
 		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
-		ISet alternativeSet = (ISet) tree.get(0);
+		ISet alternativeSet = TreeAdapter.getAlternatives(tree);
 		ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
 		boolean anyChanges = false;
 		for (IValue alt : alternativeSet) {
@@ -1719,7 +1718,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				anyChanges = true;
 			}
 			alternatives.add(newAlt);
-		};
+		}
 
 		if (anyChanges) {
 			return nodeConstructorFactory.createAmbiguityNode(alternatives);
@@ -1727,8 +1726,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 		return tree;
 	}
-
-
 
 	/**
 	 * Datastructure visualization for debugging purposes
