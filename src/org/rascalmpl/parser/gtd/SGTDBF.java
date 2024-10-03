@@ -48,6 +48,8 @@ import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.util.visualize.dot.NodeId;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -1668,36 +1670,39 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IList childList = (IList) tree.get(1);
 		int childCount = childList.length();
 
-		ArrayList<IConstructor> children = new ArrayList<>(childCount);
-		boolean anyChanges = false;
+		//ArrayList<IConstructor> children = new ArrayList<>(childCount);
+		ArrayList<IConstructor> newChildren = null;
 		boolean errorTree = false;
 		for (int i = 0; i < childCount; i++) {
-			if (i == childCount - 1) {
-				// Last child could be a skipped child
-				IConstructor last = (IConstructor) childList.get(childCount - 1);
-				if (last.getConstructorType() == RascalValueFactory.Tree_Appl) {
-					IConstructor lastProd = (IConstructor) last.get(0);
-					if (lastProd.getConstructorType() == RascalValueFactory.Production_Skipped) {
-						errorTree = true;
-						children.add(last);
-						break;
-					}
-				}
+			IConstructor child = (IConstructor) childList.get(i);
+			IConstructor newChild = null;
+
+			// Last child could be a skipped child
+			if (i == childCount - 1 
+					&& child.getConstructorType() == RascalValueFactory.Tree_Appl
+					&& TreeAdapter.getProduction((ITree)child).getConstructorType() == RascalValueFactory.Production_Skipped) {
+				errorTree = true;
+				newChild = child;
+			} else {
+				newChild = introduceErrorNodes(child, nodeConstructorFactory);
 			}
 
-			IConstructor child = (IConstructor) childList.get(i);
-			IConstructor resultChild = introduceErrorNodes(child, nodeConstructorFactory);
-			children.add(resultChild);
-			if (resultChild != child) {
-				anyChanges = true;
+			if (newChild != child || errorTree) {
+				if (newChildren == null) {
+					newChildren = new ArrayList<>(childCount);
+					for (int j=0; j<i; j++) {
+						newChildren.add((IConstructor) childList.get(j));
+					}
+				}
+				newChildren.add(newChild);
 			}
 		}
 
 		if (errorTree) {
-			return nodeConstructorFactory.createErrorNode(children, prod);
+			return nodeConstructorFactory.createErrorNode(newChildren, prod);
 		}
-		else if (anyChanges) {
-			return nodeConstructorFactory.createSortNode(children, prod);
+		else if (newChildren != null) {
+			return nodeConstructorFactory.createSortNode(newChildren, prod);
 		}
 
 		return tree;
