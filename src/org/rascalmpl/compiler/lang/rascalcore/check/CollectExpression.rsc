@@ -1070,7 +1070,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
                     try {
                         replType = instantiateRascalTypeParameters(current, replType, bindings, s);
                     } catch invalidInstantiation(str msg): {
-                        s.report(error(current, "Cannot instantiate rhs type `<prettyAType(replype)>` of assignment: " + msg));
+                        s.report(error(current, "Cannot instantiate rhs type `<prettyAType(replType)>` of assignment: " + msg));
                     }
                    }        
                  checkNonVoid(expression, s, "Base expression of field update`");
