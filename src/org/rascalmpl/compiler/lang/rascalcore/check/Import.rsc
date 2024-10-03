@@ -185,7 +185,7 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
             ms.moduleLocs[qualifiedModuleName] = getLoc(m);
-            <ms, imports_and_extends> = getModulePathsAsStr(m, c);
+            <ms, imports_and_extends> = getModulePathsAsStr(m, ms);
         }
     }
     return complete(ms);
