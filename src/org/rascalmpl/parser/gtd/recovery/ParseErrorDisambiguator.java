@@ -18,7 +18,6 @@ import io.usethesource.vallang.type.Type;
 
 public class ParseErrorDisambiguator {
     private final IRascalValueFactory rascalValues;
-    private boolean allowAmbiguity;
 
     public ParseErrorDisambiguator(IRascalValueFactory rascalValues) {
         super();
@@ -78,7 +77,7 @@ public class ParseErrorDisambiguator {
             if (disambiguatedArg.tree != arg) {
                 if (disambiguatedArgs == null) {
                     disambiguatedArgs = rascalValues.listWriter();
-                    for (int j=0; j<=i; j++) {
+                    for (int j=0; j<i; j++) {
                         disambiguatedArgs.insert(args.get(j));
                     }
                 }
