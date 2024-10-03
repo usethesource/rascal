@@ -867,8 +867,11 @@ JCode trans(muGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
     if(annoName == "loc") annoName = "src";// TODO: remove when @\loc is gone
     return "$annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 }
+//TODO: the "_resultType" (instead of "resultType") is essential to
+// avoid a hash collision, size of hash keys should increased!
+
 // muGuardedGetAnno
-JCode trans(muGuardedGetAnno(MuExp exp, AType resultType, str annoName), JGenie jg){
+JCode trans(muGuardedGetAnno(MuExp exp, AType _resultType, str annoName), JGenie jg){
    if(annoName == "loc") annoName = "src";// TODO: remove when @\loc is gone
    return "$guarded_annotation_get(((INode)<trans(exp, jg)>),\"<annoName>\")";
 }    
