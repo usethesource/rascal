@@ -15,8 +15,8 @@ data PathConfig(
 // ----  Various PathConfigs  ---------------------------------------------
 
 loc REPO =        |file:///Users/paulklint/git/|;
-loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.9-SNAPSHOT.jar!/|;
-loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.13.5-SNAPSHOT/typepal-0.13.5-SNAPSHOT.jar!/|;
+loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8/rascal-0.40.8.jar!/|;
+loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.1/typepal-0.14.1.jar!/|;
  
 // ---- PathConfigs for testing purposes --------------------------------------
 
@@ -74,7 +74,6 @@ public PathConfig getRascalProjectTestingPathConfig() {
 public PathConfig getRascalPathConfig() {
    return pathConfig(   
         srcs = [ REPO + "rascal/src/org/rascalmpl/library", REPO + "rascal/test/org/rascalmpl/benchmark/" ],
-        bin = REPO + "generated-sources/target/rascal/test-classes",
         bin = REPO + "generated-sources/target/rascal/classes",
         generatedSources = REPO + "generated-sources/target/rascal/generated-sources/src/main/java/",
         generatedTestSources = REPO + "generated-sources/target/rascal/generated-sources/src/main/java/",
