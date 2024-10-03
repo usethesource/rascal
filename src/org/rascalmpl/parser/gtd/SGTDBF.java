@@ -47,6 +47,8 @@ import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.util.visualize.dot.NodeId;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
@@ -133,7 +135,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
-	private boolean parseErrorOccured;
+	private boolean parseErrorEncountered;
 	
 	// Error recovery
 	private IRecoverer<P> recoverer;
@@ -947,7 +949,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				return findStacksToReduce();
 			}
 			
-			parseErrorOccured = true;
+			parseErrorEncountered = true;
 		}
 		
 		return false;
@@ -1005,14 +1007,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				return findStacksToReduce();
 			}
 			
-			parseErrorOccured = true;
+			parseErrorEncountered = true;
 		}
 		
 		return false;
 	}
 
 	public boolean parseErrorHasOccurred(){
-		return parseErrorOccured;
+		return parseErrorEncountered;
 	}
 	
 	/**
@@ -1438,7 +1440,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	  try {
 	    // A parse error occured, and recovery failed as well
-	    parseErrorOccured = true;
+			parseErrorEncountered = true;
 	    
 	    int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 	    int line = positionStore.findLine(errorLocation);
@@ -1583,7 +1585,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	      actionExecutor.completed(rootEnvironment, (parseResult == null));
 	    }
 	    if(parseResult != null) {
-			if (recoverer != null) {
+				if (recoverer != null && parseErrorEncountered) {
 					parseResult = introduceErrorNodes(parseResult, nodeConstructorFactory);
 			}
 			return parseResult; // Success.
@@ -1628,13 +1630,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IConstructor result;
 		Type type = tree.getConstructorType();
 		if (type == RascalValueFactory.Tree_Appl) {
-			result = fixErrorAppl(tree, nodeConstructorFactory);
+			result = fixErrorAppl((ITree) tree, nodeConstructorFactory);
 		}
 		else if (type == RascalValueFactory.Tree_Char) {
 			result = tree;
 		}
 		else if (type == RascalValueFactory.Tree_Amb) {
-			result = fixErrorAmb(tree, nodeConstructorFactory);
+			result = fixErrorAmb((ITree) tree, nodeConstructorFactory);
 		}
 		else if (type == RascalValueFactory.Tree_Cycle) {
 			result = tree;
@@ -1651,50 +1653,52 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return result;
 	}
 
-	private IConstructor fixErrorAppl(IConstructor tree,
+	private IConstructor fixErrorAppl(ITree tree,
 		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
-			IValue prod = tree.get(0);
-			IList childList = (IList) tree.get(1);
-			int childCount = childList.length();
+		IValue prod = TreeAdapter.getProduction(tree);
+		IList childList = TreeAdapter.getArgs(tree);
 
-			ArrayList<IConstructor> children = new ArrayList<>(childCount);
-			boolean anyChanges = false;
+		ArrayList<IConstructor> newChildren = null;
 			boolean errorTree = false;
+		int childCount = childList.length();
 			for (int i=0; i<childCount; i++) {
-				if (i == childCount-1) {
+			IConstructor child = (IConstructor) childList.get(i);
+			IConstructor newChild = null;
+
 					// Last child could be a skipped child
-					IConstructor last = (IConstructor) childList.get(childCount-1);
-					if (last.getConstructorType() == RascalValueFactory.Tree_Appl) {
-						IConstructor lastProd = (IConstructor) last.get(0);
-						if (lastProd.getConstructorType() == RascalValueFactory.Production_Skipped) {
+			if (i == childCount - 1 
+					&& child.getConstructorType() == RascalValueFactory.Tree_Appl
+					&& TreeAdapter.getProduction((ITree)child).getConstructorType() == RascalValueFactory.Production_Skipped) {
 							errorTree = true;
-							children.add(last);
-							break;
+				newChild = child;
+			} else {
+				newChild = introduceErrorNodes(child, nodeConstructorFactory);
 						}
+
+			if (newChild != child || errorTree) {
+				if (newChildren == null) {
+					newChildren = new ArrayList<>(childCount);
+					for (int j=0; j<i; j++) {
+						newChildren.add((IConstructor) childList.get(j));
 					}
 				}
-
-				IConstructor child = (IConstructor) childList.get(i);
-			IConstructor resultChild = introduceErrorNodes(child, nodeConstructorFactory);
-				children.add(resultChild);
-				if (resultChild != child) {
-					anyChanges = true;
+				newChildren.add(newChild);
 				}
 			}
 
 			if (errorTree) {
-			return nodeConstructorFactory.createErrorNode(children, prod);
+			return nodeConstructorFactory.createErrorNode(newChildren, prod);
 		}
-		else if (anyChanges) {
-			return nodeConstructorFactory.createSortNode(children, prod);
+		else if (newChildren != null) {
+			return nodeConstructorFactory.createSortNode(newChildren, prod);
 			}
 
 		return tree;
 	}
 
-	private IConstructor fixErrorAmb(IConstructor tree,
+	private IConstructor fixErrorAmb(ITree tree,
 		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
-			ISet alternativeSet = (ISet) tree.get(0);
+		ISet alternativeSet = TreeAdapter.getAlternatives(tree);
 			ArrayList<IConstructor> alternatives = new ArrayList<>(alternativeSet.size());
 		boolean anyChanges = false;
 		for (IValue alt : alternativeSet) {
@@ -1703,7 +1707,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				anyChanges = true;
 				}
 				alternatives.add(newAlt); 
-		};
+		}
 
 		if (anyChanges) {
 			return nodeConstructorFactory.createAmbiguityNode(alternatives);
@@ -1711,8 +1715,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 		return tree;
 		}
-
-
 
 	/**
 	 * Datastructure visualization for debugging purposes
