@@ -15,6 +15,7 @@
 module lang::rascal::tests::concrete::recovery::NestedRecoveryTests
 
 import ParseTree;
+import util::Maybe;
 
 layout Layout = [\ ]* !>> [\ ];
 
@@ -35,5 +36,5 @@ test bool nestedOk() {
 
 test bool nestedTypo() {
     Tree t = parseS("a b x c");
-    return getErrorText(findBestError(t)) == "x ";
+    return getErrorText(findBestError(t).val) == "x ";
 }

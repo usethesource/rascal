@@ -144,7 +144,7 @@ extend Message;
 extend List;
 
 import String;
-import Set;
+import util::Maybe;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -354,6 +354,16 @@ the parser will throw an `Ambiguous` exception instead. An `Ambiguous` exception
 The latter option terminates much faster, i.e. always in cubic time, and always linear in the size of the intermediate parse graph,
 while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n
 is the length of the input.
+
+The `allowRecovery` can be set to `true` to enable error recovery. This is an experimental feature.
+When error recovery is enabled, the parser will attempt to recover from parse errors and continue parsing.
+If successful, a parse tree with error and skipped productions is returned (see the definition of `Production` above).
+A number of functions is provided to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
+Note that the resulting parse forest can contain a lot of error nodes. `disambiguateErrors` can be used to prune the forest
+and leave a tree with a single (or even zero) errors based on simple heuristics.
+When `allowAmbiguity` is set to false, `allowRecovery` is set to true, and `filters` is empty, this disambiguation is done
+automatically so you should end up with a tree with no error ambiguities. Regular ambiguities can still occur
+and will result in an error.
 
 The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
 the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
@@ -784,7 +794,15 @@ list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tr
 Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
 
 @synopsis{Find the best error from a tree containing errors. This function will fail if `tree` does not contain an error.}
-Tree findBestError(Tree tree) = findFirstError(disambiguateErrors(tree));
+Maybe[Tree] findBestError(Tree tree) {
+  Tree disambiguated = disambiguateErrors(tree);
+  if (/err:appl(error(_, _, _), _) := disambiguated) {
+    return just(err);
+  }
+
+  // All errors have disappeared
+  return nothing();
+}
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
