@@ -74,14 +74,15 @@ public class ParseErrorDisambiguator {
             IValue arg = args.get(i);
             ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity);
             totalScore += disambiguatedArg.score;
-            if (disambiguatedArg.tree != arg) {
-                if (disambiguatedArgs == null) {
-                    disambiguatedArgs = rascalValues.listWriter();
-                    for (int j=0; j<i; j++) {
-                        disambiguatedArgs.insert(args.get(j));
-                    }
+            if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
+                disambiguatedArgs = rascalValues.listWriter();
+                for (int j=0; j<i; j++) {
+                    disambiguatedArgs.append(args.get(j));
                 }
-                disambiguatedArgs.insert(disambiguatedArg.tree);
+            }
+
+            if (disambiguatedArgs != null) {
+                disambiguatedArgs.append(disambiguatedArg.tree);
             }
         }
 
