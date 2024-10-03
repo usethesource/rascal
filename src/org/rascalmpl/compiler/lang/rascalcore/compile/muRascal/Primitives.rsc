@@ -1,14 +1,13 @@
 module lang::rascalcore::compile::muRascal::Primitives
 
 extend lang::rascalcore::check::ATypeBase;
+extend lang::rascalcore::compile::muRascal::AST;
+
 import List;
 import Node;
 
-data MuExp = 
-      muCon(value c)      
-    | muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)    // Call a Rascal primitive
-    ;
-    
+data MuExp; 
+   
 /*
  *  Constant folding rules for muPrim
  *  See: lang::rascalcore::compile::Rascal2muRascal::RascalConstantCall for constant folding of selected calls
@@ -69,10 +68,14 @@ MuExp muPrim("create_list", AType r, [AType elm], list[MuExp] args, loc src) = m
 MuExp muPrim("create_set", AType r, [AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
       when allConstant(args);
     
-MuExp muPrim("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
-      when allConstant(args),
-           keyList := [ args[i]. c | int i <- [0, 2 .. size(args)] ],
-           size(keyList) == size(toSet(keyList));
+MuExp muPrim("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) {
+      if(allConstant(args)){
+            try {
+                  return muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]));
+            } catch _:;
+      }
+      fail;
+}
            
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1)], loc src) = muCon(<v1>);
 MuExp muPrim("create_tuple", atuple(atypeList([*AType _])), [*AType _], [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);

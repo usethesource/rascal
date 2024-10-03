@@ -1,36 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import ParseTree;
 
-syntax Aas
-  = nil: [a]*
-  | a:   [a][a]*
-  | aas: [a][a][a]*
-  ;
-  
-&T <: Tree ambFilter(amb(set[&T <: Tree] alternatives)) {
-  result = {a | Aas a <- alternatives, !(a is nil)};
-  
-  if ({oneTree} := result) {
-    return oneTree;
-  }
-  
-  return ParseTree::amb(result);
-} 
-// import ParseTree;
 
-// // value f(Tree x){
-// //   return 
-// //  {<p,l> | /appl(p,[*_,l1:appl(prod(l2,_,_),_),*_]) := x};
-// // }
+data D = d(int a, int b);
 
-// value g(Tree x)
-//   = Tree l:appl(prod(Symbol l,_,_),_) := x;
-
-// data D = d() | dd(str s, D d);
-
-// value h(D d)
-//   = l:dd(dd(l)) := d;
+bool f(D x) = d(a,b) := x && (a > 0 || b > 0);
 
 //data D
 //  = a(str s, D d)
