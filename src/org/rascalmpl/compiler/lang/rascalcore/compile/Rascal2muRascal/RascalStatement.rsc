@@ -964,13 +964,11 @@ default MuExp translateReturn(AType resultType, Statement statement, BTSCOPES bt
 
 // -- throw statement ------------------------------------------------
 
-MuExp translate(s: (Statement) `throw <Statement statement>`, BTSCOPES btscopes) = 
-    muThrow(translate(statement, btscopes),s@\loc);
+MuExp translate(s: (Statement) `throw <Statement statement>`, BTSCOPES btscopes)
+    = muThrow(translate(statement, btscopes),s@\loc);
 
 MuExp translate(s: (Statement) `insert <DataTarget dataTarget> <Statement statement>`, BTSCOPES btscopes) // TODO: handle dataTarget
-	= { //fillCaseType(getType(s));//getType(statement@\loc)); 
-	    muInsert(getType(statement@\loc), translate(statement, btscopes));
-	  };
+	= muInsert(getType(statement@\loc), translate(statement, btscopes));
 
 // -- append statement -----------------------------------------------
 
