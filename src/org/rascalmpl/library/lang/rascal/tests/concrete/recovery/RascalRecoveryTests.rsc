@@ -18,6 +18,7 @@ import lang::rascal::\syntax::Rascal;
 
 import ParseTree;
 import IO;
+import util::Maybe;
 
 Tree parseRascal(type[&T] t, str input, bool visualize=false) {
     Tree result = parser(t, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
@@ -28,7 +29,7 @@ Tree parseRascal(type[&T] t, str input, bool visualize=false) {
             println("- <getErrorText(error)>");
         }
 
-        println("Best error: <getErrorText(findBestError(result))>");
+        println("Best error: <getErrorText(findBestError(result).val)>");
     }
 
     return result;
@@ -91,7 +92,7 @@ test bool rascalMissingCloseParen() {
     Tree t = parseRascal("module A void f({} void g(){}");
 
     assert getErrorText(findFirstError(t)) == "void g(";
-    assert getErrorText(findBestError(t)) == "(";
+    assert getErrorText(findBestError(t).val) == "(";
 
     return true;
 }
@@ -101,7 +102,7 @@ test bool rascalFunctionDeclarationMissingCloseParen() {
 
     assert getErrorText(findFirstError(t)) == "void g(";
 
-    Tree error = findBest(t);
+    Tree error = findBestError(t).val;
     assert getErrorText(error) == "(";
     loc location = getSkipped(error).src;
     assert location.begin.column == 16 && location.length == 1;
@@ -111,14 +112,14 @@ test bool rascalFunctionDeclarationMissingCloseParen() {
 
 test bool rascalIfMissingExpr() {
     Tree t = parseFunctionDeclaration("void f(){if(){1;}}", visualize=false);
-    return getErrorText(findFirstError(t)) == ")";
+    return getErrorText(findBestError(t).val) == ")";
 }
 
 test bool rascalIfBodyEmpty() {
     Tree t = parseRascal("module A void f(){1;} void g(){if(1){}} void h(){1;}");
 
     println("error: <getErrorText(findFirstError(t))>");
-    assert getErrorText(findBestError(t)) == "} void h(){1";
+    assert getErrorText(findBestError(t).val) == "} void h(){1";
 
     return true;
 }
