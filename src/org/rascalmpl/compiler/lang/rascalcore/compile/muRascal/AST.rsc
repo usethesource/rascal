@@ -128,7 +128,7 @@ public data MuExp =
           | muOCall(MuExp fun, AType atype, list[MuExp] args, lrel[str kwpName, MuExp exp] kwargs, loc src)       
                                                                 // Call an overloaded declared *Rascal function 
                                                                 // Compose fun1 o fun2, i.e., compute fun1(fun2(args))
-          //| muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive, defined in Primitives
+          | muPrim(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive, defined in Primitives
            
           | muCallJava(str name, str class, AType funType,
           			   list[MuExp] args, str enclosingFun)		// Call a Java method in given class
@@ -1497,6 +1497,10 @@ MuExp muRegExpCompile(muValueBlock(AType t, [*MuExp exps, MuExp regExp]), MuExp 
 // ============ Flattening Rules ================================================
 // TODO: shoud go to separate module (does not work in interpreter)
 
+bool shouldFlattenIfExp(MuExp arg)
+    =    muIfExp(_, MuExp thenPart, MuExp elsePart) := arg 
+      && (shouldFlatten(thenPart) || shouldFlatten(elsePart));
+
 bool shouldFlatten(MuExp arg) {
     if( muValueBlock(_t, _elems) := arg 
        || muAssign(MuExp _var, MuExp _exp) := arg
@@ -1510,8 +1514,8 @@ bool shouldFlatten(MuExp arg) {
        || muIfElse(_cond, _thenPart, _elsePart) := arg 
        || muWhileDo(str _ab, MuExp _cond, MuExp _body) := arg
        || muBlock(_) := arg 
-       //|| muVisit(str visitName, MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor) := arg
-       || muIfExp(_, thenPart, elsePart) := arg && (shouldFlatten(thenPart) || shouldFlatten(elsePart))
+       || shouldFlattenIfExp(arg)
+       //|| muIfExp(_, MuExp thenPart, MuExp elsePart) := arg && (shouldFlatten(thenPart) || shouldFlatten(elsePart))
        ){
         return true;
    } 
