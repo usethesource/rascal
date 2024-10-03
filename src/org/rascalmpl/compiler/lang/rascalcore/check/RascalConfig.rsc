@@ -16,7 +16,6 @@ import lang::rascalcore::check::CheckerCommon;
 
 import Location;
 import util::Reflective;
-import util::SemVer;
 
 import IO;
 import List;
@@ -459,21 +458,9 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      return def.defined;
 }
 
-// private str currentRascalTplVersion = "2.0.0";
-
-// bool isValidRascalTplVersion(str version){
-//     return equalVersion(version, currentRascalTplVersion);
-// }
-
-// str getCurrentRascalTplVersion() = currentRascalTplVersion;
-
-// data TModel (
-//     str rascalTplVersion = "0.0.0"
-// );
-
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
 
-        str rascalTplVersion          = currentRascalTplVersion,
+        str rascalTplVersion          = getCurrentRascalTplVersion(),
         // Control message levels
         bool warnUnused               = true,
         bool warnUnusedFormals        = true,
