@@ -8,8 +8,8 @@ syntax Aas
   | aas: [a][a][a]*
   ;
   
-Aas ambFilter(amb(set[Aas] alternatives)) {
-  set[Aas] result = {a | Aas a <- alternatives, !(a is nil)};
+&T <: Tree ambFilter(amb(set[&T <: Tree] alternatives)) {
+  set[&T <: Tree] result = {a | &T <: Tree a <- alternatives, !(a is nil)};
   
   if ({oneTree} := result) {
     return oneTree;
