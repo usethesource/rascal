@@ -8,6 +8,7 @@ import util::Benchmark;
 import Grammar;
 import analysis::statistics::Descriptive;
 import util::Math;
+import util::Maybe;
 import Set;
 import List;
 
@@ -15,10 +16,10 @@ import lang::rascal::grammar::definition::Modules;
 
 alias FrequencyTable = map[int val, int count];
 
-public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorSize=0) | parseError();
-public data FileStats = fileStats(int totalParses = 0, int successfulParses=0, int successfulRecoveries=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, FrequencyTable parseTimeRatios=());
+public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorSize=0) | parseError() | successfulDisambiguation();
+public data FileStats = fileStats(int totalParses = 0, int successfulParses=0, int successfulRecoveries=0, int successfulDisambiguations=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, FrequencyTable parseTimeRatios=());
 
-public data TestStats = testStats(int filesTested=0, int testCount=0, FrequencyTable successfulParsePct=(), FrequencyTable successfulRecoveryPct=(), FrequencyTable failedRecoveryPct=(), FrequencyTable parseErrorPct=(), FrequencyTable slowParsePct=(), FrequencyTable parseTimeRatios=());
+public data TestStats = testStats(int filesTested=0, int testCount=0, FrequencyTable successfulParses=(), FrequencyTable successfulRecoveries=(), FrequencyTable successfulDisambiguations=(), FrequencyTable failedRecoveries=(), FrequencyTable parseErrors=(), FrequencyTable slowParses=(), FrequencyTable parseTimeRatios=());
 
 private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source) {
     int startTime = 0;
@@ -34,9 +35,15 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         try {
             Tree t = recoveryParser(input, source);
             duration = realTime() - startTime;
-            Tree best = findBestError(t);
-            errorSize = size(getErrorText(best));
+            Maybe[Tree] best = findBestError(t);
+            totalDuration = realTime() - startTime;
+            println("parse time: <duration>, disamb time: <totalDuration-duration>");
+            if (nothing() := best) {
+                measurement = successfulDisambiguation(source=source, duration=duration);
+            } else {
+                errorSize = size(getErrorText(best.val));
             measurement = recovered(source=source, duration=duration, errorSize=errorSize);
+            }
         } catch ParseError(_): { 
             duration = realTime() - startTime;
             measurement = parseError(source=source, duration=duration);
@@ -67,6 +74,10 @@ FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenc
                 stats.failedRecoveries += 1;
         }
         }
+        case successfulDisambiguation(): {
+            print("&");
+            stats.successfulDisambiguations += 1;
+        }
         case parseError(): {
             stats.parseTimeRatios = increment(stats.parseTimeRatios, parseTimeRatio);
         print("?");
@@ -87,6 +98,7 @@ FileStats mergeFileStats(FileStats stats1, FileStats stats2) {
         totalParses = stats1.totalParses + stats2.totalParses,
         successfulParses = stats1.successfulParses + stats2.successfulParses,
         successfulRecoveries = stats1.successfulRecoveries + stats2.successfulRecoveries,
+        successfulDisambiguations = stats1.successfulDisambiguations + stats2.successfulDisambiguations,
         failedRecoveries = stats1.failedRecoveries + stats2.failedRecoveries,
         parseErrors = stats1.parseErrors + stats2.parseErrors,
         slowParses = stats1.slowParses + stats2.slowParses,
@@ -107,11 +119,12 @@ FrequencyTable increment(FrequencyTable frequencyTable, int val) {
 TestStats consolidateStats(TestStats cumulativeStats, FileStats fileStats) {
     int totalFailed = fileStats.totalParses - fileStats.successfulParses;
 
-    cumulativeStats.successfulParsePct = increment(cumulativeStats.successfulParsePct, percentage(fileStats.successfulParses, fileStats.totalParses));
-    cumulativeStats.successfulRecoveryPct = increment(cumulativeStats.successfulRecoveryPct, percentage(fileStats.successfulRecoveries, totalFailed));
-    cumulativeStats.failedRecoveryPct = increment(cumulativeStats.failedRecoveryPct, percentage(fileStats.failedRecoveries, totalFailed));
-    cumulativeStats.parseErrorPct = increment(cumulativeStats.parseErrorPct, percentage(fileStats.parseErrors, totalFailed));
-    cumulativeStats.slowParsePct = increment(cumulativeStats.slowParsePct, percentage(fileStats.slowParses, totalFailed));
+    cumulativeStats.successfulParses = increment(cumulativeStats.successfulParses, percentage(fileStats.successfulParses, fileStats.totalParses));
+    cumulativeStats.successfulRecoveries = increment(cumulativeStats.successfulRecoveries, percentage(fileStats.successfulRecoveries, totalFailed));
+    cumulativeStats.successfulDisambiguations = increment(cumulativeStats.successfulDisambiguations, percentage(fileStats.successfulDisambiguations, totalFailed));
+    cumulativeStats.failedRecoveries = increment(cumulativeStats.failedRecoveries, percentage(fileStats.failedRecoveries, totalFailed));
+    cumulativeStats.parseErrors = increment(cumulativeStats.parseErrors, percentage(fileStats.parseErrors, totalFailed));
+    cumulativeStats.slowParses = increment(cumulativeStats.slowParses, percentage(fileStats.slowParses, totalFailed));
     cumulativeStats.parseTimeRatios = mergeFrequencyTables(cumulativeStats.parseTimeRatios, fileStats.parseTimeRatios);
 
     cumulativeStats.filesTested += 1;
@@ -135,22 +148,23 @@ map[int,int] mergeFrequencyTables(map[int,int] hist1, map[int,int] hist2) {
 TestStats mergeStats(TestStats stats, TestStats stats2) {
     stats.filesTested += stats2.filesTested;
     stats.testCount += stats2.testCount;
-    stats.successfulParsePct = mergeFrequencyTables(stats.successfulParsePct, stats2.successfulParsePct);
-    stats.successfulRecoveryPct = mergeFrequencyTables(stats.successfulRecoveryPct, stats2.successfulRecoveryPct);
-    stats.failedRecoveryPct = mergeFrequencyTables(stats.failedRecoveryPct, stats2.failedRecoveryPct);
-    stats.parseErrorPct = mergeFrequencyTables(stats.parseErrorPct, stats2.parseErrorPct);
-    stats.slowParsePct = mergeFrequencyTables(stats.slowParsePct, stats2.slowParsePct);
+    stats.successfulParses = mergeFrequencyTables(stats.successfulParses, stats2.successfulParses);
+    stats.successfulRecoveries = mergeFrequencyTables(stats.successfulRecoveries, stats2.successfulRecoveries);
+    stats.successfulDisambiguations = mergeFrequencyTables(stats.successfulDisambiguations, stats2.successfulDisambiguations);
+    stats.failedRecoveries = mergeFrequencyTables(stats.failedRecoveries, stats2.failedRecoveries);
+    stats.parseErrors = mergeFrequencyTables(stats.parseErrors, stats2.parseErrors);
+    stats.slowParses = mergeFrequencyTables(stats.slowParses, stats2.slowParses);
     stats.parseTimeRatios = mergeFrequencyTables(stats.parseTimeRatios, stats2.parseTimeRatios);
 
     return stats; 
 }
 
-FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit) {
+FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int len = size(input);
-    int i = 0;
+    int i = begin;
 
-    while (i < len) {
+    while (i < len && (end == -1 || i<=end)) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
         TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deleted=<"<i>">|);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
@@ -171,7 +185,6 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
     for (int lineEnd <- lineEndings) {
         lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
-
             // Check boundaries (only used for quick bug testing)
             if (end != -1 && end < pos) {
                 return stats;
@@ -196,14 +209,14 @@ private int percentage(int number, int total) {
 }
 
 int statLabelWidth = 40;
-int statFieldWidth = 7;
+int statFieldWidth = 8;
 
 
 void printFileStats(FileStats fileStats) {
-    void printStat(str label, int stat, int total, bool printPct=true) {
+    void printStat(str label, int stat, int total, bool prints=true) {
         int pct = total == 0 ? 0 : stat*100/total;
         print(left(label + ":", statLabelWidth));
-        str pctStr = printPct ? " (<pct> %)" : "";
+        str pctStr = prints ? " (<pct>%)" : "";
         println(left("<stat><pctStr>", statFieldWidth));
     }
 
@@ -225,7 +238,8 @@ void printFrequencyTableHeader() {
     print(right("median", statFieldWidth));
     print(right("95 %", statFieldWidth));
     print(right("min", statFieldWidth));
-    println(right("max", statFieldWidth));
+    print(right("max", statFieldWidth));
+    println(right("total", statFieldWidth));
     }
 
 void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%") {
@@ -269,7 +283,8 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
         print(right("<median>", statFieldWidth));
         print(right("<ninetyFivePercentile>", statFieldWidth));
         print(right("<minVal>", statFieldWidth));
-        println(right("<maxVal>", statFieldWidth));
+        print(right("<maxVal>", statFieldWidth));
+        println(right("<totalCount>", statFieldWidth));
     }
 }
 
@@ -279,11 +294,12 @@ void printStats(TestStats stats) {
     }
     println("Total parses:         <stats.testCount>");
     printFrequencyTableHeader();
-    printFrequencyTableStats("Succesful parses", stats.successfulParsePct);
-    printFrequencyTableStats("Succesful recoveries", stats.successfulRecoveryPct);
-    printFrequencyTableStats("Failed recoveries", stats.failedRecoveryPct);
-    printFrequencyTableStats("Parse errors", stats.parseErrorPct);
-    printFrequencyTableStats("Slow parses", stats.slowParsePct);
+    printFrequencyTableStats("Succesful parses", stats.successfulParses);
+    printFrequencyTableStats("Succesful recoveries", stats.successfulRecoveries);
+    printFrequencyTableStats("Succesful disambiguations", stats.successfulRecoveries);
+    printFrequencyTableStats("Failed recoveries", stats.failedRecoveries);
+    printFrequencyTableStats("Parse errors", stats.parseErrors);
+    printFrequencyTableStats("Slow parses", stats.slowParses);
     printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%");
 
     println();

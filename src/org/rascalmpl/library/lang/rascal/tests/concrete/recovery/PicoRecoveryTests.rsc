@@ -20,12 +20,13 @@ import ParseTree;
 
 import IO;
 import String;
+import util::Maybe;
 
 Tree parsePico(str input, bool visualize=false) 
     = parser(#Program, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
 bool checkError(Tree t, str expectedError) {
-    str bestError = getErrorText(findBestError(t));
+    str bestError = getErrorText(findBestError(t).val);
     println("best error: <bestError>, expected: <expectedError>");
     return size(bestError) == size(expectedError);
 }
