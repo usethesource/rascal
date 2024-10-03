@@ -17,12 +17,11 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 public class ParseErrorDisambiguator {
-	private final IRascalValueFactory rascalValues;
-    private boolean allowAmbiguity;
+    private final IRascalValueFactory rascalValues;
 
     public ParseErrorDisambiguator(IRascalValueFactory rascalValues) {
-		super();
-		this.rascalValues = rascalValues;
+        super();
+        this.rascalValues = rascalValues;
     }
 
     private static class ScoredTree {
@@ -51,7 +50,7 @@ public class ParseErrorDisambiguator {
     private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity) {
         Type type = tree.getConstructorType();
 
-		if (type == RascalValueFactory.Tree_Appl) {
+        if (type == RascalValueFactory.Tree_Appl) {
             return disambiguateAppl((ITree) tree, allowAmbiguity);
         } else if (type == RascalValueFactory.Tree_Amb) {
             return disambiguateAmb((ITree) tree, allowAmbiguity);
@@ -78,7 +77,7 @@ public class ParseErrorDisambiguator {
             if (disambiguatedArg.tree != arg) {
                 if (disambiguatedArgs == null) {
                     disambiguatedArgs = rascalValues.listWriter();
-                    for (int j=0; j<=i; j++) {
+                    for (int j=0; j<i; j++) {
                         disambiguatedArgs.insert(args.get(j));
                     }
                 }
