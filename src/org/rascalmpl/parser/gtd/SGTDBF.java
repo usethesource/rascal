@@ -10,7 +10,6 @@ package org.rascalmpl.parser.gtd;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -136,7 +135,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private final DoubleStack<AbstractStackNode<P>, AbstractNode> filteredNodes;
 	
 	// Error reporting guards
-	private boolean parseErrorOccured;
+	private boolean parseErrorEncountered;
 	
 	// Error recovery
 	private IRecoverer<P> recoverer;
@@ -960,7 +959,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				return findStacksToReduce();
 			}
 			
-			parseErrorOccured = true;
+			parseErrorEncountered = true;
 		}
 		
 		return false;
@@ -1018,14 +1017,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				return findStacksToReduce();
 			}
 			
-			parseErrorOccured = true;
+			parseErrorEncountered = true;
 		}
 		
 		return false;
 	}
 
 	public boolean parseErrorHasOccurred(){
-		return parseErrorOccured;
+		return parseErrorEncountered;
 	}
 	
 	/**
@@ -1451,7 +1450,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	  try {
 	    // A parse error occured, and recovery failed as well
-	    parseErrorOccured = true;
+			parseErrorEncountered = true;
 	    
 	    int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 	    int line = positionStore.findLine(errorLocation);
@@ -1596,7 +1595,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	      actionExecutor.completed(rootEnvironment, (parseResult == null));
 	    }
 	    if(parseResult != null) {
-			if (recoverer != null) {
+				if (recoverer != null && parseErrorEncountered) {
 					parseResult = introduceErrorNodes(parseResult, nodeConstructorFactory);
 			}
 			return parseResult; // Success.
