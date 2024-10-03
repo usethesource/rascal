@@ -292,7 +292,6 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
     pcfg = ms.pathConfig;
     
-    start_save = cpuTime();  
     if(any(c <- component, !isEmpty({parse_error(), rsc_not_found(), MStatus::ignored()} & ms.status[c]))){
         return ms;
     }
@@ -316,6 +315,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     };
        
     for(qualifiedModuleName <- component){
+        start_save = cpuTime();  
         tm = transient_tms[qualifiedModuleName];
         try {
             mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
