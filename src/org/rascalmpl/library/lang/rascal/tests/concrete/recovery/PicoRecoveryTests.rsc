@@ -26,7 +26,7 @@ Tree parsePico(str input, bool visualize=false)
 
 bool checkError(Tree t, str expectedError) {
     str bestError = getErrorText(findBestError(t));
-    println("best error: <bestError>, expected: <expectedError>");
+    //println("best error: <bestError>, expected: <expectedError>");
     return size(bestError) == size(expectedError);
 }
 
@@ -88,7 +88,8 @@ test bool picoMissingSemi() {
           input := input - 1
       od
 end");
-   return checkError(t, "input := input - 1\n      od");
+   return checkError(t, "input := input - 1
+      od");
 }
 
 test bool picoTypoSmall() {
@@ -112,5 +113,6 @@ test bool picoMissingSemiSmall() {
   od
 end");
 
-    return checkError(t, "output := 0\n  od");
+    return checkError(t, "output := 0
+  od");
 }
