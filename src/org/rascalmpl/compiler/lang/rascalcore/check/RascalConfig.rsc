@@ -448,7 +448,7 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
        if(isLogicalLoc(def.defined)) return def.defined;
        moduleName = getModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
-       suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..11]>" : "";
+       suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
        if(def.idRole == moduleId()){
             return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|;
        } else {
