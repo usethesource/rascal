@@ -32,6 +32,10 @@ import util::Reflective;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 import lang::rascalcore::compile::CompileTimeError;
 
+// str md5Hash(str s){
+//     appendToFile(|file:///Users/paulklint/signatures|, replaceAll(s, "\n", "") + "\n");
+//     return IO::md5Hash(s);
+// }
 void checkSupportedByParserGenerator(Tree t, Collector c){
     c.require("implemented by parsergenerator", t, [t], void(Solver s){
         tp = s.getType(t);
