@@ -43,7 +43,7 @@ public class ParseErrorDisambiguator {
     * possibly without ambiguities.
     */
 
-    public synchronized IConstructor disambiguateErrors(IConstructor arg, IBool allowAmbiguity) {
+    public IConstructor disambiguateErrors(IConstructor arg, IBool allowAmbiguity) {
         return disambiguate(arg, allowAmbiguity.getValue()).tree;
     }
 
