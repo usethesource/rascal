@@ -11,7 +11,7 @@ test bool andError2() = unexpectedType("3 ==\> true;");
 
 test bool condExpError1() = unexpectedType("1 ? 2 : 3;");
   	
-test bool addError1() = unexpectedType("3 + true;");
+test bool addError3() = unexpectedType("3 + true;");
   	
 test bool subError1() = unexpectedType("3 - true;");
 
@@ -25,40 +25,40 @@ test bool modError1() = unexpectedType("3 % true;");
 
 test bool orError1() = unexpectedType("3 || true;");
 
-test bool addError1() = unexpectedType("3 + true;");
+test bool addError4() = unexpectedType("3 + true;");
 
-test bool addError1() = unexpectedType("3 + true;");
+test bool addError5() = unexpectedType("3 + true;");
 
 
-test bool UndefinedLocationError11() = uninitialized("loc Loc; Loc.url;");
+test bool undefinedLocationError11() = uninitialized("loc Loc; Loc.url;");
 
-test bool UndefinedLocationError21() = uninitialized("loc Loc; Loc.url = \"abc\";");
+test bool undefinedLocationError21() = uninitialized("loc Loc; Loc.url = \"abc\";");
 
-test bool UndefinedLocationError31() = uninitialized("loc Loc; Loc[url = \"abc\"];");
+test bool undefinedLocationError31() = uninitialized("loc Loc; Loc[url = \"abc\"];");
 
   	
-test bool WrongLocFieldError11() = undefinedField("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.bla;");
+test bool wrongLocFieldError11() = undefinedField("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.bla;");
   	
-test bool WrongLocFieldError21() = undefinedField("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc[bla=3];");
+test bool wrongLocFieldError21() = undefinedField("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc[bla=3];");
   	
 test bool URLFieldError11() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.uri=true;");
 
 //test bool URLFieldError21() = parseError("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.uri=\"? ??\";");
 
-test bool LengthFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.length=true;");
+test bool lengthFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.length=true;");
 
-test bool OffsetFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.offset=true;");
+test bool offsetFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.offset=true;");
 
  
-test bool BeginLineFieldError1() = undefinedField("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.beginLine=true;");
+test bool beginLineFieldError1() = undefinedField("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.beginLine=true;");
  
-test bool EndLineFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.end=\<true,12\>;");
+test bool endLineFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.end=\<true,12\>;");
   	
-test bool BeginColumnFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.begin=\<true,12\>;");
+test bool beginColumnFieldError1() = unexpectedType("loc Loc = |file:///home/paulk/pico2.trm|(0,1,\<1,4\>,\<4,5\>); Loc.begin=\<true,12\>;");
 
-test bool SubscriptError21() = undeclaredVariable("L[5];");
+test bool subscriptError21() = undeclaredVariable("L[5];");
 
-test bool UndefinedSetElementError1() = undeclaredVariable("{X};");
+test bool undefinedSetElementError1() = undeclaredVariable("{X};");
   	
 test bool inError1() = unexpectedType("1 in 3;");
  
@@ -68,21 +68,21 @@ test bool tupleError11() = undefinedField("tuple[int key, str val] T = \<1, \"ab
 
 test bool tupleError21() = uninitialized("tuple[int key, str val] T; T.key;");
 	
-test bool UndefinedDataTypeAccess11() = uninitialized("someD.ival", initialDecls= ["data D = d(int ival);"]);
+test bool undefinedDataTypeAccess11() = uninitialized("someD.ival", initialDecls= ["data D = d(int ival);"]);
 
-test bool UndefinedDataTypeAccess21() = uninitialized("someD.ival = 3", initialDecls= ["data D = d(int ival);"]);
+test bool undefinedDataTypeAccess21() = uninitialized("someD.ival = 3", initialDecls= ["data D = d(int ival);"]);
 
-test bool UndefinedMapElementError11() = undeclaredVariable("(X:2);");
+test bool undefinedMapElementError11() = undeclaredVariable("(X:2);");
   	
-test bool UndefinedMapElementError21() = undeclaredVariable("(1:Y);");
+test bool undefinedMapElementError21() = undeclaredVariable("(1:Y);");
 
-test bool UndefinedTupleElementError11() = undeclaredVariable("\<1,X,3\>;");
+test bool undefinedTupleElementError11() = undeclaredVariable("\<1,X,3\>;");
   	   
-test bool UndefinedRelationElementError11() = undeclaredVariable("{\<1,10\>, \<X,20\>};");
+test bool undefinedRelationElementError11() = undeclaredVariable("{\<1,10\>, \<X,20\>};");
   	    
-test bool UndefinedRelationElementError21() = undeclaredVariable("{\<1,10\>, \<10, Y\>};");
+test bool undefinedRelationElementError21() = undeclaredVariable("{\<1,10\>, \<10, Y\>};");
   	
-test bool UndefinedRelationElementError31() = undeclaredVariable("{\<1,10\>, T, \<3, 30\>};");
+test bool undefinedRelationElementError31() = undeclaredVariable("{\<1,10\>, T, \<3, 30\>};");
 
 test bool compError1() = unexpectedType("1 o 3;");
   	

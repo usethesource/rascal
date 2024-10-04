@@ -3,15 +3,15 @@ module lang::rascalcore::check::tests::DataDeclarationTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-test bool UndefinedValue1() = 
+test bool undefinedValue1() = 
 	uninitialized("Bool b; b.left;", initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  
 
  
-test bool UnitializedVariable21() = 
+test bool unitializedVariable1() = 
 	uninitialized("Bool b; b[left = btrue()];", 
 				  initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  
   	
-test bool UnitializedVariable21() = 
+test bool unitializedVariable2() = 
 	uninitialized("Bool b; b[left = btrue()];", 
 				  initialDecls=["data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);",
 								"data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);",
