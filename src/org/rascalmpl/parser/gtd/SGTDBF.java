@@ -1678,14 +1678,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				newChild = introduceErrorNodes(child, nodeConstructorFactory);
 						}
 
-			if ((newChild != child || errorTree) && newChildren == null) {
+			if (newChild != child || errorTree) {
+				if (newChildren == null) {
 					newChildren = new ArrayList<>(childCount);
 					for (int j=0; j<i; j++) {
 						newChildren.add((IConstructor) childList.get(j));
 					}
 				}
-
-			if (newChildren != null) {
 				newChildren.add(newChild);
 				}
 			}
