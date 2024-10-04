@@ -1,10 +1,33 @@
 module lang::rascalcore::compile::Examples::Tst4
 
 
+import ParseTree;
+// If, instead of this import, we use and empty ADT declaration
+// data Tree;
+// the problem does not manifest itself
 
-data D = d(int a, int b);
+data AType (str alabel = "")
+  = c(AType adt)
+  ;
 
-bool f(D x) = d(a,b) := x && (a > 0 || b > 0);
+data DefInfo
+  = defType(Tree tree)
+  | defType(AType atype)
+  ;
+
+alias Define = tuple[DefInfo defInfo];
+
+void main() {
+  set[Define] defines = {};
+
+  set[tuple[DefInfo]] xs = {adt
+    | Define cons: <_> <- defines
+    , AType consAdtType := cons.defInfo.atype.adt
+    , Define adt: <defType(consAdtType)> <- defines
+    //               ^
+    // Ambiguous pattern type `DefInfo::defType(Tree tree) or DefInfo::defType(AType atype)`
+  };
+}
 
 //data D
 //  = a(str s, D d)

@@ -663,7 +663,7 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
     if(isEmpty(kwactuals)){
         someArityOk
             = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType 
-              && any(ovl <- overloads, size(argumentsTypes) == size(getFunctionArgumentTypes(ovl.ftype)));
+              && any(ovl <- overloads, size(argumentsTypes) == size(getFunctionOrConstructorArgumentTypes(ovl.ftype)));
         wrongArity = someArityOk ? "" : " with <size(argumentsTypes)> ";
         if(someArityOk){
             s.report(error(current, "Cannot call %q with %v %v, given definitions %t",  "<callee>", argumentsText, argumentsTypesText, callee));
