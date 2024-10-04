@@ -5,7 +5,7 @@ import lang::rascalcore::check::AType;
 
 public AGrammar GEMPTY = grammar({sort("S")}, ());
 
-private AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
+AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
 
 private AProduction pr(AType rhs, list[AType] lhs) {
   return prod(rhs,lhs);
