@@ -261,15 +261,6 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 }
                 return <true, tpl, ms>;
              } 
-             //else {
-             //   msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
-             //   println("INFO: <msg>)");
-             //   throw rascalTplVersionError(msg);
-             //   //ms.tmodels[qualifiedModuleName] = 
-             //   //    tmodel(modelName=qualifiedModuleName, 
-             //   //           messages=[msg]);
-             //   //return <true, tpl, ms>; 
-             //}
         } catch e: {
             //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 

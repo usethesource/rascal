@@ -110,10 +110,6 @@ public str key_grammar = "grammar";
 public str key_ADTs = "ADTs";
 public str key_common_keyword_fields = "CommonKeywordFields";
 
-data TModel (
-    str rascalTplVersion = "0.0.0"
-);
-
 str currentRascalTplVersion = "2.0.0";
 
 bool isValidRascalTplVersion(str version){
@@ -121,6 +117,10 @@ bool isValidRascalTplVersion(str version){
 }
 
 str getCurrentRascalTplVersion() = currentRascalTplVersion;
+
+data TModel (
+    str rascalTplVersion = getCurrentRascalTplVersion()
+);
 
 // Define alias for TypePalConfig
 
@@ -130,7 +130,7 @@ alias RascalCompilerConfig = TypePalConfig;
 // Also see lang::rascalcore::check::RascalConfig
 
 data TypePalConfig(
-    str rascalTplVersion            = "0.0.0",
+    str rascalTplVersion            = getCurrentRascalTplVersion(),
     
     // Control message level
     bool warnUnused                 = true,
