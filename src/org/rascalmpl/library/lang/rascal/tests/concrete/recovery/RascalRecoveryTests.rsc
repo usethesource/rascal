@@ -19,8 +19,11 @@ import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
 
+bool debugging = false;
+
 Tree parseRascal(type[&T] t, str input, bool visualize=false) {
     Tree result = parser(t, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+    if (debugging) {
     list[Tree] errors = findAllErrors(result);
     if (errors != []) {
         println("Tree has <size(errors)> errors");
@@ -30,6 +33,7 @@ Tree parseRascal(type[&T] t, str input, bool visualize=false) {
 
         Tree disambiguated = defaultErrorDisambiguationFilter(result);
         println("Best error: <getErrorText(findFirstError(disambiguated))>");
+    }
     }
 
     return result;
