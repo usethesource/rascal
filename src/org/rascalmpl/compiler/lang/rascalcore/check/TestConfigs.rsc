@@ -106,6 +106,10 @@ public PathConfig getRascalCorePathConfig() {
     );
 }
 
+public RascalCompilerConfig getRascalCoreCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+}
+
 public RascalCompilerConfig getRascalCoreCompilerConfig(){
     return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
 }

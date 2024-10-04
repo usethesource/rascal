@@ -196,7 +196,7 @@ test bool overloadedConstructorOk2()
               '}",
               initialDecls = ovlConstructors);
                   
-test bool overloadedConstructorOk2()
+test bool overloadedConstructorOk3()
     = checkOK("B removeConditionals(B sym) = visit(sym) {
               'case conditional(s,_) =\> s
               '}",

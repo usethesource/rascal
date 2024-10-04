@@ -5,6 +5,12 @@ import util::Benchmark;
 import lang::rascal::\syntax::Rascal;
 import IO;
 import ValueIO;
+
+data PathConfig(
+    list[loc] resources = [],
+    list[loc] generatedResources = []
+);
+
 void main(){
     pcfg =pathConfig(   
         srcs = [

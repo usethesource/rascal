@@ -17,7 +17,8 @@ int cntAlt(Prod p){
    return 1;
 }
 
-value main(){ measure(); }
+value main()
+      = measure();
 
 value measure(){
 
