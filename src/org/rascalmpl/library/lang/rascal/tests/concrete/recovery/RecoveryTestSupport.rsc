@@ -193,7 +193,6 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
             if (pos < begin) {
                 continue;
             }
-
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
             TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
