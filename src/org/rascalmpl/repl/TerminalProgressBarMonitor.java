@@ -419,7 +419,16 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
             byte[] col = new byte[32];
             int len = in.read(col);
-            String echo = new String(col, 0, len, Configuration.getEncoding());
+            String echo;
+
+            try {
+                echo = new String(col, 0, len, Configuration.getEncoding());
+            }
+            catch (StringIndexOutOfBoundsException e) {
+                // this happens if there is some other input on stdin (for example a pipe)
+                // TODO: the input is now read and can't be processed again.
+                echo = "";
+            }
     
             if (!echo.startsWith("\u001B[") || !echo.contains(";")) {
                 return -1;
