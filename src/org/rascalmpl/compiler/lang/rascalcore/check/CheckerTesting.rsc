@@ -7,8 +7,6 @@ import lang::rascalcore::check::Checker;
 import analysis::typepal::TypePal;
 import analysis::typepal::TestFramework;
 
-import IO;
-
 start syntax Modules
     = Module+ modules;
 
@@ -16,7 +14,7 @@ start syntax Modules
 
 TModel rascalTModelForTestModules(Tree pt, bool debug=false){
     ms = getInlineImportAndExtendGraph(pt, getDefaultTestingPathConfig());
-    TypePalConfig config=rascalTypePalConfig(getDefaultTestingPathConfig());
+    TypePalConfig config=getTypePalCompilerConfig(getDefaultTestingPathConfig());
     if(debug){
         config = config[logImports = true];
     }
@@ -39,4 +37,4 @@ void testModules(str names...) {
 list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
                      "imports", "operators", "pat", "scope", "splicepats", "stats"/*,"syntax1", "syntax2", "syntax3"*/];
                      
-value main() = testModules();
+void main() = testModules();

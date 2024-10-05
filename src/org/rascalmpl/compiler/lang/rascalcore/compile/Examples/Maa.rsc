@@ -1366,7 +1366,7 @@ void main([]) { // entry point for the RASCAL interpreter
 }
 
 int main(){
-  work();
+  return work();
 }
 
 int work() { // entry point for the RASCAL compiler

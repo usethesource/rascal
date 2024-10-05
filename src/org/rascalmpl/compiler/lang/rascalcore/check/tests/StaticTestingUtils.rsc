@@ -130,7 +130,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
 
-bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = true;
+bool uninitialized(str _stmts, list[str] _importedModules = [], list[str] _initialDecls = []) = true;
 
 //bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	//check(stmts, [
