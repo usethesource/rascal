@@ -3,7 +3,7 @@ module lang::rascalcore::compile::Examples::Tst4
 
 import ParseTree;
 // If, instead of this import, we use and empty ADT declaration
-// data Tree;
+//data Tree;
 // the problem does not manifest itself
 
 data AType (str alabel = "")
