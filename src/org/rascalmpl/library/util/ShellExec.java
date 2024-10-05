@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -34,7 +35,8 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class ShellExec {
-	private static Map<IInteger, Process> runningProcesses = new HashMap<>();
+	private static Map<IInteger, Process> runningProcesses = new ConcurrentHashMap<>();
+	private static Map<IInteger, IInteger> processExitCodes = new ConcurrentHashMap<>();
 	private static Map<IInteger, InputStreamReader> processInputStreams = new HashMap<>();
 	private static Map<IInteger, BufferedReader> processErrorStreams = new HashMap<>();
 	private static Map<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<>();
@@ -107,16 +109,18 @@ public class ShellExec {
 		Process p = runningProcesses.get(pid);
 
 		if (p == null) {
-			throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
+			IInteger storedExitCode = processExitCodes.get(pid);
+			if (storedExitCode == null) {
+				throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
+			}
+			return storedExitCode;
 		}
 
-		while (true) {
-			try {
-				return vf.integer(p.waitFor());
-			}
-			catch (InterruptedException e) {
-				continue;
-			}
+		try {
+			return vf.integer(p.waitFor());
+		}
+		catch (InterruptedException e) {
+			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
 	
@@ -228,12 +232,13 @@ public class ShellExec {
 		        runningProcess.destroy();    
 		    }
 		}
-		
-		new Thread("zombie process clean up") {
+
+		Thread waitForCleared = new Thread("zombie process clean up") {
 		    public void run() {
 				while (true) {
 					try {
 						runningProcess.waitFor();
+						processExitCodes.put(processId, vf.integer(runningProcess.exitValue()));
 						runningProcesses.remove(processId);
 						return;
 					}
@@ -244,8 +249,9 @@ public class ShellExec {
 					}
 				}
 		    };
-		}.start();
-		 
+		};
+		waitForCleared.setDaemon(true);
+		waitForCleared.start();
 		
 		return;
 	}
