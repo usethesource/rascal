@@ -16,7 +16,6 @@ import ParseTree;
 import util::Reflective;
 
 import util::FileSystem;
-import ValueIO;
 
 //import lang::rascalcore::compile::Compile;
 
@@ -298,7 +297,7 @@ TestResults runTests(list[str] names, str base, PathConfig pcfg){
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          mname2msgs = filterErrors(checkModules([prog], rascalTypePalConfig(), pcfg));
+          mname2msgs = filterErrors(checkModules([prog], getTypePalCompilerConfig(pcfg)));
           iprintln(mname2msgs);
           all_test_msgs += mname2msgs;
       } catch value e:
@@ -398,7 +397,7 @@ bool blacklisted(str qualifiedModuleName){
     return contains(qualifiedModuleName, "Java18");
 }
 
-bool whitelisted(str qualifiedModuleName){
+bool whitelisted(str _qualifiedModuleName){
     return true;
     //for(s <- {"lang::rascal"}){
     //   if(contains(qualifiedModuleName, s)) return true;
@@ -448,7 +447,7 @@ void allFiles(PathConfig pcfg = pathConfig(
         }
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
-            modulesAndmsgs = filterErrors(checkModules([qualifiedModuleName], rascalTypePalConfig(), pcfg));
+            modulesAndmsgs = filterErrors(checkModules([qualifiedModuleName], getTypePalCompilerConfig(pcfg)));
             //modulesAndmsgs = (qualifiedModuleName : filterErrors(compile(qualifiedModuleName, rascalTypePalConfig(),pcfg)));
             if(modulesAndmsgs[qualifiedModuleName]?) iprintln(modulesAndmsgs);
             problems += modulesAndmsgs;

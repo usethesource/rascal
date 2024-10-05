@@ -4,23 +4,23 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Literals;
 import lang::rascalcore::check::AType;
 
-test bool tstLiteral1() = literal("") == prod(lit(""),[]);
-test bool tstLiteral2() = literal("a") == prod(lit("a"),[\char-class([range(97,97)])]);
+test bool tstLiteral1() = literal("") == prod(alit(""),[]);
+test bool tstLiteral2() = literal("a") == prod(alit("a"),[\achar-class([arange(97,97)])]);
 test bool tstLiteral3() = literal("ab") == 
-	prod(lit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])]);
+	prod(alit("ab"),[\achar-class([arange(97,97)]),\achar-class([arange(98,98)])]);
 	
-test bool tstCiLiteral1() = ciliteral("") == prod(cilit(""),[]);
-test bool tstCiLiteral2() = ciliteral("a") == prod(cilit("a"),[\char-class([range(97,97)])]);
+test bool tstCiLiteral1() = ciliteral("") == prod(acilit(""),[]);
+test bool tstCiLiteral2() = ciliteral("a") == prod(acilit("a"),[\achar-class([arange(97,97)])]);
 test bool tstCiLiteral3() = ciliteral("ab") == 
-	prod(cilit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])]);
+	prod(acilit("ab"),[\achar-class([arange(97,97)]),\achar-class([arange(98,98)])]);
 
 test bool tstStr2Syms1() = str2syms("") == [];
-test bool tstStr2Syms2() = str2syms("a") == [\char-class([range(97,97)])];
-test bool tstStr2Syms3() = str2syms("ab") == [\char-class([range(97,97)]),\char-class([range(98,98)])];
+test bool tstStr2Syms2() = str2syms("a") == [\achar-class([arange(97,97)])];
+test bool tstStr2Syms3() = str2syms("ab") == [\achar-class([arange(97,97)]),\achar-class([arange(98,98)])];
 
 test bool tsCistr2syms1() = cistr2syms("") == [];
-test bool tsCistr2syms2() = cistr2syms("a") == [\char-class([range(97,97)])];
-test bool tsCistr2syms3() = cistr2syms("A") == [\char-class([range(65,65)])];
+test bool tsCistr2syms2() = cistr2syms("a") == [\achar-class([arange(97,97)])];
+test bool tsCistr2syms3() = cistr2syms("A") == [\achar-class([arange(65,65)])];
 
 test bool tstUnescapeSC1() = unescapeLiteral((StringConstant) `"a"`) == "a";
 test bool tstUnescapeSC2() = unescapeLiteral((StringConstant) `"\\t"`) == "\t";

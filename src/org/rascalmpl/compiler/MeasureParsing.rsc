@@ -7,8 +7,9 @@ import IO;
 import ValueIO;
 
 data PathConfig(
-    list[loc] resources = [],
-    list[loc] generatedResources = []
+    loc resources = |unknown:///|,
+    loc generatedResources = |unknown:///|,
+    loc generatedSources = |unknown:///|
 );
 
 void main(){
@@ -29,7 +30,7 @@ void main(){
     parse_time = 0;
     read_time = 0;
     write_time = 0;
-    for(int i <- [1..10]){
+    for(int _ <- [1..10]){
         for(qualifiedModuleName <- ["Boolean", "Type", "ParseTree", "List"]){
             mloc = getModuleLocation(qualifiedModuleName, pcfg);    
             ploc = |file:///tmp/<qualifiedModuleName>.parsetree|;        
