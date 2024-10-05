@@ -3,9 +3,6 @@ module lang::rascalcore::compile::Examples::RascalMetrics
 
 import ParseTree;
 import lang::rascal::\syntax::Rascal;
-import util::Benchmark;
-import IO;
-import ValueIO;
 import util::Reflective;
 import Set;
 
