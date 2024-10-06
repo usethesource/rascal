@@ -54,7 +54,7 @@ value measure(){
         }
       case Declaration d:
             if(d is \data || d is \dataAbstract) datadefs += "<d.user>"; 
-      case Variant v: 
+      case Variant _: 
           stats["variant"] ? 0 += 1;
     }
     stats["nonterminal"] = size(nonterm);

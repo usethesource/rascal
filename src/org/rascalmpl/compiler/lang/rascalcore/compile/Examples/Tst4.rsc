@@ -1,17 +1,24 @@
 module lang::rascalcore::compile::Examples::Tst4
 
 
-import ParseTree;
+//import ParseTree;
 // If, instead of this import, we use and empty ADT declaration
 //data Tree;
 // the problem does not manifest itself
+
+data Symbol      // <3>
+     = 
+      \adt(str name, list[Symbol] parameters)
+     | \cons(Symbol \adt, str name, list[Symbol] parameters)
+     ;
+data Tree;
 
 data AType (str alabel = "")
   = c(AType adt)
   ;
 
 data DefInfo
-  = defType(Tree tree)
+  = defType(int tree)
   | defType(AType atype)
   ;
 
@@ -20,7 +27,7 @@ alias Define = tuple[DefInfo defInfo];
 void main() {
   set[Define] defines = {};
 
-  set[tuple[DefInfo]] xs = {adt
+  set[value] xs = {adt
     | Define cons: <_> <- defines
     , AType consAdtType := cons.defInfo.atype.adt
     , Define adt: <defType(consAdtType)> <- defines
