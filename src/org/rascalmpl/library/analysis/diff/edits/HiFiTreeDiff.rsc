@@ -250,29 +250,32 @@ list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] re
     // what is left to be different. By maximizing commonalities,
     // the edits are minimized. Note that we float on source location parameters
     // not only for the edit locations but also for sub-tree identity.
-    solve (originals, replacements) {
-        <originals, replacements> = trimEqualElements(originals, replacements);
-        span = cover([orig@\loc | orig <- originals, orig@\loc?]);
+    
+    <originals, replacements> = trimEqualElements(originals, replacements);
+    span = cover([orig@\loc | orig <- originals, orig@\loc?]);
 
-        <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
-        edits += specialEdits;
+    <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
+    edits += specialEdits;
         
-        equalSubList = largestEqualSubList(originals, replacements);
+    equalSubList = largestEqualSubList(originals, replacements);
 
-        if (equalSubList != [],
-            [*preO, *equalSubList, *postO] := originals,
-            [*preR, *equalSubList, *postR] := replacements) {
-            // TODO: what about the separators?
-            // we align the prefixes and the postfixes and
-            // continue recursively.
-            return edits 
-                + listDiff(cover(preO), seps, preO, preR)   
-                + listDiff(cover(postO), seps, postO, postR)
-            ;
-        }
+    // by using the (or "a") largest common sublist as a pivot to divide-and-conquer
+    // to the left and right of it, we minimize the number of necessary 
+    // edit actions for the entire list.
+    if (equalSubList != [],
+        [*preO, *equalSubList, *postO] := originals,
+        [*preR, *equalSubList, *postR] := replacements) {
+        // TODO: what about the separators?
+        // we align the prefixes and the postfixes and
+        // continue recursively.
+        return edits 
+            + listDiff(cover(preO), seps, preO, preR)   
+            + listDiff(cover(postO), seps, postO, postR)
+        ;
     }
-
-    return edits;
+    else { // nothing in common means we can replace the entire list
+        return edits + replace(span, learnIndentation(yield(replacements), yield(originals)));
+    }
 }
 
 @synopsis{Finds the largest sublist that occurs in both lists}
@@ -324,7 +327,7 @@ tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 3,
 
 
 @synopsis{convenience overload for shorter code}
-private loc fromUntil(Tree from, Tree until) = fromUntil(fro@\loc, until@\loc);
+private loc fromUntil(Tree from, Tree until) = fromUntil(from@\loc, until@\loc);
 
 @synopsis{Compute location span that is common between an element and a succeeding element}
 @description{
