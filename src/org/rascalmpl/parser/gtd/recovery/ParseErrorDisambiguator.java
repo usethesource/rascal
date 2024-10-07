@@ -1,5 +1,8 @@
 package org.rascalmpl.parser.gtd.recovery;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
@@ -44,23 +47,32 @@ public class ParseErrorDisambiguator {
     */
 
     public IConstructor disambiguateErrors(IConstructor arg, IBool allowAmbiguity) {
-        return disambiguate(arg, allowAmbiguity.getValue()).tree;
+        return disambiguate(arg, allowAmbiguity.getValue(), new HashMap<>()).tree;
     }
 
-    private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity) {
+    private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
+        ScoredTree result = processedTrees.get(tree);
+        if (result != null) {
+            return result;
+    }
+
         Type type = tree.getConstructorType();
 
         if (type == RascalValueFactory.Tree_Appl) {
-            return disambiguateAppl((ITree) tree, allowAmbiguity);
+            result = disambiguateAppl((ITree) tree, allowAmbiguity, processedTrees);
         } else if (type == RascalValueFactory.Tree_Amb) {
-            return disambiguateAmb((ITree) tree, allowAmbiguity);
+            result = disambiguateAmb((ITree) tree, allowAmbiguity, processedTrees);
+        } else {
+            // Other trees (cycle, char) do not have subtrees so they have a score of 0
+            result = new ScoredTree(tree, 0);
         }
 
-        // Other trees (cycle, char) do not have subtrees so they have a score of 0
-        return new ScoredTree(tree, 0);
+        processedTrees.put(tree, result);
+
+        return result;
     }
 
-    private ScoredTree disambiguateAppl(ITree appl, boolean allowAmbiguity) {
+    private ScoredTree disambiguateAppl(ITree appl, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
         if (ProductionAdapter.isSkipped(appl.getProduction())) {
             return new ScoredTree(appl, ((IList) appl.get(1)).length());
         }
@@ -72,7 +84,7 @@ public class ParseErrorDisambiguator {
         // Disambiguate and score all children
         for (int i=0; i<args.size(); i++) {
             IValue arg = args.get(i);
-            ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity);
+            ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity, processedTrees);
             totalScore += disambiguatedArg.score;
             if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
                     disambiguatedArgs = rascalValues.listWriter();
@@ -99,13 +111,13 @@ public class ParseErrorDisambiguator {
         return new ScoredTree(resultTree, totalScore);
     }
 
-    private ScoredTree disambiguateAmb(ITree amb, boolean allowAmbiguity) {
+    private ScoredTree disambiguateAmb(ITree amb, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
         ISet originalAlts = (ISet) amb.get(0);
 
         ISetWriter alternativesWithoutErrors = null;
         ScoredTree errorAltWithBestScore = null;
         for (IValue alt : originalAlts) {
-            ScoredTree disambiguatedAlt = disambiguate((IConstructor) alt, allowAmbiguity);
+            ScoredTree disambiguatedAlt = disambiguate((IConstructor) alt, allowAmbiguity, processedTrees);
             if (disambiguatedAlt.score == 0) {
                 // Non-error tree
                 if (alternativesWithoutErrors == null) {
