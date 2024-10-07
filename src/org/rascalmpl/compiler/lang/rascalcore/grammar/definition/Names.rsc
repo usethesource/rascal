@@ -7,8 +7,6 @@
 }
 module lang::rascalcore::grammar::definition::Names
 
-import lang::rascalcore::check::ATypeBase;
-
 public str unescape(str name) {
   if (/\\<rest:.*>/ := name) return rest; 
   return name;

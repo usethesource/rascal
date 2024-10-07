@@ -66,7 +66,7 @@ test bool t0() = trans0({<1,2>, <2,3>, <3,4>}) == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4
 test bool t1() = trans1({<1,2>, <2,3>, <3,4>}) == {<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};
 test bool tt2(rel[int, int] r) = r+ == trans1(r);
 
-rel[int,int] build(int n) = {<arbInt(3000), arbInt(3000)> | i <- [0..n]};
+rel[int,int] build(int n) = {<arbInt(3000), arbInt(3000)> | _ <- [0..n]};
 
 value measure(){
     r = build(100000);

@@ -9,18 +9,14 @@
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
 module analysis::grammars::Ambiguity
  
-import Exception;
 import ParseTree;
-import IO;
 import ValueIO;
 import Message; 
 import List;
 import Set;
-import Relation;
-import  analysis::graphs::Graph;
+import analysis::graphs::Graph;
 import Grammar;
 import lang::rascal::format::Grammar;
-import lang::rascal::format::Escape;
 
 public list[Message] diagnose(Tree t) {
   return [*findCauses(x) | x <- {a | /Tree a:amb(_) := t}];
@@ -32,7 +28,7 @@ public list[Message] diagnose(str amb) {
 
 public list[Message] findCauses(Tree a) {
   return [info("Ambiguity cluster with <size(a.alternatives)> alternatives", a@\loc?|dunno:///|)]
-       + [*findCauses(x, y) | [_*,Tree x,_*,Tree y, _*] := toList(a.alternatives), true /* workaround alert*/];
+       + [*findCauses(x, y) | [*_,Tree x,*_,Tree y, *_] := toList(a.alternatives), true /* workaround alert*/];
 }
     
 public list[Message] findCauses(Tree x, Tree y) {
@@ -74,7 +70,7 @@ public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Prod
 
 public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Production] pY) {
   result = [];
-  if (appl(p, argsX) := x, appl(q, argsY) := y) {
+  if (appl(p, argsX) := x, appl(q, _argsY) := y) {
     if (i <- index(argsX), appl(apX,_) := argsX[i], apX notin pY) {
       labelApX = "labelX";
       
@@ -126,7 +122,7 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
     result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rY o lX];
     
     // lexicals that overlap position, but are shorter (longest match issue)
-    for (<tX,yX> <- rX, <tY,yY> <- rY, tX != tY) {
+    for (<tX,yX> <- rX, <tY,_yY> <- rY, tX != tY) {
       tXl = tX@\loc; 
       tYl = tY@\loc;
       
@@ -168,8 +164,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
     result += info("Re-use of these literals is causing different interpretations of the same source.", x@\loc?|dunno:///|);
     result += overloadedLits;
     
-    fatherChildX = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := x, q.def is sort || q.def is lex, true};
-    fatherChildY = {<p, size(a), q> | appl(p, [a*,appl(q,_),_*]) := y, q.def is sort || q.def is lex, true};
+    fatherChildX = {<p, size(a), q> | appl(p, [*a,appl(q,_),*_]) := x, q.def is sort || q.def is lex, true};
+    fatherChildY = {<p, size(a), q> | appl(p, [*a,appl(q,_),*_]) := y, q.def is sort || q.def is lex, true};
     for (<p,i,q> <- (fatherChildX - fatherChildY) + (fatherChildY - fatherChildX)) {
       labelApX = "labelX";
       
@@ -196,8 +192,8 @@ public list[int] yield(Tree x) {
 }
 
 public list[Message] reorderingCauses(Tree x, Tree y) {
-  fatherChildX = {<p, q> | appl(p, [_*,appl(q,_),_*]) := x, true};
-  fatherChildY = {<p, q> | appl(p, [_*,appl(q,_),_*]) := y, true};
+  fatherChildX = {<p, q> | appl(p, [*_,appl(q,_),*_]) := x, true};
+  fatherChildY = {<p, q> | appl(p, [*_,appl(q,_),*_]) := y, true};
   result = [];
   
   if (fatherChildX == fatherChildY) {
@@ -240,12 +236,12 @@ list[Message] danglingCauses(Tree x, Tree y) {
 }
 
 list[Message] danglingFollowSolutions(Tree x, Tree y) {
-  if (prod(_, lhs, _) := x.prod, prod(_, [pref*, _, l:lit(_), more*], _) := y.prod, lhs == pref) {
+  if (prod(_, lhs, _) := x.prod, prod(_, [pref*, _, l:lit(_), *_more], _) := y.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                     ' <alt2rascal(x.prod)>", x@\loc?|dunno:///|)]; 
   }
   
-  if (prod(_, lhs, _) := y.prod, prod(_, [pref*, _, l:lit(_), more*], _) := x.prod, lhs == pref) {
+  if (prod(_, lhs, _) := y.prod, prod(_, [pref*, _, l:lit(_), *_more], _) := x.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                   '  <alt2rascal(y.prod)>", x@\loc?|dunno:///|)]; 
   }
@@ -270,11 +266,11 @@ list[Message] danglingOffsideSolutions(Tree x, Tree y) {
 }
 
 list[Message] associativityCauses(Tree x, Tree y) {
-  if (/appl(p,[appl(p,_),_*]) := x, /Tree t:appl(p,[_*,appl(p,_)]) := y) {
+  if (/appl(p,[appl(p,_),*_]) := x, /Tree t:appl(p,[*_,appl(p,_)]) := y) {
     return [error("This rule [<alt2rascal(p)>] may be missing an associativity declaration  (left, right, non-assoc)", t@\loc)];
   }
   
-  if (/appl(p,[appl(p,_),_*]) := y, /Tree t:appl(p,[_*,appl(p,_)]) := x) {
+  if (/appl(p,[appl(p,_),*_]) := y, /Tree t:appl(p,[*_,appl(p,_)]) := x) {
     return [error("This rule [<alt2rascal(p)>] may be missing an associativity declaration (left, right, non-assoc)", t@\loc)];
   }
   
