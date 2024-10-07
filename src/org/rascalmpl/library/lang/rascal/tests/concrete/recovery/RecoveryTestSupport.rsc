@@ -21,23 +21,28 @@ public data FileStats = fileStats(int totalParses = 0, int successfulParses=0, i
 
 public data TestStats = testStats(int filesTested=0, int testCount=0, FrequencyTable successfulParses=(), FrequencyTable successfulRecoveries=(), FrequencyTable successfulDisambiguations=(), FrequencyTable failedRecoveries=(), FrequencyTable parseErrors=(), FrequencyTable slowParses=(), FrequencyTable parseTimeRatios=());
 
-private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source) {
+private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile) {
     int startTime = 0;
     int duration = 0;
+    int disambDuration = -1;
+    int errorSize=0;
+    str result = "?";
     TestMeasurement measurement = successfulParse();
     try {
         startTime = realTime();
         Tree t = standardParser(input, source);
         duration = realTime() - startTime;
         measurement = successfulParse(source=source, duration=duration);
+        result = "success";
     } catch ParseError(_): {
         startTime = realTime();
         try {
             Tree t = recoveryParser(input, source);
-            duration = realTime() - startTime;
+            int parseEndTime = realTime();
+            duration = realTime() - parseEndTime;
             Maybe[Tree] best = findBestError(t);
-            //totalDuration = realTime() - startTime;
-            //println("parse time: <duration>, disamb time: <totalDuration-duration>");
+            disambDuration = realTime() - parseEndTime;
+            result = "recovery";
             if (best == nothing()) {
                 measurement = successfulDisambiguation(source=source, duration=duration);
             } else {
@@ -45,9 +50,14 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             measurement = recovered(source=source, duration=duration, errorSize=errorSize);
             }
         } catch ParseError(_): { 
+            result = "error";
             duration = realTime() - startTime;
             measurement = parseError(source=source, duration=duration);
         }
+    }
+
+    if (statFile != |unknown:///|) {
+        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<disambDuration>,<errorSize>\n");
     }
 
     return measurement;
@@ -160,14 +170,15 @@ TestStats mergeStats(TestStats stats, TestStats stats2) {
     return stats; 
 }
 
-FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
+FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) {
     FileStats stats = fileStats();
     int len = size(input);
     int i = begin;
 
     while (i < len && (end == -1 || i<=end)) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
-        TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deleted=<"<i>">|);
+        source.query = "deletedChar=<i>";
+        TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         if (i < len && substring(input, i, i+1) == "\n") {
             println();
@@ -178,11 +189,12 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
     return stats;
 }
 
-FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
+FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) {
     FileStats stats = fileStats();
     int lineStart = begin;
     list[int] lineEndings = findAll(input, "\n");
 
+    int line = 1;
     for (int lineEnd <- lineEndings) {
         lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
@@ -194,11 +206,13 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
                 continue;
             }
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
-            TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, |unknown:///?deletedUntilEol=<"<pos>,<lineEnd>">|);
+            source.query = "deletedUntilEol=<line>,<pos>,<lineEnd>";
+            TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         }
         lineStart = lineEnd+1;
         println();
+        line = line+1;
     }
 
     return stats;
@@ -319,7 +333,7 @@ loc zippedFile(str zip, str path) {
 
 FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) = testErrorRecovery(syntaxFile, topSort, testInput, readFile(testInput));
 
-FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str input) {
+FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str input, loc statFile=|unknown:///|) {
     Module \module = parse(#start[Module], syntaxFile).top;
     str modName = syntaxLocToModuleName(syntaxFile);
     Grammar gram = modules2grammar(modName, {\module});
@@ -339,12 +353,12 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
 
         println();
         println("Single char deletions:");
-        FileStats singleCharDeletionStats = testSingleCharDeletions(standardParser, recoveryParser, input, referenceParseTime, recoverySuccessLimit);
+        FileStats singleCharDeletionStats = testSingleCharDeletions(standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit, statFile=statFile);
         printFileStats(singleCharDeletionStats);
 
         println();
         println("Deletes until end-of-line:");
-        FileStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, input, referenceParseTime, recoverySuccessLimit);
+        FileStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit, statFile=statFile);
         printFileStats(deleteUntilEolStats);
 
         FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
@@ -358,17 +372,34 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
     }
 }
 
-TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int maxFileSize, TestStats cumulativeStats=testStats()) {
-    println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>)");
+private int fileNr = 0;
+private int fromFile = 0;
+
+TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, int from, loc statFile) {
+    fileNr = 0;
+    fromFile = from;
+
+    return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());
+}
+
+TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, loc statFile, TestStats cumulativeStats) {
+    println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>, fromFile=<fromFile>)");
+    writeFile(statFile, "source,size,result,duration,disambiguationDuration,errorSize\n");
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
         if (isFile(file)) {
             if (endsWith(file.path, ext)) {
                 str content = readFile(file);
-                if (size(content) <= maxFileSize) {
+                int contentSize = size(content);
+                if (contentSize >= minFileSize && contentSize < maxFileSize) {
+                    fileNr += 1;
+                    if (fileNr < fromFile) {
+                        println("Skipping file #<fileNr>: <file>, (\< <fromFile>)");
+                        continue;
+                    }
                     println("========================================================================");
-                    println("Testing file #<cumulativeStats.filesTested> <file> (<maxFiles-cumulativeStats.filesTested> of <maxFiles> left)");
-                    FileStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content);
+                    println("Testing file #<fileNr> <file> (<maxFiles-cumulativeStats.filesTested> of <maxFiles> left)");
+                    FileStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content, statFile=statFile);
                     cumulativeStats = consolidateStats(cumulativeStats, fileStats);
                     println();
                     println("------------------------------------------------------------------------");
@@ -377,7 +408,7 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
                 }
             }
         } else if (isDirectory(file)) {
-            cumulativeStats = batchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles, maxFileSize, cumulativeStats=cumulativeStats);
+            cumulativeStats = runBatchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles, minFileSize, maxFileSize, statFile, cumulativeStats);
         }
 
         if (cumulativeStats.filesTested >= maxFiles) {
