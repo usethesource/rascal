@@ -51,12 +51,8 @@ public class ParseErrorDisambiguator {
     }
 
     private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
-        ScoredTree result = processedTrees.get(tree);
-        if (result != null) {
-            return result;
-        }
-
         Type type = tree.getConstructorType();
+        ScoredTree result;
 
         if (type == RascalValueFactory.Tree_Appl) {
             result = disambiguateAppl((ITree) tree, allowAmbiguity, processedTrees);
@@ -67,51 +63,63 @@ public class ParseErrorDisambiguator {
             result = new ScoredTree(tree, 0);
         }
 
-        processedTrees.put(tree, result);
-
         return result;
     }
 
     private ScoredTree disambiguateAppl(ITree appl, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
-        if (ProductionAdapter.isSkipped(appl.getProduction())) {
-            return new ScoredTree(appl, ((IList) appl.get(1)).length());
+        ScoredTree result = processedTrees.get(appl);
+        if (result != null) {
+            return result;
         }
 
-        IList args = TreeAdapter.getArgs(appl);
-        int totalScore = 0;
-        IListWriter disambiguatedArgs = null;
+        if (ProductionAdapter.isSkipped(appl.getProduction())) {
+            result = new ScoredTree(appl, ((IList) appl.get(1)).length());
+        } else {
+            IList args = TreeAdapter.getArgs(appl);
+            int totalScore = 0;
+            IListWriter disambiguatedArgs = null;
 
-        // Disambiguate and score all children
-        for (int i=0; i<args.size(); i++) {
-            IValue arg = args.get(i);
-            ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity, processedTrees);
-            totalScore += disambiguatedArg.score;
-            if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
-                disambiguatedArgs = rascalValues.listWriter();
-                for (int j=0; j<i; j++) {
-                    disambiguatedArgs.append(args.get(j));
+            // Disambiguate and score all children
+            for (int i=0; i<args.size(); i++) {
+                IValue arg = args.get(i);
+                ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity, processedTrees);
+                totalScore += disambiguatedArg.score;
+                if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
+                    disambiguatedArgs = rascalValues.listWriter();
+                    for (int j=0; j<i; j++) {
+                        disambiguatedArgs.append(args.get(j));
+                    }
+                }
+
+                if (disambiguatedArgs != null) {
+                    disambiguatedArgs.append(disambiguatedArg.tree);
                 }
             }
 
+            // Only build a new tree if at least one of the arguments has changed
+            ITree resultTree;
             if (disambiguatedArgs != null) {
-                disambiguatedArgs.append(disambiguatedArg.tree);
+                // Some arguments have changed
+                resultTree = TreeAdapter.setArgs(appl, disambiguatedArgs.done());
+            } else {
+                // None of the arguments have changed
+                resultTree = appl;
             }
+
+            result = new ScoredTree(resultTree, totalScore);
         }
 
-        // Only build a new tree if at least one of the arguments has changed
-        ITree resultTree;
-        if (disambiguatedArgs != null) {
-            // Some arguments have changed
-            resultTree = TreeAdapter.setArgs(appl, disambiguatedArgs.done());
-        } else {
-            // None of the arguments have changed
-            resultTree = appl;
-        }
+        processedTrees.put(appl, result);
 
-        return new ScoredTree(resultTree, totalScore);
+        return result;
     }
 
     private ScoredTree disambiguateAmb(ITree amb, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
+        ScoredTree result = processedTrees.get(amb);
+        if (result != null) {
+            return result;
+        }
+
         ISet originalAlts = (ISet) amb.get(0);
 
         ISetWriter alternativesWithoutErrors = null;
@@ -134,9 +142,10 @@ public class ParseErrorDisambiguator {
 
         if (alternativesWithoutErrors == null) {
             assert errorAltWithBestScore != null : "No trees with and no trees without errors?";
+            processedTrees.put(amb, errorAltWithBestScore);
             return errorAltWithBestScore;
         }
-        
+
         ISet remainingAlts = alternativesWithoutErrors.done();
 
         ITree resultTree;
@@ -156,7 +165,10 @@ public class ParseErrorDisambiguator {
             }
         }
 
-        return new ScoredTree(resultTree, 0);
+        result = new ScoredTree(resultTree, 0);
+        processedTrees.put(amb, result);
+
+        return result;
     }
 
 }
