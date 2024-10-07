@@ -22,13 +22,14 @@ void main() = checkTestSources([], manualTestConfig);
 void main(list[str] cmdLineArgs) = checkTestSources(cmdLineArgs, manualTestConfig);
 
 void checkTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
-     testConfig = pathConfig(
-     bin=pcfg.bin,
-     generatedSources=|project://rascal-core/target/generated-test-sources2|,
-     resources = |project://rascal-core/target/generated-test-resources2|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library| ],
-     libs = [ ]
-     );
+     testConfig = getRascalPathConfig();
+    //  pathConfig(
+    //  bin=pcfg.bin,
+    //  generatedSources=|project://rascal-core/target/generated-test-sources2|,
+    //  resources = |project://rascal-core/target/generated-test-resources2|,
+    //  srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library| ],
+    //  libs = [ ]
+    //  );
      
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
