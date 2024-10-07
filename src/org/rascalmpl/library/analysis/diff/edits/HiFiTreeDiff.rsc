@@ -26,7 +26,59 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 @synopsis{Infer ((TextEdit)) from the differences between two parse ((ParseTree::Tree))s}
 @description{
-This module will move to the Rascal standard library.
+This module provides an essential building block for creating high-fidelity source-to-source code transformations.
+It is common for industrial use cases of source-to-source transformation to extract
+a list of text edits programmatically using parse tree pattern matching. This way the 
+changes are made on the textual level, with less introduction of noise and fewer removals 
+of valuable layout (indentation) and source code comments. 
+
+The construction of such high-fidelity edit lists can be rather involved because it tangles
+and scatters a number of concerns:
+1. syntax-directed pattern matching
+2. string substitution; construction of the rewritten text
+   * retention of layout and in particular indentation
+   * retention of source code comments
+   * retention of specific case-insensitive keyword style
+   * syntactic correctness of the result; especially in relation to list separators there are many corner-cases to thing of
+
+On the other hand, ParseTree to ParseTree rewrites are much easier to write and get correct. 
+They are "syntax directed" via the shape of the tree that follows the grammar of the language.
+Some if not all of the above aspects are tackled by the rewriting mechanism with concrete patterns.
+Especially the corner cases w.r.t. list separators are all handled by the rewriting mechanisms.
+Also the rules are in "concrete syntax", on both the matching and the substition side. So they are 
+readable for all who know the object language. The rules guarantee syntactic correctness of the 
+rewritten source code. However, rewrite rules do quite some noisy damage to the layout, indentation 
+and comments, of the result.
+
+With this module we bring these two modalities of source-to-source transformations together:
+1. The language engineer uses concrete syntax rewrite rules to derive a new ParseTree from the original;
+2. We run ((treeDiff)) to obtain a set of minimal text edit;
+3. We apply the text edits to the editor contents or the file system.
+}
+@benefits{
+* Because the derived text edits change fewer characters, the end result is more "hifi" than simply
+unparsing the rewritten ParseTree. More comments are retained and more indentation is kept the same. More
+case-insensitive keywords retain their original shape.
+* At the same time the rewrite rules are easier to maintain as they remain "syntax directed". 
+* Changes to the grammar will be picked up when checking all source and target patterns. 
+* The diff algorithm uses cross-cutting information from the parse tree (what is layout and what not,
+ what is case-insensitive, etc.) which would otherwise have to be managed by the language engineer in _every rewrite rule_.
+* The diff algoritm understands what indentation is and brings new sub-trees to the original level
+of indentation (same as the sub-trees they are replacing)
+* Typically the algorithm's run-time is lineair in the size of the tree, or better. Same for memory usage.
+}
+@pitfalls{
+* ((treeDiff)) only works under the assumption that the second tree was derived from the first
+by applying concrete syntax rewrite rules in Rascal. If there is no origin relation between the two
+then its heuristics will not work. The algorithm could degenerate to substituting the entire file,
+or worse it could degenerate to an exponential search for commonalities in long lists. 
+* ((treeDiff))'s efficiency is predicated on the two trees being derived from each other in main memory of the currently running JVM.
+This way both trees will share pointers where they are the same, which leads to very efficient equality
+testing. If the trees are first independently serialized to disk and then deserialized again, and then ((treeDiff)) is called, 
+this optimization is not present and the algorithm will perform (very) poorly.
+* Substitution patterns should be formatted as best as possible. The algorithm will not infer
+spacing or relative indentation inside of the substituted subtree. It will only infer indentation
+for the entire subtree. 
 }
 module analysis::diff::edits::HiFiTreeDiff
 
@@ -34,7 +86,7 @@ extend analysis::diff::edits::TextEdits;
 import ParseTree;
 import List;
 import String;
-import Locations;
+import Location;
 
 @synopsis{Detects minimal differences between parse trees and makes them explicit as ((TextEdit)) instructions.}
 @description{
@@ -42,7 +94,8 @@ This is a "diff" algorithm of two parse trees to generate a ((TextEdit)) script 
 the textual level, _with minimal collatoral damage in whitespace_. This is why it is called "HiFi": minimal unnecessary
 noise introduction to the original file.
 
-The resulting ((TextEdit))s are an intermediate representation for making changes in source code text files. They can be executed independently via ((ExecuteTextEdits)), or interactively via ((IDEServices)), or LanguageServer features. 
+The resulting ((TextEdit))s are an intermediate representation for making changes in source code text files. 
+They can be executed independently via ((ExecuteTextEdits)), or interactively via ((IDEServices)), or LanguageServer features. 
 
 This top-down diff algorithm takes two arguments:
 1. an _original_ parse tree for a text file, 
@@ -74,6 +127,8 @@ rules for source-to-souce transformation, and focus on the semantic effect.
 @pitfalls{
 * If the first argument is not an original parse tree, then basic assumptions of the algorithm fail and it may produce erroneous text edits.
 * If the second argument is not derived from the original, then the algorithm will produce a single text edit to replace the entire source text.
+* If the second argument was not produced from the first in the same JVM memory, it will not share many pointers to equal sub-trees
+and the performance of the algorithm will degenerate quickly.
 * If the parse tree of the original does not reflect the current state of the text in the file, then the generated text edits will do harm. 
 * If the original tree is not annotated with source locations, the algorithm fails.
 * Both parse trees must be type correct, e.g. the number of symbols in a production rule, must be equal to the number of elements of the argument list of ((Tree::appl)).
@@ -164,13 +219,10 @@ list[TextEdit] treeDiff(
     when t != r;
 
 // When the productions are different, we've found an edit, and there is no need to recurse deeper.
-list[TextEdit] treeDiff(
+default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
-    = t@\loc?  
-        ? [replace(t@\loc, learnIndentation("<r>", "<t>"))] 
-        : /* literals and layout (without @\loc) are ignored */ [];
-
+    = [replace(t@\loc, learnIndentation("<r>", "<t>"))];
 
 // If list production are the same, then the element lists can still be of different length
 // and we switch to listDiff which has different heuristics than normal trees.
@@ -191,33 +243,88 @@ default int seps(Symbol _) = 0;
 @synsopis{List diff is like text diff on lines; complex and easy to make slow}
 list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] replacements) {
     assert originals != replacements && originals == [];
-    <originals, replacements> = trimEqualElements(originals, replacements);
-    span = cover([orig@\loc | orig <- originals, orig@\loc?]);
+    edits = [];
 
-    assert originals != replacements && originals != [];
-    <edits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
+    // this algorithm isolates commonalities between the two lists
+    // by handling different special cases. It continues always with
+    // what is left to be different. By maximizing commonalities,
+    // the edits are minimized. Note that we float on source location parameters
+    // not only for the edit locations but also for sub-tree identity.
+    solve (originals, replacements) {
+        <originals, replacements> = trimEqualElements(originals, replacements);
+        span = cover([orig@\loc | orig <- originals, orig@\loc?]);
 
-    return [*edits, *genericListDiff(span, originals, replacements)];
+        <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
+        edits += specialEdits;
+        
+        equalSubList = largestEqualSubList(originals, replacements);
+
+        if (equalSubList != [],
+            [*preO, *equalSubList, *postO] := originals,
+            [*preR, *equalSubList, *postR] := replacements) {
+            // TODO: what about the separators?
+            // we align the prefixes and the postfixes and
+            // continue recursively.
+            return edits 
+                + listDiff(cover(preO), seps, preO, preR)   
+                + listDiff(cover(postO), seps, postO, postR)
+            ;
+        }
+    }
+
+    return edits;
+}
+
+@synopsis{Finds the largest sublist that occurs in both lists}
+@description{
+Using list matching and backtracking, this algorithm detects which common
+sublist is the largest. It assumes ((trimEqualElements)) has happened already,
+and thus there are interesting differences left, even if we remove any equal
+sublist.
+}
+list[Tree] largestEqualSubList(list[Tree] originals, list[Tree] replacements) {
+    assert <originals, replacements> := trimEqualElements(originals, replacements) : "both lists begin and end with unique elements";
+    
+    bool largerList(list[Tree] a, list[Tree] b) = size(a) > size(b);
+    
+    equals = [eq |
+        [*_,  pre, *eq,  post, *_] := originals, size(eq) > 0,
+        [*_, !pre, *eq, !post, *_] := replacements
+    ];
+
+    return [largest, *_] := sort(equals, largerList)
+        ? largest
+        : [] // no equal sublists detected
+        ;
 }
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
-tuple[list[Tree], list[Tree]] trimEqualElements([Tree a, *Tree aTail], [ a, *Tree bTail])
-    = <aTail, bTail>;
+tuple[list[Tree], list[Tree]] trimEqualElements([Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
+    = <aPostfix, bPostfix>;
 
-tuple[list[Tree], list[Tree]] trimEqualElements([*Tree aHead, Tree a], [*Tree bHead, a])
-    = <aHead, bHead>;
+tuple[list[Tree], list[Tree]] trimEqualElements([*Tree aPrefix, Tree a], [*Tree bPrefix, a])
+    = <aPrefix, bPrefix>;
 
 default tuple[list[Tree], list[Tree]] trimEqualElements(list[Tree] a, list[Tree] b)
     = <a, b>;
 
 // only one element removed in front, then we are done
 tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 0, [Tree a, *Tree tail], [*tail])
-    = <[replace(a@\loc, "", "<t>")], [], []>;
+    = <[replace(a@\loc, "")], [], []>;
 
 // only one element removed in front, plus 1 separator, then we are done because everything is the same
 tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 1, 
     [Tree a, Tree _sep, Tree tHead, *Tree tail], [tHead, *tail])
-    = <[replace(fromUntil(a, tHead), "", "<t>")], [], []>;
+    = <[replace(fromUntil(a, tHead), "")], [], []>;
+
+// only one element removed in front, plus 1 separator, then we are done because everything is the same
+tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 3, 
+    [Tree a, Tree _l1, Tree _sep, Tree _l2, Tree tHead, *Tree tail], [tHead, *tail])
+    = <[replace(fromUntil(a, tHead), "")], [], []>;
+
+
+@synopsis{convenience overload for shorter code}
+private loc fromUntil(Tree from, Tree until) = fromUntil(fro@\loc, until@\loc);
 
 @synopsis{Compute location span that is common between an element and a succeeding element}
 @description{
@@ -229,92 +336,11 @@ up to `until`.
 ````
 }
 private loc fromUntil(loc from, loc until) = from.top(from.offset, until.offset - from.offset);
+private int end(loc src) = src.offset + src.length;
 
-@synopsis{convenience overload for shorter code}
-private loc fromUntil(Tree from, Tree until) = fromUntil(fro@\loc, until@\loc);
-
-@synopsis{Finds minimal edits to list elements, taking extra care of removing separators when so required.}
-@description{
-To make this easy, we add source location information to each original separator first, and then 
-reuse the rest of the algorithm which normally ignores separators.
-}
-list[TextEdit] listDiff(loc _span, [], []) = [];
-
-// equal length, we assume only specific elements have changed. 
-list[TextEdit] listDiff(loc _span, list[Tree] elemsA, list[Tree] elemsB) = equalLengthDiff(elemsA, elemsB) 
-  when size(elemsA) == size(elemsB);
-
-// additional elements, and possibly other elements have changed.
-list[TextEdit] listDiff(loc span, list[Tree] elemsA, list[Tree] elemsB) = longerLengthDiff(span, elemsA, elemsB) 
-  when size(elemsA) < size(elemsB);
-
-// fewer elements, and possibly other elements have changed.
-list[TextEdit] listDiff(loc span, list[Tree] elemsA, list[Tree] elemsB) = shorterLengthDiff(span, elemsA, elemsB) 
-  when size(elemsA) > size(elemsB);
-
-// this works only because we annotated the separators.
-list[TextEdit] equalLengthDiff(list[Tree] elemsA, list[Tree] elemsB)
-    = [*treeDiff(a,b) | <a,b> <- zip2(elemsA, elemsB)];
-
-// added things to an empty list. this is also the final stage of a deep recursion
-list[TextEdit] longerLengthDiff(loc span, [], list[Tree] elemsB) = [replace(span, yield(elemsB))];
-
-// equal length lists can be forwarded (this happens when we already found the extra elements)
-list[TextEdit] longerLengthDiff(loc span, list[Tree] elemsA, list[Tree] elemsB)
-    = equalLengthDiff(elemsA, elemsB) when size(elemsA) == size(elemsB);
-
-// always ignore identical trees, and continue with the rest
-list[TextEdit] longerLengthDiff(loc span, [Tree a, *Tree elemsA], [a, *Tree elemsB])
-    = longerLengthDiff(span[offset=a@\loc.offset][length=span.length-a@\loc.length], elemsA, elemsB); 
-
-// a single elem is different and also new by definition because ("longerLengthDiff")
-list[TextEdit] longerLengthDiff(loc span, [Tree a, *Tree elemsA], [Tree b:!a, *Tree elemsB])
-    = [replace(span[length=0], "<b>")]          // we put b in front of a
-    + (size(elemsA) + 1 == size(elemsB)         // and continue with the rest
-        ? equalLengthDiff([a, *elemsA], elemsB) // this could have been the last additional element
-        : longerLengthDiff(span, [a, *elemsA], elemsB)) // or we still have more to add
-    ;
-
-// we have to remove the elements that are replaced by an empty list
-list[TextEdit] shorterLengthDiff(loc span, list[Tree] _, [])
-    = [replace(span, "")];
-
-// always ignore identical trees, and continue with the rest
-list[TextEdit] shorterLengthDiff(loc span, [Tree a, *Tree elemsA], [a, *Tree elemsB])
-    = shorterLengthDiff(span[offset=a@\loc.offset][length=span.length-a@\loc.length], elemsA, elemsB); 
-
-// a single elem is different and also superfluous by definition because ("shorterLengthDiff")
-list[TextEdit] shorterLengthDiff(loc span, [Tree a, *Tree elemsA], [Tree b:!a, *Tree elemsB])
-    = [replace(a@\loc, "<b>")] // we replace a by b
-    + shorterLengthDiff(span, elemsA, elemsB) // and continue with the rest
-    // TODO: the lists could have become of equal length. Deal with that case.
-    ;
-
-private Production sepProd = prod(layouts("*separators*"),[],{});
+private loc cover(list[Tree] elems) = cover([e@\loc | e <- elems, e@\loc?]);
 
 @synopsis{yield a consecutive list of trees}
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";
-
-@synopsis{Separator literals need location annotations because they have to be edited.}
-private list[Tree] prepareSeparators([], int _) = [];
-
-private list[Tree] prepareSeparators([Tree t], int _) = [t];
-
-// we group the 3 separators into a single tree with accurate position information.
-private list[Tree] prepareSeparators([Tree head, Tree l1, Tree sep, Tree l2, *Tree rest], 3) 
-    = [head, appl(sepProd, [l1, newSep, l2])[@\loc=span], *prepareSeparators(rest)] 
-    when
-        span := head@\loc.top(end(head@\loc), size("<l1><sep><l2>"));
-        
-// single separators get accurate position informaiton (even if they are layout)
-private list[Tree] prepareSeparators([Tree head, Tree sep, *Tree rest], 1) 
-    = [head, sep[\loc=span], *prepareSeparators(rest)] 
-    when 
-        span := head@\loc.top(end(head@\loc), size("<sep>"));
-
-// unseparated lists are ready
-private list[Tree] prepareSeparators(list[Tree] elems, 0) = elems;
-
-private int end(loc src) = src.offset + src.length;
 
 private str learnIndentation(str replacement, str original) = replacement; // TODO: learn minimal indentaton from original
