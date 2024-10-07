@@ -69,6 +69,26 @@ public PathConfig getRascalProjectTestingPathConfig() {
     );  
 }  
 
+// --- all source ------------------------------------------------------------
+
+public PathConfig getAllSrcPathConfig() {
+   return pathConfig(   
+        srcs = [ REPO + "rascal/src/org/rascalmpl/library", 
+                 REPO + "rascal/test/org/rascalmpl/benchmark/",
+                 REPO + "rascal-core/src/org/rascalmpl/core/library",
+                 REPO + "typepal/src"
+                 ],
+        bin = REPO + "generated-sources/target/rascal/classes",
+        generatedSources = REPO + "generated-sources/target/rascal/generated-sources/src/main/java/",
+        generatedTestSources = REPO + "generated-sources/target/rascal/generated-sources/src/main/java/",
+        resources = REPO + "generated-sources/target/rascal/generated-resources/src/main/java/",
+        libs = [ ]
+    );
+}
+
+public RascalCompilerConfig getAllSrcCompilerConfig(){
+    return rascalCompilerConfig(getAllSrcPathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+}
 // ---- rascal ----------------------------------------------------------------
 
 public PathConfig getRascalPathConfig() {
@@ -222,4 +242,25 @@ public RascalCompilerConfig getDrAmbiguityCompilerConfig(PathConfig pcfg){
 
 public RascalCompilerConfig getDrAmbiguityCompilerConfig(){
     return rascalCompilerConfig(getDrAmbiguityPathConfig());
+}
+
+// ---- php-analysis -----------------------------------------------------------
+
+public PathConfig getPHPPathConfig() {
+    return pathConfig(   
+        srcs = [ REPO + "php-analysis/src/main/rascal", REPO + "php-analysis/src/test/rascal"],
+        bin = REPO + "generated-sources/target/ph-analysis/classes",
+        generatedSources = REPO + "generated-sources/target/ph-analysis/generated-sources/src/main/java/",
+        generatedTestSources = REPO + "generated-sources/target/ph-analysis/generated-sources/src/main/java/",
+        resources = REPO + "generated-sources/target/ph-analysis/generated-resources/src/main/java/",
+        libs = [ RASCAL_JAR ]
+    );
+}
+
+public RascalCompilerConfig getPHPCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getPHPCompilerConfig(){
+    return rascalCompilerConfig(getPHPPathConfig());
 }

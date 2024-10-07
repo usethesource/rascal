@@ -1,26 +1,14 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-
-//import ParseTree;
-// If, instead of this import, we use and empty ADT declaration
-//data Tree;
-// the problem does not manifest itself
-
 data Symbol      // <3>
-     = 
-      \adt(str name, list[Symbol] parameters)
+     = \adt(str name, list[Symbol] parameters)
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
-     ;
-data Tree;
-
+     | \label(str s, Symbol sym);
 data AType (str alabel = "")
-  = c(AType adt)
-  ;
-
+  = c(AType adt);
 data DefInfo
   = defType(int tree)
-  | defType(AType atype)
-  ;
+  | defType(AType atype);
 
 alias Define = tuple[DefInfo defInfo];
 
@@ -35,6 +23,32 @@ void main() {
     // Ambiguous pattern type `DefInfo::defType(Tree tree) or DefInfo::defType(AType atype)`
   };
 }
+
+// list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
+
+// list[Symbol] stripLabels(list[Symbol] l) = [ li | li <- l ]; 
+
+
+// void f(int n){
+//   [x | x <- [0..n], [x] := [x], x > 0];
+// }
+// list[int] index(list[&T] lst) = upTill(size(lst));
+
+// @javaClass{org.rascalmpl.library.Prelude}
+// java list[int] upTill(int n);
+
+// @javaClass{org.rascalmpl.library.Prelude}
+// java int size(list[&T] lst);
+
+// int lastIndexOf(list[&T] lst, &T elt) {
+// 	for(i <- [0..10]) {
+// 		if(lst[i] == elt) return i;
+// 	}
+// 	return -1;
+// }
+
+
+
 
 //data D
 //  = a(str s, D d)
