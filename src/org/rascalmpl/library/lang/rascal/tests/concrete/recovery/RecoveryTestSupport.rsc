@@ -418,4 +418,3 @@ TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, in
 
     return cumulativeStats;
 }
-
