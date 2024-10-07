@@ -426,9 +426,8 @@ data ModuleMessages = program(loc src, set[Message] messages);
 list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
     pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     compilerConfig.typepalPathConfig = pcfg1;
-    //println("=== check: <moduleLocs>"); iprintln(pcfg1);
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
-    return [ program(ms.moduleLocs[mname], toSet(ms.messages[mname])) | mname <- ms.messages ];
+    return [ program(ms.moduleLocs[mname] ? |unknown:///|, toSet(ms.messages[mname])) | mname <- ms.messages ];
 }
 
 list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
