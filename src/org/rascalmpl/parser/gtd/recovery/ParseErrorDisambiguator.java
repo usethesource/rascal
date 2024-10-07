@@ -51,12 +51,8 @@ public class ParseErrorDisambiguator {
     }
 
     private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
-        ScoredTree result = processedTrees.get(tree);
-        if (result != null) {
-            return result;
-    }
-
         Type type = tree.getConstructorType();
+        ScoredTree result;
 
         if (type == RascalValueFactory.Tree_Appl) {
             result = disambiguateAppl((ITree) tree, allowAmbiguity, processedTrees);
@@ -67,16 +63,18 @@ public class ParseErrorDisambiguator {
             result = new ScoredTree(tree, 0);
         }
 
-        processedTrees.put(tree, result);
-
         return result;
     }
 
     private ScoredTree disambiguateAppl(ITree appl, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
-        if (ProductionAdapter.isSkipped(appl.getProduction())) {
-            return new ScoredTree(appl, ((IList) appl.get(1)).length());
+        ScoredTree result = processedTrees.get(appl);
+        if (result != null) {
+            return result;
         }
 
+        if (ProductionAdapter.isSkipped(appl.getProduction())) {
+            result = new ScoredTree(appl, ((IList) appl.get(1)).length());
+        } else {
         IList args = TreeAdapter.getArgs(appl);
         int totalScore = 0;
         IListWriter disambiguatedArgs = null;
@@ -108,10 +106,20 @@ public class ParseErrorDisambiguator {
             resultTree = appl;
         }
 
-        return new ScoredTree(resultTree, totalScore);
+            result = new ScoredTree(resultTree, totalScore);
+        }
+
+        processedTrees.put(appl, result);
+
+        return result;
     }
 
     private ScoredTree disambiguateAmb(ITree amb, boolean allowAmbiguity, Map<IConstructor, ScoredTree> processedTrees) {
+        ScoredTree result = processedTrees.get(amb);
+        if (result != null) {
+            return result;
+        }
+
         ISet originalAlts = (ISet) amb.get(0);
 
         ISetWriter alternativesWithoutErrors = null;
@@ -134,6 +142,7 @@ public class ParseErrorDisambiguator {
 
         if (alternativesWithoutErrors == null) {
             assert errorAltWithBestScore != null : "No trees with and no trees without errors?";
+            processedTrees.put(amb, errorAltWithBestScore);
             return errorAltWithBestScore;
         }
         
@@ -156,7 +165,10 @@ public class ParseErrorDisambiguator {
             }
         }
 
-        return new ScoredTree(resultTree, 0);
+        result = new ScoredTree(resultTree, 0);
+        processedTrees.put(amb, result);
+
+        return result;
     }
 
 }
