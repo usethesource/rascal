@@ -383,7 +383,7 @@ void collect(current: (Expression)`all ( <{Expression ","}+ generators> )`, Coll
 void collectGenerators(list[Tree] results, list[Expression] generators, Collector c){
     n = size(generators);
     assert n > 0;
-    c.enterScope(generators[0]);
+    c.enterCompositeScope(generators);
         for(res <- results){
             storeAllowUseBeforeDef(generators[0], res, c); // variable occurrences in results may refer to variables defined in generators
         }
@@ -393,7 +393,7 @@ void collectGenerators(list[Tree] results, list[Expression] generators, Collecto
         } else {
             collect(results, c);
         }
-    c.leaveScope(generators[0]);
+    c.leaveCompositeScope(generators);
 }
 
 // set comprehension
