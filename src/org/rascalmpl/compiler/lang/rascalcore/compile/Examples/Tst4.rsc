@@ -24,6 +24,10 @@ void main() {
   };
 }
 
+void f(){
+  x = [s | s <- [0..10]];
+  y = [s | s <- [10..20]];
+}
 // list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
 
 // list[Symbol] stripLabels(list[Symbol] l) = [ li | li <- l ]; 
