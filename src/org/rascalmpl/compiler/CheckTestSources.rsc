@@ -10,26 +10,15 @@ import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes2|,
-                                        generatedSources = |project://rascal-core/target/generated-test-sources2|,
-                                        resources = |project://rascal-core/target/generated-test-resources2|
-                                       );
 
-void main() = checkTestSources([], manualTestConfig);
+void main() = checkTestSources([]);
 
 // if cmdLineArgs contains "all", then all files in the rascal project are used (~400 files)
 // otherwise only standard library and test files (~200 files) 
-void main(list[str] cmdLineArgs) = checkTestSources(cmdLineArgs, manualTestConfig);
+void main(list[str] cmdLineArgs) = checkTestSources(cmdLineArgs);
 
-void checkTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
-     testConfig = getRascalPathConfig();
-    //  pathConfig(
-    //  bin=pcfg.bin,
-    //  generatedSources=|project://rascal-core/target/generated-test-sources2|,
-    //  resources = |project://rascal-core/target/generated-test-resources2|,
-    //  srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library| ],
-    //  libs = [ ]
-    //  );
+void checkTestSources(list[str] cmdLineArgs) {
+   testConfig = getRascalPathConfig();
      
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);

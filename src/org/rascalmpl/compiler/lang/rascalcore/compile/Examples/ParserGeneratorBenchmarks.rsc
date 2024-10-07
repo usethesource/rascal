@@ -163,7 +163,6 @@ module lang::rascalcore::compile::Examples::ParserGeneratorBenchmarks
 import Grammar;
 import ParseTree;
 import IO;
-import List;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import lang::rascal::grammar::tests::ParserGeneratorTests;

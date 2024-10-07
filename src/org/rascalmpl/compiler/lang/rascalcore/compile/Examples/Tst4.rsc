@@ -1,38 +1,5 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-data Symbol      // <3>
-     = \adt(str name, list[Symbol] parameters)
-     | \cons(Symbol \adt, str name, list[Symbol] parameters)
-     | \label(str s, Symbol sym);
-data AType (str alabel = "")
-  = c(AType adt);
-data DefInfo
-  = defType(int tree)
-  | defType(AType atype);
-
-alias Define = tuple[DefInfo defInfo];
-
-void main() {
-  set[Define] defines = {};
-
-  set[value] xs = {adt
-    | Define cons: <_> <- defines
-    , AType consAdtType := cons.defInfo.atype.adt
-    , Define adt: <defType(consAdtType)> <- defines
-    //               ^
-    // Ambiguous pattern type `DefInfo::defType(Tree tree) or DefInfo::defType(AType atype)`
-  };
-}
-
-void f(){
-  x = [s | s <- [0..10]];
-  y = [s | s <- [10..20]];
-}
-// list[str] getLabels(list[Symbol] l) = [ s | li <- l, \label(s,_) := li ];
-
-// list[Symbol] stripLabels(list[Symbol] l) = [ li | li <- l ]; 
-
-
 // void f(int n){
 //   [x | x <- [0..n], [x] := [x], x > 0];
 // }
