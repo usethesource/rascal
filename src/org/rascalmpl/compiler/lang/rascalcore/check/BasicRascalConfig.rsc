@@ -110,16 +110,15 @@ public str key_grammar = "grammar";
 public str key_ADTs = "ADTs";
 public str key_common_keyword_fields = "CommonKeywordFields";
 
-str currentRascalTplVersion = "2.0.0";
-
-bool isValidRascalTplVersion(str version){
-    return equalVersion(version, currentRascalTplVersion);
-}
+bool isValidRascalTplVersion(str version)
+    = equalVersion(version, currentRascalTplVersion);
 
 str getCurrentRascalTplVersion() = currentRascalTplVersion;
 
+str currentRascalTplVersion = "2.0.0";
+
 data TModel (
-    str rascalTplVersion = getCurrentRascalTplVersion()
+    str rascalTplVersion = "2.0.0"
 );
 
 // Define alias for TypePalConfig
