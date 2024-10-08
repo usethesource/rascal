@@ -43,6 +43,7 @@ void runRascalBatchTest(int maxFiles=1000, int minFileSize=0, int maxFileSize=40
     printStats(stats);
 }
 
+// Usage: ErrorRecoveryBenchmark [\<max-files\> [\<min-file-size\> [\<max-file-size\> [\<from-file\>]]]]
 int main(list[str] args) {
     int maxFiles = 1000;
     int maxFileSize = 1000000;
@@ -59,8 +60,6 @@ int main(list[str] args) {
     }
     if (size(args) > 3) {
         fromFile = toInt(args[3]);
-    } else {
-        println("Usage: ErrorRecoveryBenchmark [\<max-files\> [\<min-file-size\> [\<max-file-size\> [\<from-file\>]]]]");
     }
 
     runRascalBatchTest(maxFiles=maxFiles, minFileSize=minFileSize, maxFileSize=maxFileSize, fromFile=fromFile);
