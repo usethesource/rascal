@@ -1,7 +1,5 @@
 module lang::rascalcore::compile::Profile
 
-import IO;
-
 @javaClass{org.rascalmpl.library.experiments.Compiler.Profile}
 @reflect{Use Rascal Execution Context to access RVM}
 java void startProfile();

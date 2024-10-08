@@ -1,5 +1,13 @@
 module lang::rascalcore::compile::Examples::Tst4
 
+import ParseTree;
+import String;
+
+public str squeeze(str src, type[&CharClass <: ![]] _) = visit(src) {
+    case /<c:.><c>+/ => c
+      when &CharClass _ := Tree::char(charAt(c, 0))
+};
+
 // void f(int n){
 //   [x | x <- [0..n], [x] := [x], x > 0];
 // }

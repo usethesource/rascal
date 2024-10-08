@@ -197,8 +197,8 @@ test bool cntProd2()        = size([x | /x:\prod(_,_,_) := Rascal]) == 540;
 test bool cntEmptyList1()   {cnt = 0; visit(Rascal){ case []: cnt += 1; }; return cnt == 26; }
 test bool cntEmptyList2()   = size([x | /x:[] := Rascal]) == 26;
                          
-test bool cntList1()        {cnt = 0; visit(Rascal){ case [*value s]: cnt += 1; }; return cnt == 837; }
-test bool cntList2()        = size([x | /x:[*value s] := Rascal]) == 837;
+test bool cntList1()        {cnt = 0; visit(Rascal){ case [*value _s]: cnt += 1; }; return cnt == 837; }
+test bool cntList2()        = size([x | /x:[*value _s] := Rascal]) == 837;
 
 test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 451; }
 test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 451;
@@ -208,11 +208,11 @@ test bool cntSet1()         {cnt = 0; visit(Rascal){ case {*value s}: cnt += 1; 
 @ignoreCompiler{set match nonterminal Keyword is currently too expensive}
 test bool cntSet2()         = size([x | /x:{*value s} := Rascal]) == 766;
 @ignoreInterpreter{gives wrong answer 1186}
-test bool cntStr1()         {cnt = 0; visit(Rascal){ case str s: cnt += 1; }; return cnt == 3967; }
+test bool cntStr1()         {cnt = 0; visit(Rascal){ case str _s: cnt += 1; }; return cnt == 3967; }
 test bool cntStr2()         = size([x | /x:str s := Rascal]) == 3967;
 
-test bool cntInt1()         {cnt = 0; visit(Rascal){ case int n: cnt += 1; }; return cnt == 808; }
-test bool cntInt2()         = size([x | /x:int n := Rascal]) == 808;
+test bool cntInt1()         {cnt = 0; visit(Rascal){ case int _n: cnt += 1; }; return cnt == 808; }
+test bool cntInt2()         = size([x | /x:int _n := Rascal]) == 808;
 
 test bool cntIter1()        {cnt = 0; visit(Rascal){ case \iter(_): cnt += 1; }; return cnt == 12; }
 test bool cntIter2()        = size([x | /x:\iter(_) := Rascal]) == 12;

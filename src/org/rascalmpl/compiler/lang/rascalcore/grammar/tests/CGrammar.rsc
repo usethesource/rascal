@@ -3,7 +3,6 @@ module lang::rascalcore::grammar::tests::CGrammar
 import IO;
 import Grammar;
 import ParseTree;
-import String;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
@@ -78,6 +77,6 @@ int generateAndTimeCParser() {
 }	
 
 //value main() { return generateAndTimeCParser(); }
-value main() {cnt = 0; visit(C){ case {*value s}: cnt += 1; }; return cnt; }
+value main() {cnt = 0; visit(C){ case {*value _s}: cnt += 1; }; return cnt; }
 
 test bool tstGenerateCParser() = sameLines(generateCParser(), readFile(CParserLoc));

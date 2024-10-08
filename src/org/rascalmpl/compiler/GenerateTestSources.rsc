@@ -13,15 +13,13 @@ import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 import util::SystemAPI;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|);
-
 // if cmdLineArgs contains "all", then all files in the rascal project are used (~400 files)
 // otherwise only standard library and test files (~200 files) 
-void main(list[str] cmdLineArgs) = generateTestSources(cmdLineArgs, manualTestConfig);
+void main(list[str] cmdLineArgs) = generateTestSources(cmdLineArgs);
 
 void main() = main([]);
 
-void generateTestSources(list[str] cmdLineArgs, PathConfig pcfg) {
+void generateTestSources(list[str] cmdLineArgs) {
    if ("rascal.generateSources.skip" in getSystemProperties()) {
      println("Skipping the generation of test sources.");
      return;

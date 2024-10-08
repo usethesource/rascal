@@ -79,20 +79,20 @@ test bool cntProd2()        = size([x | /x:\prod(_,_,_) := Pico]) == 25;
 test bool cntEmptyList1()   {cnt = 0; visit(Pico){ case []: cnt += 1; }; return cnt == 2; }
 test bool cntEmptyList2()   = size([x | /x:[] := Pico]) == 2;
                          
-test bool cntList1()        {cnt = 0; visit(Pico){ case [*value s]: cnt += 1; }; return cnt == 40; }
-test bool cntList2()        = size([x | /x:[*value s] := Pico]) == 40;
+test bool cntList1()        {cnt = 0; visit(Pico){ case [*value _s]: cnt += 1; }; return cnt == 40; }
+test bool cntList2()        = size([x | /x:[*value _s] := Pico]) == 40;
 
 test bool cntEmptySet1()    {cnt = 0; visit(Pico){ case {}: cnt += 1; }; return cnt == 20; }
 test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 20;
 
-test bool cntSet1()         {cnt = 0; visit(Pico){ case {*value s}: cnt += 1; }; return cnt == 45; }
-test bool cntSet2()         = size([x | /x:{*value s} := Pico]) == 45;
+test bool cntSet1()         {cnt = 0; visit(Pico){ case {*value _s}: cnt += 1; }; return cnt == 45; }
+test bool cntSet2()         = size([x | /x:{*value _s} := Pico]) == 45;
 @ignoreInterpreter{gives wrong answer 1186}
-test bool cntStr1()         {cnt = 0; visit(Pico){ case str s: cnt += 1; }; return cnt == 187; }
-test bool cntStr2()         = size([x | /x:str s := Pico]) == 187;
+test bool cntStr1()         {cnt = 0; visit(Pico){ case str _s: cnt += 1; }; return cnt == 187; }
+test bool cntStr2()         = size([x | /x:str _s := Pico]) == 187;
 
-test bool cntInt1()         {cnt = 0; visit(Pico){ case int n: cnt += 1; }; return cnt == 38; }
-test bool cntInt2()         = size([x | /x:int n := Pico]) == 38;
+test bool cntInt1()         {cnt = 0; visit(Pico){ case int _n: cnt += 1; }; return cnt == 38; }
+test bool cntInt2()         = size([x | /x:int _n := Pico]) == 38;
 
 test bool cntIter1()        {cnt = 0; visit(Pico){ case \iter(_): cnt += 1; }; return cnt == 2; }
 test bool cntIter2()        = size([x | /x:\iter(_) := Pico]) == 2;

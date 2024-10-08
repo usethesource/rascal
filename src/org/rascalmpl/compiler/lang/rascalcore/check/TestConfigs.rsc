@@ -244,15 +244,36 @@ public RascalCompilerConfig getDrAmbiguityCompilerConfig(){
     return rascalCompilerConfig(getDrAmbiguityPathConfig());
 }
 
+// ---- rascal-language-server ------------------------------------------------
+
+public PathConfig getLSPPathConfig() {
+    return pathConfig(   
+        srcs = [ REPO + "rascal-lsp/src/main/rascal", REPO + "rascal-lsp/src/test/rascal"],
+        bin = REPO + "generated-sources/target/rascal-lsp/classes",
+        generatedSources = REPO + "generated-sources/target/rascal-lsp/generated-sources/src/main/java/",
+        generatedTestSources = REPO + "generated-sources/target/rascal-lsp/generated-sources/src/main/java/",
+        resources = REPO + "generated-sources/target/rascal-lsp/generated-resources/src/main/java/",
+        libs = [ RASCAL_JAR ]
+    );
+}
+
+public RascalCompilerConfig getLSPCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getLSPCompilerConfig(){
+    return rascalCompilerConfig(getLSPPathConfig());
+}
+
 // ---- php-analysis -----------------------------------------------------------
 
 public PathConfig getPHPPathConfig() {
     return pathConfig(   
         srcs = [ REPO + "php-analysis/src/main/rascal", REPO + "php-analysis/src/test/rascal"],
-        bin = REPO + "generated-sources/target/ph-analysis/classes",
-        generatedSources = REPO + "generated-sources/target/ph-analysis/generated-sources/src/main/java/",
-        generatedTestSources = REPO + "generated-sources/target/ph-analysis/generated-sources/src/main/java/",
-        resources = REPO + "generated-sources/target/ph-analysis/generated-resources/src/main/java/",
+        bin = REPO + "generated-sources/target/php-analysis/classes",
+        generatedSources = REPO + "generated-sources/target/php-analysis/generated-sources/src/main/java/",
+        generatedTestSources = REPO + "generated-sources/target/php-analysis/generated-sources/src/main/java/",
+        resources = REPO + "generated-sources/target/php-analysis/generated-resources/src/main/java/",
         libs = [ RASCAL_JAR ]
     );
 }
