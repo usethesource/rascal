@@ -15,6 +15,7 @@
 module lang::rascal::tests::concrete::recovery::BasicRecoveryTests
 
 import ParseTree;
+import util::Maybe;
 
 layout Layout = [\ ]* !>> [\ ];
 
@@ -33,15 +34,23 @@ test bool basicOk() {
 
 test bool abx() {
     Tree t = parseS("a b x $");
-    return getErrorText(findBestError(t)) == "x ";
+    return getErrorText(findBestError(t).val) == "x ";
 }
 
 test bool axc() {
     Tree t = parseS("a x c $");
-    return getErrorText(findBestError(t)) == "x c";
+    return getErrorText(findBestError(t).val) == "x c";
 }
 
 test bool ax() {
-    Tree t = parseS("a x $");
-    return getErrorText(findBestError(t)) == "x ";
+    str input = "a x $";
+
+    Tree t = parseS(input);
+    assert size(findAllErrors(t)) == 3;
+    assert getErrorText(findBestError(t).val) == "x ";
+
+    Tree autoDisambiguated = parser(#S, allowRecovery=true, allowAmbiguity=false)(input, |unknown:///|);
+    assert size(findAllErrors(autoDisambiguated)) == 1;
+
+    return getErrorText(findFirstError(autoDisambiguated)) == getErrorText(findBestError(t).val);
 }
