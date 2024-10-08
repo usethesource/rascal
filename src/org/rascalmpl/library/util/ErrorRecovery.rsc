@@ -7,8 +7,9 @@ import util::Maybe;
 @synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
 bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 
+@javaClass{org.rascalmpl.library.util.ErrorRecovery}
 @synopsis{Find all error productions in a parse tree.}
-list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tree];
+java list[Tree] findAllErrors(Tree tree);
 
 @synopsis{Find the first production containing an error.}
 Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
