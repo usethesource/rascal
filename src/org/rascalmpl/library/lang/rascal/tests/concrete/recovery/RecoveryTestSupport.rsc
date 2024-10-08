@@ -39,7 +39,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         try {
             Tree t = recoveryParser(input, source);
             int parseEndTime = realTime();
-            duration = realTime() - parseEndTime;
+            duration = parseEndTime - startTime;
             Maybe[Tree] best = findBestError(t);
             disambDuration = realTime() - parseEndTime;
             result = "recovery";
