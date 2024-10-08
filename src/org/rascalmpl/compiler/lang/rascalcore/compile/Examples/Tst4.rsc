@@ -5,7 +5,7 @@ import String;
 
 public str squeeze(str src, type[&CharClass <: ![]] _) = visit(src) {
     case /<c:.><c>+/ => c
-      when &CharClass _ := Tree::char(charAt(c, 0))
+      when &CharClass _ := /*Tree::*/char(charAt(c, 0))
 };
 
 // void f(int n){
