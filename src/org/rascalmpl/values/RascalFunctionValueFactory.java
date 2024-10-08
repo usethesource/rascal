@@ -47,6 +47,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
+import org.rascalmpl.parser.gtd.recovery.ParseErrorDisambiguator;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
@@ -581,9 +582,16 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             URI uri = location.getURI();
             if (allowRecovery) {
                 recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance));
-                //debugListener = new DebugLogger(new PrintWriter(System.out, true));
             }
-            return (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowAmbiguity), recoverer, debugListener);
+            ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
+
+            if (!allowAmbiguity && allowRecovery && filters.isEmpty()) {
+                // Filter error-induced ambiguities
+                RascalValueFactory valueFactory = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+                parseForest = (ITree) new ParseErrorDisambiguator(valueFactory).disambiguateErrors(parseForest, valueFactory.bool(false));
+            }
+
+            return parseForest;
         }
     }
     
