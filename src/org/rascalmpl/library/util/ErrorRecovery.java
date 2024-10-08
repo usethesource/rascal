@@ -1,6 +1,8 @@
 package org.rascalmpl.library.util;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
@@ -168,5 +170,49 @@ public class ErrorRecovery {
         processedTrees.put(amb, result);
 
         return result;
+    }
+
+    public IList findAllErrors(IConstructor tree) {
+        IListWriter errors = rascalValues.listWriter();
+        collectErrors((ITree) tree, errors, new HashSet<>());
+        return errors.done();
+    }
+
+    private void collectErrors(ITree tree, IListWriter errors, Set<IConstructor> processedTrees) {
+        Type type = tree.getConstructorType();
+
+        if (type == RascalValueFactory.Tree_Appl) {
+            collectApplErrors(tree, errors, processedTrees);
+        } else if (type == RascalValueFactory.Tree_Amb) {
+            collectAmbErrors(tree, errors, processedTrees);
+        }
+    }
+
+    private void collectApplErrors(ITree appl, IListWriter errors, Set<IConstructor> processedTrees) {
+        if (processedTrees.contains(appl)) {
+            return;
+        }
+        processedTrees.add(appl);
+
+        if (ProductionAdapter.isError(appl.getProduction())) {
+            errors.append(appl);
+        }
+
+        IList args = TreeAdapter.getArgs(appl);
+        for (int i=0; i<args.size(); i++) {
+            IValue arg = args.get(i);
+            collectErrors((ITree) arg, errors, processedTrees);
+        }
+    }
+
+    private void collectAmbErrors(ITree amb, IListWriter errors, Set<IConstructor> processedTrees) {
+        if (processedTrees.contains(amb)) {
+            return;
+        }
+        processedTrees.add(amb);
+
+        for (IValue alt : TreeAdapter.getAlternatives(amb)) {
+            collectErrors((ITree) alt, errors, processedTrees);
+        }
     }
 }
