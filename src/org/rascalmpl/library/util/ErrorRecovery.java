@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.recovery;
+package org.rascalmpl.library.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +19,10 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
-public class ParseErrorDisambiguator {
-    private final IRascalValueFactory rascalValues;
+public class ErrorRecovery {
+        private final IRascalValueFactory rascalValues;
 
-    public ParseErrorDisambiguator(IRascalValueFactory rascalValues) {
-        super();
+    public ErrorRecovery(IRascalValueFactory rascalValues) {
         this.rascalValues = rascalValues;
     }
 
@@ -75,36 +74,36 @@ public class ParseErrorDisambiguator {
         if (ProductionAdapter.isSkipped(appl.getProduction())) {
             result = new ScoredTree(appl, ((IList) appl.get(1)).length());
         } else {
-        IList args = TreeAdapter.getArgs(appl);
-        int totalScore = 0;
-        IListWriter disambiguatedArgs = null;
+            IList args = TreeAdapter.getArgs(appl);
+            int totalScore = 0;
+            IListWriter disambiguatedArgs = null;
 
-        // Disambiguate and score all children
-        for (int i=0; i<args.size(); i++) {
-            IValue arg = args.get(i);
-            ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity, processedTrees);
-            totalScore += disambiguatedArg.score;
-            if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
+            // Disambiguate and score all children
+            for (int i=0; i<args.size(); i++) {
+                IValue arg = args.get(i);
+                ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity, processedTrees);
+                totalScore += disambiguatedArg.score;
+                if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
                     disambiguatedArgs = rascalValues.listWriter();
                     for (int j=0; j<i; j++) {
-                    disambiguatedArgs.append(args.get(j));
+                        disambiguatedArgs.append(args.get(j));
                     }
                 }
 
-            if (disambiguatedArgs != null) {
-                disambiguatedArgs.append(disambiguatedArg.tree);
+                if (disambiguatedArgs != null) {
+                    disambiguatedArgs.append(disambiguatedArg.tree);
+                }
             }
-        }
 
-        // Only build a new tree if at least one of the arguments has changed
-        ITree resultTree;
-        if (disambiguatedArgs != null) {
-            // Some arguments have changed
-            resultTree = TreeAdapter.setArgs(appl, disambiguatedArgs.done());
-        } else {
-            // None of the arguments have changed
-            resultTree = appl;
-        }
+            // Only build a new tree if at least one of the arguments has changed
+            ITree resultTree;
+            if (disambiguatedArgs != null) {
+                // Some arguments have changed
+                resultTree = TreeAdapter.setArgs(appl, disambiguatedArgs.done());
+            } else {
+                // None of the arguments have changed
+                resultTree = appl;
+            }
 
             result = new ScoredTree(resultTree, totalScore);
         }
@@ -145,7 +144,7 @@ public class ParseErrorDisambiguator {
             processedTrees.put(amb, errorAltWithBestScore);
             return errorAltWithBestScore;
         }
-        
+
         ISet remainingAlts = alternativesWithoutErrors.done();
 
         ITree resultTree;
@@ -170,5 +169,4 @@ public class ParseErrorDisambiguator {
 
         return result;
     }
-
 }

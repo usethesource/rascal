@@ -17,6 +17,7 @@ module lang::rascal::tests::concrete::recovery::RascalRecoveryTests
 import lang::rascal::\syntax::Rascal;
 
 import ParseTree;
+import util::ErrorRecovery;
 import IO;
 import util::Maybe;
 
@@ -35,7 +36,6 @@ Tree parseRascal(type[&T] t, str input, bool visualize=false) {
         }
 
         println("Best error: <getErrorText(findBestError(result).val)>");
-    }
     }
     }
 
