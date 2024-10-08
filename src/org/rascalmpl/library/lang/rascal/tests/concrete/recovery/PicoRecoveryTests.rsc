@@ -17,6 +17,7 @@ module lang::rascal::tests::concrete::recovery::PicoRecoveryTests
 import lang::pico::\syntax::Main;
 
 import ParseTree;
+import util::ErrorRecovery;
 
 import IO;
 import String;

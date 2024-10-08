@@ -15,6 +15,7 @@
 module lang::rascal::tests::concrete::recovery::NestedRecoveryTests
 
 import ParseTree;
+import util::ErrorRecovery;
 import util::Maybe;
 
 layout Layout = [\ ]* !>> [\ ];
