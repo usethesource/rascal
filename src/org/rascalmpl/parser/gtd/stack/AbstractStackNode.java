@@ -590,6 +590,9 @@ public abstract class AbstractStackNode<P>{
 
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
+		// Before error recovery: int possibleMaxSize = edgesMapSize + edgesMapSize;
+		// It is unclear why error recovery can cause more edges to be added than previously accounted for,
+		// although this might just have been a bug.
 		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
@@ -651,7 +654,9 @@ public abstract class AbstractStackNode<P>{
 
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
-		int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		// Before error recovery: int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		// It is unclear why error recovery can cause more edges to be added than previously accounted for.
+		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 

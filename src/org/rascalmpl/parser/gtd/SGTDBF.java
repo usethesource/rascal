@@ -10,6 +10,9 @@ package org.rascalmpl.parser.gtd;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -140,6 +143,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	// Error recovery
 	private IRecoverer<P> recoverer;
+	private Map<IConstructor,IConstructor> processedTrees = new java.util.HashMap<>(); // Used to preserve sharing during error node introduction
 
 	// Debugging
 	private IDebugListener<P> debugListener;
@@ -883,18 +887,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		}
 
 		if (node.isEndNode()) {
-			if (!result.isEmpty() || node.getId() == AbstractExpandableStackNode.DEFAULT_LIST_EPSILON_ID) { // Only go
-																											// into the
-																											// nullable
-																											// fix path
-																											// for
-																											// nullables
-																											// (special
-																											// list
-																											// epsilons
-																											// can be
-																											// ignored
-																											// as well).
+			 // Only go into the nullable fix path for nullables (special list epsilons can be  ignored as well).
+			if (!result.isEmpty() || node.getId() == AbstractExpandableStackNode.DEFAULT_LIST_EPSILON_ID) {
 				updateEdges(node, result);
 			}
 			else {
@@ -1361,8 +1355,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Initiates parsing.
 	 */
 	@SuppressWarnings("unchecked")
-	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer,
-		IDebugListener<P> debugListener) {
+	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input,
+			IRecoverer<P> recoverer, IDebugListener<P> debugListener) {
 		if (debugListener == null) {
 			debugListener = new NopDebugListener<>();
 		}
@@ -1640,7 +1634,11 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	private IConstructor introduceErrorNodes(IConstructor tree,
 		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
-		IConstructor result;
+		IConstructor result = processedTrees.get(tree);
+		if (result != null) {
+			return result;
+		}
+
 		Type type = tree.getConstructorType();
 		if (type == RascalValueFactory.Tree_Appl) {
 			result = fixErrorAppl((ITree) tree, nodeConstructorFactory);
@@ -1663,11 +1661,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 			result = result.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
 		}
 
+		processedTrees.put(tree, result);
+
 		return result;
 	}
 
 	private IConstructor fixErrorAppl(ITree tree,
 		INodeConstructorFactory<IConstructor, S> nodeConstructorFactory) {
+
 		IValue prod = TreeAdapter.getProduction(tree);
 		IList childList = TreeAdapter.getArgs(tree);
 
@@ -1688,13 +1689,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				newChild = introduceErrorNodes(child, nodeConstructorFactory);
 			}
 
-			if (newChild != child || errorTree) {
-				if (newChildren == null) {
-					newChildren = new ArrayList<>(childCount);
-					for (int j=0; j<i; j++) {
-						newChildren.add((IConstructor) childList.get(j));
-					}
+			if ((newChild != child || errorTree) && newChildren == null) {
+				newChildren = new ArrayList<>(childCount);
+				for (int j=0; j<i; j++) {
+					newChildren.add((IConstructor) childList.get(j));
 				}
+			}
+
+			if (newChildren != null) {
 				newChildren.add(newChild);
 			}
 		}
