@@ -144,7 +144,7 @@ extend Message;
 extend List;
 
 import String;
-import Set;
+import util::Maybe;
 
 @synopsis{The Tree data type as produced by the parser.}
 @description{
@@ -354,6 +354,16 @@ the parser will throw an `Ambiguous` exception instead. An `Ambiguous` exception
 The latter option terminates much faster, i.e. always in cubic time, and always linear in the size of the intermediate parse graph, 
 while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n 
 is the length of the input.
+
+The `allowRecovery` can be set to `true` to enable error recovery. This is an experimental feature.
+When error recovery is enabled, the parser will attempt to recover from parse errors and continue parsing.
+If successful, a parse tree with error and skipped productions is returned (see the definition of `Production` above).
+A number of functions is provided to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
+Note that the resulting parse forest can contain a lot of error nodes. `disambiguateErrors` can be used to prune the forest
+and leave a tree with a single (or even zero) errors based on simple heuristics.
+When `allowAmbiguity` is set to false, `allowRecovery` is set to true, and `filters` is empty, this disambiguation is done
+automatically so you should end up with a tree with no error ambiguities. Regular ambiguities can still occur
+and will result in an error.
 
 The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
 the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
@@ -784,7 +794,15 @@ list[Tree] findAllErrors(Tree tree) =  [err | /err:appl(error(_, _, _), _) := tr
 Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
 
 @synopsis{Find the best error from a tree containing errors. This function will fail if `tree` does not contain an error.}
-Tree findBestError(Tree tree) = findFirstError(defaultErrorDisambiguationFilter(tree));
+Maybe[Tree] findBestError(Tree tree) {
+  Tree disambiguated = disambiguateErrors(tree);
+  if (/err:appl(error(_, _, _), _) := disambiguated) {
+    return just(err);
+  }
+
+  // All errors have disappeared
+  return nothing();
+}
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
@@ -803,35 +821,9 @@ If you want the text of the whole error tree, you can just use string interpolat
 }
 str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
 
+@javaClass{org.rascalmpl.parser.gtd.recovery.ParseErrorDisambiguator}
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
-Note that regular ambiguous trees remain in the parse forest.
+Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 }
-Tree defaultErrorDisambiguationFilter(Tree t) {
-  return visit(t) {
-    case a:amb(_) => ambDisambiguation(a)
-  };
-}
-
-private Tree ambDisambiguation(amb(set[Tree] alternatives)) {
-  // Go depth-first
-  rel[int score, Tree alt] scoredErrorTrees = { <scoreErrors(alt), alt> | Tree alt <- alternatives };
-  set[Tree] nonErrorTrees = scoredErrorTrees[0];
-
-  if (nonErrorTrees == {}) {
-    return (getFirstFrom(scoredErrorTrees) | it.score > c.score ? c : it | c <- scoredErrorTrees).alt;
-  }
-  
-  if ({Tree single} := nonErrorTrees) {
-    // One ambiguity left, no ambiguity concerns here
-    return single;
-  }
-  
-  // Multiple non-error trees left, return an ambiguity node with just the non-error trees
-  return amb(nonErrorTrees);
-}
-
-private int scoreErrors(Tree t) = (0 | it + getSkipped(e).src.length | /e:appl(error(_,_,_),_) := t);
-
-// Handle char and cycle nodes
-default Tree defaultErrorDisambiguationFilter(Tree t) = t;
+java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
