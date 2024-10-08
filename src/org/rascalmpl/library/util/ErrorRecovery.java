@@ -1,4 +1,4 @@
-package org.rascalmpl.parser.gtd.recovery;
+package org.rascalmpl.library.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,11 +19,10 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
-public class ParseErrorDisambiguator {
-    private final IRascalValueFactory rascalValues;
+public class ErrorRecovery {
+        private final IRascalValueFactory rascalValues;
 
-    public ParseErrorDisambiguator(IRascalValueFactory rascalValues) {
-        super();
+    public ErrorRecovery(IRascalValueFactory rascalValues) {
         this.rascalValues = rascalValues;
     }
 
@@ -170,5 +169,4 @@ public class ParseErrorDisambiguator {
 
         return result;
     }
-
 }
