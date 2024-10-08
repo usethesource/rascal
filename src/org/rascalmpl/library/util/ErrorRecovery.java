@@ -189,26 +189,25 @@ public class ErrorRecovery {
     }
 
     private void collectApplErrors(ITree appl, IListWriter errors, Set<IConstructor> processedTrees) {
-        if (processedTrees.contains(appl)) {
+        if (!processedTrees.add(appl)) {
             return;
         }
-        processedTrees.add(appl);
 
         if (ProductionAdapter.isError(appl.getProduction())) {
             errors.append(appl);
         }
 
         IList args = TreeAdapter.getArgs(appl);
-        for (IValue arg : args) {
+        for (int i=0; i<args.size(); i++) {
+            IValue arg = args.get(i);
             collectErrors((ITree) arg, errors, processedTrees);
         }
     }
 
     private void collectAmbErrors(ITree amb, IListWriter errors, Set<IConstructor> processedTrees) {
-        if (processedTrees.contains(amb)) {
+        if (!processedTrees.add(amb)) {
             return;
         }
-        processedTrees.add(amb);
 
         for (IValue alt : TreeAdapter.getAlternatives(amb)) {
             collectErrors((ITree) alt, errors, processedTrees);
