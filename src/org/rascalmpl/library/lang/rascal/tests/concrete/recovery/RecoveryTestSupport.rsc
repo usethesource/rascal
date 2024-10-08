@@ -2,6 +2,7 @@ module lang::rascal::tests::concrete::recovery::RecoveryTestSupport
 
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
+import util::ErrorRecovery;
 import String;
 import IO;
 import util::Benchmark;
