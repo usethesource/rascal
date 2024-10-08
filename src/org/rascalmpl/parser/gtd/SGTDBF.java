@@ -10,9 +10,7 @@ package org.rascalmpl.parser.gtd;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
 import org.rascalmpl.parser.gtd.exception.ParseError;
