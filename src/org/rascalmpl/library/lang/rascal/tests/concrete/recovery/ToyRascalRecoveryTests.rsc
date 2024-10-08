@@ -17,6 +17,7 @@ module lang::rascal::tests::concrete::recovery::ToyRascalRecoveryTests
 import lang::rascal::tests::concrete::recovery::ToyRascal;
 
 import ParseTree;
+import util::ErrorRecovery;
 import IO;
 import util::Maybe;
 
