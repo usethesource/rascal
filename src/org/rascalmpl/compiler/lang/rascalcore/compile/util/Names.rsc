@@ -55,7 +55,7 @@ str prefixLast(str pref, str qname){
     return res;
 }
 
-str getCompiledPackage(str qname, PathConfig pcfg)
+str getCompiledPackage(str _qname, PathConfig _pcfg)
     = "rascal";
 
 str asClassRef(str qname, PathConfig pcfg){

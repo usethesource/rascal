@@ -3,8 +3,6 @@ module lang::rascalcore::check::tests::PatternTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-import ParseTree;
-
 test bool matchNestedList() = checkOK("[[1]] := [];"); //DISCUSS, was: cannotMatch
 
 test bool matchNestedSet() = checkOK("{{1}} := {};");   //DISCUSS, was: cannotMatch

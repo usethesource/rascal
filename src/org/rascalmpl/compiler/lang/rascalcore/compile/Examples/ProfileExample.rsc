@@ -2,14 +2,13 @@ module lang::rascalcore::compile::Examples::ProfileExample
 
 import lang::rascalcore::compile::Profile;   
 import IO; 
-import Message;
 
 int fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
  
 void f(){
-	for(int j <- [0..10]){
+	for(int _ <- [0..10]){
 		x = 13;
-		for(int i <- [0 .. 10]){
+		for(int _ <- [0 .. 10]){
 			x = x * x;
 		}
 	}
@@ -17,7 +16,7 @@ void f(){
 
 void g(){
 	x = "a";
-	for(int i <- [0 .. 1000]){
+	for(int _ <- [0 .. 1000]){
 		y = x + x;
 	}
 } 

@@ -6,8 +6,8 @@ import util::Monitor;
   
 data Symbol(int id = 0, str prefix = "");
 
-public str newGenerate(str package, str name, Grammar gr) { 
-    return job("Generating parser", str (void (str m, int w) worked) { 
+public str newGenerate(str _package, str _name, Grammar gr) { 
+    return job("Generating parser", str (void (str m, int w) _worked) { 
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
 

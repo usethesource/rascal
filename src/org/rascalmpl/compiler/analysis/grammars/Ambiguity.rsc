@@ -68,7 +68,7 @@ public list[Message] verticalCauses(Tree x, Tree y, set[Production] pX, set[Prod
        + exceptAdvise(y, x, pY, pX);
 }
 
-public list[Message] exceptAdvise(Tree x, Tree y, set[Production] pX, set[Production] pY) {
+public list[Message] exceptAdvise(Tree x, Tree y, set[Production] _pX, set[Production] pY) {
   result = [];
   if (appl(p, argsX) := x, appl(q, _argsY) := y) {
     if (i <- index(argsX), appl(apX,_) := argsX[i], apX notin pY) {
@@ -100,8 +100,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
   rY = {<t,yield(t)> | /t:appl(prod(\lex(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,\lex(_)),_,_),_) := y};
  
   // collect literals
-  lX = {<yield(t),t> | /t:appl(prod(l:lit(_),_,_),_) := x};
-  lY = {<yield(t),t> | /t:appl(prod(l:lit(_),_,_),_) := y};
+  lX = {<yield(t),t> | /t:appl(prod(lit(_),_,_),_) := x};
+  lY = {<yield(t),t> | /t:appl(prod(lit(_),_,_),_) := y};
   // collect layout
   laX = {<t,yield(t)> | /t:appl(prod(layouts(_),_,_),_) := x} + {<t,yield(t)> | /t:appl(prod(label(_,layouts(_)),_,_),_) := x};
   laY = {<t,yield(t)> | /t:appl(prod(layouts(_),_,_),_) := y} + {<t,yield(t)> | /t:appl(prod(label(_,layouts(_)),_,_),_) := y};
@@ -122,7 +122,7 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
     result += [error("You might reserve <l> from <symbol2rascal(r.prod.def)>, i.e. using a reject (reserved keyword).", r@\loc?|dunno:///|) | <r,l> <- rY o lX];
     
     // lexicals that overlap position, but are shorter (longest match issue)
-    for (<tX,yX> <- rX, <tY,_yY> <- rY, tX != tY) {
+    for (<tX,yX> <- rX, <tY,yY> <- rY, tX != tY) {
       tXl = tX@\loc; 
       tYl = tY@\loc;
       
@@ -154,8 +154,8 @@ public list[Message] deeperCauses(Tree x, Tree y, set[Production] pX, set[Produc
  
  
   // find parents of literals, and transfer location
-  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := x, true}; 
-  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[_*,l:appl(prod(lit(_),_,_),_),_*]) := y, true};
+  polX = {<p,l[@\loc=t@\loc?|dunno:///|]> | /t:appl(p,[*_,l:appl(prod(lit(_),_,_),_),*_]) := x, true}; 
+  polY = {<l[@\loc=t@\loc?|dunno:///|],p> | /t:appl(p,[*_,l:appl(prod(lit(_),_,_),_),*_]) := y, true};
   overloadedLits = [info("Literal \"<l>\" is used in both
                      '  <alt2rascal(p)> and
                      '  <alt2rascal(q)>", l@\loc) | <p,l> <- polX, <l,q> <- polY, p != q, !(p in pY || q in pX)];
@@ -216,7 +216,7 @@ list[Message] priorityCauses(Tree x, Tree y) {
                     '  <alt2rascal(associativity(p.def, \left(), {p,q}))>", t@\loc?|dunno:///|)];
   }
   
-  if (/appl(p,[appl(q,_),_*]) := y, /Tree t:appl(q,[_*,appl(p,_)]) := x, p != q) {
+  if (/appl(p,[appl(q,_),*_]) := y, /Tree t:appl(q,[*_,appl(p,_)]) := x, p != q) {
       return [error("You might add this priority rule (or vice versa):
                     '  <alt2rascal(priority(p.def,[p,q]))>", t@\loc)
              ,error("You might add this associativity rule (or right/assoc/non-assoc):
@@ -241,7 +241,7 @@ list[Message] danglingFollowSolutions(Tree x, Tree y) {
                     ' <alt2rascal(x.prod)>", x@\loc?|dunno:///|)]; 
   }
   
-  if (prod(_, lhs, _) := y.prod, prod(_, [pref*, _, l:lit(_), *_more], _) := x.prod, lhs == pref) {
+  if (prod(_, lhs, _) := y.prod, prod(_, [*pref, _, l:lit(_), *_more], _) := x.prod, lhs == pref) {
     return [error("You might add a follow restriction for <symbol2rascal(l)> on:
                   '  <alt2rascal(y.prod)>", x@\loc?|dunno:///|)]; 
   }

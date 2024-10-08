@@ -12,7 +12,6 @@ module analysis::grammars::Brackets
 import Grammar;
 import Node;
 import lang::rascal::grammar::definition::Priorities;
-import IO;
 import ParseTree;
 import List;
 

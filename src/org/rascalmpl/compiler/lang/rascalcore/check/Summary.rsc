@@ -126,7 +126,7 @@ str getDocForDefinition(loc def){
         d = readFile(def);
         // TODO: Take care of nested  brackets in doc content
         return /@doc\{<content:[^}]*>\}/ := d ? content : "";
-    } catch e: {
+    } catch _: {
         return "";
     }
 }

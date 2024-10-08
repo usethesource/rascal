@@ -22,7 +22,7 @@ value compareAll() {
 	calls = [];
 	patterns = [];
 	
-	for(int i <- [0..10]){
+	for(int _ <- [0..10]){
 		declarations = [ d | /Declaration d := m];
 		functions = [f | /FunctionDeclaration f := m ];
 		statements = [ s | /Statement s := m ];

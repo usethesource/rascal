@@ -196,7 +196,7 @@ str getModuleFromLogical(loc l){
     return i >= 0 ? l.path[1..i+1] : l.path[1..];
 }
     
-bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
+bool isCompatibleBinary(TModel _lib, set[str] _otherImportsAndExtends, ModuleStatus _ms){
     return true; //TODO: enable in next bootstrap
 
     //provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
