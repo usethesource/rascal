@@ -20,6 +20,7 @@ import ParseTree;
 
 import IO;
 import String;
+import util::Maybe;
 
 Tree parsePico(str input, bool visualize=false) 
     = parser(#Program, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
