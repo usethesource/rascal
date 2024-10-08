@@ -199,8 +199,7 @@ public class ErrorRecovery {
         }
 
         IList args = TreeAdapter.getArgs(appl);
-        for (int i=0; i<args.size(); i++) {
-            IValue arg = args.get(i);
+        for (IValue arg : args) {
             collectErrors((ITree) arg, errors, processedTrees);
         }
     }
