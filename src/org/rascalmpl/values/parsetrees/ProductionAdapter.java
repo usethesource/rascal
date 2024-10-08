@@ -144,6 +144,10 @@ public class ProductionAdapter {
 		return tree.getConstructorType() == RascalValueFactory.Production_Skipped;
 	}
 
+	public static boolean isError(IConstructor tree) {
+		return tree.getConstructorType() == RascalValueFactory.Production_Error;
+	}
+
 	public static boolean isSeparatedList(IConstructor tree) {
 		IConstructor rhs = getType(tree);
 		return SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs);
