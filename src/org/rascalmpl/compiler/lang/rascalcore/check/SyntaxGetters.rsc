@@ -114,4 +114,4 @@ set[Name] getTypeParamNames(Tree t){
 }
 
 bool containsReturn(Tree t)
-    = t is Statement && /(Statement) `return <Statement _>` := t;
+    = Statement s := t && /(Statement) `return <Statement _>` := s;
