@@ -148,7 +148,7 @@
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
                     </srcIgnores>
                     <enableStandardLibrary>false</enableStandardLibrary>
-                    <parallel>false</parallel>
+                    <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                     </parallelPreChecks>
