@@ -66,10 +66,11 @@ data ModuleStatus =
       map[str,datetime] moduleLastModified,
       map[str, list[Message]] messages,
       map[str, set[MStatus]] status,
-      PathConfig pathConfig
+      PathConfig pathConfig,
+      RascalCompilerConfig compilerConfig
    );
 
-ModuleStatus newModuleStatus(PathConfig pcfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), pcfg);
+ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
 
 bool isModuleLocationInLibs(loc l, PathConfig pcfg)
     = !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);

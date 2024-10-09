@@ -76,12 +76,12 @@ ModuleStatus complete(ModuleStatus ms){
     return ms;
 }
 
-ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg){
-    return complete((newModuleStatus(pcfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
+ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, RascalCompilerConfig ccfg){
+    return complete((newModuleStatus(ccfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
 }
 
-ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(pcfg)));
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, RascalCompilerConfig ccfg){
+    return complete(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(ccfg)));
 }
 
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
@@ -117,7 +117,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
                if(lm == startOfEpoch || lm > timestampInBom) {
                     allImportsAndExtendsValid = false;
-                    if(tpl_uptodate() notin ms.status[m] && lm != timestampInBom){
+                    if(tpl_uptodate() notin ms.status[m] && lm != timestampInBom && ms.compilerConfig.verbose){
                         println("--- using <lm> (most recent) version of <m>, 
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                     }
@@ -139,7 +139,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     throw rascalBinaryNeedsRecompilation(qualifiedModuleName);
                 } else {
                     allImportsAndExtendsValid = true;
-                    println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
+                    if(ms.compilerConfig.verbose){
+                        println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
+                    }
                 }
             }
         }
@@ -178,8 +180,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     return ms;
 }
 
-ModuleStatus getInlineImportAndExtendGraph(Tree pt, PathConfig pcfg){
-    ms = newModuleStatus(pcfg);
+ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
+    ms = newModuleStatus(ccfg);
     visit(pt){
         case  m: (Module) `<Header header> <Body _>`: {
             qualifiedModuleName = prettyPrintName(header.name);
@@ -387,8 +389,6 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                            )
                            ){
                             append tup;
-                         } else {
-                            ;//println("skip: <tup>");
                          }
                    };
             

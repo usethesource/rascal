@@ -125,7 +125,7 @@ ModuleStatus rascalTModelForLocs(
     
     msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
     
-    ModuleStatus ms = newModuleStatus(pcfg); 
+    ModuleStatus ms = newModuleStatus(compilerConfig); 
     topModuleNames = {};
     
     for (mloc <- mlocs) {
@@ -139,7 +139,7 @@ ModuleStatus rascalTModelForLocs(
     }
     
     try {
-        ms = getImportAndExtendGraph(topModuleNames, pcfg);
+        ms = getImportAndExtendGraph(topModuleNames, compilerConfig);
         
         if(/error(_,_) := ms.messages){
             return ms;
@@ -409,7 +409,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
             mlocs += [ getModuleLocation(moduleName, pcfg) ];
         } catch value e: {
             mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-            ms = newModuleStatus(pcfg);
+            ms = newModuleStatus(compilerConfig);
             ms.messages[moduleName] = [ error("<e>", mloc) ];
             return ms;
         }
