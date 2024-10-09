@@ -115,11 +115,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
-               //NOTE: window used to be 500, increase to 1000 when using inside/outside Eclipse runtimes
-               compareMargin = 10;
-              //println("lm: <lm>, timestampInBom: <timestampInBom>");
-              //println("getImportAndExtendGraph: outdated? <lm == startOfEpoch || decrementMilliseconds(lm, compareMargin) > timestampInBom>");
-               if(lm == startOfEpoch || decrementMilliseconds(lm, compareMargin) > timestampInBom) {
+               if(lm == startOfEpoch || lm > timestampInBom) {
                     allImportsAndExtendsValid = false;
                     if(tpl_uptodate() notin ms.status[m] && lm != timestampInBom){
                         println("--- using <lm> (most recent) version of <m>, 
