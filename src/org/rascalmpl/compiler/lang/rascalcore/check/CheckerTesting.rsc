@@ -13,17 +13,17 @@ start syntax Modules
 // ---- Testing ---------------------------------------------------------------
 
 TModel rascalTModelForTestModules(Tree pt, bool debug=false){
-    ms = getInlineImportAndExtendGraph(pt, getDefaultTestingPathConfig());
-    TypePalConfig config=getTypePalCompilerConfig(getDefaultTestingPathConfig());
+    RascalCompilerConfig config = getTypePalCompilerConfig(getDefaultTestingPathConfig());
+    ms = getInlineImportAndExtendGraph(pt, config);
     if(debug){
         config = config[logImports = true];
     }
     if(start[Modules] mds := pt){
-        <tm, ms> = rascalTModelComponent( { unescape("<md.header.name>") | md <- mds.top.modules }, ms, config);
+        <tm, ms> = rascalTModelComponent( { unescape("<md.header.name>") | md <- mds.top.modules }, ms);
         return tm;
     } else 
     if(Modules mds := pt){
-        <tm, ms> = rascalTModelComponent( { unescape("<md.header.name>") | md <- mds.modules }, ms, config);
+        <tm, ms> = rascalTModelComponent( { unescape("<md.header.name>") | md <- mds.modules }, ms);
         return tm;
     } else
         throw "Cannot handle Module";
@@ -31,7 +31,7 @@ TModel rascalTModelForTestModules(Tree pt, bool debug=false){
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests-ttl/<name>.ttl| | str name <- names], #Modules, rascalTModelForTestModules, verbose=false);
+    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests-ttl/<name>.ttl| | str name <- names], #Modules, rascalTModelForTestModules, verbose=true);
 }
 
 list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
