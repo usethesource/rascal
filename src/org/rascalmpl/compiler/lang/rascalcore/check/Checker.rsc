@@ -198,7 +198,7 @@ ModuleStatus rascalTModelForLocs(
                }
             }
             if(!all(m <- component, tpl_uptodate() in ms.status[m] || checked() in ms.status[m])){
-                <tm, ms> = rascalTModelComponent(component, ms, compilerConfig);
+                <tm, ms> = rascalTModelComponent(component, ms);
                 moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
                 map[str,set[str]] m_imports = ();
@@ -329,9 +329,10 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
     return <added, ms>;
 }
 
-tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms, RascalCompilerConfig compilerConfig){
+tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleStatus ms){
                                                         
     pcfg = ms.pathConfig;
+    compilerConfig = ms.compilerConfig;
     modelName = intercalate(" + ", toList(moduleNames));    
     map[str, Module] namedTrees = ();
     for(str nm <- moduleNames){
