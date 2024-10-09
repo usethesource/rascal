@@ -113,5 +113,5 @@ set[Name] getTypeParamNames(Tree t){
     return { tp.name | tp <- getTypeParams(t) };
 }
 
-
-bool containsReturn(Tree t) = /(Statement) `return <Statement _>` := t;
+bool containsReturn(Tree t)
+    = t is Statement && /(Statement) `return <Statement _>` := t;
