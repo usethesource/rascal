@@ -17,8 +17,8 @@ tuple[PathConfig, RascalCompilerConfig] testConfigs(loc projectPath) {
     );
 
     RascalCompilerConfig ccfg = rascalCompilerConfig(pcfg)
-        [forceCompilationTopModule = true]
-        [verbose = true];
+        //[forceCompilationTopModule = true]
+        [verbose = false];
 
     return <pcfg, ccfg>;
 }
@@ -30,7 +30,7 @@ void checkModule(loc projectPath, str moduleName, str moduleBody, RascalCompiler
     iprintln(msgs);
 }
 
-void sameNameImportResolutionBug(loc projectPath = |memory:///TestModule|, bool skipFirst = false) {
+void sameNameImportResolutionBug(loc projectPath = |file:///Users/paulklint/TestModule|, bool skipFirst = false) {
     remove(projectPath);
     <pcfg, ccfg> = testConfigs(projectPath);
 
