@@ -298,12 +298,12 @@ list[Tree] largestEqualSubList(loc span, list[Tree] originals, list[Tree] replac
 
     bool fromOriginalFile(loc span, Tree last) = span.top == (last@\loc?|unknown:///|).top;
     
-    equals = [[*eq,q] |
-        [*_, pre, *eq, q, post, *_] := replacements, fromOriginalFile(span, q),
-        [*_, !pre, *eq, q, !post, *_] := originals
-    ];
+    if ([*_,  pre, *Tree eq, post, *_]  := replacements,
+        [*_, !pre, *eq, !post, *_] := originals) {
+        return eq;
+    }
 
-    return sort(equals, largerList)[0] ? [];
+    return [];
 }
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
