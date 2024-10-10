@@ -28,6 +28,8 @@ import org.rascalmpl.ast.LocalVariableDeclaration;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Type;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -941,7 +943,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				IValue eValue = e.getException();
 
 				boolean handled = false;
-
+r
 				for (Catch c : handlers) {
 					if (c.isDefault()) {
 						res = c.getBody().interpret(eval);
@@ -957,12 +959,46 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 
 				if (!handled)
 					throw e;
-			} finally {
+			} 
+			catch (RascalStackOverflowError e) {
+				// and now we pretend as if a real Stackoverflow() value has been thrown, such that 
+				// it can be caugt in this catch block if necessary:
+				boolean handled = false;
+
+				for (Catch c : handlers) {
+					if (c.hasPattern() && isCatchStackOverflow(c.getPattern())) {
+					    IValue pseudo = e.makeThrow().getException();
+
+						if (Cases.matchAndEval(makeResult(pseudo.getType(), pseudo, eval), c.getPattern().buildMatcher(eval, false), c.getBody(), eval)) {
+							handled = true;
+							break;
+						}
+					}
+				}
+
+				if (!handled) {
+					// we rethrow because higher up the stack may be another catch block
+					throw e;
+				}	
+			}
+			finally {
 				if (finallyBody != null) {
 					finallyBody.interpret(eval);
 				}
 			}
 			return res;
+		}
+
+		private static boolean isCatchStackOverflow(org.rascalmpl.ast.Expression pattern) {
+			if (pattern.isVariableBecomes() || pattern.isTypedVariableBecomes()) {
+				return isCatchStackOverflow(pattern.getPattern());
+			}
+			else if (pattern.isCallOrTree()) {
+				return pattern.getArguments().isEmpty() && "StackOverflow".equals(Names.name(pattern.getName()));
+			}
+			else {
+				return false;
+			}
 		}
 	}
 
