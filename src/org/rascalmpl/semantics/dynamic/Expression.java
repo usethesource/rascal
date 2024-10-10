@@ -115,7 +115,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     private final static boolean instantiateTypeParameters = true;
 
   private static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
-	
+
 	static public class Addition extends org.rascalmpl.ast.Expression.Addition {
 
 		public Addition(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2,
@@ -132,13 +132,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-	
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.add(right);
@@ -166,8 +166,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);	
-			
+			__eval.notifyAboutSuspension(this);
+
 			java.util.List<org.rascalmpl.ast.Expression> producers = this
 					.getGenerators();
 			int size = producers.size();
@@ -234,8 +234,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -276,8 +276,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			java.util.List<org.rascalmpl.ast.Expression> generators = this
 					.getGenerators();
 			int size = generators.size();
@@ -328,13 +328,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return this.getExpression().interpret(__eval);
 		}
-		
+
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 			return getExpression().isDefined(__eval);
@@ -363,13 +363,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			org.rascalmpl.ast.Expression nameExpr = getExpression();
-		
+
 			if (nameExpr.isQualifiedName()) {
 				if (cachedConstructorType == null) {
 					registerTypeCacheHandler(eval);
 					cachedConstructorType  = computeConstructorType(eval, nameExpr);
 				}
-				 
+
 				return new NodePattern(eval, this, null, nameExpr.getQualifiedName(), cachedConstructorType, visitArguments(eval, bindTypeParameters), visitKeywordArguments(eval, bindTypeParameters));
 			}
 
@@ -391,25 +391,25 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
     private Type computeConstructorType(IEvaluatorContext eval, org.rascalmpl.ast.Expression nameExpr) {
 			java.util.List<AbstractFunction> functions = new LinkedList<AbstractFunction>();
-			
+
 			String cons = Names.consName(nameExpr.getQualifiedName());
 			Type adt = eval.getCurrentEnvt().lookupAbstractDataType(Names.moduleName(nameExpr.getQualifiedName()));
-			
+
 			if (adt != null) {
 				eval.getCurrentEnvt().getAllFunctions(adt, cons, functions);
 			}
 			else {
 			  eval.getCurrentEnvt().getAllFunctions(cons, functions);
 			}
-			
+
 			if (functions.isEmpty()) {
 			  return null;
 //				throw new UndeclaredVariable(Names.fullName(nameExpr.getQualifiedName()), this);
 			}
-			
+
 			Type signature = getArgumentTypes(eval, false);
 			Type constructorType = adt != null ? adt : TF.nodeType();
-			
+
 			for (AbstractFunction candidate : functions) {
 				if (candidate.getReturnType().isAbstractData() && !candidate.getReturnType().isBottom() && candidate.mayMatch(signature)) {
 					Type decl = eval.getCurrentEnvt().getConstructor(candidate.getReturnType(), cons, signature);
@@ -418,7 +418,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 				}
 			}
-			
+
 			return constructorType;
 		}
 
@@ -444,7 +444,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				registeredCacheHandler = true;
 			}
 		}
-		
+
 		private void registerTypeCacheHandler(IEvaluatorContext eval) {
 			if (!registeredTypeCacheHandler) {
 				eval.getEvaluator().registerConstructorDeclaredListener(
@@ -457,7 +457,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				registeredTypeCacheHandler = true;
 			}
 		}
-		
+
 		private java.util.List<IMatchingResult> visitArguments(IEvaluatorContext eval, boolean bindTypeParameters) {
 			return buildMatchers(getArguments(), eval, bindTypeParameters);
 		}
@@ -465,7 +465,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			eval.setCurrentAST(this);
-			eval.notifyAboutSuspension(this);			
+			eval.notifyAboutSuspension(this);
 
 			try {
 				if (eval.isInterrupted()) {
@@ -480,10 +480,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				// Also, if we have not yet registered a handler when we cache the result, do so now.
 				if (function == null) {
 					function = this.getExpression().interpret(eval);
-					
+
 					if (this.getExpression().isQualifiedName() && function instanceof ICallableValue && ((ICallableValue) function).isStatic()) {
 						org.rascalmpl.ast.QualifiedName qname = this.getExpression().getQualifiedName();
-						
+
 						if (eval.getCurrentEnvt().isNameFinal(qname)) {
 							this.cachedPrefix = function;
 							registerCacheHandler(eval);
@@ -506,13 +506,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 					actuals[i] = resultElem.getValue();
 				}
-				
+
 			  java.util.Map<String,IValue> kwActuals = Collections.<String,IValue>emptyMap();
-			  
+
 				if (hasKeywordArguments()) {
 				  KeywordArguments_Expression keywordArgs = this.getKeywordArguments();
 				  Type kwFormals = function.getKeywordArgumentTypes(eval.getCurrentEnvt());
-				
+
 				  if (keywordArgs.isDefault()){
 				    kwActuals = new HashMap<String,IValue>();
 
@@ -557,11 +557,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (lambda.isString()) {
 				return TF.nodeType();
 			}
-			
+
 			if (lambda.isSourceLocation()) {
 				return lambda;
 			}
-			
+
 			if (lambda.isFunction()) {
 				return lambda.getReturnType();
 			}
@@ -586,11 +586,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Environment env = __eval.getCurrentEnvt();
 			Parameters parameters = getParameters();
@@ -599,7 +599,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Type kwParams = TF.tupleEmpty();
 
 			java.util.List<KeywordFormal> kwd = parameters.getKeywordFormals().hasKeywordFormalList() ? parameters.getKeywordFormals().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
-			
+
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kwd, __eval);
 			}
@@ -637,14 +637,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);						
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.compose(right);
@@ -670,14 +670,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-	
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-						
+			__eval.notifyAboutSuspension(this);
+
 			return this.getComprehension().interpret(__eval);
 
 		}
@@ -685,11 +685,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	}
 
 	static public class Concrete extends org.rascalmpl.ast.Expression.Concrete {
-  
+
     public Concrete(ISourceLocation src, IConstructor node, org.rascalmpl.ast.Concrete concrete) {
       super(src, node, concrete);
     }
-    
+
     @Override
     public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
        return RascalValueFactory.Tree;
@@ -699,13 +699,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
     public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
       throw new SyntaxError("concrete syntax fragment", getLocation());
     }
-    
+
     @Override
     public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
       throw new SyntaxError("concrete syntax fragment", getLocation());
     }
   }
-	
+
 	static public class Descendant extends
 			org.rascalmpl.ast.Expression.Descendant {
 
@@ -737,14 +737,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getStaticType(), this);
 		}
 
-	
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);		
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.divide(right);
@@ -771,8 +771,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Environment old = __eval.getCurrentEnvt();
 			try {
 				__eval.pushEnv();
@@ -804,13 +804,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-	
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.equals(right);
@@ -836,9 +836,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return evalBooleanExpression(this, __eval);
 		}
@@ -861,14 +861,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			String field = org.rascalmpl.interpreter.utils.Names.name(this.getField());
 
 			return expr.fieldAccess(field, __eval.getCurrentEnvt().getStore());
 		}
-		
+
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 			Result<IValue> expr = this.getExpression().interpret(__eval);
@@ -894,19 +894,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-	
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			java.util.List<Field> fields = this.getFields();
 			return base.fieldSelect(fields.toArray(new Field[0]));
 		}
-		
+
 	}
 
 	static public class FieldUpdate extends
@@ -927,14 +927,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			Result<IValue> repl = this.getReplacement().interpret(__eval);
 			String name = org.rascalmpl.interpreter.utils.Names.name(this
@@ -959,14 +959,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this
 					.getName());
@@ -1001,14 +1001,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.greaterThan(right);
@@ -1031,14 +1031,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.greaterThanOrEqual(right);
@@ -1070,36 +1070,36 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return false;
 		}
 
-    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
 			IString str = vf.string(new String(input));
-		
+
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, str, location);
 			}
 			else {
-        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(allowRecovery), vf.bool(hasSideEffects), vf.bool(false), filters);
 				return (ITree) parser.call(vf.string(new String(input)), location);
 			}
     	}
 
-		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects) {
+		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
-			
+
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, location, location);
 			}
 			else {
-				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(allowRecovery), vf.bool(hasSideEffects), vf.bool(false), filters);
         		return (ITree) parser.call(location, location);
 			}
     	}
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> result = this.getArgument().interpret(__eval);
 			Type expected = getType().typeOf(__eval.getCurrentEnvt(), __eval, instantiateTypeParameters);
@@ -1107,11 +1107,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (!(expected instanceof NonTerminalType)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
 			}
-			
+
 			if (!result.getStaticType().isSubtypeOf(TF.stringType()) && !result.getStaticType().isSubtypeOf(TF.sourceLocationType())) {
 				throw new UnsupportedOperation("inline parsing", result.getStaticType(), this);
 			}
-			
+
 			IConstructor symbol = ((NonTerminalType) expected).getSymbol();
 			if (!SymbolAdapter.isSort(symbol) && !SymbolAdapter.isLex(symbol) && !SymbolAdapter.isLayouts(symbol) && !SymbolAdapter.isStartSort(symbol)) {
 				throw new UnsupportedOperation("inline parsing", expected, this);
@@ -1120,18 +1120,18 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.__setInterrupt(false);
 			try {
 				IConstructor tree = null;
-				
+
 				IMap gr = isBootstrapped(__eval) ? __eval.getValueFactory().map() : (IMap) __eval.getEvaluator().getGrammar(__eval.getCurrentEnvt()).get("rules");
 				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
-            
+
 				if (result.getStaticType().isString()) {
 					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true, false);
+						((IString) result.getValue()).getValue().toCharArray(), true, false, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false);
+					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false, false);
 				}
-				
+
 				assert tree != null; // because we checked earlier
 
 				return org.rascalmpl.interpreter.result.ResultFactory
@@ -1163,9 +1163,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IBool> result = getExpression().interpret(__eval).has(getName());
 			return makeResult(TF.boolType(), result.getValue(), __eval);
@@ -1184,8 +1184,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);	
-			
+			__eval.notifyAboutSuspension(this);
+
 			if (getLhs().isDefined(__eval).getValue().getValue()) {
 			    try {
 			        return getLhs().interpret(__eval);
@@ -1222,8 +1222,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Environment old = __eval.getCurrentEnvt();
 			__eval.pushEnv();
 
@@ -1264,9 +1264,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return evalBooleanExpression(this, __eval);
 		}
@@ -1285,14 +1285,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(__eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = right.in(left);
@@ -1319,14 +1319,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.intersect(right);
@@ -1348,9 +1348,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IBool> result = getExpression().interpret(__eval).is(getName());
 			return makeResult(TF.boolType(), result.getValue(), __eval);
@@ -1373,8 +1373,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return makeResult(TF.boolType(), getArgument().isDefined(__eval).getValue(), __eval);
 		}
 
@@ -1390,8 +1390,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> v = __eval.getCurrentEnvt().getVariable(IT);
 			if (v == null) {
 				throw new UnguardedIt(this);
@@ -1399,7 +1399,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return v;
 
 		}
-		
+
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
 			return new BasicBooleanResult(eval, this);
@@ -1418,8 +1418,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.join(right);
@@ -1442,9 +1442,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
@@ -1467,13 +1467,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.lessThanOrEqual(right);
@@ -1505,8 +1505,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			java.util.List<org.rascalmpl.ast.Expression> elements = getElements0();
 
 			Type elementType = TF.voidType();
@@ -1514,7 +1514,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			for (org.rascalmpl.ast.Expression expr : elements) {
 				boolean isSplicedElem = expr.isSplice() || expr.isSplicePlus();
-				
+
 				Result<IValue> resultElem = null;
 
 				if (!isSplicedElem) {
@@ -1525,7 +1525,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					}
 
 				}
-			
+
 				if (isSplicedElem){
 				  resultElem = expr.getArgument().interpret(__eval);
 				  if (resultElem.getStaticType().isBottom()) {
@@ -1541,7 +1541,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				      results.add(val);
 				    }
 				    continue;
-				  } 
+				  }
 				}
 
 				elementType = elementType.lub(resultElem.getStaticType());
@@ -1581,7 +1581,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			throw new UnexpectedType(TF.boolType(), interpret(eval.getEvaluator()).getStaticType(), this);
 		}
 
-		
+
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
 			return this.getLiteral().buildMatcher(__eval, bindTypeParameters);
@@ -1589,9 +1589,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return this.getLiteral().interpret(__eval);
 		}
@@ -1623,9 +1623,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			java.util.List<Mapping_Expression> mappings = this.getMappings();
 			java.util.Map<IValue, IValue> seen = new HashMap<>();
@@ -1636,7 +1636,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			for (Mapping_Expression mapping : mappings) {
 				Result<IValue> keyResult = mapping.getFrom().interpret(__eval);
 				Result<IValue> valueResult = mapping.getTo().interpret(__eval);
-				
+
 				if (keyResult.getStaticType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getFrom());
 				}
@@ -1644,26 +1644,26 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (valueResult.getStaticType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getTo());
 				}
-				
+
 				IValue key = keyResult.getValue();
 
 				keyType = keyType.lub(keyResult.getStaticType());
 				valueType = valueType.lub(valueResult.getStaticType());
 
 				IValue keyValue = seen.get(key);
-				
+
 				if (keyValue != null) {
 					throw org.rascalmpl.exceptions.RuntimeExceptionFactory
 							.MultipleKey(keyResult.getValue(), keyValue, valueResult.getValue(), mapping.getFrom(), __eval
 									.getStackTrace());
 				}
-				
+
 				seen.put(key, valueResult.getValue());
 				w.put(key, valueResult.getValue());
 			}
 
 			Type type = TF.mapType(keyType, valueType);
-			
+
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(type, w.done(), __eval);
 
 		}
@@ -1672,12 +1672,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
 			Type keyType = TF.voidType();
 			Type valueType = TF.valueType();
-			
+
 			for (Mapping_Expression me : getMappings()) {
 				keyType = keyType.lub(me.getFrom().typeOf(env, eval, instantiateTypeParameters));
 				valueType = valueType.lub(me.getTo().typeOf(env, eval, instantiateTypeParameters));
 			}
-			
+
 			return TF.mapType(keyType, valueType);
 		}
 
@@ -1697,10 +1697,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return evalBooleanExpression(this, __eval);
 		}
 
@@ -1724,17 +1724,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
-			
+
 			return left.modulo(right);
 
 		}
 
 	}
-	
+
 	static public class Remainder extends org.rascalmpl.ast.Expression.Remainder {
 
 		public Remainder(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2,
@@ -1755,8 +1755,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.remainder(right);
@@ -1782,10 +1782,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);		
+			__eval.notifyAboutSuspension(this);
 			__eval.warning("Var* is deprecated, use *Var or *Type Var instead", this.getLocation());
 			System.err.println(this.getLocation() + ": Var* is deprecated, use *Var instead");
-			
+
 			Name name = this.getName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
@@ -1810,7 +1810,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
-	
+
 	static public class Splice extends
 	org.rascalmpl.ast.Expression.Splice {
 
@@ -1825,12 +1825,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				Environment env = eval.getCurrentEnvt();
 				Type type = arg.getType().typeOf(env, eval.getEvaluator(), instantiateTypeParameters);
 				type = type.instantiate(env.getStaticTypeBindings());
-				
+
 				// TODO: Question, should we allow non terminal types in splices?
 				if (type instanceof NonTerminalType) {
 					throw new UnsupportedOperation("splicing match", type, this);
 //					throw new ImplementationError(null);
-				}				
+				}
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName(), bindTypeParameters);
 			}
 			if(arg.hasQualifiedName()){
@@ -1841,9 +1841,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Name name = this.getName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
@@ -1890,9 +1890,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return evalBooleanExpression(this, __eval);
 		}
@@ -1916,7 +1916,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					.interpret(__eval.getEvaluator()).getStaticType(),
 					this);
 		}
-		
+
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext __eval, boolean bindTypeParameters) {
 			return new NegativePattern(__eval, this, getArgument().buildMatcher(__eval, bindTypeParameters));
@@ -1924,9 +1924,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> arg = this.getArgument().interpret(__eval);
 			return arg.negative();
@@ -1945,13 +1945,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new MatchResult(eval, getPattern(), false, getExpression());
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return evalBooleanExpression(this, __eval);
 		}
@@ -1966,9 +1966,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return ASTBuilder.make("Statement", "NonEmptyBlock", this.getLocation(),
 					ASTBuilder.make("Label", "Empty", this.getLocation()),
@@ -1989,14 +1989,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = left.nonEquals(right);
@@ -2017,14 +2017,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return new BasicBooleanResult(eval, this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			Result<IBool> result = right.notIn(left);
@@ -2048,9 +2048,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			return evalBooleanExpression(this, __eval);
 		}
@@ -2072,13 +2072,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
@@ -2139,8 +2139,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
 			Result<IValue> variable = __eval.getCurrentEnvt().getVariable(name);
 
@@ -2159,18 +2159,18 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return variable;
 
 		}
-		
+
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
 			org.rascalmpl.ast.QualifiedName name = this.getQualifiedName();
 			String fullName = Names.fullName(name);
 			Result<IValue> variable = __eval.getCurrentEnvt().getSimpleVariable(AbstractFunction.makeIsSetKeywordParameterName(fullName));
-			
+
 			if (variable == null || variable.getValue() == null) {
 				variable = __eval.getCurrentEnvt().getVariable(name);
 				__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
 				return org.rascalmpl.interpreter.result.ResultFactory.bool(variable != null && variable.getValue() != null, __eval);
-				
+
 				// TODO: replace above by this
 				// it was not a keyword parameter
                 // throw new UndeclaredKeywordParameter(__eval.getCurrentEnvt().getName(), fullName, this);
@@ -2203,14 +2203,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			// IListWriter w = vf.listWriter(tf.integerType());
 			Result<IValue> from = this.getFirst().interpret(__eval);
 			Result<IValue> to = this.getLast().interpret(__eval);
@@ -2232,17 +2232,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public IBooleanResult getBacktracker(IEvaluatorContext ctx) {
 		  return new BasicBooleanResult(ctx, this);
 		}
-		
+
 		@Override
 		public IBooleanResult buildBacktracker(IEvaluatorContext eval) {
 			return getBacktracker(eval);
 		}
-		
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			org.rascalmpl.ast.Expression init = getInit();
 			org.rascalmpl.ast.Expression result = getResult();
@@ -2294,7 +2294,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	static public class ReifiedType extends
 			org.rascalmpl.ast.Expression.ReifiedType {
 		private static final Type defType = TypeFactory.getInstance().mapType(RascalValueFactory.Symbol, RascalValueFactory.Production);
-		
+
 		public ReifiedType(ISourceLocation __param1, IConstructor tree,
 				org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.Expression __param3
@@ -2309,30 +2309,30 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> symbol = getSymbol().interpret(__eval);
 			Result<IValue> declarations = getDefinitions().interpret(__eval);
-			
+
 			if (!symbol.getStaticType().isSubtypeOf(RascalValueFactory.Symbol)) {
 				throw new UnexpectedType(RascalValueFactory.Symbol, symbol.getStaticType(), getSymbol());
 			}
-			
+
 			if (!declarations.getStaticType().isSubtypeOf(defType)) {
 				throw new UnexpectedType(defType, declarations.getStaticType(), getSymbol());
 			}
-			
-			
+
+
 			IValue val = IRascalValueFactory.getInstance().reifiedType(
-			        (IConstructor) symbol.getValue(), 
+			        (IConstructor) symbol.getValue(),
 			        (IMap) declarations.getValue()
 			        );
 
 			Type typ = RascalValueFactory.Type.instantiate(
 			        Collections.singletonMap(RascalValueFactory.TypeParam, TF.valueType()));
-			
+
 			return ResultFactory.makeResult(typ, val, __eval);
 		}
 
@@ -2354,11 +2354,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 			eval.setCurrentAST(this);
-			eval.notifyAboutSuspension(this);			
+			eval.notifyAboutSuspension(this);
 
 			Type t = getType().typeOf(eval.getCurrentEnvt(), eval, instantiateTypeParameters);
 			IMap gr = eval.__getVf().mapWriter().done();
-			
+
 			if (!t.isTop()) {
 			    // if t == value then let's not call the parser generator.
 			    // the reason is that #value occurs in the parser generator itself
@@ -2366,16 +2366,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			    // each other
 			    gr = (IMap) eval.getEvaluator().getGrammar(eval.getCurrentEnvt()).get("rules");
 			}
-			
+
 			IConstructor value;
-			
+
 			if (t instanceof NonTerminalType) {
 			   value = ((IRascalValueFactory) eval.getValueFactory()).reifiedType(((NonTerminalType) t).getSymbol(), gr);
 			}
 			else {
 			    value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore(), gr);
 			}
-			
+
 			// the static type of a reified type is always equal to its dynamic type
 			return makeResult(value.getType(), value, eval);
 		}
@@ -2407,8 +2407,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			java.util.List<org.rascalmpl.ast.Expression> elements = this
 					.getElements0();
 
@@ -2417,7 +2417,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			for (org.rascalmpl.ast.Expression expr : elements) {
 				Result<IValue> resultElem;
-				
+
 				if(expr.isSplice() || expr.isSplicePlus()){
 					resultElem = expr.getArgument().interpret(__eval);
 					if (resultElem.getStaticType().isBottom()) {
@@ -2444,11 +2444,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				elementType = elementType.lub(resultElem.getStaticType());
 				results.add(results.size(), resultElem.getValue());
 			}
-			
+
 			Type resultType = TF.setType(elementType);
 			ISetWriter w = __eval.__getVf().setWriter();
 			w.insertAll(results);
-			
+
 			return makeResult(resultType, w.done(), __eval);
 
 		}
@@ -2459,7 +2459,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			for (org.rascalmpl.ast.Expression elt : getElements0()) {
 				Type eltType = elt.typeOf(env, eval, instantiateTypeParameters);
-				
+
 				// TODO: here we need to properly deal with splicing operators!!!
 				if (eltType.isSet()) {
 				  eltType = eltType.getElementType();
@@ -2492,9 +2492,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> base = this.getExpression().interpret(__eval);
 			String annoName = org.rascalmpl.interpreter.utils.Names.name(this
@@ -2523,13 +2523,13 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-	
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> from = this.getFirst().interpret(__eval);
 			Result<IValue> to = this.getLast().interpret(__eval);
@@ -2539,11 +2539,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		}
 
 	}
-	
+
 	static public class Slice extends
 	org.rascalmpl.ast.Expression.Slice {
 
-		public Slice(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2, 
+		public Slice(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.OptionalExpression __param3, org.rascalmpl.ast.OptionalExpression __param4) {
 			super(__param1, tree, __param2, __param3, __param4);
 		}
@@ -2557,21 +2557,21 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> expr = this.getExpression().interpret(__eval);
-					
+
 			Result<?> first = this.getOptFirst().hasExpression() ? this.getOptFirst().getExpression().interpret(__eval) : null;
 			Result<?> last = this.getOptLast().hasExpression() ? this.getOptLast().getExpression().interpret(__eval) : null;
-			
+
 			return expr.slice(first, null, last);
 		}
 	}
-	
+
 	static public class SliceStep extends
 	org.rascalmpl.ast.Expression.SliceStep {
 
-		public SliceStep(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2, 
+		public SliceStep(ISourceLocation __param1, IConstructor tree, org.rascalmpl.ast.Expression __param2,
 				org.rascalmpl.ast.OptionalExpression __param3, org.rascalmpl.ast.Expression __param4, org.rascalmpl.ast.OptionalExpression __param5) {
 			super(__param1, tree, __param2, __param3, __param4, __param5);
 		}
@@ -2585,14 +2585,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			Result<IValue> expr = this.getExpression().interpret(__eval);
-						
+
 			Result<?> first = this.getOptFirst().hasExpression() ? this.getOptFirst().getExpression().interpret(__eval) : null;
 			Result<?> second = this.getSecond().interpret(__eval);
 			Result<?> last = this.getOptLast().hasExpression() ? this.getOptLast().getExpression().interpret(__eval) : null;
-			
+
 			return expr.slice(first, second, last);
 		}
 	}
@@ -2615,23 +2615,23 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			int nSubs = this.getSubscripts().size();
 			Result<?> subscripts[] = new Result<?>[nSubs];
-			
+
 			for (int i = 0; i < nSubs; i++) {
 				org.rascalmpl.ast.Expression subsExpr = this.getSubscripts()
 						.get(i);
 				subscripts[i] = isWildCard(subsExpr) ? null
 						: subsExpr.interpret(__eval);
 			}
-			
+
 			return expr.isKeyDefined(subscripts);
 		}
-		
+
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> expr = this.getExpression().interpret(__eval);
 			int nSubs = this.getSubscripts().size();
 			Result<?> subscripts[] = new Result<?>[nSubs];
@@ -2644,7 +2644,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return expr.subscript(subscripts);
 
 		}
-		
+
 		private boolean isWildCard(org.rascalmpl.ast.Expression fieldName) {
 			if (fieldName.isQualifiedName()) {
 				return ((org.rascalmpl.semantics.dynamic.QualifiedName.Default) fieldName.getQualifiedName()).lastName().equals("_");
@@ -2672,14 +2672,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			Result<IValue> left = this.getLhs().interpret(__eval);
 			Result<IValue> right = this.getRhs().interpret(__eval);
 			return left.subtract(right);
@@ -2704,14 +2704,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					this);
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return this.getArgument().interpret(__eval).transitiveClosure();
 
 		}
@@ -2734,8 +2734,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return this.getArgument().interpret(__eval).transitiveReflexiveClosure();
 		}
 
@@ -2762,9 +2762,9 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
+			__eval.notifyAboutSuspension(this);
 
 			java.util.List<org.rascalmpl.ast.Expression> elements = this
 					.getElements();
@@ -2774,11 +2774,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			for (int i = 0; i < elements.size(); i++) {
 				Result<IValue> resultElem = elements.get(i).interpret(__eval);
-				
+
 				if (resultElem.getStaticType().isBottom()) {
                     throw new UnexpectedType(TF.valueType(), TF.voidType(), this);
                 }
-				
+
 				types[i] = resultElem.getStaticType();
 				values[i] = resultElem.getValue();
 			}
@@ -2825,8 +2825,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			// TODO: should allow qualified names in TypeVariables?!?
 			Result<IValue> result = __eval.getCurrentEnvt().getFrameVariable(Names.name(this.getName()));
 
@@ -2872,8 +2872,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return this.getPattern().interpret(__eval);
 
 		}
@@ -2896,7 +2896,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
 			org.rascalmpl.ast.Expression pattern = this.getPattern();
-			
+
 			if (pattern instanceof Splice) {
 			    throw new UnsupportedPattern("named splices (i.e. name:*pattern)", this);
 			}
@@ -2910,10 +2910,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			
+
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return this.getPattern().interpret(__eval);
 		}
 
@@ -2935,8 +2935,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.notifyAboutSuspension(this);			
-			
+			__eval.notifyAboutSuspension(this);
+
 			return this.getVisit().interpret(__eval);
 
 		}
@@ -2960,34 +2960,34 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		}
 
-		
+
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> eval) {
 
 			eval.setCurrentAST(this);
-			eval.notifyAboutSuspension(this);			
+			eval.notifyAboutSuspension(this);
 
 			Parameters parameters = getParameters();
 			Type formals = parameters.typeOf(eval.getCurrentEnvt(), eval, instantiateTypeParameters);
 			Type kwParams = TF.tupleEmpty();
 			java.util.List<KeywordFormal> kws = parameters.getKeywordFormals().hasKeywordFormalList() ? parameters.getKeywordFormals().getKeywordFormalList() : Collections.<KeywordFormal>emptyList();
-			
+
 			if (parameters.hasKeywordFormals() && parameters.getKeywordFormals().hasKeywordFormalList()) {
 				kwParams = TypeDeclarationEvaluator.computeKeywordParametersType(kws, eval);
 			}
 
-			return new RascalFunction(this, 
-				eval, 
-				null, 
-				TF.functionType(TF.voidType(), formals, kwParams), 
+			return new RascalFunction(this,
+				eval,
+				null,
+				TF.functionType(TF.voidType(), formals, kwParams),
 				TF.functionType(TF.voidType(), formals, kwParams).instantiate(eval.getCurrentEnvt().getDynamicTypeBindings()),
-				kws, 
-				this.getParameters().isVarArgs(), 
-				false, 
-				false, 
-				this.getStatements0(), 
-				eval.getCurrentEnvt(), 
+				kws,
+				this.getParameters().isVarArgs(),
+				false,
+				false,
+				this.getStatements0(),
+				eval.getCurrentEnvt(),
 				eval.__getAccumulators()
 			);
 		}
@@ -2996,7 +2996,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 	public Expression(ISourceLocation __param1, IConstructor tree) {
 		super(__param1, tree);
 	}
-	
+
 	private static java.util.List<IMatchingResult> buildMatchers(java.util.List<org.rascalmpl.ast.Expression> elements, IEvaluatorContext eval, boolean bindTypeParameters) {
 		ArrayList<IMatchingResult> args = new ArrayList<IMatchingResult>(elements.size());
 
@@ -3004,10 +3004,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 		for (org.rascalmpl.ast.Expression e : elements) {
 			args.add(i++, e.buildMatcher(eval, bindTypeParameters));
 		}
-		
+
 		return args;
 	}
-	
+
 	private static Result<IValue> evalBooleanExpression(org.rascalmpl.ast.Expression x, IEvaluatorContext ctx) {
 		IBooleanResult mp = x.getBacktracker(ctx);
 		mp.init();

@@ -13,14 +13,14 @@
 
 @synopsis{Library functions for parse trees.}
 @description{
-A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that 
-represents the syntactic structure of a string according to some formal grammar. 
+A _concrete syntax tree_ or [parse tree](http://en.wikipedia.org/wiki/Parse_tree) is an ordered, rooted tree that
+represents the syntactic structure of a string according to some formal grammar.
 
 Most Rascal users will encounter parse trees in the form of concrete values.
-Expert users may find the detailed description here useful when writing generic functions on parse trees. 
+Expert users may find the detailed description here useful when writing generic functions on parse trees.
 
-In Rascal parse trees, the interior nodes are labeled by rules of the grammar, 
-while the leaf nodes are labeled by terminals (characters) of the grammar. 
+In Rascal parse trees, the interior nodes are labeled by rules of the grammar,
+while the leaf nodes are labeled by terminals (characters) of the grammar.
 
 `Tree` is the universal parse tree data type in Rascal and can be used to represent parse trees for any language.
 
@@ -29,26 +29,26 @@ while the leaf nodes are labeled by terminals (characters) of the grammar.
 *  All concrete syntax expressions produce parse trees with a type corresponding to a non-terminal.
 *  Trees can be annotated in various ways.  Most importantly the `\loc` annotation always points to the source location of any (sub) parse tree.
 
-_Advanced users_ may want to create tools that analyze any parse tree, regardless of the 
+_Advanced users_ may want to create tools that analyze any parse tree, regardless of the
 syntax definition that generated it, you can manipulate them on the abstract level.
 
-A parse tree is of type ((ParseTree-Tree)) using the auxiliary types 
+A parse tree is of type ((ParseTree-Tree)) using the auxiliary types
 ((ParseTree-Production)), ((ParseTree-Symbol)), ((ParseTree-Condition)),
 ((ParseTree-Attr)), ((ParseTree-Associativity)), ((ParseTree-CharRange)).
-Effectively, a parse tree is a nested tree structure of type `Tree`. 
+Effectively, a parse tree is a nested tree structure of type `Tree`.
 
-*  Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes. 
+*  Most internal nodes are applications (`appl`) of a `Production` to a list of children `Tree` nodes.
    `Production` is the abstract representation of a rule in a
    syntax definition.
    which consists of a definition of an alternative for a `Symbol` by a list of `Symbols`.
 *  The leaves of a parse tree are always
-characters (`char`), which have an integer index in the UTF8 table. 
+characters (`char`), which have an integer index in the UTF8 table.
 
-*  Some internal nodes encode ambiguity (`amb`) by pointing to a set of 
+*  Some internal nodes encode ambiguity (`amb`) by pointing to a set of
 alternative `Tree` nodes.
 
 The `Production` and `Symbol` types are an abstract notation for rules in syntax definitions,
-while the `Tree` type is the actual notation for parse trees. 
+while the `Tree` type is the actual notation for parse trees.
 
 Parse trees are called parse forests when they contain `amb` nodes.
 
@@ -58,7 +58,7 @@ You can analyze and manipulate parse trees in three ways:
 *  Using concrete syntax expressions and concrete syntax patterns.
 *  Using disambiguation actions (parameters of the `parse` function)
 
-The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
+The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes
 Each such a non-terminal type has `Tree` as its immediate super-type.
 }
 @examples{
@@ -79,7 +79,7 @@ t := appl(
         {}),
       [char(97)])]);
 ```
-You see that the defined non-terminal A ends up as the production for the outermost node. 
+You see that the defined non-terminal A ends up as the production for the outermost node.
 As the only child is the tree for recognizing the literal a, which is defined to be a single a from the character-class `[ a ]`.
 
 When we use labels in the definitions, they also end up in the trees.
@@ -122,7 +122,7 @@ t := appl(
           [char(98)])])]);
 ```
 
-Here you see that the alternative name is a label around the first argument of `prod` while argument labels become 
+Here you see that the alternative name is a label around the first argument of `prod` while argument labels become
 labels in the list of children of a `prod`.
 }
 @benefits{
@@ -143,7 +143,6 @@ extend Type;
 extend Message;
 extend List;
 
-
 @synopsis{The Tree data type as produced by the parser.}
 @description{
 A `Tree` defines the trees normally found after parsing; additional constructors exist for execptional cases:
@@ -157,7 +156,7 @@ A `Tree` defines the trees normally found after parsing; additional constructors
 data Tree //(loc src = |unknown:///|(0,0,<0,0>,<0,0>))
      = appl(Production prod, list[Tree] args) // <1>
      | cycle(Symbol symbol, int cycleLength)  // <2>
-     | amb(set[Tree] alternatives) // <3> 
+     | amb(set[Tree] alternatives) // <3>
      | char(int character) // <4>
      ;
 
@@ -170,25 +169,30 @@ construct ordered and un-ordered compositions, and associativity groups.
 
 <1> A `prod` is a rule of a grammar, with a defined non-terminal, a list
     of terminal and/or non-terminal symbols and a possibly empty set of attributes.
-  
+
 <2> A `regular` is a regular expression, i.e. a repeated construct.
 
 <3> `priority` means operator precedence, where the order of the list indicates the binding strength of each rule;
 <4> `assoc`  means all alternatives are acceptable, but nested on the declared side;
 <5> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
-} 
-data Production 
+<6> `error` means a node produced by error recovery.
+<7> `skipped` means characters skipped during error recovery, always the last child of an `appl` with a `error` production.
+}
+data Production
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
      | regular(Symbol def) // <2>
      ;
-     
-data Production 
+
+data Production
      = \priority(Symbol def, list[Production] choices) // <3>
      | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <4>
      | \reference(Symbol def, str cons) // <5>
      ;
 
+data Production
+     = \error(Symbol def, Production prod, int dot)
+     | \skipped(Symbol symbol);
 
 @synopsis{Attributes in productions.}
 @description{
@@ -196,8 +200,8 @@ An `Attr` (attribute) documents additional semantics of a production rule. Neith
 brackets are processed by the parser generator. Rather downstream processors are
 activated by these. Associativity is a parser generator feature though.
 }
-data Attr 
-  = \bracket() 
+data Attr
+  = \bracket()
   | \assoc(Associativity \assoc)
   ;
 
@@ -205,11 +209,11 @@ data Attr
 @synopsis{Associativity attribute.}
 @description{
 Associativity defines the various kinds of associativity of a specific production.
-}  
-data Associativity 
+}
+data Associativity
     = \left()
-    | \right() 
-    | \assoc() 
+    | \right()
+    | \assoc()
     | \non-assoc()
     ;
 
@@ -254,34 +258,34 @@ data Symbol // <1>
      = \start(Symbol symbol);
 
 // These symbols are the named non-terminals.
-data Symbol 
-     = \sort(str name) // <2> 
+data Symbol
+     = \sort(str name) // <2>
      | \lex(str name)  // <3>
      | \layouts(str name)  // <4>
      | \keywords(str name) // <5>
      | \parameterized-sort(str name, list[Symbol] parameters) // <6>
      | \parameterized-lex(str name, list[Symbol] parameters)  // <7>
-     ; 
+     ;
 
 // These are the terminal symbols.
-data Symbol 
+data Symbol
      = \lit(str string)   // <8>
      | \cilit(str string) // <9>
      | \char-class(list[CharRange] ranges) // <10>
      ;
-    
+
 // These are the regular expressions.
 data Symbol
      = \empty() // <11>
      | \opt(Symbol symbol)  // <12>
      | \iter(Symbol symbol) // <13>
      | \iter-star(Symbol symbol)  // <14>
-     | \iter-seps(Symbol symbol, list[Symbol] separators)      // <15> 
+     | \iter-seps(Symbol symbol, list[Symbol] separators)      // <15>
      | \iter-star-seps(Symbol symbol, list[Symbol] separators) // <16>
      | \alt(set[Symbol] alternatives) // <17>
      | \seq(list[Symbol] symbols)     // <18>
      ;
-  
+
 data Symbol // <19>
      = \conditional(Symbol symbol, set[Condition] conditions);
 
@@ -292,7 +296,7 @@ bool subtype(Symbol::\sort(_), Symbol::\adt("Tree", _)) = true;
 @description{
 A `Condition` can be attached to a symbol; it restricts the applicability
 of that symbol while parsing input text. For instance, `follow` requires that it
-is followed by another symbol and `at-column` requires that it occurs 
+is followed by another symbol and `at-column` requires that it occurs
 at a certain position in the current line of the input text.
 }
 data Condition
@@ -301,9 +305,9 @@ data Condition
      | \precede(Symbol symbol)
      | \not-precede(Symbol symbol)
      | \delete(Symbol symbol)
-     | \at-column(int column) 
-     | \begin-of-line()  
-     | \end-of-line()  
+     | \at-column(int column)
+     | \begin-of-line()
+     | \end-of-line()
      | \except(str label)
      ;
 
@@ -311,7 +315,7 @@ data Condition
 @synopsis{Nested priority is flattened.}
 Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production] b), *Production c])
   = priority(s,a+b+c);
-   
+
 
 @synopsis{Normalization of associativity.}
 @description{
@@ -319,15 +323,15 @@ Production priority(Symbol s, [*Production a, priority(Symbol _, list[Production
 * Nested (equal) associativity is flattened.
 * ((ParseTree-priority)) under an associativity group defaults to choice.
 }
-Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
-  = associativity(s, as, a+b); 
-            
-Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
+Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)})
+  = associativity(s, as, a+b);
+
+Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})
   = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
-Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
-  = associativity(s, as, {*a, *b}); 
-        
+Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)})
+  = associativity(s, as, {*a, *b});
+
 
 @synopsis{Annotate a parse tree node with a source location.}
 anno loc Tree@\loc;
@@ -341,12 +345,22 @@ anno loc Tree@\loc;
 
 The parse either throws ParseError exceptions or returns parse trees of type `Tree`. See [[ParseTree]].
 
-The `allowAmbiguity` flag dictates the behavior of the parser in the case of ambiguity. When `allowAmbiguity=true` 
+The `allowAmbiguity` flag dictates the behavior of the parser in the case of ambiguity. When `allowAmbiguity=true`
 the parser will construct ambiguity clusters (local sets of parse trees where the input string is ambiguous). If it is `false`
 the parser will throw an `Ambiguous` exception instead. An `Ambiguous` exception is comparable to a ParseError exception then.
-The latter option terminates much faster, i.e. always in cubic time, and always linear in the size of the intermediate parse graph, 
-while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n 
+The latter option terminates much faster, i.e. always in cubic time, and always linear in the size of the intermediate parse graph,
+while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n
 is the length of the input.
+
+The `allowRecovery` can be set to `true` to enable error recovery. This is an experimental feature.
+When error recovery is enabled, the parser will attempt to recover from parse errors and continue parsing.
+If successful, a parse tree with error and skipped productions is returned (see the definition of `Production` above).
+A number of functions is provided to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
+Note that the resulting parse forest can contain a lot of error nodes. `disambiguateErrors` can be used to prune the forest
+and leave a tree with a single (or even zero) errors based on simple heuristics.
+When `allowAmbiguity` is set to false, `allowRecovery` is set to true, and `filters` is empty, this disambiguation is done
+automatically so you should end up with a tree with no error ambiguities. Regular ambiguities can still occur
+and will result in an error.
 
 The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
 the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
@@ -355,16 +369,16 @@ composed filters must be added to the set of filters programmatically. Post-pars
 not later on the Tree representation for efficiency reasons. Namely, the size of the parse graph before Tree construction
 is still cubic due to "binarized" sharing of intermediate nodes, while after Tree construction the forest may obtain
 a size in O(n^p+1) where n is the length of the input and p is the length of the longest syntax rule. Filtering using
-the `filters` parameter, on the other hand, may very well cut the forest quickly down to even a linear size and result in 
+the `filters` parameter, on the other hand, may very well cut the forest quickly down to even a linear size and result in
 an efficient overall parsing algorithm.
 
 The `hasSideEffects` flag is normally set to false. When the `filters` functions have side-effects to
 remove ambiguity, this option must be set to `true` to ensure correct behavior. A side-effect of filter functions is
-typically the construction of a symbol table and the removal (see [[Statements/Filter]]) of syntax trees which refer to 
+typically the construction of a symbol table and the removal (see [[Statements/Filter]]) of syntax trees which refer to
 undefined symbols. In such a case `hasSideEffects` must be set to `true` for correctness' sake. If its set to `false`
 then the algorithm assumes tree construction is context-free and it can memoize the results of shared intermediate graph nodes.
 The tree construction algorithm is effectively always worst case
-polynomial in O(n^p+1) --p being the length of the longest syntax rule-- when `hasSideEffects` is true, but may be linear when set 
+polynomial in O(n^p+1) --p being the length of the longest syntax rule-- when `hasSideEffects` is true, but may be linear when set
 to false. So this is quite an important flag to consider.
 }
 @examples{
@@ -392,14 +406,15 @@ catch ParseError(loc l): {
 }
 ```
 }
-&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
-  
-&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, input);
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+
+&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
+
+&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, input);
 
 
 @synopsis{Generates a parser from an input grammar.}
@@ -415,15 +430,16 @@ So the parse function reads either directly from a str or via the contents of a 
 which leads to the prefix of the `src` fields of the resulting tree.
 
 The parse function behaves differently depending of the given keyword parameters:
-     *  `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
+     * `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
                          the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
                          if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
-     * 
+     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
+                         special `error` and `skipped` nodes are included in the resulting parse tree. More documentation will be added here when this feature matures.
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -433,10 +449,10 @@ the tree that exhibits ambiguity. This can be done very quickly, while the whole
 * Use this function for ambiguity diagnostics and regression testing for ambiguity.
 }
 @pitfalls{
-* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
+* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in.
 The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
 }
-java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.}
 @description{
@@ -444,7 +460,7 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={});
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -454,16 +470,16 @@ the tree that exhibits ambiguity. This can be done very quickly, while the whole
 * Use this function for ambiguity diagnostics and regression testing for ambiguity.
 }
 @pitfalls{
-* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
+* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in.
 The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
 }
-java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool allowRecovery=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={});
 
 @synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
 @description{
 This function is similar to the ((parse)) function in its functionality. However, in case of serious ambiguity parse
 could be very slow. This function is much faster, because it does not try to construct an entire forest and thus avoids
-the cost of constructing nested ambiguity clusters. 
+the cost of constructing nested ambiguity clusters.
 
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
@@ -535,15 +551,15 @@ p(type(sort("E"), ()), "e+e", |src:///|);
 * reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
 this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
 }
-java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
 @description{
 This loader behaves just like ((loadParsers)), except that the resulting parser function is already
-bound to a specific non-terminal. 
+bound to a specific non-terminal.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Yield the string of characters that form the leafs of the given parse tree.}
 @description{
@@ -594,20 +610,20 @@ an abstract syntax tree (a value of the given type) as follows:
 
 *  Literals, layout and empty (i.e. ()) nodes are skipped.
 
-*  Regular */+ lists are imploded to `list`s or `set`s depending on what is 
+*  Regular */+ lists are imploded to `list`s or `set`s depending on what is
   expected in the ADT.
 
 *  Ambiguities are imploded to `set`s.
 
-*  If the expected type is `str` the tree is unparsed into a string. This happens for both 
+*  If the expected type is `str` the tree is unparsed into a string. This happens for both
   lexical and context-free parse trees.
 
 *  If a tree's production has no label and a single AST (i.e. non-layout, non-literal) argument
-  (for instance, an injection), the tree node is skipped, and implosion continues 
+  (for instance, an injection), the tree node is skipped, and implosion continues
   with the lone argument. The same applies to bracket productions, even if they
   are labeled.
 
-*  If a tree's production has no label, but more than one argument, the tree is imploded 
+*  If a tree's production has no label, but more than one argument, the tree is imploded
   to a tuple (provided this conforms to the ADT).
 
 *  Optionals are imploded to booleans if this is expected in the ADT.
@@ -622,14 +638,14 @@ an abstract syntax tree (a value of the given type) as follows:
 *  For trees with (cons-)labeled productions, the corresponding constructor
   in the ADT corresponding to the non-terminal of the production is found in
   order to make the AST.
-  
+
 *  If the provided type is `node`, (cons-)labeled trees will be imploded to untyped `node`s.
-  This means that any subtrees below it will be untyped nodes (if there is a label), tuples of 
-  nodes (if a label is absent), and strings for lexicals. 
+  This means that any subtrees below it will be untyped nodes (if there is a label), tuples of
+  nodes (if a label is absent), and strings for lexicals.
 
 *  Unlabeled lexicals are imploded to str, int, real, bool depending on the expected type in
-  the ADT. To implode lexical into types other than str, the PDB parse functions for 
-  integers and doubles are used. Boolean lexicals should match "true" or "false". 
+  the ADT. To implode lexical into types other than str, the PDB parse functions for
+  integers and doubles are used. Boolean lexicals should match "true" or "false".
   NB: lexicals are imploded this way, even if they are ambiguous.
 
 *  If a lexical tree has a cons label, the tree imploded to a constructor with that name
@@ -638,11 +654,11 @@ an abstract syntax tree (a value of the given type) as follows:
 
 An `IllegalArgument` exception is thrown if during implosion a tree is encountered that cannot be
 imploded to the expected type in the ADT. As explained above, this function assumes that the
-ADT type names correspond to syntax non-terminal names, and constructor names correspond 
+ADT type names correspond to syntax non-terminal names, and constructor names correspond
 to production labels. Labels of production arguments do not have to match with labels
  in ADT constructors.
 
-Finally, source location fields are propagated as keyword fields on constructor ASTs. 
+Finally, source location fields are propagated as keyword fields on constructor ASTs.
 To access them, the user is required to explicitly declare a keyword field on all
 ADTs used in implosion. In other words, for every ADT type `T`, add:
 
@@ -662,7 +678,7 @@ syntax Decls = decls: "declare" {IDTYPE ","}* ";";
 ```rascal
 data Decls = decls(list[tuple[str,Type]]);
 ```
-(assuming Id is a lexical non-terminal).   
+(assuming Id is a lexical non-terminal).
 * Example for rule 6. Given the grammar
 ```rascal
 syntax Formal = formal: "VAR"? {Id ","}+ ":" Type;
@@ -678,7 +694,7 @@ syntax Decl = decl: Tag? Signature Body;
 ```
 In this case, a `Decl` is imploded into the following ADT:
 ```rascal
-data Decl = decl(list[Modifier], Signature, Body);  
+data Decl = decl(list[Modifier], Signature, Body);
 ```
 * Example for rule 9. Given the grammar
 ```rascal
@@ -737,7 +753,7 @@ TreeSearchResult[&T<:Tree] treeAt(type[&T<:Tree] t, loc l, Tree a:appl(_, _)) {
 		for (arg <- a.args, TreeSearchResult[&T<:Tree] r:treeFound(&T<:Tree _) := treeAt(t, l, arg)) {
 			return r;
 		}
-		
+
 		if (&T<:Tree tree := a) {
 			return treeFound(tree);
 		}

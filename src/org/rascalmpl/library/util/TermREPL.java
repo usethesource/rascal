@@ -1,3 +1,16 @@
+/**
+ * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ **/
 package org.rascalmpl.library.util;
 
 import java.io.ByteArrayInputStream;
@@ -71,7 +84,7 @@ public class TermREPL {
         }
 
         TypeFactory tf = TypeFactory.getInstance();
-        IFunction run = vf.function(tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()), 
+        IFunction run = vf.function(tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty()),
             (args, kwargs) -> {
                 try {
                     baseRepl.run();
@@ -80,14 +93,14 @@ public class TermREPL {
                     throw RuntimeExceptionFactory.io(e.getMessage());
                 }
                 return vf.tuple();
-            }); 
+            });
 
-        IFunction send = vf.function(tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()), 
+        IFunction send = vf.function(tf.functionType(tf.voidType(), tf.tupleType(tf.stringType()), tf.tupleEmpty()),
             (args, kwargs) -> {
                 baseRepl.queueCommand(((IString)args[0]).getValue());
                 return vf.tuple();
             });
-        
+
         return vf.tuple(run, send);
     }
 
@@ -110,7 +123,7 @@ public class TermREPL {
             this.input = input;
             this.stderr = stderr;
             this.stdout = stdout;
-            
+
             // TODO: these casts mean that TheRepl only works with functions produced by the
             // interpreter for now. The reason is that the REPL needs access to environment configuration
             // parameters of these functions such as stdout, stdin, etc.
@@ -192,32 +205,32 @@ public class TermREPL {
                 }
             }
         }
-        
+
         private void handleInteractiveContent(Map<String, InputStream> output, Map<String, String> metadata,
             IConstructor content) throws IOException, UnsupportedEncodingException {
             String id = ((IString) content.get("id")).getValue();
             Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));
             REPLContentServer server = contentManager.addServer(id, callback);
-            
+
             String URL = "http://localhost:" + server.getListeningPort();
-            
+
             produceHTMLResponse(id, URL, output, metadata);
         }
-        
+
         private void produceHTMLResponse(String id, String URL, Map<String, InputStream> output, Map<String, String> metadata) throws UnsupportedEncodingException{
             String html;
             if (metadata.containsKey("origin") && metadata.get("origin").equals("notebook"))
                 html = "<script> \n var "+ id +" = new Salix('"+ id + "', '" + URL + "'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+ id +");\n registerDagre(" + id + ");\n registerTreeView("+ id +"); \n"+ id + ".start();\n});\n </script> \n <div id = \"" + id + "\"> \n </div>";
             else
                 html = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
-            
+
             metadata.put("url", URL);
 
             output.put("text/html", new ByteArrayInputStream(html.getBytes("UTF8")));
-            
+
             String message = "Serving visual content at |" + URL + "|";
             output.put("text/plain", new ByteArrayInputStream(message.getBytes("UTF8")));
-            
+
         }
 
         private Function<IValue, IValue> liftProviderFunction(IValue callback) {
@@ -238,7 +251,7 @@ public class TermREPL {
 
             IValue dtf = kws.getParameter("dateTimeFormat");
             IValue dai = kws.getParameter("dateTimeAsInt");
-            
+
             JsonValueWriter writer = new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
@@ -312,7 +325,7 @@ public class TermREPL {
         @Override
         public CompletionResult completeFragment(String line, int cursor) {
             ITuple result = (ITuple)call(completor, new Type[] { tf.stringType(), tf.integerType() },
-                new IValue[] { vf.string(line), vf.integer(cursor) }); 
+                new IValue[] { vf.string(line), vf.integer(cursor) });
 
             List<String> suggestions = new ArrayList<>();
 
