@@ -235,9 +235,9 @@ ModuleStatus rascalTModelForLocs(
                                    if(checked() in ms.status[iname] && rsc_not_found() notin ms.status[iname]){
                                        if(imod is \default){
                                          msgs += warning("Unused import of `<iname>`", imod@\loc);
-                                       } else {
-                                         msgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
-                                       }
+                                       } //else { //TODO: maybe add option to turn off info messages?
+                                         //msgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
+                                       //}
                                    }
                                 }
                             }
