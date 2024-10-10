@@ -297,13 +297,6 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         return ms;
     }
     
-    if(any(c <- component, error(_,_) <- ms.messages[c])){
-        // Commented out to make checker less noisy
-        // for(c <- component){
-        //     iprintln(ms.messages[c]);
-        // }
-        return ms;
-    }
     //println("doSaveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     component_scopes = { getModuleScope(qualifiedModuleName, moduleScopes, pcfg) | qualifiedModuleName <- component };
     set[loc] filteredModuleScopes = {};
