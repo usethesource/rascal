@@ -565,17 +565,21 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 }
                 return aloc();
             }
-            if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && "<expression>" == "char"){
-                nactuals = size(actuals);
-                if(nactuals != 1){
-                    s.report(error(current, "`char` requires 1 argument, found %v", nactuals));
+           
+            if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && expression is qualifiedName){
+                <qualifier, base> = splitQualifiedName(expression.qualifiedName);
+                if (base == "char" && (isEmpty(qualifier) || qualifier == "Tree")){
+                    nactuals = size(actuals);
+                    if(nactuals != 1){
+                        s.report(error(current, "`char` requires 1 argument, found %v", nactuals));
+                    }
+                    s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
+                    if(actuals[0] is literal){
+                        chr = toInt("<actuals[0]>");
+                        return \achar-class([arange(chr, chr)]);
+                    } else
+                        return anyCharType;
                 }
-                s.requireEqual(actuals[0], aint(), error(actuals[0], "Argument should be of type `int`, found %t", actuals[0]));
-                if(actuals[0] is literal){
-                    chr = toInt("<actuals[0]>");
-                    return \achar-class([arange(chr, chr)]);
-                } else
-                    return anyCharType;
             }
              
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){

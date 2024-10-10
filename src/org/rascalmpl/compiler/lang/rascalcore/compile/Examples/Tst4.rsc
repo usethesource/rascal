@@ -1,68 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-import lang::rascalcore::check::Checker;
-import lang::rascalcore::check::BasicRascalConfig;
-import lang::rascalcore::check::RascalConfig;
-import IO;
-import Message;
-import Map;
-import util::FileSystem;
-import util::Reflective;
 
-tuple[PathConfig, RascalCompilerConfig] testConfigs(loc projectPath) {
-    pcfg = pathConfig(
-        bin=projectPath + "bin",
-        libs=[|home:///.m2/repository/org/rascalmpl/rascal/0.40.10/rascal-0.40.10.jar|],
-        srcs=[projectPath + "src"],
-        resources=projectPath + "resources",
-        generatedSources=projectPath + "generated-sources"
-    );
-
-    RascalCompilerConfig ccfg = rascalCompilerConfig(pcfg)
-        [forceCompilationTopModule = true]
-        [verbose = true];
-
-    return <pcfg, ccfg>;
-}
-
-ModuleStatus checkModule(loc projectPath, str moduleName, str moduleBody, RascalCompilerConfig ccfg) {
-    modulePath = projectPath + "src" + "<moduleName>.rsc";
-    writeFile(modulePath, moduleBody);
-    return rascalTModelForLocs([modulePath], ccfg, dummy_compile1);
-}
-
-void noTmodel(loc projectPath = |memory:///NoTModelTest|) {
-    remove(projectPath);
-    <pcfg, ccfg> = testConfigs(projectPath);
-
-    moduleName = "M";
-    moduleStr = "
-        'module <moduleName>
-        '
-        'void main() {
-        '   int foo = x + y;
-        '}
-    ";
-
-    if(ms := checkModule(projectPath, moduleName, moduleStr, ccfg)) {
-        if (size(ms.tmodels) > 0) { // This branch is expected to be taken
-            println("Success!");
-        } else {    // This branch is taken instead
-            println("Failure...");
-            println("TModels: <ms.tmodels>");
-        }
-    } else {
-        println("checkModule failed");
-    }
-}
-
-// import ParseTree;
-// import String;
+import ParseTree;
+import String;
 
 // public str squeeze(str src, type[&CharClass <: ![]] _) = visit(src) {
 //     case /<c:.><c>+/ => c
-//       when &CharClass _ := Tree::char(charAt(c, 0))
+//       when &CharClass _ := char(charAt(c, 0))
 // };
+
+value main(){
+    ![] x = Tree:: /* xxxx */ char(charAt("a", 0));
+    return x;
+}
 
 // void f(int n){
 //   [x | x <- [0..n], [x] := [x], x > 0];
