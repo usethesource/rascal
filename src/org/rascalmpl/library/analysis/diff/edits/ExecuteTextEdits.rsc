@@ -24,16 +24,22 @@ void executeDocumentEdit(renamed(loc from, loc to)) {
 }
 
 void executeDocumentEdit(changed(loc file, list[TextEdit] edits)) {
+    str content = readFile(file);
+
+    content = executeTextEdits(content, edits);
+
+    writeFile(file.top, content);
+}
+
+str executeTextEdits(str content, list[TextEdit] edits) {
     assert isSorted(edits, less=bool (TextEdit e1, TextEdit e2) { 
         return e1.range.offset < e2.range.offset; 
     });
-
-    str content = readFile(file);
 
     for (replace(loc range, str repl) <- reverse(edits)) {
         assert range.top == file.top;
         content = "<content[..range.offset]><repl><content[range.offset+range.length..]>";
     }
 
-    writeFile(file.top, content);
+    return content;
 }
