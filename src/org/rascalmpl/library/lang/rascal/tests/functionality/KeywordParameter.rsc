@@ -338,3 +338,12 @@ int outer5(int t, int tabSize=4){
 test bool outer5_1() = outer5(1) == 1;
 test bool outer5_11() = outer5(11) == 65;
 test bool outer5_11_kw() = outer5(11, tabSize=40) == 101;
+
+
+data WorkspaceInfo(rel[int a, int b] defines = {}) = workspaceInfo();
+
+@synopsis{a test for issue #2049}
+test bool staticTypesOfCommonKeywordDefaults() {
+    ws = workspaceInfo();
+    return ws.defines<b,a> == {};
+}
