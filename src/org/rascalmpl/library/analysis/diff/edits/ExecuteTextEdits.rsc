@@ -37,7 +37,6 @@ str executeTextEdits(str content, list[TextEdit] edits) {
     });
 
     for (replace(loc range, str repl) <- reverse(edits)) {
-        assert range.top == file.top;
         content = "<content[..range.offset]><repl><content[range.offset+range.length..]>";
     }
 

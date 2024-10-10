@@ -1,0 +1,14 @@
+begin
+  declare
+    a : natural,
+    b : natural;
+    a := 0;
+    b := 1;
+    if a then
+      % comment 1 %
+      b := a
+    else 
+      % comment 2 %
+      a := b
+    fi
+end
