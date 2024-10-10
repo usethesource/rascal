@@ -242,7 +242,6 @@ default int seps(Symbol _) = 0;
 
 @synsopis{List diff is like text diff on lines; complex and easy to make slow}
 list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] replacements) {
-    assert originals != replacements && originals == [];
     edits = [];
 
     // this algorithm isolates commonalities between the two lists
@@ -257,7 +256,7 @@ list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] re
     <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
     edits += specialEdits;
         
-    equalSubList = largestEqualSubList(originals, replacements);
+    equalSubList = largestEqualSubList(span, originals, replacements);
 
     // by using the (or "a") largest common sublist as a pivot to divide-and-conquer
     // to the left and right of it, we minimize the number of necessary 
@@ -284,21 +283,27 @@ Using list matching and backtracking, this algorithm detects which common
 sublist is the largest. It assumes ((trimEqualElements)) has happened already,
 and thus there are interesting differences left, even if we remove any equal
 sublist.
+
+Note that this is not a general algorithm for Largest Common Subsequence (LCS), since it
+uses particular properties of the relation between the original and the replacement list.
+* New elements are never equal to old elements (due to source locations)
+* Equal prefixes and postfixes may be assumed to be maximal sublists as well (see above).
+* Candidate equal sublists always have consecutive source locations from the origin.
+* etc.
 }
-list[Tree] largestEqualSubList(list[Tree] originals, list[Tree] replacements) {
-    assert <originals, replacements> := trimEqualElements(originals, replacements) : "both lists begin and end with unique elements";
+list[Tree] largestEqualSubList(loc span, list[Tree] originals, list[Tree] replacements) {
+    // assert <originals, replacements> := trimEqualElements(originals, replacements) : "both lists begin and end with unique elements";
     
     bool largerList(list[Tree] a, list[Tree] b) = size(a) > size(b);
+
+    bool fromOriginalFile(loc span, Tree last) = span.top == (last@\loc?|unknown:///|).top;
     
-    equals = [eq |
-        [*_,  pre, *eq,  post, *_] := originals, size(eq) > 0,
-        [*_, !pre, *eq, !post, *_] := replacements
+    equals = [[*eq,q] |
+        [*_, pre, *eq, q, post, *_] := replacements, fromOriginalFile(span, q),
+        [*_, !pre, *eq, q, !post, *_] := originals
     ];
 
-    return [largest, *_] := sort(equals, largerList)
-        ? largest
-        : [] // no equal sublists detected
-        ;
+    return sort(equals, largerList)[0] ? [];
 }
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
@@ -325,6 +330,13 @@ tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 3,
     [Tree a, Tree _l1, Tree _sep, Tree _l2, Tree tHead, *Tree tail], [tHead, *tail])
     = <[replace(fromUntil(a, tHead), "")], [], []>;
 
+// singleton replacement
+tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, int _, 
+    [Tree a], [Tree b])
+    = <treeDiff(a, b), [], []>;
+
+default tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, int _, list[Tree] a, list[Tree] b)
+    = <[], a, b>;
 
 @synopsis{convenience overload for shorter code}
 private loc fromUntil(Tree from, Tree until) = fromUntil(from@\loc, until@\loc);
