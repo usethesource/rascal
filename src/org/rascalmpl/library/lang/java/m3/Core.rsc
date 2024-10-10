@@ -264,7 +264,7 @@ M3 createM3FromMavenProject(loc project, bool errorRecovery = false, bool includ
       throw "<project> is not a valid directory";
     }
 
-    list[loc] classPaths = getProjectPathConfig(project).javaCompilerPath;
+    list[loc] classPaths = getProjectPathConfig(project).libs;
 
     sourcePaths = getPaths(project, "java");
     M3 result = composeJavaM3(project, createM3sFromFiles({p | sp <- sourcePaths, p <- find(sp, "java"), isFile(p)}, errorRecovery = errorRecovery, sourcePath = [*findRoots(sourcePaths)], classPath = classPaths, javaVersion = javaVersion));
