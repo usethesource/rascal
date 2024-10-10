@@ -148,6 +148,8 @@ bool asubtype(ap: aprod(AProduction p), AType b){
             return asubtype(ap, t);
         case AType t:
             return asubtype(p.def, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -164,6 +166,8 @@ bool asubtype(adt:aadt(str n, list[AType] l, SyntaxRole sr), AType b){
             if(isConcreteSyntaxRole(sr)) return true;
         case \start(AType t):
             if(isConcreteSyntaxRole(sr)) return asubtype(adt, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -186,6 +190,8 @@ bool asubtype(i:\iter(AType s), AType b){
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case \start(AType t):
             return asubtype(i, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -206,6 +212,8 @@ bool asubtype(i:\iter-seps(AType s, list[AType] seps), AType b){
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
         case \start(AType t):
             return asubtype(i, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -222,6 +230,8 @@ bool asubtype(i:\iter-star(AType s), AType b){
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case \start(AType t):
             return asubtype(i, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -236,6 +246,8 @@ bool asubtype(i:\iter-star-seps(AType s, list[AType] seps), AType b){
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
         case \start(AType t):
             return asubtype(i, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -275,6 +287,8 @@ bool asubtype(alist(AType a), AType b){
             return asubtype(a, t);
         case alrel(AType t): 
             return asubtype(a, atuple(t));
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -285,6 +299,8 @@ bool asubtype(alrel(AType a), AType b){
             return asubtype(a, t);
         case alist(AType t):
             return asubtype(atuple(a), t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -297,6 +313,8 @@ bool asubtype(aset(AType a),  AType b){
             return asubtype(a, t);
         case arel(AType t): 
             return asubtype(a, atuple(t));
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -307,6 +325,8 @@ bool asubtype(arel(AType a), AType b){
             return  asubtype(a,t);
         case aset(AType t):
             return asubtype(atuple(a), t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -340,6 +360,8 @@ bool asubtype(areified(AType s), AType b){
             return asubtype(s,t);
         case anode(_):
             return true;
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -352,6 +374,8 @@ bool asubtype(a:anode(list[AType] l), AType b){
             return l <= r;
         case \start(t):
             return asubtype(a, t);
+        case avalue():
+            return true;
     }
     fail;
 }
@@ -374,6 +398,8 @@ bool asubtype(l:\achar-class(_), AType r){
             return true; // characters are Tree instances 
         case \start(t):
             return asubtype(l, t);
+        case avalue():
+            return true;
     }
     fail;
 }
