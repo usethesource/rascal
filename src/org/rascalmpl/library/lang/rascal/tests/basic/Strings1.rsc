@@ -264,6 +264,22 @@ test bool tstSqueezeCase3() = squeeze("aabcc", "a-c") == "abc";
 test bool tstSqueezeCase4() = squeeze("aabbcc", "a-c") == "abc";
 test bool tstSqueezeCase5() = squeeze("aaabc", "a-c") == "abc";
 
+// second squeeze
+test bool tstSqueeze21(str S) = /<c:[a-zA-Z]><c>/ !:= squeeze(S, #[a-zA-Z]);
+test bool tstSqueeze22(str S) = squeeze(S, #[]) == S;
+test bool tstSqueeze23(str S) {
+  if (/<c:[a-zA-Z]><c>/ := S) {
+    return /<c><c>/ := squeeze(S, #[0-9]);
+  }
+  return true;
+}
+
+test bool tstSqueeze2Unicode() = squeeze("Hi 🍝🍝World", #[🍝]) == "Hi 🍝World";
+test bool tstSqueeze2Case1() = squeeze("abc", #[a-c]) == "abc";
+test bool tstSqueeze2Case2() = squeeze("aabc", #[a-c]) == "abc";
+test bool tstSqueeze2Case3() = squeeze("aabcc", #[a-c]) == "abc";
+test bool tstSqueeze2Case4() = squeeze("aabbcc", #[a-c]) == "abc";
+test bool tstSqueeze2Case5() = squeeze("aaabc", #[a-c]) == "abc";
 
 test bool tstStartsWith(str S1, str S2) = startsWith(S1+S2, S1);
 
