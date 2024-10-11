@@ -47,27 +47,8 @@ test bool Issue450() =
    											 return a() := pt ;
 										}"]);
 
-// https://github.com/cwi-swat/rascal/issues/452
-
-test bool Issue452() =
-	checkOK("true;", importedModules = ["ParseTree"]);
-
-// https://github.com/cwi-swat/rascal/issues/459
-
-test bool Issue459() =
-	checkOK("true;",  importedModules = ["Exception", "Set"],
-					initialDecls = ["value main() = toMap({});"]);
-
-// https://github.com/cwi-swat/rascal/issues/467
-
-test bool Issue467() =
-	checkOK("true;",  importedModules = ["Exception", "List"]);
-																	 
-
-
 // https://github.com/cwi-swat/rascal/issues/481
 
-@ignore{temporarily disabled due to recent type-checker issue (JV/PK June 1st 2021)}
 test bool Issue481() =
 	checkOK("true;", importedModules=["ParseTree"],
 					initialDecls = ["syntax A = a: \"a\";",
@@ -85,16 +66,8 @@ test bool Issue481() =
     									pt = parse(#C, \"axaaa\");
     									return c(A a, As as) := pt && pt.a == a && pt.as == as && size([x | x \<- as.alist]) == 3;
 									}"]);
-
-	
-// https://github.com/cwi-swat/rascal/issues/483
-@ignore
-test bool Issue483() =                                       // TODO: it is possible that there are also real errors in Ambiguity
-	checkModuleOK(|std:///analysis::grammars::Ambiguity.rsc|);
-	
 	
 // https://github.com/cwi-swat/rascal/issues/491
-@ignore{TODO}
 test bool Issue491() =
 	checkOK("true;", importedModules=[" util::Math"],
 					initialDecls = ["public map[&T \<: num, int] distribution(rel[&U event, &T \<: num bucket] input, &T \<: num bucketSize) {
@@ -104,40 +77,6 @@ test bool Issue491() =
   										}
  										return result;
 									}"]);
-	
-// https://github.com/cwi-swat/rascal/issues/492
-// https://github.com/cwi-swat/rascal/issues/493
-
-// These tests are related to the Exp demo. We will test that separately
-
-// https://github.com/cwi-swat/rascal/issues/494
-	
-//test bool Issue494() =                                       // TODO
-//	checkModuleOK(|std:///demo/lang/Func/Test.rsc|);
-	
-// https://github.com/cwi-swat/rascal/issues/495
-
-//test bool Issue495() =
-//	checkModuleOK(|std:///demo/lang/Func/Parse.rsc|);
-
-// https://github.com/cwi-swat/rascal/issues/496
-@ignore
-test bool Issue496a() = 
-	checkModuleOK(|std:///lang/java/m3/AST.rsc|);
-
-@ignore
-test bool Issue496b(){
-	makeModule("MMM", "import lang::java::m3::AST;
-					 import analysis::m3::TypeSymbol;");
-	return checkOK("true;", importedModules=["MMM"]);
-}
-@ignore
-test bool Issue496c(){
-	makeModule("MMM", "import lang::java::m3::AST;
-					 import analysis::m3::TypeSymbol;
-					 import Message;");
-	return checkOK("true;", importedModules=["MMM"]);
-}
 
 // https://github.com/cwi-swat/rascal/issues/502
 
@@ -166,7 +105,6 @@ test bool Issue547(){
 }
 
 // https://github.com/cwi-swat/rascal/issues/550
-@ignore
 test bool Issue550(){												
 	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
 
