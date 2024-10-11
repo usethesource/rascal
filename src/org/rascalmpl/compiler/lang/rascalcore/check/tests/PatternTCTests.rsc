@@ -179,24 +179,24 @@ test bool setExpressions2() = unexpectedType("value n = 1; set[int] l = { 1, *[n
 test bool overloadedConstructorAmbiguous()
     = unexpectedType("B removeConditionals(B sym) = visit(sym) {
                      'case conditional(s) =\> s
-                     '}",
+                     '};",
                      initialDecls = ovlConstructors);
                      
 test bool overloadedConstructorOk1()
     = checkOK("B removeConditionals(B sym) = visit(sym) {
               'case conditional(A s) =\> s
-              '}",
+              '};",
               initialDecls = ovlConstructors);
                      
 test bool overloadedConstructorOk2()
     = checkOK("B removeConditionals(B sym) = visit(sym) {
               'case conditional(B s) =\> s
-              '}",
+              '};",
               initialDecls = ovlConstructors);
                   
 test bool overloadedConstructorOk3()
     = checkOK("B removeConditionals(B sym) = visit(sym) {
               'case conditional(s,_) =\> s
-              '}",
+              '};",
               initialDecls = ovlConstructors);
   		
