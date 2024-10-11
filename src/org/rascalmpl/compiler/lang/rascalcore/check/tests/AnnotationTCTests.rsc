@@ -3,9 +3,9 @@ module lang::rascalcore::check::tests::AnnotationTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
  
-test bool annotationNotAllowed1() = undefinedField("1 [@an=3];");
+test bool annotationNotAllowed1() = unexpectedType("1 [@an=3];");
 
-test bool annotationNotAllowed2() = undefinedField("1@ann;");
+test bool annotationNotAllowed2() = unexpectedType("1@ann;");
 
 test bool annotationNotAllowed31() = unexpectedType("f()[@pos=true];", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F@pos;"]); 
   	
