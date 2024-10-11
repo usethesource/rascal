@@ -17,11 +17,9 @@ test bool unguardedMatchNoEscape1() = undeclaredVariable("int n = 3; int m := n;
 test bool recursiveDataTypeNoPossibleMatchHorizontal1() = 
 	cannotMatch("Prop p := and(t(),t());", initialDecls=["data Bool = and(Bool, Bool) | t();",
 														   "data Prop = or(Prop, Prop) | f();"]);
- 
- @ignore{TODO} 	
+ 	
 test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *int L, 2, *int L] := x;"); 
-
- @ignore{TODO}   	
+ 	
 test bool matchListErrorRedeclaredSpliceVar1() = redeclaredVariable("list[int] x = [1,2,3];[1, * int L, * int L] := x;"); 
   
 test bool matchListError22() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");    //DISCUSS, was: cannotMatch
@@ -65,8 +63,7 @@ test bool matchIntRealError2() = cannotMatch("!(1.5 := 2);");
 test bool noMatchIntRealError1() = cannotMatch("2  !:= 1.5;"); 
   	
 test bool noMatchIntRealError2() = cannotMatch("1.5 !:= 2;"); 
-
- @ignore{TODO}  	
+ 	
 test bool errorRedclaredVariable1() = redeclaredVariable("{1, *int L, 2, *int L} := {1,2,3};"); 
   	
 test bool matchSetWrongElemError1() = checkOK("{1, \"a\", 2, *set[int] L} := {1,2,3};"); //DISCUSS, was: cannotMatch
@@ -76,13 +73,11 @@ test bool matchSetWrongElemError2() = checkOK("{1, set[str] L, 2} := {1,2,3};");
 test bool matchSetWrongElemError3() = checkOK("{1, str S, 2} := {1,2,3};"); //DISCUSS, was: cannotMatch
  
 test bool matchSetWrongElemError4() = cannotMatch("set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};"); 
- 
-@ignore{TODO} 
+
 test bool matchSetErrorRedeclaredSpliceVar() = redeclaredVariable("set[int] x = {1,2,3}; {1, * int L, * int L} := x;"); 
 
 test bool UndeclaredTypeError1() = undeclaredType( "STRANGE X := 123;");
-
-@ignore{TODO} 
+ 
 test bool antiPatternDoesNotDeclare1() = undeclaredVariable("![1,int X,3] := [1,2,4] && X == 2;" );
 
 test bool matchADTStringError11() =                                                              
