@@ -64,7 +64,7 @@ ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = [], PathConfig pcfg=pathConfigForTesting()) {
-	bool verbose=false;
+	bool verbose=true;
      errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose, pcfg=pcfg));
 	 if (verbose) {
      	println(errors);
@@ -125,7 +125,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
 	    "Returned type _ is not always a subtype of expected return type _",
 		"Type parameter _ should be less than _, found _",
-		"Ambiguous pattern type"
+		"Ambiguous pattern type _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
