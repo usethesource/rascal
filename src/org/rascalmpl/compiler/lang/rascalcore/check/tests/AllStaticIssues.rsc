@@ -53,7 +53,7 @@ test bool Issue435() {
 
 test bool Issue442() =
 	checkOK("true;", initialDecls=["syntax A = \"a\";",
-								   "value main() = [A] \"a\" := [A] \"a\";"]);
+								   "value my_main() = [A] \"a\" := [A] \"a\";"]);
 	
 
 // https://github.com/cwi-swat/rascal/issues/451
@@ -63,13 +63,13 @@ test bool Issue442() =
 
 test bool Issue456() =
 	checkOK("true;", initialDecls = ["data POINT1 = point1(int x, int y, int z = 3, list[str] colors = []);",
-									  "value main() =  point1(1,2);"]);
+									  "value my_main() =  point1(1,2);"]);
 
 // https://github.com/cwi-swat/rascal/issues/457
 
 test bool Issue457() =
 	checkOK("true;", initialDecls = ["data Exp1[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);", 
-									  "value main() {m = tval2(\"abc\", \"def\"); str s2 = m.tval2; return s2 == \"def\";}"]);   
+									  "value my_main() {m = tval2(\"abc\", \"def\"); str s2 = m.tval2; return s2 == \"def\";}"]);   
 
 	 
 
@@ -183,7 +183,7 @@ test bool Issue473() =
 test bool Issue478() =
 	checkOK("true;", 
 					initialDecls = ["data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);",
- 									 "public value main() = f1(1, M=10)  := f1(1);"]); 
+ 									 "public value my_main() = f1(1, M=10)  := f1(1);"]); 
 
 // https://github.com/cwi-swat/rascal/issues/480
 
@@ -192,37 +192,19 @@ test bool Issue480(){
   					| ellipse(Figure inner = emptyFigure()) 
   					| box(Figure inner = emptyFigure());
 
- 				value main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
+ 				value my_main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
 	return checkOK("true;", importedModules=["MMM"]);
 } 
 	
 // https://github.com/cwi-swat/rascal/issues/483
-@ignore
-test bool Issue483() =                                       // TODO: it is possible that there are also real errors in Ambiguity
+@ignore{Expensive test; Ambiguity is als checked in integration tests}
+test bool Issue483() =                                      
 	checkModuleOK(|std:///analysis::grammars::Ambiguity.rsc|);
-	
-	
-// https://github.com/cwi-swat/rascal/issues/492
-// https://github.com/cwi-swat/rascal/issues/493
-
-// These tests are related to the Exp demo. We will test that separately
-
-// https://github.com/cwi-swat/rascal/issues/494
-	
-//test bool Issue494() =                                       // TODO
-//	checkModuleOK(|std:///demo/lang/Func/Test.rsc|);
-	
-// https://github.com/cwi-swat/rascal/issues/495
-
-//test bool Issue495() =
-//	checkModuleOK(|std:///demo/lang/Func/Parse.rsc|);
-
 
 // https://github.com/cwi-swat/rascal/issues/504
 
 test bool Issue504() =
 	redeclaredVariable("true;", initialDecls = ["alias INT = int;", "alias INT = int;"]); //DISCUSS, was: checkOK
-	
 	
 // https://github.com/cwi-swat/rascal/issues/547
 
@@ -239,7 +221,6 @@ test bool Issue547(){
 // An error in the failing example itself, does not lead to a test
 
 // https://github.com/cwi-swat/rascal/issues/550
-@ignore
 test bool Issue550(){												
 	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
 
@@ -260,10 +241,7 @@ test bool Issue550(){
 
 test bool Issue563() = uninitialized("int x; x + 5;");
 
-// commented out because I don't know how to fix the test. It should not be allowed
-// to use * in a tuple pattern
-//test bool Issue886() = unexpectedType("[\<[\<19,0,_*\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>]");
-
+test bool Issue886() = unexpectedType("[\<[\<19,0,*_\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>];");
 
 // https://github.com/usethesource/rascal/issues/1353
 test bool Issue1353() {
