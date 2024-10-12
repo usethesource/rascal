@@ -3,9 +3,9 @@ module lang::rascalcore::check::tests::PatternTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-test bool matchNestedList() = checkOK("[[1]] := [];"); //DISCUSS, was: cannotMatch
+test bool matchNestedList() = checkOK("[[1]] := [];");
 
-test bool matchNestedSet() = checkOK("{{1}} := {};");   //DISCUSS, was: cannotMatch
+test bool matchNestedSet() = checkOK("{{1}} := {};");
 
 data Bool = and(Bool, Bool) | t();
 data Prop = or(Prop, Prop) | f();
@@ -15,14 +15,15 @@ test bool cannotMatchListStr1() = cannotMatch("[1] := \"a\";");
 test bool unguardedMatchNoEscape1() = undeclaredVariable("int n = 3; int m := n; m == n;");
 
 test bool recursiveDataTypeNoPossibleMatchHorizontal1() = 
-	cannotMatch("Prop p := and(t(),t());", initialDecls=["data Bool = and(Bool, Bool) | t();",
-														   "data Prop = or(Prop, Prop) | f();"]);
+	cannotMatch("Prop p := and(t(),t());", 
+               initialDecls=["data Bool = and(Bool, Bool) | t();",
+									  "data Prop = or(Prop, Prop) | f();"]);
  	
 test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *int L, 2, *int L] := x;"); 
  	
 test bool matchListErrorRedeclaredSpliceVar1() = redeclaredVariable("list[int] x = [1,2,3];[1, * int L, * int L] := x;"); 
   
-test bool matchListError22() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");    //DISCUSS, was: cannotMatch
+test bool matchListError22() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");
   
 test bool matchBoolIntError1() = cannotMatch("true !:= 1;"); 
 
@@ -66,11 +67,11 @@ test bool noMatchIntRealError2() = cannotMatch("1.5 !:= 2;");
  	
 test bool errorRedclaredVariable1() = redeclaredVariable("{1, *int L, 2, *int L} := {1,2,3};"); 
   	
-test bool matchSetWrongElemError1() = checkOK("{1, \"a\", 2, *set[int] L} := {1,2,3};"); //DISCUSS, was: cannotMatch
+test bool matchSetWrongElemError1() = checkOK("{1, \"a\", 2, *set[int] L} := {1,2,3};");
   		
-test bool matchSetWrongElemError2() = checkOK("{1, set[str] L, 2} := {1,2,3};"); //DISCUSS, was: cannotMatch
+test bool matchSetWrongElemError2() = checkOK("{1, set[str] L, 2} := {1,2,3};");
 
-test bool matchSetWrongElemError3() = checkOK("{1, str S, 2} := {1,2,3};"); //DISCUSS, was: cannotMatch
+test bool matchSetWrongElemError3() = checkOK("{1, str S, 2} := {1,2,3};");
  
 test bool matchSetWrongElemError4() = cannotMatch("set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};"); 
 
