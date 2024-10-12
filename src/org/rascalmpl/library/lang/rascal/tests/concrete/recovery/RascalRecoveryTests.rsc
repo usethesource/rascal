@@ -21,6 +21,8 @@ import util::ErrorRecovery;
 import IO;
 import util::Maybe;
 
+import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+
 bool debugging = false;
 
 Tree parseRascal(type[&T] t, str input, bool visualize=false) {
@@ -40,94 +42,47 @@ Tree parseRascal(type[&T] t, str input, bool visualize=false) {
     return result;
 }
 
+bool checkSingleError(Tree t, str expected) {
+    list[Tree] errors = findBestErrors(t);
+    return size(errors) == 1 && getErrorText(getFirstFrom(errors)) == expected;
+}
+
 Tree parseRascal(str input, bool visualize=false) = parseRascal(#start[Module], input, visualize=visualize);
 
 Tree parseFunctionDeclaration(str input, bool visualize=false) = parseRascal(#FunctionDeclaration, input, visualize=visualize);
 
 Tree parseStatement(str input, bool visualize=false) = parseRascal(#Statement, input, visualize=visualize);
 
-test bool rascalOk() {
-    Tree t = parseRascal("
+test bool rascalOk() = checkRecovery(#start[Module], "
     module A
 
     int inc(int i) {
         return i+1;
     }
-    ");
-    return !hasErrors(t);
-}
+    ", []);
 
-test bool rascalFunctionDeclarationOk() {
-    Tree t = parseFunctionDeclaration("void f(){}");
-    return !hasErrors(t);
-}
+test bool rascalFunctionDeclarationOk() = checkRecovery(#FunctionDeclaration, "void f(){}", []);
 
-
-test bool rascalModuleFollowedBySemi() {
-    Tree t = parseRascal("
+test bool rascalModuleFollowedBySemi() = checkRecovery(#start[Module], "
     module A
     ;
-    ");
+    ", [";"]);
 
-    // There are a lot of productions in Rascal that have a ; as terminator.
-    // The parser assumes the user has only entered the ; on one of them,
-    // so the error list contains them all.
-    list[Tree] errors = findAllErrors(t);
-    assert size(errors) == 10;
-
-    return getErrorText(findFirstError(t)) == ";";
-}
-
-test bool rascalOperatorTypo() {
-    Tree t = parseRascal("
+test bool rascalOperatorTypo() = checkRecovery(#start[Module], "
     module A
 
     int f() = 1 x 1;
-    ");
+    ", ["x 1;"]);
 
-    return getErrorText(findFirstError(t)) == "x 1;";
-}
+test bool rascalIllegalStatement() = checkRecovery(#start[Module], "module A void f(){a}", ["a}"]);
 
-test bool rascalIllegalStatement() {
-    Tree t = parseRascal("module A void f(){a}");
-    return getErrorText(findFirstError(t)) == "a}";
-}
+test bool rascalMissingCloseParen() = checkRecovery(#start[Module], "module A void f({} void g(){}", ["("]);
 
-test bool rascalMissingCloseParen() {
-    Tree t = parseRascal("module A void f({} void g(){}");
+test bool rascalFunctionDeclarationMissingCloseParen() = checkRecovery(#FunctionDeclaration, "void f({} void g() {}", ["("]);
 
-    assert getErrorText(findFirstError(t)) == "void g(";
-    assert getErrorText(findBestError(t).val) == "(";
+test bool rascalIfMissingExpr() = checkRecovery(#FunctionDeclaration, "void f(){if(){1;}}", [")"]);
 
-    return true;
-}
-
-test bool rascalFunctionDeclarationMissingCloseParen() {
-    Tree t = parseFunctionDeclaration("void f({} void g() {}");
-
-    assert getErrorText(findFirstError(t)) == "void g(";
-
-    Tree error = findBestError(t).val;
-    assert getErrorText(error) == "(";
-    loc location = getSkipped(error).src;
-    assert location.begin.column == 16 && location.length == 1;
-
-    return true;
-}
-
-test bool rascalIfMissingExpr() {
-    Tree t = parseFunctionDeclaration("void f(){if(){1;}}", visualize=false);
-    return getErrorText(findBestError(t).val) == ")";
-}
-
-test bool rascalIfBodyEmpty() {
-    Tree t = parseRascal("module A void f(){1;} void g(){if(1){}} void h(){1;}");
-
-    println("error: <getErrorText(findFirstError(t))>");
-    assert getErrorText(findBestError(t).val) == "} void h(){1";
-
-    return true;
-}
+test bool rascalIfBodyEmpty() = checkRecovery(#start[Module], "module A void f(){1;} void g(){if(1){}} void h(){1;}", ["} void h(){1"]);
 
 // Not working yet:
 /*

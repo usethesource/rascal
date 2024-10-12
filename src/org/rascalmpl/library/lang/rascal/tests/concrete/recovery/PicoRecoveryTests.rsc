@@ -18,22 +18,12 @@ import lang::pico::\syntax::Main;
 
 import ParseTree;
 import util::ErrorRecovery;
-
-import IO;
-import String;
-import util::Maybe;
+import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 Tree parsePico(str input, bool visualize=false)
     = parser(#Program, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
-bool checkError(Tree t, str expectedError) {
-    str bestError = getErrorText(findBestError(t).val);
-    //println("best error: <bestError>, expected: <expectedError>");
-    return size(bestError) == size(expectedError);
-}
-
-test bool picoOk() {
-    t = parsePico("begin declare input : natural,
+test bool picoOk() = checkRecovery(#Program, "begin declare input : natural,
               output : natural,
               repnr : natural,
               rep : natural;
@@ -48,12 +38,9 @@ test bool picoOk() {
           od;
           input := input - 1
       od
-end");
-    return !hasErrors(t);
-}
+end", []);
 
-test bool picoTypo() {
-    t = parsePico("begin declare input : natural,
+test bool picoTypo() = checkRecovery(#Program, "begin declare input : natural,
               output : natural,
               repnr : natural,
               rep : natural;
@@ -68,13 +55,9 @@ test bool picoTypo() {
           od;
           input := input - 1
       od
-end");
+end", ["output x rep"]);
 
-    return checkError(t, "output x rep");
-}
-
-test bool picoMissingSemi() {
-    t = parsePico("begin declare input : natural,
+test bool picoMissingSemi() = checkRecovery(#Program, "begin declare input : natural,
               output : natural,
               repnr : natural,
               rep : natural;
@@ -89,32 +72,24 @@ test bool picoMissingSemi() {
           od
           input := input - 1
       od
-end");
-   return checkError(t, "input := input - 1
-      od");
-}
+end", ["input := input - 1
+      od"]);
 
-test bool picoTypoSmall() {
-    t = parsePico(
-"begin declare;
+test bool picoTypoSmall() = checkRecovery(#Program, "begin declare;
   while input do
     input x= 14;
     output := 0
   od
-end");
+end", ["x= 14"]);
 
-    return checkError(t, "x= 14");
-}
-
-test bool picoMissingSemiSmall() {
-    t = parsePico(
-"begin declare;
+test bool picoMissingSemiSmall() = checkRecovery(#Program, "begin declare;
   while input do
     input := 14
     output := 0
   od
-end");
+end", ["output := 0
+  od"]);
 
-    return checkError(t, "output := 0
-  od");
-}
+test bool picoEof() = checkRecovery(#Program, "begin declare; input := 0;", ["input := 0;"]);
+
+test bool picoEofError() = checkRecovery(#Program, "begin declare x y; input := 0;", ["x y;", "input := 0;"]);
