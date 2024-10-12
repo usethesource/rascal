@@ -15,12 +15,11 @@ test bool doubleDeclaration4() = redeclaredVariable("void main() {
     'bar();
 }");
 
-test bool shadowingDeclaration1() = checkOK("int N = 1; {int N = 2;}; N == 1;"); //DISCUSS, was: redeclaredVariable
+test bool shadowingDeclaration1() = checkOK("int N = 1; {int N = 2;}; N == 1;");
 
-test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1;"); //DISCUSS, was: redeclaredVariable
+test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1;");
 
-@ignore
-test bool shadowingDeclaration4() = redeclaredVariable("int N = 3; int N := 3;");   //DISCUSS, the redeclaration is allowed, unused warning is given
+test bool shadowingDeclaration4() = checkOK("int N = 3; int N := 3;");
 
 
 // Variable declaration in imported module
@@ -156,10 +155,6 @@ test bool UseVariableInConcreteSyntax() {
     return checkOK("hello();", importedModules=["MMM"]);
 }
 
-// MAH: We currently allow redeclarations in cases where the redeclaration exactly matches
-// an existing declaration. The original test was modified to add constructor fields, which
-// will then trigger an error.
-@ignore{TODO}
 test bool RedeclareConstructorError(){ 
 	makeModule("MMM", "data DATA = d(int n);"); 
 	return declarationError("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);
@@ -187,12 +182,12 @@ test bool voidClosureInTuple2() {
 }
 
 test bool voidClosureInTuple3() {
-    makeModule("MMM", "tuple[(int)] f() = \<void(int i) { return; }\>;");
+    makeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple4() {
-    makeModule("MMM", "tuple[(int)] f() = \<(int i) { return; }\>;");
+    makeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
