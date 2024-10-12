@@ -90,3 +90,185 @@ test bool P2() = unexpectedType("d1(1, l=[\"a\"]) := d1(1);", initialDecls=["dat
 test bool P3() = unexpectedType("d1(\"a\", 3) := d1(1);", initialDecls=["data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);"]);
 
 test bool P4() = cannotMatch("d1(\"a\", \"b\") := d1(1);", initialDecls=["data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);"]);
+
+
+///////////////
+
+test bool A1() = checkOK("
+            D X1 = d1(3);       D X2 = d1(3, b=false);
+            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
+            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");",
+		initialDecls =[
+			"data D = d1(int n, bool b = false);",
+            "data D = d2(str s, int m = 0);",
+            "data D = d3(bool f, str t = \"a\");"
+			]
+);
+
+test bool A2a() {
+	makeModule("A","
+            data D = d1(int n, bool b = false);
+            data D = d2(str s, int m = 0);
+            data D = d3(bool f, str t = \"a\");");
+    makeModule("B", "import A;");    
+	makeModule("C", "import B;");
+    
+	return unexpectedType("D X1 = d1(3);", imports = ["A", "B", "C"]);
+}
+
+test bool A2b() {
+	makeModule("A","
+            data D = d1(int n, bool b = false);
+            data D = d2(str s, int m = 0);
+            data D = d3(bool f, str t = \"a\");");
+    makeModule("B", "extend A;");    
+	makeModule("C", "import B;");
+    
+	return unexpectedType("
+			D X1 = d1(3);       D X2 = d1(3, b=false);
+            D Y1 = d2(\"z\");     D Y2 = d2(\"z\", m=1);
+            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");", 
+		imports = ["A", "B", "C"]);
+}
+
+test bool A3a() {
+	makeModule("A","
+            data D = d1(int n, bool b = false);
+            data D = d2(str s, int m = 0);");
+    makeModule("B", "import A;
+					 data D = d3(bool f, str t = \"a\");");    
+	makeModule("C", "import B;");
+    
+	return unexpectedType("D X1 = d1(3);", imports = ["A", "B", "C"]);
+}
+
+test bool A3b() {
+	makeModule("A", "data D = d1(int n, bool b = false);
+                     data D = d2(str s, int m = 0);");
+    makeModule("B", "import A;
+					 data D = d3(bool f, str t = \"a\");");    
+	makeModule("C", "import B;
+					 D Z1 = d3(true); 
+					 D Z2 = d3(true, t =\"z\");");
+	return checkOK("true;", imports = ["A", "B", "C"]);
+}
+
+test bool A4() {
+	makeModule("A", "data D = d1(int n, bool b = false);
+                     data D = d2(str s, int m = 0);");
+    makeModule("B", "import A;"); 
+	makeModule("C", "import B;
+					 data D = d3(bool f, str t = \"a\");
+					 D Z1 = d3(true); 
+					 D Z2 = d3(true, t =\"z\");");
+	return checkOK("true;", imports = ["A", "B", "C"]);
+}
+
+test bool A5() {
+	makeModule("A", "data D = d1(int n, bool b = false);");
+                     
+    makeModule("B", "import A;
+					 data D = d2(str s, int m = 0);");
+	makeModule("C", "import B;
+					 data D = d3(bool f, str t = \"a\");
+					 D Z1 = d3(true); 
+					 D Z2 = d3(true, t =\"z\");");
+	return checkOK("true;", imports = ["A", "B", "C"]);
+}
+
+test bool C1() {
+		makeModule("A", "
+            data D(int N = 0)      = d1(int n, bool b = false);
+            data D(str S = \"a\")  = d2(str s, int m = 0);
+            data D(bool B = false) = d3(bool f, str t = \"a\");
+            
+            D X1 = d1(3);       D X2 = d1(3, b=false);    D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
+            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, N=1, S=\"z\",B=true);
+             D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
+        ");
+		return checkOK("true;", imports = ["A"]);
+}
+
+test bool C2() {
+		makeModule("A", "
+            data D(int N = 0)      = d1(int n, bool b = false);
+            data D(str S = \"a\")  = d2(str s, int m = 0);
+            data D(bool B = false) = d3(bool f, str t = \"a\");");
+        makeModule("B", "extend A;");
+        
+		makeModule("C", "
+            import B;
+            
+            D X1 = d1(3);      D X2 = d1(3, b=false);    D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
+            D Y1 = d2(\"z\");  D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, N=1, S=\"z\",B=true);
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
+		");
+		return checkOK("true;", imports = ["C"]);
+}
+
+ test bool C3() {
+		makeModule("A", "
+            data D(int N = 0)      = d1(int n, bool b = false);
+            data D(str S = \"a\")  = d2(str s, int m = 0);");
+        makeModule("B", "    
+            module B import A;
+            data D(bool B = false) = d3(bool f, str t = \"a\");");
+        makeModule("C", "    
+            import B;
+            
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);");
+		return checkOK("true;", imports = ["C"]);
+ }
+
+ test bool C4() {
+		makeModule("A", "
+            data D(int N = 0)      = d1(int n, bool b = false);
+            data D(str S = \"a\")  = d2(str s, int m = 0);");
+        makeModule("B", "    
+            module B import A;");
+        makeModule("C", "   
+            module C import B;
+            data D(bool B = false) = d3(bool f, str t = \"a\");
+            
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\",B=true);");
+		return checkOK("true;", imports = ["C"]);
+}
+
+test bool C5() {
+		makeModule("A", "
+            data D(int N = 0)      = d1(int n, bool b = false);");
+         makeModule("B", "   
+            module B import A;
+            data D(str S = \"a\")   = d2(str s, int m = 0);");
+         makeModule("C", "  
+            module C import B;
+            data D(bool B = false) = d3(bool f, str t = \"a\");
+            
+            D Y1 = d2(\"z\");  D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, S=\"z\");
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", B=true);");
+		return checkOK("true;", imports = ["C"]);
+}
+
+test bool Escapes1() {
+		makeModule("\\A", "
+            data \\D = \\d1(int \\n, bool \\b = false);
+            data \\D = \\d2(str \\s, int \\m = 0);
+            data \\D = \\d3(bool \\f, str \\t = \"a\");
+            
+            D X1 = d1(3);       D X2 = d1(3, b=false);
+            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
+            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");");
+		return checkOK("true;", imports = ["A"]);
+}
+
+test bool Escapes2() {
+		makeModule("A", "
+            data D = d1(int n, bool b = false);
+            data D = d2(str s, int m = 0);
+            data D = d3(bool f, str t = \"a\");
+            
+            \\D X1 = \\d1(3);       \\D X2 = \\d1(3, \\b=false);
+            \\D Y1 = \\d2(\"z\");   \\D Y2 = \\d2(\"z\", \\m=1);
+            \\D Z1 = \\d3(true);    \\D Z2 = \\d3(true, \\t =\"z\");");
+		return checkOK("true;", imports = ["A"]);
+}
