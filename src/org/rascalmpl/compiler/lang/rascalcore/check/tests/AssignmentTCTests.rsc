@@ -22,7 +22,7 @@ test bool integerError4() = uninitialized("N /= 2;");
 test bool errorList1() = unexpectedType("list[int] L = {1,2,3}; L *= [4];  L==[\<1,4\>,\<2,4\>,\<3,4\>];");
 
 // Was: unexpectedtType
-test bool errorMap1() = checkOK("map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[\<1,4\>,\<2,4\>,\<3,4\>],1:[10,20,30]);");
+test bool errorMap1() = checkOK("map[int,list[int"); M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[\<1,4\>,\<2,4\>,\<3,4\>],1:[10,20,30]);");
 
 test bool errorSet1() = unexpectedType("set[int] L = {1,2,3}; L *= {4}; L=={\<1,4\>,\<2,4\>,\<3,4\>};");
 
@@ -109,3 +109,53 @@ test bool TUPLE4() = checkOK("
                     lhead == 1;
                     ltail == [2,3];
                }");   
+
+test bool E1() = checkOK("value zz = 1 + 2;");
+test bool E2() = checkOK("value zz = 1 + 2.5; ");
+test bool E3() = unexpectedType("value zz = 1 + true; "); expect { "Addition not defined on `int` and `bool`" }
+
+test bool And1() = checkOK("value zz = true && false; ");
+test bool And2() = unexpectedType("value zz = 1 && false; ");
+test bool And3() = unexpectedType("value zz = true && "abc"; ");
+
+test bool Or1() = checkOK("value zz = true || false; ");
+test bool Or2() = unexpectedType("value zz = 1 || false; ");
+test bool Or3() = unexpectedType("value zz = true || "abc"; ");
+
+test bool Eq1() = checkOK("value zz = 1 == 1; ");
+test bool Eq2() = unexpectedType("value zz = 1 == "a"; ");
+
+test bool Lst1() = checkOK("value zz = []; ");
+test bool Lst2() = checkOK("value zz = [1,2] + 1; ");
+test bool Lst3() = checkOK("value zz = 1 + [2,3]; ");
+test bool Lst4() = checkOK("value zz = 1 + []; ");
+test bool Lst5() = checkOK("value zz = [] + 1; ");
+test bool Lst6() = checkOK("value zz = 1 + [1.5]; ");
+test bool Lst7() = checkOK("value zz = 1 + [true]; ");
+
+test bool Set1() = checkOK("value zz = {}; ");
+test bool Set2() = checkOK("value zz = {1,2} + 1; ");
+test bool Set3() = checkOK("value zz = 1 + {2,3}; ");
+test bool Set4() = checkOK("value zz = 1 + {}; ");
+test bool Set5() = checkOK("value zz = {} + 1; ");
+test bool Set6() = checkOK("value zz = 1 + {1.5}; ");
+test bool Set7() = checkOK("value zz = 1 + {true}; ");
+
+test bool Stat1() = checkOK("value zz = 1 + {true, 2}; ");
+test bool Stat2() = checkOK("value zz = {int n = 1;}; ");
+test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
+test bool Stat4() = checkOK("value zz = { n = 1; n = 1.5; n + 2;}; ");
+
+test bool Stat5() = checkOK("value zz = { n = 1; m = n; n + 2;}; ");
+test bool Stat6() = checkOK("value zz = { n = 1; m = n;  m = 1.5; n + 2;}; ");
+test bool Stat7() = checkOK("value zz = { l = []; l = l + 1.5; }; ");
+test bool Stat8() = checkOK("value zz = { l = []; m = l; l = m + 1.5; }; ");
+test bool Stat9() = checkOK("value zz = { l = []; m = l; l = l + 1.5; }; ");
+test bool Stat10() = checkOK("value zz = { l = []; m = l; m = m + 1.5; }; ");
+test bool Stat11() = checkOK("value zz = { l = []; m = l; n = m; m = m + 1.5; n = n + 2r3; }; ");
+
+test bool IfElse1() = checkOK("value zz = { if(true) 10; else 11; }; ");
+test bool IfElse2() = unexpectedType("value zz = { if(1) 10; else 11; }; ");
+
+test bool IfThen1() = checkOK("value zz = { if(true) 10;}; ");      // TODO: check no value
+test bool IfThen2() = unexpectedType("value zz = { if(1) 10; }; ");  // TODO: check no value
