@@ -56,7 +56,7 @@ set[Message] getWarningMessages(ModuleStatus r)
     = { m | m <- getAllMessages(r), m is warning };
 
 set[Message] getAllMessages(ModuleStatus r)
-    = { m | mname <- r.tmodels, m <- r.tmodels[mname].messages };
+	= { m | mname <- r.messages, m <- r.messages[mname] };
 
 ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true, PathConfig pcfg=pathConfigForTesting()) {
     mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
@@ -64,16 +64,16 @@ ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = [], PathConfig pcfg=pathConfigForTesting()) {
-	bool verbose=true;
-     errors = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose, pcfg=pcfg));
+	bool verbose=false;
+     msgs = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose, pcfg=pcfg));
 	 if (verbose) {
-     	println(errors);
+     	println(msgs);
 	 }
-     for(eitem <- errors, str exp <- expected){
+     for(eitem <- msgs, str exp <- expected){
          if(matches(eitem.msg, exp))
                return true;          
      }
-     throw abbrev("<errors>");
+     throw abbrev("<msgs>");
 }
 
 bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = [], PathConfig pcfg=pathConfigForTesting()) {
@@ -107,6 +107,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Type of generator should be _, found _",
 	    "Pattern should be comparable with _, found _",
 	    "Argument of _ should be _, found _",
+		"Cannot call _ with _ argument(s), _",
 	    "_ not defined on _ and _",
 	    "_ not defined on _",
 	    "Condition should be `bool`, found _",
@@ -125,7 +126,8 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
 	    "Returned type _ is not always a subtype of expected return type _",
 		"Type parameter _ should be less than _, found _",
-		"Ambiguous pattern type _"
+		"Ambiguous pattern type _",
+		"Splice operator not allowed inside a tuple pattern"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
@@ -143,7 +145,7 @@ bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] ini
 	check(stmts, [
 		"Undefined _",
 		"Unresolved type for _",
-		"Arguments of `||` should introduce same variables, _"
+		"Variable(s) _ and _ should be introduced on both sides of `||` operator"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -189,15 +191,20 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	      "Undefined _",
 	      "Double declaration of _",
 	      "Constructor _ clashes with other declaration with comparable fields",
+		  "Constructor _ is used without qualifier and overlaps with other declaration, _",
 	      "Unresolved type for _",
-	       "Constructor _ in formal parameter should be unique",
-	       "Type _ should have one type argument"
+	      "Constructor _ in formal parameter should be unique",
+	      "Type _ should have one type argument",
+		  "On use add a qualifier to constructor _",
+		  "Remove code clone for _",
+		  "Ambiguous pattern type _"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
 	      "Reference to name _ cannot be resolved",
-	      "Undefined module _"
+	      "Undefined module _",
+		  "Module _ not found"
 	], importedModules=importedModules, initialDecls=initialDecls);
 
 bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
