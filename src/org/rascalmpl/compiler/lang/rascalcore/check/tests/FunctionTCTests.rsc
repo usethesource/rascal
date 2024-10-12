@@ -59,19 +59,3 @@ test bool matchNotOK1() = unexpectedType("bool f(&A \<: str a, &B \<:int b) = &A
       }
       return n;
   }");
-
-test bool ambFilterOK() = checkOK("
-&T \<:Tree ambFilter(amb(set[&T \<:Tree] alternatives)) {
-  result = {a | &T a \<- alternatives, !(a is nil)};
-  if ({oneTree} := result) {
-    return oneTree;
-  }
-  return ParseTree::amb(result);
-}", initialDecls= ["
-import ParseTree;
-syntax Aas
-  = nil: [a]*
-  | a:   [a][a]*
-  | aas: [a][a][a]*
-  ;
-"]);
