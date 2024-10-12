@@ -21,7 +21,6 @@ test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1
 
 test bool shadowingDeclaration4() = checkOK("int N = 3; int N := 3;");
 
-
 // Variable declaration in imported module
 
 test bool privateVarDeclarationNotVisible(){ 
@@ -48,7 +47,6 @@ test bool RedeclaredVarDeclaration(){
 	makeModule("MMM", "public int x = 3;"); 
 	return checkOK("int x = 4;", importedModules=["MMM"]);
 }
-
 
 // MAH: I will need to look for a good way to test this now; the configuration no
 // longer includes errors detected in imported modules unless they are actual
@@ -217,3 +215,75 @@ test bool ambiguousParameter1() =
             
 test bool listWithWrongArity() =
     declarationError("list[int,str] x = [];");
+
+test bool F1() = checkOK("int x = f(1);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F2() = argumentMismatch("int x = f(true);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F3() = argumentMismatch("int x = f();", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F4() = argumentMismatch("int x = f(1, \"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F5() = checkOK("int x = f(1, k=3);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F6() = argumentMismatch("int x = f(1, k=\"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F7() = argumentMismatch("int x = f(1, kkk=\"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool F8() = unexpectedType("int x = g(1, kkk=\"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+
+test bool O1() = checkOK("int x = f(1, k=1); str y = f(\"a\");",
+	initialDecls = ["int f(int n, int k = 0) { return n; }",
+	                "str f(str s, bool b = false) { return s; }"]
+					);
+
+test bool O2() = checkOK("void main(){ int x = f(1, k=1); str y = f(\"a\"); z = f(true, \"a\"); z = f(\"a\", false); }",
+	initialDecls = ["data D
+						= f(bool n, str s, int z = 0)
+						| f(str q, bool b);",
+					"int f(int n, int k = 0) { return n; }",
+	                "str f(str s, bool b = false) { return s; }"]
+					);
+test bool K1() = checkOK("D x = d1();", initialDecls=["data D(int n = 0) = d1();"]);
+
+test bool K2() = checkOK("D x = d1(n=3);", initialDecls=["data D(int n = 0) = d1();"]);
+
+test bool K3() = argumentMismatch("D x = d1(m=3);", initialDecls=["data D(int n = 0) = d1();"]);
+test bool K4() = argumentMismatch("D x = d1(n=true);", initialDecls=["data D(int n = 0) = d1();"]);
+test bool K5() = checkOK("D x = d2(b=true);", 
+	initialDecls=["data D(int n = 0) = d1();",
+	 			  "data D(bool b = true) = d2();"]);
+
+test bool K6() = checkOK("D x = d2(n=3);", 
+	initialDecls=["data D(int n = 0) = d1();",
+	 			  "data D(bool b = true) = d2();"]);
+
+test bool R1() = checkOK("int f() { return 10; }");
+
+test bool R2() = unexpectedType("int f() { return \"a\"; }");
+
+test bool R3() = unexpectedType("int f(n) { return n; }");
+
+test bool R4() = unexpectedType("list[int] f([n]) { return [n]; }");
+
+test bool R5() = checkOK("value f(b) { return b; }");
+
+test bool R6() = checkOK("value f(b, bool c) { if(c) 10; return b; }");
+
+test bool R7() = unexpectedType("value f(b) {  b || true; return b; }");
+
+test bool R8() = unexpectedType("value f(b) { n = b || true; return b; }");
+
+test bool R9() = unexpectedType("alue f(b) { n = b || true; if(b) 10; return b; }");
+
+test bool R10() = unexpectedType(" value f(b) { n = b || true; if(b) 10; return b; b && false; }");
+
+test bool Issue1051() = checkOK("int main() = apply(func, f());",
+	initialDecls = [
+		"data F = f() | g();",
+    	"int func(f()) = 1;",
+    	"int func(g()) = 2;",
+    	"int apply(int (F) theFun, F theArg) = theFun(theArg);"
+	]);
+
+test bool Var1() = checkOK("int z = f(\"a\");", initialDecls=["int f(str s, int n...) = n[0];"]);
