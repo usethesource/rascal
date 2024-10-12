@@ -48,7 +48,7 @@ test bool RedeclaredVarDeclaration(){
 	return checkOK("int x = 4;", importedModules=["MMM"]);
 }
 
-// MAH: I will need to look for a good way to test this now; the configuration no
+// MAH: I will need to look for a good way to test bool this now; the configuration no
 // longer includes errors detected in imported modules unless they are actual
 // import errors, in this case the first n is in the imported configuration
 // but the second n isn't since it would raise an error while checking M.
@@ -287,3 +287,25 @@ test bool Issue1051() = checkOK("int main() = apply(func, f());",
 	]);
 
 test bool Var1() = checkOK("int z = f(\"a\");", initialDecls=["int f(str s, int n...) = n[0];"]);
+
+
+// ---- alias -----------------------------------------------------------------
+
+test bool OkAlias1() = checkOK("INT z = 13;", initialDecls = ["alias INT = int;"]);
+
+test bool UnknownAlias() = unexpectedType("INT z = 13;");
+
+test bool IllegalParameter() = unexpectedType("INT[str] z = 13;", initialDecls = ["alias INT = int;"]);
+
+test bool OkParameter() = checkOK("LIST[int] z = [1,2];", initialDecls = ["alias LIST[&T] = list[&T];"]);
+
+test bool WrongTypeParameter() = unexpectedType("LIST[str] z = [1,2];", initialDecls = ["alias LIST[&T] = list[&T];"]);
+
+test bool OkIndirectAlias1() = checkOK("LIST[int] z = [1,2];",
+	initialDecls = [ "alias LIST[&T] = LIST1[&T];", "alias LIST1[&T] = list[&T];"]);
+
+test bool OkIndirectAlias2() = checkOK("LIST[int] z = [1,2];",
+	initialDecls = [ "alias LIST1[&T] = list[&T];", "alias LIST[&T] = LIST1[&T];"]);
+
+test bool CircularAlias() = declarationError("true;", 
+	initialDecls = ["alias X = Y;", "alias Y = X;"]);
