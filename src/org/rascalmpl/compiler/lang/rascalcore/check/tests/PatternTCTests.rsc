@@ -197,62 +197,62 @@ test bool overloadedConstructorOk3()
               initialDecls = ovlConstructors);
 ////////////////////////////
 
-test bool P1() = checkOK("value zz = 1 := 1;");
-test bool P2() = unexpectedType("value zz = 1 := true;");
+test bool P1() = checkOK("1 := 1;");
+test bool P2() = unexpectedType("1 := true;");
 
-test bool P3() = checkOK("value zz = \"a\" := \"b\";");
-test bool P4() = checkOK("value zz = 1.5 := 1.6;");
-test bool P5() = checkOK("value zz = 2r3 := 2r4;");
+test bool P3() = checkOK("\"a\" := \"b\";");
+test bool P4() = checkOK("1.5 := 1.6;");
+test bool P5() = checkOK("2r3 := 2r4;");
 
-test bool Lst1() = checkOK("value zz = [] := [1];");
-test bool Lst2() = checkOK("value zz = [1] := [1];");
-test bool Lst3() = checkOK("value zz = [1,2] := [1];");
-test bool Lst4() = checkOK("value zz = [1,2] := [1, 1.5];");
-test bool Lst5() = checkOK("value zz = [1,2.5] := [1, 2];");
-test bool Lst6() = unexpectedType("value zz = [1] := [\"a\"];");
-test bool Lst7() = checkOK("value zz = [x] := [\"a\"];");
-test bool Lst8() = unexpectedType("value zz = m && x == \"a\";"); 
-test bool Lst9() = unexpectedType("value zz = { x = 1; [x] := [\"a\"] && x == \"a\";};");
-test bool Lst10() = checkOK("value zz = { x = \"a\"; [x] := [\"a\"] && x == \"a\";};"); 
+test bool Lst1() = checkOK("[] := [1];");
+test bool Lst2() = checkOK("[1] := [1];");
+test bool Lst3() = checkOK("[1,2] := [1];");
+test bool Lst4() = checkOK("[1,2] := [1, 1.5];");
+test bool Lst5() = checkOK("[1,2.5] := [1, 2];");
+test bool Lst6() = unexpectedType("[1] := [\"a\"];");
+test bool Lst7() = checkOK("[x] := [\"a\"];");
+test bool Lst8() = unexpectedType("m && x == \"a\";"); 
+test bool Lst9() = unexpectedType("{ x = 1; [x] := [\"a\"] && x == \"a\";};");
+test bool Lst10() = checkOK("{ x = \"a\"; [x] := [\"a\"] && x == \"a\";};"); 
 
-test bool Set1() = checkOK("value zz = {} := {1};");
-test bool Set2() = checkOK("value zz = {1} := {1};");
-test bool Set3() = checkOK("value zz = {1,2} := {1};");
-test bool Set4() = checkOK("value zz = {1,2} := {1, 1.5};");
-test bool Set5() = checkOK("value zz = {1,2.5} := {1, 2};");
-test bool Set6() = unexpectedType("value zz = {1} := {\"a\"};");
-test bool Set7() = checkOK("value zz = {x} := {\"a\"};");
-test bool Set8() = checkOK("value zz = {x} := {\"a\"} && x == \"a\";");
-test bool Set9() = unexpectedType("value zz = { x = 1; {x} := {\"a\"} && x == \"a\";};");
-test bool Set10() = checkOK("value zz = { x = \"a\"; {x} := {\"a\"} && x == \"a\";};"); 
+test bool Set1() = checkOK("{} := {1};");
+test bool Set2() = checkOK("{1} := {1};");
+test bool Set3() = checkOK("{1,2} := {1};");
+test bool Set4() = checkOK("{1,2} := {1, 1.5};");
+test bool Set5() = checkOK("{1,2.5} := {1, 2};");
+test bool Set6() = unexpectedType("{1} := {\"a\"};");
+test bool Set7() = checkOK("{x} := {\"a\"};");
+test bool Set8() = checkOK("{x} := {\"a\"} && x == \"a\";");
+test bool Set9() = unexpectedType("{ x = 1; {x} := {\"a\"} && x == \"a\";};");
+test bool Set10() = checkOK("{ x = \"a\"; {x} := {\"a\"} && x == \"a\";};"); 
 
-test bool Tup1() = checkOK("value zz = \<1\> := \<1\>;");
-test bool Tup2() = unexpectedType("value zz = \<1\> := \<\"a\"\>;");
-test bool Tup3() = checkOK("value zz = \<1, \"a\"\> := \<2, \"b\"\>;");
-test bool Tup4() = cannotMatch("value zz = \<1\> := \<2, \"b\"\>;");
-test bool Tup5() = cannotMatch("value zz = \<1\> := \<\"a\"\>;");
-test bool Tup6() = checkOK("value zz = \<x\> := \<\"a\"\>;");
-test bool Tup7() = checkOK("value zz = \<x\> := \<\"a\"\> && x == \"a\";");
-test bool Tup8() = cannotMatch("value zz = { x = 1; \<x\> := \<\"a\"\> && x == \"a\";};");
-test bool Tup9() = checkOK("value zz = { x = \"a\"; \<x\> := \<\"a\"\> && x == \"a\";};"); 
+test bool Tup1() = checkOK("\<1\> := \<1\>;");
+test bool Tup2() = unexpectedType("\<1\> := \<\"a\"\>;");
+test bool Tup3() = checkOK("\<1, \"a\"\> := \<2, \"b\"\>;");
+test bool Tup4() = cannotMatch("\<1\> := \<2, \"b\"\>;");
+test bool Tup5() = cannotMatch("\<1\> := \<\"a\"\>;");
+test bool Tup6() = checkOK("\<x\> := \<\"a\"\>;");
+test bool Tup7() = checkOK("\<x\> := \<\"a\"\> && x == \"a\";");
+test bool Tup8() = cannotMatch("{ x = 1; \<x\> := \<\"a\"\> && x == \"a\";};");
+test bool Tup9() = checkOK("{ x = \"a\"; \<x\> := \<\"a\"\> && x == \"a\";};"); 
 
-test bool Var1() = checkOK("value zz = int x := 1;");
-test bool Var2() = checkOK("value zz = int x := 1 && x == 1;");
-test bool Var3() = unexpectedType("value zz = int x := 1 && x == \"a\";");
+test bool Var1() = checkOK("int x := 1;");
+test bool Var2() = checkOK("int x := 1 && x == 1;");
+test bool Var3() = unexpectedType("int x := 1 && x == \"a\";");
 
-test bool If1() = checkOK("value zz = { if(int x := 1) x + 1; };");
-test bool If2() = unexpectedType("value zz = { if(int x := 1) x + 1; else x + 2; };");
-test bool If3() = checkOK("value zz = { if(int x := 1 && x == 1 ) x + 1; };");
-test bool If4() = declarationError("value zz = { if(int x := 1 && int x := 2 && x == 1 ) x + 1; };");
+test bool If1() = checkOK("{ if(int x := 1) x + 1; };");
+test bool If2() = unexpectedType("{ if(int x := 1) x + 1; else x + 2; };");
+test bool If3() = checkOK("{ if(int x := 1 && x == 1 ) x + 1; };");
+test bool If4() = declarationError("{ if(int x := 1 && int x := 2 && x == 1 ) x + 1; };");
 
-test bool If5() = checkOK("value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; };");
-test bool If5() = unexpectedType("value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;};");
+test bool If5() = checkOK("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; };");
+test bool If5() = unexpectedType("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;};");
 
-test bool IfU1() = checkOK("value zz = { if(x := 1) x + 1; };");
-test bool IfU2() = unexpectedType("value zz = { if(x := 1) x + 1; else x + 2;};");
-test bool IfU3() = checkOK("value zz = { if(x := 1 && x == 1 ) x + 1; };");
+test bool IfU1() = checkOK("{ if(x := 1) x + 1; };");
+test bool IfU2() = unexpectedType("{ if(x := 1) x + 1; else x + 2;};");
+test bool IfU3() = checkOK("{ if(x := 1 && x == 1 ) x + 1; };");
 
-test bool ADT1() = checkOK("value zz = { if(d1(x) := d1(10)) x + 1; };", initialDecls=["data D = d1(int n);"]);
-test bool ADT2() = checkOK("value zz = { if(d1(x) := d1(10) && d1(y) := d1(11)) x + y; };", initialDecls=["data D = d1(int n);"]);
+test bool ADT1() = checkOK("{ if(d1(x) := d1(10)) x + 1; };", initialDecls=["data D = d1(int n);"]);
+test bool ADT2() = checkOK("{ if(d1(x) := d1(10) && d1(y) := d1(11)) x + y; };", initialDecls=["data D = d1(int n);"]);
 
 
