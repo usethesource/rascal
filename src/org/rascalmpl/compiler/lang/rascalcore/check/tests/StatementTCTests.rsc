@@ -16,15 +16,15 @@ module lang::rascalcore::check::tests::StatementTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-test bool assertOK1() = checkOK("void main(){ assert true; }");
+test bool assertOK1() = checkOK("assert true;");
 
-test bool assertError2() = unexpectedType("void main(){ assert 1; } ");
+test bool assertError2() = unexpectedType("assert 1;");
 
-test bool assertOK2() = checkOK("void main(){ assert true: \"msg\" ; }");
+test bool assertOK2() = checkOK("assert true: \"msg\";");
 
-test bool assertError3() = unexpectedType("void main(){ assert 1: \"msg\" ; }");
+test bool assertError3() = unexpectedType("assert 1: \"msg\";");
 
-test bool assertError4() = unexpectedType("void main(){ assert true: 5 ; }");
+test bool assertError4() = unexpectedType("assert true: 5;");
 
 test bool assertError5() = unexpectedType("assert 3.5;");
 
@@ -34,57 +34,37 @@ test bool assertError7() = undeclaredVariable("assert X;");
  
 test bool assertError8() = undeclaredVariable("assert X: \"Wrong expression type\";");
 
+test bool ifThenOK1() = checkOK("if(true) 1;");
+test bool ifThenOK2() = checkOK("if(true,true) 1;");
 
-  	
-test bool ifThenError1() = unexpectedType("if(3){n = 4;};");
+test bool ifThenError1() = unexpectedType("if(true,\"a\") 1;");
+test bool ifThenError2() = unexpectedType("if(3){n = 4;};");
 
-test bool ifThenElseError1() = unexpectedType("if(\"abc\") {n = 4;} else {n=5;}");
+test bool ifThenElseOK1() = checkOK("if(true) 1; else 2;");
+test bool ifThenElseOK2() = checkOK("if(true,true) 1; else 2;");
+
+test bool ifThenElseError1() = unexpectedType("if(true,\"a\") 1; else 2;");
+test bool ifThenElseError2() = unexpectedType("if(\"abc\") {n = 4;} else {n=5;}");
   
+test bool WhileOK1() = checkOK("void main(){ while(true) 1; }");
+test bool WhileError1() = unexpectedType("void main(){ while(13) 1; }");
+
 test bool solveError1() = unexpectedType("rel[int,int] R1 = {\<1,2\>, \<2,3\>, \<3,4\>}; rel[int,int] T = R1; solve (T; true)  T = T + (T o R1);");
 
 test bool doWhileError1() = unexpectedType("do {n = 4;} while(3);");
 
 test bool whileError1() = unexpectedType("while(3){n = 4;}");	
 
+test bool doOK1() = checkOK("do 1; while(true);");
+test bool doError1() = unexpectedType("do 1; while(13);");
 
-// test bool Visit1 () = checkOK("void main() { visit(1) { case 1 => 2 } } ");
+test bool forOK1() = checkOK("for(true) 1;");
+test bool forError1() = unexpectedType("for(13) 1;");
 
-// test bool Visit2 () = checkOK("void main() { visit(1) { case 1 => "a" } } ");
-// expect { "A pattern of type `int` cannot be replaced by `str`" }
-
-// test bool Visit3 () = checkOK("void main() { visit(1) { case 1: insert 2; } } ");
-
-// test bool Visit4 () = checkOK("void main() { visit(1) { case 1: insert "a"; } } ");
-// expect { "Insert type should be subtype of `int`, found `str`" }
-
-// test bool Visit5 () = checkOK("void main() { visit(1) { case int x: insert "a"; } } ");
-// expect { "Insert type should be subtype of `int`, found `str`" }
-
-// test bool Visit6 () = checkOK("void main() { visit(1) { case int x: insert 1; }; x; } ");
-// expect { "Undefined variable, function, field or constructor `x`" }
-
-// test bool Visit7 () = checkOK("void main() { insert 2; } ");
-// expect { "Insert found outside replacement context" }
-
-// test bool IfT1() = checkOK("void main(){ if(true) 1; }");
-// test bool IfT2() = checkOK("void main(){ if(true,true) 1; }");
-// test bool IfT3() = checkOK("void main(){ if(true,"a") 1; }");
-// expect { "Condition should be `bool`, found `str`" }
-
-// test bool IfTE1() = checkOK("void main(){ if(true) 1; else 2;}");
-// test bool IfTE2() = checkOK("void main(){ if(true,true) 1; else 2; }");
-// test bool IfTE3() = checkOK("void main(){ if(true,"a") 1; else 2;}");
-// expect { "Condition should be `bool`, found `str`" }
-
-// test bool While1() = checkOK("void main(){ while(true) 1; }");
-// test bool While2() = checkOK("void main(){ while(13) 1; }");
-// expect { "Condition should be `bool`, found `int`" }
-
-// test bool Do1() = checkOK("void main(){ do 1; while(true); }");
-// test bool Do2() = checkOK("void main(){ do 1; while(13); }");
-// expect { "Condition should be `bool`, found `int`" }
-
-// test bool For1() = checkOK("void main(){ for(true) 1; }");
-// test bool For1() = checkOK("void main(){ for(13) 1; }");
-// expect { "Condition should be `bool`, found `int`" }
-  	
+test bool VisitOK1() = checkOK("visit(1) { case 1 =\> 2 } ");
+test bool VisitError1() = unexpectedType("visit(1) { case 1 =\> \"a\" };");
+test bool VisitOK2() = checkOK("visit(1) { case 1: insert 2; }");
+test bool VisitError2() = unexpectedType("visit(1) { case 1: insert \"a\"; }");
+test bool VisitError3() = unexpectedType("visit(1) { case int x: insert \"a\"; }");
+test bool VisitError4() = unexpectedType("void main(){ visit(1) { case int x: insert 1; }; x; }");
+test bool VisitError5() = unexpectedType("insert 2;");
