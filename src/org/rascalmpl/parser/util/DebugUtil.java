@@ -14,6 +14,8 @@
 
  package org.rascalmpl.parser.util;
 
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
@@ -29,12 +31,12 @@ public class DebugUtil {
     public static String prodToString(IConstructor prod) {
         StringBuilder builder = new StringBuilder("'");
 
-        IConstructor sort = (IConstructor) prod.get(0);
-        builder.append(quotedStringToPlain(String.valueOf(sort.get(0))));
+        builder.append(quotedStringToPlain(ProductionAdapter.getSortName(prod)));
 
         builder.append(" ->");
 
         if (prod.getName().equals("prod")) {
+            ProductionAdapter.getConstructorName(prod);
             IList children = (IList) prod.get(1);
             for (IValue child : children) {
                 builder.append(" ");
@@ -52,6 +54,10 @@ public class DebugUtil {
     }
 
     private static String quotedStringToPlain(String s) {
+        if (s.length() == 0) {
+            return s;
+        }
+
         if (s.charAt(0) == '"' && s.charAt(s.length()-1) == '"') {
             return s.substring(1, s.length()-1).replace("\\", "");
         }

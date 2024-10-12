@@ -35,6 +35,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 import org.rascalmpl.parser.gtd.SGTDBF;
+import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.EpsilonNode;
@@ -42,6 +43,7 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -164,6 +166,10 @@ public class ParseStateVisualizer {
         writeGraph(createProductionGraph(nodes));
     }
 
+    public void visualizeNode(AbstractNode node) {
+        writeGraph(createGraph(node));
+    }
+
     public int getFrame() {
         return frame;
     }
@@ -191,6 +197,13 @@ public class ParseStateVisualizer {
         reset();
         graph = new DotGraph(name, true);
         addStack(graph, stackNode);
+        return graph;
+    }
+
+    private synchronized DotGraph createGraph(AbstractNode parserNode) {
+        reset();
+        graph = new DotGraph(name, true);
+        addParserNodes(graph, parserNode);
         return graph;
     }
 
@@ -368,8 +381,39 @@ public class ParseStateVisualizer {
         return node;
     }
 
+    private NodeId addParserNodes(DotGraph graph, AbstractNode parserNode) {
+        NodeId id = addParserNode(graph, parserNode);
+        if (parserNode instanceof AbstractContainerNode) {
+            @SuppressWarnings("unchecked")
+            AbstractContainerNode<IConstructor> container = (AbstractContainerNode<IConstructor>) parserNode;
+            Link link = container.getFirstAlternative();
+            if (link != null) {
+                NodeId firstPrefix = addPrefixes(graph, link);
+                graph.addEdge(id, firstPrefix);
+            }
+        }
+        return id;
+    }
+
+    private NodeId addPrefixes(DotGraph graph, Link link) {
+        NodeId id = addParserNodes(graph, link.getNode());
+        ArrayList<Link> prefixes = link.getPrefixes();
+        if (prefixes != null) {
+            for (int i=0; i<prefixes.size(); i++) {
+                Link prefix = prefixes.get(i);
+                if (prefix != null) {
+                    NodeId parentId = addPrefixes(graph, prefix);
+                    graph.addEdge(id, parentId);
+                }
+            }
+        }
+
+        return id;
+    }
+
+
     @SuppressWarnings("unchecked")
-    private void addParserNode(DotGraph graph, AbstractNode parserNode) {
+    private NodeId addParserNode(DotGraph graph, AbstractNode parserNode) {
         NodeId id = getNodeId(parserNode);
         DotNode dotNode = new DotNode(id);
         dotNode.addAttribute(DotAttribute.ATTR_NODE_SHAPE, "octagon");
@@ -403,6 +447,8 @@ public class ParseStateVisualizer {
         }
 
         graph.addNode(dotNode);
+
+        return id;
     }
 
     private void enrichCharNode(DotNode dotNode, CharNode charNode) {
@@ -489,9 +535,11 @@ public class ParseStateVisualizer {
         DoubleStack<AbstractStackNode<P>, AbstractNode>[] todoLists = parser.getTodoLists();
         int start = parser.getQueueIndex();
 
-        DotNode todoListsNode = DotNode.createArrayNode(TODO_LISTS_ID, todoLists.length);
+        int todos = Math.min(todoLists.length, 50);
 
-        for (int tokenLength=1; tokenLength<=todoLists.length; tokenLength++) {
+        DotNode todoListsNode = DotNode.createArrayNode(TODO_LISTS_ID, todos);
+
+        for (int tokenLength=1; tokenLength<=todos+1; tokenLength++) {
             int index = (start + tokenLength - 1) % todoLists.length;
             DoubleStack<AbstractStackNode<P>, AbstractNode> todoList = todoLists[index];
             if (todoList != null && !todoList.isEmpty()) {
