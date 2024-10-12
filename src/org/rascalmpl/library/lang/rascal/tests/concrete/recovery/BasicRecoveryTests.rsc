@@ -16,7 +16,8 @@ module lang::rascal::tests::concrete::recovery::BasicRecoveryTests
 
 import ParseTree;
 import util::ErrorRecovery;
-import util::Maybe;
+
+import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 layout Layout = [\ ]* !>> [\ ];
 
@@ -26,32 +27,17 @@ syntax T = ABC End;
 syntax ABC = 'a' 'b' 'c';
 syntax End = "$";
 
-private Tree parseS(str input, bool visualize=false)
-    = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+test bool basicOk() = checkRecovery(#S, "a b c $", []);
 
-test bool basicOk() {
-    return !hasErrors(parseS("a b c $"));
-}
+test bool abx() = checkRecovery(#S, "a b x $", ["x "]);
 
-test bool abx() {
-    Tree t = parseS("a b x $");
-    return getErrorText(findBestError(t).val) == "x ";
-}
+test bool axc() = checkRecovery(#S, "a x c $", ["x c"]);
 
-test bool axc() {
-    Tree t = parseS("a x c $");
-    return getErrorText(findBestError(t).val) == "x c";
-}
-
-test bool ax() {
+test bool autoDisambiguation() {
     str input = "a x $";
 
-    Tree t = parseS(input);
-    assert size(findAllErrors(t)) == 3;
-    assert getErrorText(findBestError(t).val) == "x ";
+    assert checkRecovery(#S, input, ["x "]);
 
     Tree autoDisambiguated = parser(#S, allowRecovery=true, allowAmbiguity=false)(input, |unknown:///|);
-    assert size(findAllErrors(autoDisambiguated)) == 1;
-
-    return getErrorText(findFirstError(autoDisambiguated)) == getErrorText(findBestError(t).val);
+    return size(findAllErrors(autoDisambiguated)) == 1;
 }

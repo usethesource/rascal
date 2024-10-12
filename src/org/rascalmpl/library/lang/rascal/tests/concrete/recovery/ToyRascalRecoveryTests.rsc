@@ -21,6 +21,8 @@ import util::ErrorRecovery;
 import IO;
 import util::Maybe;
 
+import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+
 Tree parseToyRascal(str input, bool visualize=false) {
     Tree result = parser(#start[FunctionDeclaration], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
     list[Tree] errors = findAllErrors(result);
