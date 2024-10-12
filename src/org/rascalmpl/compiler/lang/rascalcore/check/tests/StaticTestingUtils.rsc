@@ -41,8 +41,11 @@ loc buildModule(str stmts,  list[str] importedModules = [], list[str] initialDec
         '}");  
 }
 
+str cleanName(str name)
+	= name[0] == "\\" ? name[1..] : name;
+
 loc makeModule(str name, str body){
-    mloc = |memory:///test-modules/<name>.rsc|;
+    mloc = |memory:///test-modules/<cleanName(name)>.rsc|;
     writeFile(mloc, "@bootstrapParser
                      'module <name>
                      '<body>");
@@ -59,8 +62,8 @@ set[Message] getAllMessages(ModuleStatus r)
 	= { m | mname <- r.messages, m <- r.messages[mname] };
 
 ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true, PathConfig pcfg=pathConfigForTesting()) {
-    mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   return rascalTModelForLocs([mloc], rascalCompilerConfig(pcfg), dummy_compile1);
+	mloc = buildModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
+   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pcfg)[verbose=verbose], dummy_compile1);
 }
 
 bool check(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = [], PathConfig pcfg=pathConfigForTesting()) {
@@ -112,10 +115,11 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "_ not defined on _",
 	    "Condition should be `bool`, found _",
 	    "Field _ requires _, found _",
-	    "Invalid type: expected a binary relation, found _",
+	    "Invalid type: expected a binary relation over equivalent types, found _",
 	    "Type _ does not allow fields",
 	    "Bound should have type _, found _",
 	    "Assertion should be `bool`, found _",
+		"Assertion message should be `str`, found _",
 	    "Expected subscript of type _, found _",
 	    "Tuple index must be between _ and _",
 	    "Cannot assign righthand side of type _ to lefthand side of type _",
@@ -127,7 +131,16 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 	    "Returned type _ is not always a subtype of expected return type _",
 		"Type parameter _ should be less than _, found _",
 		"Ambiguous pattern type _",
-		"Splice operator not allowed inside a tuple pattern"
+		"Splice operator not allowed inside a tuple pattern",
+		"Is defined operator `?` can only be applied to _",
+		"Expected _ in slice assignment, found _",
+		"The slice step must be of type _, found _",
+		"The last slice index must be of type _, found _",
+		"A pattern of type _ cannot be replaced by _",
+		"Insert found outside replacement context",
+		"Insert type should be subtype of _, found _",
+		"Expected _ type parameter(s) for _, found _",
+		"Type _ cannot be parameterized, found _ parameter(s)"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
@@ -162,7 +175,7 @@ bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initi
 	check(stmts, [
 	      "Undefined keyword argument _;",
 	      "Expected _ argument(s),",
-	      "Argument _ should have type _ found _",
+	      "Argument _ should have type _, found _",
 	      "Return type _ expected, found _",
 	      "Keyword argument _ has type _, expected _"  
 	], importedModules=importedModules, initialDecls=initialDecls);
@@ -197,7 +210,8 @@ bool declarationError(str stmts, list[str] importedModules = [], list[str] initi
 	      "Type _ should have one type argument",
 		  "On use add a qualifier to constructor _",
 		  "Remove code clone for _",
-		  "Ambiguous pattern type _"
+		  "Ambiguous pattern type _",
+		  "Field name ignored, field names must be provided for all fields or for non"
 	], importedModules=importedModules, initialDecls=initialDecls);
 	
 bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
