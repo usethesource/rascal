@@ -22,9 +22,7 @@ test bool WrongMapType() = cannotMatch("str S \<- (1:10,2:20);");
 test bool WrongStringType() = cannotMatch(" int N \<- \"abc\";");
 
 test bool WrongADTType1() = cannotMatch("int N \<- [true, true, false];", initialDecls=["data Bool = btrue() | bfalse() | band(Bool lhs, Bool rhs) | bor(Bool lhs, Bool rhs);"]);  
-  
-// MAH: I think this test is fine, the results of enumerating a node are all of type value, which is
-// bindable to type int.
+
 test bool nodeGenerator() = checkOK("[N | int N \<- f(i(1),g(i(2),i(3)))];", initialDecls=["data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);"]);  // TODO
   
 test bool anyError() = unexpectedType("any(x \<- [1,2,3], \"abc\");");
