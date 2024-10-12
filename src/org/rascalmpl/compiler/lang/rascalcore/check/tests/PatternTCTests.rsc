@@ -255,4 +255,20 @@ test bool IfU3() = checkOK("{ if(x := 1 && x == 1 ) x + 1; };");
 test bool ADT1() = checkOK("{ if(d1(x) := d1(10)) x + 1; };", initialDecls=["data D = d1(int n);"]);
 test bool ADT2() = checkOK("{ if(d1(x) := d1(10) && d1(y) := d1(11)) x + y; };", initialDecls=["data D = d1(int n);"]);
 
+////////////////////////////
 
+test bool U1() = checkOK("[_] := [1];");
+test bool U2() = checkOK("[_*] := [1];");
+test bool U3() = checkOK("[*_] := [1];");
+
+test bool TU1() = checkOK("[int _] := [1];");
+test bool TU2() = checkOK("[*int _] := [1];");
+
+test bool TN1() = checkOK("[int X] := [1];");
+test bool TN2() = checkOK("[*int X] := [1];");
+
+test bool U1() = checkOK("[X] := [1];");
+test bool U2() = checkOK("[X*] := [1];");
+test bool U3() = checkOK("[*X] := [1];");
+
+test bool S1() = checkOK("[*X,*_] := [1];");
