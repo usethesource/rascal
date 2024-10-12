@@ -1,18 +1,27 @@
 module lang::rascalcore::compile::Examples::Tst4
-
-
-import ParseTree;
-import String;
-
-// public str squeeze(str src, type[&CharClass <: ![]] _) = visit(src) {
-//     case /<c:.><c>+/ => c
-//       when &CharClass _ := char(charAt(c, 0))
-// };
-
-value main(){
-    ![] x = Tree:: /* xxxx */ char(charAt("a", 0));
-    return x;
+ 
+  test bool C1() {
+		makeModule("A", "
+            data D(int N = 0)      = d1(int n, bool b = false);
+            data D(str S = \"a\")    = d2(str s, int m = 0);
+            data D(bool B = false) = d3(bool f, str t = \"a\");
+            
+            D X1 = d1(3);       D X2 = d1(3, b=false);  D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
+            D Y1 = d2(\"z\");     D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, N=1, S=\"z\",B=true);
+             D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
+        ");
+		return checkOK("true;", imports = ["A"]);
 }
+
+//  import lang::rascalcore::check::AType;
+// import IO;
+
+//  void main(){
+//     x = avoid();
+//     y = \start(alt({},alabel=""));
+//     println("alub(<x>, <y>) =\> <alub(x,y)>");
+//     println("<alub(y,x)>");
+//  }
 
 // void f(int n){
 //   [x | x <- [0..n], [x] := [x], x > 0];
