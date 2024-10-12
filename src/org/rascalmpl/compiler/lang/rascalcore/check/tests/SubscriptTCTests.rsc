@@ -38,11 +38,3 @@ test bool uninitializedListVariable2() = uninitialized("list[int] L; L[4] = 44;"
 test bool uninitializedMapVariable1() = uninitialized("map[int,int] M; M[4];");
 	
 test bool uninitializedMapVariable2() = uninitialized("map[int,int] M; M[4] = 44;");
-		
-	
-	// Changed: no support for relation updates
-	//@expected{UninitializedVariable}
-	//test bool UninitializedRelVariable(){
-	//	rel[int,int] R; R[1] = 10; return false;
-	//}
-	
