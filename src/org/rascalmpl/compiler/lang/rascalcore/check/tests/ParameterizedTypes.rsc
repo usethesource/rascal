@@ -4,7 +4,7 @@ import lang::rascalcore::check::tests::StaticTestingUtils;
 
 
 test bool typeParamOK() = checkOK("&T f(&T x) = x;");
-test bool newTypeParamInReturnOK() = checkOK("&T f(&S x) = x;");
+test bool newTypeParamInReturnNotOK() = unexpectedType("&T f(&S x) = x;");
 
 test bool issue1300a() =
     unexpectedType("&T f(&T param) {
@@ -50,13 +50,22 @@ test bool issue1386c() = checkOK("bool f(type[&T] x: type(symbol,definitions)) =
 test bool maybeOK1() = checkOK("1;",          
             initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    );  
             
-test bool maybeOK2() = checkOK("Maybe[&S] nn() = none();",          
+test bool maybeOK2() = checkOK("Maybe[value] nn() = none();",          
+            initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    );   
+
+test bool maybeNotK2() = unexpectedType("Maybe[&S] nn() = none();",          
             initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    );   
             
-test bool maybeOK3() = checkOK("Maybe[&S] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }",         
-            initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    );  
+test bool maybeOK3() = checkOK("Maybe[value] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }",         
+            initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    ); 
 
-test bool maybeBoundOK() = checkOK("Maybe[&S \<: num] mb() { if(3 \> 2) return just(3); return just(1.5); }",         
+test bool maybeNotOK3() = unexpectedType("Maybe[&S] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }",         
+            initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    );   
+
+test bool maybeBoundOK() = checkOK("Maybe[num] mb() { if(3 \> 2) return just(3); return just(1.5); }",         
+            initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    ); 
+
+test bool maybeBoundNotOK() = unexpectedType("Maybe[&S \<: num] mb() { if(3 \> 2) return just(3); return just(1.5); }",         
             initialDecls = ["data Maybe[&T] = none() | just(&T arg);"]    ); 
                         
 test bool maybeBoundViolated() = unexpectedType("Maybe[&S \<: num] mb() { if(3 \> 2) return just(3); return just(\"Abc\"); }",         
