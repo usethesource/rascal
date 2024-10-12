@@ -272,3 +272,31 @@ test bool Escapes2() {
             \\D Z1 = \\d3(true);    \\D Z2 = \\d3(true, \\t =\"z\");");
 		return checkOK("true;", imports = ["A"]);
 }
+
+// ---- type parameters -------------------------------------------------------
+
+test bool ADTWithTypeParameter() = checkOK("true;" initialDecls = ["data D[&T] = d1(&T n);"]);
+
+test bool UndefinedParameter() = unexpectedType("true;" initialDecls = ["data D[&T] = d1(&U n);"]);
+
+test bool UndefinedBound1() = unexpectedType("true;" initialDecls = ["data D[&T] = d1(&U \<: &S n);"]);
+
+test bool UndefinedBound2() = unexpectedType("true;" initialDecls = ["data D[&T] = d1(&U \<: &S v = 1);"]);
+
+test bool MissingTypeParameter() = unexpectedType("true;",
+    initialDecls = ["data D[&T] = d1(&T n);",
+                    "void f(){ D x = d1(10); return x.n; }"]);
+
+test bool MultipleInstances() = checkOK("true;",
+    initialDecls = ["data D[&T] = d1(&T n);",
+                    "void f() { D[int] x = d1(10); D[str] y = d1(\"abc\"); int m = x.n; str s = y.n; }"]);
+
+test bool ADTWithTypeParameterAndKW1() = checkOK("true;" initialDecls = ["data D[&T] = d1(&T n, &T kw = n);"]);
+
+test bool ADTWithTypeParameterAndKW2() = checkOK("true;",
+    initialDecls = ["data D[&T] = d1(&T n, &T kw = n);",
+                    "void f() { D[int] x = d1(10); int m = x.kw; }"]);
+
+test bool ADTWithTypeParameterAndKWerror() = checkOK("true;",
+    initialDecls = ["data D[&T] = d1(&T n, &T kw = n);",
+                    "void f() { D[int] x = d1(10); str m = x.kw; }"]);
