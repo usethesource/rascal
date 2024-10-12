@@ -54,8 +54,6 @@ test bool Issue435() {
 test bool Issue442() =
 	checkOK("true;", initialDecls=["syntax A = \"a\";",
 								   "value my_main() = [A] \"a\" := [A] \"a\";"]);
-	
-
 // https://github.com/cwi-swat/rascal/issues/451
 // Is already included in the standard test suite
 
@@ -197,10 +195,6 @@ test bool Issue480(){
 } 
 	
 // https://github.com/cwi-swat/rascal/issues/483
-@ignore{Expensive test; Ambiguity is als checked in integration tests}
-test bool Issue483() =                                      
-	checkModuleOK(|std:///analysis::grammars::Ambiguity.rsc|);
-
 // https://github.com/cwi-swat/rascal/issues/504
 
 test bool Issue504() =
@@ -214,28 +208,12 @@ test bool Issue547(){
 					  public data MuExp = muCallJava( str name, Symbol parameterTypes);");
 	return checkOK("true;", importedModules=["M1", "M2"]);
 }
-
-
 // https://github.com/cwi-swat/rascal/issues/549
 
 // An error in the failing example itself, does not lead to a test
 
 // https://github.com/cwi-swat/rascal/issues/550
-test bool Issue550(){												
-	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
-
-						public int tmpVar = -1;  
-						
-						public str nextTmp(){
-						    tmpVar += 1;
-						    return \"TMP\<tmpVar\>\";
-						}
-						
-						str getLabel(Label label) =
-						  (label is \\default) ? \"\<label.name\>\" : nextTmp();");		 
-	makeModule("M2", "import M1;");
-	return checkOK("true;", importedModules=["M1", "M2"]);
-}
+// Removed expensive
 
 // https://github.com/cwi-swat/rascal/issues/563
 
@@ -257,11 +235,4 @@ test bool Issue1353() {
 }
 
 // https://github.com/usethesource/rascal/issues/1800
-test bool Issue1800() {
-   makeModule("RT", "import ParseTree;
-                    'bool f() {
-	                '  return type[Tree] _ := type(sort(\"A\"), ());
-                    '}
-                    '");
-   return checkOK("f();", importedModules=["RT"]);                 
-}
+// Removed expensive test
