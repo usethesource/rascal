@@ -627,3 +627,19 @@ str substitute(str src, map[loc,str] s) {
     order = sort([ k | k <- s ], bool(loc a, loc b) { return a.offset < b.offset; });
     return ( src | subst1(it, x, s[x]) | x <- order );
 }
+
+@synopsis{Indent a block of text}
+@description{
+Every line in `content` will be indented using the characters
+of `indentation`.
+}
+@benefits{
+* This operation executes in constant time, independent of the size of the content
+or the indentation.
+* Indent is the identity function if `indentation == ""`
+}
+@pitfalls{
+* This function works fine if `indentation` is not spaces or tabs; but it does not make much sense. 
+}
+@javaClass{org.rascalmpl.library.Prelude}
+java str indent(str indentation, str content, bool indentFirstLine=false);

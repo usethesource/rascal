@@ -3047,6 +3047,10 @@ public class Prelude {
 		
 		return values.string(chars);
 	}
+
+	public IString indent(IString indentation, IString content, IBool indentFirstLine) {
+		return content.indent(indentation, indentFirstLine.getValue());
+	}
 	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
