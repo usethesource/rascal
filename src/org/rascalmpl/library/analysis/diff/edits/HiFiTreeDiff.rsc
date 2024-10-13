@@ -87,6 +87,7 @@ import ParseTree;
 import List;
 import String;
 import Location;
+import IO;
 
 @synopsis{Detects minimal differences between parse trees and makes them explicit as ((TextEdit)) instructions.}
 @description{
@@ -241,7 +242,10 @@ int seps(\iter-star-seps(_,list[Symbol] s)) = size(s);
 default int seps(Symbol _) = 0;
 
 @synsopis{List diff is like text diff on lines; complex and easy to make slow}
-list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] replacements) {
+list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] replacements) {
+    println("<span> listDiff: 
+            '   <yield(originals)>
+            '   <yield(replacements)>");
     edits = [];
 
     // this algorithm isolates commonalities between the two lists
@@ -272,10 +276,11 @@ list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] re
             + listDiff(cover(postO), seps, postO, postR)
         ;
     }
-    else { 
-        // covered all the cases
-        assert originals := replacements;
+    else if (originals := replacements) {
         return edits;
+    }
+    else {
+        return edits + [replace(span, learnIndentation(yield(replacements), yield(originals)))];
     }
 }
 
@@ -361,9 +366,13 @@ private loc cover(list[Tree] elems) = cover([e@\loc | e <- elems, e@\loc?]);
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";
 
 private str learnIndentation(str replacement, str original) {
-    list[str] indents(str text) = [indent | /<indent:[\t\ ]+>/ <- split(text, "\n")];
+    println("learning:
+            '  <original>
+            '  <replacement>");
+    list[str] indents(str text) = [indent | /^<indent:[\t\ ]+>[^\ \t]/ <- split(text, "\n")];
 
     str minIndent = sort(indents(original)[1..])[0]? "";
 
+    println("minIndent [<minIndent>]");
     return indent(minIndent, replacement);
 }
