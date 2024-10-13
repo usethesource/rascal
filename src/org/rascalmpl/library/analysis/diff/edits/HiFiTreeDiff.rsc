@@ -369,10 +369,21 @@ private str learnIndentation(str replacement, str original) {
     println("learning:
             '  <original>
             '  <replacement>");
-    list[str] indents(str text) = [indent | /^<indent:[\t\ ]+>[^\ \t]/ <- split(text, "\n")];
+    list[str] indents(str text) = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", text)];
 
-    str minIndent = sort(indents(original)[1..])[0]? "";
+    origIndents = indents(original);
+    replLines   = split("\n", replacement);
 
-    println("minIndent [<minIndent>]");
-    return indent(minIndent, replacement);
+    if (replLines == []) {
+        return "";
+    }
+
+    minIndent = sort(origIndents[1..])[0]? "";
+    
+    stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines[1..]];
+    
+    indented = [replLines[0], *[ indent(minIndent, line, indentFirstLine=true) | line <- stripped]];
+    
+    return "<for (l <- indented) {><l>
+           '<}>"[..-1];
 }
