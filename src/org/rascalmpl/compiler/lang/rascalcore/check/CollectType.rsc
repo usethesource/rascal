@@ -590,9 +590,10 @@ bool isLexicalContext(Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol>+`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iter", current, [symbol], AType(Solver s) { 
-        symbol_type = s.getType(symbol);
+        symbol_type = s.getType(symbol); 
         return isLexical ? \iter(symbol_type, isLexical=true) : \iter(symbol_type);
         //return isLexical ? \iter(getSyntaxType(symbol, s), isLexical=true) : \iter(getSyntaxType(symbol, s));
     });
@@ -603,7 +604,7 @@ str md5ContribSym((Sym) `<Sym symbol>+`)
     = "<md5ContribSym(symbol)>PLUS";
     
 void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
-    if(isIterStarSym(symbol)) c.report(warning(current, "Nested * iteration"));
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterStar", current, [symbol], AType(Solver s) { 
         symbol_type = s.getType(symbol);
@@ -617,6 +618,7 @@ str md5ContribSym((Sym) `<Sym symbol>*`)
     = "<md5ContribSym(symbol)>STAR";
     
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterSep", current, [symbol, sep], 
         AType(Solver s) { 
@@ -635,7 +637,7 @@ str md5ContribSym((Sym) `{ <Sym symbol> <Sym sep> }+`){
 }
 
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
-    if(isIterStarSym(symbol)) c.report(warning(current, "Nested * iteration"));
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
     c.calculate("iterStarSep", current, [symbol, sep], 
         AType(Solver s) { 
