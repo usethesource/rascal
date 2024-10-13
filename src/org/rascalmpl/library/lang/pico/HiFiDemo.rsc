@@ -35,8 +35,8 @@ void main() {
             '<u>");
 
     edits = treeDiff(t, u);
-    println("Smaller text edits:
-            '  <edits>");
+    println("Smaller text edits:");
+    iprintln(edits);
 
     newContent = executeTextEdits("<t>", edits);
     println("Better output after executeTextEdits:

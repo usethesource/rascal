@@ -272,8 +272,10 @@ list[TextEdit] listDiff(loc _span, int seps, list[Tree] originals, list[Tree] re
             + listDiff(cover(postO), seps, postO, postR)
         ;
     }
-    else { // nothing in common means we can replace the entire list
-        return edits + replace(span, learnIndentation(yield(replacements), yield(originals)));
+    else { 
+        // covered all the cases
+        assert originals := replacements;
+        return edits;
     }
 }
 
@@ -308,10 +310,10 @@ list[Tree] largestEqualSubList(loc span, list[Tree] originals, list[Tree] replac
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
 tuple[list[Tree], list[Tree]] trimEqualElements([Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
-    = <aPostfix, bPostfix>;
+    = trimEqualElements(aPostfix, bPostfix);
 
 tuple[list[Tree], list[Tree]] trimEqualElements([*Tree aPrefix, Tree a], [*Tree bPrefix, a])
-    = <aPrefix, bPrefix>;
+    = trimEqualElements(aPrefix, bPrefix);
 
 default tuple[list[Tree], list[Tree]] trimEqualElements(list[Tree] a, list[Tree] b)
     = <a, b>;
@@ -358,4 +360,10 @@ private loc cover(list[Tree] elems) = cover([e@\loc | e <- elems, e@\loc?]);
 @synopsis{yield a consecutive list of trees}
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";
 
-private str learnIndentation(str replacement, str original) = replacement; // TODO: learn minimal indentaton from original
+private str learnIndentation(str replacement, str original) {
+    list[str] indents(str text) = [indent | /<indent:[\t\ ]+>/ <- split(text, "\n")];
+
+    str minIndent = sort(indents(original)[1..])[0]? "";
+
+    return indent(minIndent, replacement);
+}
