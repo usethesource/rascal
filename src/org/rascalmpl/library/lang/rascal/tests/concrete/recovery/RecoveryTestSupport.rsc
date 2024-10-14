@@ -23,7 +23,6 @@ import util::Benchmark;
 import Grammar;
 import analysis::statistics::Descriptive;
 import util::Math;
-import util::Maybe;
 import Set;
 import List;
 
@@ -31,15 +30,37 @@ import lang::rascal::grammar::definition::Modules;
 
 alias FrequencyTable = map[int val, int count];
 
-public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorSize=0) | parseError() | successfulDisambiguation();
-public data FileStats = fileStats(int totalParses = 0, int successfulParses=0, int successfulRecoveries=0, int successfulDisambiguations=0, int failedRecoveries=0, int parseErrors=0, int slowParses=0, FrequencyTable parseTimeRatios=());
+public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorCount=0, int errorSize=0) | parseError() | successfulDisambiguation();
+public data FileStats = fileStats(
+    int totalParses = 0,
+    int successfulParses=0,
+    int successfulRecoveries=0,
+    int successfulDisambiguations=0,
+    int failedRecoveries=0,
+    int parseErrors=0,
+    int slowParses=0,
+    FrequencyTable parseTimeRatios=(),
+    FrequencyTable errorCounts=(),
+    FrequencyTable errorSizes=());
 
-public data TestStats = testStats(int filesTested=0, int testCount=0, FrequencyTable successfulParses=(), FrequencyTable successfulRecoveries=(), FrequencyTable successfulDisambiguations=(), FrequencyTable failedRecoveries=(), FrequencyTable parseErrors=(), FrequencyTable slowParses=(), FrequencyTable parseTimeRatios=());
+public data TestStats = testStats(
+    int filesTested=0,
+    int testCount=0,
+    FrequencyTable successfulParses=(),
+    FrequencyTable successfulRecoveries=(),
+    FrequencyTable successfulDisambiguations=(),
+    FrequencyTable failedRecoveries=(),
+    FrequencyTable parseErrors=(),
+    FrequencyTable slowParses=(),
+    FrequencyTable parseTimeRatios=(),
+    FrequencyTable errorCounts=(),
+    FrequencyTable errorSizes=());
 
 private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile) {
     int startTime = 0;
     int duration = 0;
     int disambDuration = -1;
+    int errorCount = 0;
     int errorSize=0;
     str result = "?";
     TestMeasurement measurement = successfulParse();
@@ -55,14 +76,15 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             Tree t = recoveryParser(input, source);
             int parseEndTime = realTime();
             duration = parseEndTime - startTime;
-            Maybe[Tree] best = findBestError(t);
+            list[Tree] errors = findBestErrors(t);
+            errorCount = size(errors);
             disambDuration = realTime() - parseEndTime;
             result = "recovery";
-            if (best == nothing()) {
+            if (errors == []) {
                 measurement = successfulDisambiguation(source=source, duration=duration);
             } else {
-                errorSize = size(getErrorText(best.val));
-                measurement = recovered(source=source, duration=duration, errorSize=errorSize);
+                errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
+                measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
             }
         } catch ParseError(_): { 
             result = "error";
@@ -72,7 +94,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     }
 
     if (statFile != |unknown:///|) {
-        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<disambDuration>,<errorSize>\n");
+        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<disambDuration>,<errorCount>,<errorSize>\n");
     }
 
     return measurement;
@@ -89,8 +111,10 @@ FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenc
             print(".");
             stats.successfulParses += 1;
         }
-        case recovered(errorSize=errorSize): {
+        case recovered(errorCount=errorCount, errorSize=errorSize): {
             stats.parseTimeRatios = increment(stats.parseTimeRatios, parseTimeRatio);
+            stats.errorCounts = increment(stats.errorCounts, errorCount);
+            stats.errorSizes = increment(stats.errorSizes, errorSize);
             if (errorSize <= recoverySuccessLimit) {
                 print("+");
                 stats.successfulRecoveries += 1;
@@ -128,7 +152,9 @@ FileStats mergeFileStats(FileStats stats1, FileStats stats2) {
         failedRecoveries = stats1.failedRecoveries + stats2.failedRecoveries,
         parseErrors = stats1.parseErrors + stats2.parseErrors,
         slowParses = stats1.slowParses + stats2.slowParses,
-        parseTimeRatios = mergeFrequencyTables(stats1.parseTimeRatios, stats2.parseTimeRatios)
+        parseTimeRatios = mergeFrequencyTables(stats1.parseTimeRatios, stats2.parseTimeRatios),
+        errorCounts = mergeFrequencyTables(stats1.errorCounts, stats2.errorCounts),
+        errorSizes = mergeFrequencyTables(stats1.errorSizes, stats2.errorSizes)
     );
 }
 
@@ -152,6 +178,8 @@ TestStats consolidateStats(TestStats cumulativeStats, FileStats fileStats) {
     cumulativeStats.parseErrors = increment(cumulativeStats.parseErrors, percentage(fileStats.parseErrors, totalFailed));
     cumulativeStats.slowParses = increment(cumulativeStats.slowParses, percentage(fileStats.slowParses, totalFailed));
     cumulativeStats.parseTimeRatios = mergeFrequencyTables(cumulativeStats.parseTimeRatios, fileStats.parseTimeRatios);
+    cumulativeStats.errorCounts = mergeFrequencyTables(cumulativeStats.errorCounts, fileStats.errorCounts);
+    cumulativeStats.errorSizes = mergeFrequencyTables(cumulativeStats.errorSizes, fileStats.errorSizes);
 
     cumulativeStats.filesTested += 1;
     cumulativeStats.testCount += fileStats.totalParses;
@@ -181,6 +209,8 @@ TestStats mergeStats(TestStats stats, TestStats stats2) {
     stats.parseErrors = mergeFrequencyTables(stats.parseErrors, stats2.parseErrors);
     stats.slowParses = mergeFrequencyTables(stats.slowParses, stats2.slowParses);
     stats.parseTimeRatios = mergeFrequencyTables(stats.parseTimeRatios, stats2.parseTimeRatios);
+    stats.errorCounts = mergeFrequencyTables(stats.errorCounts, stats2.errorCounts);
+    stats.errorSizes = mergeFrequencyTables(stats.errorSizes, stats2.errorSizes);
 
     return stats; 
 }
@@ -260,6 +290,8 @@ void printFileStats(FileStats fileStats) {
     printStat("Slow parses", fileStats.slowParses, failedParses);
     printFrequencyTableHeader();
     printFrequencyTableStats("Parse time ratios", fileStats.parseTimeRatios, unit = "log2(ratio)", printTotal=false);
+    printFrequencyTableStats("Parse error count", fileStats.errorCounts, unit="errors");
+    printFrequencyTableStats("Error size", fileStats.errorSizes, unit="chars");
 }
 
 void printFrequencyTableHeader() {
@@ -272,7 +304,7 @@ void printFrequencyTableHeader() {
     println(right("total", statFieldWidth));
 }
 
-void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%", bool printTotal=true) {
+void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%", bool printTotal=true, bool ignoreZero=false) {
     print(left(label + " (<unit>):", statLabelWidth));
 
     int totalCount = (0 | it+frequencyTable[val] | val <- frequencyTable);
@@ -299,7 +331,7 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
 
         total += val*count;
 
-        if (count > medianCount) {
+        if ((val != 0 || !ignoreZero) && count > medianCount) {
             medianCount = count;
             median = val;
         }
@@ -331,6 +363,8 @@ void printStats(TestStats stats) {
     printFrequencyTableStats("Parse errors", stats.parseErrors);
     printFrequencyTableStats("Slow parses", stats.slowParses);
     printFrequencyTableStats("Parse time ratios", stats.parseTimeRatios, unit = "log2/%", printTotal=false);
+    printFrequencyTableStats("Parse error counts", stats.errorCounts, unit = "errors", ignoreZero=true);
+    printFrequencyTableStats("Parse error sizes", stats.errorSizes, unit = "chars", ignoreZero=true);
 
     println();
 }

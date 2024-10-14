@@ -25,34 +25,6 @@ import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 bool debugging = false;
 
-Tree parseRascal(type[&T] t, str input, bool visualize=false) {
-    Tree result = parser(t, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
-    if (debugging) {
-        list[Tree] errors = findAllErrors(result);
-        if (errors != []) {
-            println("Tree has <size(errors)> errors");
-            for (error <- errors) {
-                println("- <getErrorText(error)>");
-            }
-
-            println("Best error: <getErrorText(findBestError(result).val)>");
-        }
-    }
-
-    return result;
-}
-
-bool checkSingleError(Tree t, str expected) {
-    list[Tree] errors = findBestErrors(t);
-    return size(errors) == 1 && getErrorText(getFirstFrom(errors)) == expected;
-}
-
-Tree parseRascal(str input, bool visualize=false) = parseRascal(#start[Module], input, visualize=visualize);
-
-Tree parseFunctionDeclaration(str input, bool visualize=false) = parseRascal(#FunctionDeclaration, input, visualize=visualize);
-
-Tree parseStatement(str input, bool visualize=false) = parseRascal(#Statement, input, visualize=visualize);
-
 test bool rascalOk() = checkRecovery(#start[Module], "
     module A
 
