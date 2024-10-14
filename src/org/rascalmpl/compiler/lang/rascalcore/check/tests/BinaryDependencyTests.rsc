@@ -4,7 +4,7 @@
 are only available as binary (e.g., as.tpl files on the libs path). 
 - Are modules binary compatible after certain changes?}
 
-module lang::rascalcore::check::tests::BinaryDependencyTest
+module lang::rascalcore::check::tests::BinaryDependencyTests
 
 import lang::rascalcore::check::Checker;
 import util::Reflective;
