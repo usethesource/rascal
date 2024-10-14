@@ -30,6 +30,14 @@ bool matches(str subject, str pat){
     return all(p <- split("_", pat), contains(subject, p));
 }
 
+tuple[str,str] extractModuleNameAndBody(str moduleText){
+	txt = trim(moduleText);
+	if(/module\s*<nm:[A-Z][A-Za-z0-9]*>\s*<body:.*$>/s := txt){
+		return <nm, body>;
+	}
+	throw "Cannot extract module name from <moduleText>";
+}
+
 loc composeModule(str stmts,  list[str] importedModules = [], list[str] initialDecls = []){
     return writeModule(
         "TestModule",
@@ -126,23 +134,16 @@ bool checkModuleOK(loc moduleToCheck) {
      throw abbrev("<errors>");
 }
 
-tuple[str,str] extractModuleNameAndBody(str moduleText){
-	txt = trim(moduleText);
-	if(/module\s<nm:[A-Z][A-Za-z0-9]*><body:.*$>/s := moduleText){
-		return <nm, body>;
-	}
-	throw "Cannot extract module name from <moduleText>";
-}
 bool checkModuleOK(str moduleText){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
 	mloc = writeModule(mname, mbody);
 	return checkModuleOK(mloc);
 }
 
-bool checkModuleOK(str mbody){
-	mloc = writeModule("TestModule", mbody);
-	return checkModuleOK(mloc);
-}
+// bool checkModuleOK(str mbody){
+// 	mloc = writeModule("TestModule", mbody);
+// 	return checkModuleOK(mloc);
+// }
 
 // ---- unexpectedType --------------------------------------------------------
 
@@ -205,6 +206,7 @@ bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initial
 
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
 
+bool uninitializedInModule(str moduleText) = true;
 bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = true;
 
 //bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
@@ -231,10 +233,14 @@ bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] ini
 
 // ---- undeclaredType --------------------------------------------------------
 
+list[str] undeclaredTypeMsgs = [
+	"Undefined _"
+];
+bool undeclaredTypeInModule(str moduleText)
+	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs);
+
 bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, [
-	   "Undefined _"
-	], importedModules=importedModules, initialDecls=initialDecls);
+	checkStatementsAndFilter(stmts, undeclaredTypeMsgs, importedModules=importedModules, initialDecls=initialDecls);
 
 // ---- undefinedField --------------------------------------------------------
 
@@ -337,21 +343,36 @@ bool missingModule(str stmts, list[str] importedModules = [], list[str] initialD
 
 // ---- illegalUse ------------------------------------------------------------
 
+list[str] illegalUseMsgs = [
+	"Append outside a while"
+];
+
+bool illegalUseInModule(str moduleText)
+	= checkModuleAndFilter(moduleText, illegalUseMsgs);
+
 bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-    checkStatementsAndFilter(stmts, [
-          "Append outside a while"
-    ], importedModules=importedModules, initialDecls=initialDecls);
+    checkStatementsAndFilter(stmts, illegalUseMsgs, importedModules=importedModules, initialDecls=initialDecls);
 
 // ---- nonVoidType ----------------------------------------------------------
 
+list[str] nonVoidTypeMsgs = [
+	"Contribution to _ comprehension should not have type `void`"
+];
+
+bool nonVoidTypeInModule(str moduleText)
+	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs);
+
 bool nonVoidType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-    checkStatementsAndFilter(stmts, [
-          "Contribution to _ comprehension should not have type `void`"
-    ], importedModules=importedModules, initialDecls=initialDecls);
+    checkStatementsAndFilter(stmts, nonVoidTypeMsgs, importedModules=importedModules, initialDecls=initialDecls);
 
  // ---- unsupported ---------------------------------------------------------
 
+list[str] unsupportedMsgs = [
+	"Unsupported _"
+];
+
+bool unsupportedInModule(str moduleText)
+	= checkModuleAndFilter(moduleText, unsupportedMsgs);
+
 bool unsupported(str stmts, list[str] importedModules = [], list[str] initialDecls = []) =
-    checkStatementsAndFilter(stmts, [
-          "Unsupported _"
-    ], importedModules=importedModules, initialDecls=initialDecls);
+    checkStatementsAndFilter(stmts, unsupportedMsgs, importedModules=importedModules, initialDecls=initialDecls);
