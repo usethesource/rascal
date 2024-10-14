@@ -118,9 +118,20 @@ void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
     
    collect(targs[0], c);
    try {
-        c.fact(current, makeListType(c.getType(targs[0])));
+        dt = c.getType(targs[0]);
+        if (!isEmpty(dt.alabel)) {
+            c.report(warning(tas, "Element name `<dt.alabel>` ignored"));
+        }
+        c.fact(current, makeListType(dt));
    } catch TypeUnavailable():{
-        c.calculate("list type", current, targs, AType(Solver s){ return makeListType(s.getType(targs[0])); });
+        c.calculate("list type", current, targs, 
+            AType(Solver s){ 
+                dt = s.getType(targs[0]);
+                if (!isEmpty(dt.alabel)) {
+                    s.report(warning(tas, "Element name `<dt.alabel>` ignored"));
+                }
+                return makeListType(dt);
+            });
    }
    if(size(targs) != 1){
         c.report(error(current, "Type `list` should have one type argument"));
@@ -134,9 +145,20 @@ void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     collect(targs[0], c);
   
     try {
-        c.fact(current, makeSetType(c.getType(targs[0])));
+        dt = c.getType(targs[0]);
+        if (!isEmpty(dt.alabel)) {
+            c.report(warning(tas, "Element name `<dt.alabel>` ignored"));
+        }
+        c.fact(current, makeSetType(dt));
     } catch TypeUnavailable():{
-        c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
+        c.calculate("set type", current, targs, 
+            AType(Solver s){ 
+                dt = s.getType(targs[0]);
+                if (!isEmpty(dt.alabel)) {
+                    s.report(warning(tas, "Element name `<dt.alabel>` ignored"));
+                }
+                return makeSetType(dt); 
+            });
     }
     if(size(targs) != 1){
         c.report(error(current, "Type `set` should have one type argument"));
