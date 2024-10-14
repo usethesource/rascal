@@ -16,7 +16,6 @@ module util::ErrorRecovery
 
 import ParseTree;
 import String;
-import util::Maybe;
 
 @synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
 bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
@@ -24,20 +23,6 @@ bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 @javaClass{org.rascalmpl.library.util.ErrorRecovery}
 @synopsis{Find all error productions in a parse tree. The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.}
 java list[Tree] findAllErrors(Tree tree);
-
-@synopsis{Find the first production containing an error.}
-Tree findFirstError(/err:appl(error(_, _, _), _)) = err;
-
-@synopsis{Find the best error from a tree containing errors. This function will fail if `tree` does not contain an error.}
-Maybe[Tree] findBestError(Tree tree) {
-  Tree disambiguated = disambiguateErrors(tree);
-  if (/err:appl(error(_, _, _), _) := disambiguated) {
-    return just(err);
-  }
-
-  // All errors have disappeared
-  return nothing();
-}
 
 @synopsis{Disambiguate the error ambiguities in a tree and return the list of remaining errors. 
 The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.}
