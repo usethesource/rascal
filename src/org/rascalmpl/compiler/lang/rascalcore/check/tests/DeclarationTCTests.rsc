@@ -362,3 +362,235 @@ test bool TF4() = undefinedField("tuple[str a, int b, real r] x; real y = x.c;")
 test bool TF5() = unexpectedDeclaration("tuple[str a, int b, real] x;");
 
 test bool TF6() = unexpectedDeclaration("tuple[str a, int b, real a] x;");
+
+test bool LU1() = checkOK("
+            int twice(int n) = 2 * n;
+            
+            int M = twice(3);
+");
+
+test bool LU2(){
+	writeModule("module A int twice(int n) = 2 * n;");
+    return checkModuleOK("
+            module B
+            	import A;
+            	int M = twice(3);
+	");
+}
+
+test bool LU3() {
+	writeModule("module A int twice(int n) = 2 * n;");
+    writeModule("module B import A");
+            
+	return checkModuleOK("
+            module C
+            	import A;
+            	int M = twice(3);
+	");
+}
+
+test bool LU4(){
+	writeModule("module A int twice(int n) = 2 * n;");
+    writeModule("module B import A;");
+
+	return checkModuleOK("    
+            module C
+            import A;
+            import B;
+            int M = twice(3);
+	");
+}
+
+test bool LU5() {
+	writeModule("module A int twice(int n) = 2 * n;");
+    writeModule("module B
+            		import A;
+            		import B;");
+    return checkModuleOK("        
+            module C
+            	import A;
+            	import B;
+            	int M = twice(3);
+	");
+}
+
+test bool LU6(){
+	writeModule("module A");
+	return checkModuleOK("
+			module B
+            	import A;
+            	int twice(int n) = 2 * n;
+           
+            	int M = twice(3);
+	");
+}
+
+test bool LU7(){
+	writeModule("module A");
+	writeModule("module B
+            		import A;
+            		int twice(int n) = 2 * n;");
+    return checkModuleOK("        
+            module C
+            	import B;
+           
+            	int M = twice(3);
+	");
+}
+
+test bool LU8(){
+	writeModule("module A");
+	writeModule("module B
+            		import A;
+            		int twice(int n) = 2 * n;");
+   return checkModuleOK("        
+            module C
+            	import A;
+            	import B;
+           
+            	int M = twice(3);
+	");
+}
+
+test bool I1(){
+	writeModule("module A public int N = 0;");
+
+	return unexpectedDeclarationInModule("
+           module B     // -- missing import
+           		int M = N;
+	");
+}
+test bool I2(){
+	writeModule("module A public int N = 0;");
+
+	return checkModuleOK("
+           module B
+           		import A;
+           		int M = N;
+	");
+}
+
+test bool I3(){
+	writeModule("module A int N = 0;");  // <-- not public
+    
+	return unexpectedTypeInModule("
+           module B
+           import A;
+           int M = N;
+	");
+}
+
+test bool I4(){
+	writeModule("module A int N = 0;");
+
+	return checkModuleOK("  
+           module B
+           		extend A;
+    			int M = N;
+	"); 
+}
+
+test bool I5(){
+	writeModule("module A public int N = 0;");
+    writeModule("module B
+           			import A;");    //  <-- import not transitive for decls
+    return unexpectedTypeInModule("    
+           module C
+           import B;
+           int X = N;
+	");
+}
+test bool I6(){
+	writeModule("module A public int N = 0;");
+	writeModule("module B extend A;");
+
+	return checkModuleOK("
+           module C
+           		import B;
+           		int X = N;
+	");
+}
+
+test bool I7(){
+	writeModule("module A public int N = 0;");
+	writeModule("module B extend A;");
+    
+	return checkModuleOK("
+           module C
+           		extend B;
+           		int X = N;
+	");
+}
+
+test bool I8(){
+	writeModule("module A public int N = 0;");
+	writeModule("module B import A;");
+
+	return unexpectedTypeInModule("
+           module C
+           		extend B;
+           		int X = N;
+	");
+}
+
+test bool I9() = missingModuleInModule("module A import Z;");
+
+test bool C1(){
+	writeModule("module A
+           			import B;
+           			public int N = 0;");
+    writeModule("module B
+           			import A;");
+
+	return checkModuleOK("  
+           module C
+           		import A;
+           		int X = N;
+	");
+}
+
+test bool EXT1(){
+	writeModule("module A
+             		data D = d1(int n);
+             
+             		D d1(int n) { if(n \< 0) return d1(-n); else fail; }");
+	writeModule("module B
+             		extend A;");
+	writeModule("module C
+             		extend B;");
+    
+	return checkModuleOK("
+            module D
+             	import C;
+             	D ddd = d1(10);          
+	");
+}
+
+test bool EXT2(){
+	writeModule("module A
+             		data D = d1(int n);");
+	writeModule("module B extend A;");
+    writeModule("module C
+             		extend B;
+             
+             		D d1(int n) { if(n \< 0) return d1(-n); else fail; }");
+	return checkModuleOK("
+             module D
+             		import C;
+             		D ddd = d1(10);          
+	");
+}
+
+test bool WrongExtend1(){
+	writeModule("module A
+            		extend B;
+            		extend F;");
+	writeModule("module B
+            		extend C;");
+	writeModule("module C 
+					import D;");
+    return missingModuleInModule("        
+            module D
+            extend F;
+	");
+}
