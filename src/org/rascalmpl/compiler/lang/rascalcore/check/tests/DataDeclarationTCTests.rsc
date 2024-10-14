@@ -23,19 +23,19 @@ test bool letWrongTypeViaAlias() =
 				    			  "data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);"]); 
 
 test bool doubleFieldError2() = 
-	declarationError("true;", initialDecls=["data D = d(int n) | d(value v);"]);   
+	unexpectedDeclaration("true;", initialDecls=["data D = d(int n) | d(value v);"]);   
   	
 test bool doubleFieldError3() = 
-	declarationError("true;", initialDecls=["data D = d(int n) | d(int v);"]); 
+	unexpectedDeclaration("true;", initialDecls=["data D = d(int n) | d(int v);"]); 
 
 test bool doubleFieldError4() = 
-	declarationError("true;", initialDecls=["alias INTEGER = int;", "data D = d(int n) | d(INTEGER v);"]); 
+	unexpectedDeclaration("true;", initialDecls=["alias INTEGER = int;", "data D = d(int n) | d(INTEGER v);"]); 
 
 test bool exactDoubleDataDeclarationIsNotAllowed() = 
-	declarationError("true;", initialDecls=["data D = d(int n) | e();", "data D = d(int n);"]);
+	unexpectedDeclaration("true;", initialDecls=["data D = d(int n) | e();", "data D = d(int n);"]);
 
 test bool undeclaredTypeError1() = 
-	declarationError("true;", initialDecls=["data D = anE(E e);"]);                    // TODO E is not declared
+	unexpectedDeclaration("true;", initialDecls=["data D = anE(E e);"]);                    // TODO E is not declared
 	
 test bool sharedKeywordsWork1() =
     checkOK("xx().ll == 0;", initialDecls=["data Y(int ll = 0) = xx();"]);
@@ -62,8 +62,8 @@ test bool D8() = unexpectedType("D[&T] x = d1();", initialDecls=["data D = d1();
 test bool D9() = unexpectedType("D[int] x = d1(3, \"a\");", initialDecls=["data D[&T, &U] = d1(&T fld1, &U fld2);"]);
 
 test bool D10() {
-	makeModule("A", "data D[&T] = d1(&T fld);");
-	makeModule("B", "import A;
+	writeModule("A", "data D[&T] = d1(&T fld);");
+	writeModule("B", "import A;
                     'data D[&T, &U] = d1(&T fld1, &U fld2);
                     'void main(){ D[int] x = d1(3, \"a\"); }");
 	return unexpectedType("D[int] x = d1(3, \"a\"); ", imports = ["A", "B"]);
@@ -106,23 +106,23 @@ test bool A1() = checkOK("
 );
 
 test bool A2a() {
-	makeModule("A","
+	writeModule("A","
             data D = d1(int n, bool b = false);
             data D = d2(str s, int m = 0);
             data D = d3(bool f, str t = \"a\");");
-    makeModule("B", "import A;");    
-	makeModule("C", "import B;");
+    writeModule("B", "import A;");    
+	writeModule("C", "import B;");
     
 	return unexpectedType("D X1 = d1(3);", imports = ["A", "B", "C"]);
 }
 
 test bool A2b() {
-	makeModule("A","
+	writeModule("A","
             data D = d1(int n, bool b = false);
             data D = d2(str s, int m = 0);
             data D = d3(bool f, str t = \"a\");");
-    makeModule("B", "extend A;");    
-	makeModule("C", "import B;");
+    writeModule("B", "extend A;");    
+	writeModule("C", "import B;");
     
 	return unexpectedType("
 			D X1 = d1(3);       D X2 = d1(3, b=false);
@@ -132,32 +132,32 @@ test bool A2b() {
 }
 
 test bool A3a() {
-	makeModule("A","
+	writeModule("A","
             data D = d1(int n, bool b = false);
             data D = d2(str s, int m = 0);");
-    makeModule("B", "import A;
+    writeModule("B", "import A;
 					 data D = d3(bool f, str t = \"a\");");    
-	makeModule("C", "import B;");
+	writeModule("C", "import B;");
     
 	return unexpectedType("D X1 = d1(3);", imports = ["A", "B", "C"]);
 }
 
 test bool A3b() {
-	makeModule("A", "data D = d1(int n, bool b = false);
+	writeModule("A", "data D = d1(int n, bool b = false);
                      data D = d2(str s, int m = 0);");
-    makeModule("B", "import A;
+    writeModule("B", "import A;
 					 data D = d3(bool f, str t = \"a\");");    
-	makeModule("C", "import B;
+	writeModule("C", "import B;
 					 D Z1 = d3(true); 
 					 D Z2 = d3(true, t =\"z\");");
 	return checkOK("true;", imports = ["A", "B", "C"]);
 }
 
 test bool A4() {
-	makeModule("A", "data D = d1(int n, bool b = false);
+	writeModule("A", "data D = d1(int n, bool b = false);
                      data D = d2(str s, int m = 0);");
-    makeModule("B", "import A;"); 
-	makeModule("C", "import B;
+    writeModule("B", "import A;"); 
+	writeModule("C", "import B;
 					 data D = d3(bool f, str t = \"a\");
 					 D Z1 = d3(true); 
 					 D Z2 = d3(true, t =\"z\");");
@@ -165,11 +165,11 @@ test bool A4() {
 }
 
 test bool A5() {
-	makeModule("A", "data D = d1(int n, bool b = false);");
+	writeModule("A", "data D = d1(int n, bool b = false);");
                      
-    makeModule("B", "import A;
+    writeModule("B", "import A;
 					 data D = d2(str s, int m = 0);");
-	makeModule("C", "import B;
+	writeModule("C", "import B;
 					 data D = d3(bool f, str t = \"a\");
 					 D Z1 = d3(true); 
 					 D Z2 = d3(true, t =\"z\");");
@@ -177,7 +177,7 @@ test bool A5() {
 }
 
 test bool C1() {
-		makeModule("A", "
+		writeModule("A", "
             data D(int N = 0)      = d1(int n, bool b = false);
             data D(str S = \"a\")  = d2(str s, int m = 0);
             data D(bool B = false) = d3(bool f, str t = \"a\");
@@ -190,13 +190,13 @@ test bool C1() {
 }
 
 test bool C2() {
-		makeModule("A", "
+		writeModule("A", "
             data D(int N = 0)      = d1(int n, bool b = false);
             data D(str S = \"a\")  = d2(str s, int m = 0);
             data D(bool B = false) = d3(bool f, str t = \"a\");");
-        makeModule("B", "extend A;");
+        writeModule("B", "extend A;");
         
-		makeModule("C", "
+		writeModule("C", "
             import B;
             
             D X1 = d1(3);      D X2 = d1(3, b=false);    D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
@@ -207,13 +207,13 @@ test bool C2() {
 }
 
  test bool C3() {
-		makeModule("A", "
+		writeModule("A", "
             data D(int N = 0)      = d1(int n, bool b = false);
             data D(str S = \"a\")  = d2(str s, int m = 0);");
-        makeModule("B", "    
+        writeModule("B", "    
             module B import A;
             data D(bool B = false) = d3(bool f, str t = \"a\");");
-        makeModule("C", "    
+        writeModule("C", "    
             import B;
             
             D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);");
@@ -221,12 +221,12 @@ test bool C2() {
  }
 
  test bool C4() {
-		makeModule("A", "
+		writeModule("A", "
             data D(int N = 0)      = d1(int n, bool b = false);
             data D(str S = \"a\")  = d2(str s, int m = 0);");
-        makeModule("B", "    
+        writeModule("B", "    
             module B import A;");
-        makeModule("C", "   
+        writeModule("C", "   
             module C import B;
             data D(bool B = false) = d3(bool f, str t = \"a\");
             
@@ -235,12 +235,12 @@ test bool C2() {
 }
 
 test bool C5() {
-		makeModule("A", "
+		writeModule("A", "
             data D(int N = 0)      = d1(int n, bool b = false);");
-         makeModule("B", "   
+         writeModule("B", "   
             module B import A;
             data D(str S = \"a\")   = d2(str s, int m = 0);");
-         makeModule("C", "  
+         writeModule("C", "  
             module C import B;
             data D(bool B = false) = d3(bool f, str t = \"a\");
             
@@ -250,7 +250,7 @@ test bool C5() {
 }
 
 test bool Escapes1() {
-		makeModule("\\A", "
+		writeModule("\\A", "
             data \\D = \\d1(int \\n, bool \\b = false);
             data \\D = \\d2(str \\s, int \\m = 0);
             data \\D = \\d3(bool \\f, str \\t = \"a\");
@@ -262,7 +262,7 @@ test bool Escapes1() {
 }
 
 test bool Escapes2() {
-		makeModule("A", "
+		writeModule("A", "
             data D = d1(int n, bool b = false);
             data D = d2(str s, int m = 0);
             data D = d3(bool f, str t = \"a\");

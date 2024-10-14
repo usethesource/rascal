@@ -35,7 +35,7 @@ test bool Issue432() =
 // https://github.com/cwi-swat/rascal/issues/435
 @ignore{The forward references to `called` are not handled properly}
 test bool Issue435() {
-	makeModule("MMM", "bool sideEffect1() {
+	writeModule("MMM", "bool sideEffect1() {
              			void One() { called = called + 1; return; }
              			int called = 0;  
              			One(); 
@@ -88,25 +88,25 @@ test bool Issue458c() =                                              // TODO
 // https://github.com/cwi-swat/rascal/issues/465
 
 test bool Issue465a(){			                                     // TODO: not sure									
-	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
+	writeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
 	return checkOK("true;", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 test bool Issue465b(){			                                     								
-	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
+	writeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
 	return checkOK("c = con(5);", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 test bool Issue465c(){			                                     								
-	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
+	writeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
 	return checkOK("Exp c = con(5);", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
 
 test bool Issue465d(){			                                     								
-	makeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
+	writeModule("MMM", "lexical IntegerLiteral = [0-9]+;           
 					 start syntax Exp = con: IntegerLiteral;");
 	return checkOK("MMM::Exp c = [MMM::Exp] \"3\";", importedModules=["MMM"], initialDecls=["data Exp = con(int n);"]);
 }
@@ -186,7 +186,7 @@ test bool Issue478() =
 // https://github.com/cwi-swat/rascal/issues/480
 
 test bool Issue480(){
-	makeModule("MMM", "data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\")  =  emptyFigure() 
+	writeModule("MMM", "data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\")  =  emptyFigure() 
   					| ellipse(Figure inner = emptyFigure()) 
   					| box(Figure inner = emptyFigure());
 
@@ -203,8 +203,8 @@ test bool Issue504() =
 // https://github.com/cwi-swat/rascal/issues/547
 
 test bool Issue547(){												
-	makeModule("M1", "import M2;");		 
-	makeModule("M2", "import Type;
+	writeModule("M1", "import M2;");		 
+	writeModule("M2", "import Type;
 					  public data MuExp = muCallJava( str name, Symbol parameterTypes);");
 	return checkOK("true;", importedModules=["M1", "M2"]);
 }
@@ -223,7 +223,7 @@ test bool Issue886() = unexpectedType("[\<[\<19,0,*_\>],false,_\>] := [\<[\<19,0
 
 // https://github.com/usethesource/rascal/issues/1353
 test bool Issue1353() {
-   makeModule("MC", "syntax A 
+   writeModule("MC", "syntax A 
                     '  = \"a\"
                     '  | left two: A lhs A rhs; 
                     '

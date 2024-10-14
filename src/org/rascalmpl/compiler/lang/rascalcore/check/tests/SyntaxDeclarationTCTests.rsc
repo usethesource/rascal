@@ -222,19 +222,19 @@ test bool LayoutLayoutOverloadOk() = checkModuleOK("
         layout A = \"b\";
 ");
 
-test bool LexSynOverloadNotOk() = declarationErrorInModule("
+test bool LexSynOverloadNotOk() = unexpectedDeclarationInModule("
     module LexSynOverloadNotOk 
         lexical A = [a-z]+;
         syntax A = \"a\"; 
 ");
 
-test bool LexLayoutOverloadNotOk() = declarationErrorInModule("
+test bool LexLayoutOverloadNotOk() = unexpectedDeclarationInModule("
     module LexLayoutOverloadNotOk 
         lexical A = [a-z]+;
         layout A = \"a\"; 
 ");
 
-test bool LexKeywordOverloadNotOk() = declarationErrorInModule("
+test bool LexKeywordOverloadNotOk() = unexpectedDeclarationInModule("
     module LexKeywordOverloadNotOk 
         lexical A = [a-z]+;
         keyword A = \"a\"; 
@@ -283,19 +283,19 @@ test bool LexicalInLayoutOk() = checkModuleOK("
         layout WS = [\\ \\t\\n]* | \"/*\" Id+ \"*/\";
 ");
 
-test bool MissingNonterminal() = declarationErrorInModule("
+test bool MissingNonterminal() = unexpectedDeclarationInModule("
     module MissingNonterminal 
         syntax EXP = \"a\" | EXP \"+\" E; 
         data E = e();
 ");
 
-test bool MayNotBeginWithLayout() = declarationErrorInModule("
+test bool MayNotBeginWithLayout() = unexpectedDeclarationInModule("
     module MayNotBeginWithLayout 
         layout L = \" \";
         syntax EXP = L \"a\" | EXP \"+\" EXP; 
 ");
 
-test bool MayNotEndWithLayout() =  declarationErrorInModule("
+test bool MayNotEndWithLayout() =  unexpectedDeclarationInModule("
     module MayNotEndWithLayout 
         layout L = \" \";
         syntax EXP = \"a\" L | EXP \"+\" EXP; 
@@ -307,7 +307,7 @@ test bool SingleInternalLayoutOk() = checkModuleOK("
         syntax EXP = \"a\" | EXP  L \"+\" EXP; 
 ");
 
-test bool ConsecutiveInternalLayoutNotOk() = declarationErrorInModule("
+test bool ConsecutiveInternalLayoutNotOk() = unexpectedDeclarationInModule("
     module ConsecutiveInternalLayoutNotOk 
         layout L = \" \";
         syntax EXP = \"a\" | EXP  L L \"+\" EXP; 
@@ -344,7 +344,7 @@ test bool ExcludeKeywordOk() = checkModuleOK("
         syntax EXP = Id \\ Keywords;
 ");
 
-test bool ExcludeNonKeywordNotOk() = declarationErrorInModule("
+test bool ExcludeNonKeywordNotOk() = unexpectedDeclarationInModule("
     module ExcludeNonKeywordNotOk 
         lexical Id = [a-z]+;
         lexical Dig = [0-9]+;
@@ -406,49 +406,49 @@ test bool LayoutAsSepOk () = checkModuleOK("
         syntax Block = \"{\" {EXP WS}* \"}\";
 ");
 
-test bool WarnNestedSS() = declarationErrorInModule("
+test bool WarnNestedSS() = unexpectedDeclarationInModule("
     module WarnNestedSS 
         lexical A = \"a\";
         syntax B = A**;
 ");
 
-test bool WarnNestedSP() = declarationErrorInModule("
+test bool WarnNestedSP() = unexpectedDeclarationInModule("
     module WarnNestedSP 
         lexical A = \"a\";
         syntax B = A*+;
 ");
 
-test bool WarnNestedPS() = declarationErrorInModule("
+test bool WarnNestedPS() = unexpectedDeclarationInModule("
     module WarnNestedPS 
         lexical A = \"a\";
         syntax B = A+*;
 ");
 
-test bool WarnNestedPP() = declarationErrorInModule("
+test bool WarnNestedPP() = unexpectedDeclarationInModule("
     module WarnNestedPP 
         lexical A = \"a\";
         syntax B = A++;
 ");
 
-test bool WarnNestedSepSS() = declarationErrorInModule("
+test bool WarnNestedSepSS() = unexpectedDeclarationInModule("
     module WarnNestedSepSS 
         lexical A = \"a\";
         syntax B = {A* \",\"}*;
 ");
 
-test bool WarnNestedSepSP() = declarationErrorInModule("
+test bool WarnNestedSepSP() = unexpectedDeclarationInModule("
     module WarnNestedSepSP 
         lexical A = \"a\";
         syntax B = {A* \",\"}+;
 ");
 
-test bool WarnNestedSepPS() = declarationErrorInModule("
+test bool WarnNestedSepPS() = unexpectedDeclarationInModule("
     module WarnNestedSepPS 
         lexical A = \"a\";
         syntax B = {A+ \",\"}*;
 ");
 
-test bool WarnNestedSepPP() = declarationErrorInModule("
+test bool WarnNestedSepPP() = unexpectedDeclarationInModule("
     module WarnNestedSepPP 
         lexical A = \"a\";
         syntax B = {A+ \",\"}+;

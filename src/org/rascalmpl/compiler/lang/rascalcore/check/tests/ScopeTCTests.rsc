@@ -5,11 +5,11 @@ import lang::rascalcore::check::tests::StaticTestingUtils;
 
 test bool noEscapeFromToplevelMatch() = undeclaredVariable("bool a := true; a;");	
 
-test bool localRedeclarationError1() = redeclaredVariable("int n; int n;");	
+test bool localReunexpectedDeclaration1() = redeclaredVariable("int n; int n;");	
 
-test bool localRedeclarationError2() = redeclaredVariable("int n = 1; int n;");	
+test bool localReunexpectedDeclaration2() = redeclaredVariable("int n = 1; int n;");	
 	
-test bool localRedeclarationError3() = redeclaredVariable("int n = 1; int n = 2;");	
+test bool localReunexpectedDeclaration3() = redeclaredVariable("int n = 1; int n = 2;");	
 
 test bool ifNoLeak1() = undeclaredVariable("if (int n := 3) {n == 3;} else  {n != 3;} n == 3;");	
 
@@ -68,7 +68,7 @@ test bool S7() = checkOK("
             }
 ");
 
-test bool S8() = declarationError("
+test bool S8() = unexpectedDeclaration("
            void f(){
                 x = y; 
             }
@@ -90,7 +90,7 @@ test bool I2() = checkOK("
             }
 ");
 
-test bool I3() = declarationError("
+test bool I3() = unexpectedDeclaration("
            void f(){
                 if(true){ x = 1; }
                 x + 1; 
@@ -119,7 +119,7 @@ test bool B1() = checkOK("
             }
 ");
 
-test bool B2() = declarationError("
+test bool B2() = unexpectedDeclaration("
            void f(){
                 if(x := 1){ x = x + 1; }
                 x + 2;
@@ -137,7 +137,7 @@ test bool B4() = checkOK("
             }
 ");
 
-test bool B5() = declarationError("
+test bool B5() = unexpectedDeclaration("
            void f(){
                 [x | x \<- {1,2,3}, x \> 0];
                 x + 1;
@@ -169,14 +169,14 @@ test bool N1() = checkOK("
             }
 ");
 
-test bool N2() = declarationError("
+test bool N2() = unexpectedDeclaration("
            void f(){
                 if(true){ x = 10; x = x + 1; }
                 if(true){ y = \"a\"; y = x + \"b\"; } 
             }
 ");
 
-test bool N3() = declarationError("
+test bool N3() = unexpectedDeclaration("
            void f(){
                 if(true){ x = 10; x = x + 1; }
                 if(true){ y = \"a\"; y = y + \"b\"; } 

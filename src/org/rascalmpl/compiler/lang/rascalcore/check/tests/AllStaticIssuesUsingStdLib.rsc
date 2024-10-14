@@ -30,15 +30,15 @@ test bool Issue448b() =
 // https://github.com/cwi-swat/rascal/issues/547
 
 test bool Issue547(){												
-	makeModule("M1", "import M2;");		 
-	makeModule("M2", "import Type;
+	writeModule("M1", "import M2;");		 
+	writeModule("M2", "import Type;
 					  public data MuExp = muCallJava( str name, Symbol parameterTypes);");
 	return checkOK("true;", importedModules=["M1", "M2"]);
 }
 
 // https://github.com/cwi-swat/rascal/issues/550
 test bool Issue550(){												
-	makeModule("M1", "import lang::rascal::\\syntax::Rascal;
+	writeModule("M1", "import lang::rascal::\\syntax::Rascal;
 
 						public int tmpVar = -1;  
 						
@@ -49,6 +49,6 @@ test bool Issue550(){
 						
 						str getLabel(Label label) =
 						  (label is \\default) ? \"\<label.name\>\" : nextTmp();");		 
-	makeModule("M2", "import M1;");
+	writeModule("M2", "import M1;");
 	return checkOK("true;", importedModules=["M1", "M2"]);
 }

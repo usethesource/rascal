@@ -45,7 +45,7 @@ Project createProject(str pname, map[str mname, str mtext] modules, PathConfig p
     
     mkDirectory(src(pname));
     for(mname <- domain(modules)){
-        writeFile(src(pname) + "<mname>.rsc", makeModule(mname, modules[mname]));
+        writeFile(src(pname) + "<mname>.rsc", writeModule(mname, modules[mname]));
      }
     return project(pname, modules, pcfg);
 }
@@ -54,7 +54,7 @@ void removeProject(Project pd){
     remove(projectDir(pd.name), recursive=true);
 }
 
-str makeModule(str mname, str mtext){
+str writeModule(str mname, str mtext){
     msrc = "module <mname>
            '<trim(mtext)>";
     if(verbose) println(msrc);
@@ -76,7 +76,7 @@ PathConfig createPathConfig(str pname){
 }
 
 Project addModule(str mname, str mtext, Project pd){
-    pd.modules[mname] = makeModule(mname, mtext);
+    pd.modules[mname] = writeModule(mname, mtext);
     writeFile(src(pd.name) + "<mname>.rsc", pd.modules[mname]);
     return pd;
 }
@@ -84,7 +84,7 @@ Project addModule(str mname, str mtext, Project pd){
 Project changeModule(str mname, str mtext, Project pd){
     if(!pd.modules[mname]?) throw "Module <mname> does not exist in <pd.name>";
 
-    pd.modules[mname] = makeModule(mname, mtext);
+    pd.modules[mname] = writeModule(mname, mtext);
     writeFile(src(pd.name) + "<mname>.rsc", pd.modules[mname]);
     return pd;
 }

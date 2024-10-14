@@ -55,11 +55,11 @@ test bool JOINR4() = undefinedField(" rel[int a, int b,int, str d] r = {\<1,10\>
 
 test bool JOINLR1() = checkOK(" lrel[int,int,int,int] r = [\<1,10\>] join [\<2,20\>];");
 
-test bool JOINLR2() = declarationError(" lrel[int,int] r = [\<1,10\>] join [\<2,20\>];");
+test bool JOINLR2() = unexpectedDeclaration(" lrel[int,int] r = [\<1,10\>] join [\<2,20\>];");
 
 test bool JOINLR3() = checkOK("lrel[int a, int b,int c, str d] r = [\<1,10\>] join [\<2,\"a\"\>]; list[str] s = r.d;");
 
-test bool JOINLR4() = declarationError("lrel[int a, int b,int, str d] r = [\<1,10\>] join [\<2,\"a\"\>]; list[str] s = r.d;");
+test bool JOINLR4() = unexpectedDeclaration("lrel[int a, int b,int, str d] r = [\<1,10\>] join [\<2,\"a\"\>]; list[str] s = r.d;");
 
 test bool JOINSR1() = checkOK("rel[int,int,bool] r = {\<1,10\>} join {true};");
 

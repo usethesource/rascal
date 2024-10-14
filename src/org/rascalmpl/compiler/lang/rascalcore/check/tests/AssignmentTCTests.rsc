@@ -21,8 +21,7 @@ test bool integerError4() = uninitialized("N /= 2;");
  
 test bool errorList1() = unexpectedType("list[int] L = {1,2,3}; L *= [4];  L==[\<1,4\>,\<2,4\>,\<3,4\>];");
 
-// Was: unexpectedtType
-test bool errorMap1() = checkOK("map[int,list[int"); M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[\<1,4\>,\<2,4\>,\<3,4\>],1:[10,20,30]);");
+test bool errorMap1() = checkOK("map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[\<1,4\>,\<2,4\>,\<3,4\>],1:[10,20,30]);");
 
 test bool errorSet1() = unexpectedType("set[int] L = {1,2,3}; L *= {4}; L=={\<1,4\>,\<2,4\>,\<3,4\>};");
 
@@ -112,18 +111,18 @@ test bool TUPLE4() = checkOK("
 
 test bool E1() = checkOK("value zz = 1 + 2;");
 test bool E2() = checkOK("value zz = 1 + 2.5; ");
-test bool E3() = unexpectedType("value zz = 1 + true; "); expect { "Addition not defined on `int` and `bool`" }
+test bool E3() = unexpectedType("value zz = 1 + true; ");
 
 test bool And1() = checkOK("value zz = true && false; ");
 test bool And2() = unexpectedType("value zz = 1 && false; ");
-test bool And3() = unexpectedType("value zz = true && "abc"; ");
+test bool And3() = unexpectedType("value zz = true && \"abc\"; ");
 
 test bool Or1() = checkOK("value zz = true || false; ");
 test bool Or2() = unexpectedType("value zz = 1 || false; ");
-test bool Or3() = unexpectedType("value zz = true || "abc"; ");
+test bool Or3() = unexpectedType("value zz = true || \"abc\"; ");
 
 test bool Eq1() = checkOK("value zz = 1 == 1; ");
-test bool Eq2() = unexpectedType("value zz = 1 == "a"; ");
+test bool Eq2() = unexpectedType("value zz = 1 == \"a\"; ");
 
 test bool Lst1() = checkOK("value zz = []; ");
 test bool Lst2() = checkOK("value zz = [1,2] + 1; ");

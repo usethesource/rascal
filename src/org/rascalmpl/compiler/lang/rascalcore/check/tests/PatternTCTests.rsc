@@ -104,7 +104,7 @@ test bool matchSetStringError() = cannotMatch("{1} := \"a\";");
   
 test bool matchListError1() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   // DISCUSS, was: cannotMatch	
 	
-test bool matchListError2() = declarationError("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
+test bool matchListError2() = unexpectedDeclaration("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
 test bool matchListError3() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
  
@@ -243,7 +243,7 @@ test bool Var3() = unexpectedType("int x := 1 && x == \"a\";");
 test bool If1() = checkOK("{ if(int x := 1) x + 1; };");
 test bool If2() = unexpectedType("{ if(int x := 1) x + 1; else x + 2; };");
 test bool If3() = checkOK("{ if(int x := 1 && x == 1 ) x + 1; };");
-test bool If4() = declarationError("{ if(int x := 1 && int x := 2 && x == 1 ) x + 1; };");
+test bool If4() = unexpectedDeclaration("{ if(int x := 1 && int x := 2 && x == 1 ) x + 1; };");
 
 test bool If5() = checkOK("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; };");
 test bool If5() = unexpectedType("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;};");
