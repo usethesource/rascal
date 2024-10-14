@@ -53,7 +53,7 @@ test bool introduceErrorInExtend(){
     return unexpectedTypeInModule(moduleB);
 }
 
-bool removeImportedModuleAndRestoreIt1(){
+test bool removeImportedModuleAndRestoreIt1(){
     clearMemory();
     assert checkModuleOK("module A");
     moduleB = "module B import A;";
@@ -64,7 +64,7 @@ bool removeImportedModuleAndRestoreIt1(){
     return checkModuleOK(moduleB);
 }
 
-bool removeImportedModuleAndRestoreIt2(){
+test bool removeImportedModuleAndRestoreIt2(){
     clearMemory();
     moduleA = "module A int twice(int n) = n * n;";
     assert checkModuleOK(moduleA);
@@ -76,7 +76,7 @@ bool removeImportedModuleAndRestoreIt2(){
     return checkModuleOK(moduleB);
 }
 
-bool removeExtendedModuleAndRestoreIt1(){
+test bool removeExtendedModuleAndRestoreIt1(){
     clearMemory();
     moduleA = "module A";
     assert checkModuleOK(moduleA);
@@ -88,7 +88,7 @@ bool removeExtendedModuleAndRestoreIt1(){
     return checkModuleOK(moduleB);
 }
 
-bool removeExtendedModuleAndRestoreIt2(){
+test bool removeExtendedModuleAndRestoreIt2(){
     clearMemory();
     moduleA = "module A int twice(int n) = n * n;";
     assert checkModuleOK(moduleA);
@@ -97,5 +97,42 @@ bool removeExtendedModuleAndRestoreIt2(){
     removeModule("A");
     assert missingModuleInModule(moduleB);
     assert checkModuleOK(moduleA);
+    return checkModuleOK(moduleB);
+}
+
+test bool removeOverloadAndRestoreIt(){
+    clearMemory();
+    moduleA1 = "module A
+                int dup(int n) = n + n;
+                str dup(str s) = s + s;";
+    moduleA2 = "module A
+                int dup(int n) = n + n;";
+    assert checkModuleOK(moduleA1);
+    moduleB = "module B import A;  str f(str s) = dup(s);";
+    assert checkModuleOK(moduleB);
+    removeModule("A");
+    assert missingModuleInModule(moduleB);
+
+    assert checkModuleOK(moduleA2);
+    assert argumentMismatchInModule(moduleB);
+    assert checkModuleOK(moduleA1);
+    return checkModuleOK(moduleB);
+}
+
+test bool removeConstructorAndRestoreIt(){
+    clearMemory();
+    moduleA1 = "module A
+                data D = d(int n) | d(str s);";
+    moduleA2 = "module A
+                data D = d(int n);";
+    assert checkModuleOK(moduleA1);
+    moduleB = "module B import A;  D f(str s) = d(s);";
+    assert checkModuleOK(moduleB);
+    removeModule("A");
+    assert missingModuleInModule(moduleB);
+
+    assert checkModuleOK(moduleA2);
+    assert argumentMismatchInModule(moduleB);
+    assert checkModuleOK(moduleA1);
     return checkModuleOK(moduleB);
 }
