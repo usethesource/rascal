@@ -24,11 +24,11 @@ test bool testUtils08() = checkOK("and(t(),t());f();", initialDecls=["data Bool 
 test bool testUtils09() = checkOK("NODE N = f(0, \"a\", 3.5);", initialDecls = ["data NODE = f(int a, str b, real c);"]);
 
 test bool testUtils13(){
-	makeModule("MMM", "int x = 3;"); 
+	writeModule("MMM", "int x = 3;"); 
 	return checkOK("13;", importedModules=["MMM"]);
 }
 test bool testUtils14(){
-	makeModule("MMM", "int x = 3;"); 
+	writeModule("MMM", "int x = 3;"); 
 	return undeclaredVariable("x;", importedModules=["MMM"]);
 }	
 
