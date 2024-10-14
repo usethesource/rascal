@@ -24,27 +24,27 @@ test bool shadowingDeclaration4() = checkOK("int N = 3; int N := 3;");
 // Variable declaration in imported module
 
 test bool privateVarDeclarationNotVisible(){ 
-	makeModule("MMM", "private int x = 3;"); 
+	writeModule("MMM", "private int x = 3;"); 
 	return undeclaredVariable("x;", importedModules=["MMM"]);
 }
 
 test bool publicVarDeclarationVisible(){ 
-	makeModule("MMM", "public int x = 3;"); 
+	writeModule("MMM", "public int x = 3;"); 
 	return checkOK("x;", importedModules=["MMM"]);
 }
 
 test bool publicVarDeclarationVisibleViaQualifiedName(){ 
-	makeModule("MMM", "public int x = 3;"); 
+	writeModule("MMM", "public int x = 3;"); 
 	return checkOK("MMM::x;", importedModules=["MMM"]);
 }
 
 test bool DefaultVarDeclarationNotVisible(){ 
-	makeModule("MMM", "int x = 3;"); 
+	writeModule("MMM", "int x = 3;"); 
 	return undeclaredVariable("x;", importedModules=["MMM"]);
 }
 
 test bool RedeclaredVarDeclaration(){
-	makeModule("MMM", "public int x = 3;"); 
+	writeModule("MMM", "public int x = 3;"); 
 	return checkOK("int x = 4;", importedModules=["MMM"]);
 }
 
@@ -52,99 +52,99 @@ test bool RedeclaredVarDeclaration(){
 // longer includes errors detected in imported modules unless they are actual
 // import errors, in this case the first n is in the imported configuration
 // but the second n isn't since it would raise an error while checking M.
-//test bool moduleRedeclarationError1(){ 
-//	makeModule("MMM", "public int n = 1; public int n = 2;"); 
+//test bool moduleReunexpectedDeclaration1(){ 
+//	writeModule("MMM", "public int n = 1; public int n = 2;"); 
 //	return redeclaredVariable("n == 1;", importedModules=["MMM"]);
 //}
 
 test bool qualifiedScopeTest(){ 
-	makeModule("MMM", "public int n = 1;"); 
+	writeModule("MMM", "public int n = 1;"); 
 	return checkOK("MMM::n == 1;", importedModules=["MMM"]);
 }
 
 // Function declaration in imported module
 
 test bool privateFunDeclarationNotVisible(){ 
-	makeModule("MMM", "private int f() = 3;"); 
+	writeModule("MMM", "private int f() = 3;"); 
 	return undeclaredVariable("f();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisible(){ 
-	makeModule("MMM", "public int f() = 3;"); 
+	writeModule("MMM", "public int f() = 3;"); 
 	return checkOK("f();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisibleViaQualifiedName(){ 
-	makeModule("MMM", "public int f() = 3;"); 
+	writeModule("MMM", "public int f() = 3;"); 
 	return checkOK("MMM::f();", importedModules=["MMM"]);
 }
 
 test bool DefaultFunDeclarationVisible(){ 
-	makeModule("MMM", "int f() = 3;"); 
+	writeModule("MMM", "int f() = 3;"); 
 	return checkOK("f();", importedModules=["MMM"]);
 }
 
 // Non-terminal declaration in imported module
 
 test bool NonTerminalVisible(){ 
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("A a;", importedModules=["MMM"]);
 }
 
 test bool QualifiedNonTerminalVisible(){ 
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("MMM::A a;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal1(){ 
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("[A]\"a\";", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal2(){ 
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("A anA = [A]\"a\";", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal3(){ 
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("(A)`a`;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal4(){ 
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("A anA = (A)`a`;", importedModules=["MMM"]);
 }
 
 test bool ExtendNonTerminal(){            // TODO: EmptyList()
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("A a;", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
 }
 
 test bool UseExtendedNonTerminal(){       // TODO: EmptyList()
-	makeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("MMM", "syntax A = \"a\";"); 
 	return checkOK("A x = [A] \"b\";", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
 }
 
 // Data declaration in imported module
 
 test bool ADTVisible(){ 
-	makeModule("MMM", "data DATA = d();"); 
+	writeModule("MMM", "data DATA = d();"); 
 	return checkOK("DATA x;", importedModules=["MMM"]);
 }
 
 test bool QualifiedADTVisible(){ 
-	makeModule("MMM", "data DATA = d();"); 
+	writeModule("MMM", "data DATA = d();"); 
 	return checkOK("MMM::DATA x;", importedModules=["MMM"]);
 }
 
 test bool ExtendADT(){ 
-	makeModule("MMM", "data DATA = d();"); 
+	writeModule("MMM", "data DATA = d();"); 
 	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["MMM"]);
 }
 
 test bool UseVariableInConcreteSyntax() {
-    makeModule("MMM", "syntax A = a:\"a\"; 
+    writeModule("MMM", "syntax A = a:\"a\"; 
                       'A hello() {
                       '  A given_a = (A) `a`;
                       '  return (A) `\<A given_a\> \<A given_a\>`;
@@ -154,38 +154,38 @@ test bool UseVariableInConcreteSyntax() {
 }
 
 test bool RedeclareConstructorError(){ 
-	makeModule("MMM", "data DATA = d(int n);"); 
-	return declarationError("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);
+	writeModule("MMM", "data DATA = d(int n);"); 
+	return unexpectedDeclaration("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);
 }
 
 // Alias declaration in imported module
 
 test bool UseImportedAlias(){ 
-	makeModule("MMM", "alias INT = int;"); 
+	writeModule("MMM", "alias INT = int;"); 
 	return checkOK("int x = 3;", importedModules=["MMM"]);
 }
 
 test bool closureInTuple() {
-    makeModule("MMM", "tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
+    writeModule("MMM", "tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 test bool voidClosureInTuple1() {
-    makeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    writeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple2() {
-    makeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
+    writeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple3() {
-    makeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    writeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple4() {
-    makeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
+    writeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
@@ -210,11 +210,11 @@ test bool nonAmbiguousParameter5() =
             initialDecls=["data F = f(int n) | f(int n, str s);"]);                 
             
 test bool ambiguousParameter1() =
-    declarationError("int getN(f(s, n)) = n;", 
+    unexpectedDeclaration("int getN(f(s, n)) = n;", 
             initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
             
 test bool listWithWrongArity() =
-    declarationError("list[int,str] x = [];");
+    unexpectedDeclaration("list[int,str] x = [];");
 
 test bool F1() = checkOK("int x = f(1);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
 
@@ -307,5 +307,58 @@ test bool OkIndirectAlias1() = checkOK("LIST[int] z = [1,2];",
 test bool OkIndirectAlias2() = checkOK("LIST[int] z = [1,2];",
 	initialDecls = [ "alias LIST1[&T] = list[&T];", "alias LIST[&T] = LIST1[&T];"]);
 
-test bool CircularAlias() = declarationError("true;", 
+test bool CircularAlias() = unexpectedDeclaration("true;", 
 	initialDecls = ["alias X = Y;", "alias Y = X;"]);
+
+/////////////////////////////////////////
+test bool LF1() = unexpectedDeclaration("list[int n] l = [];");
+
+test bool SF1() = unexpectedDeclaration("set[int n] l = {};");
+
+test bool MF1() = checkOK("map[str key, int val] x; set[str] y = x.key;");
+
+test bool MF2() = unexpectedType("map[str key, int val] x; set[int] y = x.key;");
+
+test bool MF3() = checkOK("map[str key, int val] x; set[int] y = x.val;");
+
+test bool MF4() = undefinedField("map[str key, int val] x; set[int] y = x.vals;");
+
+test bool MF5() = unexpectedDeclaration("map[str key, int] x;");
+
+test bool MF6() = unexpectedDeclaration("map[str key, int key] x;");
+
+test bool RF1() = checkOK("rel[str a, int b, real r] x; set[str] y = x.a;");
+
+test bool RF2() = checkOK("rel[str a, int b, real r] x; set[int] y = x.b;");
+
+test bool RF3() = checkOK("rel[str a, int b, real r] x; set[real] y = x.r;");
+
+test bool RF4() = undefinedField("rel[str a, int b, real r] x; set[real] y = x.c;");
+
+test bool RF5() = unexpectedDeclaration("rel[str a, int b, real] x;");
+
+test bool RF6() = unexpectedDeclaration("rel[str a, int b, real a] x;");
+
+test bool LRF1() = checkOK("lrel[str a, int b, real r] x; list[str] y = x.a;");
+
+test bool LRF2() = checkOK("lrel[str a, int b, real r] x; list[int] y = x.b;");
+
+test bool LRF3() = checkOK("lrel[str a, int b, real r] x; list[real] y = x.r;");
+
+test bool LRF4() = undefinedField("lrel[str a, int b, real r] x; list[real] y = x.c;");
+
+test bool LRF5() = unexpectedDeclaration("lrel[str a, int b, real] x;");
+
+test bool LRF6() = unexpectedDeclaration("lrel[str a, int b, real a] x;");
+
+test bool TF1() = checkOK("tuple[str a, int b, real r] x; str y = x.a;");
+
+test bool RT2() = checkOK("tuple[str a, int b, real r] x; int y = x.b;");
+
+test bool RT3() = checkOK("tuple[str a, int b, real r] x; real y = x.r;");
+
+test bool TF4() = undefinedField("tuple[str a, int b, real r] x; real y = x.c;");
+
+test bool TF5() = unexpectedDeclaration("tuple[str a, int b, real] x;");
+
+test bool TF6() = unexpectedDeclaration("tuple[str a, int b, real a] x;");
