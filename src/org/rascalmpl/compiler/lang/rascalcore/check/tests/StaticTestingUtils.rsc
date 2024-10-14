@@ -41,6 +41,9 @@ loc composeModule(str stmts,  list[str] importedModules = [], list[str] initialD
         '}");  
 }
 
+void clearMemory() {
+	remove(|memory:///test-modules/| recursive = true);
+}
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
@@ -53,10 +56,17 @@ loc writeModule(str name, str body){
 }
 
 loc writeModule(str moduleText){
-	<name, mbody> = extractModuleNameAndBody(moduleText);
-    mloc = |memory:///test-modules/<cleanName(name)>.rsc|;
+	<mname, mbody> = extractModuleNameAndBody(moduleText);
+    mloc = |memory:///test-modules/<cleanName(mname)>.rsc|;
     writeFile(mloc, moduleText);
     return mloc;
+}
+
+void removeModule(str mname){
+	pcfg = getDefaultTestingPathConfig();
+	name = cleanName(mname);
+	remove(|memory:///test-modules/<name>.rsc|);
+	remove(pcfg.resources + "<name>.tpl");
 }
 
 set[Message] getErrorMessages(ModuleStatus r)
@@ -317,7 +327,7 @@ bool unexpectedDeclaration(str stmts, list[str] importedModules = [], list[str] 
 list[str] missingModuleMsgs = [
 	"Reference to name _ cannot be resolved",
 	 "Undefined module _",
-	 "Module _ not found"
+	 "Module _ not found_"
 ];
 bool missingModuleInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, missingModuleMsgs);

@@ -1,6 +1,6 @@
 module lang::rascalcore::compile::Examples::Tst4
  
-set[int n] l = {};
+import XXX;
 
 //  import lang::rascalcore::check::AType;
 // import IO;
