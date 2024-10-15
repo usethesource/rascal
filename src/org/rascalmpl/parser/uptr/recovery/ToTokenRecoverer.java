@@ -74,10 +74,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
         collectUnexpandableNodes(unexpandableNodes, failedNodes);
         collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
 
-        return reviveFailedNodes(input, failedNodes);
+        return reviveFailedNodes(input, location, failedNodes);
     }
 
-    private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input,
+    private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveNodes(int[] input, int location,
         DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
         DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<>();
 
@@ -102,7 +102,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
                 IConstructor prod = prods.get(j);
 
                 List<SkippingStackNode<IConstructor>> skippingNodes =
-                    findSkippingNodes(input, recoveryNode, prod, startLocation);
+                    findSkippingNodes(input, location, recoveryNode, prod, startLocation);
                 for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
                     AbstractStackNode<IConstructor> continuer =
                         new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
@@ -122,11 +122,18 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
         return recoveredNodes;
     }
 
-    private List<SkippingStackNode<IConstructor>> findSkippingNodes(int[] input,
+    private List<SkippingStackNode<IConstructor>> findSkippingNodes(int[] input, int location,
         AbstractStackNode<IConstructor> recoveryNode, IConstructor prod, int startLocation) {
         List<SkippingStackNode<IConstructor>> nodes = new java.util.ArrayList<>();
 
         SkippedNode result;
+
+        // If we are at the end of the input, skip nothing
+        if (location >= input.length) {
+            result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
+            nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+            return nodes; // No other nodes would be useful
+        }
 
         // If we are the top-level node, just skip the rest of the input
         if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
@@ -342,7 +349,9 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
     }
 
 
-    private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(int[] input,
+    private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(
+        int[] input,
+        int location,
         ArrayList<AbstractStackNode<IConstructor>> failedNodes) {
         DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes =
             new DoubleArrayList<>();
@@ -359,7 +368,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             findRecoveryNodes(failedNodes.get(i), recoveryNodes);
         }
 
-        return reviveNodes(input, recoveryNodes);
+        return reviveNodes(input, location, recoveryNodes);
     }
 
     private static void collectUnexpandableNodes(Stack<AbstractStackNode<IConstructor>> unexpandableNodes,
