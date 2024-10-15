@@ -24,27 +24,27 @@ test bool shadowingDeclaration4() = checkOK("int N = 3; int N := 3;");
 // Variable declaration in imported module
 
 test bool privateVarDeclarationNotVisible(){ 
-	writeModule("MMM", "private int x = 3;"); 
+	writeModule("module MMM private int x = 3;"); 
 	return undeclaredVariable("x;", importedModules=["MMM"]);
 }
 
 test bool publicVarDeclarationVisible(){ 
-	writeModule("MMM", "public int x = 3;"); 
+	writeModule("module MMM public int x = 3;"); 
 	return checkOK("x;", importedModules=["MMM"]);
 }
 
 test bool publicVarDeclarationVisibleViaQualifiedName(){ 
-	writeModule("MMM", "public int x = 3;"); 
+	writeModule("module MMM public int x = 3;"); 
 	return checkOK("MMM::x;", importedModules=["MMM"]);
 }
 
 test bool DefaultVarDeclarationNotVisible(){ 
-	writeModule("MMM", "int x = 3;"); 
+	writeModule("module MMM int x = 3;"); 
 	return undeclaredVariable("x;", importedModules=["MMM"]);
 }
 
 test bool RedeclaredVarDeclaration(){
-	writeModule("MMM", "public int x = 3;"); 
+	writeModule("module MMM public int x = 3;"); 
 	return checkOK("int x = 4;", importedModules=["MMM"]);
 }
 
@@ -58,134 +58,135 @@ test bool RedeclaredVarDeclaration(){
 //}
 
 test bool qualifiedScopeTest(){ 
-	writeModule("MMM", "public int n = 1;"); 
+	writeModule("module MMM public int n = 1;"); 
 	return checkOK("MMM::n == 1;", importedModules=["MMM"]);
 }
 
 // Function declaration in imported module
 
 test bool privateFunDeclarationNotVisible(){ 
-	writeModule("MMM", "private int f() = 3;"); 
+	writeModule("module MMM private int f() = 3;"); 
 	return undeclaredVariable("f();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisible(){ 
-	writeModule("MMM", "public int f() = 3;"); 
+	writeModule("module MMM public int f() = 3;"); 
 	return checkOK("f();", importedModules=["MMM"]);
 }
 
 test bool publicFunDeclarationVisibleViaQualifiedName(){ 
-	writeModule("MMM", "public int f() = 3;"); 
+	writeModule("module MMM public int f() = 3;"); 
 	return checkOK("MMM::f();", importedModules=["MMM"]);
 }
 
 test bool DefaultFunDeclarationVisible(){ 
-	writeModule("MMM", "int f() = 3;"); 
+	writeModule("module MMM int f() = 3;"); 
 	return checkOK("f();", importedModules=["MMM"]);
 }
 
 // Non-terminal declaration in imported module
 
 test bool NonTerminalVisible(){ 
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("A a;", importedModules=["MMM"]);
 }
 
 test bool QualifiedNonTerminalVisible(){ 
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("MMM::A a;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal1(){ 
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("[A]\"a\";", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal2(){ 
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("A anA = [A]\"a\";", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal3(){ 
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("(A)`a`;", importedModules=["MMM"]);
 }
 
 test bool UseNonTerminal4(){ 
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("A anA = (A)`a`;", importedModules=["MMM"]);
 }
 
 test bool ExtendNonTerminal(){            // TODO: EmptyList()
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("A a;", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
 }
 
 test bool UseExtendedNonTerminal(){       // TODO: EmptyList()
-	writeModule("MMM", "syntax A = \"a\";"); 
+	writeModule("module MMM syntax A = \"a\";"); 
 	return checkOK("A x = [A] \"b\";", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
 }
 
 // Data declaration in imported module
 
 test bool ADTVisible(){ 
-	writeModule("MMM", "data DATA = d();"); 
+	writeModule("module MMM data DATA = d();"); 
 	return checkOK("DATA x;", importedModules=["MMM"]);
 }
 
 test bool QualifiedADTVisible(){ 
-	writeModule("MMM", "data DATA = d();"); 
+	writeModule("module MMM data DATA = d();"); 
 	return checkOK("MMM::DATA x;", importedModules=["MMM"]);
 }
 
 test bool ExtendADT(){ 
-	writeModule("MMM", "data DATA = d();"); 
+	writeModule("module MMM data DATA = d();"); 
 	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["MMM"]);
 }
 
 test bool UseVariableInConcreteSyntax() {
-    writeModule("MMM", "syntax A = a:\"a\"; 
-                      'A hello() {
-                      '  A given_a = (A) `a`;
-                      '  return (A) `\<A given_a\> \<A given_a\>`;
-                      '}");
+    writeModule("module MMM
+					syntax A = a:\"a\"; 
+                      A hello() {
+                        A given_a = (A) `a`;
+                        return (A) `\<A given_a\> \<A given_a\>`;
+                      }");
                       
     return checkOK("hello();", importedModules=["MMM"]);
 }
 
 test bool RedeclareConstructorError(){ 
-	writeModule("MMM", "data DATA = d(int n);"); 
+	writeModule("module MMM data DATA = d(int n);"); 
 	return unexpectedDeclaration("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);
 }
 
 // Alias declaration in imported module
 
 test bool UseImportedAlias(){ 
-	writeModule("MMM", "alias INT = int;"); 
+	writeModule("module MMM alias INT = int;"); 
 	return checkOK("int x = 3;", importedModules=["MMM"]);
 }
 
 test bool closureInTuple() {
-    writeModule("MMM", "tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
+    writeModule("module MMM tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 test bool voidClosureInTuple1() {
-    writeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    writeModule("module MMM tuple[void(int)] f() = \<void(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple2() {
-    writeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
+    writeModule("module MMM tuple[void(int)] f() = \<(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple3() {
-    writeModule("MMM", "tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    writeModule("module MMM tuple[void(int)] f() = \<void(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
 test bool voidClosureInTuple4() {
-    writeModule("MMM", "tuple[void(int)] f() = \<(int i) { return; }\>;");
+    writeModule("module MMM tuple[void(int)] f() = \<(int i) { return; }\>;");
     return checkOK("f();",  importedModules=["MMM"]);
 }
 
@@ -310,7 +311,6 @@ test bool OkIndirectAlias2() = checkOK("LIST[int] z = [1,2];",
 test bool CircularAlias() = unexpectedDeclaration("true;", 
 	initialDecls = ["alias X = Y;", "alias Y = X;"]);
 
-/////////////////////////////////////////
 test bool LF1() = unexpectedDeclaration("list[int n] l = [];");
 
 test bool SF1() = unexpectedDeclaration("set[int n] l = {};");
