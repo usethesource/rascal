@@ -7,7 +7,7 @@ begin
     if a then
       % comment 1 %
       b := a;
-      x := 1
+      z := z
     else 
       % comment 2 %
       a := b;
