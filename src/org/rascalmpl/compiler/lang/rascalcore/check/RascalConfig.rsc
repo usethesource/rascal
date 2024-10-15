@@ -384,13 +384,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                 msgs = [ info("Multiple defaults defined for function `<id>`, refactor or manually check non-overlap", d.defined) | d <- defaults ];
                 s.addMessages(msgs);
             }
-        } else if({Define d} := defs){
-            ft = facts[d.defined]?afunc(avoid(),[],[]); 
-            if(ft.deprecationMessage? && s.getConfig().warnDeprecated){
-                msgs = [ error("Deprecated function<isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage>", d.defined) ];
-                s.addMessages(msgs);
-            }
-        }    
+        }   
     }
     
     consNameDef = {<define.id, define> | define <- defines, define.idRole == constructorId() };
