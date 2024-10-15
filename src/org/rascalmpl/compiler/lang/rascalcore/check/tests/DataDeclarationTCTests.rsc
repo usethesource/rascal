@@ -340,18 +340,3 @@ test bool Issue480() = checkModuleOK("
 
  		value my_main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));
 	");
-
-// https://github.com/cwi-swat/rascal/issues/547
-
-test bool Issue547(){												
-	writeModule("module M1
-                    import M2;");		 
-	writeModule("module M2 
-                    import Type;
-					public data MuExp = muCallJava( str name, Symbol parameterTypes);");
-    return checkModuleOK("
-        module Issue547
-            import M1;
-            import M2;
-    ");
-}

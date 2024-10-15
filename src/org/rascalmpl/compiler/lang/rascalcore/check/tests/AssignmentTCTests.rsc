@@ -25,16 +25,36 @@ test bool errorMap1() = checkOK("map[int,list[int]] M = (0:[1,2,3],1:[10,20,30])
 
 test bool errorSet1() = unexpectedType("set[int] L = {1,2,3}; L *= {4}; L=={\<1,4\>,\<2,4\>,\<3,4\>};");
 
-test bool annotationError1() = uninitialized(" X @pos = 1;");
+test bool AnnotationError1() = uninitialized(" X @pos = 1;");
 
-test bool annotationError2() = uninitialized(" F X; X @pos += 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
+test bool AnnotationError2() = uninitializedInModule("
+     module AnnotationError2
+          data F = f() | f(int n) | g(int n) | deep(F f);
+          anno int F @pos;
+          void main() { F X; X @pos += 1; }
+     ");
 
-test bool annotationError3() = uninitialized(" F X; X @pos -= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
+test bool AnnotationError3() = uninitializedInModule("
+     module AnnotationError3
+          data F = f() | f(int n) | g(int n) | deep(F f);
+          anno int F @pos;
+          void main() { F X; X @pos -= 1; }
+     ");
 
-test bool annotationError4() = uninitialized(" F X; X @pos *= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
+test bool AnnotationError4() = uninitializedInModule("
+     module AnnotationError4
+          data F = f() | f(int n) | g(int n) | deep(F f);
+          anno int F @pos;
+          void main() { F X; X @pos *= 1; }
+     ");
 
-test bool annotationError5() = uninitialized(" F X; X @pos /= 1;", initialDecls=["data F = f() | f(int n) | g(int n) | deep(F f);", "anno int F @pos;"]);
-  
+test bool AnnotationError5() = uninitializedInModule("
+     module AnnotationError5
+          data F = f() | f(int n) | g(int n) | deep(F f);
+          anno int F @pos;
+          void main() { F X; X @pos /= 1; }
+     ");
+     
 test bool testInteger6() = uninitialized("N ?= 2; N==2;"); 
 
 test bool testList9() = uninitialized("L ?= [4]; L==[4];"); 
@@ -80,9 +100,22 @@ test bool SLICE10() = checkOK("void main(){ s = \"abcdefg\"; s[1..3] = \"x\"; }"
 test bool SLICE11() = checkOK("void main(){ s = \"abcdefg\"; s[1..3] += \"x\"; }");
 test bool SLICE11() = unexpectedType("void main(){ s = \"abcdefg\"; s[1..3] += 10; }");
 
-test bool FIELD1() = checkOK("void main(){ x = d1(20); x.n = 30; }", initialDecls=["data D = d1(int n);"]);
-test bool FIELD2() = checkOK("void main(){ x = d1(20); x.n += 30; }", initialDecls=["data D = d1(int n); "]);
-test bool FIELD3() = unexpectedType("void main(){ x = d1(20); x.n += \"a\"; }", initialDecls=["data D = d1(int n);"]);
+test bool FIELD1() = checkModuleOK("
+     module FIELD1
+          data D = d1(int n);
+          void main(){ x = d1(20); x.n = 30; }
+     ");
+
+test bool FIELD2() = checkModuleOK("
+     module FIELD2
+          data D = d1(int n);
+          void main(){ x = d1(20); x.n += 30; }
+     ");
+test bool FIELD3() = unexpectedTypeInModule("
+     module FIELD3
+          data D = d1(int n);
+          void main(){ x = d1(20); x.n += \"a\"; }
+     ");
 
 test bool FIELD4() = checkOK("void main(){ tuple[str s, int n] x = \<\"a\", 1\>; x.s = \"A\"; }");
 test bool FIELD5() = checkOK("void main(){ tuple[str s, int n] x = \<\"a\", 1\>; x.s += \"A\"; }");
@@ -90,9 +123,23 @@ test bool FIELD6() = checkOK("void main(){ tuple[str s, int n] x = \<\"a\", 1\>;
 test bool FIELD7() = checkOK("void main(){ tuple[str s, int n] x = \<\"a\", 1\>; x.n += 30; }");
 test bool FIELD8() = unexpectedType("void main(){ tuple[str s, int n] x = \<\"a\", 1\>; x.n = true; }");
 
-test bool FIELDSUB1() = checkOK("void main(){ x = d1([0,1,2,3,4]); x.ns[1] = 10; }", initialDecls=["data D = d1(list[int] ns);"]);
-test bool FIELDSUB2() = checkOK("void main(){ x = d1([0,1,2,3,4]); x.ns[1] += 10; }", initialDecls=["data D = d1(list[int] ns);"]);
-test bool FIELDSUB3() = unexpectedType("void main(){ x = d1([0,1,2,3,4]); x.ns[1] = \"a\"; }", initialDecls=["data D = d1(list[int] ns);"]);
+test bool FIELDSUB1() = checkModuleOK("
+     module FIELDSUB1
+          data D = d1(list[int] ns);
+          void main(){ x = d1([0,1,2,3,4]); x.ns[1] = 10; }
+     ");
+
+test bool FIELDSUB2() = checkModuleOK("
+     module FIELDSUB2
+          data D = d1(list[int] ns);
+          void main(){ x = d1([0,1,2,3,4]); x.ns[1] += 10; }
+     ");
+
+test bool FIELDSUB3() = unexpectedTypeInModule("
+     module FIELDSUB3
+          data D = d1(list[int] ns);
+          void main(){ x = d1([0,1,2,3,4]); x.ns[1] = \"a\"; }
+     ");
 
 test bool TUPLE1() = checkOK("void main(){ tuple[str s, int n] x = \<\"a\", 1\>; \<a, b\> = x; a == \"a\"; b == 1;}");
 
