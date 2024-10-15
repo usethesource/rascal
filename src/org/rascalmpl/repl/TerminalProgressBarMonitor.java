@@ -31,7 +31,7 @@ import jline.internal.Configuration;
  * This class only works correctly if the actual _raw_ output stream of the terminal is wrapped
  * with an object of this class.
  */
-public class TerminalProgressBarMonitor extends FilterOutputStream implements IRascalMonitor  {
+public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMonitor  {
     /**
      * We administrate an ordered list of named bars, which will be printed from
      * top to bottom just above the next prompt.

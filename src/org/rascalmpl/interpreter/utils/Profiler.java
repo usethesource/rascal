@@ -160,7 +160,7 @@ public class Profiler extends Thread {
 	
 	public void report() {
 		report("FRAMES", frame);
-		eval.getOutPrinter().println();
+		eval.getStdOut().println();
 		report("ASTS", ast);
 	}
 	
@@ -178,7 +178,7 @@ public class Profiler extends Thread {
 	    nTicks += e.getValue().getTicks();
 	  }
 	  
-	  PrintWriter out = eval.getOutPrinter();
+	  PrintWriter out = eval.getStdOut();
 	  String nameFormat = "%" + maxName + "s";
 	  out.printf(title + " PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", ast.size(), nTicks, resolution);
 	  out.printf(nameFormat + "%8s%9s  %s\n", " Scope", "Ticks", "%", "Source");

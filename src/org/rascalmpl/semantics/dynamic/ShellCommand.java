@@ -44,14 +44,14 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 				
 				ISourceLocation uri = __eval.getRascalResolver().resolveModule(name);
 	       	 	if (uri == null) {
-					__eval.getErrorPrinter().println("module " + name + " can not be found in the search path.");
+					__eval.getStdErr().println("module " + name + " can not be found in the search path.");
 	        	}
 				else {
 					services.edit(uri);
 				}
 			}
 			else {
-				__eval.getErrorPrinter().println("The current Rascal execution environment does not know how to start an editor.");
+				__eval.getStdErr().println("The current Rascal execution environment does not know how to start an editor.");
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -81,7 +81,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.printHelpMessage(__eval.getOutPrinter());
+			__eval.printHelpMessage(__eval.getStdOut());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}

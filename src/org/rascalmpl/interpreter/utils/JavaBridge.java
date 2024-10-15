@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -375,14 +376,11 @@ public class JavaBridge {
 		}
 	}
 	
-	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, OutputStream rawOut, OutputStream rawErr, InputStream in, IEvaluatorContext ctx) {
+	public synchronized Object getJavaClassInstance(FunctionDeclaration func, IRascalMonitor monitor, TypeStore store, PrintWriter out, PrintWriter err, Reader in, IEvaluatorContext ctx) {
 		String className = getClassName(func);
 		
 		PrintWriter[] outputs = new PrintWriter[] { out, err };
 		int writers = 0;
-        
-		OutputStream[] rawOutputs = new OutputStream[] { rawOut, rawErr };
-		int rawWriters = 0;
 
 		try {
 			for(ClassLoader loader : loaders){
@@ -425,10 +423,7 @@ public class JavaBridge {
 					    else if (formals[i].isAssignableFrom(PrintWriter.class)) {
 					        args[i] = outputs[writers++ % 2];
 					    }
-					    else if (formals[i].isAssignableFrom(OutputStream.class)) {
-					        args[i] = rawOutputs[rawWriters++ %2];
-					    }
-					    else if (formals[i].isAssignableFrom(InputStream.class)) {
+					    else if (formals[i].isAssignableFrom(Reader.class)) {
 					        args[i] = in;
 					    }
 					    else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {

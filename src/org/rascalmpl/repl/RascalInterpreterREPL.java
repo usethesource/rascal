@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Collection;
@@ -71,7 +72,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    public void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices ideServices) {
+    public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) {
         eval = constructEvaluator(input, stdout, stderr, ideServices);
     }
 
@@ -79,7 +80,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
     @Override
     public PrintWriter getErrorWriter() {
-        return eval.getErrorPrinter();
+        return eval.getStdErr();
     }
 
     @Override
@@ -89,7 +90,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     
     @Override
     public PrintWriter getOutputWriter() {
-        return eval.getOutPrinter();
+        return eval.getStdOut();
     }
 
     @Override
@@ -135,37 +136,37 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
                 duration = tm.duration();
             }
             if (measureCommandTime) {
-                eval.getErrorPrinter().println("\nTime: " + duration + "ms");
+                eval.getStdErr().println("\nTime: " + duration + "ms");
             }
             return value;
         }
         catch (InterruptException ie) {
-            eval.getErrorPrinter().println("Interrupted");
+            eval.getStdErr().println("Interrupted");
             try {
-                ie.getRascalStackTrace().prettyPrintedString(eval.getErrorPrinter(), indentedPrettyPrinter);
+                ie.getRascalStackTrace().prettyPrintedString(eval.getStdErr(), indentedPrettyPrinter);
             }
             catch (IOException e) {
             }
             return null;
         }
         catch (ParseError pe) {
-            parseErrorMessage(eval.getErrorPrinter(), lastLine, "prompt", pe, indentedPrettyPrinter);
+            parseErrorMessage(eval.getStdErr(), lastLine, "prompt", pe, indentedPrettyPrinter);
             return null;
         }
         catch (StaticError e) {
-            staticErrorMessage(eval.getErrorPrinter(),e, indentedPrettyPrinter);
+            staticErrorMessage(eval.getStdErr(),e, indentedPrettyPrinter);
             return null;
         }
         catch (Throw e) {
-            throwMessage(eval.getErrorPrinter(),e, indentedPrettyPrinter);
+            throwMessage(eval.getStdErr(),e, indentedPrettyPrinter);
             return null;
         }
         catch (QuitException q) {
-            eval.getErrorPrinter().println("Quiting REPL");
+            eval.getStdErr().println("Quiting REPL");
             throw new InterruptedException();
         }
         catch (Throwable e) {
-            throwableMessage(eval.getErrorPrinter(), e, eval.getStackTrace(), indentedPrettyPrinter);
+            throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), indentedPrettyPrinter);
             return null;
         }
     }
