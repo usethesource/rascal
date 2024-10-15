@@ -12,7 +12,13 @@ test bool returnNotOK2() = unexpectedType("list[int] f() = {1,2,3};");
 // Type parameters without bounds
 test bool returnSumOK()       = checkOK("(&T \<:num) sum([(&T \<: num) hd, *(&T \<: num) tl]) = (hd | it + i | i \<- tl);");
 test bool returnDomainOK()    = checkOK("set[&T0] domain (rel[&T0,&T1] R){ return R\<0\>; }");
-test bool returnGOK()         = checkOK("&T g(Maybe[&T] _, value x) = x;", initialDecls= ["import util::Maybe;"]);
+
+test bool ReturnGOK()         = checkModuleOK("
+   module ReturnGOK
+      import util::Maybe;
+      &T g(Maybe[&T] _, value x) = x;
+   ");
+
 test bool returnEmptyListOK() = checkOK("list[&T] emptyList(type[&T] _) = [];");
 test bool returnEmptyMapOK()  = checkOK("map[&K, &V] emptyMap(type[map[&K,&V]] _) = ();");
 test bool typeParamsOK1()     = checkOK("&T add(&T x, &T y) = y;");

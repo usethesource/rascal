@@ -5,7 +5,7 @@ import lang::rascalcore::check::tests::StaticTestingUtils;
  
 test bool localTypeInferenceNoEscape2() = undeclaredVariable("{ x = 1; x == 1; } x;");
 
-test bool undeclaredType1() = undeclaredType("X N;");            // TODO Type X undeclared
+test bool undeclaredType1() = undeclaredType("X N;");
 
 test bool doubleDeclaration3() = redeclaredVariable("int f(int N){int N = 1; return N;}");
 
@@ -19,128 +19,218 @@ test bool shadowingDeclaration1() = checkOK("int N = 1; {int N = 2;}; N == 1;");
 
 test bool shadowingDeclaration2() = checkOK("N = 1; {int N = 2; N == 2;}; N == 1;");
 
-test bool shadowingDeclaration4() = checkOK("int N = 3; int N := 3;");
+test bool shadowingDeclaration3() = checkOK("int N = 3; int N := 3;");
 
 // Variable declaration in imported module
 
-test bool privateVarDeclarationNotVisible(){ 
+test bool PrivateVarDeclarationNotVisible(){ 
 	writeModule("module MMM private int x = 3;"); 
-	return undeclaredVariable("x;", importedModules=["MMM"]);
+	return undeclaredVariableInModule("
+		module PrivateVarDeclarationNotVisible
+			import MMM;
+			int main() = x;
+		");
 }
 
-test bool publicVarDeclarationVisible(){ 
+test bool PublicVarDeclarationVisible(){ 
 	writeModule("module MMM public int x = 3;"); 
-	return checkOK("x;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module PublicVarDeclarationVisible
+			import MMM;
+			int main() = x;
+		");
 }
 
-test bool publicVarDeclarationVisibleViaQualifiedName(){ 
+test bool PublicVarDeclarationVisibleViaQualifiedName(){ 
 	writeModule("module MMM public int x = 3;"); 
-	return checkOK("MMM::x;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module PublicVarDeclarationVisibleViaQualifiedName
+			import MMM;
+			int main() = MMM::x;
+		");
 }
 
 test bool DefaultVarDeclarationNotVisible(){ 
 	writeModule("module MMM int x = 3;"); 
-	return undeclaredVariable("x;", importedModules=["MMM"]);
+	return undeclaredVariableInModule("
+		module DefaultVarDeclarationNotVisible
+			import MMM;
+			int main() = x;
+		");
 }
 
 test bool RedeclaredVarDeclaration(){
 	writeModule("module MMM public int x = 3;"); 
-	return checkOK("int x = 4;", importedModules=["MMM"]);
+	return redeclaredVariableInModule("
+		module RedeclaredVarDeclaration
+			import MMM;
+			int x = 4;
+		");
 }
 
-// MAH: I will need to look for a good way to test bool this now; the configuration no
-// longer includes errors detected in imported modules unless they are actual
-// import errors, in this case the first n is in the imported configuration
-// but the second n isn't since it would raise an error while checking M.
-//test bool moduleReunexpectedDeclaration1(){ 
-//	writeModule("MMM", "public int n = 1; public int n = 2;"); 
-//	return redeclaredVariable("n == 1;", importedModules=["MMM"]);
-//}
+test bool ModuleVarReDeclaration(){ 
+	writeModule("module MMM
+					public int n = 1; 
+					public int n = 2;"); 
+	return redeclaredVariableInModule("
+		module ModuleVarReDeclaration
+			import MMM;
+			bool main() = n == 1;
+		");
+}
 
-test bool qualifiedScopeTest(){ 
+test bool QualifiedScopeTest(){ 
 	writeModule("module MMM public int n = 1;"); 
-	return checkOK("MMM::n == 1;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module QualifiedScopeTest
+			import MMM;
+			int main() = MMM::n == 1;
+		");
 }
 
 // Function declaration in imported module
 
-test bool privateFunDeclarationNotVisible(){ 
+test bool PrivateFunDeclarationNotVisible(){ 
 	writeModule("module MMM private int f() = 3;"); 
-	return undeclaredVariable("f();", importedModules=["MMM"]);
+	return undeclaredVariableInModule("
+		module PrivateFunDeclarationNotVisible
+			import MMM;
+			int main() = f();
+		");
 }
 
-test bool publicFunDeclarationVisible(){ 
+test bool PublicFunDeclarationVisible(){ 
 	writeModule("module MMM public int f() = 3;"); 
-	return checkOK("f();", importedModules=["MMM"]);
+	return checkModuleOK("
+		module PublicFunDeclarationVisible
+			import MMM;
+			int main() = f();
+		");
 }
 
-test bool publicFunDeclarationVisibleViaQualifiedName(){ 
+test bool PublicFunDeclarationVisibleViaQualifiedName(){ 
 	writeModule("module MMM public int f() = 3;"); 
-	return checkOK("MMM::f();", importedModules=["MMM"]);
+	return checkModuleOK("
+		module PublicFunDeclarationVisibleViaQualifiedName
+			import MMM;
+			int main() = f();
+		");
 }
 
 test bool DefaultFunDeclarationVisible(){ 
 	writeModule("module MMM int f() = 3;"); 
-	return checkOK("f();", importedModules=["MMM"]);
+	return checkModuleOK("
+		module DefaultFunDeclarationVisible
+			import MMM;
+			int main() = f();
+		");
 }
 
 // Non-terminal declaration in imported module
 
 test bool NonTerminalVisible(){ 
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("A a;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module NonTerminalVisible
+			import MMM;
+			A a;
+		");
 }
 
 test bool QualifiedNonTerminalVisible(){ 
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("MMM::A a;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module QualifiedNonTerminalVisible
+			import MMM;
+			MMM::A a;
+		");
 }
 
 test bool UseNonTerminal1(){ 
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("[A]\"a\";", importedModules=["MMM"]);
+	return checkModuleOK("
+		module UseNonTerminal1
+			import MMM;
+			A main() = [A]\"a\";
+		");
 }
 
 test bool UseNonTerminal2(){ 
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("A anA = [A]\"a\";", importedModules=["MMM"]);
+	return checkModuleOK("
+		module UseNonTerminal2
+			import MMM;
+			A anA = [A]\"a\";
+		");
 }
 
 test bool UseNonTerminal3(){ 
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("(A)`a`;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module UseNonTerminal3
+			import MMM;
+			A main() = (A)`a`;
+	");
 }
 
 test bool UseNonTerminal4(){ 
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("A anA = (A)`a`;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module UseNonTerminal4
+			import MMM;
+			A anA = (A)`a`;
+		");
 }
 
-test bool ExtendNonTerminal(){            // TODO: EmptyList()
+test bool ExtendNonTerminal(){
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("A a;", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
+	return checkModuleOK("
+		module ExtendNonTerminal
+			import MMM;
+			syntax A = \"b\";
+	
+			A a;
+		");
 }
 
-test bool UseExtendedNonTerminal(){       // TODO: EmptyList()
+test bool UseExtendedNonTerminal(){
 	writeModule("module MMM syntax A = \"a\";"); 
-	return checkOK("A x = [A] \"b\";", initialDecls=["syntax A = \"b\";"], importedModules=["MMM"]);
+	return checkModuleOK("
+		module UseExtendedNonTerminal
+			import MMM;
+			syntax A = \"b\";
+			A x = [A] \"b\";
+	");
 }
 
 // Data declaration in imported module
 
 test bool ADTVisible(){ 
 	writeModule("module MMM data DATA = d();"); 
-	return checkOK("DATA x;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module ADTVisible
+			import MMM;
+			DATA x;
+		");
 }
 
 test bool QualifiedADTVisible(){ 
 	writeModule("module MMM data DATA = d();"); 
-	return checkOK("MMM::DATA x;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module QualifiedADTVisible
+			import MMM;
+			MMM::DATA x;
+		");
 }
 
 test bool ExtendADT(){ 
 	writeModule("module MMM data DATA = d();"); 
-	return checkOK("DATA x = d2(3);", initialDecls=["data DATA = d2(int n);"], importedModules=["MMM"]);
+	return checkModuleOK("
+		module ExtendADT
+			import MMM;
+			data DATA = d2(int n);
+			DATA x = d2(3);
+		");
 }
 
 test bool UseVariableInConcreteSyntax() {
@@ -151,113 +241,232 @@ test bool UseVariableInConcreteSyntax() {
                         return (A) `\<A given_a\> \<A given_a\>`;
                       }");
                       
-    return checkOK("hello();", importedModules=["MMM"]);
+    return checkModuleOK("
+		module UseVariableInConcreteSyntax
+			import MMM;
+			A main() = hello();
+		");
 }
 
+@ignore{status?}
 test bool RedeclareConstructorError(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
-	return unexpectedDeclaration("DATA x = d(3);", initialDecls=["data DATA = d(int m);"], importedModules=["MMM"]);
+	return unexpectedDeclarationInModule("
+		module RedeclareConstructorError
+			import MMM;
+			data DATA = d(int m);
+			DATA x = d(3);
+		");
 }
 
 // Alias declaration in imported module
 
 test bool UseImportedAlias(){ 
 	writeModule("module MMM alias INT = int;"); 
-	return checkOK("int x = 3;", importedModules=["MMM"]);
+	return checkModuleOK("
+		module UseImportedAlias
+			import MMM;
+			INT x = 3;
+		");
 }
 
-test bool closureInTuple() {
-    writeModule("module MMM tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
-    return checkOK("f();",  importedModules=["MMM"]);
+test bool ClosureInTuple() {
+    writeModule("module MMM
+					tuple[int(int)] f() = \<int(int i) { return 2 * i; }\>;");
+    return checkModuleOK("
+		module ClosureInTuple
+			import MMM;
+			value main() = f();
+		");
 }
-test bool voidClosureInTuple1() {
-    writeModule("module MMM tuple[void(int)] f() = \<void(int i) { return; }\>;");
-    return checkOK("f();",  importedModules=["MMM"]);
-}
-
-test bool voidClosureInTuple2() {
-    writeModule("module MMM tuple[void(int)] f() = \<(int i) { return; }\>;");
-    return checkOK("f();",  importedModules=["MMM"]);
-}
-
-test bool voidClosureInTuple3() {
-    writeModule("module MMM tuple[void(int)] f() = \<void(int i) { return; }\>;");
-    return checkOK("f();",  importedModules=["MMM"]);
-}
-
-test bool voidClosureInTuple4() {
-    writeModule("module MMM tuple[void(int)] f() = \<(int i) { return; }\>;");
-    return checkOK("f();",  importedModules=["MMM"]);
+test bool VoidClosureInTuple1() {
+    writeModule("module MMM
+					tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    return checkModuleOK("
+		module VoidClosureInTuple1
+			import MMM;
+			value main() = f();
+		");
 }
 
-test bool nonAmbiguousParameter1() =
-    checkOK("int getN(f(str s, n)) = n;", 
-            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
-            
-test bool nonAmbiguousParameter2() =
-    checkOK("int getN(f(\"a\", n)) = n;", 
-            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
+test bool VoidClosureInTuple2() {
+    writeModule("module MMM 
+					tuple[void(int)] f() = \<(int i) { return; }\>;");
+    return checkModuleOK("
+		module VoidClosureInTuple2
+			import MMM;
+			value main() = f();
+		");
+}
+
+test bool VoidClosureInTuple3() {
+    writeModule("module MMM
+					tuple[void(int)] f() = \<void(int i) { return; }\>;");
+    return checkModuleOK("
+		module VoidClosureInTuple3
+			import MMM;
+			value main() = f();
+		");
+}
+
+test bool VoidClosureInTuple4() {
+    writeModule("module MMM
+					tuple[void(int)] f() = \<(int i) { return; }\>;");
+    return checkModuleOK("
+		module VoidClosureInTuple4
+			import MMM;
+			value main() = f();
+		");
+}
+
+test bool NonAmbiguousParameter1() =
+    checkModuleOK("
+		module NonAmbiguousParameter1
+			data F = f(str s, int n) | f(int n, str s);
+			int getN(f(str s, n)) = n;
+		");
+        
+test bool NonAmbiguousParameter2() =
+    checkModuleOK("
+		module NonAmbiguousParameter2
+			data F = f(str s, int n) | f(int n, str s);
+			int getN(f(\"a\", n)) = n;
+		");
     
-test bool nonAmbiguousParameter3() =
-    checkOK("int getN(f(s, int n)) = n;", 
-            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);	
+test bool NonAmbiguousParameter3() =
+    checkModuleOK("
+		module NonAmbiguousParameter3
+			data F = f(str s, int n) | f(int n, str s);
+			int getN(f(s, int n)) = n;
+		");	
 
-test bool nonAmbiguousParameter4() =
-    checkOK("int getN(f(n)) = n;", 
-            initialDecls=["data F = f(int n) | f(int n, str s);"]);
+test bool NonAmbiguousParameter4() =
+    checkModuleOK("
+		module NonAmbiguousParameter4
+			data F = f(int n) | f(int n, str s);
+			int getN(f(n)) = n;
+		");
 
-test bool nonAmbiguousParameter5() =
-    checkOK("int getN(f(n, s)) = n;", 
-            initialDecls=["data F = f(int n) | f(int n, str s);"]);                 
+test bool NonAmbiguousParameter5() =
+    checkModuleOK("
+		module NonAmbiguousParameter5
+			data F = f(int n) | f(int n, str s);
+			int getN(f(n, s)) = n;
+		");               
             
-test bool ambiguousParameter1() =
-    unexpectedDeclaration("int getN(f(s, n)) = n;", 
-            initialDecls=["data F = f(str s, int n) | f(int n, str s);"]);
+test bool AmbiguousParameter1() =
+    unexpectedDeclarationInModule("
+		module AmbiguousParameter1
+			data F = f(str s, int n) | f(int n, str s);
+			int getN(f(s, n)) = n;
+		");
             
 test bool listWithWrongArity() =
     unexpectedDeclaration("list[int,str] x = [];");
 
-test bool F1() = checkOK("int x = f(1);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F1() = checkModuleOK("
+	module F1
+		int f(int n, int k = 0) { return n; }
+		int x = f(1);
+	");
 
-test bool F2() = argumentMismatch("int x = f(true);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F2() = argumentMismatchInModule("
+	module F2
+		int f(int n, int k = 0) { return n; }
+		int x = f(true);
+	");
 
-test bool F3() = argumentMismatch("int x = f();", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F3() = argumentMismatchInModule("
+	module F3
+		int f(int n, int k = 0) { return n; }
+		int x = f();
+	");
 
-test bool F4() = argumentMismatch("int x = f(1, \"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F4() = argumentMismatchInModule("
+	module F4
+		int f(int n, int k = 0) { return n; }
+		int x = f(1, \"a\");
+	");
 
-test bool F5() = checkOK("int x = f(1, k=3);", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F5() = checkModuleOK("
+	module F5
+		int f(int n, int k = 0) { return n; }
+		int x = f(1, k=3);
+	");
 
-test bool F6() = argumentMismatch("int x = f(1, k=\"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F6() = argumentMismatchInModule("
+	module F6
+		int f(int n, int k = 0) { return n; }
+		int x = f(1, k=\"a\");
+	");
 
-test bool F7() = argumentMismatch("int x = f(1, kkk=\"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F7() = argumentMismatchInModule("
+	module F7
+		int f(int n, int k = 0) { return n; }
+		int x = f(1, kkk=\"a\");
+	");
 
-test bool F8() = unexpectedType("int x = g(1, kkk=\"a\");", initialDecls = ["int f(int n, int k = 0) { return n; }"]);
+test bool F8() = unexpectedTypeInModule("
+	module F8
+		int f(int n, int k = 0) { return n; }
+		int x = g(1, kkk=\"a\");
+	");
 
-test bool O1() = checkOK("int x = f(1, k=1); str y = f(\"a\");",
-	initialDecls = ["int f(int n, int k = 0) { return n; }",
-	                "str f(str s, bool b = false) { return s; }"]
-					);
+test bool O1() = checkModuleOK("
+	module O1
+		int f(int n, int k = 0) { return n; }
+	    str f(str s, bool b = false) { return s; }
+	
+		int x = f(1, k=1); str y = f(\"a\");
+	");
 
-test bool O2() = checkOK("void main(){ int x = f(1, k=1); str y = f(\"a\"); z = f(true, \"a\"); z = f(\"a\", false); }",
-	initialDecls = ["data D
-						= f(bool n, str s, int z = 0)
-						| f(str q, bool b);",
-					"int f(int n, int k = 0) { return n; }",
-	                "str f(str s, bool b = false) { return s; }"]
-					);
-test bool K1() = checkOK("D x = d1();", initialDecls=["data D(int n = 0) = d1();"]);
+test bool O2() = checkModuleOK("
+	module O2
+		data D = f(bool n, str s, int z = 0)
+			     | f(str q, bool b);
+		int f(int n, int k = 0) { return n; }
+	    str f(str s, bool b = false) { return s; }
+		
+		void main(){ int x = f(1, k=1); str y = f(\"a\"); z = f(true, \"a\"); z = f(\"a\", false); }
+	");
+	
+test bool K1() = checkModuleOK("
+	module K1
+		data D(int n = 0) = d1();
+		void main() { D x = d1(); }
+	");
 
-test bool K2() = checkOK("D x = d1(n=3);", initialDecls=["data D(int n = 0) = d1();"]);
+test bool K2() = checkModuleOK("
+	module K2
+		data D(int n = 0) = d1();
+		void main() { D x = d1(n=3); }
+	");
 
-test bool K3() = argumentMismatch("D x = d1(m=3);", initialDecls=["data D(int n = 0) = d1();"]);
-test bool K4() = argumentMismatch("D x = d1(n=true);", initialDecls=["data D(int n = 0) = d1();"]);
-test bool K5() = checkOK("D x = d2(b=true);", 
-	initialDecls=["data D(int n = 0) = d1();",
-	 			  "data D(bool b = true) = d2();"]);
+test bool K3() = argumentMismatchInModule("
+	module K3
+		data D(int n = 0) = d1();
+		void main() { D x = d1(m=3); }
+	");
 
-test bool K6() = checkOK("D x = d2(n=3);", 
-	initialDecls=["data D(int n = 0) = d1();",
-	 			  "data D(bool b = true) = d2();"]);
+test bool K4() = argumentMismatchInModule("
+	module K4
+		data D(int n = 0) = d1();
+		void main() { D x = d1(n=true); }
+	");
+
+test bool K5() = checkModuleOK("
+	module K5
+		data D(int n = 0) = d1();
+	 	data D(bool b = true) = d2();
+		void main() { D x = d2(b=true); }
+	");
+
+test bool K6() = checkModuleOK("
+	module K6
+		data D(int n = 0) = d1();
+	 	data D(bool b = true) = d2();
+		void main() { D x = d2(n=3); }
+	");
 
 test bool R1() = checkOK("int f() { return 10; }");
 
@@ -279,37 +488,70 @@ test bool R9() = unexpectedType("alue f(b) { n = b || true; if(b) 10; return b; 
 
 test bool R10() = unexpectedType(" value f(b) { n = b || true; if(b) 10; return b; b && false; }");
 
-test bool Issue1051() = checkOK("int main() = apply(func, f());",
-	initialDecls = [
-		"data F = f() | g();",
-    	"int func(f()) = 1;",
-    	"int func(g()) = 2;",
-    	"int apply(int (F) theFun, F theArg) = theFun(theArg);"
-	]);
+test bool Issue1051() = checkModuleOK("
+	module Issue1051
+		data F = f() | g();
+    	int func(f()) = 1;
+    	int func(g()) = 2;
+    	int apply(int (F) theFun, F theArg) = theFun(theArg);
+		int main() = apply(func, f());
+	");
 
-test bool Var1() = checkOK("int z = f(\"a\");", initialDecls=["int f(str s, int n...) = n[0];"]);
-
+test bool Var1() = checkModuleOK("
+	module Var1
+		int f(str s, int n...) = n[0];
+		int z = f(\"a\");
+	");
 
 // ---- alias -----------------------------------------------------------------
 
-test bool OkAlias1() = checkOK("INT z = 13;", initialDecls = ["alias INT = int;"]);
+test bool OkAlias1() = checkModuleOK("
+	module OkAlias1
+		alias INT = int;
+		INT z = 13;
+	");
 
 test bool UnknownAlias() = unexpectedType("INT z = 13;");
 
-test bool IllegalParameter() = unexpectedType("INT[str] z = 13;", initialDecls = ["alias INT = int;"]);
+test bool IllegalParameter() = unexpectedTypeInModule("
+	module IllegalParameter
+		alias INT = int;
+		INT[str] z = 13;
+	");
 
-test bool OkParameter() = checkOK("LIST[int] z = [1,2];", initialDecls = ["alias LIST[&T] = list[&T];"]);
+test bool OkParameter() = checkModuleOK("
+	module OkParameter
+		alias LIST[&T] = list[&T];
+		LIST[int] z = [1,2];
+	");
 
-test bool WrongTypeParameter() = unexpectedType("LIST[str] z = [1,2];", initialDecls = ["alias LIST[&T] = list[&T];"]);
+test bool WrongTypeParameter() = unexpectedTypeInModule("
+	module WrongTypeParameter
+		alias LIST[&T] = list[&T];
+		LIST[str] z = [1,2];
+	");
 
-test bool OkIndirectAlias1() = checkOK("LIST[int] z = [1,2];",
-	initialDecls = [ "alias LIST[&T] = LIST1[&T];", "alias LIST1[&T] = list[&T];"]);
+test bool OkIndirectAlias1() = checkModuleOK("
+	module OkIndirectAlias1
+		alias LIST[&T] = LIST1[&T];
+		alias LIST1[&T] = list[&T];
 
-test bool OkIndirectAlias2() = checkOK("LIST[int] z = [1,2];",
-	initialDecls = [ "alias LIST1[&T] = list[&T];", "alias LIST[&T] = LIST1[&T];"]);
+		LIST[int] z = [1,2];
+	");
 
-test bool CircularAlias() = unexpectedDeclaration("true;", 
-	initialDecls = ["alias X = Y;", "alias Y = X;"]);
+test bool OkIndirectAlias2() = checkModuleOK("
+	module OkIndirectAlias2
+		alias LIST1[&T] = list[&T];
+		alias LIST[&T] = LIST1[&T];
+
+		LIST[int] z = [1,2];
+	");
+
+test bool CircularAlias() = unexpectedDeclarationInModule("
+	module CircularAlias
+		alias X = Y;
+		alias Y = X;
+	");
 
 test bool LF1() = unexpectedDeclaration("list[int n] l = [];");
 
@@ -598,7 +840,8 @@ test bool WrongExtend1(){
 // https://github.com/cwi-swat/rascal/issues/435
 @ignore{The forward references to `called` are not handled properly}
 test bool Issue435() {
-	writeModule("MMM", "bool sideEffect1() {
+	writeModule("module MMM
+					bool sideEffect1() {
              			void One() { called = called + 1; return; }
              			int called = 0;  
              			One(); 

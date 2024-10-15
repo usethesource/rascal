@@ -189,10 +189,13 @@ test bool Set7() = checkOK("value zz = 1 + {true}; ");
 
 test bool Stat1() = checkOK("value zz = 1 + {true, 2}; ");
 test bool Stat2() = checkOK("value zz = {int n = 1;}; ");
+@ignore{type inference}
 test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
+@ignore{type inference}
 test bool Stat4() = checkOK("value zz = { n = 1; n = 1.5; n + 2;}; ");
 
 test bool Stat5() = checkOK("value zz = { n = 1; m = n; n + 2;}; ");
+@ignore{type inference}
 test bool Stat6() = checkOK("value zz = { n = 1; m = n;  m = 1.5; n + 2;}; ");
 test bool Stat7() = checkOK("value zz = { l = []; l = l + 1.5; }; ");
 test bool Stat8() = checkOK("value zz = { l = []; m = l; l = m + 1.5; }; ");

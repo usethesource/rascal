@@ -38,11 +38,9 @@ tuple[str,str] extractModuleNameAndBody(str moduleText){
 	throw "Cannot extract module name from <moduleText>";
 }
 
-loc composeModule(str stmts,  list[str] importedModules = [], list[str] initialDecls = []){
+loc composeModule(str stmts){
     return writeModule(
-        "TestModule",
-        "<intercalate("\n", ["import <impname>;" | impname <-importedModules])>
-        '<intercalate("\n", initialDecls)>
+        "module TestModule
         'value main(){
         '    <stmts>\n
         '    return true;
@@ -55,13 +53,13 @@ void clearMemory() {
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
-loc writeModule(str name, str body){
-    mloc = |memory:///test-modules/<cleanName(name)>.rsc|;
-    writeFile(mloc, "@bootstrapParser
-                     'module <name>
-                     '<body>");
-    return mloc;
-}
+// loc writeModule(str name, str body){
+//     mloc = |memory:///test-modules/<cleanName(name)>.rsc|;
+//     writeFile(mloc, "@bootstrapParser
+//                      'module <name>
+//                      '<body>");
+//     return mloc;
+// }
 
 loc writeModule(str moduleText){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
@@ -86,14 +84,14 @@ set[Message] getWarningMessages(ModuleStatus r)
 set[Message] getAllMessages(ModuleStatus r)
 	= { m | mname <- r.messages, m <- r.messages[mname] };
 
-ModuleStatus checkStatements(str stmts, list[str] importedModules = [], list[str] initialDecls = [], bool verbose=true) {
-	mloc = composeModule(stmts, importedModules=importedModules, initialDecls=initialDecls);
-   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[verbose=verbose], dummy_compile1);
+ModuleStatus checkStatements(str stmts) {
+	mloc = composeModule(stmts);
+   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting()), dummy_compile1);
 }
 
-bool checkStatementsAndFilter(str stmts, list[str] expected, list[str] importedModules = [], list[str] initialDecls = []) {
+bool checkStatementsAndFilter(str stmts, list[str] expected) {
 	bool verbose=false;
-     msgs = getAllMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls, verbose=verbose));
+     msgs = getAllMessages(checkStatements(stmts));
 	 if (verbose) {
      	println(msgs);
 	 }
@@ -106,8 +104,7 @@ bool checkStatementsAndFilter(str stmts, list[str] expected, list[str] importedM
 
 bool checkModuleAndFilter(str moduleText, list[str] expected) {
 	bool verbose=false;
-	<mname, mbody> = extractModuleNameAndBody(moduleText);
-	mloc = writeModule(mname, mbody);
+	mloc = writeModule(moduleText);
     msgs = getAllMessages(rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting()), dummy_compile1));
 	if (verbose) {
      	println(msgs);
@@ -119,9 +116,8 @@ bool checkModuleAndFilter(str moduleText, list[str] expected) {
      throw abbrev("<msgs>");
 }
 
-bool checkOK(str stmts, list[str] importedModules = [], list[str] initialDecls = []) {
-     println("Imported: <importedModules>");
-     errors = getErrorMessages(checkStatements(stmts, importedModules=importedModules, initialDecls=initialDecls));
+bool checkOK(str stmts) {
+     errors = getErrorMessages(checkStatements(stmts));
      if(size(errors) == 0)
         return true;
      throw errors;
@@ -136,7 +132,7 @@ bool checkModuleOK(loc moduleToCheck) {
 
 bool checkModuleOK(str moduleText){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
-	mloc = writeModule(mname, mbody);
+	mloc = writeModule(moduleText);
 	return checkModuleOK(mloc);
 }
 
@@ -193,28 +189,29 @@ list[str] unexpectedTypeMsgs = [
 		"Insert type should be subtype of _, found _",
 		"Expected _ type parameter(s) for _, found _",
 		"Type _ cannot be parameterized, found _ parameter(s)",
-		"Expected a non-terminal type, found _"
+		"Expected a non-terminal type, found _",
+		"Expected a binary relation, found _"
 	];
 
 bool unexpectedTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unexpectedTypeMsgs);
 
-bool unexpectedType(str stmts, list[str] importedModules = [], list[str] initialDecls = [])
-	= checkStatementsAndFilter(stmts, unexpectedTypeMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool unexpectedType(str stmts)
+	= checkStatementsAndFilter(stmts, unexpectedTypeMsgs);
 
 // ---- unitialized -----------------------------------------------------------
 
 // NOTE: type checker does not yet support analysis of uninitialized variables, therefore this check always succeeds, for now.
 
 bool uninitializedInModule(str moduleText) = true;
-bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = true;
+bool uninitialized(str stmts) = true;
 
-//bool uninitialized(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+//bool uninitialized(str stmts) = 
 	//checkStatementsAndFilter(stmts, [
 	//	"Unable to bind", 
 	//	"Cannot initialize", 
 	//	"must have an actual type before assigning"
-	//], importedModules=importedModules, initialDecls=initialDecls);
+	//]);
 
 // ---- undeclaredVariable ----------------------------------------------------
 
@@ -228,8 +225,8 @@ list[str] undeclaredVariableMsgs = [
 bool undeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredVariableMsgs);
 
-bool undeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, undeclaredVariableMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool undeclaredVariable(str stmts) = 
+	checkStatementsAndFilter(stmts, undeclaredVariableMsgs);
 
 // ---- undeclaredType --------------------------------------------------------
 
@@ -239,15 +236,15 @@ list[str] undeclaredTypeMsgs = [
 bool undeclaredTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs);
 
-bool undeclaredType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, undeclaredTypeMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool undeclaredType(str stmts) = 
+	checkStatementsAndFilter(stmts, undeclaredTypeMsgs);
 
 // ---- undefinedField --------------------------------------------------------
 
-bool undefinedField(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+bool undefinedField(str stmts) = 
 	checkStatementsAndFilter(stmts, [
 		"Field _ does not exist on type _"
-	], importedModules=importedModules, initialDecls=initialDecls);
+	]);
 
 // ---- argumentMismatch ------------------------------------------------------
 
@@ -263,21 +260,21 @@ list[str] argumentMismatchMsgs = [
 bool argumentMismatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, argumentMismatchMsgs);
 
-bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, argumentMismatchMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool argumentMismatch(str stmts) = 
+	checkStatementsAndFilter(stmts, argumentMismatchMsgs);
 
 // ---- redeclaredVariable ----------------------------------------------------
 
 list[str] redeclaredVariableMsgs = [
 	"Undefined _ due to double declaration",
-	"Double declaration of _"
+	"Double declaration of _ _"
 ];
 
 bool redeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, redeclaredVariableMsgs);
 
-bool redeclaredVariable(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, redeclaredVariableMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool redeclaredVariable(str stmts) = 
+	checkStatementsAndFilter(stmts, redeclaredVariableMsgs);
 
 // ---- cannotMatch -----------------------------------------------------------
 
@@ -294,8 +291,8 @@ list[str] cannotMatchMsgs = [
 bool cannotMatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, cannotMatchMsgs);
 
-bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, cannotMatchMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool cannotMatch(str stmts) = 
+	checkStatementsAndFilter(stmts, cannotMatchMsgs);
 
 // ---- unexpectedDeclaration ------------------------------------------------------
 
@@ -325,8 +322,8 @@ list[str] unexpectedDeclarationMsgs = [
 bool unexpectedDeclarationInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs);
 
-bool unexpectedDeclaration(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool unexpectedDeclaration(str stmts) = 
+	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
 // ---- missingModule ---------------------------------------------------------
 
@@ -338,8 +335,8 @@ list[str] missingModuleMsgs = [
 bool missingModuleInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, missingModuleMsgs);
 
-bool missingModule(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-	checkStatementsAndFilter(stmts, missingModuleMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool missingModule(str stmts) = 
+	checkStatementsAndFilter(stmts, missingModuleMsgs);
 
 // ---- illegalUse ------------------------------------------------------------
 
@@ -350,8 +347,8 @@ list[str] illegalUseMsgs = [
 bool illegalUseInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, illegalUseMsgs);
 
-bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-    checkStatementsAndFilter(stmts, illegalUseMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool illegalUse(str stmts) = 
+    checkStatementsAndFilter(stmts, illegalUseMsgs);
 
 // ---- nonVoidType ----------------------------------------------------------
 
@@ -362,8 +359,8 @@ list[str] nonVoidTypeMsgs = [
 bool nonVoidTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs);
 
-bool nonVoidType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
-    checkStatementsAndFilter(stmts, nonVoidTypeMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool nonVoidType(str stmts) = 
+    checkStatementsAndFilter(stmts, nonVoidTypeMsgs);
 
  // ---- unsupported ---------------------------------------------------------
 
@@ -374,5 +371,5 @@ list[str] unsupportedMsgs = [
 bool unsupportedInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unsupportedMsgs);
 
-bool unsupported(str stmts, list[str] importedModules = [], list[str] initialDecls = []) =
-    checkStatementsAndFilter(stmts, unsupportedMsgs, importedModules=importedModules, initialDecls=initialDecls);
+bool unsupported(str stmts) =
+    checkStatementsAndFilter(stmts);

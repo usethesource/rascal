@@ -68,9 +68,17 @@ test bool tupleError11() = undefinedField("tuple[int key, str val] T = \<1, \"ab
 
 test bool tupleError21() = uninitialized("tuple[int key, str val] T; T.key;");
 	
-test bool undefinedDataTypeAccess11() = uninitialized("someD.ival", initialDecls= ["data D = d(int ival);"]);
+test bool UndefinedDataTypeAccess11() = uninitializedInModule("
+    module UndefinedDataTypeAccess11
+        data D = d(int ival);
+        value main() = someD.ival;
+    ");
 
-test bool undefinedDataTypeAccess21() = uninitialized("someD.ival = 3", initialDecls= ["data D = d(int ival);"]);
+test bool UndefinedDataTypeAccess21() = uninitializedInModule("
+    module UndefinedDataTypeAccess21
+        data D = d(int ival);
+            void main() { someD.ival = 3; }
+    ");
 
 test bool undefinedMapElementError11() = undeclaredVariable("(X:2);");
   	
