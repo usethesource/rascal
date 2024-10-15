@@ -1,6 +1,17 @@
 module lang::rascalcore::compile::Examples::Tst4
  
-import XXX;
+
+import IO;
+
+
+@deprecated{Do not call this function anymore, use ((doY))}
+str doX() = "a";
+
+str doY() = "aa";
+
+void main() {
+    println(doX());
+} 
 
 //  import lang::rascalcore::check::AType;
 // import IO;
