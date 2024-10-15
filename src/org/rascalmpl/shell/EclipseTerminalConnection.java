@@ -17,11 +17,23 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
 
-import jline.Terminal;
+import org.jline.terminal.Attributes;
+import org.jline.terminal.Cursor;
+import org.jline.terminal.MouseEvent;
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
+import org.jline.utils.ColorPalette;
+import org.jline.utils.InfoCmp.Capability;
+import org.jline.utils.NonBlockingReader;
+
 
 public class EclipseTerminalConnection implements Terminal {
     public static final byte[] HEADER = new byte[] { 0x42, 0x42 };
@@ -78,70 +90,147 @@ public class EclipseTerminalConnection implements Terminal {
             return previousHeight;
         }
     }
+
     @Override
-    public void init() throws Exception {
-        base.init();
+    public Size getSize() {
+        return new Size(askForWidth(), askForHeight());
+    }
+    @Override
+    public void setSize(Size size) {
+        base.setSize(size);
     }
 
     @Override
-    public void restore() throws Exception {
-        base.restore();
+    public void close() throws IOException {
+        base.close();
     }
-
     @Override
-    public void reset() throws Exception {
-        base.reset();
+    public String getName() {
+        return base.getName();
     }
-
     @Override
-    public boolean isSupported() {
-        return base.isSupported();
+    public SignalHandler handle(Signal signal, SignalHandler handler) {
+        return base.handle(signal, handler);
     }
-
-
     @Override
-    public boolean isAnsiSupported() {
-        return base.isAnsiSupported();
+    public void raise(Signal signal) {
+        base.raise(signal);
     }
-
     @Override
-    public OutputStream wrapOutIfNeeded(OutputStream out) {
-        return base.wrapOutIfNeeded(out);
+    public NonBlockingReader reader() {
+        return base.reader();
     }
-
     @Override
-    public InputStream wrapInIfNeeded(InputStream in) throws IOException {
-        return base.wrapInIfNeeded(in);
+    public PrintWriter writer() {
+        return base.writer();
     }
-
     @Override
-    public boolean hasWeirdWrap() {
-        return base.hasWeirdWrap();
+    public Charset encoding() {
+        return base.encoding();
     }
-
     @Override
-    public boolean isEchoEnabled() {
-        return base.isEchoEnabled();
+    public InputStream input() {
+        return base.input();
     }
-
     @Override
-    public void setEchoEnabled(boolean enabled) {
-        base.setEchoEnabled(enabled);
+    public OutputStream output() {
+        return base.output();
     }
-
     @Override
-    public String getOutputEncoding() {
-        return base.getOutputEncoding();
+    public boolean canPauseResume() {
+        return base.canPauseResume();
     }
-    
     @Override
-    public void enableInterruptCharacter() {
-        base.enableInterruptCharacter();
+    public void pause() {
+        base.pause();
     }
-    
     @Override
-    public void disableInterruptCharacter() {
-        base.disableInterruptCharacter();
+    public void pause(boolean wait) throws InterruptedException {
+        base.pause(wait);
+    }
+    @Override
+    public void resume() {
+        base.resume();
+    }
+    @Override
+    public boolean paused() {
+        return base.paused();
+    }
+    @Override
+    public Attributes enterRawMode() {
+        return base.enterRawMode();
+    }
+    @Override
+    public boolean echo() {
+        return base.echo();
+    }
+    @Override
+    public boolean echo(boolean echo) {
+        return base.echo(echo);
+    }
+    @Override
+    public Attributes getAttributes() {
+        return base.getAttributes();
+    }
+    @Override
+    public void setAttributes(Attributes attr) {
+        base.setAttributes(attr);
+    }
+    @Override
+    public void flush() {
+        base.flush();
+    }
+    @Override
+    public String getType() {
+        return base.getType();
+    }
+    @Override
+    public boolean puts(Capability capability, Object... params) {
+        return base.puts(capability, params);
+    }
+    @Override
+    public boolean getBooleanCapability(Capability capability) {
+        return base.getBooleanCapability(capability);
+    }
+    @Override
+    public Integer getNumericCapability(Capability capability) {
+        return base.getNumericCapability(capability);
+    }
+    @Override
+    public String getStringCapability(Capability capability) {
+        return base.getStringCapability(capability);
+    }
+    @Override
+    public Cursor getCursorPosition(IntConsumer discarded) {
+        return base.getCursorPosition(discarded);
+    }
+    @Override
+    public boolean hasMouseSupport() {
+        return base.hasMouseSupport();
+    }
+    @Override
+    public boolean trackMouse(MouseTracking tracking) {
+        return base.trackMouse(tracking);
+    }
+    @Override
+    public MouseEvent readMouseEvent() {
+        return base.readMouseEvent();
+    }
+    @Override
+    public MouseEvent readMouseEvent(IntSupplier reader) {
+        return base.readMouseEvent(reader);
+    }
+    @Override
+    public boolean hasFocusSupport() {
+        return base.hasFocusSupport();
+    }
+    @Override
+    public boolean trackFocus(boolean tracking) {
+        return base.trackFocus(tracking);
+    }
+    @Override
+    public ColorPalette getPalette() {
+        return base.getPalette();
     }
 
 }
