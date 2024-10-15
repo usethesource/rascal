@@ -331,7 +331,7 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
 
         total += val*count;
 
-        if ((val != 0 || !ignoreZero) && count > medianCount) {
+        if (!(val == 0 && ignoreZero) && count > medianCount) {
             medianCount = count;
             median = val;
         }
