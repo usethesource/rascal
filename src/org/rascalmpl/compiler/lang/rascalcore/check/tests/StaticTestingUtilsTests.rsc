@@ -45,7 +45,7 @@ test bool TestUtils07() = checkModuleOK("
 		Bool main() = and(t(),t());
 	");
 
-test bool TestUtils08() = checkModuleOK(
+test bool TestUtils08() = checkModuleOK("
 	module TestUtils08
 		data Bool = and(Bool, Bool) | t();
 		data Prop = or(Prop, Prop) | f();
@@ -63,7 +63,7 @@ test bool TestUtils09() = checkModuleOK("
 
 test bool TestUtils13(){
 	writeModule("module MMM int x = 3;"); 
-	return checkModuleOK(
+	return checkModuleOK("
 		module TestUtils13
 			import MMM;
 			int main() = 13;
@@ -72,7 +72,7 @@ test bool TestUtils13(){
 
 test bool TestUtils14(){
 	writeModule("module MMM int x = 3;"); 
-	return undeclaredVariableInModule(
+	return undeclaredVariableInModule("
 		module TestUtils14
 			import MMM;
 			int main() = x;
