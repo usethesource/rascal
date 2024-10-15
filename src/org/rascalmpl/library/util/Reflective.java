@@ -99,21 +99,23 @@ public class Reflective {
         }
     }
 	
-	IEvaluator<?> getDefaultEvaluator(OutputStream stdout, OutputStream stderr) {
+	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
-		Evaluator evaluator = new Evaluator(vf, System.in, stderr, stdout, root, heap, monitor);
+		Evaluator evaluator = new Evaluator(vf, Reader.nullReader(), stderr, stdout, root, heap, monitor);
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		return evaluator;
 	}
     
     
 	public IList evalCommands(IList commands, ISourceLocation loc) {
-	    OutputStream out = new ByteArrayOutputStream();
-	    OutputStream err = new ByteArrayOutputStream();
+		StringWriter out = new StringWriter();
+		StringWriter err = new StringWriter();
+		PrintWriter outStream = new PrintWriter(out);
+		PrintWriter errStream = new PrintWriter(err);
 		IListWriter result = values.listWriter();
-		IEvaluator<?> evaluator = getDefaultEvaluator(out, err);
+		IEvaluator<?> evaluator = getDefaultEvaluator(outStream, errStream);
 		int outOffset = 0;
 		int errOffset = 0;
 		
@@ -125,10 +127,15 @@ public class Reflective {
 				x = evaluator.eval(evaluator.getMonitor(), ((IString)v).getValue(), loc);
 			}
 			catch (Throwable e) {
+				errStream.flush();
 				errOut = err.toString().substring(errOffset);
 				errOffset += errOut.length();
 				errOut += e.getMessage();
 				exc = true;
+			}
+			finally {
+				outStream.flush();
+				errStream.flush();
 			}
 			String output = out.toString().substring(outOffset);
 			outOffset += output.length();

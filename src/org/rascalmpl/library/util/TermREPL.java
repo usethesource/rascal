@@ -6,12 +6,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
@@ -42,17 +45,16 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import jline.TerminalFactory;
 
 public class TermREPL {
     private final IRascalValueFactory vf;
     private ILanguageProtocol lang;
-    private final OutputStream out;
-    private final OutputStream err;
-    private final InputStream in;
+    private final PrintWriter out;
+    private final PrintWriter err;
+    private final Reader in;
 
 
-    public TermREPL(IRascalValueFactory vf, OutputStream out, OutputStream err, InputStream in) {
+    public TermREPL(IRascalValueFactory vf, PrintWriter out, PrintWriter err, Reader in) {
         this.vf = vf;
         this.out = out;
         this.err = err;
@@ -94,9 +96,9 @@ public class TermREPL {
     public static class TheREPL implements ILanguageProtocol {
         private final REPLContentServerManager contentManager = new REPLContentServerManager();
         private final TypeFactory tf = TypeFactory.getInstance();
-        private OutputStream stdout;
-        private OutputStream stderr;
-        private InputStream input;
+        private PrintWriter stdout;
+        private PrintWriter stderr;
+        private Reader input;
         private String currentPrompt;
         private String quit;
         private final AbstractFunction handler;
@@ -105,7 +107,7 @@ public class TermREPL {
         private final AbstractFunction stacktrace;
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
-            IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
+            IFunction handler, IFunction completor, IValue stacktrace, Reader input, PrintWriter stderr, PrintWriter stdout) {
             this.vf = vf;
             this.input = input;
             this.stderr = stderr;
@@ -145,7 +147,7 @@ public class TermREPL {
         }
 
         @Override
-        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
+        public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
             this.stdout = stdout;
             this.stderr = stderr;
             this.input = input;
@@ -293,14 +295,9 @@ public class TermREPL {
                         return f.call(args);
                     }
                     finally {
-                        try {
-                            stdout.flush();
-                            stderr.flush();
-                            eval.revertToDefaultWriters();
-                        }
-                        catch (IOException e) {
-                            // ignore
-                        }
+                        stdout.flush();
+                        stderr.flush();
+                        eval.revertToDefaultWriters();
                     }
                 }
             }

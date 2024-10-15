@@ -22,7 +22,6 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -195,17 +194,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private final List<ClassLoader> classLoaders; // sharable if frozen
     private final ModuleEnvironment rootScope; // sharable if frozen
 
-    private final OutputStream defStderr;
-    private final OutputStream defStdout;
     private final PrintWriter defOutWriter;
     private final PrintWriter defErrWriter;
-    private final InputStream defInput;
+    private final Reader defInput;
     
-    private OutputStream curStderr = null;
-    private OutputStream curStdout = null;
     private PrintWriter curOutWriter = null;
     private PrintWriter curErrWriter = null;
-    private InputStream curInput = null;
+    private Reader curInput = null;
 
     /**
      * Probably not sharable
@@ -232,26 +227,26 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private static final Object dummy = new Object();	
 
     /**
-     * Promotes the monitor to the outputstream automatically if so required.
+     * Promotes the monitor to the PrintWriter automatically if so required.
      */
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, Reader input, PrintWriter stderr, PrintWriter stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor instanceof PrintWriter ? (PrintWriter) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
     }
 
     /**
      * If your monitor should wrap stdout (like TerminalProgressBarMonitor) then you can use this constructor.
      */
-    public <M extends OutputStream & IRascalMonitor> Evaluator(IValueFactory f, InputStream input, OutputStream stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+    public <M extends PrintWriter & IRascalMonitor> Evaluator(IValueFactory f, Reader input, PrintWriter stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
         this(f, input, stderr, monitor, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
         setMonitor(monitor);
     }
 
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
-        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, Reader input, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
+        this(f, input, stderr, monitor instanceof PrintWriter ? (PrintWriter) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
         setMonitor(monitor);
     }
 
-    public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
+    public Evaluator(IValueFactory vf, Reader input, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
         super();
 
         this.vf = new RascalFunctionValueFactory(this);
@@ -265,10 +260,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.rascalPathResolver = rascalPathResolver;
         this.resolverRegistry = rascalPathResolver.getRegistry();
         this.defInput = input;
-        this.defStderr = stderr;
-        this.defStdout = stdout;
-        this.defErrWriter = wrapWriter(stderr, true);
-        this.defOutWriter = wrapWriter(stdout, false);
+        this.defErrWriter = stderr;
+        this.defOutWriter = stdout;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
         this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
 
@@ -283,10 +276,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         // default event trigger to swallow events
         setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
-    }
-
-    private static PrintWriter wrapWriter(OutputStream out, boolean autoFlush) {
-        return new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), autoFlush);
     }
 
     private Evaluator(Evaluator source, ModuleEnvironment scope) {
@@ -307,8 +296,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
         this.rascalPathResolver = source.rascalPathResolver;
         this.resolverRegistry = source.resolverRegistry;
-        this.defStderr = source.defStderr;
-        this.defStdout = source.defStdout;
         this.defInput = source.defInput;
         this.defErrWriter = source.defErrWriter;
         this.defOutWriter = source.defOutWriter;
@@ -398,29 +385,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return Collections.unmodifiableList(classLoaders);
     }
 
-    @Override	
+    @Override
     public ModuleEnvironment __getRootScope() {
         return rootScope;
     }
 
-    @Override	
-    public OutputStream getStdOut() {
-        return curStdout == null ? defStdout : curStdout;
+    @Override
+    public PrintWriter getStdOut() {
+        return curOutWriter == null ? defOutWriter : curOutWriter;
     }
     
-    @Override
-    public PrintWriter getOutPrinter() {
-        return curOutWriter == null ?  defOutWriter : curOutWriter;
-    }
-
-    @Override
-    public PrintWriter getErrorPrinter() {
-        return curErrWriter == null ?  defErrWriter : curErrWriter;
-    }
     
 
     @Override
-    public InputStream getInput() {
+    public Reader getInput() {
         return curInput == null ? defInput : curInput;
     }
 
@@ -469,9 +447,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return interrupt;
     }
 
-    @Override	
-    public OutputStream getStdErr() {
-        return curStderr == null ? defStderr : curStderr;
+    @Override
+    public PrintWriter getStdErr() {
+        return curErrWriter == null ? defErrWriter : curErrWriter;
     }
 
     public void setTestResultListener(ITestResultListener l) {
@@ -629,7 +607,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         catch (MatchFailed e) {
-            getOutPrinter().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+            getStdOut().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
             return null;
         }
         finally {
@@ -831,7 +809,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
             synchronized (self) {
                 if (parserGenerator == null) {
-                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (OutputStream) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (PrintWriter) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
                 }
             }
         }
@@ -1220,13 +1198,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
-        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
+        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getStdErr());
         IRascalMonitor old = setMonitor(wrapped);
 
         try {
             Set<String> onHeap = new HashSet<>();
             Set<String> extendingModules = new HashSet<>();
-            PrintWriter errStream = getErrorPrinter();
+            PrintWriter errStream = getStdErr();
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
@@ -1513,7 +1491,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
-            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter());
+            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getStdErr());
 
             new TestEvaluator(this, new ITestResultListener() {
 
@@ -1578,17 +1556,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return new NullRascalMonitor();
     }
 
-    public void overrideDefaultWriters(InputStream newInput, OutputStream newStdOut, OutputStream newStdErr) {
-        this.curStdout = newStdOut;
-        this.curStderr = newStdErr;
+    public void overrideDefaultWriters(Reader newInput, PrintWriter newStdOut, PrintWriter newStdErr) {
         this.curInput = newInput;
-        this.curErrWriter = wrapWriter(newStdErr, true);
-        this.curOutWriter = wrapWriter(newStdOut, false);
+        this.curErrWriter = newStdErr;
+        this.curOutWriter = newStdOut;
     }
 
     public void revertToDefaultWriters() {
-        this.curStderr = null;
-        this.curStdout = null;
         this.curInput = null;
         if (curOutWriter != null) {
             curOutWriter.flush();
@@ -1985,7 +1959,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
 
-    public void overwritePrintStream(PrintWriter outWriter, PrintWriter errWriter) {
+    public void overwritePrintWriter(PrintWriter outWriter, PrintWriter errWriter) {
         this.curOutWriter = outWriter;
         this.curErrWriter = errWriter;
     }
