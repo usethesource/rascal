@@ -528,3 +528,78 @@ test bool WrongNonterminal2() = unexpectedTypeInModule("
                     );
     alias ZZZ = int;
 ");
+
+// https://github.com/cwi-swat/rascal/issues/442
+
+test bool Issue442() = checkModuleOK("
+    module Issue442
+	    syntax A = \"a\";
+		value my_main() = [A] \"a\" := [A] \"a\";
+    ");
+
+
+// https://github.com/cwi-swat/rascal/issues/465
+
+test bool Issue465a(){									
+	writeModule("module MMM
+                    lexical IntegerLiteral = [0-9]+;           
+					start syntax Exp = con: IntegerLiteral;");
+	return checkModuleOK("
+        module Issue465a
+            import MMM;
+            data Exp = con(int n);
+        ");
+}
+
+test bool Issue465b(){			                                     								
+	writeModule("module MMM
+                    lexical IntegerLiteral = [0-9]+;           
+					start syntax Exp = con: IntegerLiteral;");
+	return checkModuleOK("
+        module Issue465b
+            import MMM;
+            data Exp = con(int n);
+            void main() { c = con(5);
+        ");
+}
+
+test bool Issue465c(){			                                     								
+	writeModule("module MMM
+                    lexical IntegerLiteral = [0-9]+;           
+					start syntax Exp = con: IntegerLiteral;");
+	return checkModuleOK("
+        module Issue465c
+            import MMM;
+            data Exp = con(int n);
+            void main() { Exp c = con(5); }
+        ");
+}
+
+test bool Issue465d(){			                                     								
+	writeModule("module MMM
+                    lexical IntegerLiteral = [0-9]+;           
+					start syntax Exp = con: IntegerLiteral;");
+	return checkModuleOK("
+            import MMM;
+            data Exp = con(int n);
+            void main() { MMM::Exp c = [MMM::Exp] \"3\"; }
+        ");
+}
+
+// https://github.com/usethesource/rascal/issues/1353
+test bool Issue1353() {
+   writeModule("module MC
+                    syntax A 
+                       = \"a\"
+                       | left two: A lhs A rhs; 
+                     
+                       A hello() {
+                         A given_a = (A) `a`;
+                          return (A) `\<A given_a\> \<A given_a\>`;
+                       }");
+   return checkModuleOK("
+        module Issue1353
+            import MC;
+            value main() = hello();
+    ");               
+}

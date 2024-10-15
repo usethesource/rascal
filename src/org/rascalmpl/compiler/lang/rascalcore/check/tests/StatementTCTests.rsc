@@ -68,3 +68,15 @@ test bool VisitError2() = unexpectedType("visit(1) { case 1: insert \"a\"; }");
 test bool VisitError3() = unexpectedType("visit(1) { case int x: insert \"a\"; }");
 test bool VisitError4() = unexpectedType("void main(){ visit(1) { case int x: insert 1; }; x; }");
 test bool VisitError5() = unexpectedType("insert 2;");
+
+// https://github.com/cwi-swat/rascal/issues/416
+
+test bool Issue416() = checkModuleOK("
+    module Issue416
+        data D = d(int i) | d();
+        D d(int i) { if (i % 2 == 0) fail d; else return d();}
+    ");
+
+// https://github.com/cwi-swat/rascal/issues/432
+
+test bool Issue432() = unexpectedType("set[value] s := {} && s\<0\> == {};"); 

@@ -272,3 +272,113 @@ test bool U2() = checkOK("[X*] := [1];");
 test bool U3() = checkOK("[*X] := [1];");
 
 test bool S1() = checkOK("[*X,*_] := [1];");
+
+// https://github.com/cwi-swat/rascal/issues/458
+
+test bool Issue458a() =
+	checkOK("\"f1\"(1, M=10) := \"f1\"(1, M=10);");
+
+test bool Issue458b() = checkModuleOK("
+   module  Issue458b  
+      data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
+	   bool main() = f1(1, M=X) := f1(1, B=false, M=20) && X == 20;
+   ");
+		
+test bool Issue458c() = checkModuleOK("
+   module Issue458c
+      data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
+      bool main() = \"f1\"(1, M=X) := \"f1\"(1, B=false, M=20) && X == 20;
+   ");
+
+// https://github.com/cwi-swat/rascal/issues/471
+
+test bool Issue471a() = checkModuleOK("
+   module Issue471a
+      data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+	   bool main() = ([A1, f([A1, b(), DATA X8])] := [a(), f([a(),b(),c()])]) && (A1 == a());
+   ");
+					
+test bool Issue471b() = checkModuleOK("
+   module Issue471b
+      data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+      bool main() = ([f([A1, b(), DATA X8]), A1] := [f([a(),b(),c()]), a()]) && (A1 == a());
+   ");
+					
+test bool Issue471c() = checkModuleOK("
+   module Issue471c
+      data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+	   bool main() = ([DATA A2, f([A2, b(), *DATA SX1]), *SX1] := [a(), f([a(),b(),c()]), c()]) && (A2 == a()) && (SX1 ==[c()]); 
+	");		
+
+test bool Issue471d() = checkModuleOK("
+   module Issue471d
+      data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+	   bool main() = ([DATA A3, f([A3, b(), *DATA SX2]), *SX2] !:= [d(), f([a(),b(),c()]), a()]);
+   ");
+					
+
+test bool Issue471e() = checkModuleOK("
+   module Issue471e
+      data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+
+	   bool main() = ([DATA A4, f([A4, b(), *DATA SX3]), *SX3] !:= [c(), f([a(),b(),c()]), d()]);
+   ");
+					
+test bool Issue471f() = checkModuleOK("
+   module Issue471f
+      data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
+      bool main() = f(_) := f(1);
+   ");
+					
+test bool Issue471g() = checkModuleOK("
+   module Issue471g
+      data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
+      bool main() = f(_,_):= f(1,2);
+   ");
+					
+test bool Issue471h() = checkModuleOK("
+   module Issue471h
+      data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
+      bool main() = f(_,_,_):= f(1,2.5,true);
+   ");
+					
+ test bool Issue471i() = checkModuleOK("
+   module Issue471i
+      data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);
+      bool main() = (f(n5) := f(1)) && (n5 == 1);
+   ");
+					
+ test bool Issue471j() = checkModuleOK("
+   module Issue471j
+      data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] L) | f(set[DATA] S)| s(set[DATA] S)|g(int N)|h(int N)| f(DATA left, DATA right);
+      bool main() = ({e(X3), g(X3), h(X3)} := {e(3), h(3), g(3)}) && (X3 == 3);
+   "); 
+
+// https://github.com/cwi-swat/rascal/issues/472
+
+test bool Issue472a() = checkModuleOK("
+   module Issue472a    
+      data F = f(F left, F right) | g(int N);
+      bool main() = [1, /f(/g(2), _), 3] := [1, f(g(1),f(g(2),g(3))), 3];
+   ");
+
+test bool Issue472b() = checkModuleOK("
+   module Issue472b
+      data F = f(F left, F right) | g(int N);
+      bool main() = [1, F outer: /f(/F inner: g(2), _), 3] := [1, f(g(1),f(g(2),g(3))), 3] && outer == f(g(1),f(g(2),g(3))) && inner == g(2);
+   ");
+
+// https://github.com/cwi-swat/rascal/issues/473
+
+test bool Issue473() =
+ 	unexpectedType("[ \<s,r,L\> | list[int] L:[*str s, *str r] \<- [ [1,2], [\"3\",\"4\"] ]];");
+
+// https://github.com/cwi-swat/rascal/issues/478
+
+test bool Issue478() = checkModuleOK("
+   module Issue478
+	   data F1 = f1(int N, int M = 10, bool B = false) | f1(str S);
+ 		public value my_main() = f1(1, M=10)  := f1(1);
+   ");
+
+test bool Issue886() = unexpectedType("[\<[\<19,0,*_\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>];");
