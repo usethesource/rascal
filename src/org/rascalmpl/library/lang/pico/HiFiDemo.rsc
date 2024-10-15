@@ -41,4 +41,8 @@ void main() {
     newContent = executeTextEdits("<t>", edits);
     println("Better output after executeTextEdits:
             '<newContent>");
+
+    newU = parse(#start[Program], newContent);
+
+    assert u := newU : "the rewritten tree matches the newly parsed";
 }
