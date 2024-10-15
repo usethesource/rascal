@@ -63,3 +63,10 @@ test bool CircularAliasError4() = unexpectedDeclarationInModule("
             return x == 0;
         }
     ");
+
+test bool Issue504() = redeclaredVariableInModule("
+    module Issue504
+	    alias INT = int;
+        alias INT = int;
+    ");
+
