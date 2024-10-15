@@ -33,7 +33,7 @@
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.28.4</rascal-maven.version>
-        <jline.version>3.26.1</jline.version>
+        <jline.version>3.27.0</jline.version>
     </properties>
 
     <licenses>
@@ -333,10 +333,6 @@
                                         <exclude>org.fusesource.jansi.internal.*</exclude>
                                     </excludes>
                                 </relocation>
-                                <relocation>
-                                    <pattern>jline</pattern>
-                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -465,45 +461,34 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.14.6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-terminal-jni</artifactId>
-            <version>${jline.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline-terminal-jna</artifactId>
-            <version>${jline.version}</version>
-        </dependency>
-        <dependency>
+        <dependency> <!-- line reader/completion/history support -->
             <groupId>org.jline</groupId>
             <artifactId>jline-reader</artifactId>
             <version>${jline.version}</version>
         </dependency>
-        <dependency>
+        <dependency> <!-- terminal API -->
             <groupId>org.jline</groupId>
             <artifactId>jline-terminal</artifactId>
             <version>${jline.version}</version>
         </dependency>
-        <dependency>
+        <dependency> <!-- interaction with native APIs for console features, after jdk22 we can switch to FFM -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-terminal-jni</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- styling api -->
             <groupId>org.jline</groupId>
             <artifactId>jline-style</artifactId>
             <version>${jline.version}</version>
         </dependency>
-        <dependency>
+        <dependency> <!-- command registyr and extra features -->
             <groupId>org.jline</groupId>
             <artifactId>jline-console</artifactId>
             <version>${jline.version}</version>
         </dependency>
-        <dependency>
+        <dependency>  <!-- raw ansi commands -->
             <groupId>org.jline</groupId>
-            <artifactId>jansi</artifactId>
+            <artifactId>jansi-core</artifactId>
             <version>${jline.version}</version>
         </dependency>
         <dependency>
