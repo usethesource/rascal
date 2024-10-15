@@ -1,17 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst4
  
+int _X = 0;
 
-import IO;
+alias _INT = int;
 
+int _f(int n, int _m) = n;
 
-@deprecated{Do not call this function anymore, use ((doY))}
-str doX() = "a";
-
-str doY() = "aa";
-
-void main() {
-    println(doX());
-} 
+value main() = _X;
 
 //  import lang::rascalcore::check::AType;
 // import IO;
