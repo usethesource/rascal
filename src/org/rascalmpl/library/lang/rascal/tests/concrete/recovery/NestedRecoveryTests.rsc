@@ -14,9 +14,7 @@
 
 module lang::rascal::tests::concrete::recovery::NestedRecoveryTests
 
-import ParseTree;
-import util::ErrorRecovery;
-import util::Maybe;
+import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 layout Layout = [\ ]* !>> [\ ];
 
@@ -28,14 +26,6 @@ syntax A = "a";
 syntax B = "b" "b";
 syntax C = "c";
 
-private Tree parseS(str input, bool visualize=false)
-    = parser(#S, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
+test bool nestedOk() = checkRecovery(#S, "a b b c", []);
 
-test bool nestedOk() {
-    return !hasErrors(parseS("a b b c"));
-}
-
-test bool nestedTypo() {
-    Tree t = parseS("a b x c");
-    return getErrorText(findBestError(t).val) == "x ";
-}
+test bool nestedTypo() = checkRecovery(#S, "a b x c", ["x "]);

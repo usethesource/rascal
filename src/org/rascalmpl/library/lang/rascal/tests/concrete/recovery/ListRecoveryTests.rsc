@@ -17,6 +17,8 @@ module lang::rascal::tests::concrete::recovery::ListRecoveryTests
 import ParseTree;
 import util::ErrorRecovery;
 
+import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+
 layout Layout = [\ ]* !>> [\ ];
 
 syntax S = T End;
@@ -29,16 +31,8 @@ Tree parseList(str s, bool visualize=false) {
     return parser(#S, allowRecovery=true, allowAmbiguity=true)(s, |unknown:///?visualize=<"<visualize>">|);
 }
 
-test bool listOk() {
-    return !hasErrors(parseList("a b , a b , a b $", visualize=true));
-}
+test bool listOk() = checkRecovery(#S, "a b , a b , a b $", []);
 
-test bool listTypo() {
-    Tree t = parseList("a b, a x, ab $", visualize=true);
-    return hasErrors(t);
-}
+test bool listTypo() = checkRecovery(#S, "a b, a x, ab $", ["x"]);
 
-test bool listTypoWs() {
-    Tree t = parseList("a b , a x , a b $", visualize=true);
-    return hasErrors(t);
-}
+test bool listTypoWs() = checkRecovery(#S, "a b , a x , a b $", ["x "]);
