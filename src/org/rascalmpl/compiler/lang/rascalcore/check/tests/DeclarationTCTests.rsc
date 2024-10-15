@@ -594,3 +594,20 @@ test bool WrongExtend1(){
             extend F;
 	");
 }
+
+// https://github.com/cwi-swat/rascal/issues/435
+@ignore{The forward references to `called` are not handled properly}
+test bool Issue435() {
+	writeModule("MMM", "bool sideEffect1() {
+             			void One() { called = called + 1; return; }
+             			int called = 0;  
+             			One(); 
+             			One(); 
+            			One(); 
+             			return called == 3;
+             		}");
+	return checkModuleOK("
+		module 	Issue435
+			import MMM;
+		");
+}

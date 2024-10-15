@@ -300,3 +300,58 @@ test bool ADTWithTypeParameterAndKW2() = checkOK("true;",
 test bool ADTWithTypeParameterAndKWerror() = checkOK("true;",
     initialDecls = ["data D[&T] = d1(&T n, &T kw = n);",
                     "void f() { D[int] x = d1(10); str m = x.kw; }"]);
+
+// https://github.com/cwi-swat/rascal/issues/430
+
+test bool Issue430() = checkModuleOK("
+    module Issue430
+        data T1 = \\int() | \\void() | string(str s);
+		data T2 = \\int() | \\void() | string(str s);
+		bool fT1(T1::\\int()) = true;
+		bool fT2(T2::\\int()) = true;
+    ");
+
+
+// https://github.com/cwi-swat/rascal/issues/456
+
+test bool Issue456() = checkModuleOK("
+    module Issue456
+	    data POINT1 = point1(int x, int y, int z = 3, list[str] colors = []);
+	    value my_main() =  point1(1,2);
+    ");
+
+
+// https://github.com/cwi-swat/rascal/issues/457
+
+test bool Issue457() = checkModuleOK("
+    module Issue457
+	    data Exp1[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);
+		value my_main() {m = tval2(\"abc\", \"def\"); str s2 = m.tval2; return s2 == \"def\";}
+    "); 
+
+// https://github.com/cwi-swat/rascal/issues/480
+
+test bool Issue480() = checkModuleOK("
+	module Issue480
+        data Figure (real shrink = 1.0, str fillColor = \"white\", str lineColor = \"black\") 
+            =  emptyFigure() 
+  		    | ellipse(Figure inner = emptyFigure()) 
+  		    | box(Figure inner = emptyFigure());
+
+ 		value my_main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));
+	");
+
+// https://github.com/cwi-swat/rascal/issues/547
+
+test bool Issue547(){												
+	writeModule("module M1
+                    import M2;");		 
+	writeModule("module M2 
+                    import Type;
+					public data MuExp = muCallJava( str name, Symbol parameterTypes);");
+    return checkModuleOK("
+        module Issue547
+            import M1;
+            import M2;
+    ");
+}
