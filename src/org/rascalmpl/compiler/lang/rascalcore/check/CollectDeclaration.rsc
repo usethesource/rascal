@@ -60,7 +60,7 @@ void collect(Module current: (Module) `<Header header> <Body body>`, Collector c
     
     tmod = deprecated ? amodule(mname, deprecationMessage=deprecationMessage) : amodule(mname);
     if(deprecated){
-        c.report(warning(current, "Deprecated module %v%v", mname, isEmpty(deprecationMessage) ? "" : ": <deprecationMessage>"));
+        c.report(warning(header.name, "Deprecated module %v%v", mname, isEmpty(deprecationMessage) ? "" : ": <deprecationMessage>"));
     }
     c.define(mname, moduleId(), current, defType(tmod));
      
@@ -143,7 +143,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
             vname = prettyPrintName(var.name);
             if(isWildCard(vname)){
-                c.report(error(var, "Cannot declare variable name starting with `_`"));
+                c.report(warning(var, "Variable names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
             }
             c.defineInScope(scope, vname, moduleVariableId(), var.name, dt);
             
@@ -182,9 +182,9 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     dt.vis = getVis(current.visibility, publicVis());
     dt.md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><annoType><onType><name>");
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-    if(isWildCard(pname)){
-        c.report(error(name, "Cannot declare annotation name starting with `_`"));
-    }
+    // if(isWildCard(pname)){
+    //     c.report(error(name, "Annotation names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
+    // }
     c.define(pname, annoId(), current, dt);
     collect(tags, annoType, onType, c); 
 }
@@ -666,9 +666,9 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         c.report(info(current, "Ignoring alias declaration for `<aliasName>`"));
         return;
     }
-    if(isWildCard(aliasName)){
-        c.report(error(name, "Cannot declare alias name starting with `_`"));
-    }
+    // if(isWildCard(aliasName)){
+    //     c.report(warning(name, "Alias names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
+    // }
     
     c.define(aliasName, aliasId(), current, defType([base], AType(Solver s) { return s.getType(base); })[md5 = md5Hash("<md5Contrib4Tags(tags)><visibility><name><base>")]);
     c.enterScope(current);
@@ -685,9 +685,9 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
         return;
     }
     
-    if(isWildCard(aliasName)){
-        c.report(error(name, "Cannot declare alias name starting with `_`"));
-    }
+    // if(isWildCard(aliasName)){
+    //     c.report(error(name, "Alias names starting with `_` are deprecated; only allowed to suppress warning on unused variables"));
+    // }
    
     typeParams  = for(tp <- parameters){
         if(!(tp has typeVar)) c.report(error(tp, "Only type parameter allowed"));
