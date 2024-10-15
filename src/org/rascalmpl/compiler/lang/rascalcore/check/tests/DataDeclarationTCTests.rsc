@@ -3,303 +3,466 @@ module lang::rascalcore::check::tests::DataDeclarationTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-test bool undefinedValue1() = 
-	uninitialized("Bool b; b.left;", initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  
-
+test bool UndefinedValue1() = uninitializedInModule("
+    module lang::rascalcore::check::tests::StaticTestingUtilsTests
+        data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);  
+        void main() { Bool b; b.left; }
+    ");
  
-test bool unitializedVariable1() = 
-	uninitialized("Bool b; b[left = btrue()];", 
-				  initialDecls=["data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);"]);  
+test bool UnitializedVariable1() = uninitializedInModule("
+    module UnitializedVariable1
+        data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right); 
+        void main() { Bool b; b[left = btrue()]; }
+    ");
+				  
+test bool UnitializedVariable2() = uninitializedInModule("
+    module UnitializedVariable2
+        data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);
+		data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);
+		alias Var2 = str;
+        void main() { Bool b; b[left = btrue()];
+    ");
+																  
+test bool LetWrongTypeViaAlias() = unexpectedTypeInModule("
+    module LetWrongTypeViaAlias
+        alias Var2 = str;
+	    data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);
+
+	    void main() { Var2 varx !:= let(\"a\",\\int(1),var(\"a\")); }
+    ");
+				    
+test bool DoubleFieldError2() = unexpectedDeclarationInModule("
+    module DoubleFieldError2
+	    data D = d(int n) | d(value v);
+    ");  
   	
-test bool unitializedVariable2() = 
-	uninitialized("Bool b; b[left = btrue()];", 
-				  initialDecls=["data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);",
-								"data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);",
-								"alias Var2 = str;"]); 
-															  
-test bool letWrongTypeViaAlias() =
-	unexpectedType("Var2 varx !:= let(\"a\",\\int(1),var(\"a\"));", 
-				    initialDecls=["alias Var2 = str;", 
-				    			  "data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);"]); 
+test bool DoubleFieldError3() = unexpectedDeclarationInModule("
+    module DoubleFieldError3
+        data D = d(int n) | d(int v);
+    ");
 
-test bool doubleFieldError2() = 
-	unexpectedDeclaration("true;", initialDecls=["data D = d(int n) | d(value v);"]);   
-  	
-test bool doubleFieldError3() = 
-	unexpectedDeclaration("true;", initialDecls=["data D = d(int n) | d(int v);"]); 
+test bool DoubleFieldError4() = unexpectedDeclarationInModule("
+    module DoubleFieldError4
+        alias INTEGER = int;
+        data D = d(int n) | d(INTEGER v);
+    ");
 
-test bool doubleFieldError4() = 
-	unexpectedDeclaration("true;", initialDecls=["alias INTEGER = int;", "data D = d(int n) | d(INTEGER v);"]); 
+test bool ExactDoubleDataDeclarationIsNotAllowed() = unexpectedDeclarationInModule("
+    module ExactDoubleDataDeclarationIsNotAllowed
+	    data D = d(int n) | e();
+        data D = d(int n);
+    ");
 
-test bool exactDoubleDataDeclarationIsNotAllowed() = 
-	unexpectedDeclaration("true;", initialDecls=["data D = d(int n) | e();", "data D = d(int n);"]);
-
-test bool undeclaredTypeError1() = 
-	unexpectedDeclaration("true;", initialDecls=["data D = anE(E e);"]);                    // TODO E is not declared
+test bool UndeclaredTypeError1() = unexpectedDeclarationInModule("
+    module UndeclaredTypeError1
+	    data D = anE(E e);
+    ");
 	
-test bool sharedKeywordsWork1() =
-    checkOK("xx().ll == 0;", initialDecls=["data Y(int ll = 0) = xx();"]);
+test bool SharedKeywordsWork1() = checkModuleOK("
+    module SharedKeywordsWork1
+        data Y(int ll = 0) = xx();
+        bool main() = xx().ll == 0;
+    ");
   	
-test bool sharedKeywordsWork2() =
-    checkOK("xx().ll == 0;", initialDecls=["data Y(int ll = 0);", "data Y = xx();"]);
+test bool SharedKeywordsWork2() = checkModuleOK("
+    module SharedKeywordsWork2
+        data Y(int ll = 0);
+        data Y = xx();
+        bool main() = xx().ll == 0;
+    ");
 
 test bool D1() = unexpectedType("D x;");
 
-test bool D2() = checkOK("D x;", initialDecls=["data D;"]);
+test bool D2() = checkModuleOK("
+    module D1
+        data D;
+        D main() = D x;
+    ");
 
-test bool D3() = checkOK("D x;", initialDecls=["data D = d1();"]);
+test bool D3() = checkModuleOK("
+    module D3
+        data D = d1();
+        D main() = D x;
+    ");
 
-test bool D4() = checkOK("D x = d1();", initialDecls=["data D = d1();"]);
+test bool D4() = checkModuleOK("
+    module D4
+        data D = d1();
+        void main() { D x = d1(); }
+    ");
 
-test bool D5() = checkOK("D[int] x = d1(3);", initialDecls=["data D[&T] = d1(&T fld);"]);
+test bool D5() = checkModuleOK("
+    module D5
+        data D[&T] = d1(&T fld);
+        D[int] x = d1(3);
+    ");
 
-test bool D6() = unexpectedType("D x = d1(3);", initialDecls=["data D[&T] = d1(&T fld);"]);
+test bool D6() = unexpectedTypeInModule("
+    module D6
+        data D[&T] = d1(&T fld);
+        D x = d1(3);
+    ");
 
-test bool D7() = unexpectedType("D[int,str] x = d1(3);", initialDecls=["data D[&T] = d1(&T fld);"]);
+test bool D7() = unexpectedTypeInModule("
+    module D7
+        data D[&T] = d1(&T fld);
+        void main() { D[int,str] x = d1(3); }
+    ");
 
-test bool D8() = unexpectedType("D[&T] x = d1();", initialDecls=["data D = d1();"]);
+test bool D8() = unexpectedTypeInModule("
+    module D8
+        data D = d1();
+        void main() { D[&T] x = d1(); }
+    ");
 
-test bool D9() = unexpectedType("D[int] x = d1(3, \"a\");", initialDecls=["data D[&T, &U] = d1(&T fld1, &U fld2);"]);
+test bool D9() = unexpectedTypeInModule("
+    module D9
+        data D[&T, &U] = d1(&T fld1, &U fld2);
+        void main(){ D[int] x = d1(3, \"a\"); }
+    ");
 
 test bool D10() {
-	writeModule("A", "data D[&T] = d1(&T fld);");
-	writeModule("B", "import A;
-                    'data D[&T, &U] = d1(&T fld1, &U fld2);
-                    'void main(){ D[int] x = d1(3, \"a\"); }");
-	return unexpectedType("D[int] x = d1(3, \"a\"); ", imports = ["A", "B"]);
+	writeModule("module A
+                    data D[&T] = d1(&T fld);");
+	writeModule("module B
+                    import A;
+                    data D[&T, &U] = d1(&T fld1, &U fld2);
+                    void main(){ D[int] x = d1(3, \"a\"); }");
+	return unexpectedTypeInModule("
+        module D10
+            import A;
+            import B;
+            void main() { D[int] x = d1(3, \"a\"); }
+        ");
 }
 
-test bool K1() = checkOK("d1(1, l=[2]);", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]);"]);
+test bool K1() = checkModuleOK("
+    module K1
+        data D[&T] = d1(&T n, list[&T] l = [n]);
+        void main() { d1(1, l=[2]); }
+    ");
 
-test bool K2() = argumentMismatch("d1(1, l=[\"a\"]); ", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]);"]);
+test bool K2() = argumentMismatchInModule("
+    module K2
+        data D[&T] = d1(&T n, list[&T] l = [n]);
+        void main() { d1(1, l=[\"a\"]); }
+    ");
 
-test bool K3() = checkOK("d1(1, l=[2]);", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);"]);
+test bool K3() = checkModuleOK("
+    module K3
+        data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);
+        void main() { d1(1, l=[2]); }
+    ");
 
-test bool K4() = checkOK("d1(\"a\", \"b\");", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);"]);
+test bool K4() = checkModuleOK("
+    module K4
+        data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);
+        void main() { d1(\"a\", \"b\"); }
+    ");
 
-test bool K5() = checkOK("D[str] x = d1(\"a\", \"b\");", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);"]);
+test bool K5() = checkModuleOK("
+    module K5
+        data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);
+        void main() { D[str] x = d1(\"a\", \"b\"); }
+    ");
 
-test bool K6() = checkOK("d1(\"a\", 3);", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);"]);
+test bool K6() = checkModuleOK("
+    module K6
+        data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);
+        void main() { d1(\"a\", 3); }
+    ");
 
-test bool K7() = checkOK("D[int] x = d1(\"a\", 3);", initialDecls=["data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);"]);
+test bool K7() = checkModuleOK("
+    module K7
+        data D[&T] = d1(&T n, list[&T] l = [n]) | d1(str s, &T x);
+        void main() { D[int] x = d1(\"a\", 3); }
+    ");
 
-test bool P1() = cannotMatch("d1(1) := d1(1); ", initialDecls=["data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);"]);
+test bool P1() = cannotMatchInModule("
+    module P1
+        data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
+        void main() { d1(1) := d1(1); }
+    ");
 
-test bool P2() = unexpectedType("d1(1, l=[\"a\"]) := d1(1);", initialDecls=["data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);"]);
+test bool P2() = unexpectedTypeInModule("
+    module P2
+        data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
+        void main() { d1(1, l=[\"a\"]) := d1(1); }
+    ");
 
-test bool P3() = unexpectedType("d1(\"a\", 3) := d1(1);", initialDecls=["data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);"]);
+test bool P3() = unexpectedTypeInModule("
+    module P3
+        data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
+        void main() { d1(\"a\", 3) := d1(1); }
+    ");
 
-test bool P4() = cannotMatch("d1(\"a\", \"b\") := d1(1);", initialDecls=["data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);"]);
+test bool P4() = cannotMatchInModule("
+    module P4
+        data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
+        void main() { d1(\"a\", \"b\") := d1(1); }
+    ");
 
+test bool A1() = checkModuleOK("
+    module A1
+        data D = d1(int n, bool b = false);
+        data D = d2(str s, int m = 0);
+        data D = d3(bool f, str t = \"a\");
 
-///////////////
-
-test bool A1() = checkOK("
-            D X1 = d1(3);       D X2 = d1(3, b=false);
-            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
-            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");",
-		initialDecls =[
-			"data D = d1(int n, bool b = false);",
-            "data D = d2(str s, int m = 0);",
-            "data D = d3(bool f, str t = \"a\");"
-			]
-);
+        D X1 = d1(3);       D X2 = d1(3, b=false);
+        D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
+        D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");
+    ");
 
 test bool A2a() {
-	writeModule("A","
-            data D = d1(int n, bool b = false);
-            data D = d2(str s, int m = 0);
-            data D = d3(bool f, str t = \"a\");");
-    writeModule("B", "import A;");    
-	writeModule("C", "import B;");
+	writeModule("module A
+                    data D = d1(int n, bool b = false);
+                    data D = d2(str s, int m = 0);
+                    data D = d3(bool f, str t = \"a\");");
+    writeModule("module B import A;");    
+	writeModule("module C import B;");
     
-	return unexpectedType("D X1 = d1(3);", imports = ["A", "B", "C"]);
+	return unexpectedTypeInModule("
+        module A2a
+            import A;
+            import B;
+            import C;
+            void main() { D X1 = d1(3); }
+        ");
 }
 
 test bool A2b() {
-	writeModule("A","
-            data D = d1(int n, bool b = false);
-            data D = d2(str s, int m = 0);
-            data D = d3(bool f, str t = \"a\");");
-    writeModule("B", "extend A;");    
-	writeModule("C", "import B;");
+	writeModule("module A
+                    data D = d1(int n, bool b = false);
+                    data D = d2(str s, int m = 0);
+                    data D = d3(bool f, str t = \"a\");");
+    writeModule("module B extend A;");    
+	writeModule("module C import B;");
     
-	return unexpectedType("
+	return unexpectedTypeInModule("
+        module A2b
+            import A; import B; import C;
 			D X1 = d1(3);       D X2 = d1(3, b=false);
             D Y1 = d2(\"z\");     D Y2 = d2(\"z\", m=1);
-            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");", 
-		imports = ["A", "B", "C"]);
+            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");
+        ");
 }
 
 test bool A3a() {
-	writeModule("A","
-            data D = d1(int n, bool b = false);
-            data D = d2(str s, int m = 0);");
-    writeModule("B", "import A;
-					 data D = d3(bool f, str t = \"a\");");    
-	writeModule("C", "import B;");
+	writeModule("module A","
+                    data D = d1(int n, bool b = false);
+                    data D = d2(str s, int m = 0);");
+    writeModule("module B 
+                    import A;
+					data D = d3(bool f, str t = \"a\");");    
+	writeModule("module C
+                    import B;");
     
-	return unexpectedType("D X1 = d1(3);", imports = ["A", "B", "C"]);
+	return unexpectedTypeInModule("
+        module A3a
+            import A; import B; import C;
+            void main() { D X1 = d1(3); }
+        ");
 }
 
 test bool A3b() {
-	writeModule("A", "data D = d1(int n, bool b = false);
-                     data D = d2(str s, int m = 0);");
-    writeModule("B", "import A;
-					 data D = d3(bool f, str t = \"a\");");    
-	writeModule("C", "import B;
-					 D Z1 = d3(true); 
-					 D Z2 = d3(true, t =\"z\");");
-	return checkOK("true;", imports = ["A", "B", "C"]);
+	writeModule("module A
+                    data D = d1(int n, bool b = false);
+                    data D = d2(str s, int m = 0);");
+    writeModule("module B
+                    import A;
+					data D = d3(bool f, str t = \"a\");");    
+	writeModule("module C
+                    import B;
+					D Z1 = d3(true); 
+					D Z2 = d3(true, t =\"z\");");
+	return checkModuleOK("
+        module A3b
+            import A; import B; import C;
+        ");
 }
 
 test bool A4() {
-	writeModule("A", "data D = d1(int n, bool b = false);
-                     data D = d2(str s, int m = 0);");
-    writeModule("B", "import A;"); 
-	writeModule("C", "import B;
-					 data D = d3(bool f, str t = \"a\");
-					 D Z1 = d3(true); 
-					 D Z2 = d3(true, t =\"z\");");
-	return checkOK("true;", imports = ["A", "B", "C"]);
+	writeModule("module A
+                    data D = d1(int n, bool b = false);
+                    data D = d2(str s, int m = 0);");
+    writeModule("module B
+                    import A;"); 
+	writeModule("module C
+                    import B;
+					data D = d3(bool f, str t = \"a\");
+					D Z1 = d3(true); 
+					D Z2 = d3(true, t =\"z\");");
+	return checkModuleOK("
+        module A4
+            import A; import B; import C;
+        ");
 }
 
 test bool A5() {
-	writeModule("A", "data D = d1(int n, bool b = false);");
+	writeModule("module A
+                    data D = d1(int n, bool b = false);");
                      
-    writeModule("B", "import A;
-					 data D = d2(str s, int m = 0);");
-	writeModule("C", "import B;
-					 data D = d3(bool f, str t = \"a\");
-					 D Z1 = d3(true); 
-					 D Z2 = d3(true, t =\"z\");");
-	return checkOK("true;", imports = ["A", "B", "C"]);
+    writeModule("module B
+                    import A;
+					data D = d2(str s, int m = 0);");
+	writeModule("module C
+                    import B;
+					data D = d3(bool f, str t = \"a\");
+					D Z1 = d3(true); 
+					D Z2 = d3(true, t =\"z\");");
+	return checkModuleOK("
+        module A5
+            import A; import B; import C;
+        ");
 }
 
-test bool C1() {
-		writeModule("A", "
-            data D(int N = 0)      = d1(int n, bool b = false);
-            data D(str S = \"a\")  = d2(str s, int m = 0);
-            data D(bool B = false) = d3(bool f, str t = \"a\");
-            
-            D X1 = d1(3);       D X2 = d1(3, b=false);    D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
-            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, N=1, S=\"z\",B=true);
-             D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
-        ");
-		return checkOK("true;", imports = ["A"]);
-}
+test bool C1() = checkModuleOK("
+    module C1
+        data D(int N = 0)      = d1(int n, bool b = false);
+        data D(str S = \"a\")  = d2(str s, int m = 0);
+        data D(bool B = false) = d3(bool f, str t = \"a\");
+         
+        D X1 = d1(3);       D X2 = d1(3, b=false);    D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
+        D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, N=1, S=\"z\",B=true);
+        D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
+    ");
 
 test bool C2() {
-		writeModule("A", "
-            data D(int N = 0)      = d1(int n, bool b = false);
-            data D(str S = \"a\")  = d2(str s, int m = 0);
-            data D(bool B = false) = d3(bool f, str t = \"a\");");
-        writeModule("B", "extend A;");
+	writeModule("module A
+                    data D(int N = 0)      = d1(int n, bool b = false);
+                    data D(str S = \"a\")  = d2(str s, int m = 0);
+                    data D(bool B = false) = d3(bool f, str t = \"a\");");
+    writeModule("module B
+                    extend A;");
         
-		writeModule("C", "
+	return checkModuleOK("
+        module C2
             import B;
             
             D X1 = d1(3);      D X2 = d1(3, b=false);    D X3 = d1(3, b=false, N=1, S=\"z\",B=true);
             D Y1 = d2(\"z\");  D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, N=1, S=\"z\",B=true);
             D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
 		");
-		return checkOK("true;", imports = ["C"]);
 }
 
  test bool C3() {
-		writeModule("A", "
-            data D(int N = 0)      = d1(int n, bool b = false);
-            data D(str S = \"a\")  = d2(str s, int m = 0);");
-        writeModule("B", "    
-            module B import A;
-            data D(bool B = false) = d3(bool f, str t = \"a\");");
-        writeModule("C", "    
+	writeModule("module A
+                    data D(int N = 0)      = d1(int n, bool b = false);
+                    data D(str S = \"a\")  = d2(str s, int m = 0);");
+    writeModule("module B 
+                    import A;
+                data D(bool B = false) = d3(bool f, str t = \"a\");");
+    return checkModuleOKwriteModule("
+        module C3   
             import B;
             
-            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);");
-		return checkOK("true;", imports = ["C"]);
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", N=1, S=\"z\",B=true);
+        ");
  }
 
  test bool C4() {
-		writeModule("A", "
-            data D(int N = 0)      = d1(int n, bool b = false);
-            data D(str S = \"a\")  = d2(str s, int m = 0);");
-        writeModule("B", "    
-            module B import A;");
-        writeModule("C", "   
-            module C import B;
+	writeModule("module A
+                    data D(int N = 0)      = d1(int n, bool b = false);
+                    data D(str S = \"a\")  = d2(str s, int m = 0);");
+    writeModule("module B  
+                    import A;");
+    return checkModuleOK("
+        module C4
+            import B;
             data D(bool B = false) = d3(bool f, str t = \"a\");
             
-            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\",B=true);");
-		return checkOK("true;", imports = ["C"]);
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\",B=true);
+        ");
 }
 
 test bool C5() {
-		writeModule("A", "
-            data D(int N = 0)      = d1(int n, bool b = false);");
-         writeModule("B", "   
-            module B import A;
-            data D(str S = \"a\")   = d2(str s, int m = 0);");
-         writeModule("C", "  
-            module C import B;
+	writeModule("module A
+                    data D(int N = 0)      = d1(int n, bool b = false);");
+    writeModule("module B
+                    import A;
+                    data D(str S = \"a\")   = d2(str s, int m = 0);");
+    return checkModuleOK("
+        module C5  
+            import B;
             data D(bool B = false) = d3(bool f, str t = \"a\");
             
             D Y1 = d2(\"z\");  D Y2 = d2(\"z\", m=1);    D Y3 = d2(\"z\", m=1, S=\"z\");
-            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", B=true);");
-		return checkOK("true;", imports = ["C"]);
+            D Z1 = d3(true);   D Z2 = d3(true, t =\"z\");D Z3 = d3(true, t =\"z\", B=true);
+        ");
 }
 
-test bool Escapes1() {
-		writeModule("\\A", "
-            data \\D = \\d1(int \\n, bool \\b = false);
-            data \\D = \\d2(str \\s, int \\m = 0);
-            data \\D = \\d3(bool \\f, str \\t = \"a\");
+test bool Escapes1() = checkModuleOK("
+    module \\Escapes1
+        data \\D = \\d1(int \\n, bool \\b = false);
+        data \\D = \\d2(str \\s, int \\m = 0);
+        data \\D = \\d3(bool \\f, str \\t = \"a\");
+        
+        D X1 = d1(3);       D X2 = d1(3, b=false);
+        D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
+        D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");
+    ");
+
+test bool Escapes2() = checkModuleOK("
+	module Escapes2
+        data D = d1(int n, bool b = false);
+        data D = d2(str s, int m = 0);
+        data D = d3(bool f, str t = \"a\");
             
-            D X1 = d1(3);       D X2 = d1(3, b=false);
-            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
-            D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");");
-		return checkOK("true;", imports = ["A"]);
-}
-
-test bool Escapes2() {
-		writeModule("A", "
-            data D = d1(int n, bool b = false);
-            data D = d2(str s, int m = 0);
-            data D = d3(bool f, str t = \"a\");
-            
-            \\D X1 = \\d1(3);       \\D X2 = \\d1(3, \\b=false);
-            \\D Y1 = \\d2(\"z\");   \\D Y2 = \\d2(\"z\", \\m=1);
-            \\D Z1 = \\d3(true);    \\D Z2 = \\d3(true, \\t =\"z\");");
-		return checkOK("true;", imports = ["A"]);
-}
-
+        \\D X1 = \\d1(3);       \\D X2 = \\d1(3, \\b=false);
+        \\D Y1 = \\d2(\"z\");   \\D Y2 = \\d2(\"z\", \\m=1);
+        \\D Z1 = \\d3(true);    \\D Z2 = \\d3(true, \\t =\"z\");
+    ");
+	
 // ---- type parameters -------------------------------------------------------
 
-test bool ADTWithTypeParameter() = checkOK("true;" initialDecls = ["data D[&T] = d1(&T n);"]);
+test bool ADTWithTypeParameter() = checkModuleOK("
+    module ADTWithTypeParameter
+        data D[&T] = d1(&T n);
+    ");
 
-test bool UndefinedParameter() = unexpectedType("true;" initialDecls = ["data D[&T] = d1(&U n);"]);
+test bool UndefinedParameter() = unexpectedTypeInModule("
+    module  UndefinedParameter
+        data D[&T] = d1(&U n);
+    ");
 
-test bool UndefinedBound1() = unexpectedType("true;" initialDecls = ["data D[&T] = d1(&U \<: &S n);"]);
+test bool UndefinedBound1() = unexpectedTypeInModule("
+    module UndefinedBound1
+        data D[&T] = d1(&U \<: &S n);
+    ");
 
-test bool UndefinedBound2() = unexpectedType("true;" initialDecls = ["data D[&T] = d1(&U \<: &S v = 1);"]);
+test bool UndefinedBound2() = unexpectedTypeInModule("
+    module UndefinedBound2
+        data D[&T] = d1(&U \<: &S v = 1);
+    ");
 
-test bool MissingTypeParameter() = unexpectedType("true;",
-    initialDecls = ["data D[&T] = d1(&T n);",
-                    "void f(){ D x = d1(10); return x.n; }"]);
+test bool MissingTypeParameter() = unexpectedTypeInModule("
+    module MissingTypeParameter
+        data D[&T] = d1(&T n);
+        void f(){ D x = d1(10); return x.n; }
+    ");
 
-test bool MultipleInstances() = checkOK("true;",
-    initialDecls = ["data D[&T] = d1(&T n);",
-                    "void f() { D[int] x = d1(10); D[str] y = d1(\"abc\"); int m = x.n; str s = y.n; }"]);
+test bool MultipleInstances() = checkModuleOK("
+    module MultipleInstances
+        data D[&T] = d1(&T n);
+        void f() { D[int] x = d1(10); D[str] y = d1(\"abc\"); int m = x.n; str s = y.n; }
+    ");
 
-test bool ADTWithTypeParameterAndKW1() = checkOK("true;" initialDecls = ["data D[&T] = d1(&T n, &T kw = n);"]);
+test bool ADTWithTypeParameterAndKW1() = checkModuleOK("
+    module ADTWithTypeParameterAndKW1
+        data D[&T] = d1(&T n, &T kw = n);
+    ");
 
-test bool ADTWithTypeParameterAndKW2() = checkOK("true;",
-    initialDecls = ["data D[&T] = d1(&T n, &T kw = n);",
-                    "void f() { D[int] x = d1(10); int m = x.kw; }"]);
+test bool ADTWithTypeParameterAndKW2() = checkModuleOK("
+    module ADTWithTypeParameterAndKW2
+        data D[&T] = d1(&T n, &T kw = n);
+        void f() { D[int] x = d1(10); int m = x.kw; }
+    ");
 
-test bool ADTWithTypeParameterAndKWerror() = checkOK("true;",
-    initialDecls = ["data D[&T] = d1(&T n, &T kw = n);",
-                    "void f() { D[int] x = d1(10); str m = x.kw; }"]);
+test bool ADTWithTypeParameterAndKW3() = checkModuleOK("
+    module ADTWithTypeParameterAndKW3
+        data D[&T] = d1(&T n, &T kw = n);
+        void f() { D[int] x = d1(10); str m = x.kw; }
+    ");
 
 // https://github.com/cwi-swat/rascal/issues/430
 

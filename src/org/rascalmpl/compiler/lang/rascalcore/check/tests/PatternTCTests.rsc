@@ -14,11 +14,14 @@ test bool cannotMatchListStr1() = cannotMatch("[1] := \"a\";");
 
 test bool unguardedMatchNoEscape1() = undeclaredVariable("int n = 3; int m := n; m == n;");
 
-test bool recursiveDataTypeNoPossibleMatchHorizontal1() = 
-	cannotMatch("Prop p := and(t(),t());", 
-               initialDecls=["data Bool = and(Bool, Bool) | t();",
-									  "data Prop = or(Prop, Prop) | f();"]);
- 	
+test bool RecursiveDataTypeNoPossibleMatchHorizontal1() = cannotMatchInModule("
+   module RecursiveDataTypeNoPossibleMatchHorizontal1
+      data Bool = and(Bool, Bool) | t();
+		data Prop = or(Prop, Prop) | f();      
+
+      Prop p := and(t(),t());
+   ");
+               
 test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *int L, 2, *int L] := x;"); 
  	
 test bool matchListErrorRedeclaredSpliceVar1() = redeclaredVariable("list[int] x = [1,2,3];[1, * int L, * int L] := x;"); 
@@ -81,18 +84,31 @@ test bool UndeclaredTypeError1() = undeclaredType( "STRANGE X := 123;");
  
 test bool antiPatternDoesNotDeclare1() = undeclaredVariable("![1,int X,3] := [1,2,4] && X == 2;" );
 
-test bool matchADTStringError11() =                                                              
-	cannotMatch("f(1) := \"abc\";", initialDecls=["data Prop = or(Prop, Prop) | f(int n);"]);
+test bool MatchADTStringError11() =  cannotMatchInModule("
+   module MatchADTStringError11
+      data Prop = or(Prop, Prop) | f(int n);
+      void main() { f(1) := \"abc\"; }
+   ");
 	  	
-test bool matchADTStringError21() = 
-	cannotMatch("\"abc\" := f(1);", initialDecls=["data Prop = or(Prop, Prop) | f(int n);"]);  	
+test bool MatchADTStringError21() = cannotMatchInModule("
+   module MatchADTStringError21
+      data Prop = or(Prop, Prop) | f(int n);
+      void main() {\"abc\" := f(1); }
+   "); 	
  
-test bool noMatchADTStringError11() =                                                            
-	cannotMatch("f(1) !:= \"abc\";", initialDecls=["data Prop = or(Prop, Prop) | f(int n);"]); 
+test bool NoMatchADTStringError11() = cannotMatchInModule("
+   module NoMatchADTStringError11
+      data Prop = or(Prop, Prop) | f(int n);
+      void main() { f(1) !:= \"abc\"; }
+   ");
 	 	
-test bool noMatchADTStringError21() = 
-	cannotMatch("\"abc\" !:= f(1);", initialDecls=["data Bool = and(Bool, Bool) | t();",
-														   "data Prop = or(Prop, Prop) | f(int n);"]); 
+test bool NoMatchADTStringError21() = cannotMatchInModule("
+   module NoMatchADTStringError21
+      data Bool = and(Bool, Bool) | t();
+		data Prop = or(Prop, Prop) | f(int n);
+
+      void main() { \"abc\" !:= f(1); }
+   ");
 
 test bool matchTupleStringError() = cannotMatch("\<1\> := \"a\";");
  	
@@ -120,19 +136,32 @@ test bool matchListError8() = cannotMatch("list[str] S = [\"a\"];  [1, S, 2] !:=
   	
 test bool matchListError9() = cannotMatch("list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;");  
   	
-//test bool recursiveDataTypeNoPossibleHiddenRecursion() = 
-//	cannotMatch("p = or(t,t); and(t,t) := p;", initialDecls=["data Prop = f();", "data Bool = and(list[Prop], list[Prop]) | t();"]);  
-  
+test bool RecursiveDataTypeNoPossibleHiddenRecursion() = cannotMatchInModule("
+   module RecursiveDataTypeNoPossibleHiddenRecursion
+      data Prop = f();
+      data Bool = and(list[Prop], list[Prop]) | t();
+      voud main() { p = or(t,t); and(t,t) := p; }
+   "); 
 
-test bool NoDataDecl() = 
-	cannotMatch("f(1) := 1;", initialDecls=["data Prop = f();", "data Bool = and(list[Prop], list[Prop]) | t();"]);  
+test bool NoDataDecl() = cannotMatchInModule("
+   module NoDataDecl
+      data Prop = f();
+      data Bool = and(list[Prop], list[Prop]) | t(); 
+      void main() { f(1) := 1; }
+   ");
 
 @ignore{The following test requires deeper analysis of the data signature}
-test bool descendantWrongType() = 
-	undeclaredVariable("/true := f(g(1),f(g(2),g(3)));", initialDecls=["data F = f(F left, F right) | g(int N);"]);  
+test bool DescendantWrongType() = undeclaredVariableInModule("
+   module DescendantWrongType
+      data F = f(F left, F right) | g(int N);
+      void main() { /true := f(g(1),f(g(2),g(3))); }
+   ");
 
-test bool recursiveDataTypeNoPossibleMatchVertical() = 
-	undeclaredVariable("T := and(T,T);", initialDecls=["data Bool = and(Bool, Bool) | t();"]);  
+test bool RecursiveDataTypeNoPossibleMatchVertical() = undeclaredVariableInModule("
+   module RecursiveDataTypeNoPossibleMatchVertical
+      data Bool = and(Bool, Bool) | t();
+      void main() { T := and(T,T); }
+   ");
   
 test bool typedVariableBecomesWrongType() = cannotMatch("str N : 3 := 3;");  
   	
@@ -166,35 +195,46 @@ test bool setExpressions2() = unexpectedType("value n = 1; set[int] l = { 1, *[n
     return unsupported("{*{_}} := {1};");
  }
  
- list[str] ovlConstructors =
-    [ "syntax A = conditional: A;",
-      "data B = conditional(B symbol);",
-      "data C = conditional(C,C);"
-    ];
+ str ovlConstructors =
+    "syntax A = conditional: A;
+     data B = conditional(B symbol);
+     data C = conditional(C,C);";
 
-test bool overloadedConstructorAmbiguous()
-    = unexpectedType("B removeConditionals(B sym) = visit(sym) {
-                     'case conditional(s) =\> s
-                     '};",
-                     initialDecls = ovlConstructors);
+test bool OverloadedConstructorAmbiguous() = unexpectedTypeInModule("
+   module OverloadedConstructorAmbiguous
+      <ovlConstructors>
+      B removeConditionals(B sym) =
+         visit(sym) {
+            case conditional(s) =\> s
+         };
+   ");
                      
-test bool overloadedConstructorOk1()
-    = checkOK("B removeConditionals(B sym) = visit(sym) {
-              'case conditional(A s) =\> s
-              '};",
-              initialDecls = ovlConstructors);
+test bool OverloadedConstructorOk1() = checkModuleOK("
+   module OverloadedConstructorOk1
+      <ovlConstructors>
+      B removeConditionals(B sym) = 
+         visit(sym) {
+               case conditional(A s) =\> s
+         };
+   ");
                      
-test bool overloadedConstructorOk2()
-    = checkOK("B removeConditionals(B sym) = visit(sym) {
-              'case conditional(B s) =\> s
-              '};",
-              initialDecls = ovlConstructors);
+test bool OverloadedConstructorOk2() = checkModuleOK("
+   module OverloadedConstructorOk2
+      <ovlConstructors>
+      B removeConditionals(B sym) =
+         visit(sym) {
+            case conditional(B s) =\> s
+         };
+   ");
                   
-test bool overloadedConstructorOk3()
-    = checkOK("B removeConditionals(B sym) = visit(sym) {
-              'case conditional(s,_) =\> s
-              '};",
-              initialDecls = ovlConstructors);
+test bool OverloadedConstructorOk3() = checkModuleOK("
+   module OverloadedConstructorOk3
+      <ovlConstructors>
+      B removeConditionals(B sym) =
+         visit(sym) {
+            case conditional(s,_) =\> s
+         };
+   ");
 ////////////////////////////
 
 test bool P1() = checkOK("1 := 1;");
@@ -252,8 +292,17 @@ test bool IfU1() = checkOK("{ if(x := 1) x + 1; };");
 test bool IfU2() = unexpectedType("{ if(x := 1) x + 1; else x + 2;};");
 test bool IfU3() = checkOK("{ if(x := 1 && x == 1 ) x + 1; };");
 
-test bool ADT1() = checkOK("{ if(d1(x) := d1(10)) x + 1; };", initialDecls=["data D = d1(int n);"]);
-test bool ADT2() = checkOK("{ if(d1(x) := d1(10) && d1(y) := d1(11)) x + y; };", initialDecls=["data D = d1(int n);"]);
+test bool ADT1() = checkModuleOK("
+   module ADT1
+      data D = d1(int n);
+      void main() { if(d1(x) := d1(10)) x + 1; }
+   ");
+
+test bool ADT2() = checkModuleOK("
+   module ADT2
+      data D = d1(int n);
+      void main() { if(d1(x) := d1(10) && d1(y) := d1(11)) x + y; }
+   ");
 
 ////////////////////////////
 

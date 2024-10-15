@@ -13,9 +13,17 @@ test bool tupleIndexError1() = unexpectedType("\<0, \"a\", 3.5\>[\"abc\"];");
 
 test bool tupleIndexError2() = unexpectedType("T = \<0, \"a\", 3.5\>[\"abc\"]; T[1] = 3;");
 
-test bool nodeIndexError() = unexpectedType("f(0, \"a\", 3.5)[\"abc\"];", initialDecls = ["data NODE = f(int a, str b, real c);"]);
-	
-test bool nodeAssignmentError() = unexpectedType("NODE N = f(0, \"a\", 3.5); N.b = 3;", initialDecls = ["data NODE = f(int a, str b, real c);"]);
+test bool NodeIndexError() = unexpectedTypeInModule("
+    module NodeIndexError
+        data NODE = f(int a, str b, real c);
+        void main() { f(0, \"a\", 3.5)[\"abc\"]; }
+    ");
+
+test bool NodeAssignmentError() = unexpectedTypeInModule("
+    module NodeAssignmentError
+        data NODE = f(int a, str b, real c);
+        NODE N = f(0, \"a\", 3.5); N.b = 3;
+    ");
 
 test bool wrongListIndex1() = unexpectedType("list[int] L = [0,1,2,3]; L[\"abc\"];");
 	

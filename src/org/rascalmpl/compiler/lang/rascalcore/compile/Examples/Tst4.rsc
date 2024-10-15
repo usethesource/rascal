@@ -1,12 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst4
  
-int _X = 0;
+ //DoubleFieldError3
+ data D = d(int n) | d(value v);
 
-alias _INT = int;
-
-int _f(int n, int _m) = n;
-
-value main() = _X;
+// Stat 4
+// value zz = { n = 1; 
+//     n = 1.5; 
+//     n + 2;};
 
 //  import lang::rascalcore::check::AType;
 // import IO;
