@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -27,7 +29,7 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
+    public static Evaluator getDefaultEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -46,7 +48,7 @@ public class ShellEvaluatorFactory {
         return evaluator;
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
+    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
