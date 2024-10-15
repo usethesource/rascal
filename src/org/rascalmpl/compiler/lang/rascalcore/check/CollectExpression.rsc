@@ -641,9 +641,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
                // TODO; texp can get type value and then texp.deprecationMessage does not exist
-               //if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
-               //     s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
-               //}
+               if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
+                   s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
+               }
                 return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] _,_), list[AType] fields, list[Keyword] kwFields) := texp){
