@@ -22,12 +22,14 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
+import org.rascalmpl.ast.Char;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
@@ -56,10 +58,10 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, RascalJUnitTestRunner.getCommonMonitor(), root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), RascalJUnitTestRunner.getCommonMonitor(), root, heap);
 	
-		stdout = evaluator.getOutPrinter();
-		stderr = evaluator.getErrorPrinter();
+		stdout = evaluator.getStdOut();
+		stderr = evaluator.getStdErr();
 
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		

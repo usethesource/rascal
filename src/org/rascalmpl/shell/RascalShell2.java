@@ -34,6 +34,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
+import org.jline.style.StyleResolver;
 import org.jline.terminal.TerminalBuilder;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
@@ -102,13 +103,12 @@ public class RascalShell2  {
             ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             Evaluator evaluator = new Evaluator(vf, new NullInputStream(), OutputStream.nullOutputStream(), OutputStream.nullOutputStream(), root, heap, monitor);
-            evaluator.overwritePrintStream(monitor, new PrintWriter(monitor, true));
+            evaluator.overwritePrintWriter(monitor, new PrintWriter(monitor, true));
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
             var indentedPrettyPrinter = new ReplTextWriter(true);
-
 
             while (true) {
                 String line = reader.readLine(Ansi.ansi().reset().bold().toString() + "rascal> " + Ansi.ansi().boldOff().toString());
@@ -142,26 +142,26 @@ public class RascalShell2  {
                 catch (InterruptException ie) {
                     reader.printAbove("Interrupted");
                     try {
-                        ie.getRascalStackTrace().prettyPrintedString(evaluator.getErrorPrinter(), indentedPrettyPrinter);
+                        ie.getRascalStackTrace().prettyPrintedString(evaluator.getStdErr(), indentedPrettyPrinter);
                     }
                     catch (IOException e) {
                     }
                 }
                 catch (ParseError pe) {
-                    parseErrorMessage(evaluator.getErrorPrinter(), line, "prompt", pe, indentedPrettyPrinter);
+                    parseErrorMessage(evaluator.getStdErr(), line, "prompt", pe, indentedPrettyPrinter);
                 }
                 catch (StaticError e) {
-                    staticErrorMessage(evaluator.getErrorPrinter(),e, indentedPrettyPrinter);
+                    staticErrorMessage(evaluator.getStdErr(),e, indentedPrettyPrinter);
                 }
                 catch (Throw e) {
-                    throwMessage(evaluator.getErrorPrinter(),e, indentedPrettyPrinter);
+                    throwMessage(evaluator.getStdErr(),e, indentedPrettyPrinter);
                 }
                 catch (QuitException q) {
                     reader.printAbove("Quiting REPL");
                     break;
                 }
                 catch (Throwable e) {
-                    throwableMessage(evaluator.getErrorPrinter(), e, evaluator.getStackTrace(), indentedPrettyPrinter);
+                    throwableMessage(evaluator.getStdErr(), e, evaluator.getStackTrace(), indentedPrettyPrinter);
                 }
             }
             System.exit(0);
@@ -230,11 +230,11 @@ public class RascalShell2  {
     }
 
 
-    private static class FakePrintStream extends PrintWriter {
+    private static class FakePrintWriter extends PrintWriter {
         private final LineReader target;
         private final CharBuffer buffer;
 
-        public FakePrintStream(LineReader target, boolean autoFlush) {
+        public FakePrintWriter(LineReader target, boolean autoFlush) {
             super(OutputStream.nullOutputStream(), autoFlush, StandardCharsets.UTF_8);
             this.target = target;
             this.buffer = CharBuffer.allocate(8*1024);
