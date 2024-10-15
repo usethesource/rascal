@@ -216,14 +216,14 @@ list[TextEdit] treeDiff(
 list[TextEdit] treeDiff(
     t:appl(prod(lex(str l), _, _), list[Tree] _), 
     r:appl(prod(lex(l)    , _, _), list[Tree] _))
-    = [replace(t@\loc, learnIndentation("<r>", "<t>"))]
+    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))]
     when t != r;
 
 // When the productions are different, we've found an edit, and there is no need to recurse deeper.
 default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
-    = [replace(t@\loc, learnIndentation("<r>", "<t>"))];
+    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
 
 // If list production are the same, then the element lists can still be of different length
 // and we switch to listDiff which has different heuristics than normal trees.
@@ -243,9 +243,9 @@ default int seps(Symbol _) = 0;
 
 @synsopis{List diff is like text diff on lines; complex and easy to make slow}
 list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] replacements) {
-    println("<span> listDiff: 
-            '   <yield(originals)>
-            '   <yield(replacements)>");
+    // println("<span> listDiff: 
+    //         '   <yield(originals)>
+    //         '   <yield(replacements)>");
     edits = [];
 
     // this algorithm isolates commonalities between the two lists
@@ -280,7 +280,7 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
         return edits;
     }
     else {
-        return edits + [replace(span, learnIndentation(yield(replacements), yield(originals)))];
+        return edits + [replace(span, learnIndentation(span, yield(replacements), yield(originals)))];
     }
 }
 
@@ -365,10 +365,15 @@ private loc cover(list[Tree] elems) = cover([e@\loc | e <- elems, e@\loc?]);
 @synopsis{yield a consecutive list of trees}
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";
 
-private str learnIndentation(str replacement, str original) {
-    println("learning:
-            '  <original>
-            '  <replacement>");
+@synopsis{Make sure the subtitution is at least as far indented as the original}
+@description{
+This algorithm ignores the first line, since the first line is always preceeded by the layout of a parent node.
+
+Then it measures the depth of indentation of every line in the original, and takes the minimum.
+That minimum indentation is stripped off every line that already has that much indentation in the replacement,
+and then _all_ lines are re-indented with the discovered minimum.
+}
+private str learnIndentation(loc span, str replacement, str original) {
     list[str] indents(str text) = [indent | /^<indent:[\t\ ]*>[^\ \t]/ <- split("\n", text)];
 
     origIndents = indents(original);
@@ -378,12 +383,20 @@ private str learnIndentation(str replacement, str original) {
         return "";
     }
 
-    minIndent = sort(origIndents[1..])[0]? "";
+    minIndent = "";
+    if ([_] := origIndents) {
+        // only one line. have to invent indentation from span
+        minIndent = "<for (_ <- [0..span.begin.column]) {> <}>";
+    }
+    else {
+        minIndent = sort(origIndents[1..])[0]? "";
+    }
+
+    println("min: [<minIndent>]");
+    stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines];
     
-    stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines[1..]];
-    
-    indented = [replLines[0], *[ indent(minIndent, line, indentFirstLine=true) | line <- stripped]];
-    
-    return "<for (l <- indented) {><l>
-           '<}>"[..-1];
+    println("stripped:");
+    iprintln(stripped);
+    return indent(minIndent, "<for (l <- stripped) {><l>
+                             '<}>"[..-1]);
 }
