@@ -389,28 +389,32 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     
     consNameDef = {<define.id, define> | define <- defines, define.idRole == constructorId() };
 
-    // NOTE: After discussion about the relevance of the following checks they have been commented out
-    //       and will be removed later
-    // consIds = domain(consNameDef);
-    // for(id <- consIds){
-    //     defs = consNameDef[id];
-    //     allDefs = { d.defined | d <- defs };
-    //     for(d1 <- defs, d2 <- defs, 
-    //         d1.defined != d2.defined,
-    //         t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-    //         t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
-    //         comparableList(t1.fields, t2.fields),
-    //         ! (isSyntaxType(t1) && isSyntaxType(t2))){
 
-    //         msgs = [];
-    //         if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
-    //             msgs = [ info("Constructor `<id>` is used without qualifier and overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
-    //         } else {
-    //             msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
-    //         }
-    //         s.addMessages(msgs);
-    //     }    
-    // }
+    consIds = domain(consNameDef);
+    for(id <- consIds){
+        defs = consNameDef[id];
+        allDefs = { d.defined | d <- defs };
+        for(d1 <- defs, d2 <- defs, 
+            d1.defined != d2.defined,
+            t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
+            comparableList(t1.fields, t2.fields),
+            ! (isSyntaxType(t1) && isSyntaxType(t2))){
+
+            msgs = [];
+            if(t1.adt == t2.adt){
+                msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
+            } 
+            // NOTE: After discussion about the relevance of the following checks they have been commented out
+            //       and will be removed later
+            // else if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
+            //     msgs = [ info("Constructor `<id>` is used without qualifier and overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
+            // } else {
+            //     msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
+            // }
+            s.addMessages(msgs);
+        }    
+    }
     try {
         matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
         for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
