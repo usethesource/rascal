@@ -84,7 +84,7 @@ test bool QualifiedScopeTest(){
 	return checkModuleOK("
 		module QualifiedScopeTest
 			import MMM;
-			int main() = MMM::n == 1;
+			bool main() = MMM::n == 1;
 		");
 }
 
@@ -605,16 +605,16 @@ test bool TF5() = unexpectedDeclaration("tuple[str a, int b, real] x;");
 
 test bool TF6() = unexpectedDeclaration("tuple[str a, int b, real a] x;");
 
-test bool LU1() = checkOK("
-            int twice(int n) = 2 * n;
-            
-            int M = twice(3);
+test bool LU1() = checkModuleOK("
+	module LU1
+        int twice(int n) = 2 * n;    
+        int M = twice(3);
 ");
 
 test bool LU2(){
 	writeModule("module A int twice(int n) = 2 * n;");
     return checkModuleOK("
-            module B
+            module LU2
             	import A;
             	int M = twice(3);
 	");
@@ -625,9 +625,9 @@ test bool LU3() {
     writeModule("module B import A");
             
 	return checkModuleOK("
-            module C
-            	import A;
-            	int M = twice(3);
+        module LU3
+            import A;
+            int M = twice(3);
 	");
 }
 
@@ -636,7 +636,7 @@ test bool LU4(){
     writeModule("module B import A;");
 
 	return checkModuleOK("    
-            module C
+        module LU4
             import A;
             import B;
             int M = twice(3);
@@ -649,21 +649,20 @@ test bool LU5() {
             		import A;
             		import B;");
     return checkModuleOK("        
-            module C
-            	import A;
-            	import B;
-            	int M = twice(3);
+        module LU5
+           	import A;
+           	import B;
+           	int M = twice(3);
 	");
 }
 
 test bool LU6(){
 	writeModule("module A");
 	return checkModuleOK("
-			module B
-            	import A;
-            	int twice(int n) = 2 * n;
-           
-            	int M = twice(3);
+		module LU6
+           	import A;
+           	int twice(int n) = 2 * n;   
+            int M = twice(3);
 	");
 }
 
@@ -673,10 +672,9 @@ test bool LU7(){
             		import A;
             		int twice(int n) = 2 * n;");
     return checkModuleOK("        
-            module C
-            	import B;
-           
-            	int M = twice(3);
+        module LU7
+            import B;
+            int M = twice(3);
 	");
 }
 
@@ -686,11 +684,10 @@ test bool LU8(){
             		import A;
             		int twice(int n) = 2 * n;");
    return checkModuleOK("        
-            module C
-            	import A;
-            	import B;
-           
-            	int M = twice(3);
+        module LU8
+           	import A;
+            import B;
+            int M = twice(3);
 	");
 }
 
@@ -698,17 +695,17 @@ test bool I1(){
 	writeModule("module A public int N = 0;");
 
 	return unexpectedDeclarationInModule("
-           module B     // -- missing import
-           		int M = N;
+        module I1     // -- missing import
+           	int M = N;
 	");
 }
 test bool I2(){
 	writeModule("module A public int N = 0;");
 
 	return checkModuleOK("
-           module B
-           		import A;
-           		int M = N;
+        module I2
+           	import A;
+        	int M = N;
 	");
 }
 
@@ -716,7 +713,7 @@ test bool I3(){
 	writeModule("module A int N = 0;");  // <-- not public
     
 	return unexpectedTypeInModule("
-           module B
+        module I3
            import A;
            int M = N;
 	");
@@ -726,7 +723,7 @@ test bool I4(){
 	writeModule("module A int N = 0;");
 
 	return checkModuleOK("  
-           module B
+           module I4
            		extend A;
     			int M = N;
 	"); 
@@ -737,7 +734,7 @@ test bool I5(){
     writeModule("module B
            			import A;");    //  <-- import not transitive for decls
     return unexpectedTypeInModule("    
-           module C
+        module I5
            import B;
            int X = N;
 	");
@@ -747,9 +744,9 @@ test bool I6(){
 	writeModule("module B extend A;");
 
 	return checkModuleOK("
-           module C
-           		import B;
-           		int X = N;
+        module I6
+      		import B;
+       		int X = N;
 	");
 }
 
@@ -758,9 +755,9 @@ test bool I7(){
 	writeModule("module B extend A;");
     
 	return checkModuleOK("
-           module C
-           		extend B;
-           		int X = N;
+        module I7
+           	extend B;
+           	int X = N;
 	");
 }
 
@@ -769,9 +766,9 @@ test bool I8(){
 	writeModule("module B import A;");
 
 	return unexpectedTypeInModule("
-           module C
-           		extend B;
-           		int X = N;
+        module I8
+           	extend B;
+           	int X = N;
 	");
 }
 
@@ -785,9 +782,9 @@ test bool C1(){
            			import A;");
 
 	return checkModuleOK("  
-           module C
-           		import A;
-           		int X = N;
+        module C1
+           	import A;
+           	int X = N;
 	");
 }
 
@@ -802,9 +799,9 @@ test bool EXT1(){
              		extend B;");
     
 	return checkModuleOK("
-            module D
-             	import C;
-             	D ddd = d1(10);          
+        module EXT1
+            import C;
+            D ddd = d1(10);          
 	");
 }
 
@@ -817,9 +814,9 @@ test bool EXT2(){
              
              		D d1(int n) { if(n \< 0) return d1(-n); else fail; }");
 	return checkModuleOK("
-             module D
-             		import C;
-             		D ddd = d1(10);          
+            module EXT2
+             	import C;
+             	D ddd = d1(10);          
 	");
 }
 
@@ -832,7 +829,7 @@ test bool WrongExtend1(){
 	writeModule("module C 
 					import D;");
     return missingModuleInModule("        
-            module D
+        module WrongExtend1
             extend F;
 	");
 }

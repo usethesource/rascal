@@ -122,7 +122,7 @@ test bool matchListError3() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 
 	
 test bool matchListError4() = unexpectedDeclaration("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
-test bool matchListError5() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
+test bool matchListError5() = checkOK("!([1, list[str] L, 2] := [1,2,3]);"); 
  
 test bool matchListError6() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
    	

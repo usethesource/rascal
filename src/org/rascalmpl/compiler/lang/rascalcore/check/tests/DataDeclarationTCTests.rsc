@@ -221,7 +221,7 @@ test bool A2a() {
     writeModule("module B import A;");    
 	writeModule("module C import B;");
     
-	return unexpectedTypeInModule("
+	return checkModuleOK("
         module A2a
             import A;
             import B;
@@ -238,11 +238,11 @@ test bool A2b() {
     writeModule("module B extend A;");    
 	writeModule("module C import B;");
     
-	return unexpectedTypeInModule("
+	return checkModuleOK("
         module A2b
             import A; import B; import C;
 			D X1 = d1(3);       D X2 = d1(3, b=false);
-            D Y1 = d2(\"z\");     D Y2 = d2(\"z\", m=1);
+            D Y1 = d2(\"z\");   D Y2 = d2(\"z\", m=1);
             D Z1 = d3(true);    D Z2 = d3(true, t =\"z\");
         ");
 }
@@ -257,7 +257,7 @@ test bool A3a() {
 	writeModule("module C
                     import B;");
     
-	return unexpectedTypeInModule("
+	return checkModuleOK("
         module A3a
             import A; import B; import C;
             void main() { D X1 = d1(3); }
@@ -352,7 +352,7 @@ test bool C2() {
     writeModule("module B 
                     import A;
                 data D(bool B = false) = d3(bool f, str t = \"a\");");
-    return checkModuleOK("
+    return unexpectedDeclarationInModule("
         module C3   
             import B;
             
@@ -392,7 +392,7 @@ test bool C5() {
 }
 
 test bool Escapes1() = checkModuleOK("
-    module \\Escapes1
+    module Escapes1
         data \\D = \\d1(int \\n, bool \\b = false);
         data \\D = \\d2(str \\s, int \\m = 0);
         data \\D = \\d3(bool \\f, str \\t = \"a\");
