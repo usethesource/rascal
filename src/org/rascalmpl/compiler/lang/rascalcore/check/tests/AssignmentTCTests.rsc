@@ -98,7 +98,7 @@ test bool SLICE9() = unexpectedType("void main(){ lst = [0,1,2,3,4,5]; lst[1,\"a
 
 test bool SLICE10() = checkOK("void main(){ s = \"abcdefg\"; s[1..3] = \"x\"; }");
 test bool SLICE11() = checkOK("void main(){ s = \"abcdefg\"; s[1..3] += \"x\"; }");
-test bool SLICE11() = unexpectedType("void main(){ s = \"abcdefg\"; s[1..3] += 10; }");
+test bool SLICE12() = unexpectedType("void main(){ s = \"abcdefg\"; s[1..3] += 10; }");
 
 test bool FIELD1() = checkModuleOK("
      module FIELD1

@@ -248,7 +248,7 @@ test bool A2b() {
 }
 
 test bool A3a() {
-	writeModule("module A","
+	writeModule("module A
                     data D = d1(int n, bool b = false);
                     data D = d2(str s, int m = 0);");
     writeModule("module B 
@@ -352,7 +352,7 @@ test bool C2() {
     writeModule("module B 
                     import A;
                 data D(bool B = false) = d3(bool f, str t = \"a\");");
-    return checkModuleOKwriteModule("
+    return checkModuleOK("
         module C3   
             import B;
             

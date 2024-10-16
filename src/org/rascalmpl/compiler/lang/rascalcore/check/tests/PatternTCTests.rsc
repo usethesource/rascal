@@ -26,7 +26,7 @@ test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *in
  	
 test bool matchListErrorRedeclaredSpliceVar1() = redeclaredVariable("list[int] x = [1,2,3];[1, * int L, * int L] := x;"); 
   
-test bool matchListError22() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");
+test bool matchListError2() = checkOK("list[int] l = [1,2,3]; [1, list[str] L, 2] := l; ");
   
 test bool matchBoolIntError1() = cannotMatch("true !:= 1;"); 
 
@@ -118,23 +118,23 @@ test bool noMatchTupleArityError() = cannotMatch("\<1\> !:= \<1,2\>;");
  
 test bool matchSetStringError() = cannotMatch("{1} := \"a\";");  
   
-test bool matchListError1() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   // DISCUSS, was: cannotMatch	
+test bool matchListError3() = checkOK("list[int] x = [1,2,3]; [1, *list[int] L, 2, list[int] M] !:= x;");   // DISCUSS, was: cannotMatch	
 	
-test bool matchListError2() = unexpectedDeclaration("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
+test bool matchListError4() = unexpectedDeclaration("!([1, list[int] L, 2, list[int] L] := [1,2,3]);");  
   	
-test bool matchListError3() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
+test bool matchListError5() = checkOK("!([1, list[str] L, 2] := [1,2,3]);");  // DISCUSS, was: cannotMatch
  
-test bool matchListError4() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
+test bool matchListError6() = cannotMatch("str S = \"a\";  [1, S, 2] !:= [1,2,3];");  
    	
-test bool matchListError5() = checkOK("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  // DISCUSS, was: cannotMatch
+test bool matchListError7() = checkOK("list[int] x = [1,2,3] ; [1, str S, 2] := x;");  // DISCUSS, was: cannotMatch
   	
-test bool matchListError6() = cannotMatch("str S = \"a\"; [1, S, 2] !:= [1,2,3];");  
+test bool matchListError8() = cannotMatch("str S = \"a\"; [1, S, 2] !:= [1,2,3];");  
   	
-test bool matchListError7() = cannotMatch("str S = \"a\"; list[int] x = [1,2,3]; [1, S, 2] := x;");  
+test bool matchListError9() = cannotMatch("str S = \"a\"; list[int] x = [1,2,3]; [1, S, 2] := x;");  
   	
-test bool matchListError8() = cannotMatch("list[str] S = [\"a\"];  [1, S, 2] !:= [1,2,3];");  
+test bool matchListError10() = cannotMatch("list[str] S = [\"a\"];  [1, S, 2] !:= [1,2,3];");  
   	
-test bool matchListError9() = cannotMatch("list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;");  
+test bool matchListError11() = cannotMatch("list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;");  
   	
 test bool RecursiveDataTypeNoPossibleHiddenRecursion() = cannotMatchInModule("
    module RecursiveDataTypeNoPossibleHiddenRecursion
@@ -286,7 +286,7 @@ test bool If3() = checkOK("{ if(int x := 1 && x == 1 ) x + 1; };");
 test bool If4() = unexpectedDeclaration("{ if(int x := 1 && int x := 2 && x == 1 ) x + 1; };");
 
 test bool If5() = checkOK("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; };");
-test bool If5() = unexpectedType("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;};");
+test bool If6() = unexpectedType("{ if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;};");
 
 test bool IfU1() = checkOK("{ if(x := 1) x + 1; };");
 test bool IfU2() = unexpectedType("{ if(x := 1) x + 1; else x + 2;};");
@@ -316,9 +316,9 @@ test bool TU2() = checkOK("[*int _] := [1];");
 test bool TN1() = checkOK("[int X] := [1];");
 test bool TN2() = checkOK("[*int X] := [1];");
 
-test bool U1() = checkOK("[X] := [1];");
-test bool U2() = checkOK("[X*] := [1];");
-test bool U3() = checkOK("[*X] := [1];");
+test bool U4() = checkOK("[X] := [1];");
+test bool U5() = checkOK("[X*] := [1];");
+test bool U6() = checkOK("[*X] := [1];");
 
 test bool S1() = checkOK("[*X,*_] := [1];");
 
