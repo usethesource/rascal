@@ -470,10 +470,10 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         bool warnDeprecated           = true,
         
         // Debugging
-        bool verbose                  = true,    // for each compiled module, log module name and compilation time
+        bool verbose                  = false,    // for each compiled module, log module name and compilation time
         bool logImports               = false,
         bool logWrittenFiles          = false,   // log location of written files: .constants, .tpl, *.java
-        bool logPathConfig            = true,   //  log PathConfig that is used
+        bool logPathConfig            = false,   //  log PathConfig that is used
         
         loc reloc                     = |noreloc:///|, // Currently unused
        
