@@ -648,43 +648,18 @@ private void checkAssignment(Statement current, (Assignable) `( <Assignable arg>
     //collect(arg, c);
 }
 
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType, Solver s){
+private AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
     checkNonVoid(current, rhsType, s, "Righthand side of assignment");
     s.requireComparable(rhsType, lhsType, error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", rhsType, lhsType));
-    return rhsType;
-}
-    
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType, Solver s){
-    checkNonVoid(current, rhsType, s, "Righthand side of += assignment");
-    return computeAdditionType(current, lhsType, rhsType, s);
-}  
-
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType, Solver s){
-    checkNonVoid(current, rhsType, s, "Righthand side of-= assignment");
-    return computeSubtractionType(current, lhsType, rhsType, s); 
-}
-
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "*=", AType rhsType, Solver s){
-    checkNonVoid(current, rhsType, s, "Righthand side of*= assignment");
-    return computeProductType(current, lhsType, rhsType, s); 
-}      
-
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "/=", AType rhsType, Solver s){
-    checkNonVoid(current, rhsType, s, "Righthand side of /= assignment");
-    return computeDivisionType(current, lhsType, rhsType, s);    
-}
-
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhsType, Solver s){
-    checkNonVoid(current, rhsType, s, "Righthand side of &= assignment");
-    return computeIntersectionType(current, lhsType, rhsType, s);  
-}
-    
-private AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType, Solver s){
-    checkNonVoid(current, rhsType, s, "Righthand side of ?= assignment");
-    return alub(lhsType, rhsType);
-}
-
-private default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
+    switch(operator){
+        case "=":  return rhsType;
+        case "+=": return computeAdditionType(current, lhsType, rhsType, s);
+        case "-=": return computeSubtractionType(current, lhsType, rhsType, s); 
+        case "*=": return computeProductType(current, lhsType, rhsType, s);
+        case "/=": return computeDivisionType(current, lhsType, rhsType, s);
+        case "&=":  return computeIntersectionType(current, lhsType, rhsType, s);  
+        case "?=": return alub(lhsType, rhsType);
+    }
     s.report(error(current, "Unsupported operator %s in assignment", operator));
     return avalue();
 }
@@ -708,7 +683,8 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
         AType(Solver s) { 
                    nameType = s.getType(name);
-         		   asgType = computeAssignmentRhsType(current, nameType, operator, s.getType(statement), s);
+                   statType = s.getType(statement);
+         		   asgType = computeAssignmentRhsType(current, nameType, operator, statType, s);
          		   
          		   bindings = ();
                    try   bindings = unifyRascalTypeParams(nameType, asgType, bindings);
@@ -727,8 +703,8 @@ private void checkAssignment(Statement current, (Assignable) `<QualifiedName nam
                             s.report(error(current, "Cannot instantiate rhs type `<prettyAType(asgType)>` of assignment: " + msg));
                         }
                    }        		   
-                   if(operator == "=") 
-                      s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q", asgType, nameType, "<name>")); 
+                   //if(operator == "=") 
+                   //   s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q", asgType, nameType, "<name>")); 
                    return asgType;   
                  });  
 }
