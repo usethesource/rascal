@@ -357,8 +357,8 @@ test bool RegexpInKeywordOk() = checkModuleOK("
         keyword Keywords = \"if\" | \"then\" | [a-z]+;
 ");
 
-test bool NonterminalInKeywordOk() = checkModuleOK("
-    module NonterminalInKeywordOk
+test bool NonterminalInKeywordOk1() = checkModuleOK("
+    module NonterminalInKeywordOk1
         keyword K = \"a\" | B;
         syntax B = \"b\" | \"bb\" | \"bbb\";
 ");
@@ -369,8 +369,8 @@ test bool RecursiveNonterminalInKeywordOk() = checkModuleOK("
         syntax B = \"b\" | \"bb\" | \"bbb\" | K;
 ");
 
-test bool NonterminalInKeywordOk() = checkModuleOK("
-    module NonterminalInKeywordOk
+test bool NonterminalInKeywordOk2() = checkModuleOK("
+    module NonterminalInKeywordOk2
         keyword K = \"a\" | B;
         syntax B = \"b\" | \"bb\" | [a-z];
 ");

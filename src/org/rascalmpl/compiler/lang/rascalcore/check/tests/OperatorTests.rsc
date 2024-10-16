@@ -65,7 +65,7 @@ test bool JOINSR1() = checkOK("rel[int,int,bool] r = {\<1,10\>} join {true};");
 
 test bool JOINSR2() = checkOK("rel[bool,int,int] r = {true} join {\<1,10\>};");
 
-test bool JOINSR1() = unexpectedType(" rel[int,int,bool] r = {\<1,10\>} join true;");
+test bool JOINSR3() = unexpectedType(" rel[int,int,bool] r = {\<1,10\>} join true;");
 
 // //-- addition
 
@@ -80,7 +80,7 @@ test bool ADD8() = checkOK("set[int] st = 1 + {3,4};");
 test bool ADD9() = checkOK("set[int] st = {1,2} + 3;");
 
 test bool ATP1() = checkOK("tuple[int,str,int,bool] tp = \<1,\"a\"\> + \<2, true\>;");
-test bool ATP1() = checkOK("tuple[int a, str b, int c, bool d] tp = \<1,\"a\"\> + \<2, true\>;  int n = tp.a; bool x = tp. d;");
+test bool ATP2() = checkOK("tuple[int a, str b, int c, bool d] tp = \<1,\"a\"\> + \<2, true\>;  int n = tp.a; bool x = tp. d;");
 
 
 
