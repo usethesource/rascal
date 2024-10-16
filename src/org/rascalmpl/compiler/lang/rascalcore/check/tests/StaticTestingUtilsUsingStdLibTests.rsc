@@ -7,7 +7,7 @@ import lang::rascalcore::check::tests::StaticTestingUtils;
 
 test bool Utils1() = checkModuleOK("
     module Utils10
-        impor util::Math;
+        import util::Math;
         int main() = max(3, 4);
     ");
 

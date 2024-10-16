@@ -301,7 +301,7 @@ list[str] unexpectedDeclarationMsgs = [
 	"Invalid initialization of _",
 	"Undefined _",
 	"Double declaration of _",
-	"Constructor _ clashes with other declaration with comparable fields",
+	"Constructor _ overlaps with other declaration for type _, see _",
 	"Constructor _ is used without qualifier and overlaps with other declaration, _",
 	"Unresolved type for _",
 	"Constructor _ in formal parameter should be unique",

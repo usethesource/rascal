@@ -559,7 +559,7 @@ test bool Issue465b(){
         module Issue465b
             import MMM;
             data Exp = con(int n);
-            void main() { c = con(5);
+            void main() { c = con(5); }
         ");
 }
 
