@@ -11,6 +11,32 @@ test bool AssignmentError2() = unexpectedType("{int i = true;};");
 
 test bool AssignmentError3() = unexpectedType("{int n = 3; n = true;}");
 
+test bool IntAddAssign() = checkOK("{int n = 3; n += 3;}");
+test bool IntAddAssignError() = unexpectedType("{int n = 3; n += true;}");
+
+test bool StrAddAssign() = checkOK("{str s = \"a\"; s += \"b\";}");
+test bool StrAddAssignError1() = unexpectedType("{str s = \"a\"; s += 3;}");
+
+test bool SetStrAddAssign() = checkOK("{set[str] s = {\"a\"}; s += {\"b\"};}");
+test bool SetStrAddAssignError1() = unexpectedType("{set[str] s = {\"a\"}; s += 3;}");
+test bool SetStrAddAssignError2() = unexpectedType("{set[str] s = {\"a\"}; s += [\"b\"];}");
+
+test bool IntMullAssign() = checkOK("{int n = 3; n *= 3;}");
+test bool IntMullAssignError() = unexpectedType("{int n = 3; n *= true;}");
+
+test bool IntSubAssign() = checkOK("{int n = 3; n -= 3;}");
+test bool IntSubAssignError() = unexpectedType("{int n = 3; n -= true;}");
+
+test bool IntDivAssign() = checkOK("{int n = 3; n /= 3;}");
+test bool IntDivAssignError() = unexpectedType("{int n = 3; n /= true;}");
+
+test bool IntMulAssign() = checkOK("{int n = 3; n *= 3;}");
+test bool IntMulAssignError() = unexpectedType("{int n = 3; n *= true;}");
+
+test bool IntInterAssignError() = unexpectedType("{int n = 3; n &= 3;}");
+test bool SetStrInterAssign() = checkOK("{set[str] s = {\"a\", \"b\"}; s &= {\"b\"};}");
+test bool SetStrInterAssignError() = unexpectedType("{set[str] s = {\"a\", \"b\"}; s &= {3};}");
+
 test bool integerError1() = uninitialized("N += 2;");
   
 test bool integerError2() = uninitialized("N -= 2;");
