@@ -248,7 +248,7 @@ test bool UseVariableInConcreteSyntax() {
 		");
 }
 
-@ignore{status?}
+
 test bool RedeclareConstructorError(){ 
 	writeModule("module MMM data DATA = d(int n);"); 
 	return unexpectedDeclarationInModule("

@@ -74,15 +74,15 @@ test bool SharedKeywordsWork2() = checkModuleOK("
 test bool D1() = unexpectedType("D x;");
 
 test bool D2() = checkModuleOK("
-    module D1
+    module D2
         data D;
-        D main() = D x;
+        D x;
     ");
 
 test bool D3() = checkModuleOK("
     module D3
         data D = d1();
-        D main() = D x;
+        D x;
     ");
 
 test bool D4() = checkModuleOK("

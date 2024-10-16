@@ -22,7 +22,10 @@ test bool NodeIndexError() = unexpectedTypeInModule("
 test bool NodeAssignmentError() = unexpectedTypeInModule("
     module NodeAssignmentError
         data NODE = f(int a, str b, real c);
-        NODE N = f(0, \"a\", 3.5); N.b = 3;
+        void main(){
+            NODE N = f(0, \"a\", 3.5); 
+            N.b = 3;
+        }
     ");
 
 test bool wrongListIndex1() = unexpectedType("list[int] L = [0,1,2,3]; L[\"abc\"];");

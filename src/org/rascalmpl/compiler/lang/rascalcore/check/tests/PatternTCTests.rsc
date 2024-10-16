@@ -19,7 +19,7 @@ test bool RecursiveDataTypeNoPossibleMatchHorizontal1() = cannotMatchInModule("
       data Bool = and(Bool, Bool) | t();
 		data Prop = or(Prop, Prop) | f();      
 
-      Prop p := and(t(),t());
+      bool main() = Prop p := and(t(),t());
    ");
                
 test bool matchListError1() = redeclaredVariable("list[int] x = [1,2,3]; [1, *int L, 2, *int L] := x;"); 
