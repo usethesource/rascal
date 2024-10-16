@@ -588,7 +588,7 @@ private java str format(str s, str dir, int n, str pad);
 @synopsis{Determine if a string matches the given (Java-syntax) regular expression.}
 @javaClass{org.rascalmpl.library.Prelude}
 @deprecated{
-use `/re/ := s` instead
+Use `/re/ := s` instead
 }
 public java bool rexpMatch(str s, str re);
 
@@ -605,7 +605,7 @@ toLocation("http://grammarware.net");
 toLocation("document.xml");
 ```
 }
-@deprecated{Use ((Location::locFromWindowsPath)) for example. The current function does not handle all the different intricasies of path notation.}
+@deprecated{Use ((Location::locFromWindowsPath)) for example; toLocation does not handle all intricasies of path notation.}
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 
