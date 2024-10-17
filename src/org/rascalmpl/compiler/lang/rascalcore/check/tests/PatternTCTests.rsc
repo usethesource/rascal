@@ -304,8 +304,6 @@ test bool ADT2() = checkModuleOK("
       void main() { if(d1(x) := d1(10) && d1(y) := d1(11)) x + y; }
    ");
 
-////////////////////////////
-
 test bool U1() = checkOK("[_] := [1];");
 test bool U2() = checkOK("[_*] := [1];");
 test bool U3() = checkOK("[*_] := [1];");
@@ -431,3 +429,5 @@ test bool Issue478() = checkModuleOK("
    ");
 
 test bool Issue886() = unexpectedType("[\<[\<19,0,*_\>],false,_\>] := [\<[\<19,0,1\>], true, 1\>];");
+
+test bool RedeclaredVarInRegExp() = redeclaredVariable("(/\<x:[a-z]+\>-\<x:[a-z]+\>/ !:= \"abc-abc\") && (x == \"abc\");");
