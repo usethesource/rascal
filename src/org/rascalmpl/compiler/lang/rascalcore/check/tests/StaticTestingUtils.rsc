@@ -372,4 +372,4 @@ bool unsupportedInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unsupportedMsgs);
 
 bool unsupported(str stmts) =
-    checkStatementsAndFilter(stmts);
+    checkStatementsAndFilter(stmts, unsupportedMsgs);
