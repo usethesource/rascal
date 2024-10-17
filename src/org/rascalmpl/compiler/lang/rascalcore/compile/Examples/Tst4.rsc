@@ -1,5 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst4
 
+data X = x(tuple[int, value] a) | x(tuple[value, int] b);
+
 void main(){
     set[str] s = {};
     s += "a";
