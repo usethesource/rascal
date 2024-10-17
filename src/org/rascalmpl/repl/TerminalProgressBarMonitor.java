@@ -19,6 +19,7 @@ import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
 import jline.internal.Configuration;
 
+
 /**
  * The terminal progress bar monitor wraps the standard output stream to be able to monitor
  * output and keep the progress bars at the same place in the window while other prints happen
@@ -448,14 +449,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             return "\u001B[" + n + "F";
         }
 
-        static String overlined() {
-            return "\u001B[53m";
-        }
-
-        static String underlined() {
-            return "\u001B[4m";
-        }
-
         public static String printCursorPosition() {
             return "\u001B[6n";
         }
@@ -467,11 +460,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
         public static String normal() {
             return "\u001B[0m";
         }
-
-        public static String lightBackground() {
-            return "\u001B[48;5;250m";
-        }
-
+        
         static String moveDown(int n) {
             return "\u001B[" + n + "E";
         }
