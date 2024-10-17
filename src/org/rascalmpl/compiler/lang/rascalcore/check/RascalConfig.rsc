@@ -467,7 +467,6 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         bool warnUnusedFormals        = true,
         bool warnUnusedVariables      = true,
         bool warnUnusedPatternFormals = true,
-        bool warnDeprecated           = true,
         
         // Debugging
         bool verbose                  = false,    // for each compiled module, log module name and compilation time
@@ -490,7 +489,6 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         warnUnusedVariables           = warnUnusedVariables,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
-        warnDeprecated                = warnDeprecated,
         
         verbose                       = verbose,   
         logImports                    = logImports,
