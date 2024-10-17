@@ -650,18 +650,22 @@ private void checkAssignment(Statement current, (Assignable) `( <Assignable arg>
 
 private AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
     checkNonVoid(current, rhsType, s, "Righthand side of assignment");
-    s.requireComparable(rhsType, lhsType, error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", rhsType, lhsType));
+    resultType = avalue();
     switch(operator){
-        case "=":  return rhsType;
-        case "+=": return computeAdditionType(current, lhsType, rhsType, s);
-        case "-=": return computeSubtractionType(current, lhsType, rhsType, s); 
-        case "*=": return computeProductType(current, lhsType, rhsType, s);
-        case "/=": return computeDivisionType(current, lhsType, rhsType, s);
-        case "&=":  return computeIntersectionType(current, lhsType, rhsType, s);  
-        case "?=": return alub(lhsType, rhsType);
+        case "=":  resultType = rhsType;
+        case "+=": resultType = computeAdditionType(current, lhsType, rhsType, s);
+        case "-=": resultType = computeSubtractionType(current, lhsType, rhsType, s); 
+        case "*=": resultType = computeProductType(current, lhsType, rhsType, s);
+        case "/=": resultType = computeDivisionType(current, lhsType, rhsType, s);
+        case "&=": resultType = computeIntersectionType(current, lhsType, rhsType, s);  
+        case "?=": resultType = alub(lhsType, rhsType);
+        default: {
+            s.report(error(current, "Unsupported operator %s in assignment", operator));
+            return avalue();
+        }
     }
-    s.report(error(current, "Unsupported operator %s in assignment", operator));
-    return avalue();
+    s.requireComparable(resultType, lhsType, error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", resultType, lhsType));
+    return resultType;
 }
 
 private void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, Collector c){
