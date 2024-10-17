@@ -82,6 +82,9 @@ test bool ADD9() = checkOK("set[int] st = {1,2} + 3;");
 test bool ATP1() = checkOK("tuple[int,str,int,bool] tp = \<1,\"a\"\> + \<2, true\>;");
 test bool ATP2() = checkOK("tuple[int a, str b, int c, bool d] tp = \<1,\"a\"\> + \<2, true\>;  int n = tp.a; bool x = tp. d;");
 
+test bool emptyRel1() = unexpectedType("{}\<0\> ;");
 
+test bool emptyRel2() = unexpectedType("{}\<1\> ;");
 
+test bool tupleOutOfBounds() = unexpectedType("{\<1,2\>}\<2\> == {2};"); 
 
