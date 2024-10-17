@@ -136,7 +136,6 @@ data TypePalConfig(
     bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,
     bool warnUnusedPatternFormals   = true,
-    bool warnDeprecated             = false,
     
     loc reloc                       = |noreloc:///|,  // Unused
     
