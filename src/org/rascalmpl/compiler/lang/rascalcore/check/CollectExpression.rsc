@@ -596,7 +596,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
-                            if(ft.deprecationMessage? && c.getConfig().warnDeprecated){
+                            if(ft.deprecationMessage?){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
                            
@@ -641,7 +641,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
                // TODO; texp can get type value and then texp.deprecationMessage does not exist
-               if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
+               if(texp.deprecationMessage?){
                    s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
                }
                 return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int _ <- index(formals)], s);
