@@ -53,14 +53,6 @@ void clearMemory() {
 str cleanName(str name)
 	= name[0] == "\\" ? name[1..] : name;
 
-// loc writeModule(str name, str body){
-//     mloc = |memory:///test-modules/<cleanName(name)>.rsc|;
-//     writeFile(mloc, "@bootstrapParser
-//                      'module <name>
-//                      '<body>");
-//     return mloc;
-// }
-
 loc writeModule(str moduleText){
 	<mname, mbody> = extractModuleNameAndBody(moduleText);
     mloc = |memory:///test-modules/<cleanName(mname)>.rsc|;
