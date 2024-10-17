@@ -61,7 +61,7 @@ test bool TestUtils09() = checkModuleOK("
 		NODE N = f(0, \"a\", 3.5);
 	");
 
-test bool TestUtils13(){
+test bool TestUtils10(){
 	writeModule("module MMM int x = 3;"); 
 	return checkModuleOK("
 		module TestUtils13
@@ -70,7 +70,7 @@ test bool TestUtils13(){
 	");
 }
 
-test bool TestUtils14(){
+test bool TestUtils11(){
 	writeModule("module MMM int x = 3;"); 
 	return undeclaredVariableInModule("
 		module TestUtils14
@@ -78,4 +78,10 @@ test bool TestUtils14(){
 			int main() = x;
 	");
 }	
+
+test bool TestUtils12() = checkModuleOK("
+    module TestUtils12
+        import List;
+        int main() = size([1,2,3]);
+    ");
 
