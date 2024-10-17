@@ -580,6 +580,7 @@ test bool Issue465d(){
                     lexical IntegerLiteral = [0-9]+;           
 					start syntax Exp = con: IntegerLiteral;");
 	return checkModuleOK("
+        module Issue465d
             import MMM;
             data Exp = con(int n);
             void main() { MMM::Exp c = [MMM::Exp] \"3\"; }
