@@ -138,6 +138,8 @@ ModuleStatus rascalTModelForLocs(
         msgs += ms.messages[m] ? [];
     }
     
+    str jobName = "";
+    
     try {
         ms = getImportAndExtendGraph(topModuleNames, compilerConfig);
         
@@ -289,7 +291,7 @@ ModuleStatus rascalTModelForLocs(
         }
     }
 
-
+    jobEnd(jobName);
     return ms;
 }
 
