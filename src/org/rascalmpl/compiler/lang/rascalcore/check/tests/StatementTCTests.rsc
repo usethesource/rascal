@@ -71,7 +71,6 @@ test bool VisitError5() = unexpectedType("insert 2;");
 
 test bool WrongInsert() = unexpectedType("String vs = visit ([1,2,3]) {case 1: insert \"abc\";} == [\"abc\", 2, 3];;");
 
-
 // https://github.com/cwi-swat/rascal/issues/416
 
 test bool Issue416() = checkModuleOK("
