@@ -549,7 +549,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             
             try {
-                return parseObject(methodName, input, readAll(input), allowAmbiguity, hasSideEffects, filters);
+                return parseObject(methodName, origin, readAll(input), allowAmbiguity, hasSideEffects, filters);
             }
             catch (ParseError pe) {
                 ISourceLocation errorLoc = pe.getLocation();
