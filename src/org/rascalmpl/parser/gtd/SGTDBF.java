@@ -1346,82 +1346,81 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	    initTime();
 
-	  try {
+		try {
+	    	if(invoked){
+	      		throw new RuntimeException("Can only invoke 'parse' once.");
+	    	}
 
-	    if(invoked){
-	      throw new RuntimeException("Can only invoke 'parse' once.");
-	    }
+	    	invoked = true;
 
+	    	// Initialize.
+	    	this.inputURI = inputURI;
+	    	this.input = input;
 
-	    invoked = true;
-
-	    // Initialize.
-	    this.inputURI = inputURI;
-	    this.input = input;
-
-	    this.recoverer = recoverer;
+	    	this.recoverer = recoverer;
 			this.debugListener = debugListener;
 		
 			visualizer = ParseStateVisualizer.shouldVisualizeUri(inputURI) ? new ParseStateVisualizer("Parser") : null;
 
-	    // Initialzed the position store.
-	    positionStore.index(input);
+	    	// Initialzed the position store.
+	    	positionStore.index(input);
 
-	    todoLists = new DoubleStack[DEFAULT_TODOLIST_CAPACITY];
+	    	todoLists = new DoubleStack[DEFAULT_TODOLIST_CAPACITY];
 
-	    // Handle the initial expansion of the root node.
-	    AbstractStackNode<P> rootNode = startNode;
-	    rootNode.initEdges();
-	    stacksToExpand.push(rootNode);
-	    lookAheadChar = (input.length > 0) ? input[0] : 0;
+	    	// Handle the initial expansion of the root node.
+	    	AbstractStackNode<P> rootNode = startNode;
+	    	rootNode.initEdges();
+	    	stacksToExpand.push(rootNode);
+	    	lookAheadChar = (input.length > 0) ? input[0] : 0;
 
 			debugListener.shifting(location, input, positionStore);
 
-	    expand();
+	    	expand();
 
 			AbstractContainerNode<P> result = null;
-	    if(findFirstStacksToReduce()){
-	      boolean shiftedLevel = (location != 0);
+	    	if(findFirstStacksToReduce()){
+	      		boolean shiftedLevel = (location != 0);
 				while (true) {
-	        lookAheadChar = (location < input.length) ? input[location] : 0;
-	        if(shiftedLevel){ // Nullable fix for the first level.
-	          sharedNextNodes.clear();
-	          cachedEdgesForExpect.clear();
+	        		lookAheadChar = (location < input.length) ? input[location] : 0;
+	        		if(shiftedLevel){ // Nullable fix for the first level.
+	          			sharedNextNodes.clear();
+	          			cachedEdgesForExpect.clear();
 
-	          unexpandableNodes.dirtyClear();
-	          unmatchableLeafNodes.dirtyClear();
-	          unmatchableMidProductionNodes.dirtyClear();
-	          filteredNodes.dirtyClear();
+						unexpandableNodes.dirtyClear();
+						unmatchableLeafNodes.dirtyClear();
+						unmatchableMidProductionNodes.dirtyClear();
+						filteredNodes.dirtyClear();
 
-							debugListener.shifting(location, input, positionStore);
+						debugListener.shifting(location, input, positionStore);
 					}
-	        // Reduce-expand loop.
-	        do {
-							debugListener.iterating();
+
+	        		// Reduce-expand loop.
+	        		do {
+						debugListener.iterating();
 	
-	          reduceTerminals();
+	          			reduceTerminals();
 
-			  reduceNonTerminals();
+			  			reduceNonTerminals();
 
-	          expand();
+	          			expand();
 					}
 					while (!stacksWithNonTerminalsToReduce.isEmpty() || !stacksWithTerminalsToReduce.isEmpty());
 
-	        shiftedLevel = true;
+	        		shiftedLevel = true;
 
 					if (!findStacksToReduce()) {
-	    if(location == input.length){
-	      EdgesSet<P> startNodeEdgesSet = startNode.getIncomingEdges();
-	      int resultStoreId = getResultStoreId(startNode.getId());
-	      if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
+	    				if(location == input.length) {
+	      					EdgesSet<P> startNodeEdgesSet = startNode.getIncomingEdges();
+	      					int resultStoreId = getResultStoreId(startNode.getId());
+	      					if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length) {
 								result = startNodeEdgesSet.getLastResult(resultStoreId); // Success.
 								break;
-	      }
-	    }
+	      					}
+	    				}
 						if (!attemptRecovery()) {
 							// Unsuccessful parse
 							break;
-	  }
+	  					}
 					}
 				}
 			}
@@ -1432,32 +1431,32 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				return result;
 			}
 		} finally {
-	    checkTime("Parsing");
-	  }
+	    	checkTime("Parsing");
+	  	}
 
-	  try {
-	    // A parse error occured, and recovery failed as well
+	  	try {
+	    	// A parse error occured, and recovery failed as well
 			parseErrorEncountered = true;
 	    
-	    int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
-	    int line = positionStore.findLine(errorLocation);
-	    int column = positionStore.getColumn(errorLocation, line);
-	    if (location == input.length) {
+			int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
+			int line = positionStore.findLine(errorLocation);
+			int column = positionStore.getColumn(errorLocation, line);
+			if (location == input.length) {
 				throw new ParseError("Parse error", inputURI, errorLocation, 0, line + 1, line + 1, column, column,
 					(Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes,
 					(Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes,
 					(DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes,
 					(DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
-	    }
+	    	}
 			throw new ParseError("Parse error", inputURI, errorLocation, 1, line + 1, line + 1, column, column + 1,
 				(Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes,
 				(Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes,
 				(DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes,
 				(DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
-	  }
-	  finally {
-	    checkTime("Error handling");
-	  }
+	  	}
+	  	finally {
+	    	checkTime("Error handling");
+	  	}
 	}
 
 	private void initTime() {
