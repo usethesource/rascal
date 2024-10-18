@@ -27,7 +27,7 @@ public interface InputMatcher {
     public static InputMatcher FAIL = new FailingMatcher();
 
     // Find a match in the input. Returning `null` means no match has been found.
-    MatchResult findMatch(int[] input, int startLocation);
+    MatchResult findMatch(int[] input, int startLocation, int maxLength);
 
     public static class MatchResult {
         private final int start;

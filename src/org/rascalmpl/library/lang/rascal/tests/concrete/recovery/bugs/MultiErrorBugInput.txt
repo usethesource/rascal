@@ -1,0 +1,17 @@
+module sandbox::SimpleSyntax
+
+start syntax Start = S;
+
+syntax S = A | B | C | D | E | F;
+
+syntax A = "a";
+
+syntax B = #"b";
+
+syntax C = "c";
+
+syntax D = #"d";
+
+syntax E = "e";
+
+syntax F = "f";
