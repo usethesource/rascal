@@ -53,7 +53,8 @@ public class IO {
     private final IValueFactory vf;
     private static final String SRC_ATTR = "src";
     private static final String QUALIFIED_SRC_ATTR = "rascal-src";
-
+    private static final String SRCS_ATTR = "srcs";
+    private static final String QUALIFIED_SRCS_ATTR = "rascal-srcs";
 
     public IO(IValueFactory vf) {
         this.vf = vf;
@@ -66,7 +67,7 @@ public class IO {
        
         try (InputStream reader = URIResolverRegistry.getInstance().getInputStream(loc)) {
             Parser xmlParser = Parser.xmlParser()
-                .settings(new ParseSettings(false, false))
+                .settings(new ParseSettings(true, true))
                 .setTrackPosition(trackOrigins.getValue())
                 ;
             
@@ -144,9 +145,17 @@ public class IO {
                         // remove all the namespace attributes
                         return !a.getKey().startsWith("xmlns");
                     })
-                    .map(a -> removeNamespace(a, elem.attributes(), fullyQualify))
-                    .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(a.getValue())));
+                    .collect(Collectors.toMap(a -> normalizeAttr(a.getKey()), a -> vf.string(removeNamespace(a, elem.attributes(), fullyQualify))));
             
+            // we traverse again to record the source positions of each attribute
+            IMap Srcs = file != null ? StreamSupport.stream(elem.attributes().spliterator(), false)
+                    .filter(a -> !a.getKey().startsWith("xmlns"))
+                    .map(a -> vf.tuple(vf.string(normalizeAttr(removeNamespace(a, elem.attributes(), fullyQualify))), attrToLoc(a, file))) // key-value tuples for the map collector
+                    .filter(t -> !t.get(1).equals(vf.tuple())) // remove the failed location lookups for robustness sake
+                    .collect(vf.mapWriter())
+                : vf.map()
+            ;
+
             if (fullyQualify) {
                 IMap m = namespaces.done();
 
@@ -164,6 +173,9 @@ public class IO {
 
             if (file != null) {
                 kws.put(kws.containsKey(SRC_ATTR) ? QUALIFIED_SRC_ATTR : SRC_ATTR, nodeToLoc((Element) node, file, includeEndTags));
+                if (!Srcs.isEmpty()) {
+                    kws.put(kws.containsKey(SRCS_ATTR) ? QUALIFIED_SRCS_ATTR : SRCS_ATTR, Srcs);
+                }
             }
 
             return vf.node(removeNamespace(node.nodeName(), fullyQualify), args).asWithKeywordParameters().setParameters(kws);
@@ -187,26 +199,47 @@ public class IO {
         return name.substring(index+1);
 
     }
-    private static Attribute removeNamespace(Attribute a, Attributes otherAttributes, boolean fullyQualify) {
+    private static String removeNamespace(Attribute a, Attributes otherAttributes, boolean fullyQualify) {
         if (fullyQualify) {
-            return a;
+            return a.getKey();
         }
         
         String key = a.getKey();
         int index = key.indexOf(":");
 
         if (index == -1) {
-            return a;
+            return a.getKey();
         }
 
-        String newKey = key.substring(index+1);
+        return key.substring(index+1);
+    }
 
-        if (otherAttributes.hasKey(newKey)) {
-            // keep disambiguation if necessary
-            return a;
+    private ITuple attrToLoc(Attribute a, ISourceLocation file) {
+        Range nameRange = a.sourceRange().nameRange();
+        Range valueRange = a.sourceRange().valueRange();
+
+        if (valueRange.start().pos() < 0 || nameRange.start().pos() < 0) {
+            // this is strange, tagging an error here so it can be filtered. 
+            assert false;
+            return vf.tuple();
         }
 
-        return new Attribute(newKey, a.getValue());
+        return vf.tuple(
+            vf.sourceLocation(file, 
+            nameRange.start().pos(), 
+            nameRange.end().pos() - nameRange.start().pos(),
+            nameRange.start().lineNumber(),
+            nameRange.end().lineNumber(),
+            nameRange.start().columnNumber() - 1,
+            nameRange.end().columnNumber() - 1)
+            , vf.sourceLocation(file, 
+            valueRange.start().pos(), 
+            valueRange.end().pos() - valueRange.start().pos(),
+            valueRange.start().lineNumber(),
+            valueRange.end().lineNumber(),
+            valueRange.start().columnNumber() - 1,
+            valueRange.end().columnNumber() - 1)
+        );
     }
 
     private ISourceLocation nodeToLoc(Element node, ISourceLocation file, boolean includeEndTags) {
