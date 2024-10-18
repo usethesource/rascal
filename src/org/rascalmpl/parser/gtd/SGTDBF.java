@@ -1347,11 +1347,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    initTime();
 
 	  try {
-
 	    if(invoked){
 	      throw new RuntimeException("Can only invoke 'parse' once.");
 	    }
-
 
 	    invoked = true;
 
@@ -1395,6 +1393,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 							debugListener.shifting(location, input, positionStore);
 					}
+
 	        // Reduce-expand loop.
 	        do {
 							debugListener.iterating();
@@ -1410,10 +1409,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	        shiftedLevel = true;
 
 					if (!findStacksToReduce()) {
-	    if(location == input.length){
+	    				if(location == input.length) {
 	      EdgesSet<P> startNodeEdgesSet = startNode.getIncomingEdges();
 	      int resultStoreId = getResultStoreId(startNode.getId());
-	      if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length){
+	      					if(startNodeEdgesSet != null && startNodeEdgesSet.getLastVisitedLevel(resultStoreId) == input.length) {
 								result = startNodeEdgesSet.getLastResult(resultStoreId); // Success.
 								break;
 							}
