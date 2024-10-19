@@ -154,7 +154,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Find the last token of this production and skip until after that
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
 		for (InputMatcher endMatcher : endMatchers) {
-			MatchResult endMatch = endMatcher.findMatch(input, startLocation, 5);
+			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
 			if (endMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
@@ -164,7 +164,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Find the first token of the next production and skip until before that
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 		for (InputMatcher nextMatcher : nextMatchers) {
-			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, 5);
+			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
 			if (nextMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
