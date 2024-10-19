@@ -4,7 +4,7 @@ module lang::rascalcore::check::CollectExpression
 /*
     Check all expressions
 */
- 
+
 extend lang::rascalcore::check::CheckerCommon;
 extend lang::rascalcore::check::PathAnalysis;
 extend lang::rascalcore::check::CollectLiteral;
@@ -26,7 +26,7 @@ import IO;
 void collect(current: (StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`, Collector c){
     c.fact(current, astr());
     collect(template, tail, c);
-} 
+}
 
 void collect(current: (StringLiteral) `<PreStringChars pre><Expression expression><StringTail tail>`, Collector c){
     c.fact(current, astr());
@@ -39,7 +39,7 @@ void collect(current: (StringConstant) `"<StringCharacter* chars>"`, Collector c
 
 void collect(current: (StringMiddle) `<MidStringChars mid><StringTemplate template><StringMiddle tail>`, Collector c){
     collect(template, tail, c);
-} 
+}
 
 void collect(current: (StringMiddle) `<MidStringChars mi><Expression expression><StringMiddle tail>`, Collector c){
     collect(expression, tail, c);
@@ -69,16 +69,16 @@ void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Sta
 }
 
 void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, Collector c){
-    compScope = [conditions] 
+    compScope = [conditions]
                 + (size([s | s <- preStatsThen]) > 0 ? [preStatsThen] : [])
                 + thenString
                 + (size([s | s <- postStatsThen]) > 0 ? [postStatsThen] : []);
     c.enterCompositeScope(compScope);   // thenPart may refer to variables defined in conditions; elsePart may not
-    
+
         condList = [cond | Expression cond <- conditions];
-        
+
         c.calculate("if then else template", current, condList/* + [postStatsThen + postStatsElse]*/,
-            AType (Solver s){ checkConditions(condList, s); 
+            AType (Solver s){ checkConditions(condList, s);
                       return avalue();
             });
         beginPatternScope("conditions", c);
@@ -86,22 +86,22 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
         endPatternScope(c);
         collect(preStatsThen, thenString, postStatsThen, c);
     c.leaveCompositeScope(compScope);
-    collect(preStatsElse, elseString, postStatsElse, c);    
-} 
+    collect(preStatsElse, elseString, postStatsElse, c);
+}
 
 void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
     c.enterScope(generators);   // body may refer to variables defined in conditions
         loopName = "";
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         c.fact(current, alist(avoid()));
-        
+
         condList = [cond | Expression cond <- generators];
         c.require("for statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
-        
+
         beginPatternScope("conditions", c);
             collect(condList, c);
         endPatternScope(c);
-        
+
         collect(preStats, body, postStats, c);
     c.leaveScope(generators);
 }
@@ -111,16 +111,16 @@ void collect(current: (StringTemplate) `do { <Statement* preStats> <StringMiddle
         loopName = "";
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         c.fact(current, alist(avoid()));
-        
+
         condList = [condition];
         c.require("do statement template", current, condList, void (Solver s){ checkConditions(condList, s); });
-       
+
         beginPatternScope("conditions", c);
             collect(condition, c);
         endPatternScope(c);
-        
+
         collect(preStats, body, postStats, c);
-    c.leaveScope(current); 
+    c.leaveScope(current);
 }
 
 void collect(current: (StringTemplate) `while( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
@@ -128,17 +128,17 @@ void collect(current: (StringTemplate) `while( <Expression condition> ) { <State
         loopName = "";
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         c.fact(current, alist(avoid()));
-        
+
         condList = [condition];
         c.require("while statement  template", current, condList, void (Solver s){ checkConditions(condList, s); });
-        
+
         beginPatternScope("conditions", c);
             collect(condList, c);
         endPatternScope(c);
-        
+
         collect(preStats, body, postStats, c);
     c.leaveScope(condition);
-} 
+}
 
 void collect(Literal l:(Literal)`<LocationLiteral ll>`, Collector c){
     c.fact(l, aloc());
@@ -207,32 +207,32 @@ void collectClosure(Expression current, Type returnType, Parameters parameters, 
     c.enterLubScope(current);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), signatureInfo(returnType));
-        
+
         beginUseTypeParameters(c, closed=true);
             collect(returnType, c); // any type parameters in return type remain closed (closed=true);
-        endUseTypeParameters(c); 
-        
+        endUseTypeParameters(c);
+
         beginDefineOrReuseTypeParameters(c, closed=false);
             collect(parameters, c); // any type parameters in the parameter list remain open (closed=false);
         endDefineOrReuseTypeParameters(c);
-        
+
         collect(stats, c); // TODO take parameter bounds into account!
-        
+
         clos_name = closureName(current);
         bool returnsViaAll = returnsViaAllPath(stats, clos_name, c);
         formals = getFormals(parameters);
         kwFormals = getKwFormals(parameters);
-                
+
         dt = defType(returnType + formals + kwFormals, AType(Solver s){
-                res = afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[alabel=clos_name]; 
+                res = afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s), returnsViaAllPath=returnsViaAll)[alabel=clos_name];
                 return res;
              });
-        
+
         alwaysSucceeds = all(pat <- formals, pat is typedVariable && /(Statement) `fail <Target _>;` := stats);
         if(!alwaysSucceeds) dt.canFail = true;
-        
-        c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
-        
+
+        c.defineInScope(parentScope, clos_name, functionId(), current, dt);
+
         if(!returnsViaAll && "<returnType>" != "void"){
                 c.report(error(current, "Missing return statement"));
         }
@@ -248,7 +248,7 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
     //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
     //}
     c.fact(voidReturnType, avoid());
-    
+
     collectClosure(current, voidReturnType, parameters, [stat | stat <- statements0], c);
 }
 
@@ -256,39 +256,39 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
 
 void collect(current: (Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`, Collector c){
     c.calculate("step range", current, [first, second, last],
-        AType(Solver s){ 
+        AType(Solver s){
                  t1 = s.getType(first);
                  checkNonVoid(first, t1, s, "First in range");
                  s.requireSubType(t1,anum(), error(first, "First in range: expected numeric type, found %t", t1));
-                 
-                 t2 = s.getType(second); 
+
+                 t2 = s.getType(second);
                  checkNonVoid(second, t2, s, "Second in range");
                  s.requireSubType(t2,anum(), error(second, "Second in range: expected numeric type, found %t", t2));
-                 
+
                  t3 = s.getType(last);
                  checkNonVoid(last, t3, s, "Last in range");
                  s.requireSubType(t3,anum(), error(last, "Last in range: expected numeric type, found %t", t3));
                  return alist(s.lubList([t1, t2, t3]));
-        
+
         });
-    collect(first, second, last, c);    
+    collect(first, second, last, c);
 }
 
 // ---- range
 
 void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`, Collector c){
     c.calculate("step range", current, [first, last],
-        AType(Solver s){ 
-                 t1 = s.getType(first); 
+        AType(Solver s){
+                 t1 = s.getType(first);
                  checkNonVoid(first, t1, s, "First in range");
                  s.requireSubType(t1,anum(), error(first, "First in range: expected numeric type, found %t", t1));
-                 
+
                  t2 = s.getType(last);
                  checkNonVoid(last, t2, s, "Last in range");
                  s.requireSubType(t2,anum(), error(last, "Last in range: expected numeric type, found %t", t2));
                  return alist(s.lub(t1, t2));
         });
-    collect(first, last, c);    
+    collect(first, last, c);
 }
 
 // ---- visit -- handled in CollectStatement
@@ -299,21 +299,21 @@ void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`
 void collect(current: (Expression) `# <Type tp>`, Collector c) {
     // A type literal expression like `#int` guarantees that the dynamic type of the value it produces
     // is equal to its static type (ignoring the effect to type parameter instantiation).
-    // so, `#int` of static type `type[int]` will produce a value `type(\int(),())` also of 
+    // so, `#int` of static type `type[int]` will produce a value `type(\int(),())` also of
     // type `type[int]`.
-    // 
+    //
     // this simple property is the core assumption under the type-safety of generic functions that
     // take a reified type value as parameter, like `&T cast(type[&T] _, value x)`, and the pattern
     // matches in their bodies: `&T _ := x` also float on that property.
     //
     // Compare this to Java's class literals, `Object.class`, `Integer.class` which also produce
     // `Class<Object>` and `Class<Integer>`; except that Rascal does not have type erasure and
-    // it does have co-variance, also for type literals. 
+    // it does have co-variance, also for type literals.
 
     // All of this is implied by the following inocuous type calculation:
-    c.calculate("reified type", current, [tp], AType(Solver s) { 
+    c.calculate("reified type", current, [tp], AType(Solver s) {
         // notice how the type _literal_ here is lifted to a type _instance_
-        return areified(s.getType(tp)); 
+        return areified(s.getType(tp));
     });
 
     collect(tp, c);
@@ -325,8 +325,8 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // This is where the dynamic type system and the static type system touch, but
     // they can not have the _same_ type. For the other reified type expression, `#Type`,
     // the story is different. There the static type coincides with the static type, by design.
-    
-    // Here, the type() expression has much more dynamic behavior, also by design. The first 
+
+    // Here, the type() expression has much more dynamic behavior, also by design. The first
     // parameter is a computed value, and that value will
     // be "unreified" to a specific type at run-time. At compile-time we do not know yet
     // what that type will be, so we must assume it will be `value`.
@@ -335,20 +335,20 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // with constant propagation of the symbol parameter, we could compute
     // more precise types, but `type[value]` is always a proper type for all
     // possible instances.
-   
+
     c.fact(current, areified(\avalue()));
 
     c.require("reified type", current, [es, ed],
         void (Solver s) {
             checkNonVoid(es, s, "First element of reified type");
             s.requireSubType(es, aadt("Symbol", [], dataSyntax()), error(es, "Expected a Symbol, instead found %t", es));
-            
+
             checkNonVoid(ed, s, "Second element of reified type");
-            s.requireSubType(ed, amap(aadt("Symbol", [], dataSyntax()), aadt("Production", [], dataSyntax())), 
+            s.requireSubType(ed, amap(aadt("Symbol", [], dataSyntax()), aadt("Production", [], dataSyntax())),
                 error(ed, "Expected a map[Symbol, Production], instead found %t", ed));
         }
     );
-    
+
     collect(es, ed, c);
 }
 
@@ -404,7 +404,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
     c.enterLubScope(current);
     beginPatternScope("set-comprehension", c);
         c.require("set comprehension", current, gens,
-            void (Solver s) { 
+            void (Solver s) {
                 for(g <- gens) if(!isBoolAType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
                 for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to set comprehension");
             });
@@ -412,7 +412,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
             AType(Solver s){
                 return makeSetType(lubList([ s.getType(r) | r <- res]));
             });
-         
+
         collectGenerators(res, gens, c);
     endPatternScope(c);
     c.leaveScope(current);
@@ -423,7 +423,7 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
 void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Expression ","}+ generators> ]`, Collector c){
     gens = [gen | gen <- generators];
     res  = [r | r <- results];
-    
+
     c.enterLubScope(current);
     beginPatternScope("list-comprehension", c);
         collectGenerators(res, gens, c);
@@ -436,12 +436,12 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
                 });
           }
         c.require("list comprehension", current, gens,
-            void (Solver s) { 
+            void (Solver s) {
                 for(g <- gens) if(!isBoolAType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
                 for(r <- results) checkNonVoidOrSplice(r, s, "Contribution to list comprehension");
             });
-        
-        
+
+
     endPatternScope(c);
     c.leaveScope(current);
 }
@@ -451,7 +451,7 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
 void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{Expression ","}+ generators> )`, Collector c){
     gens = [gen | gen <- generators];
     res = [from, to];
-  
+
     c.enterLubScope(current);
     beginPatternScope("map-comprehension", c);
         c.require("map comprehension", current, gens,
@@ -463,7 +463,7 @@ void collect(current: (Comprehension) `(<Expression from> : <Expression to> | <{
                 checkNonVoid(to, s, "Value of map comprehension");
                 return makeMapType(unset(s.getType(from), "alabel"), unset(s.getType(to), "alabel"));
             });
-         
+
         collectGenerators(res, gens, c);
     endPatternScope(c);
     c.leaveScope(current);
@@ -478,14 +478,14 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
     beginPatternScope("reducer", c);
         c.define("it", variableId(), init, defType(current));
         c.require("reducer", current, gens,
-            void (Solver s) { 
+            void (Solver s) {
                 checkNonVoid(init, s, "Initialization expression of reducer");
                 checkNonVoid(result, s, "Result expession of reducer");
                 for(gen <- gens) if(!isBoolAType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
-        
+
         c.fact(current, result);
-         
+
         collect(init, c);
         collectGenerators(res, gens, c);
     endPatternScope(c);
@@ -509,7 +509,7 @@ void collect(current: (Expression) `{ <{Expression ","}* elements0> }`, Collecto
     if(isEmpty(elms)){
         c.fact(current, aset(avoid()));
     } else {
-        c.calculate("set expression", current, elms, AType(Solver s) { 
+        c.calculate("set expression", current, elms, AType(Solver s) {
             for(elm <- elms) checkNonVoidOrSplice(elm, s, "Element of set");
             return aset(s.lubList([s.getType(elm) | elm <- elms]));
         });
@@ -524,23 +524,23 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, Collecto
     if(isEmpty(elms)){
         c.fact(current, alist(avoid()));
     } else {
-        c.calculate("list expression", current, elms, AType(Solver s) { 
+        c.calculate("list expression", current, elms, AType(Solver s) {
             for(elm <- elms) checkNonVoidOrSplice(elm, s, "Element of list");
-            return alist(s.lubList([s.getType(elm) | elm <- elms])); 
+            return alist(s.lubList([s.getType(elm) | elm <- elms]));
         });
         collect(elms, c);
     }
 }
 
 // ---- call or tree
-           
+
 void collect(current: (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`, Collector c){
 //println("<current>, <getLoc(current)>");
-    list[Expression] actuals = [a | Expression a <- arguments];  
+    list[Expression] actuals = [a | Expression a <- arguments];
     kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
-  
+
     scope = c.getScope();
-    
+
     c.calculate("call of function/constructor `<expression>`", current, expression + actuals + kwactuals,
         AType(Solver s){
             for(x <- expression + actuals + kwactuals){
@@ -548,11 +548,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  if(!s.isFullyInstantiated(tp)) throw TypeUnavailable();
                  checkNonVoid(x, s, "Argument");
             }
-            
+
             texp = s.getType(expression);
             if(isStrAType(texp)){
                 return computeExpressionNodeType(scope, actuals, keywordArguments, s);
-            } 
+            }
             if(isLocAType(texp)){
                 nactuals = size(actuals);
                 if(!(nactuals == 2 || nactuals == 4)) s.report(error(current, "Source locations requires 2 or 4 arguments, found %v", nactuals));
@@ -561,11 +561,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 
                 if(nactuals == 4){
                     s.requireEqual(actuals[2], atuple(atypeList([aint(),aint()])), error(actuals[2], "Begin should be of type `tuple[int,int]`, found %t", actuals[2]));
-                    s.requireEqual(actuals[3], atuple(atypeList([aint(),aint()])), error(actuals[3], "End should be of type `tuple[int,int]`, found %t", actuals[3])); 
+                    s.requireEqual(actuals[3], atuple(atypeList([aint(),aint()])), error(actuals[3], "End should be of type `tuple[int,int]`, found %t", actuals[3]));
                 }
                 return aloc();
             }
-           
+
             if(isConstructorAType(texp) && getConstructorResultType(texp).adtName == "Tree" && expression is qualifiedName){
                 <qualifier, base> = splitQualifiedName(expression.qualifiedName);
                 if (base == "char" && (isEmpty(qualifier) || qualifier == "Tree")){
@@ -581,7 +581,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                         return anyCharType;
                 }
             }
-             
+
             if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
               <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
               if({<_, _, tp>} := filteredOverloads){
@@ -592,14 +592,14 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 validReturnTypeOverloads = {};
                 validOverloads = {};
                 next_fun:
-                for(ovl: <key, idRole, tp> <- overloads){                       
+                for(ovl: <key, idRole, tp> <- overloads){
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             // TODO: turn this on after review of all @deprecated uses in the Rascal library library
                             if(ft.deprecationMessage?){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(ft.deprecationMessage) ? "" : ": " + ft.deprecationMessage));
                             }
-                           
+
                             validReturnTypeOverloads += <key, idRole, checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] _):
@@ -622,7 +622,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     }
                  }
                  if({<_, _, tp>} := validOverloads){
-                    texp = tp;  
+                    texp = tp;
                     s.specializedFact(expression, tp);
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
@@ -638,7 +638,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  }
                }
             }
-            
+
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
                // TODO; texp can get type value and then texp.deprecationMessage does not exist
                if(texp.deprecationMessage?){
@@ -658,7 +658,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
 
 void reportCallError(Expression current, Expression callee, list[Expression] actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`, Solver s){
     kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
-    
+
     calleeType = s.getType(callee);
     argumentsTypes = [s.getType(a)| a <- actuals];
     argumentsTypesText = intercalate(", ", ["`<prettyAType(at)>`" | at <- argumentsTypes]);
@@ -666,7 +666,7 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
     kwargumentsText = "keyword argument<size(kwactuals) > 1 ? "s" : "">";
     if(isEmpty(kwactuals)){
         someArityOk
-            = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType 
+            = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType
               && any(ovl <- overloads, size(argumentsTypes) == size(getFunctionOrConstructorArgumentTypes(ovl.ftype)));
         wrongArity = someArityOk ? "" : " with <size(argumentsTypes)> ";
         if(someArityOk){
@@ -677,15 +677,15 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
     } else {
         kwargs = keywordArguments is \default ? [ kwa | kwa <- keywordArguments.keywordArgumentList] : [];
         kws = [ "`<kwa.name>` of type `<prettyAType(s.getType(kwa.expression))>`" | kwa <- kwargs ];
-       
+
         someOverloadsPositionalOk
-            = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType 
+            = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType
               && any(ovl <- overloads, asubtypeList(argumentsTypes, getFunctionArgumentTypes(ovl.ftype)));
         if(someOverloadsPositionalOk){
-            s.report(error(current, "Cannot call %q with %v %v, given definitions %t", 
+            s.report(error(current, "Cannot call %q with %v %v, given definitions %t",
                                 "<callee>", kwargumentsText, kws, callee));
         } else {
-            s.report(error(current, "Cannot call %q with %v %v and %v %v, given definitions %t", 
+            s.report(error(current, "Cannot call %q with %v %v and %v %v, given definitions %t",
                                 "<callee>", argumentsText, argumentsTypesText, kwargumentsText, kws, callee));
         }
     }
@@ -695,19 +695,19 @@ void reportMissingNonTerminalCases(Expression current, rel[loc def, IdRole idRol
     for(int i <- index(actuals)){
         actual_type = s.getType(actuals[i]);
         if(isNonTerminalAType(actual_type)){
-            if(!isEmpty(validOverloads) && all(ovl <- validOverloads, 
-                                               arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype),       
-                                               size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){                
+            if(!isEmpty(validOverloads) && all(ovl <- validOverloads,
+                                               arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype),
+                                               size(arg_types) == size(actuals), isADTAType(arg_types[i]), getADTName(arg_types[i]) == "Tree")){
                 nont = [ovl.atype | ovl <- overloads, arg_types := getFunctionOrConstructorArgumentTypes(ovl.atype), size(arg_types) == size(actuals), isNonTerminalAType(arg_types[i]) ];
                 if(!isEmpty(nont)){
                     s.report(info(current, "Actual #%v has nonterminal type %t, but only comparable overloads with `Tree` argument exist, maybe missing import/extend?", i, actual_type));
                 }
-            }       
+            }
         }
     }
 }
 
-private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){  
+private void checkOverloadedConstructors(Expression current, rel[loc defined, IdRole role, AType atype] overloads, Solver s){
     if(current is qualifiedName){
         return;
     }
@@ -717,8 +717,8 @@ private void checkOverloadedConstructors(Expression current, rel[loc defined, Id
         adtNames = { adtName | <key, idRole, tp>  <- overloads, acons(ret:aadt(adtName, list[AType] _, _),  list[AType] fields, list[Keyword] kwFields) := tp };
         qualifyHint = size(adtNames) > 1 ? "you may use <intercalateOr(sort(adtNames))> as qualifier" : "";
         argHint = "<isEmpty(qualifyHint) ? "" : " or ">make argument type(s) more precise";
-        s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v", 
-                             ovl1.atype.alabel, 
+        s.report(error(current, "Constructor %q is overloaded, to resolve it %v%v",
+                             ovl1.atype.alabel,
                              qualifyHint,
                              argHint));
                              }
@@ -728,8 +728,8 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
     rel[loc, IdRole, AType] filteredOverloads = {};
     prevFormals = [];
     list[bool] identicalFormals = [true | int _ <- [0 .. arity]];
-    
-    for(ovl:<_, _, tp> <- overloads){                       
+
+    for(ovl:<_, _, tp> <- overloads){
         if(ft:afunc(AType _, list[AType] formals, list[Keyword] _) := tp){
            if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
               filteredOverloads += ovl;
@@ -743,7 +743,7 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
                  }
               }
            }
-        } 
+        }
         else if(acons(aadt(_, list[AType] _,_), list[AType] fields, list[Keyword] _) := tp){
            if(size(fields) == arity){
               filteredOverloads += ovl;
@@ -764,14 +764,14 @@ private tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRo
 // The interpreter does not handle this well, so revisit this later
 
 // TODO: maybe check that all upperbounds of type parameters are identical?
-//   JV: upperbounds need to be glb'ed. If two upperbounds must be made true, then the nearest solution is their 
+//   JV: upperbounds need to be glb'ed. If two upperbounds must be made true, then the nearest solution is their
 //       greatest lowerbound. In practise this means they are indeed identitical 9 out 10 cases.
 
 private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, bool isVarArgs, list[Expression] actuals, keywordArguments, list[bool] identicalFormals, Solver s){
     nactuals = size(actuals); nformals = size(formals);
-   
+
     list[AType] actualTypes = [];
-   
+
     if(isVarArgs){
        if(nactuals < nformals - 1) s.report(error(current, "Expected at least %v argument(s) found %v", nformals-1, nactuals));
        varArgsType = (avoid() | s.lub(it, s.getType(actuals[i])) | int i <- [nformals-1 .. nactuals]);
@@ -780,11 +780,11 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
         if(nactuals != nformals) s.report(error(current, "Expected %v argument(s), found %v", nformals, nactuals));
         actualTypes = [s.getType(a) | a <- actuals];
     }
-    
+
     index_formals = index(formals);
-    
+
     list[AType] formalTypes =  formals;
-    
+
     int noverloaded = 0;
     for(int i <- index_formals){
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
@@ -795,7 +795,7 @@ private AType checkArgsAndComputeReturnType(Expression current, loc scope, AType
             //println("checkArgsAndComputeReturnType: <current>");
             //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
-            for(<key, idr, tp> <- overloads){   
+            for(<key, idr, tp> <- overloads){
                 try {
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
@@ -817,7 +817,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     Bindings bindings = ();
     fsuffix = "f";
     asuffix = "a";
-    
+
     retTypeU = makeUniqueTypeParams(retType, fsuffix);
     formalTypesU = makeUniqueTypeParams(formalTypes, fsuffix);
     actualTypesU = makeUniqueTypeParams(actualTypes, asuffix);
@@ -825,7 +825,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
     try   bindings = matchRascalTypeParams(formalTypesU, actualTypesU, bindings);
     catch invalidMatch(str reason):
           s.report(error(/*i < size(actuals)  ? actuals[i] :*/ current, reason));
-   
+
     iformalTypesU = formalTypesU;
     if(!isEmpty(bindings)){
         for(int i <- index_formals){
@@ -850,7 +850,7 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
         }
         iactualTypesU[i] = actual_i;
     }
-        
+
     try
         bindings = unifyRascalTypeParams(iformalTypesU, iactualTypesU, bindings);
     catch invalidMatch(str reason):
@@ -858,19 +858,19 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
           //s.report(error(i < size(actuals)  ? actuals[i] : current, reason))
 
     for(int i <- index_formals){
-        try {   
+        try {
             iformalTypesU[i] = instantiateRascalTypeParameters(current, iformalTypesU[i], bindings, s); // changed
         } catch invalidInstantiation(str msg):
               s.report(error(current, msg));
-    
-        s.requireComparable(deUnique(iactualTypesU[i]), deUnique(iformalTypesU[i]), error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, deUnique(iformalTypesU[i]), deUnique(iactualTypesU[i])));     
+
+        s.requireComparable(deUnique(iactualTypesU[i]), deUnique(iformalTypesU[i]), error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, deUnique(iformalTypesU[i]), deUnique(iactualTypesU[i])));
     }
     checkExpressionKwArgs(kwFormals, keywordArguments, bindings, s);
-    
+
     if(isEmpty(bindings))
        return retType;
-       
-    try {   
+
+    try {
         res = instantiateRascalTypeParameters(current, retTypeU, bindings, s);
         return deUnique(res);
     } catch invalidInstantiation(str msg):
@@ -878,20 +878,20 @@ private AType computeReturnType(Expression current, loc _src, AType retType, lis
 
     return avalue();
 }
- 
- private AType computeExpressionNodeType(loc scope, list[Expression]  actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Solver s){                     
+
+ private AType computeExpressionNodeType(loc scope, list[Expression]  actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Solver s){
     actualType = [ s.getType(actuals[i]) | i <- index(actuals) ];
     return anode(computeExpressionKwArgs(keywordArgumentsExp, scope, s));
 }
 
 private list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, loc _, Solver s){
     if(keywordArgumentsExp is none) return [];
- 
-    return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
+
+    return for(kwa <- keywordArgumentsExp.keywordArgumentList){
                 kwName = prettyPrintName(kwa.name);
                 kwType = s.getType(kwa.expression);
                 append kwType[alabel=kwName];
-            }  
+            }
 }
 
 // ---- tuple
@@ -969,10 +969,10 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
 //      c.fact(current, avalue());
 //    }
 //}
- 
+
 void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     <qualifier, base> = splitQualifiedName(name);
-    if(!isEmpty(qualifier)){     
+    if(!isEmpty(qualifier)){
        c.useQualified([qualifier, base], name, {moduleVariableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
         if(!isEmpty(c.getStack(currentAdt))){
@@ -990,21 +990,21 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
     // Subscripts can also use the "_" character, which means to ignore that position; we do
     // that here by treating it as avalue(), which is comparable to all other types and will
     // thus work when calculating the type below.
-    
+
     for(e <- indexList){
         if((Expression)`_` := e){
             c.fact(e, avalue());
         } else {
             collect(e, c);
-        }    
+        }
     }
     collect(expression, c);
-    
+
     c.calculate("subscription", current, expression + indexList,
-                  AType(Solver s){ 
+                  AType(Solver s){
                     checkNonVoid(expression, s, "Base expression of subscription");
                     for(e <- indexList) checkNonVoid(e, s, "Subscript");
-                    return computeSubscriptionType(current, s.getType(expression), [s.getType(e) | e <- indexList], indexList, s);  
+                    return computeSubscriptionType(current, s.getType(expression), [s.getType(e) | e <- indexList], indexList, s);
                   });
 }
 
@@ -1015,11 +1015,11 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
     if(olast is noExpression) c.fact(olast, aint());
 
     c.calculate("slice", current, [e, ofirst, olast],
-        AType(Solver s){ 
+        AType(Solver s){
             checkNonVoid(e, s, "Base expression of slice");
             checkNonVoid(ofirst, s, "First expression of slice");
             checkNonVoid(olast, s, "Last expression of slice");
-            return computeSliceType(current, s.getType(e), s.getType(ofirst), aint(), s.getType(olast), s); 
+            return computeSliceType(current, s.getType(e), s.getType(ofirst), aint(), s.getType(olast), s);
         });
     collect(e, ofirst, olast, c);
 }
@@ -1031,12 +1031,12 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
     if(olast is noExpression) c.fact(olast, aint());
 
     c.calculate("slice step", current, [e, ofirst, second, olast],
-        AType(Solver s){ 
+        AType(Solver s){
             checkNonVoid(e, s, "Base expression of slice");
             checkNonVoid(ofirst, s, "First expression of slice");
             checkNonVoid(second, s, "Second expression of slice");
             checkNonVoid(olast, s, "Last expression of slice");
-            return computeSliceType(current, s.getType(e), s.getType(ofirst), s.getType(second), s.getType(olast), s); 
+            return computeSliceType(current, s.getType(e), s.getType(ofirst), s.getType(second), s.getType(olast), s);
         });
     collect(e, ofirst, second, olast, c);
 }
@@ -1056,7 +1056,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
     scope = c.getScope();
     //c.use(field, {fieldId(), keywordFieldId()});
     c.calculate("field update of `<field>`", current, [expression, repl],
-        AType(Solver s){ 
+        AType(Solver s){
                 fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
                 replType = s.getType(repl);
 
@@ -1064,7 +1064,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
                 try   bindings = unifyRascalTypeParams(fieldType, replType, bindings);
                 catch invalidMatch(str reason):
                     s.report(error(current, reason));
-                
+
                 if(!isEmpty(bindings)){
                     try {
                         fieldType = instantiateRascalTypeParameters(field, fieldType, bindings, s);
@@ -1076,7 +1076,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
                     } catch invalidInstantiation(str msg): {
                         s.report(error(current, "Cannot instantiate rhs type `<prettyAType(replType)>` of assignment: " + msg));
                     }
-                   }        
+                   }
                  checkNonVoid(expression, s, "Base expression of field update`");
                  checkNonVoid(repl, s, "Replacement expression of field update`");
                  s.requireSubType(replType, fieldType, error(current, "Cannot assign value of type %t to field %q of type %t", replType, field, fieldType));
@@ -1091,9 +1091,9 @@ void collect(current:(Expression) `<Expression expression> \< <{Field ","}+ fiel
 
     flds = [f | f <- fields];
     c.calculate("field projection", current, [expression],
-        AType(Solver s){ 
+        AType(Solver s){
             checkNonVoid(expression, s, "Base expression of field projection");
-            return computeFieldProjectionType(current, s.getType(expression), flds, s); 
+            return computeFieldProjectionType(current, s.getType(expression), flds, s);
         });
     collect(expression, fields, c);
 }
@@ -1109,7 +1109,7 @@ void collect(current:(Field) `<Name fieldName>`, Collector c){
 private AType computeFieldProjectionType(Expression current, AType base, list[lang::rascal::\syntax::Rascal::Field] fields, Solver s){
 
     if(!s.isFullyInstantiated(base)) throw TypeUnavailable();
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := base){
         projection_overloads = {};
         for(<key, role, tp> <- overloads){
@@ -1122,7 +1122,7 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
         if(isEmpty(projection_overloads))  s.report(error(current, "Illegal projection %t", base));
         return overloadedAType(projection_overloads);
     }
-    
+
     // Get back the fields as a tuple, if this is one of the allowed subscripting types.
     AType rt = avoid();
 
@@ -1137,13 +1137,13 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
     } else {
         s.report(error(current, "Type %t does not allow fields", base));
     }
-    
+
     // Find the field type and name for each index
     list[FailMessage] failures = [];
     list[AType] subscripts = [ ];
     list[str] fieldNames = [ ];
     bool maintainFieldNames = tupleHasFieldNames(rt);
-    
+
     for (f <- fields) {
         if ((Field)`<IntegerLiteral il>` := f) {
             int offset = toInt("<il>");
@@ -1165,14 +1165,14 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
             throw rascalCheckerInternalError("computeFieldProjectionType; Unhandled field case: <f>");
         }
     }
-    
+
     if (size(failures) > 0) s.reports(failures);
 
     // Keep the field names if all fields are named and if we have unique names
     if (!(size(subscripts) > 1 && size(subscripts) == size(fieldNames) && size(fieldNames) == size(toSet(fieldNames)))) {
         subscripts = [ unset(tp, "alabel") | tp <- subscripts ];
     }
-    
+
     if (isRelAType(base)) {
         if (size(subscripts) > 1) return arel(atypeList(subscripts));
         return makeSetType(head(subscripts));
@@ -1185,10 +1185,10 @@ private AType computeFieldProjectionType(Expression current, AType base, list[la
     } else if (isTupleAType(base)) {
         if (size(subscripts) > 1) return atuple(atypeList(subscripts));
         return head(subscripts);
-    } 
-    
-    s.report(error(current, "Illegal projection %t", base)); 
-    return avalue(); 
+    }
+
+    s.report(error(current, "Illegal projection %t", base));
+    return avalue();
 }
 
 // ---- setAnnotation
@@ -1218,7 +1218,7 @@ void collect(current:(Expression) `<Expression expression> [ @ <Name name> = <Ex
     }
     c.use(name, {annoId()});
     c.calculate("set annotation", current, [expression, name, repl],
-        AType(Solver s){ 
+        AType(Solver s){
                 t1 = s.getType(expression); tn = s.getType(name); t2 = s.getType(repl);
                 checkNonVoid(expression, s, "Base expression of set annotation");
                 checkNonVoid(repl, s, "Replacement expression of set annotation");
@@ -1252,7 +1252,7 @@ void collect(current:(Expression) `<Expression expression>@<Name name>`, Collect
     }
     c.use(name, {annoId()});
     c.calculate("get annotation", current, [expression, name],
-        AType(Solver s){ 
+        AType(Solver s){
                  t1 = s.getType(expression);
                  tn = s.getType(name);
                  checkNonVoid(expression, s, "Base expression of get annotation`");

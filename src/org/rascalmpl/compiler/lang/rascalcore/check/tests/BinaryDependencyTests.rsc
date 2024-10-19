@@ -1,7 +1,7 @@
 @synopsis{Tests for binary imports and binary compatibility:
 
 - Can we typecheck Rascal modules that import and use other modules that
-are only available as binary (e.g., as.tpl files on the libs path). 
+are only available as binary (e.g., as.tpl files on the libs path).
 - Are modules binary compatible after certain changes?}
 
 module lang::rascalcore::check::tests::BinaryDependencyTests
@@ -18,12 +18,14 @@ import String;
 
 // ---- Utilities for test setup ----------------------------------------------
 
-bool verbose = false;
+bool verbose = true;
 
 data PathConfig(loc resources=|unknown:///|, loc generatedSources=|unknown:///|);
 
-data Project 
+data Project
     = project(str name, map[str moduleName, str moduleText] modules, PathConfig pcfg);
+
+void clearMemory() { remove(|memory:///| recursive = true); }
 
 loc projectDir(str pname)
     = |memory://<pname>/|;
@@ -42,7 +44,7 @@ loc resources(str pname)
 
 Project createProject(str pname, map[str mname, str mtext] modules, PathConfig pcfg){
     remove(projectDir(pname), recursive=true);
-    
+
     mkDirectory(src(pname));
     for(mname <- domain(modules)){
         writeFile(src(pname) + "<mname>.rsc", writeModule(mname, modules[mname]));
@@ -119,19 +121,19 @@ bool checkExpectNoErrors(str mname, PathConfig pcfg, list[Project] remove = []){
 
 bool expectErrors(map[str, list[Message]] msgsMap, list[str] expected){
     errors = {e | /e:error(_,_) := msgsMap};
-    
+
     for(e <- errors){
         if(any(ex <- expected, findFirst(e.msg, ex)>= 0)){
                 return true;
         }
     }
-    if(verbose) ("expectErrors, found: <errors>");
+    if(verbose) println("expectErrors, found: <errors>");
     return false;
 }
 
 bool checkExpectErrors(str mname, list[str] expected, PathConfig pcfg, list[Project] remove = []){
     cfg = rascalCompilerConfig(pcfg)[verbose=verbose][logWrittenFiles=verbose][forceCompilationTopModule=true];
-    if(verbose) ("checkExpectErrors: <mname>, <expected>");
+    if(verbose) println("checkExpectErrors: <mname>, <expected>");
     try {
         res = expectErrors(checkModules([mname], cfg), expected);
         for(p <- remove) removeProject(p);
@@ -160,10 +162,10 @@ test bool importSimpleBinaryModule(){
                 );
 
     assert checkExpectNoErrors("A", lib.pcfg);
-    
+
     // to avoid source code leaks, we remove the entire source file A from existence
     removeSourceOfModule("A", lib);
-    
+
     clientName = "client";
     client =
         createProject(
@@ -190,46 +192,46 @@ test bool extendTransitiveBinaryModule() {
 
     // create and check library client
     clientName = "client";
-    client = 
+    client =
         createProject(clientName,
                       ("B": "extend A;                       // extension of binary library
                             'int bFunction() = aFunction();  // library usage
                             "),
                        createPathConfig(clientName)
                         [libs=[resources(libName)]]);        // dependency on library lib
-    
+
     assert checkExpectNoErrors("B", client.pcfg);
     client = removeSourceOfModule("B", client);
 
-    client = 
+    client =
         addModule("C",
                   "extend B; // library extension that itself depends on another library
                   'int cFunction() = bFunction() + aFunction(); // library usage from two levels of extend
                   ",
                   client);
-        
-    return  checkExpectNoErrors("C", 
+
+    return  checkExpectNoErrors("C",
             client.pcfg
                 [libs=[resources(libName) ,       // library dependencies for both projects we depend on
-                       resources(clientName)]] 
+                       resources(clientName)]]
             remove = [lib, client]);
 }
 
 test bool incompatibleWithBinaryLibrary(){
     // Create project "lib" and module "M1" and then compile "M1"
-    libName = "lib";                        
+    libName = "lib";
     lib = createProject(libName,
                      ("M1": "int f(int n) = n;"),
                      createPathConfig(libName)
          );
     assert checkExpectNoErrors("M1", lib.pcfg);
-    
+
     // then remove M1 completely, to be sure
     lib = removeSourceOfModule("M1", lib);
 
     // Create project "client" and module "M2" and then compile "M2"
     // "client" uses "lib" as binary library
-    clientName = "client";                        
+    clientName = "client";
     client = createProject(clientName,
                      ("M2": "import M1;        // binary import
                       'int main() = f(42, 43); // incompatible call fo f
@@ -242,19 +244,19 @@ test bool incompatibleWithBinaryLibrary(){
 
 test bool incompatibleWithBinaryLibraryAfterChange(){
     // Create project "lib" and module M1 and then compile M1
-    libName = "lib";                        
+    libName = "lib";
     lib = createProject(libName,
                      ("M1": "int f(int n) = n;"),
                      createPathConfig(libName)
          );
     assert checkExpectNoErrors("M1", lib.pcfg);
-    
+
     // then remove M1 completely, to be sure
     lib = removeSourceOfModule("M1", lib);
 
     // Create project ""client" and module M2 and then compile M2
     // "client" uses "lib" as binary library
-    clientName = "client";                        
+    clientName = "client";
     client = createProject(clientName,
                      ("M2": "import M1; // binary dependency
                       'int main() = f(42);
@@ -263,11 +265,11 @@ test bool incompatibleWithBinaryLibraryAfterChange(){
                         [libs = [resources(libName)] ]
          );
     assert checkExpectNoErrors("M2", client.pcfg);
-    
+
     // Change declaration of "f" in lib and recompile "M1"
     lib = addModule("M1", "int f(int n, int m) = n+m;", lib);
     assert checkExpectNoErrors("M1", lib.pcfg);
- 
+
     // Call of "f" in M2 no longer complies with "f"'s signature in M1
     return checkExpectErrors("M2", ["Expected 2 argument(s), found 1"], client.pcfg, remove = [lib, client]);
 }
@@ -280,14 +282,15 @@ test bool incompatibleWithBinaryLibraryAfterChange(){
  *     import |   | import         |
  *            v   v                |
  *   core:    Check <--------------+
- * 
+ *
  *   TP extends IO en is used as a binary library for core.
  *   After (incompatible) modification and recompilation of IO', recompilation of Check
- *   should discover that the old version of IO (as used via the binary extend in TP) is 
+ *   should discover that the old version of IO (as used via the binary extend in TP) is
  *   not compatible with the new binary version of IO as imported directly in Check.
  */
  @ignore{Fails, find out why}
 test bool incompatibleVersionsOfBinaryLibrary(){
+    clearMemory() ;
     rascalName = "rascal";
     rascal =
         createProject(rascalName,
@@ -308,7 +311,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     assert checkExpectNoErrors("TP", typepal.pcfg);
 
     coreName = "core";
-    core = 
+    core =
         createProject(coreName,
                     ("Check": "import TP;   // binary import
                               'import IO;   // binary import
@@ -325,7 +328,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     assert checkExpectNoErrors("IO", rascal.pcfg);
 
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
-    
+
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Binary module `TP` needs recompilation"], core.pcfg, remove = [rascal, typepal, core]);
 }
@@ -352,15 +355,15 @@ bool binaryCompatible(tuple[TModel old, TModel new] tms){
            && domain(tms.old.logical2physical) <= domain(tms.new.logical2physical);
 }
 
-tuple[TModel, TModel] createVersions(str v1, str v2){   
+tuple[TModel, TModel] createVersions(str v1, str v2){
     pname = "a";
-    mname = "M1";                   
+    mname = "M1";
     p = createProject(pname,
                      (mname: v1),
                      createPathConfig(pname)
          );
     tm1 = check(mname, rascalCompilerConfig(p.pcfg));
- 
+
     p = changeModule(mname, v2, p);
     tm2 = check(mname, rascalCompilerConfig(p.pcfg));
     removeProject(p);

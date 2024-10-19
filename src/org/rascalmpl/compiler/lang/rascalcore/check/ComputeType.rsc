@@ -24,8 +24,8 @@ void checkConditions(list[Expression] condList, Solver s){
         tcond = s.getType(cond);
         if(!s.isFullyInstantiated(tcond)){
             s.requireUnify(abool(), tcond, error(cond, "Cannot unify %t with `bool`", cond));
-            tcond = s.instantiate(tcond); 
-        } 
+            tcond = s.instantiate(tcond);
+        }
         s.requireSubType(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
     }
 }
@@ -54,9 +54,17 @@ void checkNonVoid(Tree e, AType t, Solver s, str msg){
 
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
-    
-void(Solver) makeVarInitRequirement(Variable var)
-    = void(Solver s){
+
+void(Solver) makeVarInitRequirement(Variable var, Collector c){
+    Expression initial = var.initial;
+    if(initial is nonEmptyBlock){
+        statements = initial.statements;
+        Statement stat = (Statement) `{ <Statement+ statements> }`;
+        if(!returnsValue(stat, "", c)){
+            c.report(error(initial, "Right-hand side of assignment does not always have a value"));
+        }
+    }
+    return void(Solver s){
             Bindings bindings = ();
             initialType = s.getType(var.initial);
             varType = s.getType(var.name);
@@ -68,8 +76,8 @@ void(Solver) makeVarInitRequirement(Variable var)
             try   bindings = unifyRascalTypeParams(initialTypeU, varTypeU, bindings);
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
-            
-            initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);  
+
+            initialTypeU = instantiateRascalTypeParameters(var, initialTypeU, bindings, s);
             if(s.isFullyInstantiated(initialTypeU)){
                 s.requireSubType(initialTypeU, varTypeU, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, deUnique(initialTypeU)));
             } else if(!s.unify(initialType, varType)){
@@ -78,14 +86,15 @@ void(Solver) makeVarInitRequirement(Variable var)
             checkNonVoid(var.initial, initialTypeU, s, "Variable initialization");
             s.fact(var, deUnique(varType));
        };
-       
+}
+
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s, bool maybeVoid=false){
 
     requireFullyInstantiated(s, t1);
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -105,7 +114,7 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
 AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
 
     requireFullyInstantiated(s, t1, t2);
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -118,7 +127,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
     }
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -138,7 +147,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
 AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
 
     requireFullyInstantiated(s, t1, t2, t3);
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         tern_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -151,7 +160,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
     }
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
         tern_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -164,7 +173,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
     }
-    
+
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t3){
         tern_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -181,7 +190,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
     return computeType(current, t1, t2, t3, s);
 }
 
-AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){                     
+AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){
     //println("---- <current>, identicalFormals: <identicalFormals>");
     requireFullyInstantiated(s, retType);
     nactuals = size(actuals); nformals = size(formals);
@@ -209,13 +218,13 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
         default:
             throw rascalCheckerInternalError(getLoc(current), "Illegal argument `actuals`");
     }
-    
+
     for(int i <- index_formals){
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
             //println("computeADTType: <current>");
             //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
-            for(<key, idr, tp> <- overloads){   
+            for(<key, idr, tp> <- overloads){
                 try {
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s)>;
@@ -227,7 +236,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
              else return overloadedAType(returnTypeForOverloadedActuals);
         }
     }
-    
+
     return computeADTReturnType(current, adtName, scope, formalTypes, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s);
 }
 
@@ -240,8 +249,8 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     actualTypesU = makeUniqueTypeParams(actualTypes, asuffix);
     for(int i <- index_formals, !dontCare[i]){
         try   bindings = matchRascalTypeParams(formalTypesU[i], actualTypesU[i], bindings);
-        catch invalidMatch(str reason): 
-              s.report(error(current, reason));   
+        catch invalidMatch(str reason):
+              s.report(error(current, reason));
     }
     iformalsU = formalTypesU;
     if(!isEmpty(bindings)){
@@ -261,7 +270,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
         s.requireComparable(aiU, iformalsU[i], error(current, "Argument %v should have type %t, found %t", i, formalTypesU[i], aiU));
     }
     adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
-    
+
     switch(keywordArguments){
     case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`:
         checkExpressionKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsExp, bindings, s);
@@ -271,11 +280,11 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
     default:
         throw rascalCheckerInternalError("computeADTReturnType: illegal keywordArguments: <keywordArguments>");
     }
-    
+
     list[AType] parameters = [];
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
        params = {};
-       for(<_, _, tp> <- overloads){  
+       for(<_, _, tp> <- overloads){
         if(isADTAType(tp)) params += toSet(getADTTypeParameters(tp));
        }
        parameters = toList(params);
@@ -312,12 +321,12 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, list[AType] for
 
 void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings, Solver s){
     if(keywordArgumentsExp is none) return;
- 
+
     msgs = [];
     next_arg:
-    for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
+    for(kwa <- keywordArgumentsExp.keywordArgumentList){
         kwName = prettyPrintName(kwa.name);
-        
+
         for(Keyword k <- kwFormals){
            ft = k.fieldType;
            fn = ft.alabel;
@@ -331,7 +340,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               kwType = s.getType(kwa.expression);
               s.requireComparable(kwType, deUnique(ift), error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, deUnique(ift)));
               continue next_arg;
-           } 
+           }
         }
         availableKws = intercalateOr(["`<prettyAType(kw.fieldType)> <kw.fieldName>`" | Keyword kw <- kwFormals]);
         switch(size(kwFormals)){
@@ -340,20 +349,20 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
         default:
             availableKws = "; available keyword parameters: <availableKws>";
         }
-        
+
        msgs += error(kwa, "Undefined keyword argument %q%v", kwName, availableKws);
     }
     s.reports(msgs);
-} 
+}
 
 void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Bindings bindings, loc scope, Solver s){
     if(keywordArgumentsPat is none) return;
-    
+
     msgs = [];
     next_arg:
-    for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
+    for(kwa <- keywordArgumentsPat.keywordArgumentList){
         kwName = prettyPrintName(kwa.name);
-        
+
         for(Keyword k <- kwFormals){
            ft = k.fieldType;
            fn = ft.alabel;
@@ -367,7 +376,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
               kwType = getPatternType(kwa.expression, ift, scope, s);
             s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
               continue next_arg;
-           } 
+           }
         }
         availableKws = intercalateOr(["`<prettyAType(kw.fieldType)> <kw.fieldName>`" | Keyword kw <- kwFormals]);
         switch(size(kwFormals)){
@@ -376,7 +385,7 @@ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<K
         default:
             availableKws = "; available keyword parameters: <availableKws>";
         }
-        
+
         msgs += error(kwa, "Undefined keyword argument %q%v", kwName, availableKws);
     }
     s.reports(msgs);
@@ -398,10 +407,10 @@ list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), lo
     }
 
 }
-     
+
 list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <_, _, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
-    
+
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldTypeWithADT: <containerType>, <field>");
     containerType = unwrapAType(containerType);
@@ -412,7 +421,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     }
     return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId(), annoId()}, scope); // DURING TRANSITION: allow annoIds
 }
-    
+
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(AType containerType, Tree field, loc scope, Solver s) {
    //println("computeFieldType: <containerType>, <field>");
@@ -420,21 +429,21 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
     requireFullyInstantiated(s, containerType);
     if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");
-    
+
    if (isReifiedAType(containerType)) {
         if (fieldName == "symbol") {
             return s.getTypeInScopeFromName("Symbol", scope, {dataId()});
         } else if (fieldName == "definitions") {
            s.getTypeInScopeFromName("Symbol", scope, {dataId()});
-                  
+
            s.getTypeInScopeFromName("Production", scope, {dataId()});
            return makeMapType(makeADTType("Symbol"), makeADTType("Production"));
-                
+
         } else {
            s.report(error(field, "Field %q does not exist on type `type` (classic reifier)", fieldName));
         }
     } else if(isSyntaxType(containerType)){
-       
+
         if(isStartNonTerminalType(containerType)){
            return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
         } else if(isIterType(containerType)){
@@ -482,14 +491,14 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
     } else if (isRelAType(containerType)) {
         idx = indexOf(getRelFieldNames(containerType), fieldName);
         if(idx >= 0){
-            return makeSetType(getRelFields(containerType)[idx]); 
+            return makeSetType(getRelFields(containerType)[idx]);
         }
         else
            s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     } else if (isListRelAType(containerType)) {
         idx = indexOf(getListRelFieldNames(containerType), fieldName);
         if(idx >= 0){
-            return makeListType(getListRelFields(containerType)[idx]); 
+            return makeListType(getListRelFields(containerType)[idx]);
         }
         else
            s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
@@ -500,10 +509,10 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         }
         else
             s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
-    
+
     } else if (isNodeAType(containerType)) {
         return avalue();
-    } 
+    }
     s.report(error(field, "Field %q does not exist on type %t", fieldName, containerType));
     return avalue();
 }
@@ -543,13 +552,13 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         else {
             relFields = getRelFields(t1);
             failures = [ error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t",  idx+1, tl[idx], relFields[idx])
-                       | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) 
+                       | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx])))
                        ];
             if (size(failures) > 0) {
                 s.reports(failures);
             } else if ((size(relFields) - size(tl)) == 1) {
                 rftype = last(relFields);
-                //if (alabel(_,rft) := rftype) rftype = rft; 
+                //if (alabel(_,rft) := rftype) rftype = rft;
                 return makeSetType(rftype);
             } else {
                 return arel(atypeList(tail(relFields,size(relFields)-size(tl))));
@@ -560,14 +569,14 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
             s.report(error(current, "For a list relation with arity %v you can have at most %v subscripts", size(getListRelFields(t1)), size(getListRelFields(t1))-1));
         else {
             relFields = getListRelFields(t1);
-            failures = [ error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t", idx+1, tl[idx], relFields[idx]) 
-                       | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) 
+            failures = [ error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t", idx+1, tl[idx], relFields[idx])
+                       | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx])))
                        ];
             if (size(failures) > 0) {
                 s.reports(failures);
             } else if ((size(relFields) - size(tl)) == 1) {
                 rftype = last(relFields);
-                //if (alabel(_,rft) := rftype) rftype = rft; 
+                //if (alabel(_,rft) := rftype) rftype = rft;
                 return makeListType(rftype);
             } else {
                 return alrel(atypeList(tail(relFields,size(relFields)-size(tl))));
@@ -617,7 +626,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         else if (isIterType(t1))
             return getIterElementType(t1);
         else
-            return makeADTType("Tree");    
+            return makeADTType("Tree");
     } else {
         s.report(error(current, "Expressions of type %t cannot be subscripted", t1));
     }
@@ -626,7 +635,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
 
 AType computeSliceType(Tree current, AType base, AType first, AType step, AType last, Solver s){
     requireFullyInstantiated(s, base, first, step, last);
-    
+
      if(overloadedAType(rel[loc, IdRole, AType] overloads) := base){
         slice_overloads = {};
         for(<key, role, tp> <- overloads){
@@ -634,32 +643,32 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
                 slice_overloads += <key, role, computeSliceType(current, tp, first, step, last, s)>;
             } catch checkFailed(list[FailMessage] _): /* continue with next overload */;
               catch NoBinding(): /* continue with next overload */;
- //>>         catch e: /* continue with next overload */; 
+ //>>         catch e: /* continue with next overload */;
         }
         if(isEmpty(slice_overloads)) s.report(error(current, "Slice cannot be computed for %t", base));
         return overloadedAType(slice_overloads);
     }
-    
+
     failures = [];
     if(!isIntAType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
     if(!isIntAType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
     if(!isIntAType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
-    
+
     if(!isEmpty(failures)) throw s.reports(failures);
-    
+
     if (isListAType(base) || isStrAType(base) || isIterType(base)) {
         return base;
     } else if (isNodeAType(base)) {
         return makeListType(avalue());
     }
-    
+
     s.reports(failures + error(current, "Slices can only be used on (concrete) lists, strings, and nodes, found %t", base));
     return avalue();
 }
 
 bool isSameTypeParameter(aparameter(str n1, AType b1), aparameter(str n2, AType b2))
     = n1 == n2 && b1 == b2;
-    
+
 default bool isSameTypeParameter(AType t1, AType t2) = false;
 
 @synopsis{Coerce acts like alub but for arithmetic opererand pairs that feature coercions}
@@ -675,7 +684,7 @@ Furthermore all arithmetic operators `op` in {`*`, `+`, `-`, `/`} are "type pres
 * real op real => real
 * &T op &T     => &T, given that &T <: num
 * And so unequal type parameters, default to `num`: &T <: num op &Y <: num => num
-    
+
 Finally, the escalation mechanism through coercions also works in the bounds of type parameters:
 * &T <: rat op &U <: int => rat
 That is by forwarding the coercion to the bounds of type parameters if the type names are unequal.
@@ -692,13 +701,13 @@ default AType coerce(AType t, t) = t;       // type preservation = closed algebr
 
 // Type preservation also holds if we don't know which type it is. This rule makes
 // sure the parameter is propagated over the operator application expression.
-// Since the operator always implements coercion at run-time, the bounds do not 
-// immediately shrink to the GLB, but rather to the coerced bounds. 
-AType coerce(aparameter(str name, AType boundL, closed=false), aparameter(name, AType boundR, closed=false)) 
-    = aparameter(name, coerce(boundL,boundR)/*, closed=false*/); 
+// Since the operator always implements coercion at run-time, the bounds do not
+// immediately shrink to the GLB, but rather to the coerced bounds.
+AType coerce(aparameter(str name, AType boundL, closed=false), aparameter(name, AType boundR, closed=false))
+    = aparameter(name, coerce(boundL,boundR)/*, closed=false*/);
 
-AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, AType boundR, closed=true)) 
-    = aparameter(name, coerce(boundL, boundR), closed=true); 
+AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, AType boundR, closed=true))
+    = aparameter(name, coerce(boundL, boundR), closed=true);
 
 // Coercion also applies to type parameter bounds, but we do not get to keep
 // open parameters if the names are different.
@@ -706,7 +715,7 @@ AType coerce(aparameter(str name, AType boundL, closed=true), aparameter(name, A
 default AType coerce(aparameter(str _, AType bound, closed=false), AType r) = coerce(bound, r);
 default AType coerce(AType l, aparameter(str _, AType bound, closed=false)) = coerce(l, bound);
 
-// Here we have a closed parameter type, we do not know what it is but it is anything below the bound, 
+// Here we have a closed parameter type, we do not know what it is but it is anything below the bound,
 // We can defer to the coercion of the bounds again, because the run-time will guarantee such
 // coercion always. The cases for open parameters are the same, but we leave this here
 // for the sake of clarity and completeness.
@@ -718,12 +727,12 @@ public AType numericArithTypes(AType l, AType r) {
     return coerce(l, r);
 }
 
-AType computeAdditionType(Tree current, AType t1, AType t2, Solver s) 
+AType computeAdditionType(Tree current, AType t1, AType t2, Solver s)
     = binaryOp("addition", do_computeAdditionType, current, t1, t2, s);
 
 private AType do_computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
-    
+
     if (isStrAType(t1) && isStrAType(t2))
         return isSameTypeParameter(t1, t2) ? t1 : astr();
 
@@ -737,63 +746,63 @@ private AType do_computeAdditionType(Tree current, AType t1, AType t2, Solver s)
 
     // TODO: this does not make sense to me. The returning type is
     // always a `loc`, which is more specific than the &T unless it were `void`.
-    // why are we propagating the &T here?    
+    // why are we propagating the &T here?
     if (isLocAType(t1) && isStrAType(t2))
         return isTypeParameter(t1) ? t1 : aloc();
-        
-    // TODO what is `now() + now()`? probably should not exist here.    
+
+    // TODO what is `now() + now()`? probably should not exist here.
     if(isDateTimeAType(t1) && isDateTimeAType(t2))
         return isSameTypeParameter(t1, t2) ? t1 : adatetime();
-        
-    // TODO: This re-encodes alub all over again, but maybe subtly different. 
+
+    // TODO: This re-encodes alub all over again, but maybe subtly different.
     if (isTupleAType(t1) && isTupleAType(t2)) {
          if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
             tflds1 = getTupleFields(t1);
             tflds2 = getTupleFields(t2);
             tnms1  = getTupleFieldNames(t1);
             tnms2  = getTupleFieldNames(t2);
-            
+
             if (size(toSet(tnms1 + tnms2)) == size(tflds1+tflds2)) {
                 return makeTupleType(tflds1+tflds2);
              } else {
                 return makeTupleType(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
              }
-         } else {        
+         } else {
             return makeTupleType(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
          }
-     } 
+     }
 
     // TODO: this is what all the cases should look like, IMHO, the addition always
-    // produces the lub of the types.   
+    // produces the lub of the types.
     if (isListAType(t1) && isListAType(t2))
         return s.lub(t1,t2);
     if (isSetAType(t1) && isSetAType(t2))
         return s.lub(t1,t2);
     if (isMapAType(t1) && isMapAType(t2))
         return s.lub(t1,t2);
-        
+
     if (isListAType(t1) && !isContainerType(t2))
         return makeListType(s.lub(getListElementType(t1),t2));
     if (isSetAType(t1) && !isContainerType(t2)) // Covers relations too
         return makeSetType(s.lub(getSetElementType(t1),t2));
     if (isBagAType(t1) && !isContainerType(t2))
         return abag(s.lub(getBagElementType(t1),t2));
-        
+
     if (isListAType(t2) && !isContainerType(t1))
         return makeListType(s.lub(t1,getListElementType(t2)));
     if (isSetAType(t2) && !isContainerType(t1)) // Covers relations too
         return makeSetType(s.lub(t1,getSetElementType(t2)));
     if (isBagAType(t2) && !isContainerType(t1))
         return abag(s.lub(t1,getBagElementType(t2)));
-        
+
     if (isListAType(t1))
         return makeListType(s.lub(getListElementType(t1),t2));
     if (isSetAType(t1)) // Covers relations too
         return makeSetType(s.lub(getSetElementType(t1),t2));
     if (isBagAType(t1))
         return abag(s.lub(getBagElementType(t1),t2));
-    
-    // TODO: Can we also add together constructor types? 
+
+    // TODO: Can we also add together constructor types?
     // JV: constructor functions can be added like normal functions can.
     // That's why the interpreter gives function types to constructor functions and
     // not something special. Functions are constructor functions are completely interchangeable
@@ -817,7 +826,7 @@ private AType do_computeAdditionType(Tree current, AType t1, AType t2, Solver s)
             return overloadedAType(overloads1 + overloads2);
         }
     }
-    
+
     s.report(error(current, "Addition not defined on %t and %t", t1, t2));
     return avalue();
 }
@@ -825,7 +834,7 @@ private AType do_computeAdditionType(Tree current, AType t1, AType t2, Solver s)
 AType computeSubtractionType(Tree current, AType t1, AType t2, Solver s)
     = binaryOp("subtraction", do_computeSubtractionType, current, t1, t2, s);
 
-private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver s) { 
+private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver s) {
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
     }
@@ -835,11 +844,11 @@ private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver
         return isSameTypeParameter(t1, t2) ? t1 : adatetime();
     }
     if(isListAType(t1) && isListAType(t2)){
-        s.requireComparable(getListElementType(t1), getListElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", 
+        s.requireComparable(getListElementType(t1), getListElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t",
                                                                                     isListRelAType(t1) ? "List Relation" : "List", t1, isListRelAType(t2) ? "List Relation" : "List", t2));
        return t1;
     }
-    
+
     // TODO JV: this is weird, what if it's a list of lists and you want to subtract something? Then the previous case already
     // complains about incomparability...
     if(isListAType(t1)){
@@ -861,7 +870,7 @@ private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver
         s.requireComparable(t1, t2, error(current, "Map of type %t could never contain a sub-map of type %t", t1, t2));
         return t1;
     }
-    
+
     s.report(error(current, "Subtraction not defined on %t and %t", t1, t2));
     return avalue();
 }
@@ -869,9 +878,9 @@ private AType do_computeSubtractionType(Tree current, AType t1, AType t2, Solver
 AType computeProductType(Tree current, AType t1, AType t2, Solver s)
     = binaryOp("product", do_computeProductType, current, t1, t2, s);
 
-private AType do_computeProductType(Tree current, AType t1, AType t2, Solver s){ 
+private AType do_computeProductType(Tree current, AType t1, AType t2, Solver s){
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
-    
+
     if (isListAType(t1) && isListAType(t2))
         return makeListType(atuple(atypeList([getListElementType(t1),getListElementType(t2)])));
     // TODO: JV is a rel not a set of tuples?
@@ -881,7 +890,7 @@ private AType do_computeProductType(Tree current, AType t1, AType t2, Solver s){
         return alrel(atypeList([getListRelElementType(t1),getListRelElementType(t2)]));
     if (isSetAType(t1) && isSetAType(t2))
         return arel(atypeList([getSetElementType(t1),getSetElementType(t2)]));
-    
+
     s.report(error(current, "Product not defined on %t and %t", t1, t2));
     return avalue();
 }
@@ -898,17 +907,17 @@ private AType do_computeDivisionType(Tree current, AType t1, AType t2, Solver s)
 
 AType computeIntersectionType(Tree current, AType t1, AType t2, Solver s)
     = binaryOp("intersection", do_computeIntersectionType, current, t1, t2, s);
-    
-private AType do_computeIntersectionType(Tree current, AType t1, AType t2, Solver s){  
-    if ( ( isListRelAType(t1) && isListRelAType(t2) ) || 
-         ( isListAType(t1) && isListAType(t2) ) || 
-         ( isRelAType(t1) && isRelAType(t2) ) || 
-         ( isSetAType(t1) && isSetAType(t2) ) || 
+
+private AType do_computeIntersectionType(Tree current, AType t1, AType t2, Solver s){
+    if ( ( isListRelAType(t1) && isListRelAType(t2) ) ||
+         ( isListAType(t1) && isListAType(t2) ) ||
+         ( isRelAType(t1) && isRelAType(t2) ) ||
+         ( isSetAType(t1) && isSetAType(t2) ) ||
          ( isMapAType(t1) && isMapAType(t2) ) )
     {
         // TODO: JV maybe: warning: intersection of incomparable sets always produces the empty set. It's not strictly a static error.
         // Another way is to use the glb and warn if the result is set[void], list[void] or map[void,void].
-        if (!comparable(t1,t2)) 
+        if (!comparable(t1,t2))
             s.report(error(current, "Types %t and %t are not comparable", t1, t2));
 
         // TODO JV: this re-encodes what `glb` also does: if t1 <: t2 then glb(t1,t2) == t2,
@@ -916,11 +925,11 @@ private AType do_computeIntersectionType(Tree current, AType t1, AType t2, Solve
         // Let's rewrite this using glb.
         if (asubtype(t2, t1))
             return t2;
-        // TODO See above: 
+        // TODO See above:
         if (asubtype(t1, t2))
             return t1;
 
-        // TODO: This is also a partial re-implementation of glb    
+        // TODO: This is also a partial re-implementation of glb
         if (isListRelAType(t1)) return makeListRelType(makeVoidType(),makeVoidType());
         if (isListAType(t1)) return makeListType(makeVoidType());
         if (isRelAType(t1)) return makeRelType(makeVoidType(), makeVoidType());
@@ -1022,7 +1031,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
                 s.fact(current, elmType);
                 return elmType;
           }
-          s.report(error(current, "Cannot get element type for %t", inameType)); 
+          s.report(error(current, "Cannot get element type for %t", inameType));
        }
     }
     if(argument is qualifiedName){
@@ -1041,7 +1050,7 @@ private AType getSplicePatternType(Pattern current, Pattern argument,  AType sub
            } else {
                 s.report(error(argument, "List or set type expected, found %t", inameType));
            }
-             
+
            return instantiateAndCompare(current, elmType, subjectType, s);
         }
     } else {
@@ -1058,7 +1067,7 @@ AType instantiateAndCompare(Tree current, AType patType, AType subjectType, Solv
       s.fact(current, patType);
       subjectType = s.instantiate(subjectType);
    }
-  
+
    bindings = ();
    lsuffix = "l";
    rsuffix = "r";
@@ -1112,19 +1121,19 @@ private AType getPatternType0((KeywordArgument[Pattern]) `<Name _> = <Pattern ex
 private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, loc scope, Solver s){
    //println("getPatternType: <current>");
     pats = [ p | Pattern p <- arguments ];
-    
+
     texp = getPatternType(expression, subjectType, scope, s);
     //println("bindings: <bindings>");
     //clearBindings();    // <====
     subjectType = s.instantiate(subjectType);
-    
+
     if(isStartNonTerminalType(subjectType)){
         subjectType = getStartNonTerminalType(subjectType);
     }
-    
+
     if(isStrAType(texp)){
         return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
-    }       
+    }
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
        notFullyInstantiatedArgs = false;
        bareArgTypes = for(p <- pats){
@@ -1132,7 +1141,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
                             pType = s.getType(p);
                             if(!s.isFullyInstantiated(pType)){
                                 notFullyInstantiatedArgs = true;
-                               
+
                             }
                             append pType;
                         } catch TypeUnavailable():
@@ -1163,7 +1172,7 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
              }
         }
         if({<_, _, tp>} := validOverloads){
-           texp = tp; 
+           texp = tp;
            s.fact(expression, tp);
             // TODO check identicalFields to see whether this can make sense
            // unique overload, fall through to non-overloaded case to potentially bind more type variables
@@ -1181,15 +1190,15 @@ private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Patte
 
 private bool acceptable(int i, AType a, AType b, list[bool] uninstantiated)
         = uninstantiated[i] || comparable(a, b);
-        
+
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, list[AType] argTypes, AType subjectType, Solver s){
     int arity = size(argTypes);
     rel[loc, IdRole, AType] filteredOverloads = {};
     list[bool] identicalFields = [true | int _ <- [0 .. arity]];
-    
+
     uninstantiated = [ !s.isFullyInstantiated(argTypes[i]) | int i <- [0 .. arity] ];
-    
-    for(ovl:<loc _, IdRole _, AType tp> <- overloads){                     
+
+    for(ovl:<loc _, IdRole _, AType tp> <- overloads){
         if(acons(ret:aadt(_, list[AType] _, _), list[AType] fields, list[Keyword] _) := tp, comparable(ret, subjectType)){
            if(size(fields) == arity && (arity == 0 || all(int i <- index(fields), acceptable(i, fields[i], argTypes[i], uninstantiated)))){
             filteredOverloads += ovl;
@@ -1199,10 +1208,10 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc,
     return <filteredOverloads, identicalFields>;
 }
 
-AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){                     
+AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){
     dontCare = [ isWildCard("<patList[i]>") | i <- index(patList) ];
     actualType = [ dontCare[i] ? avalue() : getPatternType(patList[i], avalue(), scope, s) | i <- index(patList) ];
-    
+
     if(adtType:aadt(adtName, list[AType] _,_) := subjectType){
        declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxRoles);
        declaredType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
@@ -1223,12 +1232,12 @@ AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (Ke
 
 AType computePatternNodeTypeWithKwArgs(Tree current, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, list[AType] fields, loc scope, Solver s){
     if(keywordArgumentsPat is none) return anode([]);
-                       
+
     nodeFieldTypes = [];
     nextKW:
        for(ft <- fields){
            fn = ft.alabel;
-           for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
+           for(kwa <- keywordArgumentsPat.keywordArgumentList){
                kwName = prettyPrintName(kwa.name);
                if(kwName == fn){
                   kwType = getPatternType(kwa.expression,ft, scope, s);
@@ -1236,9 +1245,9 @@ AType computePatternNodeTypeWithKwArgs(Tree current, (KeywordArguments[Pattern])
                   nodeFieldTypes += ft;
                   continue nextKW;
                }
-           }    
+           }
        }
-       return anode(nodeFieldTypes); 
+       return anode(nodeFieldTypes);
  }
 
 // ---- variable becomes pattern
@@ -1264,7 +1273,7 @@ private AType getPatternType0(current: (Pattern) `/ <Pattern pattern>`, AType su
     return subjectType;
 }
 
-// ---- negative 
+// ---- negative
 
 private AType getPatternType0(current: (Pattern) `- <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
     return getPatternType(pattern, subjectType, scope, s);
