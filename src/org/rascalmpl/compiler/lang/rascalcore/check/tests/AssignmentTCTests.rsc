@@ -17,9 +17,15 @@ test bool IntAddAssignError() = unexpectedType("{int n = 3; n += true;}");
 test bool StrAddAssign() = checkOK("{str s = \"a\"; s += \"b\";}");
 test bool StrAddAssignError1() = unexpectedType("{str s = \"a\"; s += 3;}");
 
-test bool SetStrAddAssign() = checkOK("{set[str] s = {\"a\"}; s += {\"b\"};}");
+test bool SetStrAddAssign1() = checkOK("{set[str] s = {\"a\"}; s += {\"b\"};}");
+test bool SetStrAddAssign2() = checkOK("{set[str] s = {\"a\"}; s += \"b\";}");
 test bool SetStrAddAssignError1() = unexpectedType("{set[str] s = {\"a\"}; s += 3;}");
 test bool SetStrAddAssignError2() = unexpectedType("{set[str] s = {\"a\"}; s += [\"b\"];}");
+
+test bool ListStrAddAssign1() = checkOK("{list[str] s = [\"a\"]; s += [\"b\"];}");
+test bool ListStrAddAssign2() = checkOK("{list[str] s = [\"a\"]; s += \"b\";}");
+test bool ListStrAddAssignError1() = unexpectedType("{list[str] s = [\"a\"]; s += 3;}");
+test bool ListStrAddAssignError2() = unexpectedType("{list[str] s = [\"a\"]; s += {\"b\"};}");
 
 test bool IntMullAssign() = checkOK("{int n = 3; n *= 3;}");
 test bool IntMullAssignError() = unexpectedType("{int n = 3; n *= true;}");

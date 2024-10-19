@@ -648,9 +648,15 @@ private void checkAssignment(Statement current, (Assignable) `( <Assignable arg>
     //collect(arg, c);
 }
 
+private bool assignCompatible(AType lhs, AType rhs)
+    =   comparable(lhs, rhs)
+    || (isSetAType(lhs) && comparable(getSetElementType(lhs), rhs))
+    || (isListAType(lhs) && comparable(getListElementType(lhs), rhs))
+    ;
+
 private AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
     checkNonVoid(current, rhsType, s, "Righthand side of assignment");
-    s.requireComparable(lhsType, rhsType, error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", rhsType, lhsType));
+    s.requireTrue(assignCompatible(lhsType, rhsType), error(current, "Cannot assign righthand side of type %t to lefthand side of type %t", rhsType, lhsType));
 
     resultType = avalue();
     switch(operator){
