@@ -433,7 +433,7 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
 
 TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, loc statFile, TestStats cumulativeStats) {
     println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>, fromFile=<fromFile>)");
-    writeFile(statFile, "source,size,result,duration,disambiguationDuration,errorSize\n");
+    writeFile(statFile, "source,size,result,duration,disambiguationDuration,errorCount,errorSize\n");
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
         if (isFile(file)) {
