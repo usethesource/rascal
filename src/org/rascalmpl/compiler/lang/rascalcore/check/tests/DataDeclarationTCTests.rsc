@@ -20,7 +20,7 @@ test bool UnitializedVariable2() = uninitializedInModule("
         data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);
 		data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);
 		alias Var2 = str;
-        void main() { Bool b; b[left = btrue()];
+        void main() { Bool b; b[left = btrue()]; }
     ");
 																  
 test bool LetWrongTypeViaAlias() = unexpectedTypeInModule("
