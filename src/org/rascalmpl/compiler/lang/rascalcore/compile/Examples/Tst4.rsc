@@ -1,11 +1,16 @@
 module lang::rascalcore::compile::Examples::Tst4
 
+void main(){
+    set[str] s = {"a"};
+    s += 3;
+}
+
 // test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
 
 // value main()  { n = 1; n = true; return n; }
 
-void main()
-   { n = 1; n = 1.5; n + 2;}
+// void main()
+//    { n = 1; n = 1.5; n + 2;}
 
 // void main(){
 //     n = 1;
