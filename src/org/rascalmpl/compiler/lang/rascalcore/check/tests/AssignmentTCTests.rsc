@@ -2,11 +2,11 @@
 module lang::rascalcore::check::tests::AssignmentTCTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
- 
+
 test bool testUninit1() = undeclaredVariable("zzz;");
 
 test bool AssignmentError1() = unexpectedType("int n = 3; n = true;");
-	
+
 test bool AssignmentError2() = unexpectedType("{int i = true;};");
 
 test bool AssignmentError3() = unexpectedType("{int n = 3; n = true;}");
@@ -38,16 +38,20 @@ test bool SetStrInterAssign() = checkOK("{set[str] s = {\"a\", \"b\"}; s &= {\"b
 test bool SetStrInterAssignError() = unexpectedType("{set[str] s = {\"a\", \"b\"}; s &= {3};}");
 
 test bool integerError1() = uninitialized("N += 2;");
-  
+
 test bool integerError2() = uninitialized("N -= 2;");
-  	
+
 test bool integerError3() = uninitialized("N *= 2;");
- 
+
 test bool integerError4() = uninitialized("N /= 2;");
- 
+
 test bool errorList1() = unexpectedType("list[int] L = {1,2,3}; L *= [4];  L==[\<1,4\>,\<2,4\>,\<3,4\>];");
 
-test bool errorMap1() = checkOK("map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[\<1,4\>,\<2,4\>,\<3,4\>],1:[10,20,30]);");
+test bool errorMap1() = unexpectedType("
+          map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]);
+          M[0] *= [4];
+          M==(0:[\<1,4\>,\<2,4\>,\<3,4\>],1:[10,20,30]);
+     ");
 
 test bool errorSet1() = unexpectedType("set[int] L = {1,2,3}; L *= {4}; L=={\<1,4\>,\<2,4\>,\<3,4\>};");
 
@@ -80,14 +84,14 @@ test bool AnnotationError5() = uninitializedInModule("
           anno int F @pos;
           void main() { F X; X @pos /= 1; }
      ");
-     
-test bool testInteger6() = uninitialized("N ?= 2; N==2;"); 
 
-test bool testList9() = uninitialized("L ?= [4]; L==[4];"); 
+test bool testInteger6() = uninitialized("N ?= 2; N==2;");
 
-test bool testMap6() = uninitialized(" M ?= (3:30); M==(3:30);"); 
+test bool testList9() = uninitialized("L ?= [4]; L==[4];");
 
-test bool testSet6() = uninitialized(" L ?= {4}; L=={4};"); 
+test bool testMap6() = uninitialized(" M ?= (3:30); M==(3:30);");
+
+test bool testSet6() = uninitialized(" L ?= {4}; L=={4};");
 
 //////////////////////////////////////////////////////
 
@@ -180,7 +184,7 @@ test bool TUPLE4() = checkOK("
                     \<lhead,ltail\> = \<head(l), tail(l)\>;
                     lhead == 1;
                     ltail == [2,3];
-               }");   
+               }");
 
 test bool E1() = checkOK("value zz = 1 + 2;");
 test bool E2() = checkOK("value zz = 1 + 2.5; ");
@@ -214,23 +218,30 @@ test bool Set6() = checkOK("value zz = 1 + {1.5}; ");
 test bool Set7() = checkOK("value zz = 1 + {true}; ");
 
 test bool Stat1() = checkOK("value zz = 1 + {true, 2}; ");
-test bool Stat2() = checkOK("value zz = {int n = 1;}; ");
-@ignore{type inference}
-test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
-@ignore{type inference}
-test bool Stat4() = checkOK("value zz = { n = 1; n = 1.5; n + 2;}; ");
+test bool Stat2() = checkOK("{int n = 1;};");
+@ignore{type inference fails}
+test bool Stat3() = checkOK("{ n = 1; n = true; };");
+@ignore{type inference fails}
+test bool Stat4() = checkOK("{ n = 1; n = 1.5; n + 2;};");
 
 test bool Stat5() = checkOK("value zz = { n = 1; m = n; n + 2;}; ");
-@ignore{type inference}
-test bool Stat6() = checkOK("value zz = { n = 1; m = n;  m = 1.5; n + 2;}; ");
-test bool Stat7() = checkOK("value zz = { l = []; l = l + 1.5; }; ");
-test bool Stat8() = checkOK("value zz = { l = []; m = l; l = m + 1.5; }; ");
-test bool Stat9() = checkOK("value zz = { l = []; m = l; l = l + 1.5; }; ");
-test bool Stat10() = checkOK("value zz = { l = []; m = l; m = m + 1.5; }; ");
-test bool Stat11() = checkOK("value zz = { l = []; m = l; n = m; m = m + 1.5; n = n + 2r3; }; ");
+@ignore{type inference fails}
+test bool Stat6() = checkOK("{ n = 1; m = n;  m = 1.5; n + 2; n;};");
+test bool Stat7() = checkOK("{ l = []; l = l + 1.5; l;}; ");
+test bool Stat8() = checkOK("{ l = []; m = l; l = m + 1.5; l; };");
+test bool Stat9() = checkOK("{ l = []; m = l; l = l + 1.5; l;};");
+test bool Stat10() = checkOK("{ l = []; m = l; m = m + 1.5; m;};");
+test bool Stat11() = checkOK("{ l = []; m = l; n = m; m = m + 1.5; n = n + 2r3; n;};");
 
-test bool IfElse1() = checkOK("value zz = { if(true) 10; else 11; }; ");
-test bool IfElse2() = unexpectedType("value zz = { if(1) 10; else 11; }; ");
+test bool IfElse1() = checkOK("if(true) 10; else 11;; ");
+test bool IfElse2() = unexpectedType("if(1) 10; else 11;");
 
-test bool IfThen1() = checkOK("value zz = { if(true) 10;}; ");      // TODO: check no value
-test bool IfThen2() = unexpectedType("value zz = { if(1) 10; }; ");  // TODO: check no value
+test bool IfThen1() = illegalUse("value zz = { if(true) 10;}; ");
+test bool IfThen2() = illegalUse("zz = { if(true) 10;}; ");
+
+test bool IfThen3() = illegalUseInModule("
+     module IfThen3
+          value zz = { if(true) 10;};
+     ");
+
+test bool IfThen4() = unexpectedType("value zz = { if(1) 10; }; ");
