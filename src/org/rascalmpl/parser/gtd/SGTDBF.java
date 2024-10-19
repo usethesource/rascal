@@ -32,6 +32,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.stack.SkippingStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
 import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
 import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
@@ -1408,6 +1409,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	        		shiftedLevel = true;
 
+					if (onlyRecoveredStacksLeft() && attemptRecovery()) {
+						continue;
+					}
+
 					if (!findStacksToReduce()) {
 	    				if(location == input.length) {
 	      					EdgesSet<P> startNodeEdgesSet = startNode.getIncomingEdges();
@@ -1463,15 +1468,37 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	  timestamp = System.nanoTime();
 	}
 	
-  private void checkTime(String msg) {
-    long newStamp = System.nanoTime();
+	private boolean onlyRecoveredStacksLeft() {
+		int recoveredStacksFound = 0;
+
+		for (int i=0; i<todoLists.length; i++) {
+			DoubleStack<AbstractStackNode<P>, AbstractNode> todoList = todoLists[i];
+			if (todoList != null) {
+				int size = todoList.getSize();
+				for (int j=0; j<size; j++) {
+					if (!(todoList.getFirst(j) instanceof SkippingStackNode)) {
+						return false;
+					}
+
+					if (recoveredStacksFound++ > 50) {
+						return false;
+					}
+				}
+			}
+		}
+
+		return recoveredStacksFound > 0;
+	}
+
+  	private void checkTime(String msg) {
+    	long newStamp = System.nanoTime();
 		long duration = newStamp - timestamp;
 		timestamp = newStamp;
 		
 		if (printTimes) {
 		  System.err.println(msg + ": " + duration / (1000 * 1000));
 		}
-  }
+  	}
 
 	private static int[] charsToInts(char[] input){
 		int[] result = new int[Character.codePointCount(input, 0, input.length)];
