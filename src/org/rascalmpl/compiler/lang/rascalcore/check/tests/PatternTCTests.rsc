@@ -136,11 +136,11 @@ test bool matchListError10() = cannotMatch("list[str] S = [\"a\"];  [1, S, 2] !:
   	
 test bool matchListError11() = cannotMatch("list[str] S = [\"a\"]; list[int] x = [1,2,3]; [1, S, 2] := x;");  
   	
-test bool RecursiveDataTypeNoPossibleHiddenRecursion() = cannotMatchInModule("
+test bool RecursiveDataTypeNoPossibleHiddenRecursion() = unexpectedDeclarationInModule("
    module RecursiveDataTypeNoPossibleHiddenRecursion
       data Prop = f();
       data Bool = and(list[Prop], list[Prop]) | t();
-      voud main() { p = or(t,t); and(t,t) := p; }
+      void main() { p = or(t(),t()); and(t1,t2) := p; }
    "); 
 
 test bool NoDataDecl() = cannotMatchInModule("
