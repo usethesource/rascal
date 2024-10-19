@@ -18,8 +18,8 @@ import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::Checker;
 
-PathConfig pathConfigForTesting() { 
-  return getDefaultTestingPathConfig(); 
+PathConfig pathConfigForTesting() {
+  return getDefaultTestingPathConfig();
 }
 
 str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
@@ -44,7 +44,7 @@ loc composeModule(str stmts){
         'value main(){
         '    <stmts>\n
         '    return true;
-        '}");  
+        '}");
 }
 
 void clearMemory() {
@@ -89,7 +89,7 @@ bool checkStatementsAndFilter(str stmts, list[str] expected) {
 	 }
      for(eitem <- msgs, str exp <- expected){
          if(matches(eitem.msg, exp))
-               return true;          
+               return true;
      }
      throw abbrev("<msgs>");
 }
@@ -103,7 +103,7 @@ bool checkModuleAndFilter(str moduleText, list[str] expected) {
 	 }
      for(eitem <- msgs, str exp <- expected){
          if(matches(eitem.msg, exp))
-               return true;          
+               return true;
      }
      throw abbrev("<msgs>");
 }
@@ -165,6 +165,7 @@ list[str] unexpectedTypeMsgs = [
 	    "Cannot assign righthand side of type _ to lefthand side of type _",
 	    "Field subscript _ out of range",
 	    "Types _ and _ do not match",
+		"Types _ and _ are not comparable",
 	    "Cannot instantiate formal parameter type _",
 	    "Bounds _ and _ are not comparable",
 		"Type parameter(s) _ in return type of function _ not bound by its formal parameters",
@@ -198,10 +199,10 @@ bool unexpectedType(str stmts)
 bool uninitializedInModule(str moduleText) = true;
 bool uninitialized(str stmts) = true;
 
-//bool uninitialized(str stmts) = 
+//bool uninitialized(str stmts) =
 	//checkStatementsAndFilter(stmts, [
-	//	"Unable to bind", 
-	//	"Cannot initialize", 
+	//	"Unable to bind",
+	//	"Cannot initialize",
 	//	"must have an actual type before assigning"
 	//]);
 
@@ -217,7 +218,7 @@ list[str] undeclaredVariableMsgs = [
 bool undeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredVariableMsgs);
 
-bool undeclaredVariable(str stmts) = 
+bool undeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredVariableMsgs);
 
 // ---- undeclaredType --------------------------------------------------------
@@ -228,12 +229,12 @@ list[str] undeclaredTypeMsgs = [
 bool undeclaredTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs);
 
-bool undeclaredType(str stmts) = 
+bool undeclaredType(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredTypeMsgs);
 
 // ---- undefinedField --------------------------------------------------------
 
-bool undefinedField(str stmts) = 
+bool undefinedField(str stmts) =
 	checkStatementsAndFilter(stmts, [
 		"Field _ does not exist on type _"
 	]);
@@ -246,13 +247,13 @@ list[str] argumentMismatchMsgs = [
 	"Expected _ type parameter(s)",
 	"Argument _ should have type _, found _",
 	"Return type _ expected, found _",
-	"Keyword argument _ has type _, expected _" 
+	"Keyword argument _ has type _, expected _"
 ];
 
 bool argumentMismatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, argumentMismatchMsgs);
 
-bool argumentMismatch(str stmts) = 
+bool argumentMismatch(str stmts) =
 	checkStatementsAndFilter(stmts, argumentMismatchMsgs);
 
 // ---- redeclaredVariable ----------------------------------------------------
@@ -265,7 +266,7 @@ list[str] redeclaredVariableMsgs = [
 bool redeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, redeclaredVariableMsgs);
 
-bool redeclaredVariable(str stmts) = 
+bool redeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, redeclaredVariableMsgs);
 
 // ---- cannotMatch -----------------------------------------------------------
@@ -283,7 +284,7 @@ list[str] cannotMatchMsgs = [
 bool cannotMatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, cannotMatchMsgs);
 
-bool cannotMatch(str stmts) = 
+bool cannotMatch(str stmts) =
 	checkStatementsAndFilter(stmts, cannotMatchMsgs);
 
 // ---- unexpectedDeclaration ------------------------------------------------------
@@ -314,7 +315,7 @@ list[str] unexpectedDeclarationMsgs = [
 bool unexpectedDeclarationInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs);
 
-bool unexpectedDeclaration(str stmts) = 
+bool unexpectedDeclaration(str stmts) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
 // ---- missingModule ---------------------------------------------------------
@@ -327,19 +328,20 @@ list[str] missingModuleMsgs = [
 bool missingModuleInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, missingModuleMsgs);
 
-bool missingModule(str stmts) = 
+bool missingModule(str stmts) =
 	checkStatementsAndFilter(stmts, missingModuleMsgs);
 
 // ---- illegalUse ------------------------------------------------------------
 
 list[str] illegalUseMsgs = [
-	"Append outside a while"
+	"Append outside a while",
+	"Right-hand side of assignment does not always have a value"
 ];
 
 bool illegalUseInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, illegalUseMsgs);
 
-bool illegalUse(str stmts) = 
+bool illegalUse(str stmts) =
     checkStatementsAndFilter(stmts, illegalUseMsgs);
 
 // ---- nonVoidType ----------------------------------------------------------
@@ -351,7 +353,7 @@ list[str] nonVoidTypeMsgs = [
 bool nonVoidTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs);
 
-bool nonVoidType(str stmts) = 
+bool nonVoidType(str stmts) =
     checkStatementsAndFilter(stmts, nonVoidTypeMsgs);
 
  // ---- unsupported ---------------------------------------------------------
