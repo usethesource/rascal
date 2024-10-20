@@ -55,16 +55,8 @@ void checkNonVoid(Tree e, AType t, Solver s, str msg){
 AType(Solver) makeGetSyntaxType(Type varType)
     = AType(Solver s) { Tree t = varType; return getSyntaxType(t, s); };
 
-void(Solver) makeVarInitRequirement(Variable var, Collector c){
-    Expression initial = var.initial;
-    if(initial is nonEmptyBlock){
-        statements = initial.statements;
-        Statement stat = (Statement) `{ <Statement+ statements> }`;
-        if(!returnsValue(stat, "", c)){
-            c.report(error(initial, "Right-hand side of assignment does not always have a value"));
-        }
-    }
-    return void(Solver s){
+void(Solver) makeVarInitRequirement(Variable var)
+    = void(Solver s){
             Bindings bindings = ();
             initialType = s.getType(var.initial);
             varType = s.getType(var.name);
@@ -86,7 +78,6 @@ void(Solver) makeVarInitRequirement(Variable var, Collector c){
             checkNonVoid(var.initial, initialTypeU, s, "Variable initialization");
             s.fact(var, deUnique(varType));
        };
-}
 
 void(Solver) makeNonVoidRequirement(Tree t, str msg)
     = void(Solver s) { checkNonVoid(t, s, msg ); };

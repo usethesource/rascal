@@ -10,7 +10,7 @@ extend lang::rascalcore::check::CollectDataDeclaration;
 extend lang::rascalcore::check::CollectSyntaxDeclaration;
 
 extend lang::rascalcore::check::Fingerprint;
-//extend lang::rascalcore::check::PathAnalysis;
+import lang::rascalcore::check::PathAnalysis;
 
 //import lang::rascalcore::check::ScopeInfo;
 import lang::rascalcore::check::CollectOperators;
@@ -150,7 +150,14 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
 
             if(var is initialized){
                 initial = var.initial;
-                c.require("initialization of `<vname>`", initial, [initial, varType], makeVarInitRequirement(var, c));
+                if(initial is nonEmptyBlock){
+                    statements = initial.statements;
+                    Statement stat = (Statement) `{ <Statement+ statements> }`;
+                    if(!returnsValue(stat, "", c)){
+                        c.report(error(initial, "Right-hand side of assignment does not always have a value"));
+                    }
+                }
+                c.require("initialization of `<vname>`", initial, [initial, varType], makeVarInitRequirement(var));
                 collect(initial, c);
             }
             c.leaveScope(var);

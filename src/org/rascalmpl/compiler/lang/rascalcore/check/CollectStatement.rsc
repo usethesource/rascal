@@ -1165,8 +1165,15 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
 
             if(var is initialized){
                 initial = var.initial;
+                if(initial is nonEmptyBlock){
+                    statements = initial.statements;
+                    Statement stat = (Statement) `{ <Statement+ statements> }`;
+                    if(!returnsValue(stat, "", c)){
+                        c.report(error(initial, "Right-hand side of assignment does not always have a value"));
+                    }
+                }
                 c.enterLubScope(var);
-                    c.require("initialization of `<var.name>`", initial, [initial, varType], makeVarInitRequirement(var, c));
+                    c.require("initialization of `<var.name>`", initial, [initial, varType], makeVarInitRequirement(var));
                     collect(initial, c);
                 c.leaveScope(var);
             } else {
