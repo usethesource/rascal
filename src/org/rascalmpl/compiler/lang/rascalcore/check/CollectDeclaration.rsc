@@ -5,11 +5,12 @@ module lang::rascalcore::check::CollectDeclaration
     Check all declarations in a module
 */
 
+extend lang::rascalcore::check::CheckerCommon;
 extend lang::rascalcore::check::CollectDataDeclaration;
 extend lang::rascalcore::check::CollectSyntaxDeclaration;
 
 extend lang::rascalcore::check::Fingerprint;
-extend lang::rascalcore::check::PathAnalysis;
+//extend lang::rascalcore::check::PathAnalysis;
 
 //import lang::rascalcore::check::ScopeInfo;
 import lang::rascalcore::check::CollectOperators;
