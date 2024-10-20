@@ -1,7 +1,7 @@
 module lang::rascalcore::check::CollectLiteral
 
 extend lang::rascalcore::check::CheckerCommon;
-extend lang::rascalcore::check::PathAnalysis;
+//extend lang::rascalcore::check::PathAnalysis;
 import lang::rascal::\syntax::Rascal;
 import Exception;
 
@@ -64,11 +64,11 @@ void collect((Pattern) `<Concrete concrete>`, Collector c){
 void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
     varType = symbol;
     uname = prettyPrintName(name);
-    if(!isEmpty(c.getStack(inConcreteLiteral))){    // We are inside a concrete literal expression 
-                                                    // This hole must be a use       
+    if(!isEmpty(c.getStack(inConcreteLiteral))){    // We are inside a concrete literal expression
+                                                    // This hole must be a use
        c.useLub(name, {formalId(), patternVariableId(), variableId(), moduleVariableId()});
-    } else {                                        // We are inside a concrele Literal pattern   
-                                                    // This hole can be a use or define   
+    } else {                                        // We are inside a concrele Literal pattern
+                                                    // This hole can be a use or define
         if(!isWildCard(uname)){
            if(uname in c.getStack(patternNames)){
               c.useLub(name, {formalOrPatternFormal(c)});
