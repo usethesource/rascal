@@ -204,13 +204,16 @@ bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatu
     for(m <- otherImportsAndExtends){
        <found, tm, ms> = getTModelForModule(m, ms);
        if(found){
-           //println("<m>:"); iprintln(domain(tm.logical2physical));
            requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
        }
     }
 
-    println("isCompatibleBinary, unsatisfied: <requires - provides>");
-    return isEmpty(requires - provides);
+    if(isEmpty(requires - provides)){
+        return true;
+    } else {
+        println("isCompatibleBinary, unsatisfied: <requires - provides>");
+        return false;
+    }
 }
 
 tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, ModuleStatus ms){
