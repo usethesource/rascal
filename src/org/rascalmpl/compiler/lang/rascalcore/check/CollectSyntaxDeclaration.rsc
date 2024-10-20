@@ -20,7 +20,7 @@ import lang::rascal::\syntax::Rascal;
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, Collector c){
     declareSyntax(current, layoutSyntax(), layoutId(), c, vis=getVis(vis, publicVis()));
-} 
+}
 
 void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, Collector c){
     declareSyntax(current, lexicalSyntax(), lexicalId(), c);
@@ -28,7 +28,7 @@ void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod product
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, Collector c){
     declareSyntax(current, keywordSyntax(), keywordId(), c);
-} 
+}
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, Collector c){
     declareSyntax(current, contextFreeSyntax(), nonterminalId(), c);
@@ -42,20 +42,20 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
     Sym defined = current.defined;
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
-     
+
     if(isADTAType(nonterminalType)){
         adtName = nonterminalType.adtName;
-       
+
         typeParameters = getTypeParameters(defined);
         if(!isEmpty(typeParameters)){
             nonterminalType = nonterminalType[parameters=[ aparameter("<tp.nonterminal>", treeType,closed=true)| tp <- typeParameters ]];
         }
-        
-        dt = defType(nonterminalType);
-        dt.vis = vis; 
-        dt.md5 = md5Hash("<current is language ? current.\start : ""><adtName><syndefCounter><unparseNoLayout(defined)>"); 
-        syndefCounter += 1;  
-        
+
+        dt = defType(current is language && current.\start is present ? \start(nonterminalType) : nonterminalType);
+        dt.vis = vis;
+        dt.md5 = md5Hash("<current is language ? "<current.\start>" : ""><adtName><syndefCounter><unparseNoLayout(defined)>");
+        syndefCounter += 1;
+
         // Define the syntax symbol itself and all labelled alternatives as constructors
         c.define(adtName, idRole, current, dt);
 
@@ -64,7 +64,7 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
             beginDefineOrReuseTypeParameters(c,closed=false);
                 collect(defined, c);
             endDefineOrReuseTypeParameters(c);
-            
+
             // visit all the productions in the parent scope of the syntax declaration
             c.push(currentAdt, <current, [], 0, adtParentScope>);
                 beginUseTypeParameters(c,closed=true);
@@ -78,10 +78,10 @@ void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRol
 }
 
 // ---- Prod ------------------------------------------------------------------
-        
+
 AProduction getProd(AType adtType, Tree tree, Solver s){
     symType = s.getType(tree);
-    if(aprod(AProduction p) := symType) return p;    
+    if(aprod(AProduction p) := symType) return p;
     return prod(adtType, [symType]/*, src=getLoc(tree)*/);
 }
 
@@ -95,14 +95,14 @@ void requireNonLayout(Tree current, AType u, str msg, Solver s){
 }
 
 AProduction computeProd(Tree current, str name, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s) {
-    args = [s.getType(sym) | sym <- symbols];  
+    args = [s.getType(sym) | sym <- symbols];
     m2a = mods2attrs(modifiers);
     src = getLoc(current);
     p = isEmpty(m2a) ? prod(adtType, args/*, src=src*/) : prod(adtType, args, attributes=m2a/*, src=src*/);
     if(name != ""){
         p.alabel = name;
     }
-    
+
     forbidConsecutiveLayout(current, args, s);
     if(!isEmpty(args)){
         requireNonLayout(current, args[0], "at begin of production", s);
@@ -123,7 +123,7 @@ private default AType removeChainRule(AType t) = t;
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
-    
+
     if(<Tree adt, _, _, loc adtParentScope> := c.top(currentAdt)){
         // Compute the production type
         c.calculate("named production", current, adt + symbols,
@@ -142,9 +142,9 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
             println("*** Collect: <adt> is not a SyntaxDefinition ***");
         }
         qualName = "<SyntaxDefinition sd := adt ? sd.defined.nonterminal : "???">_<unescape("<name>")>";
-        
+
          // Define the constructor
-        c.defineInScope(adtParentScope, unescape("<name>"), constructorId(), name, defType([current], 
+        c.defineInScope(adtParentScope, unescape("<name>"), constructorId(), name, defType([current],
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){
@@ -153,14 +153,14 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
                     }
                     def = cprod.def;
                     fields = [ inLexicalAdt && isLexicalAType(stp) ? astr() : stp
-                             | 
-                               sym <- symbols, 
-                               !isTerminalSym(sym), 
-                               tsym := s.getType(sym), 
+                             |
+                               sym <- symbols,
+                               !isTerminalSym(sym),
+                               tsym := s.getType(sym),
                                isNonTerminalAType(tsym),
                                stp := getSyntaxType(removeChainRule(tsym), s)
-                             ];                                                                                               
-                          
+                             ];
+
                     def = \start(sdef) := def ? sdef : def;
                     //def = \start(sdef) := def ? sdef : unset(def, "alabel");
                     return acons(def, fields, [], alabel=unescape("<name>"));
@@ -178,7 +178,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
 
 void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
     symbols = [sym | sym <- syms];
- 
+
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("unnamed production", current, adt + symbols,
             AType(Solver s){
@@ -206,7 +206,7 @@ void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
     case "non-assoc":   asc = AAssociativity::\a-non-assoc();
     case "right":       asc = AAssociativity::aright();
     }
-    
+
     if(<Tree adt, _, _, _> := c.top(currentAdt)){
         c.calculate("assoc", current, [adt, group],
             AType(Solver s){
