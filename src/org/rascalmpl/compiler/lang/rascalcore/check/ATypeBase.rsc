@@ -19,9 +19,9 @@ data Keyword
     = kwField(AType fieldType, str fieldName, str definingModule, Expression defaultExp)   // Only used during compilation of the current module
     | kwField(AType fieldType, str fieldName, str definingModule)      // When compilation is complete, this reduced version is saved in the TModel
     ;
-   
+
 data AType (str alabel = "")
-    =  
+    =
        avoid()
      | abool()
      | aint()
@@ -34,14 +34,14 @@ data AType (str alabel = "")
      | alist(AType elmType)
      | abag(AType elmType)
      | aset(AType elmType)
-     | arel(AType elemType)  
+     | arel(AType elemType)
      | alrel(AType elemType)
-   
+
      | atuple(AType elemType)
      | amap(AType keyType, AType valType)
-  
-     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  
-             bool varArgs=false, 
+
+     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,
+             bool varArgs=false,
              str deprecationMessage="",     // Only used during compilation of the current module
              bool isConcreteArg=false,      // Only used during compilation of the current module
              bool isDefault=false,          // Only used during compilation of the current module
@@ -51,18 +51,18 @@ data AType (str alabel = "")
              int concreteFingerprint=0)     // Only used during compilation of the current module
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
-     
+
      | anode(list[AType] fields)
      | aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)
      | acons(AType adt, list[AType] fields, list[Keyword] kwFields)
      | aprod(AProduction production)
-     
+
      | amodule(str mname, str deprecationMessage="")
      | aparameter(str pname, AType bound, bool closed=false)
      | areified(AType atype)
      | avalue()
      ;
-   
+
 @memo{expireAfter(minutes=5).maximumSize(1000)}
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
     if(all(<loc _, IdRole _, AType t> <- overloads, aadt(_, _, _) := t)){
@@ -73,15 +73,15 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
       for(<loc _, IdRole _, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
         if(nformals >= 0 && size(params1) != nformals) fail overloadedAType; else nformals = size(params1);  // different type parameter arities
-        
+
         adtName = adtName1;
         adtParams = params1;    // TODO take care of different parameter names
         synRoles += syntaxRole1;
       }
       syntaxRole = overloadSyntaxRole(synRoles);
       if(syntaxRole == illegalSyntax()) fail overloadedAType;
- 
-      
+
+
       return aadt(adtName, adtParams, syntaxRole);
     } else {
         otypes = overloads<2>;
@@ -93,13 +93,13 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
 data AProduction
      = \choice(AType def, set[AProduction] alternatives)
      ;
- 
+
 @doc{
 .Synopsis
-Attributes register additional semantics annotations of a definition. 
+Attributes register additional semantics annotations of a definition.
 }
-data AAttr 
-     = atag(value \tag) 
+data AAttr
+     = atag(value \tag)
      ;
 
 @doc{
@@ -132,13 +132,13 @@ public AProduction choice(AType s, set[AProduction] choices){
 
 // ---- Parse Tree
 
-data ATree 
+data ATree
      = appl(AProduction aprod, list[ATree] args/*, loc src=|unknown:///|*/) // <1>
      | cycle(AType atype, int cycleLength)  // <2>
-     | aamb(set[ATree] alternatives) // <3> 
+     | aamb(set[ATree] alternatives) // <3>
      | achar(int character) // <4>
      ;
-     
+
 public /*const*/ AType treeType = aadt("Tree", [], dataSyntax());
 
 public bool isTreeType(AType t) = treeType := t;
@@ -157,10 +157,10 @@ data SyntaxRole
     | layoutSyntax()
     | illegalSyntax()
     ;
-    
+
 SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
    if({SyntaxRole sr} := syntaxRoles) return sr;
-   if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr; 
+   if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr;
    return illegalSyntax();
 }
 
@@ -171,7 +171,7 @@ default bool isLayoutSyntax(AType t) = false;
 
 @doc{
 .Synopsis
-Production in ParseTrees 
+Production in ParseTrees
 
 .Description
 
@@ -181,7 +181,7 @@ construct ordered and un-ordered compositions, and associativity groups.
 
 <1> A `prod` is a rule of a grammar, with a defined non-terminal, a list
     of terminal and/or non-terminal symbols and a possibly empty set of attributes.
-  
+
 <2> A `regular` is a regular expression, i.e. a repeated construct.
 
 <3> A `error` represents a parse error.
@@ -193,13 +193,13 @@ construct ordered and un-ordered compositions, and associativity groups.
 <7> `others` means '...', which is substituted for a choice among the other definitions;
 <8> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
-} 
-data AProduction 
+}
+data AProduction
      = prod(AType def, list[AType] atypes, set[AAttr] attributes={}, loc src=|unknown:///|, str alabel = "") // <1>
      | regular(AType def) // <2>
      ;
-     
-data AProduction 
+
+data AProduction
      = \priority(AType def, list[AProduction] choices) // <5>
      | \associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives) // <6>
      | \reference(AType def, str cons) // <7>
@@ -213,25 +213,25 @@ Attributes in productions.
 
 An `Attr` (attribute) documents additional semantics of a production rule. Neither tags nor
 brackets are processed by the parser generator. Rather downstream processors are
-activated by these. Associativity is a parser generator feature though. 
+activated by these. Associativity is a parser generator feature though.
 }
-data AAttr 
+data AAttr
      = \aassoc(AAssociativity \assoc)
      | \abracket()
      ;
 
 @doc{
 .Synopsis
-Associativity attribute. 
- 
+Associativity attribute.
+
 .Description
 
 Associativity defines the various kinds of associativity of a specific production.
-}  
-data AAssociativity 
+}
+data AAssociativity
      = aleft()
-     | aright() 
-     | aassoc() 
+     | aright()
+     | aassoc()
      | \a-non-assoc()
      ;
 
@@ -286,39 +286,39 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 // For convenience in transition period
 //AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
 AType \layouts(str sname)   = aadt(sname, [], layoutSyntax());
-AType \parameterized-sort(str sname, list[AType] parameters) 
+AType \parameterized-sort(str sname, list[AType] parameters)
                             = aadt(sname, parameters, contextFreeSyntax());
-AType \parameterized-lex(str sname, list[AType] parameters) 
+AType \parameterized-lex(str sname, list[AType] parameters)
                             = aadt(sname, parameters, lexicalSyntax());
 
 // These are the terminal symbols (isTerminalType)
-data AType 
+data AType
      = alit(str string)   // <8>
      | acilit(str string) // <9>
      | \achar-class(list[ACharRange] ranges) // <10>
      ;
-    
+
 // These are the regular expressions.
 data AType
      = \aempty() // <11>
      | \opt(AType atype)  // <12>
      | \iter(AType atype, bool isLexical = false) // <13>
      | \iter-star(AType atype, bool isLexical = false)  // <14>
-     | \iter-seps(AType atype, list[AType] separators, bool isLexical = false)      // <15> 
+     | \iter-seps(AType atype, list[AType] separators, bool isLexical = false)      // <15>
      | \iter-star-seps(AType atype, list[AType] separators, bool isLexical = false) // <16>
      | \alt(set[AType] alternatives) // <17>
      | \seq(list[AType] atypes)     // <18>
      | \start(AType atype)
      ;
-     
+
 //public AType \iter-seps(AType atype, [])  = \iter(atype);
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
 
 // flattening rules
 public AType seq([*AType a, seq(list[AType] b), *AType c]) = seq(a + b + c);
-     
+
 public AType alt({*AType a, alt(set[AType] b)}) = alt(a + b);
-  
+
 data AType // <19>
      = \conditional(AType atype, set[ACondition] conditions);
 
@@ -330,7 +330,7 @@ Datatype for declaring preconditions and postconditions on symbols
 
 A `Condition` can be attached to a symbol; it restricts the applicability
 of that symbol while parsing input text. For instance, `follow` requires that it
-is followed by another symbol and `at-column` requires that it occurs 
+is followed by another symbol and `at-column` requires that it occurs
 at a certain position in the current line of the input text.
 }
 data ACondition
@@ -339,9 +339,9 @@ data ACondition
      | \precede(AType atype)
      | \not-precede(AType atype)
      | \delete(AType atype)
-     | \a-at-column(int column) 
-     | \a-begin-of-line()  
-     | \a-end-of-line()  
+     | \a-at-column(int column)
+     | \a-begin-of-line()
+     | \a-end-of-line()
      | \a-except(str label)
      ;
 
@@ -350,7 +350,7 @@ AType \conditional(AType s, {*ACondition a, \conditional(AType _, set[ACondition
 
 AType \conditional(\conditional(AType s, set[ACondition] a), set[ACondition] b)
     = \conditional(s, a+b);
-    
+
 AType \follow(\conditional(AType s, set[ACondition] a))
     = \conditional(s, a + {\follow(s)});
 
@@ -371,7 +371,7 @@ Nested priority is flattened.
 }
 public AProduction priority(AType s, [*AProduction a, priority(AType _, list[AProduction] b), *AProduction c])
   = priority(s,a+b+c);
-   
+
 @doc{
 .Synopsis
 Normalization of associativity.
@@ -382,14 +382,14 @@ Normalization of associativity.
 * Nested (equal) associativity is flattened.
 * Priority under an associativity group defaults to choice.
 }
-AProduction associativity(AType s, AAssociativity as, {*AProduction a, choice(AType t, set[AProduction] b)}) 
-  = associativity(s, as, a+b); 
-            
-AProduction associativity(AType rhs, AAssociativity a, {associativity(rhs, AAssociativity b, set[AProduction] alts), *AProduction rest})  
+AProduction associativity(AType s, AAssociativity as, {*AProduction a, choice(AType t, set[AProduction] b)})
+  = associativity(s, as, a+b);
+
+AProduction associativity(AType rhs, AAssociativity a, {associativity(rhs, AAssociativity b, set[AProduction] alts), *AProduction rest})
   = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
-AProduction associativity(AType s, AAssociativity as, {AProduction a, priority(AType t, list[AProduction] b)}) 
-  = associativity(s, as, {a, *b}); 
+AProduction associativity(AType s, AAssociativity as, {AProduction a, priority(AType t, list[AProduction] b)})
+  = associativity(s, as, {a, *b});
 
 // deprecated; remove after bootstrap
 AProduction associativity(AType rhs, AAssociativity a, set[AProduction] rest)
@@ -399,10 +399,10 @@ AProduction associativity(AType rhs, AAssociativity a, set[AProduction] rest)
         withAssoc := rest - withoutAssoc,
         withNewAssocs := {p[attributes = p.attributes + {\aassoc(a)}] | AProduction p <- withoutAssoc}
         ;
-        
+
 // ---- end ParseTree
 
-// ---- Grammar 
+// ---- Grammar
 
 
 @doc{
@@ -411,31 +411,31 @@ The Grammar datatype
 
 .Description
 Grammar is the internal representation (AST) of syntax definitions used in Rascal.
-A grammar is a set of productions and set of start symbols. The productions are 
+A grammar is a set of productions and set of start symbols. The productions are
 stored in a map for efficient access.
 }
-data AGrammar 
+data AGrammar
   = \grammar(set[AType] starts, map[AType sort, AProduction def] rules)
   ;
- 
+
 public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
   map[AType sort, AProduction def]rules = ();
 
   for (p <- prods) {
     t = /*(p.def is label) ? p.def.symbol : */ p.def;
     rules[t] = t in rules ? choice(t, {p, rules[t]}) : choice(t, {p});
-  } 
+  }
   return grammar(starts, rules);
-} 
-           
+}
+
 //AGrammar grammar(type[&T <: Tree] sym)
 //    = grammar({sym.symbol}, sym.definitions);
 
-  
+
 @doc{
 .Synopsis
 An item is an index into the symbol list of a production rule.
-}  
+}
 data Item = item(AProduction aproduction, int index);
 
 @doc{
@@ -461,9 +461,9 @@ public AGrammar compose(AGrammar g1, AGrammar g2) {
                         { *alts | associativity(_, _, alts) <- c.alternatives};
       reduced_rules[s] = c;
   }
-  
+
   return grammar(g1.starts, reduced_rules);
-}    
+}
 
 
 
