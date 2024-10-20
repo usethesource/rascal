@@ -9,6 +9,7 @@ extend lang::rascalcore::check::CheckerCommon;
 import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
 import lang::rascalcore::check::CollectDeclaration;
+import lang::rascalcore::check::PathAnalysis;
 
 import lang::rascal::\syntax::Rascal;
 
