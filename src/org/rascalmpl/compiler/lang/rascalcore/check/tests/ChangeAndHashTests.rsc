@@ -14,8 +14,8 @@ import Set;
 import lang::rascalcore::check::ATypeBase;
 
 TModel check(str moduleName, RascalCompilerConfig compilerConfig){
-    
-        ModuleStatus result = rascalTModelForNames([moduleName], 
+
+        ModuleStatus result = rascalTModelForNames([moduleName],
                                                   compilerConfig,
                                                   dummy_compile1);
        <found, tm, result> = getTModelForModule(moduleName, result);
@@ -89,7 +89,7 @@ set[loc] reduce(set[loc] locs, set[str] restrict){
 
 tuple[TModel old, TModel new] checkBoth(str oldM, str newM){
     remove(|memory://stableHashProject/|, recursive=true);
-    
+
     pcfg = pathConfig(
         srcs=[|memory://stableHashProject/src|],
         bin=|memory://stableHashProject/bin|,
@@ -97,7 +97,7 @@ tuple[TModel old, TModel new] checkBoth(str oldM, str newM){
         resources=|memory://stableHashProject/resources|,
         libs=[]
     );
-    
+
      // First create old version of M
     writeFile(|memory://stableHashProject/src/M.rsc|, "module M\n<oldM>\n");
 
@@ -105,15 +105,15 @@ tuple[TModel old, TModel new] checkBoth(str oldM, str newM){
 
     tmOld = check("M", ccfg);
     if(verbose && !isEmpty(tmOld.messages)) println("old: <tmOld.messages>");
-    
+
     // Remove source and generated tpls
     remove(|memory://stableHashProject/|, recursive=true);
      // Next create new version of M
     writeFile(|memory://stableHashProject/src/M.rsc|, "module M\n<newM>");
-    
+
     tmNew = check("M", ccfg);
     if(verbose && !isEmpty(tmNew.messages))  println("new: <tmNew.messages>");
-    
+
     return <tmOld, tmNew>;
 }
 
@@ -129,7 +129,7 @@ tuple[set[loc] old, set[loc] new] checkAndReduce(str oldM, str newM, set[str] re
 test bool moduleContentChanged() =
     expectSubset("", "int f(int n) = n + 1;");
 
-    
+
 // Variable declarations
 
 test bool varDeclLayoutChanged()
@@ -148,7 +148,7 @@ test bool varDeclSameStr()
 
 test bool annoLayoutChanged()
     = expectEqual("anno int node@i;", "anno   int   node@i;");
-    
+
 test bool annoChanged()
     = expectNotEqual("anno int node@i;", "anno   real   node@i;");
 
@@ -170,7 +170,7 @@ test bool funDefaultChanged()
 
 test bool funLayoutChanged()
     = expectEqual("int f(int n) = n + 1;",  "int f  (int n) = n + 1;");
-    
+
 test bool funResultChanged()
     = expectNotEqual("int f(int n) = n + 1;",  "value f(int n) = n + 1;");
 
@@ -202,19 +202,19 @@ test bool funFailRemoved()
     = expectNotEqual("int f(int n) { x = n + 1; fail; }",  "int f(int n) { x = n + 2; return x; }");
 
 test bool funsSwitched()
-    = expectEqual("int f(int n) = n + 1; int g(int n) = n + 1;",  
+    = expectEqual("int f(int n) = n + 1; int g(int n) = n + 1;",
                   "int g(int n) = n + 1; int f(int n) = n + 1;");
 
 test bool funsCommentAdded()
-    =  expectEqual("int f(int n) { return n + 1; } int g(int n) { return n + 1; }",  
+    =  expectEqual("int f(int n) { return n + 1; } int g(int n) { return n + 1; }",
                    "int f(int n) { /*C1*/ return n + 1; } /*C2*/ int g(int n) { /*C3*/ return n + 1; }");
 
 test bool funAdded()
-    = expectSubset("int f(int n) = n + 1;",  
+    = expectSubset("int f(int n) = n + 1;",
                    "int f(int n) = n + 1; int g(int n) = n + 2;");
 
 test bool funDeleted()
-    = expectSuperset("int f(int n) = n + 1; int g(int n) = n + 2;",  
+    = expectSuperset("int f(int n) = n + 1; int g(int n) = n + 2;",
                     "int f(int n) = n + 1;");
 
 // Data declarations
@@ -230,30 +230,30 @@ test bool consAdded()
 
 test bool consDeleted()
     = expectSuperset("data D = d(int n);", "data D;");
-    
+
 test bool consSwitched()
     = expectEqual("data D = d(int n) | e(str s);", "data D = e(str s) | d(int n);");
 
 test bool altLayoutChanged()
-    = expectEqual("data D = d(int n) | e(str s);", "data D = d(int n)   |    e(str s);");    
+    = expectEqual("data D = d(int n) | e(str s);", "data D = d(int n)   |    e(str s);");
 
 test bool consFieldChanged()
     = expectNotEqual("data D = d(int n);", "data D = d(int m);");
 
 test bool consFieldsSwitched()
     = expectNotEqual("data D = d(int n, int m);", "data D = d(int m, int n);");
-    
+
 test bool consFieldLayoutChanged1()
     = expectEqual("data D = d(int n);", "data D = d(  int   n  );");
-    
+
 test bool consFieldLayoutChanged2()
     = expectEqual("data D = d(int n);", "data D = d  (int n);");
-    
+
 
 // Keyword fields n and m generate separate locs, therefore we filter on constructors
 test bool consKwFieldChanged()
     = expectEqual("data D = d(int n = 0);", "data D = d(int m = 0);", restrict = {"constructor"});
- 
+
 test bool consKwFieldLayoutChanged()
     = expectEqual("data D = d(int n = 0);", "data D = d(int   n    = 0);");
 
@@ -286,7 +286,6 @@ test bool synParameterChanged()
 test bool synParameterLayoutChanged()
      = expectEqualGrammar("syntax A[&T] = &T;", "syntax A[ &T ] = &T ;");
 
-@ignore{It seems start is not part of the grammar}
 test bool synStartChanged()
     = expectNotEqualGrammar("syntax A = \"a\";", "start syntax A = \"a\";");
 
@@ -307,15 +306,15 @@ test bool synIterStarChanged2()
 
 test bool synIterStarLayoutChanged1()
     = expectEqualGrammar("syntax A = \"a\"*;",  "syntax A = \"a\" *;");
-    
+
 test bool synIterStarLayoutChanged2()
     = expectEqualGrammar("syntax A = \"a\"+;",  "syntax A = \"a\" +;");
 
 test bool synIterStarSepChanged1()
-    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}*;",  "syntax A = {\"a\" \"x\"}+;");  
+    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}*;",  "syntax A = {\"a\" \"x\"}+;");
 
 test bool synIterStarSepChanged2()
-    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}*;",  "syntax A = {\"b\" \"x\"}*;");  
+    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}*;",  "syntax A = {\"b\" \"x\"}*;");
 
 test bool synIterStarSepChanged3()
     = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}*;",  "syntax A = {\"a\" \"y\"}*;");
@@ -336,10 +335,10 @@ test bool synIterPlusLayoutChanged()
     = expectEqualGrammar("syntax A = {\"a\" \"x\"}+;",  "syntax A = { \"a\"   \"x\"  }  +  ;");
 
 test bool synIterPlusSepChanged1()
-    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}+;",  "syntax A = {\"a\" \"x\"}*;");  
+    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}+;",  "syntax A = {\"a\" \"x\"}*;");
 
 test bool synIterPlusSepChanged2()
-    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}+;",  "syntax A = {\"b\" \"x\"}+;");  
+    = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}+;",  "syntax A = {\"b\" \"x\"}+;");
 
 test bool synIterPlusSepChanged3()
     = expectNotEqualGrammar("syntax A = {\"a\" \"x\"}+;",  "syntax A = {\"a\" \"y\"}+;");
@@ -356,10 +355,10 @@ test bool synOptionalLayoutChanged()
 test bool synAltAdded()
     = expectNotEqualGrammar("syntax A = \"a\";",
                    "syntax A = \"a\" | \"aa\";");
-                   
+
 test bool synAltsSwitched()
     = expectEqualGrammar("syntax A = \"a\" | \"b\";", "syntax A = \"b\" | \"a\";");
-    
+
 test bool synAltsChanged()
     = expectNotEqualGrammar("syntax A = \"a\" | \"b\";", "syntax A = \"a\" | \"c\";");
 

@@ -1,8 +1,6 @@
 module lang::rascalcore::compile::Examples::Tst4
 
-void main(){
-    x = y = "b";
-}
+start syntax A = "a";
 
 // test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
 
