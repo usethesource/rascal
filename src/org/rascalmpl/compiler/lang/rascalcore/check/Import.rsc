@@ -204,7 +204,7 @@ bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatu
     for(m <- otherImportsAndExtends){
        <found, tm, ms> = getTModelForModule(m, ms);
        if(found){
-           println("<m>:"); iprintln(domain(tm.logical2physical));
+           //println("<m>:"); iprintln(domain(tm.logical2physical));
            requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
        }
     }
