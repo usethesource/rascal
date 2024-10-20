@@ -54,15 +54,15 @@ data MStatus =
     | ignored()
     ;
 
-data ModuleStatus = 
+data ModuleStatus =
     moduleStatus(
-      rel[str, PathRole, str] strPaths, 
-      rel[loc, PathRole, loc] paths, 
+      rel[str, PathRole, str] strPaths,
+      rel[loc, PathRole, loc] paths,
       map[str, Module] parseTrees,
       list[str] parseTreeLIFO,
       map[str, TModel] tmodels,
       list[str] tmodelLIFO,
-      map[str,loc] moduleLocs, 
+      map[str,loc] moduleLocs,
       map[str,datetime] moduleLastModified,
       map[str, list[Message]] messages,
       map[str, set[MStatus]] status,
@@ -74,25 +74,25 @@ ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (
 
 bool isModuleLocationInLibs(loc l, PathConfig pcfg)
     = !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
-    
+
 bool traceTPL = false;
 bool traceParseTreeCache = false;
 bool traceTModelCache = false;
 
-tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){    
+tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
     parts = split("::", qualifiedModuleName);
     parts = parts[0 .. size(parts)-1] + "$<parts[-1]>";
     res = intercalate("/", parts);
     fileName = intercalate("/", parts) + ".tpl";
     dirName = makeDirName(qualifiedModuleName);
-    
-    for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?     
+
+    for(loc dir <- [pcfg.resources, pcfg.bin] + pcfg.libs){   // In a bin or lib directory?
         fileLoc = dir + "<getCompiledPackage(qualifiedModuleName, pcfg)>" + fileName;
         if(exists(fileLoc)){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
            return <true, fileLoc>;
         } else {
-           if(traceTPL) 
+           if(traceTPL)
             println("getTPLReadLoc: DOES NOT EXIST: <fileLoc>");
         }
     }
@@ -145,19 +145,19 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
             mloc = |unknown:///<qualifiedModuleName>|;
             try {
-                mloc = getModuleLocation(qualifiedModuleName, pcfg); 
+                mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 // Make sure we found a real source module (as opposed to a tpl module in a library
                 if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)) {
                     ms.status[qualifiedModuleName] += {rsc_not_found()};
-                    throw "No src or library module"; 
-                }    
+                    throw "No src or library module";
+                }
             } catch _: {
                 //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
                 mpt = [Module] "module <qualifiedModuleName>";
                 //ms.parseTrees[qualifiedModuleName] = mpt;
                 ms.moduleLocs[qualifiedModuleName] = mloc;
                 return <false, mpt, ms>;
-            }              
+            }
             if(traceParseTreeCache) println("*** parsing <qualifiedModuleName> from <mloc>");
             try {
                 pt = parseModuleWithSpaces(mloc).top;
@@ -242,7 +242,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         if(traceTModelCache) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
         ms.tmodelLIFO = ms.tmodelLIFO[..-1];
     }
-   
+
     <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
@@ -250,17 +250,17 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             tpl = readBinaryValueFile(#TModel, tplLoc);
             if(tpl.rascalTplVersion? && isValidRascalTplVersion(tpl.rascalTplVersion)){
                 tpl = convertTModel2PhysicalLocs(tpl);
-                
+
                 ms.tmodels[qualifiedModuleName] = tpl;
                 ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
                 if(qualifiedModuleName notin hardwired){
                     ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
                 }
                 return <true, tpl, ms>;
-             } 
+             }
         } catch e: {
             //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
-            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>; 
+            return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
             //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
         }
         msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
