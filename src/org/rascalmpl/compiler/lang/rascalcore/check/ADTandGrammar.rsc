@@ -2,17 +2,17 @@
 module lang::rascalcore::check::ADTandGrammar
 
 /*
-    Based on the facts in a given TModel, the functions in this module compute and store ADTs in the store using the key key_ADTs 
+    Based on the facts in a given TModel, the functions in this module compute and store ADTs in the store using the key key_ADTs
     as well as a grammar using the key key_grammar. While doing so it also performs some consistency checks.
 */
-   
+
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
-  
+
 import lang::rascal::\syntax::Rascal;
- 
+
 import Node;
 import Set;
 import ListRelation;
@@ -40,9 +40,9 @@ void addADTs(Solver s){
     facts = s.getFacts();
     defines = s.getAllDefines();
     definedADTs = { unset(t, "alabel") | def <- defines, /AType t:aadt(str _, list[AType] _, _) := def };
-    usedADTs = { unset(t, "alabel") | loc k <- facts, /AType t:aadt(str _, list[AType] parameters, _) := facts[k], !isEmpty(parameters), any(p <- parameters, !isTypeParameter(p)) };  
+    usedADTs = { unset(t, "alabel") | loc k <- facts, /AType t:aadt(str _, list[AType] parameters, _) := facts[k], !isEmpty(parameters), any(p <- parameters, !isTypeParameter(p)) };
     ADTs = { a[parameters=removeLabels(a.parameters)] | a <- definedADTs + usedADTs };
-    
+
     // remove versions with type parameter on same position.
 
     //solve(ADTs){
@@ -58,12 +58,12 @@ void addCommonKeywordFields(Solver s){
     lrel[AType adtType, Keyword defaultType] commonKeywordFields = [];
     //lrel[AType adtType, AType defaultType] commonKeywordFields = [];
     //lrel[AType, KeywordFormal] commonKeywordFields = [];
-    
+
     // Collect common keywords and check double declarations
-  
+
     //rel[AType,str,AType] commonKeywordFieldNames = {};
     //rel[AType,str,KeywordFormal] commonKeywordFieldNames = {};
-  
+
     for(Define def <- definitions, def.idRole == dataId()){
         try {
             adtType = s.getType(def);
@@ -89,11 +89,11 @@ void addCommonKeywordFields(Solver s){
     //println("commonKeywordFields");
     //for(<tp, dflt> <- commonKeywordFields) println("<tp>, <dflt>");
     s.push(key_common_keyword_fields, commonKeywordFields);
-    
+
     // Warn for overlapping declarations of common keyword fields and ordinary fields
-      
+
     map[AType, map[str, AType]] adt_common_keyword_fields_name_and_kwf = ( adtType : ( kwf.fieldName : kwf.fieldType | kwf <- commonKeywordFields[adtType] ? []) | adtType <- toSet(commonKeywordFields<0>) );
-  
+
     //map[AType, map[str, KeywordFormal]] adt_common_keyword_fields_name_and_kwf = ( adtType : ( "<kwf.name>" : kwf | kwf <- commonKeywordFields[adtType] ? []) | adtType <- domain(commonKeywordFields) );
     //
     for(Define def <- definitions, def.idRole == constructorId()){
@@ -111,9 +111,9 @@ void addCommonKeywordFields(Solver s){
             }
         } catch TypeUnavailable():
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
-         
+
     }
-    
+
     lrel[AType,AType,Define] adt_constructors = [];
     for(Define def <- definitions, def.idRole == constructorId()){
         try {
@@ -126,14 +126,14 @@ void addCommonKeywordFields(Solver s){
             //           ];
             //    s.addMessages(msgs);
             //}
-            adt_constructors += <consType.adt, consType, def>;   
+            adt_constructors += <consType.adt, consType, def>;
         } catch TypeUnavailable():
             ;//s.addMessages([ Message::error("Unavailable type in declaration of `<def.id>`", def.defined) ]);
-        
+
     }
 }
 
-list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 
+list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 bool isManualLayout(AProduction p) = (p has attributes && atag("manual"()) in p.attributes);
 
@@ -153,43 +153,43 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
             }
             facts = tm1.facts;
             prodLocs1 = { k | loc k <- facts, aprod(_) := facts[k] };
-            
+
             // filter out productions contained in priority/associativity declarations
             prodLocs2 = { k | k <- prodLocs1, !any(l <- prodLocs1, k != l, isStrictlyContainedIn(k, l)) };
 
             definedProductions += {<p.def, p> | loc k <- prodLocs2, aprod(p) := facts[k] };
- 
+
             allStarts += { t | loc k <- facts, \start(t) := facts[k] };
         }
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
-        
+
         set[AType] allLayouts = {};
         set[AType] allManualLayouts = {};
         map[AType,AProduction] syntaxDefinitions = ();
-        
+
         for(AType adtType <- domain(allProductions)){
             if(\start(adtType2) := adtType){
                 adtType = adtType2;
             }
             productions = allProductions[adtType];
             syntaxDefinitions[adtType] = choice(adtType, productions);
-            
+
             if(adtType.syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){
                    allManualLayouts += adtType;
                 } else {
                     allLayouts = {*allLayouts, adtType};
                 }
-            } 
+            }
         }
-        
+
         // Check keyword rules
-        
+
         tm = checkKeywords(allProductions, transient_tms[qualifiedModuleName]);
-        
+
         // Check layout
-    
+
         if(size(allLayouts) > 1) { // Warn for  multiple layout definitions
             allLayoutNames = {ladt.adtName | AType ladt <- allLayouts};
             for(AType ladt <- allLayouts){
@@ -200,64 +200,64 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
                 }
             }
         }
-        
+
         definedLayout = aadt("$default$", [], layoutSyntax());
         if(isEmpty(allLayouts)){
             syntaxDefinitions += (AType::layouts("$default$"): choice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
-        } else 
+        } else
         if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
         }
-        
+
         // Add start symbols
-        
+
         for(AType adtType <- allStarts){
             syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
         }
-        
+
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
         facts = tm.facts;
-        allADTs = uncloseTypeParams({ unset(adt, "alabel") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] }); 
+        allADTs = uncloseTypeParams({ unset(adt, "alabel") | loc k <- facts, /AType adt:aadt(str _, list[AType] _, _) := facts[k] });
         //println("ADTandGrammar, allADTs:"); iprintln(allADTs);
-        
+
         instantiated_in_grammar =
-            { unset(adt, "alabel") 
+            { unset(adt, "alabel")
             | /adt:aadt(str _, list[AType] parameters, SyntaxRole _) := syntaxDefinitions,
-              !isEmpty(parameters), 
-              all(p <- parameters, !isTypeParameter(p)) 
+              !isEmpty(parameters),
+              all(p <- parameters, !isTypeParameter(p))
             };
         //println("ADTandGrammar, instantiated_in_grammar:"); iprintln(instantiated_in_grammar);
-        
+
         instantiated =
-            { unset(adt, "alabel") 
-            | AType adt <- allADTs, 
-              !isEmpty(adt.parameters), 
-              all(p <- adt.parameters, !isTypeParameter(p))  
+            { unset(adt, "alabel")
+            | AType adt <- allADTs,
+              !isEmpty(adt.parameters),
+              all(p <- adt.parameters, !isTypeParameter(p))
             };
         //println("ADTandGrammar, instantiated:"); iprintln(instantiated);
         instantiated_outside = instantiated - instantiated_in_grammar;
         //println("ADTandGrammar, instantiated_outside:"); iprintln(instantiated_outside);
         parameterized_uninstantiated_ADTs =
             { unset(adt, "alabel")[parameters = uncloseTypeParams(params)]
-            | adt <- allADTs, 
-              adt.syntaxRole != dataSyntax(), 
-              params := getADTTypeParameters(adt), 
-              !isEmpty(params), 
-              all(p <- params, isTypeParameter(p)) 
+            | adt <- allADTs,
+              adt.syntaxRole != dataSyntax(),
+              params := getADTTypeParameters(adt),
+              !isEmpty(params),
+              all(p <- params, isTypeParameter(p))
             };
         //println("ADTandGrammar, parameterized_uninstantiated_ADTs:"); iprintln(parameterized_uninstantiated_ADTs);
-       
+
         AType uninstantiate(AType t){
             iparams = getADTTypeParameters(t);
             for(uadt <- parameterized_uninstantiated_ADTs){
                 uadtParams = getADTTypeParameters(uadt);
                 if(t.adtName == uadt.adtName && size(iparams) == size(uadtParams)){
-                    return uadt;                  
+                    return uadt;
                 }
             }
             return t;
         }
-       
+
         if(!isEmpty(instantiated_outside)){
             for(adt <- instantiated_outside, adt.syntaxRole != dataSyntax()){
                 iparams = getADTTypeParameters(adt);
@@ -267,9 +267,9 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
                 syntaxDefinitions += (auxNT : rule);
             }
         }
-                                
+
         // Construct the grammar
-        
+
         g = grammar(allStarts, syntaxDefinitions);
         g = layouts(g, definedLayout, allManualLayouts);
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
@@ -286,21 +286,21 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
 @doc{intersperses layout symbols in all non-lexical productions}
 public TModel tmlayouts(TModel t, AType l, set[AType] others) {
-  
+
   res = top-down-break visit (t) {
     case AType atype => regulars(atype , l, others)
   }
   return res;
-} 
+}
 
 // A keyword production may only contain:
 // - literals or ciliterals
 // - other nonterminals that satisfy this rule.
 
 bool isValidKeywordProd(AType sym, set[AType] allLiteral){
-    if(  alit(_) := sym 
+    if(  alit(_) := sym
       || acilit(_) := sym
-      || aprod(prod(aadt(_,[],_),[alit(_)])) := sym 
+      || aprod(prod(aadt(_,[],_),[alit(_)])) := sym
       || aprod(prod(aadt(_,[],_),[acilit(_)])) := sym
       ){
         return true;
