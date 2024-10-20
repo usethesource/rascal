@@ -1,8 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst4
 
 void main(){
-    set[str] s = {"a"};
-    s += 3;
+    x = y = "b";
 }
 
 // test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
