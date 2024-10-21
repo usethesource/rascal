@@ -668,9 +668,9 @@ public abstract class AbstractStackNode<P>{
 				System.arraycopy(oldPrefixesMap, 0, prefixesMap, 0, edgesMapSize);
 			}
 			
-			if(propagatedPrefixes == null){
-				propagatedPrefixes = new BitSet(edgesMapSize);
-			}else{
+			if (propagatedPrefixes == null) {
+				propagatedPrefixes = new BitSet(possibleMaxSize);
+			} else {
 				propagatedPrefixes.enlargeTo(possibleMaxSize);
 			}
 		}
