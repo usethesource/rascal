@@ -54,7 +54,7 @@ test bool rascalFunctionDeclarationMissingCloseParen() = checkRecovery(#Function
 
 test bool rascalIfMissingExpr() = checkRecovery(#FunctionDeclaration, "void f(){if(){1;}}", [")"]);
 
-test bool rascalIfBodyEmpty() = checkRecovery(#start[Module], "module A void f(){1;} void g(){if(1){}} void h(){1;}", ["} void h(){1"]);
+test bool rascalIfBodyEmpty() = checkRecovery(#start[Module], "module A void f(){1;} void g(){if(1){}} void h(){1;}", ["{", "} "]);
 
 // Not working yet:
 /*
