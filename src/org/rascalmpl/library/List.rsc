@@ -97,7 +97,7 @@ list[&T] dup(list[&T] lst)
   = ([] | (ix in it) ? it : it + [ix] | &T ix <- lst);
 
 @deprecated{
-use the indexing instead
+Use a list index instead
 }
 @javaClass{org.rascalmpl.library.Prelude}
 java &T elementAt(list[&T] lst, int index); 
@@ -845,9 +845,7 @@ l = [10,20,30,40];
 s = {*l};
 ```
 }
-@deprecated{
-Please use {*myList} instead.
-}
+
 @javaClass{org.rascalmpl.library.Prelude}
 java set[&T] toSet(list[&T] lst);
 
