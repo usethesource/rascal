@@ -17,4 +17,4 @@ syntax Expr
 
 test bool multiProdOk() = checkRecovery(#Prog, "{ e + e; }", []);
 
-test bool multiProdOperatorError() = checkRecovery(#Prog, "{ e * e; }", []);
+test bool multiProdOperatorError() = checkRecovery(#Prog, "{ e * e; }", ["* "]);
