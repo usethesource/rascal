@@ -577,9 +577,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         if (pb != null && --pb.nesting == -1) {
             eraseBars();
-            // write it one last time into the scrollback buffer (on top)
             pb.done();
-            pb.write();
             bars.remove(pb);
             // print the left over bars under this one.
             printBars();

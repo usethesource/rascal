@@ -188,7 +188,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
            return moduleName;
         }
     }
-
+    
     // Find longest matching .tpl file in library directories
   
     <modulePathNoExt, ext> = splitFileExtension(modulePath);

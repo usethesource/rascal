@@ -431,13 +431,16 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 					fieldIndices[i] = ((IInteger) f.getFieldIndex()
 							.interpret(this.ctx.getEvaluator()).getValue()).intValue();
 				} else {
-					String fieldName = org.rascalmpl.interpreter.utils.Names
-							.name(f.getFieldName());
+					String fieldName = org.rascalmpl.interpreter.utils.Names.name(f.getFieldName());
+
+					if (!baseType.hasFieldNames()) {
+						throw new UndeclaredField(fieldName, baseType,ctx.getCurrentAST());
+					}
+
 					try {
 						fieldIndices[i] = baseType.getFieldIndex(fieldName);
 					} catch (UndeclaredFieldException e) {
-						throw new UndeclaredField(fieldName, baseType,
-								ctx.getCurrentAST());
+						throw new UndeclaredField(fieldName, baseType, ctx.getCurrentAST());
 					}
 				}
 
