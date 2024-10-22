@@ -45,7 +45,6 @@ import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 
@@ -85,7 +84,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
         DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<>();
 
-		Set<Triple<Integer, IConstructor, Integer>> skippedIds = new HashSet<Triple<Integer, IConstructor, Integer>>();
+		Set<Triple<Integer, IConstructor, Integer>> skippedIds = new HashSet<>();
 
 		// Sort nodes by start location
 		recoveryNodes
@@ -295,9 +294,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				return null;
 		}
 
-
 			@Override
-
 			public Void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
 				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
 				return null;
