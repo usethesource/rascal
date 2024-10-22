@@ -13,10 +13,13 @@
 package org.rascalmpl.parser.uptr.recovery;
 
 import java.net.URI;
+import java.util.BitSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -42,6 +45,7 @@ import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 
@@ -69,7 +73,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
         // For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
         // improve error recovery.
-
+		
 		ArrayList<AbstractStackNode<IConstructor>> failedNodes = new ArrayList<>();
 		collectUnexpandableNodes(unexpandableNodes, failedNodes);
 		collectUnmatchableMidProductionNodes(location, unmatchableMidProductionNodes, failedNodes);
@@ -81,13 +85,15 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
         DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<>();
 
+		Set<Triple<Integer, IConstructor, Integer>> skippedIds = new HashSet<Triple<Integer, IConstructor, Integer>>();
+
 		// Sort nodes by start location
-        recoveryNodes
+		recoveryNodes
             .sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
         if (VISUALIZE_RECOVERY_NODES) {
-		ParseStateVisualizer visualizer = new ParseStateVisualizer("Recovery");
-		visualizer.visualizeRecoveryNodes(recoveryNodes);
+			ParseStateVisualizer visualizer = new ParseStateVisualizer("Recovery");
+			visualizer.visualizeRecoveryNodes(recoveryNodes);
         }
 		
 		for (int i = 0; i<recoveryNodes.size(); i++) {
@@ -101,9 +107,18 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
+				IConstructor type = ProductionAdapter.getType(prod);
+
                 List<SkippingStackNode<IConstructor>> skippingNodes =
                     findSkippingNodes(input, location, recoveryNode, prod, startLocation);
 				for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
+					int skipLength = skippingNode.getLength();
+
+					if (!skippedIds.add(Triple.ofNonNull(startLocation, type, skipLength))) {
+						// Do not add this skipped node if a node with the same startLocation, type, and skipLength has been added already
+						continue;
+					}
+
                     AbstractStackNode<IConstructor> continuer =
                         new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
@@ -154,7 +169,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Find the last token of this production and skip until after that
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
 		for (InputMatcher endMatcher : endMatchers) {
-			MatchResult endMatch = endMatcher.findMatch(input, startLocation);
+			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
 			if (endMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
@@ -164,7 +179,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Find the first token of the next production and skip until before that
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 		for (InputMatcher nextMatcher : nextMatchers) {
-			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1);
+			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
 			if (nextMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
 				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
@@ -396,7 +411,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
             AbstractStackNode<IConstructor> failedNode =
                 unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference
                                                                                    // updates of the static version
-
+			
 			// Merge the information on the predecessors into the failed node.
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);

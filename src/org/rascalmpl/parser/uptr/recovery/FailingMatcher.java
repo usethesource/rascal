@@ -16,7 +16,7 @@ package org.rascalmpl.parser.uptr.recovery;
 
 public class FailingMatcher implements InputMatcher {
     @Override
-    public MatchResult findMatch(int[] input, int startLocation) {
+    public MatchResult findMatch(int[] input, int startLocation, int maxLength) {
         return null;
     }
 }
