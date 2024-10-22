@@ -29,9 +29,10 @@ public class LiteralMatcher implements InputMatcher {
     }
 
     @Override
-    public MatchResult findMatch(int[] input, int startLocation) {
+    public MatchResult findMatch(int[] input, int startLocation, int maxLength) {
         int length = chars.length;
-        for (int start=startLocation; start<input.length - length + 1; start++) {
+        int limit = Math.min(startLocation + maxLength - length, input.length - length + 1);
+        for (int start=startLocation; start<limit; start++) {
             boolean matches = true;
             for (int i=0; i<length; i++) {
                 if (input[start + i] != chars[i]) {
