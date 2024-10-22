@@ -43,6 +43,7 @@ void checkSupportedByParserGenerator(Tree t, Collector c){
 data MStatus =
       rsc_not_found()
     | tpl_not_found()
+    | rsc_changed()
     | parsed()
     | parse_error()
     | module_dependencies_extracted()
@@ -232,9 +233,9 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]?){
-        if(tpl_saved() notin ms.status[qualifiedModuleName]){
-            throw "Unsaved tmodel for <qualifiedModuleName> in cache";
-        }
+        // if(tpl_saved() notin ms.status[qualifiedModuleName]){
+        //     throw "Unsaved tmodel for <qualifiedModuleName> in cache";
+        // }
         return <true, ms.tmodels[qualifiedModuleName], ms>;
     }
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
@@ -273,4 +274,16 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
+}
+
+int closureCounter = 0;
+
+int nextClosure(){
+    counter = closureCounter;
+    closureCounter += 1;
+    return counter;
+}
+
+void resetClosureCounter(){
+    closureCounter = 0;
 }

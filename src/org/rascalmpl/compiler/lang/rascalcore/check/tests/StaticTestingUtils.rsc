@@ -94,17 +94,25 @@ bool checkStatementsAndFilter(str stmts, list[str] expected) {
      throw abbrev("<msgs>");
 }
 
-bool checkModuleAndFilter(str moduleText, list[str] expected) {
+bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = false) {
 	bool verbose=false;
 	mloc = writeModule(moduleText);
     msgs = getAllMessages(rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting()), dummy_compile1));
 	if (verbose) {
      	println(msgs);
 	 }
+	 matched = {};
      for(eitem <- msgs, str exp <- expected){
-         if(matches(eitem.msg, exp))
+         if(matches(eitem.msg, exp)){
+		 	if(matchAll){
+				matched += eitem.msg;
+			} else
                return true;
+		 }
      }
+	 if(matchAll) {
+		return all(e <- expected, e in matched);
+	 }
      throw abbrev("<msgs>");
 }
 
@@ -367,3 +375,10 @@ bool unsupportedInModule(str moduleText)
 
 bool unsupported(str stmts) =
     checkStatementsAndFilter(stmts, unsupportedMsgs);
+
+// ---- checked ---------------------------------------------------------------
+
+bool checkedInModule(str moduleText, list[str] moduleNames){
+	msgs = [ "Checked <nm>" | nm <- moduleNames ];
+	return checkModuleAndFilter(moduleText, msgs, matchAll=true);
+}
