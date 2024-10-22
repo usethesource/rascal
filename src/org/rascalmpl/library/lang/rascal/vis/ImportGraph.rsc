@@ -59,7 +59,7 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     default loc modLinker(value _) = |nothing:///|;
 
-    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker), title="Rascal Import/Extend Graph", edgeStyle=defaultEdgeStyle()[\curve-style=taxi()]);
+    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker), title="Rascal Import/Extend Graph");
 }
 
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
