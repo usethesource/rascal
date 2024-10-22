@@ -117,6 +117,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
                if(lm == startOfEpoch || lm > timestampInBom) {
                     allImportsAndExtendsValid = false;
+                    ms.status[m] += rsc_changed();
                     if(tpl_uptodate() notin ms.status[m] && lm != timestampInBom && ms.compilerConfig.verbose){
                         println("--- using <lm> (most recent) version of <m>,
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
@@ -152,7 +153,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
-            for(imp <- localImportsAndExtends<0>, module_dependencies_extracted() notin ms.status[imp]  ){
+            for(imp <- localImportsAndExtends<0>, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
                 ms = getImportAndExtendGraph(imp, ms);
             }
             return ms;
@@ -172,9 +173,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms = getImportAndExtendGraph(imp, ms);
         }
     } else {
-        if(rsc_not_found() notin ms.status[qualifiedModuleName]){
-            ms.status[qualifiedModuleName] += rsc_not_found();
-        }
+         ms.status[qualifiedModuleName] += rsc_not_found();
     }
 
     return ms;
@@ -209,9 +208,10 @@ bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatu
     }
 
     if(isEmpty(requires - provides)){
+        //println("isCompatibleBinary <lib.modelName>: satisfied");
         return true;
     } else {
-        println("isCompatibleBinary, unsatisfied: <requires - provides>");
+        //println("isCompatibleBinary, <lib.modelName> unsatisfied: <requires - provides>");
         return false;
     }
 }
@@ -290,6 +290,38 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
     }
     return <transient_tms, ms>;
 }
+rel[str,datetime,PathRole] makeBom(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
+    map[str,datetime] moduleLastModified = ms.moduleLastModified;
+    pcfg = ms.pathConfig;
+    return   { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
+           + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
+           + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
+}
+void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
+    if(found){
+        newBom = makeBom(qualifiedModuleName, imports, extends, ms);
+        if(newBom != tm.store[key_bom]){
+            tm.store[key_bom] = newBom;
+            println("Updated BOM for <qualifiedModuleName>:"); iprintln( tm.store[key_bom]);
+            addTModel(qualifiedModuleName, tm, ms);
+            tm1 = convertTModel2LogicalLocs(tm, ms.tmodels);
+            <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, ms.pathConfig);
+            if(!found){
+                throw "Cannot find tpl write location for <qualifiedModuleName>";
+            }
+            try {
+                 writeBinaryValueFile(tplLoc, tm1);
+             } catch value e: {
+                throw "Cannot write TPL file <tplLoc>, reason: <e>";
+            }
+
+            /*if(compilerConfig.logWrittenFiles)*/ println("Updated BOM: <tplLoc>");
+        }
+    } else{
+        println("Could not update BOM of <qualifiedModuleName>");
+    }
+}
 
 ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str, TModel] transient_tms, RascalCompilerConfig compilerConfig){
     map[str,datetime] moduleLastModified = ms.moduleLastModified;
@@ -318,12 +350,13 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         try {
             mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
             <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
+            // if(!found){
+            //     throw "Cannot find tpl write location for <qualifiedModuleName>";
+            // }
             imports = m_imports[qualifiedModuleName];
             extends = m_extends[qualifiedModuleName];
 
-            bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
-                + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
-                + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
+            bom = makeBom(qualifiedModuleName, imports, extends, ms);
 
             extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
             extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
@@ -440,7 +473,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                 throw "Cannot write TPL file <tplLoc>, reason: <e>";
             }
             ms = addTModel(qualifiedModuleName, m1, ms);
-            //println("doSaveModule"); iprintln(m1);
+            //println("doSaveModule"); iprintln(m1.logical2physical);
 
         } catch value e: {
             ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
