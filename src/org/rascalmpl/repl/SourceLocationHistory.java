@@ -9,14 +9,14 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
 
+import org.jline.reader.History.Entry;
+import org.jline.utils.Log;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.ISourceLocation;
 
-import jline.console.history.MemoryHistory;
-import jline.console.history.PersistentHistory;
-import jline.internal.Log;
 
-public class SourceLocationHistory extends MemoryHistory implements PersistentHistory {
+public class SourceLocationHistory extends History implements PersistentHistory {
 
     private static final URIResolverRegistry reg = URIResolverRegistry.getInstance();
     private final ISourceLocation loc;

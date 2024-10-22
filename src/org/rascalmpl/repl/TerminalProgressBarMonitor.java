@@ -61,16 +61,11 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     private final Terminal tm;
 
-    /**
-     * Used for cases where the we need an actual PrintWriter instance
-     */
-    private final PrintWriter rawWriter;
 
     @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(Terminal tm) {
         super(debug ? new AlwaysFlushAlwaysShowCursor(tm.writer()) : tm.writer());
        
-        this.rawWriter = (PrintWriter)super.out;
         this.tm = tm;
         
         this.lineWidth = tm.getWidth();
