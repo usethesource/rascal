@@ -3,9 +3,9 @@ package org.rascalmpl.repl;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Attribute;
+import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 
 import io.usethesource.vallang.ISourceLocation;

@@ -50,6 +50,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.ReplTextWriter;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor2;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -87,7 +88,7 @@ public class RascalShell2  {
                 .build();
 
             //IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out, true);
-            var monitor = new TerminalProgressBarMonitor2(term);
+            var monitor = new TerminalProgressBarMonitor(term);
 
             // var monitor = new NullRascalMonitor() {
             //     @Override
@@ -102,8 +103,7 @@ public class RascalShell2  {
             GlobalEnvironment heap = new GlobalEnvironment();
             ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
-            Evaluator evaluator = new Evaluator(vf, new NullInputStream(), OutputStream.nullOutputStream(), OutputStream.nullOutputStream(), root, heap, monitor);
-            evaluator.overwritePrintWriter(monitor, new PrintWriter(monitor, true));
+            Evaluator evaluator = new Evaluator(vf, term.reader(), new PrintWriter(System.err, true), term.writer(), root, heap, monitor);
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
