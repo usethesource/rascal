@@ -13,7 +13,7 @@ import lang::rascalcore::compile::muRascal::AST;
 /*
  * Management of temporaries and labels.
  */
- 
+
 public void resetTmpAndLabel(){
     currentModule = |unknown:///|;
 	tmpVar = -1;
@@ -29,13 +29,14 @@ public void resetTmpAndLabel(){
 	resetOrCounter();
 	functionScopes = [];
 	functionDeclarations = [];
+    resetClosureCounter();
 }
 
 private loc currentModuleScope = |unknown:///|;
 
 void setModuleScope(loc l){
     currentModuleScope = l;
-}  
+}
 
 loc getModuleScope()
     = currentModuleScope;
@@ -106,7 +107,7 @@ void leaveLoop(){
   loops = tail(loops);
 }
 
-// labelled statements (if, while, 
+// labelled statements (if, while,
 
 private lrel[str label, str resume] labelledStats = [];               // *** state
 
@@ -157,7 +158,7 @@ str getLabel(Label label) =
 
 str getLabel(Label label, str alt) =
   (label is \default) ? "<label.name>" : nextLabel(alt);
-  
+
 str asTmp(str name) = "TMP<name>";
 
 // Keep track of possibly nested "it" variables in reducers
@@ -217,7 +218,7 @@ loc currentFunctionDeclaration(){
     return top(functionDeclarations);
 }
 
-// Administration of function scopes; 
+// Administration of function scopes;
 // needed to translate 'visit' expressions and generate function declarations for 'visit' cases
 
 private lrel[str scope,int counter] functionScopes = []; // *** state
@@ -230,12 +231,12 @@ int nextVisit() {
 	return counter;
 }
 
-void enterFunctionScope(str fuid) { 
-	functionScopes = <fuid,0> + functionScopes; 
+void enterFunctionScope(str fuid) {
+	functionScopes = <fuid,0> + functionScopes;
 }
 
-void leaveFunctionScope() { 
-	functionScopes = tail(functionScopes); 
+void leaveFunctionScope() {
+	functionScopes = tail(functionScopes);
 }
 
 private list[AType] visits = [];		// *** state
@@ -284,4 +285,16 @@ int getNextOr() {
 
 void resetOrCounter() {
     orCounter = 0;
+}
+
+private int closureCounter = 0;
+
+int getNextClosure(){
+    int counter = closureCounter;
+    closureCounter += 1;
+    return counter;
+}
+
+void resetClosureCounter(){
+    closureCounter = 0;
 }
