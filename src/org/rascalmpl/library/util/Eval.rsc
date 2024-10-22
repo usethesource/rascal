@@ -94,7 +94,7 @@ java RascalRuntime createRascalRuntime(PathConfig pcfg=pathConfig());
 @description{
 This creates a ((RascalRuntime)), uses it to evaluate one command, and then discards the runtime again.
 }
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.}
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.}
 Result[&T] eval(type[&T] typ, str command, int duration=-1, PathConfig pcfg=pathConfig()) 
   throws Timeout, StaticError, ParseError
   = eval(typ, [command], pcfg=pcfg, duration=duration);
@@ -103,7 +103,7 @@ Result[&T] eval(type[&T] typ, str command, int duration=-1, PathConfig pcfg=path
 @description{
 This creates a ((RascalRuntime)), uses it to evaluate some commands, and then discards the runtime again.
 }
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.}
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.}
 Result[&T] eval(type[&T] typ, list[str] commands, int duration=-1, PathConfig pcfg=pathConfig()) 
   throws Timeout, StaticError, ParseError {
     e = createRascalRuntime(pcfg=pcfg);
@@ -127,23 +127,23 @@ Result[value] eval(list[str] commands, int duration=-1, PathConfig pcfg=pathConf
   throws Timeout, StaticError, ParseError
   = eval(#value, commands, duration=duration, pcfg=pcfg);
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 @synopsis{Evaluate a command and return the value, unless the `duration` amount of milliseconds has passed first.}
 Result[&T] eval(type[&T] typ, str command, int duration) throws Timeout, StaticError, ParseError
   = eval(typ, command, duration=duration);
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 @synopsis{Evaluate a list of commands and return the value of the last command, unless the `duration` amount of milliseconds has passed first.}
 Result[&T] eval(type[&T] typ, list[str] commands, int duration) throws Timeout, StaticError, ParseError
   = eval(typ, commands, duration=duration);
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 
 Result[value] eval(list[str] commands, int duration) 
   = eval(#value, commands, duration=duration);
 
 @synopsis{Give input string to the Rascal evaluator and return its type as string.}
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 str evalType(str command, PathConfig pcfg=pathConfig(), int duration = -1) throws Timeout, StaticError, ParseError {
   e = createRascalRuntime(pcfg=pcfg);
   if (duration?) {
@@ -154,7 +154,7 @@ str evalType(str command, PathConfig pcfg=pathConfig(), int duration = -1) throw
 }
 
 @synopsis{Give input strings to the Rascal evaluator and return the type of the last command as a string.}
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 str evalType(list[str] commands, PathConfig pcfg=pathConfig(), int duration = -1) throws Timeout, StaticError, ParseError {
     e = createRascalRuntime(pcfg=pcfg);
     if (duration?) {
@@ -168,13 +168,13 @@ str evalType(list[str] commands, PathConfig pcfg=pathConfig(), int duration = -1
     return "<e.staticTypeOf(commands[-1])>";
 }
 
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 @synopsis{Return the static type of the given command unless `duration` milliseconds pass before that.}
 str evalType(str command, int duration, PathConfig pcfg=pathConfig()) throws Timeout, StaticError, ParseError
   = evalType(command, pcfg=pcfg, duration=duration);
 
 @synopsis{Give list of commands to the Rascal evaluator and return the type of the last one within duration ms.}
-@deprecated{Use ((createRascalRuntime)) instead for better efficiency and configurability.} 
+@deprecated{Use ((createRascalRuntime)) for better efficiency/configurability.} 
 str evalType(list[str] commands, int duration, PathConfig pcfg=pathConfig()) throws Timeout, StaticError, ParseError
   = evalType(commands, pcfg=pcfg, duration=duration);
 
