@@ -86,7 +86,7 @@ data Expression(
 	TypeSymbol typ = \unresolved()
 );
 
-@synopsis{Uniform name for everything that is an _type_ in programming languages syntax: int, void, List<Expression>, ...}
+@synopsis{Uniform name for everything that is an _type_ in programming languages syntax: `int`, `void`, `List<Expression>`}
 @description{
 Instances of the Type type represent the _syntax_ of types in programming languages.
 

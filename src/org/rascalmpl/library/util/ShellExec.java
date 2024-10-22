@@ -111,15 +111,15 @@ public class ShellExec {
 		if (p == null) {
 			IInteger storedExitCode = processExitCodes.get(pid);
 			if (storedExitCode == null) {
-			throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
-		}
+				throw RuntimeExceptionFactory.illegalArgument(pid, "unknown process");
+			}
 			return storedExitCode;
 		}
 
-			try {
-				return vf.integer(p.waitFor());
-			}
-			catch (InterruptedException e) {
+		try {
+			return vf.integer(p.waitFor());
+		}
+		catch (InterruptedException e) {
 			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
@@ -232,7 +232,6 @@ public class ShellExec {
 		        runningProcess.destroy();    
 		    }
 		}
-		
 		Thread waitForCleared = new Thread("zombie process clean up") {
 		    public void run() {
 				while (true) {
