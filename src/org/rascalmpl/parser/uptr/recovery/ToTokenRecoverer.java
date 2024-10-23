@@ -154,15 +154,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			return nodes;	// No other nodes would be useful
 		}
 
-		// Try to find whitespace to skip to
-		// This often creates hopeless recovery attempts, but it might help in some cases.
-		// Further experimentation should quantify this statement.
-		/*
-         * result = SkippingStackNode.createResultUntilCharClass(WHITESPACE, input, startLocation, prod,
-         * dot); if (result != null) { nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(),
-         * prod, result, startLocation)); }
-         */
-
 		// Find the last token of this production and skip until after that
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
 		for (InputMatcher endMatcher : endMatchers) {
