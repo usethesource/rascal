@@ -47,7 +47,7 @@ public java void unregisterDiagnostics(list[loc] resources);
 
 @synopsis{Fixes are an extension to error messages that allow for interactive code fixes in the IDE.}
 @description{
-This definition adds lists of ((CodeActions)) as optional fields to any message. In collaboration
+This definition adds lists of ((CodeAction))s as optional fields to any message. In collaboration
 with a language server, these messages then lead to interactive quick fixes in IDEs.
 }
 data Message(list[CodeAction] fixes = []);
@@ -64,7 +64,7 @@ data CodeAction
 
 @synopsis{Commands are an open data-type for describing interactive functions that may be attached to CodeActions.}
 @description{
-Commands are simply immutable constructors with parameters. To use a command you can attach it to a ((Message))
+Commands are simply immutable constructors with parameters. To use a command you can attach it to a ((module:Message))
 via a ((CodeAction)), and then have it executed by the respective language server.
 }
 data Command(str title="") 
