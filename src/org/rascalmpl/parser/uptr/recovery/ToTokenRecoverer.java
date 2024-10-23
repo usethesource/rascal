@@ -13,9 +13,7 @@
 package org.rascalmpl.parser.uptr.recovery;
 
 import java.net.URI;
-import java.util.BitSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -168,6 +166,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Find the last token of this production and skip until after that
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
 		for (InputMatcher endMatcher : endMatchers) {
+			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
 			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
 			if (endMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
@@ -178,6 +177,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Find the first token of the next production and skip until before that
 		List<InputMatcher> nextMatchers = findNextMatchers(recoveryNode);
 		for (InputMatcher nextMatcher : nextMatchers) {
+			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
 			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
 			if (nextMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
