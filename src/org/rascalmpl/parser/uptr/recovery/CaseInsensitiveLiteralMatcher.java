@@ -49,7 +49,7 @@ public class CaseInsensitiveLiteralMatcher implements InputMatcher {
     public MatchResult findMatch(int[] input, int startLocation, int maxLength) {
         int length = chars.length;
 
-        int limit = input.length - length + 1;
+        int limit = Math.min(startLocation + maxLength - length, input.length - length + 1);
         for (int start=startLocation; start < limit; start++) {
             boolean matches = true;
             for (int i=0; i<length; i++) {
