@@ -1,15 +1,33 @@
 module lang::rascal::tests::concrete::recovery::bugs::MultiErrorBug
 
-
-import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
 import util::ErrorRecovery;
 import List;
 import vis::Text;
 
+start syntax Module	= SyntaxDefinition* ;
+
+syntax SyntaxDefinition =  Prod ";" ;
+
+lexical Name = [A-Z];
+
+syntax Sym
+	= Sym NonterminalLabel
+	| StringConstant
+	;
+
+lexical StringConstant = "\"" StringCharacter* "\"" ;
+
+lexical StringCharacter = ![\"] ;
+
+lexical NonterminalLabel = [a-z] ;
+
+syntax Prod = Sym* ;
+
+// This is an open issue: instead of two small errors, one big error tree is returned.
 bool multiErrorBug() {
-    str input = readFile(|std:///lang/rascal/tests/concrete/recovery/bugs/MultiErrorBugInput.txt|);
+    str input = "#\"a\";#\"b\";";
     Tree t = parser(#start[Module], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=false|);
 
     println(prettyTree(t));
