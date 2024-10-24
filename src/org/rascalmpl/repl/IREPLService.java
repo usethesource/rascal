@@ -70,11 +70,11 @@ public interface IREPLService {
     /**
      * Default prompt
      */
-    String prompt(boolean ansiSupported);
+    String prompt(boolean ansiSupported, boolean unicodeSupported);
     /**
      * Continuation prompt
      */
-    String parseErrorPrompt(boolean ansiSupported);
+    String parseErrorPrompt(boolean ansiSupported, boolean unicodeSupported);
 
     void connect(Terminal term);
 
