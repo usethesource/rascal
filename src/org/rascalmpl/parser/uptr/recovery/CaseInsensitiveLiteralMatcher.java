@@ -46,10 +46,11 @@ public class CaseInsensitiveLiteralMatcher implements InputMatcher {
     }
 
     @Override
-    public MatchResult findMatch(int[] input, int startLocation) {
+    public MatchResult findMatch(int[] input, int startLocation, int maxLength) {
         int length = chars.length;
 
-        for (int start=startLocation; start < input.length - length; start++) {
+        int limit = Math.min(startLocation + maxLength - length, input.length - length + 1);
+        for (int start=startLocation; start < limit; start++) {
             boolean matches = true;
             for (int i=0; i<length; i++) {
                 int inputChar = input[start+i];
