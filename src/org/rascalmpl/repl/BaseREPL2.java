@@ -26,6 +26,7 @@ public class BaseREPL2 {
     private static final String FALLBACK_MIME_TYPE = "text/plain";
     private static final String ANSI_MIME_TYPE = "text/x-ansi";
     private final boolean ansiSupported;
+    private final boolean unicodeSupported;
     private final String mimeType;
 
     public BaseREPL2(IREPLService replService, Terminal term) {
@@ -66,8 +67,9 @@ public class BaseREPL2 {
                 this.mimeType = ANSI_MIME_TYPE;
                 break;
         }
-        this.currentPrompt = replService.prompt(ansiSupported);
-        reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiSupported));
+        this.unicodeSupported = term.encoding().newEncoder().canEncode("👍🏽");
+        this.currentPrompt = replService.prompt(ansiSupported, unicodeSupported);
+        reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiSupported, unicodeSupported));
 
         this.reader = reader.build();
 
