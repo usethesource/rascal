@@ -116,8 +116,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 						continue;
 					}
 
-                    AbstractStackNode<IConstructor> continuer =
-                        new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
+                    AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
 				
 					EdgesSet<IConstructor> edges = new EdgesSet<>(1);
 					edges.add(continuer);
@@ -210,23 +209,23 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			public Void visit(LiteralStackNode<IConstructor> literal) {
 				matchers.add(new LiteralMatcher(literal.getLiteral()));
 				return null;
-		}
+			}
 
 			@Override
 			public Void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
 				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
 				return null;
-		}
+			}
 
 			@Override
 			public Void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
 				String name = nonTerminal.getName();
-			AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
-			for (AbstractStackNode<IConstructor> alternative : alternatives) {
-				addEndMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
-			}
+				AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
+				for (AbstractStackNode<IConstructor> alternative : alternatives) {
+					addEndMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
+				}
 				return null;
-		}
+			}
 		});
 	}
 
@@ -283,21 +282,21 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			public Void visit(LiteralStackNode<IConstructor> literal) {
 				matchers.add(new LiteralMatcher(literal.getLiteral()));
 				return null;
-		}
+			}
 
 			@Override
 			public Void visit(CaseInsensitiveLiteralStackNode<IConstructor> literal) {
 				matchers.add(new CaseInsensitiveLiteralMatcher(literal.getLiteral()));
 				return null;
-		}
+			}
 
 			@Override
 			public Void visit(NonTerminalStackNode<IConstructor> nonTerminal) {
 				String name = nonTerminal.getName();
-			AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
-			for (AbstractStackNode<IConstructor> alternative : alternatives) {
-				addNextMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
-			}
+				AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
+				for (AbstractStackNode<IConstructor> alternative : alternatives) {
+					addNextMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
+				}
 
 				return null;
 		}
@@ -444,7 +443,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				if (edgesList != null) {
 					for (int j = edgesList.size() - 1; j >= 0; --j) {
 						AbstractStackNode<IConstructor> parent = edgesList.get(j);
-						
 						todo.push(parent);
 					}
 				}
@@ -458,16 +456,16 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		for (int i=0; i<recoveryNodes.size(); i++) {
             if (recoveryNodes.getFirst(i) == node && equalProductions(productions, recoveryNodes.getSecond(i))) {
                 return;
-						}
-					}
+			}
+		}
 
         recoveryNodes.add(node, productions);
-					}
+	}
 
     private boolean equalProductions(ArrayList<IConstructor> prods1, ArrayList<IConstructor> prods2) {
         if (prods1.size() != prods2.size()) {
             return false;
-				}
+		}
 
         for (int j = 0; j < prods1.size(); j++) {
             if (prods1.get(j) != prods2.get(j)) {
