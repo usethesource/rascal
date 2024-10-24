@@ -266,14 +266,14 @@ public class RascalReplServices implements IREPLService {
     @Override
     public String prompt(boolean ansiSupported, boolean unicodeSupported) {
         if (ansiSupported) {
-            return Ansi.ansi().reset().bold() + "rascal> " + Ansi.ansi().reset();
+            return Ansi.ansi().reset().bold() + "rascal>" + Ansi.ansi().reset();
         }
         return "rascal>";
     }
 
     @Override
     public String parseErrorPrompt(boolean ansiSupported, boolean unicodeSupported) {
-        String errorPrompt = (unicodeSupported ? "│" : "|") + "%N %P> ";
+        String errorPrompt = (unicodeSupported ? "│" : "|") + "%N %P>";
         if (ansiSupported) {
             return Ansi.ansi().reset().bold() + errorPrompt + Ansi.ansi().reset();
         }

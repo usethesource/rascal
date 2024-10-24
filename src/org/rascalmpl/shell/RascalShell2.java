@@ -18,6 +18,7 @@ import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.OSUtils;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
@@ -44,11 +45,11 @@ public class RascalShell2  {
         printVersionNumber();
 
         //try {
-            var term = TerminalBuilder.builder()
-                .color(true)
-                .encoding(StandardCharsets.UTF_8)
-                .build();
-
+            var termBuilder = TerminalBuilder.builder();
+            if (OSUtils.IS_WINDOWS) {
+                termBuilder.encoding(StandardCharsets.UTF_8);
+            }
+            var term = termBuilder.build();
 
             var repl = new BaseREPL2(new RascalReplServices((t) -> {
                 var monitor = new TerminalProgressBarMonitor(term);
