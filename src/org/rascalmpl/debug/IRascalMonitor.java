@@ -15,18 +15,21 @@ package org.rascalmpl.debug;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+
+import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.interpreter.BatchProgressMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
-import jline.Terminal;
-import jline.TerminalFactory;
 
 public interface IRascalMonitor {
 	/**
@@ -158,8 +161,8 @@ public interface IRascalMonitor {
 	 * and otherwise default to a dumn terminal console progress logger.
 	 * @return
 	 */
-	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out) {
-		return buildConsoleMonitor(in, out, inBatchMode());
+	public static IRascalMonitor buildConsoleMonitor(Terminal term) {
+		return buildConsoleMonitor(term, inBatchMode());
 	}
 
 	public static boolean inBatchMode() {
@@ -168,12 +171,11 @@ public interface IRascalMonitor {
 			;
 	}
 
-	public static IRascalMonitor buildConsoleMonitor(InputStream in, OutputStream out, boolean batchMode) {
-		Terminal terminal = TerminalFactory.get();
+	public static IRascalMonitor buildConsoleMonitor(Terminal terminal, boolean batchMode) {
 
-		return !batchMode && terminal.isAnsiSupported()
-			? new TerminalProgressBarMonitor(out, in, terminal)
-			: new BatchProgressMonitor(new PrintStream(out))
+		return !batchMode && TerminalProgressBarMonitor.shouldWorkIn(terminal)
+			? new TerminalProgressBarMonitor(terminal)
+			: new BatchProgressMonitor(terminal.writer())
 		;
 	}
 
