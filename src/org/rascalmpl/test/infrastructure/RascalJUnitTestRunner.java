@@ -22,6 +22,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.terminal.impl.DumbTerminal;
+import org.jline.terminal.impl.DumbTerminalProvider;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -38,7 +42,6 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
-import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -52,7 +55,22 @@ import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
     private static class InstanceHolder {
-		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+		final static IRascalMonitor monitor;
+        static {
+            Terminal tm;
+            try {
+                tm = TerminalBuilder.terminal();
+            }
+            catch (IOException e) {
+                try {
+                    tm = new DumbTerminal(System.in, System.err);
+                }
+                catch (IOException e1) {
+                    throw new IllegalStateException("Could not create a terminal representation");
+                }
+            }
+            monitor = IRascalMonitor.buildConsoleMonitor(tm);
+        }
     }
    
    	public static IRascalMonitor getCommonMonitor() {
@@ -70,9 +88,6 @@ public class RascalJUnitTestRunner extends Runner {
 
     static {
         try {
-            RascalShell.setupWindowsCodepage();
-            RascalShell.enableWindowsAnsiEscapesIfPossible();
-
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, getCommonMonitor());
