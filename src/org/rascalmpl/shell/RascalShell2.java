@@ -15,6 +15,7 @@ package org.rascalmpl.shell;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 import org.jline.terminal.TerminalBuilder;
 import org.rascalmpl.ideservices.BasicIDEServices;
@@ -45,6 +46,7 @@ public class RascalShell2  {
         //try {
             var term = TerminalBuilder.builder()
                 .color(true)
+                .encoding(StandardCharsets.UTF_8)
                 .build();
 
 
