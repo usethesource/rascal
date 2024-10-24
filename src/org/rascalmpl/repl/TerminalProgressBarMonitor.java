@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -60,6 +61,13 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * Used to get updates to the width of the terminal
      */
     private final Terminal tm;
+
+    public static boolean shouldWorkIn(Terminal tm) {
+        return "\r".equals(tm.getStringCapability(Capability.carriage_return))
+            && tm.getNumericCapability(Capability.columns) != null
+            && tm.getNumericCapability(Capability.lines) != null
+            && ANSI.supportsCapabilities(tm);
+    }
 
 
     @SuppressWarnings("resource")
@@ -194,10 +202,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     }
 
     private void rawPrintln(String s) {
-        super.println(s);
+        rawWrite(s + System.lineSeparator());
     }
     private void rawWrite(String s) {
-        super.write(s);
+        rawWrite(s, 0, s.length());
     }
 
     private void rawWrite(int c) {
@@ -388,6 +396,14 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     private static class ANSI {
 
+        private static boolean supportsCapabilities(Terminal tm) {
+            Integer cols = tm.getNumericCapability(Capability.max_colors);
+            if (cols == null || cols < 8) {
+                return false;
+            }
+            return tm.getStringCapability(Capability.clear_screen) != null;
+        }
+
         public static String grey8Background() {
             return "\u001B[48;5;240m"; 
         }
@@ -396,24 +412,8 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             return "\u001B[97m";
         }
 
-        public static String delete() {
-            return "\u001B[D\u001B[K";
-        }
-
         static String moveUp(int n) {
             return "\u001B[" + n + "F";
-        }
-
-        static String overlined() {
-            return "\u001B[53m";
-        }
-
-        static String underlined() {
-            return "\u001B[4m";
-        }
-
-        public static String printCursorPosition() {
-            return "\u001B[6n";
         }
 
         public static String noBackground() {
@@ -422,10 +422,6 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
         public static String normal() {
             return "\u001B[0m";
-        }
-
-        public static String lightBackground() {
-            return "\u001B[48;5;250m";
         }
 
         static String moveDown(int n) {
