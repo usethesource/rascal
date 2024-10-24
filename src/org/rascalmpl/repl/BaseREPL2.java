@@ -3,12 +3,13 @@ package org.rascalmpl.repl;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jline.reader.LineReader;
+import org.jline.reader.LineReader.Option;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
-import org.jline.reader.LineReader.Option;
 import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
@@ -85,18 +86,20 @@ public class BaseREPL2 {
         try {
             replService.connect(term);
             while (keepRunning) {
-                String line = reader.readLine(this.currentPrompt);
-                if (line == null) {
-                    // EOF
-                    break;
-                }
                 try {
+                    String line = reader.readLine(this.currentPrompt);
+                    if (line == null) {
+                        // EOF
+                        break;
+                    }
                     handleInput(line);
                 }
                 catch (UserInterruptException u) {
-                    reader.printAbove("");
+                    reader.printAbove("> interrupted");
                     term.flush();
-                    replService.handleReset(new HashMap<>(), new HashMap<>());
+                    var out = new HashMap<String, IOutputPrinter>();
+                    replService.handleReset(out, new HashMap<>());
+                    writeResult(out);
                 }
             }
         }

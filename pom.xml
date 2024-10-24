@@ -477,7 +477,7 @@
             <version>${jline.version}</version>
         </dependency>
         <dependency> <!-- styling api -->
-            <groupId>org.jline</groupId>
+            <groupId>org.jline</groupId> 
             <artifactId>jline-style</artifactId>
             <version>${jline.version}</version>
         </dependency>
