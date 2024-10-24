@@ -669,7 +669,7 @@ public abstract class AbstractStackNode<P>{
 			}
 			
 			if(propagatedPrefixes == null){
-				propagatedPrefixes = new BitSet(edgesMapSize);
+				propagatedPrefixes = new BitSet(possibleMaxSize);
 			}else{
 				propagatedPrefixes.enlargeTo(possibleMaxSize);
 			}
