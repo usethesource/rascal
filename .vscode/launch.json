@@ -9,7 +9,8 @@
             "name": "RascalShell2",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell2",
-            "projectName": "rascal"
+            "projectName": "rascal",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",
