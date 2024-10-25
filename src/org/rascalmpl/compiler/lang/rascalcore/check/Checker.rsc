@@ -201,10 +201,15 @@ ModuleStatus rascalTModelForLocs(
 
             compatible_with_all_imports = true;
             for(m <- component){
+                m_compatible = false;
                 <found, tm, ms> = getTModelForModule(m, ms);
-                imports_extends_m = imports_and_extends[m];
-                m_compatible = found && /*!isEmpty(imports_extends_m) &&*/ isCompatibleBinary(tm, imports_extends_m, ms);
-                //if(!m_compatible) println("<m> not compatible wih <imports_extends_m>");
+                if(found){
+                    imports_extends_m = imports_and_extends[m];
+                    <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
+                    if(m_compatible){
+                        ms.status[m] += {tpl_uptodate(), checked()};
+                    }
+                }
                 compatible_with_all_imports = compatible_with_all_imports && m_compatible;
             }
 
@@ -212,14 +217,16 @@ ModuleStatus rascalTModelForLocs(
             //     println("ms.status[<m>]: <ms.status[m]>");
             // }
             any_rsc_changed = any(m <- component, rsc_changed() in ms.status[m]);
-            not_all_uptodate = false;
+            all_tmodels_uptodate = true;
             for(m <- component){
-                if(tpl_uptodate() notin ms.status[m] && checked() notin ms.status[m]) not_all_uptodate = true;
+                if(tpl_uptodate() notin ms.status[m] && checked() notin ms.status[m])
+                    all_tmodels_uptodate = false;
             }
-            recheckCond = !compatible_with_all_imports || any_rsc_changed || not_all_uptodate;
+            recheckCond = !compatible_with_all_imports || any_rsc_changed || !all_tmodels_uptodate;
 
-            //println("recheck <component>?: <recheckCond>, compatible_with_all_imports: <compatible_with_all_imports>, any_rsc_changed: <any_rsc_changed>, not_all_uptodate: <not_all_uptodate>");
-            if(recheckCond){
+             if(recheckCond){
+                println("recheck <component>: compatible_with_all_imports: <compatible_with_all_imports>, any_rsc_changed: <any_rsc_changed>, all_tmodels_uptodate: <all_tmodels_uptodate>");
+
                 <tm, ms> = rascalTModelComponent(component, ms);
                 moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
@@ -249,10 +256,10 @@ ModuleStatus rascalTModelForLocs(
                                    if(iname == "ParseTree" && implicitlyUsesParseTree(ms.moduleLocs[m].path, tm)){
                                      continue check_imports;
                                    }
-                                   if(ms.moduleLocs[iname]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
+                                   if(ms.moduleLocs[iname]? && ms.moduleLocs[m]? && implicitlyUsesLayoutOrLexical(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                     continue check_imports;
                                    }
-                                   if(ms.moduleLocs[iname]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
+                                   if(ms.moduleLocs[iname]? && ms.moduleLocs[m]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                     continue check_imports;
                                    }
                                    if(checked() in ms.status[iname] && rsc_not_found() notin ms.status[iname]){
@@ -471,9 +478,21 @@ list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
 
 // ---- Convenience check function during development -------------------------
 
+void find(str s, ModuleStatus ms){
+    if(ms.moduleLocs[s]?) println("moduleLocs[<s>] = <ms.moduleLocs[s]>");
+    for(mname <- ms.tmodels){
+        tm = ms.tmodels[mname];
+        for(d <- tm.definitions){
+            def = tm.definitions[d];
+            if(contains("<def>", s)) {println("<mname>: <def>"); }
+        }
+    }
+}
+
 map[str, list[Message]] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
     ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
     tmodels = ms.tmodels;
+    //find("Exception.rsc|(0,", ms);
     tmMsgs = (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
     return //(mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages))
          (mname : ms.messages[mname] + (tmMsgs[mname] ? []) | mname <- ms.messages, !isEmpty(ms.messages[mname]));

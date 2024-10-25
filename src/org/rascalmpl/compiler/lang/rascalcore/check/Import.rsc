@@ -118,10 +118,12 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                if(lm == startOfEpoch || lm > timestampInBom) {
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
-                    if(tpl_uptodate() notin ms.status[m] && lm != timestampInBom && ms.compilerConfig.verbose){
+                    ms.status[m] -= {tpl_uptodate(), checked()};
+                    if(ms.compilerConfig.verbose){
                         println("--- using <lm> (most recent) version of <m>,
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                     }
+                    ms = deleteModule(m, ms);
                }
            }
 
@@ -133,7 +135,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
-                if(!isCompatibleBinary(tm, domain(localImportsAndExtends), ms)){
+                <compatible, ms> = isCompatibleBinaryLibrary(tm, domain(localImportsAndExtends), ms);
+                if(!compatible){
                     msg = error("Binary module `qualifiedModuleName` needs recompilation", |unknown:///|);
                     tm.messages += [msg];
                     ms.messages[qualifiedModuleName] ? [] += [msg];
@@ -148,7 +151,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
         if(allImportsAndExtendsValid){
             ms.status[qualifiedModuleName] += {tpl_uptodate(), checked()}; //TODO: maybe check existence of generated java files
-
             ms.moduleLocs += tm.moduleLocs;
             ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
@@ -191,28 +193,61 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
     return complete(ms);
 }
 
+// Example: |rascal+function:///util/Math/round$d80e373d64c01979| ==> util::Math
 str getModuleFromLogical(loc l){
-    i = findFirst(l.path[1..], "/");
-    return i >= 0 ? l.path[1..i+1] : l.path[1..];
+    i = findLast(l.path[1..], "/");
+    res = i >= 0 ? l.path[1..i+1] : l.path[1..];
+    return replaceAll(res, "/", "::");
 }
 
-bool isCompatibleBinary(TModel lib, set[str] otherImportsAndExtends, ModuleStatus ms){
-
-    provides = {<m , l> | l <- domain(lib.logical2physical), m := getModuleFromLogical(l) };
-    requires = {};
-    for(m <- otherImportsAndExtends){
+// Is what library module lib provides compatible with all uses in the modules libUsers?
+tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
+    libName = lib.modelName;
+    libProvides = domain(lib.logical2physical);
+    libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
+    usersRequire = {};
+    for(m <- libUsers){
        <found, tm, ms> = getTModelForModule(m, ms);
        if(found){
-           requires += {<m , l> | l <- domain(tm.logical2physical), m := getModuleFromLogical(l) };
+           usersRequire += domain(tm.logical2physical);
        }
     }
+    usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
 
-    if(isEmpty(requires - provides)){
-        //println("isCompatibleBinary <lib.modelName>: satisfied");
-        return true;
+    if(usersRequireFromLib <= libProvides){
+        //println("isCompatibleBinaryLibrary <libName>: satisfied");
+        return <true, ms>;
     } else {
-        //println("isCompatibleBinary, <lib.modelName> unsatisfied: <requires - provides>");
-        return false;
+        //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
+        return <false, ms>;
+    }
+}
+
+tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[str] importsAndExtends, ModuleStatus ms){
+    moduleName = tm.modelName;
+    physical2logical = invertUnique(tm.logical2physical);
+
+    modRequires = { lg | l <- range(tm.useDef),
+                        physical2logical[l]?, lg := physical2logical[l],
+                        moduleName !:= getModuleFromLogical(lg) };
+    provided = {};
+    if(!isEmpty(modRequires)){
+        for(m <- importsAndExtends){
+            <found, tm, ms> = getTModelForModule(m, ms);
+            if(found){
+                provided += domain(tm.logical2physical);
+            }
+        }
+    }
+
+    //println("<moduleName> requires <modRequires>");
+
+    if(isEmpty(modRequires - provided)){
+        //println("importsAndExtendsAreBinaryCompatible <moduleName>: satisfied");
+        return <true, ms>;
+    } else {
+        //println("importsAndExtendsAreBinaryCompatible, <moduleName> unsatisfied: <modRequires - provided>");
+        return <false, ms>;
     }
 }
 
@@ -303,9 +338,12 @@ void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  Mod
         newBom = makeBom(qualifiedModuleName, imports, extends, ms);
         if(newBom != tm.store[key_bom]){
             tm.store[key_bom] = newBom;
-            println("Updated BOM for <qualifiedModuleName>:"); iprintln( tm.store[key_bom]);
+            //println("Updated BOM for <qualifiedModuleName>:"); //iprintln( tm.store[key_bom]);
             addTModel(qualifiedModuleName, tm, ms);
-            tm1 = convertTModel2LogicalLocs(tm, ms.tmodels);
+            <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, ms.pathConfig);
+            tm1 = readBinaryValueFile(#TModel, tplLoc);
+            tm1.store[key_bom] = newBom;
+            //tm1 = convertTModel2LogicalLocs(tm, ms.tmodels);
             <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, ms.pathConfig);
             if(!found){
                 throw "Cannot find tpl write location for <qualifiedModuleName>";

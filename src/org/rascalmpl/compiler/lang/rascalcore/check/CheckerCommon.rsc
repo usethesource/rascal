@@ -229,10 +229,36 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
     return ms;
 }
 
+ModuleStatus  deleteModule (str qualifiedModuleName, ModuleStatus ms){
+    ms.strPaths = { <from, role, to>
+                  | <from, role, to> <-  ms.strPaths
+                  , from != qualifiedModuleName
+                  , to != qualifiedModuleName
+                  };
+    if(ms.moduleLocs[qualifiedModuleName]?){
+        mloc = ms.moduleLocs[qualifiedModuleName];
+        ms.paths = { <from, role, to>
+                   | <from, role, to> <-  ms.paths
+                   , from != mloc
+                   , to != mloc
+                   };
+    }
+
+    //ms.parseTrees = delete(ms.parseTrees, qualifiedModuleName);
+    //list[str] parseTreeLIFO,
+    //ms.tmodels = delete(ms.tmodels, qualifiedModuleName);
+    //   list[str] tmodelLIFO,
+    //ms.moduleLocs = delete(ms.moduleLocs, qualifiedModuleName);
+    //ms.moduleLastModified = delete(ms.moduleLastModified, qualifiedModuleName);
+    ms.messages = delete(ms.messages, qualifiedModuleName);
+    //ms.status = delete(ms.status, qualifiedModuleName);
+    return ms;
+}
+
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
-    if(ms.tmodels[qualifiedModuleName]?){
+    if(ms.tmodels[qualifiedModuleName]? /*&& tpl_uptodate() in ms.status[qualifiedModuleName]*/){
         // if(tpl_saved() notin ms.status[qualifiedModuleName]){
         //     throw "Unsaved tmodel for <qualifiedModuleName> in cache";
         // }
@@ -253,7 +279,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 tpl = convertTModel2PhysicalLocs(tpl);
 
                 ms.tmodels[qualifiedModuleName] = tpl;
-                ms.status[qualifiedModuleName] += {tpl_uptodate(), tpl_saved()};
+                ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
                 if(qualifiedModuleName notin hardwired){
                     ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
                 }
