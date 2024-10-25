@@ -178,6 +178,10 @@ public class ErrorRecovery {
         return errors.done();
     }
 
+    public boolean hasErrors(IConstructor tree) {
+        return !findAllErrors(tree).isEmpty();
+    }
+
     private void collectErrors(ITree tree, IListWriter errors, Set<IConstructor> processedTrees) {
         Type type = tree.getConstructorType();
 
