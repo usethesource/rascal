@@ -274,3 +274,15 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
    // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
+
+int closureCounter = 0;
+
+int nextClosure(){
+    counter = closureCounter;
+    closureCounter += 1;
+    return counter;
+}
+
+void resetClosureCounter(){
+    closureCounter = 0;
+}
