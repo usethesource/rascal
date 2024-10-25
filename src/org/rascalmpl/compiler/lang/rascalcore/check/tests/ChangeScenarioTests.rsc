@@ -140,13 +140,16 @@ test bool removeConstructorAndRestoreIt(){
 // ---- incremental type checking ---------------------------------------------
 // Legend:
 //      X ==> Y: replace X by Y
-//      X!     : X is checked
+//      *X     : check starts at X
+//      X!     : X is (re)checked
 // Scenarios:
-//      A1!     A1  ==> A2!     A2  ==> A3!     A3
+//     I        II      III     IV      V       VI
+//
+//     *A1!     A1  ==> A2!     A2  ==> A3!     A3
 //              |       |       |       |       |
-//              B1!     B1      B1      B1 ==>  B2!
+//             *B1!     B1      B1      B1 ==>  B2!
 //                              |       |       |
-//                              C1!     C1      C1
+//                             *C1!    *C1     *C1
 
 test bool nobreakingChange1(){
     clearMemory();
@@ -157,38 +160,39 @@ test bool nobreakingChange1(){
                     public int n = 3;
                     data D = d1();";
 
-    assert checkedInModule(moduleA1, ["A"]);
+    assert checkedInModule(moduleA1, ["A"]);    // I
 
     moduleB1 = "module B
                     import A;";
     moduleB2 = "module B
                     import A;
                     public int m = n + 1;";
-    assert checkedInModule(moduleB1, ["B"]);
+    assert checkedInModule(moduleB1, ["B"]);    // II
 
     writeModule(moduleA2);
-    assert checkedInModule(moduleB1, ["A"]);
+    assert checkedInModule(moduleB1, ["A"]);    // III
 
     moduleC1 = "module C
                     import B;
                     int f() = 2;";
-    assert checkedInModule(moduleC1, ["C"]);
+    assert checkedInModule(moduleC1, ["C"]);    // IV
 
     writeModule(moduleA3);
 
-    assert checkedInModule(moduleC1, ["A"]);
+    assert checkedInModule(moduleC1, ["A"]);    // V
 
     writeModule(moduleB2);
-    return checkedInModule(moduleC1, ["B"]);
+    return checkedInModule(moduleC1, ["B"]);    // VI
 }
-
+//      I                   II
+//
 //      A1!------+          A1--------+
 //      |        |          |         |
 //      B1!--+   |    ==>   B2!--+    |
 //      |    |   |          |    |    |
 //      C1!  +---D1!        C1   +----D1
 //      |        |          |         |
-//      +---E!---+          +----E----+
+//      +--*E!---+          +---*E----+
 
 test bool nobreakingChange2(){
     clearMemory();
@@ -206,21 +210,23 @@ test bool nobreakingChange2(){
     writeModule(moduleD1);
     writeModule(moduleE1);
 
-    assert checkedInModule(moduleE1, ["A", "B", "C", "D", "E"]);
+    assert checkedInModule(moduleE1, ["A", "B", "C", "D", "E"]);    // I
 
     writeModule(moduleB2);
-    return checkedInModule(moduleC1, ["B"]);
+    return checkedInModule(moduleC1, ["B"]);                        // II
 }
 
+//      I                   II
+//
 //      A1!------+          A1--------+
 //      |        |          |         |
 //      B1!--+   |    ==>   B2!--+    |
 //      |    |   |          |    |    |
 //      C1!  +---D1!        C1!  +----D1
 //      |        |          |         |
-//      +---E!---+          +----E----+
+//      +--*E!---+          +---*E----+
 
-test bool breakingChange1(){
+test bool noBreakingChange3(){
     clearMemory();
     moduleA1 = "module A";
     moduleB1 = "module B import A; int b() = 1;";
@@ -236,8 +242,70 @@ test bool breakingChange1(){
     writeModule(moduleD1);
     writeModule(moduleE1);
 
-    assert checkedInModule(moduleE1, ["A", "B", "C", "D", "E"]);
+    assert checkedInModule(moduleE1, ["A", "B", "C", "D", "E"]);    // I
 
     writeModule(moduleB2);
-    return checkedInModule(moduleC1, ["B", "C"]);
+    return checkedInModule(moduleC1, ["B", "C"]);                   // II
+}
+
+
+//      I       II             III       IV
+//
+//      A1!     A1-----+  ==>  A2!       A2-------+
+//      |       |      |       |         |        |
+//      B1!     B1    *D1!     B1        B1       D1!
+//      |       |              |         |        |
+//     *C1!     C1            *C1   ==> *C2! -----+
+//
+test bool noBreakingChange4(){
+    clearMemory();
+    moduleA1 = "module A";
+    moduleA2 = "module A int a() = 0;";
+    moduleB1 = "module B import A; int b() = 1;";
+    moduleC1 = "module C import B; int c() = b();";
+    moduleC2 = "module C import B; import D; int c() = b();";
+    moduleD1 = "module D import A;";
+
+    writeModule(moduleA1);
+    writeModule(moduleB1);
+    writeModule(moduleC1);
+
+    assert checkedInModule(moduleC1, ["A", "B", "C"]);  // I
+
+    writeModule(moduleD1);
+    assert checkedInModule(moduleD1, ["D"]);            // II
+
+    writeModule(moduleA2);
+    assert checkedInModule(moduleC1, ["A"]);            // III
+
+     writeModule(moduleC2);
+     return checkedInModule(moduleC2, ["C", "D"]);      // IV
+}
+
+test bool noBreakingChange5(){
+    moduleException1 = "module Exception";
+    moduleException2 = "module Exception
+                            int n = 0;";
+    moduleMath = "module Math import Exception; import List; ";
+    moduleList = "module List import Map; import Exception; ";
+    moduleMap = "module Map";
+    moduleSet1 = "module Set import List; import Exception; import Math;";
+    moduleSet2 = "module Set import List; import Exception; import Math;
+                        int m = 0;";
+    moduleTop = "module Top  import List; import Set; ";
+
+    writeModule(moduleException1);
+    writeModule(moduleMath);
+    writeModule(moduleList);
+    writeModule(moduleMap);
+    writeModule(moduleSet1);
+    writeModule(moduleTop);
+
+    assert checkedInModule(moduleTop, ["Exception", "Math", "List", "Map", "Set", "Top"]);
+
+    writeModule(moduleException2);
+    assert checkedInModule(moduleTop, ["Exception"]);
+
+    writeModule(moduleSet2);
+    return checkedInModule(moduleTop, ["Set"]);
 }
