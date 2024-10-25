@@ -190,8 +190,8 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
 // ---- closure
 
 str closureName(Expression closure){
-    l = getLoc(closure);
-    return "$CLOSURE_<l.begin.line>A<l.offset>";
+    //l = getLoc(closure);
+    return "$CLOSURE_<nextClosure()>"; //"$CLOSURE_<l.begin.line>A<l.offset>";
 }
 
 void collect(current: (Expression) `<Type returnType> <Parameters parameters> { <Statement+ statements> }`, Collector c){
