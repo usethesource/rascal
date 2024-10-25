@@ -22,7 +22,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 public class ErrorRecovery {
-        private final IRascalValueFactory rascalValues;
+    private final IRascalValueFactory rascalValues;
 
     public ErrorRecovery(IRascalValueFactory rascalValues) {
         this.rascalValues = rascalValues;
