@@ -2,9 +2,8 @@
 module lang::rascalcore::check::AType
 
 /*
-    Every needed to operate on ATypes, including asubtype, alub, 
+    Every needed to operate on ATypes, including asubtype, alub,
 */
-
 
 extend lang::rascalcore::check::ATypeBase;
 extend lang::rascalcore::grammar::definition::Characters;
@@ -18,23 +17,23 @@ import Set;
 @doc{
 .Synopsis
 Subtype on types.
-}       
+}
 //bool asubtype(type[&T] t, type[&U] u) { throw "asubtype not yet implemented on <t> and <u>"; } //asubtype(t.symbol, u.symbol);
 
 @doc{
 .Synopsis
-This function documents and implements the subtype relation of Rascal's type system. 
+This function documents and implements the subtype relation of Rascal's type system.
 }
 
-bool asubtype(tvar(s), AType r) { 
-    throw TypeUnavailable(); 
+bool asubtype(tvar(s), AType r) {
+    throw TypeUnavailable();
 }
 default bool asubtype(AType l, AType r){
     switch(r){
-        case l:     
+        case l:
             return true;
         case tvar(_):
-            throw TypeUnavailable(); 
+            throw TypeUnavailable();
         case overloadedAType(overloads):
             //TODO: Alternative: return asubtype(l, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
            return isEmpty(overloads) ? asubtype(l, avoid()) : any(<_, _, tp> <- overloads, asubtype(l, tp));
@@ -44,7 +43,7 @@ default bool asubtype(AType l, AType r){
             return l is aint || l is areal || l is arat || l is anum;
         case aalias(str _, list[AType] _, AType aliased):
             return asubtype(l, aliased);
-        case \start(AType t): 
+        case \start(AType t):
             return asubtype(l, t);
         case aprod(p):
             return asubtype(l, p.def);
@@ -73,15 +72,15 @@ default bool asubtype(AType l, AType r){
         case areified(AType t):
             return asubtype(l, t);
     }
-    if(l.alabel? || r.alabel?) 
-        return asubtype(unset(l, "alabel") , unset(r, "alabel")); 
-    else 
+    if(l.alabel? || r.alabel?)
+        return asubtype(unset(l, "alabel") , unset(r, "alabel"));
+    else
         return l == r;
 }
 
 bool asubtype(p1:aparameter(str n1, AType b1), AType r)
     = asubtypeParam(p1, r);
-    
+
 // From "Exploring Type Parameters:
 // aparameter, open
 bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
@@ -89,23 +88,23 @@ bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=false), AType r) {
      if(aparameter(str _, AType _, closed=false) := r){                 // [S1]
         res = true;
      } else if(aparameter(str _, AType b2, closed=true) := r){          // [S3]
-        res = asubtype(p1, b2); 
+        res = asubtype(p1, b2);
       } else {                                                          // [S5]
-        res = asubtype(b1, r);   
+        res = asubtype(b1, r);
      }
      //println("asubtype(<p1>, <r>) =\> <res>");
      return res;
- } 
-   
+ }
+
 // aparameter, closed
 bool asubtypeParam(p1:aparameter(str n1, AType b1, closed=true), AType r) {
     res = false;
     if(aparameter(str n2, AType _, closed=true) := r ){                  // [S2]
         res = n1 == n2;
     } else if(p2:aparameter(str _, AType _,closed=false) := r){// [S4]
-        res = asubtype(b1, p2);  
+        res = asubtype(b1, p2);
     } else {                                                              // [S7]
-        res = asubtype(b1, r);  
+        res = asubtype(b1, r);
     }
     //println("asubtype(<p1>, <r>) =\> <res>");
     return res;
@@ -117,7 +116,7 @@ bool asubtype(overloadedAType(overloads), AType r)
 
 bool asubtype(avoid(), AType _) = true;
 default bool asubtype(AType _, avalue()) = true;
- 
+
 bool asubtype(ac:acons(AType a, list[AType] ap, list[Keyword] _), AType b){
     switch(b){
         case acons(a,list[AType] bp, list[Keyword] _):
@@ -202,9 +201,9 @@ bool asubtype(i:\iter-seps(AType s, list[AType] seps), AType b){
             return true;
         case anode(_):
             return true;
-        case \iter-seps(AType t, list[AType] seps2): 
+        case \iter-seps(AType t, list[AType] seps2):
             return asubtype(s,t) && asubtypeList(removeLayout(seps), removeLayout(seps2));
-        case \iter(AType t): 
+        case \iter(AType t):
             return asubtype(s,t) && isEmpty(removeLayout(seps));
         case  \iter-star(AType t):
             return asubtype(s,t) && isEmpty(removeLayout(seps));
@@ -285,7 +284,7 @@ bool asubtype(alist(AType a), AType b){
     switch(b){
         case alist(AType t):
             return asubtype(a, t);
-        case alrel(AType t): 
+        case alrel(AType t):
             return asubtype(a, atuple(t));
         case avalue():
             return true;
@@ -311,7 +310,7 @@ bool asubtype(aset(AType a),  AType b){
     switch(b){
         case aset(AType t):
             return asubtype(a, t);
-        case arel(AType t): 
+        case arel(AType t):
             return asubtype(a, atuple(t));
         case avalue():
             return true;
@@ -321,7 +320,7 @@ bool asubtype(aset(AType a),  AType b){
 
 bool asubtype(arel(AType a), AType b){
     switch(b){
-        case arel(AType t): 
+        case arel(AType t):
             return  asubtype(a,t);
         case aset(AType t):
             return asubtype(atuple(a), t);
@@ -331,9 +330,9 @@ bool asubtype(arel(AType a), AType b){
     fail;
 }
 
-bool asubtype(abag(AType s), abag(AType t)) = asubtype(s, t);  
+bool asubtype(abag(AType s), abag(AType t)) = asubtype(s, t);
 
-bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2)) 
+bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2))
     = asubtype(from1, from2) && asubtype(to1, to2);
 
 bool asubtype(AType l:afunc(AType a, list[AType] ap, list[Keyword] _), AType r){
@@ -356,7 +355,7 @@ bool asubtype(AType l:afunc(AType a, list[AType] ap, list[Keyword] _), AType r){
 // areified
 bool asubtype(areified(AType s), AType b){
     switch(b){
-        case areified(AType t): 
+        case areified(AType t):
             return asubtype(s,t);
         case anode(_):
             return true;
@@ -370,7 +369,7 @@ bool asubtype(a:anode(list[AType] l), AType b){
     switch(b){
         case anode(_):
             return true;
-        case anode(list[AType] r): 
+        case anode(list[AType] r):
             return l <= r;
         case \start(t):
             return asubtype(a, t);
@@ -395,7 +394,7 @@ bool asubtype(l:\achar-class(_), AType r){
             return true;
         }
         case aadt("Tree", _, _):
-            return true; // characters are Tree instances 
+            return true; // characters are Tree instances
         case \start(t):
             return asubtype(l, t);
         case avalue():
@@ -477,14 +476,14 @@ bool outerComparable1(f1:afunc(AType r1, list[AType] p1, list[Keyword] _), f2:af
     = outerComparable(r1, r2) && (f1.varArgs ? (f2.varArgs ? outerComparable(p1, p2)
                                                            : outerComparable(p1[0..-1], p2))
                                              : (f2.varArgs ? outerComparable(p1, p2[0..-1])
-                                                           : outerComparable(p1, p2)));              
-    
+                                                           : outerComparable(p1, p2)));
+
 bool outerComparable1(afunc(AType r1, list[AType] p1, list[Keyword] _), acons(AType r2, list[AType] p2, list[Keyword] _))
     = outerComparable(r1, r2) && outerComparable(p1, p2);
 bool outerComparable1(acons(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _))
     = outerComparable(r1, r2) && outerComparable(p1, p2);
 
-bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2)) 
+bool outerComparable1(aparameter(str pname1, AType bound1), aparameter(str pname2, AType bound2))
     = outerComparable(bound1, bound2);
 
 bool outerComparable1(aadt(str adtName1, list[AType] parameters1, SyntaxRole syntaxRole1),  areified(_)) = true;
@@ -507,7 +506,7 @@ bool equivalent(AType s, AType t) = asubtype(s,t) && asubtype(t,s);
 
 @doc{
 .Synopsis
-Structural equality between values. 
+Structural equality between values.
 
 .Description
 The difference is that no implicit coercions are done between values of incomparable types, such as == does for
@@ -534,13 +533,13 @@ public java bool eq(value x, value y);
 The least-upperbound (lub) between two types.
 
 .Description
-This function documents and implements the lub operation in Rascal's type system. 
+This function documents and implements the lub operation in Rascal's type system.
 }
-AType alub(tvar(s), AType r) { 
-    throw TypeUnavailable(); 
-} 
-AType alub(AType l, tvar(s)) { 
-     throw TypeUnavailable(); 
+AType alub(tvar(s), AType r) {
+    throw TypeUnavailable();
+}
+AType alub(AType l, tvar(s)) {
+     throw TypeUnavailable();
 }
 
 AType alub(AType s, s) = s;
@@ -558,7 +557,7 @@ AType alub(overloadedAType(overloads), AType t2)
 AType alub(AType t1, overloadedAType(overloads))
     //TODO: Alternative: = alub(t1, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
     = isEmpty(overloads) ? t1 : alub(t1, (avalue() | aglb(it, tp)  | <_, _, tp> <- overloads));
-    
+
 AType alub(avalue(), AType t) = avalue();
 AType alub(AType s, avalue()) = avalue();
 AType alub(avoid(), AType t)  = t;
@@ -576,37 +575,37 @@ AType alub(anum(), aint())    = anum();
 AType alub(anum(), areal())   = anum();
 AType alub(anum(), arat())    = anum();
 
-AType alub(aset(AType s), aset(AType t)) = aset(alub(s, t)); 
- 
-AType alub(aset(AType s), arel(AType t)) = aset(alub(s,atuple(t)));  
+AType alub(aset(AType s), aset(AType t)) = aset(alub(s, t));
+
+AType alub(aset(AType s), arel(AType t)) = aset(alub(s,atuple(t)));
 AType alub(arel(AType s), aset(AType t)) = aset(alub(atuple(s), t));
 
 AType alub(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(alubList(l, r))) : aset(avalue());
 
-AType alub(alist(AType s), alist(AType t)) = alist(alub(s, t));  
-AType alub(alist(AType s), alrel(AType t)) = alist(alub(s,atuple(t)));  
+AType alub(alist(AType s), alist(AType t)) = alist(alub(s, t));
+AType alub(alist(AType s), alrel(AType t)) = alist(alub(s,atuple(t)));
 AType alub(alrel(AType s), alist(AType t)) = alist(alub(atuple(s),t));
 
 AType alub(alrel(atypeList(list[AType] l)), alrel(atypeList(list[AType] r)))  = size(l) == size(r) ? alrel(atypeList(alubList(l, r))) : alist(avalue());
 
 AType alub(atuple(atypeList(list[AType] l)), atuple(atypeList(list[AType] r))) = size(l) == size(r) ? atuple(atypeList(alubList(l, r))) : avalue();
 
-AType alub(amap(ld, lr), amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));  
+AType alub(amap(ld, lr), amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));
 
 AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 
 AType alub(aadt(str n, list[AType] _, SyntaxRole_), anode(_))  = anode([]);
 AType alub(anode(_), aadt(str n, list[AType] _, SyntaxRole _)) = anode([]);
 
-AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
+AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr))
                                                 = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
                                                   when size(lp) == size(rp) && getTypeParamNames(lp) == getTypeParamNames(rp) && size(getTypeParamNames(lp)) > 0 &&
                                                        sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
-                                                                         
-AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
+
+AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr))
                                                 = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
                                                   when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
-                                                                         
+
 AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
 AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
 
@@ -647,7 +646,7 @@ AType alub(AType l, aalias(str _, list[AType] _, AType aliased)) = alub(l, alias
 
 // From "Exploring Type Parameters (adapted to keep aparameter as long as possible)
 AType alub(p1:aparameter(n1, b1,closed=false), aparameter(n2, b2,closed=false)) = n1 == n2 && b1 == gl ? p1 : gl when gl := aglb(b1, b2);
-AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2),closed=true) 
+AType alub(p:aparameter(n1, b1,closed=true), aparameter(n2, b2, closed=true)) = n1 == n2 ? aparameter(n1, aglb(b1, b2),closed=true)
                                                               : lb == b1 ? p : lb when lb := alub(b1, b2);
 
 AType alub(p1:aparameter(n1, b1,closed=false), p2:aparameter(n2, b2,closed=true)) = n1 == n2 && lb == b1 ? p1 : lb when lb := alub(b1, p2);
@@ -699,8 +698,8 @@ AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, l
         return avalue();
 }
 
-public list[AType] alubList(list[AType] l, list[AType] r) = [alub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
-default list[AType] alubList(list[AType] l, list[AType] r) = [avalue()]; 
+public list[AType] alubList(list[AType] l, list[AType] r) = [alub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r);
+default list[AType] alubList(list[AType] l, list[AType] r) = [avalue()];
 
 private list[str] getTypeParamNames(list[AType] l) = [ s | li <- l, aparameter(s,_) := li];
 
@@ -719,13 +718,13 @@ public bool comparableOrNum(AType l, AType r) {
         case areal() => anum()
         case arat() => anum()
     };
-    
+
     rightAsNum = visit(r) {
         case aint() => anum()
         case areal() => anum()
         case arat() => anum()
     };
-    
+
     return comparable(l, r) || comparable(leftAsNum,rightAsNum);
 }
 
@@ -750,8 +749,8 @@ public AType aglb(anum(), arat())    = arat();
 public AType aglb(areal(), anum())   = areal();
 public AType aglb(anum(), areal())   = areal();
 
-public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));  
-public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));  
+public AType aglb(aset(AType s), aset(AType t)) = aset(aglb(s, t));
+public AType aglb(aset(AType s), arel(AType t)) = aset(aglb(s,atuple(t)));
 public AType aglb(arel(AType s), aset(AType t)) = aset(aglb(atuple(s), t));
 
 AType aglb(arel(atypeList(list[AType] l)), arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(aglbList(l, r))) : aset(avalue());
@@ -763,9 +762,9 @@ AType aglb(overloadedAType(overloads), AType t2)
 AType aglb(AType t1, overloadedAType(overloads))
     //TODO: Alternative: = aglb(t1, (\avoid() | alub(it, tp) | <_, _, tp> <- overloads));
     = isEmpty(overloads) ? t1 : aglb(t1, (avoid() | alub(it, tp)  | <_, _, tp> <- overloads));
-    
-public AType aglb(alist(AType s), alist(AType t)) = alist(aglb(s, t));  
-public AType aglb(alist(AType s), alrel(AType t)) = alist(aglb(s,atuple(t)));  
+
+public AType aglb(alist(AType s), alist(AType t)) = alist(aglb(s, t));
+public AType aglb(alist(AType s), alrel(AType t)) = alist(aglb(s,atuple(t)));
 public AType aglb(alrel(AType s), alist(AType t)) = alist(aglb(atuple(s), t));
 
 AType aglb(alrel(atypeList(list[AType] l)), alrel(atypeList(list[AType] r))) = size(l) == size(r) ? alrel(atypeList(aglbList(l, r))) : alist(avalue());
@@ -779,16 +778,16 @@ public AType aglb(abag(AType s), abag(AType t)) = abag(aglb(s, t));
 public AType aglb(anode(list[AType] l), aadt(str _, list[AType] _, SyntaxRole _), SyntaxRole _) = anode(l);
 public AType aglb(aadt(str _, list[AType] _, SyntaxRole _), anode(list[AType] r)) = anode(r);
 
-AType aglb(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
+AType aglb(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr))
     = addADTLabel(a1, a2, aadt(n, aglbList(lp,rp), sr))
       when size(lp) == size(rp) && getTypeParamNames(lp) == getTypeParamNames(rp) && size(getTypeParamNames(lp)) > 0 &&
            sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
-                                                                         
-AType aglb(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
+
+AType aglb(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr))
     = addADTLabel(a1, a2, aadt(n, aglbList(lp,rp), sr))
-      when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 && 
+      when size(lp) == size(rp) && size(getTypeParamNames(lp)) == 0 &&
            sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
-                                                                         
+
 AType aglb(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
 AType aglb(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = aglb(a1,b);
 
@@ -826,5 +825,5 @@ public AType aglb(afunc(AType lr, list[AType] lp, list[Keyword] kwl), afunc(ATyp
         return avalue();
 }
 
-public list[AType] aglbList(list[AType] l, list[AType] r) = [aglb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
-public default list[AType] aglbList(list[AType] l, list[AType] r) = [avalue()]; 
+public list[AType] aglbList(list[AType] l, list[AType] r) = [aglb(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r);
+public default list[AType] aglbList(list[AType] l, list[AType] r) = [avalue()];
