@@ -123,7 +123,6 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                         println("--- using <lm> (most recent) version of <m>,
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                     }
-                    ms = deleteModule(m, ms);
                }
            }
 
