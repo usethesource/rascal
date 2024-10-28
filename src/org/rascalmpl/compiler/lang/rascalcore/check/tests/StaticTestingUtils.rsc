@@ -18,7 +18,7 @@ import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::check::Checker;
 
-bool verbose = false;
+bool verbose = true;
 
 PathConfig pathConfigForTesting() {
   return getDefaultTestingPathConfig();
@@ -60,6 +60,12 @@ loc writeModule(str moduleText){
     mloc = |memory:///test-modules/<cleanName(mname)>.rsc|;
     writeFile(mloc, moduleText);
     return mloc;
+}
+
+void writeModules(str modules...){
+	for(mname <- modules){
+		writeModule(mname);
+	}
 }
 
 void removeModule(str mname){

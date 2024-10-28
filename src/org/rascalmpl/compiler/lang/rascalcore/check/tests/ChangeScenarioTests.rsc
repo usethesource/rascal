@@ -25,121 +25,121 @@ test bool fixMissingExtend(){
 test bool fixErrorInImport(){
     clearMemory();
     assert checkModuleOK("module A public bool b = false;");
-    moduleB = "module B import A; int n = b + 1;";
-    assert unexpectedTypeInModule(moduleB);
+    B = "module B import A; int n = b + 1;";
+    assert unexpectedTypeInModule(B);
     assert checkModuleOK("module A public int b = 0;"); // change b to type int
-    return checkModuleOK(moduleB);
+    return checkModuleOK(B);
 }
 
 test bool fixErrorInExtend(){
     clearMemory();
     assert checkModuleOK("module A bool b = false;");
-    moduleB = "module B extend A; int n = b + 1;";
-    assert unexpectedTypeInModule(moduleB);
+    B = "module B extend A; int n = b + 1;";
+    assert unexpectedTypeInModule(B);
     assert checkModuleOK("module A int b = 0;"); // change b to type int
-    return checkModuleOK(moduleB);
+    return checkModuleOK(B);
 }
 
 test bool introduceErrorInImport(){
     clearMemory();
     assert checkModuleOK("module A public int b = 0;");
-    moduleB = "module B import A; int n = b + 1;";
-    assert checkModuleOK(moduleB);
+    B = "module B import A; int n = b + 1;";
+    assert checkModuleOK(B);
     assert checkModuleOK("module A public bool b = false;");
-    return unexpectedTypeInModule(moduleB);
+    return unexpectedTypeInModule(B);
 }
 
 test bool introduceErrorInExtend(){
     clearMemory();
     assert checkModuleOK("module A int b = 0;");
-    moduleB = "module B extend A; int n = b + 1;";
-    assert checkModuleOK(moduleB);
+    B = "module B extend A; int n = b + 1;";
+    assert checkModuleOK(B);
     assert checkModuleOK("module A bool b = false;");
-    return unexpectedTypeInModule(moduleB);
+    return unexpectedTypeInModule(B);
 }
 
-test bool removeImportedModuleAndRestoreIt1(){
+test bool removeImportedAndRestoreIt1(){
     clearMemory();
     assert checkModuleOK("module A");
-    moduleB = "module B import A;";
-    assert checkModuleOK(moduleB);
+    B = "module B import A;";
+    assert checkModuleOK(B);
     removeModule("A");
-    assert missingModuleInModule(moduleB);
+    assert missingModuleInModule(B);
     assert checkModuleOK("module A");
-    return checkModuleOK(moduleB);
+    return checkModuleOK(B);
 }
 
-test bool removeImportedModuleAndRestoreIt2(){
+test bool removeImportedAndRestoreIt2(){
     clearMemory();
-    moduleA = "module A int twice(int n) = n * n;";
-    assert checkModuleOK(moduleA);
-    moduleB = "module B import A; int quad(int n) = twice(twice(n));";
-    assert checkModuleOK(moduleB);
+    A = "module A int twice(int n) = n * n;";
+    assert checkModuleOK(A);
+    B = "module B import A; int quad(int n) = twice(twice(n));";
+    assert checkModuleOK(B);
     removeModule("A");
-    assert missingModuleInModule(moduleB);
-    assert checkModuleOK(moduleA);
-    return checkModuleOK(moduleB);
+    assert missingModuleInModule(B);
+    assert checkModuleOK(A);
+    return checkModuleOK(B);
 }
 
-test bool removeExtendedModuleAndRestoreIt1(){
+test bool removeExtendedAndRestoreIt1(){
     clearMemory();
-    moduleA = "module A";
-    assert checkModuleOK(moduleA);
-    moduleB = "module B extend A;";
-    assert checkModuleOK(moduleB);
+    A = "module A";
+    assert checkModuleOK(A);
+    B = "module B extend A;";
+    assert checkModuleOK(B);
     removeModule("A");
-    assert missingModuleInModule(moduleB);
-    assert checkModuleOK(moduleA);
-    return checkModuleOK(moduleB);
+    assert missingModuleInModule(B);
+    assert checkModuleOK(A);
+    return checkModuleOK(B);
 }
 
-test bool removeExtendedModuleAndRestoreIt2(){
+test bool removeExtendedAndRestoreIt2(){
     clearMemory();
-    moduleA = "module A int twice(int n) = n * n;";
-    assert checkModuleOK(moduleA);
-    moduleB = "module B extend A; int quad(int n) = twice(twice(n));";
-    assert checkModuleOK(moduleB);
+    A = "module A int twice(int n) = n * n;";
+    assert checkModuleOK(A);
+    B = "module B extend A; int quad(int n) = twice(twice(n));";
+    assert checkModuleOK(B);
     removeModule("A");
-    assert missingModuleInModule(moduleB);
-    assert checkModuleOK(moduleA);
-    return checkModuleOK(moduleB);
+    assert missingModuleInModule(B);
+    assert checkModuleOK(A);
+    return checkModuleOK(B);
 }
 
 test bool removeOverloadAndRestoreIt(){
     clearMemory();
-    moduleA1 = "module A
-                int dup(int n) = n + n;
-                str dup(str s) = s + s;";
-    moduleA2 = "module A
-                int dup(int n) = n + n;";
-    assert checkModuleOK(moduleA1);
-    moduleB = "module B import A;  str f(str s) = dup(s);";
-    assert checkModuleOK(moduleB);
+    A1 = "module A
+            int dup(int n) = n + n;
+            str dup(str s) = s + s;";
+    A2 = "module A
+            int dup(int n) = n + n;";
+    assert checkModuleOK(A1);
+    B = "module B import A;  str f(str s) = dup(s);";
+    assert checkModuleOK(B);
     removeModule("A");
-    assert missingModuleInModule(moduleB);
+    assert missingModuleInModule(B);
 
-    assert checkModuleOK(moduleA2);
-    assert argumentMismatchInModule(moduleB);
-    assert checkModuleOK(moduleA1);
-    return checkModuleOK(moduleB);
+    assert checkModuleOK(A2);
+    assert argumentMismatchInModule(B);
+    assert checkModuleOK(A1);
+    return checkModuleOK(B);
 }
 
 test bool removeConstructorAndRestoreIt(){
     clearMemory();
-    moduleA1 = "module A
-                data D = d(int n) | d(str s);";
-    moduleA2 = "module A
-                data D = d(int n);";
-    assert checkModuleOK(moduleA1);
-    moduleB = "module B import A;  D f(str s) = d(s);";
-    assert checkModuleOK(moduleB);
+    A1 = "module A
+            data D = d(int n) | d(str s);";
+    A2 = "module A
+            data D = d(int n);";
+    assert checkModuleOK(A1);
+    B = "module B import A;  D f(str s) = d(s);";
+    assert checkModuleOK(B);
     removeModule("A");
-    assert missingModuleInModule(moduleB);
+    assert missingModuleInModule(B);
 
-    assert checkModuleOK(moduleA2);
-    assert argumentMismatchInModule(moduleB);
-    assert checkModuleOK(moduleA1);
-    return checkModuleOK(moduleB);
+    assert checkModuleOK(A2);
+    assert argumentMismatchInModule(B);
+    assert checkModuleOK(A1);
+    return checkModuleOK(B);
 }
 
 // ---- incremental type checking ---------------------------------------------
@@ -150,6 +150,7 @@ test bool removeConstructorAndRestoreIt(){
 //      X >>> Y: replace X by Y
 //      *X     : check starts at X
 //      X!     : X is (re)checked
+//      X?     : X contains error
 
 // Scenarios:
 //     I        II      III     IV      V       VI
@@ -164,36 +165,36 @@ test bool removeConstructorAndRestoreIt(){
 
 test bool nobreakingChange1(){
     clearMemory();
-    moduleA1 = "module A";
-    moduleA2 = "module A
-                    public int n = 3;";
-    moduleA3 = "module A
-                    public int n = 3;
-                    data D = d1();";
+    A1 = "module A";
+    A2 = "module A
+            public int n = 3;";
+    A3 = "module A
+            public int n = 3;
+            data D = d1();";
 
-    assert expectReChecks(moduleA1, ["A"]);    // I
+    assert expectReChecks(A1, ["A"]);    // I
 
-    moduleB1 = "module B
-                    import A;";
-    moduleB2 = "module B
-                    import A;
-                    public int m = n + 1;";
-    assert expectReChecks(moduleB1, ["B"]);    // II
+    B1 = "module B
+            import A;";
+    B2 = "module B
+            import A;
+            public int m = n + 1;";
+    assert expectReChecks(B1, ["B"]);    // II
 
-    writeModule(moduleA2);
-    assert expectReChecks(moduleB1, ["A"]);    // III
+    writeModule(A2);
+    assert expectReChecks(B1, ["A"]);    // III
 
-    moduleC1 = "module C
-                    import B;
-                    int f() = 2;";
-    assert expectReChecks(moduleC1, ["C"]);    // IV
+    C1 = "module C
+            import B;
+            int f() = 2;";
+    assert expectReChecks(C1, ["C"]);    // IV
 
-    writeModule(moduleA3);
+    writeModule(A3);
 
-    assert expectReChecks(moduleC1, ["A"]);    // V
+    assert expectReChecks(C1, ["A"]);    // V
 
-    writeModule(moduleB2);
-    return expectReChecks(moduleC1, ["B"]);    // VI
+    writeModule(B2);
+    return expectReChecks(C1, ["B"]);    // VI
 }
 
 
@@ -212,24 +213,20 @@ test bool nobreakingChange1(){
 
 test bool nobreakingChange2(){
     clearMemory();
-    moduleA1 = "module A";
-    moduleB1 = "module B import A;";
-    moduleC1 = "module C import B;";
-    moduleD1 = "module D import A; import B;";
-    moduleE1 = "module E import C; import D;";
+    A1 = "module A";
+    B1 = "module B import A;";
+    C1 = "module C import B;";
+    D1 = "module D import A; import B;";
+    E1 = "module E import C; import D;";
 
-    moduleB2 = "module B import A; int n = 0;";
+    B2 = "module B import A; int n = 0;";
 
-    writeModule(moduleA1);
-    writeModule(moduleB1);
-    writeModule(moduleC1);
-    writeModule(moduleD1);
-    writeModule(moduleE1);
+    writeModules(A1, B1, C1, D1, E1);
 
-    assert expectReChecks(moduleE1, ["A", "B", "C", "D", "E"]);    // I
+    assert expectReChecks(E1, ["A", "B", "C", "D", "E"]);    // I
 
-    writeModule(moduleB2);
-    return expectReChecks(moduleC1, ["B"]);                        // II
+    writeModule(B2);
+    return expectReChecks(C1, ["B"]);                        // II
 }
 
 //      I                   II
@@ -246,24 +243,20 @@ test bool nobreakingChange2(){
 
 test bool noBreakingChange3(){
     clearMemory();
-    moduleA1 = "module A";
-    moduleB1 = "module B import A; int b() = 1;";
-    moduleC1 = "module C import B; int c() = b();";
-    moduleD1 = "module D import A; import B;";
-    moduleE1 = "module E import C; import D;";
+    A1 = "module A";
+    B1 = "module B import A; int b() = 1;";
+    C1 = "module C import B; int c() = b();";
+    D1 = "module D import A; import B;";
+    E1 = "module E import C; import D;";
 
-    moduleB2 = "module B import A; int b(int n) = n;";
+    B2 = "module B import A; int b(int n) = n;";
 
-    writeModule(moduleA1);
-    writeModule(moduleB1);
-    writeModule(moduleC1);
-    writeModule(moduleD1);
-    writeModule(moduleE1);
-                                                        // I
-    assert expectReChecks(moduleE1, ["A", "B", "C", "D", "E"]);
+    writeModules(A1, B1, C1, D1, E1);
 
-    writeModule(moduleB2);
-    return expectReChecksWithErrors(moduleC1, ["B", "C"]);  // II
+    assert expectReChecks(E1, ["A", "B", "C", "D", "E"]);   // I
+
+    writeModule(B2);
+    return expectReChecksWithErrors(C1, ["B", "C"]);        // II
 }
 
 //      I       II             III       IV
@@ -278,27 +271,25 @@ test bool noBreakingChange3(){
 //
 test bool noBreakingChange4(){
     clearMemory();
-    moduleA1 = "module A";
-    moduleA2 = "module A int a() = 0;";
-    moduleB1 = "module B import A; int b() = 1;";
-    moduleC1 = "module C import B; int c() = b();";
-    moduleC2 = "module C import B; import D; int c() = b();";
-    moduleD1 = "module D import A;";
+    A1 = "module A";
+    A2 = "module A int a() = 0;";
+    B1 = "module B import A; int b() = 1;";
+    C1 = "module C import B; int c() = b();";
+    C2 = "module C import B; import D; int c() = b();";
+    D1 = "module D import A;";
 
-    writeModule(moduleA1);
-    writeModule(moduleB1);
-    writeModule(moduleC1);
+    writeModules(A1, B1, C1);
 
-    assert expectReChecks(moduleC1, ["A", "B", "C"]);  // I
+    assert expectReChecks(C1, ["A", "B", "C"]);  // I
 
-    writeModule(moduleD1);
-    assert expectReChecks(moduleD1, ["D"]);            // II
+    writeModule(D1);
+    assert expectReChecks(D1, ["D"]);            // II
 
-    writeModule(moduleA2);
-    assert expectReChecks(moduleC1, ["A"]);            // III
+    writeModule(A2);
+    assert expectReChecks(C1, ["A"]);            // III
 
-     writeModule(moduleC2);
-     return expectReChecks(moduleC2, ["C", "D"]);      // IV
+     writeModule(C2);
+     return expectReChecks(C2, ["C", "D"]);      // IV
 }
 
 //          Math---------->Exception
@@ -316,70 +307,91 @@ test bool noBreakingChange4(){
 //            +-----------------+
 
 test bool noBreakingChange5(){
-    moduleException1 = "module Exception";
-    moduleException2 = "module Exception
+    Exception1 = "module Exception";
+    Exception2 = "module Exception
                             int n = 0;";
-    moduleMath = "module Math import Exception; import List; ";
-    moduleList = "module List import Map; import Exception; ";
-    moduleMap = "module Map";
-    moduleSet1 = "module Set import List; import Exception; import Math;";
-    moduleSet2 = "module Set import List; import Exception; import Math;
+    Math = "module Math import Exception; import List; ";
+    List = "module List import Map; import Exception; ";
+    Map  = "module Map";
+    Set1 = "module Set import List; import Exception; import Math;";
+    Set2 = "module Set import List; import Exception; import Math;
                         int m = 0;";
-    moduleTop = "module Top  import List; import Set; ";
+    Top  = "module Top  import List; import Set; ";
 
-    writeModule(moduleException1);
-    writeModule(moduleMath);
-    writeModule(moduleList);
-    writeModule(moduleMap);
-    writeModule(moduleSet1);
-    writeModule(moduleTop);
+    writeModules(Exception1, Math, List, Map, Set1, Top);
 
-    assert expectReChecks(moduleTop, ["Exception", "Math", "List", "Map", "Set", "Top"]);
+    assert expectReChecks(Top, ["Exception", "Math", "List", "Map", "Set", "Top"]);
 
-    writeModule(moduleException2);
-    assert expectReChecks(moduleTop, ["Exception"]);
+    writeModule(Exception2);
+    assert expectReChecks(Top, ["Exception"]);
 
-    writeModule(moduleSet2);
-    assert expectReChecks(moduleTop, ["Set"]);
+    writeModule(Set2);
+    assert expectReChecks(Top, ["Set"]);
 
-    writeModule(moduleException1);
-    writeModule(moduleSet1);
-    return expectReChecks(moduleTop, ["Exception", "Set"]);
+    writeModule(Exception1);
+    writeModule(Set1);
+    return expectReChecks(Top, ["Exception", "Set"]);
 }
+
+//   +-->A1!<-+  >>>  +-->A2!<-+         +-->A2<--+
+//   |        |       |        |         |        |
+//   B!       C1!     B!       C1!?  >>> B        C2!
+//   ^        ^       ^        ^         ^        ^
+//   |        |       |        |         |        |
+//   +---D!---+       +----D---+         +----D---+
+
+test bool breakingChange1(){
+    clearMemory();
+    A1 = "module A int f(int n) = n; int g() = 42;";
+    A2 = "module A int f(int n) = n;";
+    B  = "module B import A; int ff(int n) = f(n);";
+    C1 = "module C import A; int fff(int n) = f(n); int gg() = g();";
+    C2 = "module C import A; int fff(int n) = f(n);";
+    D  = "module D import B; import C;";
+
+    writeModules(A1, B, C1, D);
+
+    assert expectReChecks(D, ["A", "B", "C", "D"]);
+    writeModule(A2);
+    assert expectReChecksWithErrors(D, ["A", "B", "C"]);
+    writeModule(C2);
+    return expectReChecks(D, ["C", "D"]);
+}
+
 // ---- touch and recheck modules ---------------------------------------------
 
-bool touchAndCheck(loc topModule, list[str] moduleNames, PathConfig pcfg){
+bool touchAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
     println("TOUCH <moduleNames>");
     for(mname <- moduleNames){
         touch(getModuleLocation(mname, pcfg));
     }
-    return expectReChecks(topModule, moduleNames, pathConfig=pcfg);
+    return expectReChecks(Top, moduleNames, pathConfig=pcfg);
 }
 
 test bool onlyTouchedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
-    assert checkModuleOK(topModule, pathConfig = pcfg);
+    Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    assert checkModuleOK(Top, pathConfig = pcfg);
 
-    assert touchAndCheck(topModule, ["Exception"], pcfg);
-    assert touchAndCheck(topModule, ["Set"], pcfg);
-    assert touchAndCheck(topModule, ["Grammar"], pcfg);
-    return touchAndCheck(topModule, ["Exception", "Set", "Grammar"], pcfg);
+    assert touchAndCheck(Top, ["Exception"], pcfg);
+    assert touchAndCheck(Top, ["Set"], pcfg);
+    assert touchAndCheck(Top, ["Grammar"], pcfg);
+    return touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg);
 }
 
 @ignore{Very expensive test}
 test bool onlyTouchedModulesAreReChecked2(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
-    assert checkModuleOK(topModule, pathConfig = pcfg);
+    Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    assert checkModuleOK(Top, pathConfig = pcfg);
 
-    assert touchAndCheck(topModule, ["Exception"], pcfg);
-    assert touchAndCheck(topModule, ["Set"], pcfg);
-    assert touchAndCheck(topModule, ["Exception", "Set"], pcfg);
-    assert touchAndCheck(topModule, ["lang::rascalcore::check::CollectType"], pcfg);
-    return touchAndCheck(topModule, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg);
+    assert touchAndCheck(Top, ["Exception"], pcfg);
+    assert touchAndCheck(Top, ["Set"], pcfg);
+    assert touchAndCheck(Top, ["Exception", "Set"], pcfg);
+    assert touchAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg);
+    return touchAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg);
 }
 
 // ---- change and recheck modules --------------------------------------------
@@ -408,22 +420,22 @@ void restoreModules(list[str] moduleNames, PathConfig pcfg){
     }
 }
 
-bool changeAndCheck(loc topModule, list[str] moduleNames, PathConfig pcfg){
+bool changeAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
     println("CHANGE <moduleNames>");
     changeModules(moduleNames, pcfg);
-    return expectReChecks(topModule, moduleNames, pathConfig=pcfg);
+    return expectReChecks(Top, moduleNames, pathConfig=pcfg);
 }
 
 test bool onlyChangedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
-    assert checkModuleOK(topModule, pathConfig = pcfg);
+    Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    assert checkModuleOK(Top, pathConfig = pcfg);
 
-    assert changeAndCheck(topModule, ["Exception"], pcfg);
-    assert changeAndCheck(topModule, ["Set"], pcfg);
-    assert changeAndCheck(topModule, ["Grammar"], pcfg);
-    assert changeAndCheck(topModule, ["Exception", "Set", "Grammar"], pcfg);
+    assert changeAndCheck(Top, ["Exception"], pcfg);
+    assert changeAndCheck(Top, ["Set"], pcfg);
+    assert changeAndCheck(Top, ["Grammar"], pcfg);
+    assert changeAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg);
 
     restoreModules(["Exception", "Set", "Grammar"], pcfg);
     return true;
@@ -433,14 +445,14 @@ test bool onlyChangedModulesAreReChecked1(){
 test bool onlyChangedModulesAreReChecked2(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
-    assert checkModuleOK(topModule, pathConfig = pcfg);
+    Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    assert checkModuleOK(Top, pathConfig = pcfg);
 
-    assert changeAndCheck(topModule, ["Exception"], pcfg);
-    assert changeAndCheck(topModule, ["Set"], pcfg);
-    assert changeAndCheck(topModule, ["Exception", "Set"], pcfg);
-    assert changeAndCheck(topModule, ["lang::rascalcore::check::CollectType"], pcfg);
-    assert changeAndCheck(topModule, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
+    assert changeAndCheck(Top, ["Exception"], pcfg);
+    assert changeAndCheck(Top, ["Set"], pcfg);
+    assert changeAndCheck(Top, ["Exception", "Set"], pcfg);
+    assert changeAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg);
+    assert changeAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                                       "lang::rascalcore::check::CollectType"], pcfg);
     restoreModules(["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                     "lang::rascalcore::check::CollectType"], pcfg);
@@ -460,14 +472,14 @@ map[str,num] benchmark(lrel[str, void()] cases){
 void miniBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("ParseTree", pcfg);
+    Top = getModuleLocation("ParseTree", pcfg);
 
     cases =
-        [<"ParseTree, first", void(){ checkModuleOK(topModule, pathConfig = pcfg); }>,
-         <"ParseTree, nochange", void(){ checkModuleOK(topModule, pathConfig = pcfg); }>,
-         <"Exception", void(){ touchAndCheck(topModule, ["Exception"], pcfg); }>,
-         <"Set", void(){ touchAndCheck(topModule, ["Set"], pcfg); }>,
-         <"Exception+Set", void(){ touchAndCheck(topModule, ["Exception", "Set"], pcfg); }>
+        [<"ParseTree, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"ParseTree, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
+         <"Exception+Set", void(){ touchAndCheck(Top, ["Exception", "Set"], pcfg); }>
         ];
     iprintln(benchmark(cases));
 }
@@ -475,15 +487,15 @@ void miniBenchmarkRechecking(){
 void mediumBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
 
     cases =
-        [<"analysis::grammars::Ambiguity, first", void(){ checkModuleOK(topModule, pathConfig = pcfg); }>,
-         <"analysis::grammars::Ambiguity, nochange", void(){ checkModuleOK(topModule, pathConfig = pcfg); }>,
-         <"Exception", void(){ touchAndCheck(topModule, ["Exception"], pcfg); }>,
-         <"Set", void(){ touchAndCheck(topModule, ["Set"], pcfg); }>,
-         <"Grammar", void(){ touchAndCheck(topModule, ["Grammar"], pcfg); }>,
-         <"Exception+Set+Grammar", void(){ touchAndCheck(topModule, ["Exception", "Set", "Grammar"], pcfg); }>
+        [<"analysis::grammars::Ambiguity, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"analysis::grammars::Ambiguity, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
+         <"Grammar", void(){ touchAndCheck(Top, ["Grammar"], pcfg); }>,
+         <"Exception+Set+Grammar", void(){ touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg); }>
         ];
 
     iprintln(benchmark(cases));
@@ -492,15 +504,15 @@ void mediumBenchmarkRechecking(){
 void largeBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    topModule = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
 
     cases =
-        [<"lang::rascalcore::check::Checker", void(){ checkModuleOK(topModule, pathConfig = pcfg); }>,
-         <"Exception", void(){ touchAndCheck(topModule, ["Exception"], pcfg); }>,
-         <"Set", void(){ touchAndCheck(topModule, ["Set"], pcfg); }>,
-         <"Exception+Set", void(){ touchAndCheck(topModule, ["Exception", "Set"], pcfg); }>,
-         <"lang::rascalcore::check::CollectType", void(){ touchAndCheck(topModule, ["lang::rascalcore::check::CollectType"], pcfg); }>,
-         <"5 modules changed", void(){ touchAndCheck(topModule, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg); }>
+        [<"lang::rascalcore::check::Checker", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
+         <"Exception+Set", void(){ touchAndCheck(Top, ["Exception", "Set"], pcfg); }>,
+         <"lang::rascalcore::check::CollectType", void(){ touchAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg); }>,
+         <"5 modules changed", void(){ touchAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg); }>
         ];
 
     iprintln(benchmark(cases));
