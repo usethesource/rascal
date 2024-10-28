@@ -99,8 +99,8 @@ void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
 }
 // ---- structured types ------------------------------------------------------
 
-@doc{Convert structured types, such as list<<int>>. Check here for certain syntactical 
-conditions, such as: all field names must be distinct in a given type; lists require 
+@doc{Convert structured types, such as list<<int>>. Check here for certain syntactical
+conditions, such as: all field names must be distinct in a given type; lists require
 exactly one type argument; etc.}
 
 public list[&T] dup(list[&T] lst) {
@@ -115,7 +115,7 @@ public list[&T] dup(list[&T] lst) {
 
 void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
    targs = [ta | ta <- tas];
-    
+
    collect(targs[0], c);
    try {
         dt = c.getType(targs[0]);
@@ -124,8 +124,8 @@ void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
         }
         c.fact(current, makeListType(dt));
    } catch TypeUnavailable():{
-        c.calculate("list type", current, targs, 
-            AType(Solver s){ 
+        c.calculate("list type", current, targs,
+            AType(Solver s){
                 dt = s.getType(targs[0]);
                 if (!isEmpty(dt.alabel)) {
                     s.report(warning(tas, "Element name `<dt.alabel>` ignored"));
@@ -143,7 +143,7 @@ void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
 void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     collect(targs[0], c);
-  
+
     try {
         dt = c.getType(targs[0]);
         if (!isEmpty(dt.alabel)) {
@@ -151,13 +151,13 @@ void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
         }
         c.fact(current, makeSetType(dt));
     } catch TypeUnavailable():{
-        c.calculate("set type", current, targs, 
-            AType(Solver s){ 
+        c.calculate("set type", current, targs,
+            AType(Solver s){
                 dt = s.getType(targs[0]);
                 if (!isEmpty(dt.alabel)) {
                     s.report(warning(tas, "Element name `<dt.alabel>` ignored"));
                 }
-                return makeSetType(dt); 
+                return makeSetType(dt);
             });
     }
     if(size(targs) != 1){
@@ -169,7 +169,7 @@ void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
 
 void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    collect(targs[0], c); 
+    collect(targs[0], c);
     try {
         c.fact(current, makeBagType(c.getType(targs[0])));
     } catch TypeUnavailable(): {
@@ -183,7 +183,7 @@ void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
 // ---- map
 
 tuple[list[FailMessage] msgs, AType atype] handleMapFields({TypeArg ","}+ tas, AType dt, AType rt){
-    if (!isEmpty(dt.alabel) && !isEmpty(rt.alabel) && dt.alabel != rt.alabel) { 
+    if (!isEmpty(dt.alabel) && !isEmpty(rt.alabel) && dt.alabel != rt.alabel) {
         return <[], makeMapType(dt, rt)>;
     } else if (!isEmpty(dt.alabel) && !isEmpty(rt.alabel) && dt.alabel == rt.alabel) {
         return <[error(tas,"Non-well-formed map type, labels must be distinct")], makeMapType(unset(dt, "alabel"),unset(rt,"alabel"))>;
@@ -198,7 +198,7 @@ tuple[list[FailMessage] msgs, AType atype] handleMapFields({TypeArg ","}+ tas, A
 
 void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    
+
     if(size(targs) != 2){
         c.report(error(current, "Type `map` should have two type arguments"));
         c.fact(current, amap(avalue(), avalue()));
@@ -207,20 +207,20 @@ void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
     //c.push(currentAdt, <current, targs, c.getScope()>);
         collect(targs, c);
     //c.pop(currentAdt);
-   
+
     try {
         <msgs, result> = handleMapFields(tas, c.getType(targs[0]), c.getType(targs[1]));
         for(m <- msgs) c.report(m);
         c.fact(current, result);
     } catch TypeUnavailable(): {
-        c.calculate("map type", current, targs[0..2], 
+        c.calculate("map type", current, targs[0..2],
             AType(Solver s){
                 <msgs, result> = handleMapFields(tas, s.getType(targs[0]), s.getType(targs[1]));
                 for(m <- msgs) s.report(m);
-                return result;                    
+                return result;
         });
     }
-    
+
 }
 
 // ---- rel
@@ -249,7 +249,7 @@ void collect(current:(Type)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
         for(m <- msgs) c.report(m);
         c.fact(current, result);
     } catch TypeUnavailable(): {
-        c.calculate("rel type", current, targs, 
+        c.calculate("rel type", current, targs,
             AType(Solver s){
                  <msgs, result> = handleRelFields(tas,  [s.getType(ta) | ta <- targs]);
                  for(m <- msgs) s.report(m);
@@ -284,7 +284,7 @@ void collect(current:(Type)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
         for(m <- msgs) c.report(m);
         c.fact(current, result);
     } catch TypeUnavailable(): {
-        c.calculate("lrel type", current, targs, 
+        c.calculate("lrel type", current, targs,
             AType(Solver s){
                  <msgs, result> = handleListRelFields(tas,  [s.getType(ta) | ta <- targs]);
                  for(m <- msgs) s.report(m);
@@ -313,82 +313,82 @@ tuple[list[FailMessage] msgs, AType atype] handleTupleFields({TypeArg ","}+ tas,
         return <msgs+[error(tas, "Non-well-formed tuple type, labels must be distinct")], makeTupleType([unset(tp, "alabel") | tp <- fieldTypes])>;
     } else if (size(distinctLabels) > 0) {
         return <msgs+[warning(tas, "Field name ignored, field names must be provided for all fields or for none")], makeTupleType([unset(tp, "alabel") | tp <- fieldTypes])>;
-    } 
-    return <[], avoid()>; 
+    }
+    return <[], avoid()>;
 }
 
 void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
-    collect(tas, c);  
+    collect(tas, c);
     try {
         <msgs, result> = handleTupleFields(tas, [c.getType(ta) | ta <- targs]);
         for(m <- msgs) c.report(m);
         c.fact(current, result);
     } catch TypeUnavailable():{
-        c.calculate("tuple type", current, targs, 
+        c.calculate("tuple type", current, targs,
             AType(Solver s){
                 <msgs, result> = handleTupleFields(tas, [s.getType(ta) | ta <- targs]);
                 for(m <- msgs) s.report(m);
                 return result;
             });
     }
-} 
+}
 
 // ---- type
 
-tuple[list[FailMessage] msgs, AType atype] handleTypeField({TypeArg ","}+ tas, AType fieldType){  
+tuple[list[FailMessage] msgs, AType atype] handleTypeField({TypeArg ","}+ tas, AType fieldType){
     if (!isEmpty(fieldType.alabel)) {
         return <[warning(tas, "Field name `<fieldType.alabel>` ignored")], areified(fieldType)>;
     } else {
         return <[], areified(fieldType)>;
-    } 
+    }
 }
 
 void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     collect(targs[0], c);
-   
+
     try {
         <msgs, result> = handleTypeField(tas, c.getType(targs[0]));
         for(m <- msgs) c.report(m);
         c.fact(current, result);
     } catch TypeUnavailable(): {
-        c.calculate("type type", current, targs[0..1], 
+        c.calculate("type type", current, targs[0..1],
             AType(Solver s){
                 <msgs, result> = handleTypeField(tas,  s.getType(targs[0]));
                 for(m <- msgs) s.report(m);
                 return result;
              });
-    }  
+    }
     if(size(targs) != 1){
         c.report(error(current, "Non-well-formed type, type should have one type argument"));
     }
-}      
+}
 
 // ---- function type ---------------------------------------------------------
-    
-tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){  
+
+tuple[list[FailMessage] msgs, AType atype] handleFunctionType({TypeArg ","}* _, AType returnType, list[AType] argTypes){
     return <[], afunc(returnType, argTypes, [])>;
 }
 
 @doc{Convert Rascal function types into their abstract representation.}
 void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collector c) {
-    
+
     //println("collect: <current>");
     // return type, any type parameters should be closed
     beginUseTypeParameters(c, closed=true);
         collect(t, c);
     endUseTypeParameters(c);
-    
+
     targs = [ta | ta <- tas];
-   
+
     // When a function type occurs in a body, just use closed type parameters
     beginDefineOrReuseTypeParameters(c,closed=false);
         for(targ <- targs){
             collect(targ, c);
         }
     endDefineOrReuseTypeParameters(c);
-    
+
     c.calculate("function type", current, t + targs,
         AType(Solver s){
             <msgs, result> = handleFunctionType(tas, s.getType(t), [s.getType(ta) | ta <- targs]);
@@ -400,7 +400,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
 
 // ---- user defined type -----------------------------------------------------
 
-tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType baseType){  
+tuple[list[FailMessage] msgs, AType atype] handleUserType(QualifiedName n, AType baseType){
     if(aadt(adtName, _, _) := baseType){
         nformals = size(baseType.parameters);
         if(nformals > 0) return <[error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName)], baseType>;
@@ -426,13 +426,13 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
     } else {
         c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
-    
+
     try {
         <msgs, result> = handleUserType(n,  c.getType(n));
         for(m <- msgs) c.report(m);
         c.fact(current, result);
-    } catch TypeUnavailable(): 
-    
+    } catch TypeUnavailable():
+
     c.calculate("type without parameters", current, [n],
         AType(Solver s){
             <msgs, result> = handleUserType(n, s.getType(n));
@@ -449,7 +449,7 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
         c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
     actuals = [t | t <- ts];
-    
+
     c.calculate("parameterized type with parameters", current, n + actuals,
         AType(Solver s){
             nactuals = size(actuals);
@@ -462,7 +462,7 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
             } else if(aalias(aname, params, aliased) := baseType){
                 nformals = size(baseType.parameters);
                 if(nactuals != nformals) s.report(error(ts, "Expected %v type parameter(s) for %v, found %v", nformals, aname, nactuals));
-                
+
                 bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
                 return instantiateRascalTypeParameters(ts, aliased, bindings, s);
             }
@@ -492,7 +492,7 @@ str md5ContribSym(Nonterminal n) = "<n>";
 
 void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
     pname = prettyPrintName("<n>");
-    
+
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
@@ -509,8 +509,8 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
         //println("Use <pname> at <current@\loc>");
         c.fact(current, n);
         return;
-    }     
-   
+    }
+
     c.fact(current, aparameter(prettyPrintName("<n>"),treeType,closed=true));
 }
 
@@ -520,9 +520,9 @@ str md5ContribSym((Sym) `& <Nonterminal n>`)
 void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
     params = [p | p <- parameters];
     c.use(n, syntaxRoles);
-    c.calculate("parameterized <n>", current, n + params, 
-        AType(Solver s) { 
-            base = getSyntaxType(n, s); 
+    c.calculate("parameterized <n>", current, n + params,
+        AType(Solver s) {
+            base = getSyntaxType(n, s);
             s.requireTrue(isParameterizedNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
             nexpected = size(getADTTypeParameters(base)); nparams = size(params);
             s.requireTrue(nexpected == nparams, error(current, "Expected %v type parameter(s) for %q, found %v", nexpected, getADTName(base), nparams));
@@ -561,21 +561,21 @@ void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     } else {
         throw "Cannot compute md5 for <current>";
     }
-    
+
     // TODO require symbol is nonterminal
-    c.define(un, fieldId(), n, defType([symbol], 
-        AType(Solver s){ 
-            res = s.getType(symbol)[alabel=un]; 
+    c.define(un, fieldId(), n, defType([symbol],
+        AType(Solver s){
+            res = s.getType(symbol)[alabel=un];
           return res;
         })[md5=md5Hash("<md5Contrib><unparseNoLayout(current)>")]);
-      
+
     c.fact(current, n);
     collect(symbol, c);
 }
 
 str md5ContribSym((Sym) `<Sym symbol> <NonterminalLabel n>`)
     = "<md5ContribSym(symbol)><unescape("<n>")>";
-    
+
 // ---- literals
 
 void collect(current:(Sym) `<Class cc>`, Collector c){
@@ -607,15 +607,15 @@ bool isLexicalContext(Collector c){
     adtStack = c.getStack(currentAdt);
     if(!isEmpty(adtStack) && <Tree adt, list[KeywordFormal] _, _, _> := adtStack[0]){
         return !(adt is language);
-    } 
+    }
     return false;
 }
 
 void collect(current:(Sym) `<Sym symbol>+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
-    c.calculate("iter", current, [symbol], AType(Solver s) { 
-        symbol_type = s.getType(symbol); 
+    c.calculate("iter", current, [symbol], AType(Solver s) {
+        symbol_type = s.getType(symbol);
         return isLexical ? \iter(symbol_type, isLexical=true) : \iter(symbol_type);
         //return isLexical ? \iter(getSyntaxType(symbol, s), isLexical=true) : \iter(getSyntaxType(symbol, s));
     });
@@ -624,11 +624,11 @@ void collect(current:(Sym) `<Sym symbol>+`, Collector c){
 
 str md5ContribSym((Sym) `<Sym symbol>+`)
     = "<md5ContribSym(symbol)>PLUS";
-    
+
 void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
-    c.calculate("iterStar", current, [symbol], AType(Solver s) { 
+    c.calculate("iterStar", current, [symbol], AType(Solver s) {
         symbol_type = s.getType(symbol);
         return isLexical ? \iter-star(symbol_type, isLexical=true) : \iter-star(symbol_type);
         //return isLexical ? \iter-star(getSyntaxType(symbol, s), isLexical=true) : \iter-star(getSyntaxType(symbol, s));
@@ -638,12 +638,12 @@ void collect(current:(Sym) `<Sym symbol>*`, Collector c) {
 
 str md5ContribSym((Sym) `<Sym symbol>*`)
     = "<md5ContribSym(symbol)>STAR";
-    
+
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
-    c.calculate("iterSep", current, [symbol, sep], 
-        AType(Solver s) { 
+    c.calculate("iterSep", current, [symbol, sep],
+        AType(Solver s) {
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
             symbol_type = s.getType(symbol);
@@ -661,8 +661,8 @@ str md5ContribSym((Sym) `{ <Sym symbol> <Sym sep> }+`){
 void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
     isLexical = isLexicalContext(c);
-    c.calculate("iterStarSep", current, [symbol, sep], 
-        AType(Solver s) { 
+    c.calculate("iterStarSep", current, [symbol, sep],
+        AType(Solver s) {
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
             symbol_type = s.getType(symbol);
@@ -676,7 +676,7 @@ str md5ContribSym((Sym) `{ <Sym symbol> <Sym sep> }*`){
     res = "LC<md5ContribSym(symbol)><md5ContribSym(sep)>RCSTAR";
     return res;
 }
-    
+
 void validateSeparators(Tree current, list[AType] separators, Solver s){
     if(all(sep <- separators, isLayoutAType(sep)))
         s.report(warning(current, "At least one element of separators should be non-layout")); // TODO make error
@@ -708,11 +708,11 @@ str md5ContribSym((Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`)
 
 void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
     seqs = first + [seq | seq <- sequence];
-    c.calculate("sequence", current, seqs, 
-        AType(Solver s) { 
+    c.calculate("sequence", current, seqs,
+        AType(Solver s) {
             symbols = [s.getType(seq) | seq <- seqs];
             forbidConsecutiveLayout(current, symbols, s);
-            return AType::seq(symbols); 
+            return AType::seq(symbols);
         });
     collect(seqs, c);
 }
@@ -752,12 +752,12 @@ void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
 
 str md5ContribSym((Sym) `^ <Sym symbol>`)
     = "BEGIN<md5ContribSym(symbol)>";
-    
+
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     // TODO: c.use(n, {productionId()});
     un = unescape("<n>");
-    c.calculate("except", current, [symbol], AType(Solver s) { 
-        res = AType::conditional(s.getType(symbol), {ACondition::\a-except(un) }); 
+    c.calculate("except", current, [symbol], AType(Solver s) {
+        res = AType::conditional(s.getType(symbol), {ACondition::\a-except(un) });
         return res;
     });
     collect(symbol, c);
@@ -765,7 +765,7 @@ void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
 
 str md5ContribSym((Sym) `<Sym symbol> ! <NonterminalLabel n>`)
     = "<md5ContribSym(symbol)>EXCEPT<unescape("<n>")>";
-    
+
 bool isTerminal((Sym) `<Sym symbol> @ <IntegerLiteral _>`) = isTerminal(symbol);
 bool isTerminal((Sym) `<Sym symbol> $`) = isTerminal(symbol);
 bool isTerminal((Sym) `^ <Sym symbol>`) = isTerminal(symbol);
@@ -775,10 +775,10 @@ default bool isTerminal(Sym s)
     = s is literal || s is caseInsensitiveLiteral || s is characterClass;
 
 void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
-   c.calculate("follow", current, [symbol, match], 
-        AType(Solver s) { 
+   c.calculate("follow", current, [symbol, match],
+        AType(Solver s) {
             s.requireTrue(isTerminal(match), warning(match, "Followed By (`\>\>`) requires literal or character class, found %v", match));
-            return AType::conditional(s.getType(symbol), {ACondition::\follow(s.getType(match)) }); 
+            return AType::conditional(s.getType(symbol), {ACondition::\follow(s.getType(match)) });
         });
    collect(symbol, match, c);
 }
@@ -787,10 +787,10 @@ str md5ContribSym((Sym) `<Sym symbol>  \>\> <Sym match>`)
     = "<md5ContribSym(symbol)>FOLLOW<md5ContribSym(match)>";
 
 void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
-   c.calculate("notFollow", current, [symbol, match], 
-        AType(Solver s) { 
+   c.calculate("notFollow", current, [symbol, match],
+        AType(Solver s) {
             s.requireTrue(isTerminal(match), warning(match, "Not Followed By (`!\>\>`) requires literal or character class, found %v", match));
-            res = AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); 
+            res = AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) });
             return res;
         });
    collect(symbol, match, c);
@@ -798,12 +798,12 @@ void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
 
 str md5ContribSym((Sym) `<Sym symbol>  !\>\> <Sym match>`)
     = "<md5ContribSym(symbol)>NOTFOLLOW<md5ContribSym(match)>";
-    
+
 void collect(current:(Sym) `<Sym match>  \<\< <Sym symbol>`, Collector c){
-   c.calculate("precede", current, [match, symbol], 
-        AType(Solver s) { 
+   c.calculate("precede", current, [match, symbol],
+        AType(Solver s) {
             s.requireTrue(isTerminal(match), warning(match, "Preceded By (`\<\<`) requires literal or character class, found %v", match));
-            return AType::conditional(s.getType(symbol), {ACondition::\precede(s.getType(match)) }); 
+            return AType::conditional(s.getType(symbol), {ACondition::\precede(s.getType(match)) });
         });
    collect(match, symbol, c);
 }
@@ -812,20 +812,20 @@ str md5ContribSym((Sym) `<Sym match>  \<\< <Sym symbol>`)
     = "<md5ContribSym(match)>PRECEDE<md5ContribSym(symbol)>";
 
 void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
-   c.calculate("notPrecede", current, [match, symbol], 
-        AType(Solver s) { 
+   c.calculate("notPrecede", current, [match, symbol],
+        AType(Solver s) {
             s.requireTrue(isTerminal(match), warning(match, "Not Preceded By (`!\<\<`) requires literal or character class, found %v", match));
-            return AType::conditional(s.getType(symbol), {ACondition::\not-precede(s.getType(match)) }); 
+            return AType::conditional(s.getType(symbol), {ACondition::\not-precede(s.getType(match)) });
         });
    collect(match, symbol, c);
 }
 
 str md5ContribSym((Sym) `<Sym match>  !\<\< <Sym symbol>`)
     = "<md5ContribSym(match)>NOTPRECEDE<md5ContribSym(symbol)>";
-    
+
 void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
-   c.calculate("exclude", current, [symbol, match], 
-        AType(Solver s) { 
+   c.calculate("exclude", current, [symbol, match],
+        AType(Solver s) {
             t = s.getType(match);
             if(alit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){
                 s.report(error(match, "Exclude (`\\`) requires keywords as right argument, found %t", match));
@@ -847,7 +847,7 @@ void collect(Sym current, Collector c){
 
 void collect(current:(TypeVar) `& <Name n>`, Collector c){
     pname = prettyPrintName(n);
-    
+
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
@@ -865,22 +865,22 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
         }
         c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
-      
+
     } else if(<true, bool closed> := useTypeParameters(c)){
         c.use(n, {typeVarId() });
         //if(debugTP)println("Use <pname> at <current@\loc>, closed=<closed>");
         c.calculate("xxx", current, [n], AType (Solver s) { return s.getType(n)[closed=closed]; });
         return;
-    } else {        
+    } else {
         if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
             if(tpbounds[pname]?){
                 bnds = toList(tpbounds[pname]);
                 //if(debugTP)println("collect: Adding calculator for <pname>");
                 c.calculate("type parameter with bound", current, bnds,
-                    AType(Solver s){ 
+                    AType(Solver s){
                         new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                         return  aparameter(pname, new_bnd, closed=true);
-                    });  
+                    });
             } else {
                 //if(debugTP)println("collect: fact for <pname>, closed=<closed>");
                 c.fact(current, aparameter(pname, avalue(), closed=true));
@@ -893,12 +893,12 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     pname = prettyPrintName(n);
-    
+
     if(<true, bool closed> := defineOrReuseTypeParameters(c)){
         if(c.isAlreadyDefined(pname, n)){
             c.use(n, {typeVarId() });
             //if(debugTP)println("Use <pname> at <current@\loc>");
-        } else { 
+        } else {
             c.define(pname, typeVarId(), n, defTypeCall([getLoc(tp)], AType(Solver s) {return aparameter(pname,s.getType(tp), closed=closed); }));
             //if(debugTP)println("Define <pname> at <current@\loc>");
         }
@@ -910,17 +910,17 @@ void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     } else if(<true, rel[str, Type] tpbounds> := useBoundedTypeParameters(c)){
         if(!isEmpty(tpbounds[pname])){
             bnds = toList(tpbounds[pname]);
-            c.calculate("type parameter with bound", n, bnds, 
-                AType(Solver s){ 
+            c.calculate("type parameter with bound", n, bnds,
+                AType(Solver s){
                     new_bnd = (avalue() | aglb(it, s.getType(bnd)) | bnd <- bnds);
                     return  aparameter(prettyPrintName(n), s.getType(new_bnd), closed=true);
-                });  
+                });
         } else {
             c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp), closed=true); });
-        }  
+        }
         c.fact(current, n);
     }
-    
+
     collect(tp, c);
 }
 
