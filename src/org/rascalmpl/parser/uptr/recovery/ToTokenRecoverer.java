@@ -184,6 +184,11 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		AbstractStackNode<IConstructor>[] prod = stackNode.getProduction();
 		addEndMatchers(prod, prod.length-1, matchers, new HashSet<>());
 
+		IConstructor parentProduction = stackNode.getParentProduction();
+		if (parentProduction != null && ProductionAdapter.isContextFree(parentProduction)) {
+			matchers.add(new LiteralMatcher("\n"));
+		}
+
 		return matchers;
 	}
 	
