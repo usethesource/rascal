@@ -246,7 +246,9 @@ ModuleStatus rascalTModelForLocs(
                         msgs = [];
                         <success, pt, ms> = getModuleParseTree(m, ms);
                         if(success){
-                            msgs += [info("Checked <m>", pt.header.name@\loc)];
+                            if(compilerConfig.infoModuleChecked){
+                                msgs += [info("Checked <m>", pt.header.name@\loc)];
+                            }
                             check_imports:
                             for(imod <- pt.header.imports, imod has \module){
                                 iname = unescape("<imod.\module.name>");

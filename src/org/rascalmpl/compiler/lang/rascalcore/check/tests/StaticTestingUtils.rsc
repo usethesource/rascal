@@ -86,7 +86,7 @@ set[Message] getAllMessages(ModuleStatus r)
 
 ModuleStatus checkStatements(str stmts) {
 	mloc = composeModule(stmts);
-   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting()), dummy_compile1);
+   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
 }
 
 bool checkStatementsAndFilter(str stmts, list[str] expected) {
@@ -105,7 +105,7 @@ bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = fa
 	return checkModuleAndFilter(mloc, expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
 }
 bool checkModuleAndFilter(loc mloc, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
-    msgs = getAllMessages(rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfig), dummy_compile1));
+    msgs = getAllMessages(rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1));
 	if (verbose) {
      	println(msgs);
 	 }
@@ -133,7 +133,7 @@ bool checkOK(str stmts) {
 }
 
 bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) {
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig), dummy_compile1));
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1));
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
