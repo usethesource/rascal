@@ -140,16 +140,16 @@ public class Prelude {
 	protected final IValueFactory values;
 	protected final IRascalValueFactory rascalValues;
 	private final Random random;
-
+	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
 	private final TypeStore store;
 	private final IRascalMonitor monitor;
 	private final IResourceLocationProvider resourceProvider;
-
+	
 	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
-
+		
 		this.values = values;
 		this.rascalValues = rascalValues;
 		this.store = store;
@@ -165,17 +165,17 @@ public class Prelude {
         return t.randomValue(random, values, new TypeStore(), Collections.emptyMap(), depth, width);
     }
 
-
+	
 	/*
 	 * Boolean
 	 */
-
-
+	
+	
 	public IValue arbBool()  // get an arbitrary boolean value.}
 	{
 	  return values.bool(random.nextInt(2) == 1);
 	}
-
+	
 	/*
 	 * DateTime
 	 */
@@ -185,12 +185,12 @@ public class Prelude {
 	   return values.datetime(Calendar.getInstance().getTimeInMillis());
 	}
 
-	public IValue createDate(IInteger year, IInteger month, IInteger day)
+	public IValue createDate(IInteger year, IInteger month, IInteger day) 
 	//@doc{Create a new date.}
 	{
 		return values.date(year.intValue(), month.intValue(), day.intValue());
 	}
-
+	
 	public IValue createTime(IInteger hour, IInteger minute, IInteger second,
 			IInteger millisecond)
 	//@doc{Create a new time.}
@@ -205,8 +205,8 @@ public class Prelude {
 		return values.time(hour.intValue(), minute.intValue(), second.intValue(),
 				millisecond.intValue(), timezoneHourOffset.intValue(), timezoneMinuteOffset.intValue());
 	}
-
-	public IValue createDateTime(IInteger year, IInteger month, IInteger day,
+	
+	public IValue createDateTime(IInteger year, IInteger month, IInteger day, 
 			IInteger hour, IInteger minute, IInteger second, IInteger millisecond)
 	//@doc{Create a new datetime.}
 	{
@@ -215,7 +215,7 @@ public class Prelude {
 	}
 
 	public IValue createDateTime(IInteger year, IInteger month, IInteger day,
-			IInteger hour, IInteger minute, IInteger second, IInteger millisecond,
+			IInteger hour, IInteger minute, IInteger second, IInteger millisecond, 
 			IInteger timezoneHourOffset, IInteger timezoneMinuteOffset)
 	//@doc{Create a new datetime with the given numeric timezone offset.}
 	{
@@ -223,8 +223,8 @@ public class Prelude {
 				minute.intValue(), second.intValue(), millisecond.intValue(), timezoneHourOffset.intValue(),
 				timezoneMinuteOffset.intValue());
 	}
-
-
+		
+	
 	public IDateTime arbDateTime() {
 	    return (IDateTime) createRandomValue(TypeFactory.getInstance().dateTimeType(), 5, 5);
 	}
@@ -243,29 +243,29 @@ public class Prelude {
 				values.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(),
 						dt.getMillisecondsOfSecond(), dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
 	}
-
-
+	
+	
 	public IValue incrementYears(IDateTime dt, IInteger n)
 	//@doc{Increment the years by a given amount.}
 	{
-		return incrementDate(dt, Calendar.YEAR, "years", n);
+		return incrementDate(dt, Calendar.YEAR, "years", n);	
 	}
-
+	
 	public IValue incrementMonths(IDateTime dt, IInteger n)
 	//@doc{Increment the months by a given amount.}
 	{
-		return incrementDate(dt, Calendar.MONTH, "months", n);
+		return incrementDate(dt, Calendar.MONTH, "months", n);	
 	}
 
 	public IValue incrementDays(IDateTime dt, IInteger n)
 	//@doc{Increment the days by a given amount.}
 	{
-		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);
+		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
 	private String getTZString(int hourOffset, int minuteOffset) {
-		String tzString = "GMT" +
-			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") +
+		String tzString = "GMT" + 
+			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
 			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
 			String.format("%02d",minuteOffset >= 0 ? minuteOffset : minuteOffset * -1);
 		return tzString;
@@ -278,7 +278,7 @@ public class Prelude {
 		Calendar cal = null;
 
 		cal = dateTimeToCalendar(dt);
-
+		
 		// Make sure lenient is true, since this allows wrapping of fields. For
 		// instance, if you have $2012-05-15, and subtract 15 months, this is
 		// an error if lenient is false, but gives $2012-02-15 (as expected)
@@ -331,48 +331,48 @@ public class Prelude {
 	}
 
 	private Calendar dateTimeToCalendar(IDateTime dt) {
-	    TimeZone tz = dt.isDate() ?
-	        TimeZone.getDefault() :
+	    TimeZone tz = dt.isDate() ? 
+	        TimeZone.getDefault() : 
 	          TimeZone.getTimeZone(getTZString(dt.getTimezoneOffsetHours(), dt.getTimezoneOffsetMinutes()));
-
+  
 		Calendar cal = Calendar.getInstance(tz,Locale.getDefault());
 		cal.setTimeInMillis(dt.getInstant());
-
+			
 		return cal;
 	}
-
+	
 	private IValue incrementTime(IDateTime dt, int field, String fieldName, IInteger amount) {
 		if (dt.isDate())
 			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a date value.");
-
+		
 		return incrementDTField(dt, field, amount);
 	}
 
 	private IValue incrementDate(IDateTime dt, int field, String fieldName, IInteger amount) {
 		if (dt.isTime())
 			throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot increment the " + fieldName + " on a time value.");
-
+		
 		return incrementDTField(dt, field, amount);
 	}
-
+	
 	public IValue incrementHours(IDateTime dt, IInteger n)
 	//@doc{Increment the hours by a given amount.}
 	{
 		return incrementTime(dt, Calendar.HOUR_OF_DAY, "hours", n);
-	}
+	}		
 
 	public IValue incrementMinutes(IDateTime dt, IInteger n)
 	//@doc{Increment the minutes by a given amount.}
 	{
 		return incrementTime(dt, Calendar.MINUTE, "minutes", n);
-	}
-
+	}		
+	
 	public IValue incrementSeconds(IDateTime dt, IInteger n)
 	//@doc{Increment the seconds by a given amount.}
 	{
 		return incrementTime(dt, Calendar.SECOND, "seconds", n);
 	}
-
+	
 	public IValue incrementMilliseconds(IDateTime dt, IInteger n)
 	//@doc{Increment the milliseconds by a given amount.}
 	{
@@ -383,12 +383,12 @@ public class Prelude {
 	//@doc{Decrement the years by a given amount.}
 	{
 		return incrementDate(dt, Calendar.YEAR, "years", n.negate());
-	}
+	}		
 
 	public IValue decrementMonths(IDateTime dt, IInteger n)
 	//@doc{Decrement the months by a given amount.}
 	{
-		return incrementDate(dt, Calendar.MONTH, "months", n.negate());	}
+		return incrementDate(dt, Calendar.MONTH, "months", n.negate());	}	
 
 	public IValue decrementDays(IDateTime dt, IInteger n)
 	//@doc{Decrement the days by a given amount.}
@@ -400,25 +400,25 @@ public class Prelude {
 	//@doc{Decrement the hours by a given amount.}
 	{
 		return incrementTime(dt, Calendar.HOUR_OF_DAY, "hours", n.negate());
-	}
+	}		
 
 	public IValue decrementMinutes(IDateTime dt, IInteger n)
 	//@doc{Decrement the minutes by a given amount.}
 	{
 		return incrementTime(dt, Calendar.MINUTE, "minutes", n.negate());
-	}
+	}		
 
 	public IValue decrementSeconds(IDateTime dt, IInteger n)
 	//@doc{Decrement the seconds by a given amount.}
 	{
-		return incrementTime(dt, Calendar.SECOND, "seconds", n.negate());
-	}
+		return incrementTime(dt, Calendar.SECOND, "seconds", n.negate());	
+	}		
 
 	public IValue decrementMilliseconds(IDateTime dt, IInteger n)
 	//@doc{Decrement the milliseconds by a given amount.}
 	{
 		return incrementTime(dt, Calendar.MILLISECOND, "milliseconds", n.negate());
-	}
+	}		
 
 	public IValue createDurationInternal(IDateTime dStart, IDateTime dEnd) {
 		// dStart and dEnd both have to be dates, times, or datetimes
@@ -426,7 +426,7 @@ public class Prelude {
 		startCal.setTimeInMillis(dStart.getInstant());
 		Calendar endCal = Calendar.getInstance();
 		endCal.setTimeInMillis(dEnd.getInstant());
-
+		
 		IValue duration = null;
 		if (dStart.isDate()) {
 			if (dEnd.isDate()) {
@@ -437,9 +437,9 @@ public class Prelude {
 						values.integer(0), values.integer(0), values.integer(0),
 						values.integer(0));
 			} else if (dEnd.isTime()) {
-				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.");
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a date with no time and a time with no date.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.");
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a date with no time and a datetime.");					
 			}
 		} else if (dStart.isTime()) {
 			if (dEnd.isTime()) {
@@ -452,9 +452,9 @@ public class Prelude {
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND)));
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.");
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a time with no date and a date with no time.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.");
+				throw RuntimeExceptionFactory.invalidUseOfDateTimeException("Cannot determine the duration between a time with no date and a datetime.");					
 			}
 		} else {
 			if (dEnd.isDateTime()) {
@@ -467,32 +467,32 @@ public class Prelude {
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.SECOND)),
 						values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.MILLISECOND)));
 			} else if (dEnd.isDate()) {
-				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.");
+				throw RuntimeExceptionFactory.invalidUseOfDateException("Cannot determine the duration between a datetime and a date with no time.");	
 			} else {
-				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.");
+				throw RuntimeExceptionFactory.invalidUseOfTimeException("Cannot determine the duration between a datetime and a time with no date.");					
 			}
 		}
 		return duration;
 	}
-
+	
 	public IValue parseDate(IString inputDate, IString formatString)
 	//@doc{Parse an input date given as a string using the given format string}
-	{
+	{	
 		try {
 			java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat(formatString.getValue());
 			fmt.parse(inputDate.getValue());
 			java.util.Calendar cal = fmt.getCalendar();
 			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue());
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue());
 		}
 	}
-
-	public IValue parseDateInLocale(IString inputDate, IString formatString, IString locale)
+	
+	public IValue parseDateInLocale(IString inputDate, IString formatString, IString locale) 
 	//@doc{Parse an input date given as a string using a specific locale and format string}
 	{
 		try {
@@ -501,15 +501,15 @@ public class Prelude {
 			java.util.Calendar cal = fmt.getCalendar();
 			return values.date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputDate.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		}
 	}
 
-	public IValue parseTime(IString inputTime, IString formatString)
+	public IValue parseTime(IString inputTime, IString formatString) 
 	//@doc{Parse an input time given as a string using the given format string}
 	{
 		try {
@@ -522,18 +522,18 @@ public class Prelude {
 			// but then we use mod 60 since this gives us total # of minutes, including
 			// the hours we have already computed.
 			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
-			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60;
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
 			return values.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() + 
 					" using format string: " + formatString.getValue());
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input date: " + inputTime.getValue() + 
 					" using format string: " + formatString.getValue());
 		}
 	}
-
-	public IValue parseTimeInLocale(IString inputTime, IString formatString, IString locale)
+	
+	public IValue parseTimeInLocale(IString inputTime, IString formatString, IString locale) 
 	//@doc{Parse an input time given as a string using a specific locale and format string}
 	{
 		try {
@@ -546,13 +546,13 @@ public class Prelude {
 			// but then we use mod 60 since this gives us total # of minutes, including
 			// the hours we have already computed.
 			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
-			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60;
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
 			return values.time(cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input time: " + inputTime.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		}
 	}
@@ -560,12 +560,12 @@ public class Prelude {
 	public IString printSymbol(IConstructor symbol, IBool withLayout) {
 	  return values.string(SymbolAdapter.toString(symbol, withLayout.getValue()));
 	}
-
+	
 	public IValue parseDateTime(IString inputDateTime, IString formatString) {
 	    return parseDateTime(values, inputDateTime, formatString);
 	}
-
-	static public IValue parseDateTime(IValueFactory values, IString inputDateTime, IString formatString)
+	
+	static public IValue parseDateTime(IValueFactory values, IString inputDateTime, IString formatString) 
 	//@doc{Parse an input datetime given as a string using the given format string}
 	{
 		try {
@@ -574,18 +574,18 @@ public class Prelude {
 			fmt.parse(inputDateTime.getValue());
 			java.util.Calendar cal = fmt.getCalendar();
 			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
-			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60;
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
 			return values.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
 					" using format string: " + formatString.getValue());
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
 					" using format string: " + formatString.getValue());
-		}
+		}			
 	}
-
-	public IValue parseDateTimeInLocale(IString inputDateTime, IString formatString, IString locale)
+	
+	public IValue parseDateTimeInLocale(IString inputDateTime, IString formatString, IString locale) 
 	//@doc{Parse an input datetime given as a string using a specific locale and format string}
 	{
 		try {
@@ -593,13 +593,13 @@ public class Prelude {
 			fmt.parse(inputDateTime.getValue());
 			java.util.Calendar cal = fmt.getCalendar();
 			int zoneHours = cal.get(Calendar.ZONE_OFFSET) / (1000 * 60 * 60);
-			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60;
+			int zoneMinutes = (cal.get(Calendar.ZONE_OFFSET) / (1000 * 60)) % 60; 
 			return values.datetime(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), cal.get(Calendar.SECOND), cal.get(Calendar.MILLISECOND), zoneHours, zoneMinutes);
 		} catch (IllegalArgumentException iae) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		} catch (ParseException e) {
-			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() +
+			throw RuntimeExceptionFactory.dateTimeParsingError("Cannot parse input datetime: " + inputDateTime.getValue() + 
 					" using format string: " + formatString.getValue() + " in locale: " + locale.getValue());
 		}
 	}
@@ -614,7 +614,7 @@ public class Prelude {
 			throw new IllegalArgumentException("Cannot get date for a datetime that only represents the time");
 		}
 	}
-
+	
 	private Calendar getCalendarForTime(IDateTime inputTime) {
 		if (inputTime.isTime() || inputTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputTime.getTimezoneOffsetHours(),inputTime.getTimezoneOffsetMinutes())),Locale.getDefault());
@@ -641,11 +641,11 @@ public class Prelude {
 		}
 	}
 
-	public IValue printDate(IDateTime inputDate, IString formatString)
+	public IValue printDate(IDateTime inputDate, IString formatString) 
 	//@doc{Print an input date using the given format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue());
+			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue()); 
 			Calendar cal = getCalendarForDate(inputDate);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -654,20 +654,20 @@ public class Prelude {
 		}
 	}
 
-	public IValue printDate(IDateTime inputDate)
+	public IValue printDate(IDateTime inputDate) 
 	//@doc{Print an input date using a default format string}
 	{
-		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd"); 
 		Calendar cal = getCalendarForDate(inputDate);
 		sd.setCalendar(cal);
 		return values.string(sd.format(cal.getTime()));
 	}
-
-	public IValue printDateInLocale(IDateTime inputDate, IString formatString, IString locale)
+	
+	public IValue printDateInLocale(IDateTime inputDate, IString formatString, IString locale) 
 	//@doc{Print an input date using a specific locale and format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue()));
+			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue())); 
 			Calendar cal = getCalendarForDate(inputDate);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -676,11 +676,11 @@ public class Prelude {
 		}
 	}
 
-	public IValue printDateInLocale(IDateTime inputDate, IString locale)
+	public IValue printDateInLocale(IDateTime inputDate, IString locale) 
 	//@doc{Print an input date using a specific locale and a default format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd",new ULocale(locale.getValue()));
+			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd",new ULocale(locale.getValue())); 
 			Calendar cal = getCalendarForDate(inputDate);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -689,33 +689,33 @@ public class Prelude {
 		}
 	}
 
-	public IValue printTime(IDateTime inputTime, IString formatString)
+	public IValue printTime(IDateTime inputTime, IString formatString) 
 	//@doc{Print an input time using the given format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue());
+			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue()); 
 			Calendar cal = getCalendarForTime(inputTime);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print time " + inputTime + " with format: " + formatString.getValue());
-		}
+		}			
 	}
-
-	public IValue printTime(IDateTime inputTime)
+	
+	public IValue printTime(IDateTime inputTime) 
 	//@doc{Print an input time using a default format string}
 	{
-		SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ");
+		SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ"); 
 		Calendar cal = getCalendarForTime(inputTime);
 		sd.setCalendar(cal);
 		return values.string(sd.format(cal.getTime()));
 	}
-
-	public IValue printTimeInLocale(IDateTime inputTime, IString formatString, IString locale)
+	
+	public IValue printTimeInLocale(IDateTime inputTime, IString formatString, IString locale) 
 	//@doc{Print an input time using a specific locale and format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue()));
+			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue())); 
 			Calendar cal = getCalendarForTime(inputTime);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -724,11 +724,11 @@ public class Prelude {
 		}
 	}
 
-	public IValue printTimeInLocale(IDateTime inputTime, IString locale)
+	public IValue printTimeInLocale(IDateTime inputTime, IString locale) 
 	//@doc{Print an input time using a specific locale and a default format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ",new ULocale(locale.getValue()));
+			SimpleDateFormat sd = new SimpleDateFormat("HH:mm:ss.SSSZ",new ULocale(locale.getValue())); 
 			Calendar cal = getCalendarForTime(inputTime);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -737,33 +737,33 @@ public class Prelude {
 		}
 	}
 
-	public IValue printDateTime(IDateTime inputDateTime, IString formatString)
+	public IValue printDateTime(IDateTime inputDateTime, IString formatString) 
 	//@doc{Print an input datetime using the given format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue());
+			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue()); 
 			Calendar cal = getCalendarForDateTime(inputDateTime);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
 		} catch (IllegalArgumentException iae) {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " using format string: " + formatString.getValue());
-		}
+		}		
 	}
 
-	public IValue printDateTime(IDateTime inputDateTime)
+	public IValue printDateTime(IDateTime inputDateTime) 
 	//@doc{Print an input datetime using a default format string}
 	{
-		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ");
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ"); 
 		Calendar cal = getCalendarForDateTime(inputDateTime);
 		sd.setCalendar(cal);
 		return values.string(sd.format(cal.getTime()));
 	}
-
-	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString formatString, IString locale)
+	
+	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString formatString, IString locale) 
 	//@doc{Print an input datetime using a specific locale and format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue()));
+			SimpleDateFormat sd = new SimpleDateFormat(formatString.getValue(),new ULocale(locale.getValue())); 
 			Calendar cal = getCalendarForDateTime(inputDateTime);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -773,11 +773,11 @@ public class Prelude {
 		}
 	}
 
-	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString locale)
+	public IValue printDateTimeInLocale(IDateTime inputDateTime, IString locale) 
 	//@doc{Print an input datetime using a specific locale and a default format string}
 	{
 		try {
-			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ",new ULocale(locale.getValue()));
+			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSZ",new ULocale(locale.getValue())); 
 			Calendar cal = getCalendarForDateTime(inputDateTime);
 			sd.setCalendar(cal);
 			return values.string(sd.format(cal.getTime()));
@@ -785,7 +785,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + inputDateTime + " in locale: " + locale.getValue());
 		}
 	}
-
+	
     public IValue daysDiff(IDateTime dtStart, IDateTime dtEnd)
     //@doc{Increment the years by a given amount.}
     {
@@ -794,7 +794,7 @@ public class Prelude {
                     startCal.setTimeInMillis(dtStart.getInstant());
                     Calendar endCal = Calendar.getInstance();
                     endCal.setTimeInMillis(dtEnd.getInstant());
-
+                    
                     return values.integer(startCal.fieldDifference(endCal.getTime(), Calendar.DAY_OF_MONTH));
             }
             throw RuntimeExceptionFactory.invalidUseOfTimeException("Both inputs must include dates.");
@@ -803,48 +803,48 @@ public class Prelude {
     /*
 	 * Graph
 	 */
-
+	
 	private Map<IValue,Distance> distance;
 	private Map<IValue, IValue> pred;
 	private Set<IValue> settled;
 	private PriorityQueue<IValue> Q;
 	private int MAXDISTANCE = 10000;
-
+	
 	private Map<IValue, LinkedList<IValue>> adjacencyList;
-
+	
 	private void buildAdjacencyListAndDistance(ISet G){
 		adjacencyList = new HashMap<> ();
 		distance = new HashMap<>();
-
+		
 		for(IValue v : G){
 			ITuple tup = (ITuple) v;
 			IValue from = tup.get(0);
 			IValue to = tup.get(1);
-
+			
 			if(distance.get(from) == null)
 				distance.put(from, new Distance(MAXDISTANCE));
 			if(distance.get(to) == null)
 				distance.put(to, new Distance(MAXDISTANCE));
-
+			
 			LinkedList<IValue> adjacencies = adjacencyList.computeIfAbsent(from, (k) -> new LinkedList<>());
 			adjacencies.add(to);
 			adjacencyList.put(from, adjacencies);
 		}
 	}
-
+	
 	public IValue shortestPathPair(ISet G, IValue From, IValue To){
 		buildAdjacencyListAndDistance(G);
 		IValue start = From;
 		distance.put(start, new Distance(0));
-
+		
 		pred = new HashMap<>();
 		settled = new HashSet<>();
 		Q = new PriorityQueue<>(G.size(), new NodeComparator(distance));
 		Q.add(start);
-
+		
 		while(!Q.isEmpty()){
 			IValue u = Q.remove();
-			if(u.equals(To)) {
+			if(u.equals(To)) {	
 				return extractPath(start, u);
 			}
 			settled.add(u);
@@ -852,7 +852,7 @@ public class Prelude {
 		}
 		return values.list();
 	}
-
+	
 	private void relaxNeighbours(IValue u){
 		LinkedList<IValue> adjacencies = adjacencyList.get(u);
 		if(adjacencies != null) {
@@ -869,10 +869,10 @@ public class Prelude {
 			}
 		}
 	}
-
+	
 	private IList extractPath(IValue start, IValue u){
 		IListWriter w = values.listWriter();
-
+		
 		if(!start.equals(u)){
 			w.insert(u);
 			while(!pred.get(u).equals(start)){
@@ -883,11 +883,11 @@ public class Prelude {
 		w.insert(start);
 		return w.done();
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void print(IValue arg){
 		PrintWriter currentOutStream = out;
-
+		
 		try{
 			if(arg.getType().isString()){
 			    ((IString) arg).write(currentOutStream);
@@ -909,7 +909,7 @@ public class Prelude {
 			currentOutStream.flush();
 		}
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprint(IValue arg, IInteger lineLimit){
 		StandardTextWriter w = new StandardTextWriter(true, 2);
@@ -917,10 +917,10 @@ public class Prelude {
 		if (lineLimit.signum() > 0) {
 		    output = new LimitedLineWriter(output, lineLimit.longValue());
 		}
-
+		
 		try {
 		    w.write(arg, output);
-		}
+		} 
 	    catch (/*IOLimitReachedException*/ RuntimeException e) {
 	        // ignore, it's what we wanted
 	    }
@@ -936,7 +936,7 @@ public class Prelude {
 			}
 		}
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintToFile(ISourceLocation sloc, IValue arg, IString charset) {
 		StandardTextWriter w = new StandardTextWriter(true, 2);
@@ -946,7 +946,7 @@ public class Prelude {
 			w.write(arg, sw);
 			writeFile(sloc, values.list(values.string(sw.toString())), charset);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
 	}
 
@@ -958,27 +958,27 @@ public class Prelude {
 			w.write(arg, sw);
 			return values.string(sw.toString());
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));		
 		}
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void iprintln(IValue arg, IInteger lineLimit){
 	    iprint(arg, lineLimit);
 	    out.println();
 	    out.flush();
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println() {
 		out.println();
 		out.flush();
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void println(IValue arg){
 		PrintWriter currentOutStream = out;
-
+		
 		try{
 			if(arg.getType().isString()){
 			    ((IString) arg).write(currentOutStream);
@@ -1001,11 +1001,11 @@ public class Prelude {
 			currentOutStream.flush();
 		}
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprintln(IValue arg){
 		PrintWriter currentOutStream = out;
-
+		
 		try {
 			currentOutStream.print(arg.toString());
 			currentOutStream.println();
@@ -1014,11 +1014,11 @@ public class Prelude {
 			currentOutStream.flush();
 		}
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public void rprint(IValue arg){
 		PrintWriter currentOutStream = out;
-
+		
 		try {
 			currentOutStream.print(arg.toString());
 		}
@@ -1032,7 +1032,7 @@ public class Prelude {
 		if(trackIO) System.err.println("exists: " + sloc + " => " + result);
 		return result;
 	}
-
+	
 	public IValue lastModified(ISourceLocation sloc) {
 		try {
 		    IValue result = values.datetime(REGISTRY.lastModified(sloc));
@@ -1058,11 +1058,11 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
-
+	
 	public void setLastModified(ISourceLocation sloc, IDateTime timestamp) {
 	    setLastModified(sloc, timestamp.getInstant());
 	}
-
+	
 	private void setLastModified(ISourceLocation sloc, long timestamp) {
         try {
             REGISTRY.setLastModified(sloc, timestamp);
@@ -1071,15 +1071,15 @@ public class Prelude {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
-
+	
 	public IBool isDirectory(ISourceLocation sloc) {
 		return values.bool(REGISTRY.isDirectory(sloc));
 	}
-
+	
 	public IBool isFile(ISourceLocation sloc) {
 		return values.bool(REGISTRY.isFile(sloc));
 	}
-
+	
 	public void remove(ISourceLocation sloc, IBool recursive) {
 		try {
 			REGISTRY.remove(sloc, recursive.getValue());
@@ -1088,7 +1088,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
-
+	
 	public void mkDirectory(ISourceLocation sloc) {
 	  try {
 	    REGISTRY.mkDirectory(sloc);
@@ -1097,7 +1097,7 @@ public class Prelude {
 	    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 	  }
 	}
-
+	
 	public IList listEntries(ISourceLocation sloc) {
 		try {
 			String [] entries = REGISTRY.listEntries(sloc);
@@ -1115,21 +1115,21 @@ public class Prelude {
 		    throw RuntimeExceptionFactory.schemeNotSupported(sloc);
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
+		} 
 	}
-
+	
 	public ISet charsets() {
 		ISetWriter w = values.setWriter();
 		for (String s : Charset.availableCharsets().keySet()) {
 			w.insert(values.string(s));
 		}
 		return w.done();
-	}
-
+	} 
+	
 	public IString readFile(ISourceLocation sloc, IString charset, IBool inferCharset) {
 	    return readFile(values, trackIO, sloc, charset.getValue(), inferCharset.getValue());
 	}
-
+	
 	static public IString readFile(IValueFactory values, boolean trackIO, ISourceLocation sloc, String charset, boolean inferCharset){
 		if(trackIO) System.err.println("readFile: " + sloc);
 
@@ -1137,7 +1137,7 @@ public class Prelude {
 
 		try (Reader reader = inferCharset ? reg.getCharacterReader(sloc) : reg.getCharacterReader(sloc, charset);){
 			return values.string(consumeInputStream(reader));
-		}
+		} 
 		catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
 		}
@@ -1165,7 +1165,7 @@ public class Prelude {
 		}
 		return res.toByteArray();
 	}
-
+	
 	public IValue md5HashFile(ISourceLocation sloc){
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -1218,7 +1218,7 @@ public class Prelude {
 		for (int i = 0; i < hash.length; i++) {
 			result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
 		}
-
+		
 		return values.string(result.toString());
 	}
 
@@ -1235,7 +1235,7 @@ public class Prelude {
 				@Override
 				public void write(char[] cbuf, int off, int len) throws IOException {
 					CharBuffer cb = CharBuffer.wrap(cbuf, off, len);
-					ByteBuffer bb = encoder.encode(cb);
+					ByteBuffer bb = encoder.encode(cb); 
 					md.update(bb);
 				}
 
@@ -1254,7 +1254,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string("no such algorithm: " + e.getMessage()));
 		}
 	}
-
+	
 	public void copy(ISourceLocation source, ISourceLocation target, IBool recursive, IBool overwrite) {
 		try {
 			REGISTRY.copy(source, target, recursive.getValue(), overwrite.getValue());
@@ -1281,36 +1281,36 @@ public class Prelude {
 	        writeFile(sloc, values.list(values.string("")), values.string("UTF-8"));
 	    }
 	}
-
+	
 	public void writeFile(ISourceLocation sloc, IList V, IString charset) {
 		writeFile(sloc, V, false, charset, values.bool(false));
 	}
-
+	
 	private void writeFile(ISourceLocation sloc, IList V, boolean append, IString charset, IBool inferCharset){
 		if(trackIO) System.err.println("writeFile: " + sloc);
-
+	
 		// if inferCharset we overwrite the given charset (which is usually the default in that case)
 		if (append && inferCharset.getValue()) {
 			charset = values.string(REGISTRY.detectCharset(sloc).name());
-		}
-
+		} 
+		
 		writeFileEnc(sloc, charset, V, append);
 	}
-
+	
 	public IBool canEncode(IString charset) {
 		return values.bool(Charset.forName(charset.getValue()).canEncode());
 	}
-
+	
 	private void writeFileEnc(ISourceLocation sloc, IString charset, IList V, boolean append){
 		URIResolverRegistry reg = REGISTRY;
 
 		if (!Charset.forName(charset.getValue()).canEncode()) {
 		    throw RuntimeExceptionFactory.illegalArgument(charset);
 		}
-
+		
 		Reader prefix = null;
 		Reader postfix = null;
-
+		
 		try {
 			sloc = reg.logicalToPhysical(sloc);
 
@@ -1324,14 +1324,14 @@ public class Prelude {
 			}
 
 			OutputStream outStream;
-
+			
 			if (prefix != null) {
 				outStream = new ByteArrayOutputStream(FILE_BUFFER_SIZE);
 			}
 			else {
 				outStream = reg.getOutputStream(sloc, append);
 			}
-
+			
 			try (UnicodeOutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, charset.getValue(), append)) {
 				if (prefix != null) {
 					copy(prefix, out);
@@ -1351,21 +1351,21 @@ public class Prelude {
 					copy(postfix, out);
 				}
 			}
-
+			
 			if (prefix != null) {
 				// we wrote to a buffer instead of the file
 				try (OutputStream out = reg.getOutputStream(sloc, false)) {
 					((ByteArrayOutputStream) outStream).writeTo(out);
 				}
 			}
-		}
+		} 
 		catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
-		}
+		} 
 		catch (UnsupportedOperationException e) {
 			assert false; // we tested for offset length above
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
+		} 
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()));
 		}
@@ -1381,10 +1381,10 @@ public class Prelude {
 				throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 			}
 		}
-
+		
 		return;
 	}
-
+	
 	public void writeFileBytes(ISourceLocation sloc, IList blist){
 		try (OutputStream out = REGISTRY.getOutputStream(sloc, false)) {
 			Iterator<IValue> iter = blist.iterator();
@@ -1401,11 +1401,11 @@ public class Prelude {
 		}
 		return;
 	}
-
+	
 	public void appendToFile(ISourceLocation sloc, IList V, IString charset, IBool inferCharset){
 		writeFile(sloc, V, true, charset, inferCharset);
 	}
-
+	
 	public IList readFileLines(ISourceLocation sloc, IString charset){
 		if(trackIO) System.err.println("readFileLines: " + sloc);
 		try (Reader reader = REGISTRY.getCharacterReader(sloc, charset.getValue())) {
@@ -1419,9 +1419,9 @@ public class Prelude {
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
+		} 
 	}
-
+	
 	private IList consumeInputStreamLines(Reader in) throws IOException {
 		try (BufferedReader buf = new BufferedReader(in)) {
 			String line = null;
@@ -1432,11 +1432,11 @@ public class Prelude {
 			return res.done();
 		}
 	}
-
+	
 	public IList readFileBytes(ISourceLocation sloc) {
 		if(trackIO) System.err.println("readFileBytes: " + sloc);
 		IListWriter w = values.listWriter();
-
+		
 		try (InputStream in = REGISTRY.getInputStream(sloc)) {
 			byte[] bytes = new byte[FILE_BUFFER_SIZE];
 			int read;
@@ -1445,7 +1445,7 @@ public class Prelude {
 				for (int i = 0; i < read; i++) {
 					w.append(values.integer(bytes[i] & 0xff));
 				}
-			}
+			} 
 		}
 		catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(sloc);
@@ -1456,30 +1456,30 @@ public class Prelude {
 
 		return w.done();
 	}
-
+	
     public IString readBase64(ISourceLocation sloc, IBool includePadding) {
         final int BUFFER_SIZE = 3 * 512;
         Base64.Encoder encoder = Base64.getEncoder();
 		if (!includePadding.getValue()) {
 			encoder = encoder.withoutPadding();
 		}
-
+        
         try  (BufferedInputStream in = new BufferedInputStream(REGISTRY.getInputStream(sloc), BUFFER_SIZE); ) {
             StringBuilder result = new StringBuilder();
             byte[] chunk = new byte[BUFFER_SIZE];
             int len = 0;
-
+            
             // read multiples of 3 until not possible anymore
             while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
 				result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
-
+            
             // read final chunk which is not a multiple of 3
             if ( len > 0 ) {
                  chunk = Arrays.copyOf(chunk,len);
 				 result.append(new String(encoder.encode(chunk), StandardCharsets.ISO_8859_1));
             }
-
+            
             return values.string(result.toString());
         }
         catch (IOException e) {
@@ -1490,7 +1490,7 @@ public class Prelude {
 	public void writeBase64(ISourceLocation sloc, IString base64content) {
         final int BUFFER_SIZE = 3 * 512;
         Base64.Decoder decoder = Base64.getDecoder();
-
+        
         try  (BufferedOutputStream output = new BufferedOutputStream(REGISTRY.getOutputStream(sloc, false), BUFFER_SIZE); ) {
 			output.write(decoder.decode(base64content.getValue()));
         }
@@ -1498,7 +1498,7 @@ public class Prelude {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
         }
     }
-
+	
 	public IString readBase32(ISourceLocation sloc, IBool includePadding) {
 		try(BufferedInputStream input = new BufferedInputStream(REGISTRY.getInputStream(sloc))) {
 			Base32 encoder = new Base32();
@@ -1526,15 +1526,15 @@ public class Prelude {
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
-
+	
 	public ISourceLocation arbLoc() {
 	    return (ISourceLocation) createRandomValue(TypeFactory.getInstance().sourceLocationType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
 	}
-
+	
 	/*
 	 * List
 	 */
-
+	
 	private WeakReference<IList> indexes;
 
 	/**
@@ -1551,7 +1551,7 @@ public class Prelude {
 			return ((IBool) less.call(new IValue[] { x, y })).getValue();
 		}
 	}
-
+	
 	private class Sorting {
 		private final IValue[] array;
 		private final int size;
@@ -1568,7 +1568,7 @@ public class Prelude {
 			this.size = array.length;
 			this.less = less;
 		}
-
+ 
 		/**
 		 * @throws IllegalArgument if comparator is illegal (i.e., if pivot equals pivot)
 		 */
@@ -1614,7 +1614,7 @@ public class Prelude {
 				sort(low, oldHigh);
 		}
 	}
-
+	
 	public IValue elementAt(IList lst, IInteger index) {
 		if(lst.length() == 0)
 			throw RuntimeExceptionFactory.emptyList();
@@ -1627,7 +1627,7 @@ public class Prelude {
 			 throw RuntimeExceptionFactory.indexOutOfBounds(index);
 		}
 	}
-
+	
 	public IList shuffle(IList l, IInteger seed) {
 		return l.shuffle(new Random(2305843009213693951L * seed.hashCode()));
 
@@ -1636,7 +1636,7 @@ public class Prelude {
 	public IList shuffle(IList l) {
 		return l.shuffle(new Random());
 	}
-
+	
 	public IList sort(IList l, IFunction cmpv){
 		IValue[] tmpArr = new IValue[l.length()];
 		for(int i = 0 ; i < l.length() ; i++){
@@ -1651,43 +1651,43 @@ public class Prelude {
 		writer.append(tmpArr);
 		return writer.done();
 	}
-
+	
 	public IList sort(ISet l, IFunction cmpv) {
 		IValue[] tmpArr = new IValue[l.size()];
 		int i = 0;
-
+		
 		// we assume that the set is reasonably randomly ordered, such
 		// that the worst case of quicksort is unlikely
 		for (IValue elem : l){
 			tmpArr[i++] = elem;
 		}
-
+		
 		new Sorting(tmpArr, new Less(cmpv)).sort();
-
+		
 		IListWriter writer = values.listWriter();
 		for(IValue v : tmpArr){
 			writer.append(v);
 		}
-
+		
 		return writer.done();
 	}
-
+	
 	public IList top(IInteger k, ISet l, IFunction cmpv) {
         final LinkedList<IValue> result = new LinkedList<>();
         final Less less = new Less(cmpv);
         final int K = k.intValue();
         final int absK = Math.abs(K);
-
+        
         if (K == 0) {
             return values.list();
         }
-
+        
         for (IValue n : l) {
             if (result.isEmpty()) {
                 result.add(n);
             } else {
                 int i = 0;
-
+                
                 for (IValue m : result) {
                     if (K > 0 ? less.less(n, m) : less.less(m, n))  {
                         result.add(i, n);
@@ -1702,12 +1702,12 @@ public class Prelude {
                 }
             }
         }
-
+        
         IListWriter w = values.listWriter();
         w.appendAll(result);
         return w.done();
     }
-
+	
 	private IList makeUpTill(int from,int len){
 		IListWriter writer = values.listWriter();
 		for(int i = from ; i < len; i++){
@@ -1715,7 +1715,7 @@ public class Prelude {
 		}
 		return writer.done();
 	}
-
+	
 	public IValue delete(IList lst, IInteger n)
 	// @doc{delete -- delete nth element from list}
 	{
@@ -1725,7 +1725,7 @@ public class Prelude {
 			 throw RuntimeExceptionFactory.indexOutOfBounds(n);
 		}
 	}
-
+	
 	public IValue domain(IList lst)
 	//@doc{domain -- a list of all legal index values for a list}
 	{
@@ -1736,14 +1736,14 @@ public class Prelude {
 		}
 		return w.done();
 	}
-
+	
 	public IValue head(IList lst)
 	// @doc{head -- get the first element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(0);
 	   }
-
+	   
 	   throw RuntimeExceptionFactory.emptyList();
 	}
 
@@ -1753,7 +1753,7 @@ public class Prelude {
 	   if(lst.length() > 0){
 	      return lst.get(lst.length() - 1);
 	   }
-
+	   
 	   throw RuntimeExceptionFactory.emptyList();
 	}
 
@@ -1776,7 +1776,7 @@ public class Prelude {
 		if(n > 0){
 			return lst.get(random.nextInt(n));
 		}
-
+		
 		throw RuntimeExceptionFactory.emptyList();
 	}
 
@@ -1785,7 +1785,7 @@ public class Prelude {
 	 //@doc{insertAt -- add an element at a specific position in a list}
 	 {
 	 	IListWriter w = values.listWriter();
-
+	 	
 	 	int k = n.intValue();
 	    if(k >= 0 && k <= lst.length()){
 	      if(k == lst.length()){
@@ -1799,10 +1799,10 @@ public class Prelude {
 	      }
 	      return w.done();
 	    }
-
+	    
 		throw RuntimeExceptionFactory.indexOutOfBounds(n);
 	 }
-
+	
 	public IValue isEmpty(IList lst)
 	//@doc{isEmpty -- is list empty?}
 	{
@@ -1841,13 +1841,13 @@ public class Prelude {
 	 		throw RuntimeExceptionFactory.emptyList();
 	 	}
 	 }
-
+	 
 	  public IValue tail(IList lst, IInteger len)
 	 //@doc{tail -- last n elements of a list}
 	 {
 	 	int lenVal = len.intValue();
 	 	int lstLen = lst.length();
-
+	 
 	 	try {
 	 		return lst.sublist(lstLen - lenVal, lenVal);
 	 	} catch (IndexOutOfBoundsException e){
@@ -1855,7 +1855,7 @@ public class Prelude {
 	 		throw RuntimeExceptionFactory.indexOutOfBounds(end);
 	 	}
 	 }
-
+	  
 	public IValue take(IInteger len, IList lst) {
 	   //@doc{take -- take n elements of from front of a list}
 		int lenVal = len.intValue();
@@ -1877,7 +1877,7 @@ public class Prelude {
 			return lst.sublist(lenVal, lstLen - lenVal);
 		}
 	}
-
+	
 	public IValue upTill(IInteger ni) {
 		//@doc{Returns the list 0..n, this is slightly faster than [0,1..n], since the returned values are shared}
 		int n = ni.intValue();
@@ -1887,15 +1887,15 @@ public class Prelude {
 			return indexes.get();
 		} else {
 			IList l = indexes.get(); // strong ref
-			if(l == null || n >= l.length()){
+			if(l == null || n >= l.length()){ 
 				l = makeUpTill(0,n);
 				indexes =  new WeakReference<IList>(l);
 				return l;
 			}
 			return l.sublist(0, n);
-		}
+		} 
 	}
-
+	
 	public IValue prefix(IList lst) {
 		   //@doc{Return all but the last element of a list}
 			int lstLen = lst.length();
@@ -1907,17 +1907,17 @@ public class Prelude {
 		}
 
 
-
+	 
 	public IValue takeOneFrom(IList lst)
 	//@doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
 	{
 	   int n = lst.length();
-
+	   
 	   if(n > 0){
 	   	  int k = random.nextInt(n);
 	   	  IValue pick = lst.get(0);
 	   	  IListWriter w = values.listWriter();
-
+	  
 	      for(int i = n - 1; i >= 0; i--) {
 	         if(i == k){
 	         	pick = lst.get(i);
@@ -1927,13 +1927,13 @@ public class Prelude {
 	      }
 	      return values.tuple(pick, w.done());
 	   	}
-
+	   
 	   throw RuntimeExceptionFactory.emptyList();
 	}
-
+	
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
-	{
+	{ 	    
 	    Map<IValue,IListWriter> hm = new HashMap<>();
 
         for (IValue v : lst) {
@@ -1947,28 +1947,28 @@ public class Prelude {
             }
             wValList.append(val);
         }
-
+		
 		IMapWriter w = values.mapWriter();
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}
-
+	
 	public IValue toMapUnique(IList lst)
 	//@doc{toMapUnique -- convert a list of tuples to a map; result should be a map}
 	{
 	   if(lst.length() == 0){
 	      return values.mapWriter().done();
 	   }
-
+	  
 	   IMapWriter w = values.mapWriter();
 	   Map<IValue,IValue> seenKeys = new HashMap<>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
 		   IValue key = t.get(0);
 		   IValue val = t.get(1);
-		   if(seenKeys.containsKey(key)) {
+		   if(seenKeys.containsKey(key)) { 
 		       throw RuntimeExceptionFactory.MultipleKey(key, seenKeys.get(key), val);
 		   }
 		   seenKeys.put(key, val);
@@ -1981,11 +1981,11 @@ public class Prelude {
 	//@doc{toSet -- convert a list to a set}
 	{
 	  ISetWriter w = values.setWriter();
-
+	  
 	  for(IValue v : lst){
 	    w.insert(v);
 	  }
-
+		
 	  return w.done();
 	}
 
@@ -2009,21 +2009,21 @@ public class Prelude {
 		try {
 			w.write(T, result);
 			return values.string(result.toString());
-		}
+		} 
 		catch (IOException e) {
 			RuntimeExceptionFactory.io(values.string("Could not convert list to indented value"));
 			throw new RuntimeException("previous command should always throw");
 		}
 	}
-
+	
 	/*
 	 * Map
 	 */
-
+	
 	public IValue delete(IMap M, IValue key) {
 	    return M.removeKey(key);
 	}
-
+	
 	public IValue domain(IMap M)
 	//@doc{domain -- return the domain (keys) of a map}
 
@@ -2037,7 +2037,7 @@ public class Prelude {
 	  return w.done();
 	}
 
-	public IValue getOneFrom(IMap m)
+	public IValue getOneFrom(IMap m)  
 	//@doc{getOneFrom -- return arbitrary key of a map}
 	{
 	   int i = 0;
@@ -2047,7 +2047,7 @@ public class Prelude {
 	   }
 	   int k = random.nextInt(sz);
 	   Iterator<Entry<IValue,IValue>> iter = m.entryIterator();
-
+	  
 	   while(iter.hasNext()){
 	      if(i == k){
 	      	return (iter.next()).getKey();
@@ -2055,10 +2055,10 @@ public class Prelude {
 	      iter.next();
 	      i++;
 	   }
-
+	   
 	   throw RuntimeExceptionFactory.emptyMap();
 	}
-
+	
 	public IValue invertUnique(IMap M)
 	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
@@ -2077,7 +2077,7 @@ public class Prelude {
 		}
 		return w.done();
 	}
-
+	
 	public IValue invert(IMap M)
 	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
 	{
@@ -2089,14 +2089,14 @@ public class Prelude {
 			IValue val = entry.getValue();
 			hm.computeIfAbsent(val, (k) -> values.setWriter()).insert(key);
 		}
-
+		
 		IMapWriter w = values.mapWriter();
 		for(Entry<IValue, ISetWriter> v : hm.entrySet()){
 			w.put(v.getKey(), v.getValue().done());
 		}
 		return w.done();
 	}
-
+	
 	public IValue isEmpty(IMap M)
 	//@doc{isEmpty -- is map empty?}
 	{
@@ -2142,7 +2142,7 @@ public class Prelude {
 	    }
 	    return w.done();
 	}
-
+	  
 	public IValue toString(IMap M)
 	{
 	  return values.string(M.toString());
@@ -2166,24 +2166,24 @@ public class Prelude {
 	//@doc{getChildren -- get the children of a node}
 	{
 		IListWriter w = values.listWriter();
-
+		
 		for(IValue v : T.getChildren()){
 			w.append(v);
 		}
 		return w.done();
 	}
-
+	
 	public IValue getKeywordParameters(INode T)
 	//@doc{getChildren -- get the children of a node}
 	{
 		IMapWriter w = values.mapWriter();
-
+		
 		if (T.mayHaveKeywordParameters()) {
 			for(Entry<String, IValue> e : T.asWithKeywordParameters().getParameters().entrySet()){
 				w.put(values.string(e.getKey()), e.getValue());
 			}
 		}
-
+		
 		return w.done();
 	}
 
@@ -2202,15 +2202,15 @@ public class Prelude {
 		for(IValue v : argList){
 			args[i++] = v;
 		}
-
+		
 		Map<String,IValue> map = new HashMap<>();
 		for (IValue key : kwParams) {
 			map.put(((IString) key).getValue(), kwParams.get(key));
 		}
-
+		
 		return values.node(N.getValue(), args, map);
 	}
-
+	
 	public IValue toString(INode T)
 	//@doc{toString -- convert a node to a string}
 	{
@@ -2223,7 +2223,7 @@ public class Prelude {
 	{
 		return itoStringValue(T);
 	}
-
+	
 	public INode setKeywordParameters(INode node, IMap kwargs) {
 		Map<String,IValue> map = new HashMap<java.lang.String,IValue>();
 		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
@@ -2235,11 +2235,11 @@ public class Prelude {
 		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
 		return node.asWithKeywordParameters().setParameters(map);
 	}
-
+	
 	public INode unset(INode node, IString label) {
         return node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetParameter(label.getValue()) : node;
     }
-
+    
     public INode unset(INode node) {
         return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
     }
@@ -2366,15 +2366,15 @@ public class Prelude {
 		});
 	}
 
-
+    
     public INode arbNode() {
         return (INode) createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
     }
-
+	
 	/*
 	 * ParseTree
 	 */
-
+	
 	protected final TypeReifier tr;
 
 	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
@@ -2384,7 +2384,7 @@ public class Prelude {
 	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
 	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
 	}
-
+	
 	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
         return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
     }
@@ -2422,7 +2422,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
-
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	protected IConstructor makeConstructor(TypeStore store, Type returnType, String name, IValue ...args) {
 	    IValue value = values.constructor(store.lookupConstructor(returnType, name, TypeFactory.getInstance().tupleType(args)), args, new HashMap<String, IValue>());
@@ -2432,7 +2432,7 @@ public class Prelude {
         }
         throw RuntimeExceptionFactory.implodeError("Calling of constructor " + name + " did not return a constructor");
 	}
-
+	
 	protected java.lang.String unescapedConsName(ITree tree) {
 		java.lang.String x = TreeAdapter.getConstructorName(tree);
 		if (x != null) {
@@ -2443,23 +2443,23 @@ public class Prelude {
 
 	protected Set<Type> findConstructors(Type type, java.lang.String constructorName, int arity,  TypeStore store) {
 		Set<Type> constructors = new HashSet<Type>();
-
+		
 		for (Type constructor : store.lookupConstructor(type, constructorName)) {
 			if (constructor.getArity() == arity)
 				constructors.add(constructor);
 		}
-
+		
 		return constructors;
 	}
 
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue implode(IValue reifiedType, IConstructor arg) {
 		ITree tree = (ITree) arg;
-
+		
 		TypeStore store = new TypeStore();
 		Type type = tr.valueToType((IConstructor) reifiedType, store);
 		try {
-			IValue result = implode(store, type, tree, false);
+			IValue result = implode(store, type, tree, false); 
 			if (isUntypedNodeType(type) && !type.isTop() && (TreeAdapter.isList(tree) || TreeAdapter.isOpt(tree))) {
 				// Ensure the result is actually a node, even though
 				// the tree given to implode is a list.
@@ -2483,7 +2483,7 @@ public class Prelude {
 			return this;
 		}
 	}
-
+	
 	private IValue[] implodeArgs(TypeStore store, Type type, IList args) {
 		int length = args.length();
 		IValue implodedArgs[] = new IValue[length];
@@ -2493,13 +2493,13 @@ public class Prelude {
 		}
 		return implodedArgs;
 	}
-
-
+	
+	
 	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing) {
 		ITree tree = (ITree) arg0;
 		Backtrack failReason = null;
-
-		// always yield if expected type is str, except if regular
+		
+		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
 		}
@@ -2525,7 +2525,7 @@ public class Prelude {
 			}
 			return result;
 		}
-
+		
 		if (TreeAdapter.isLexical(tree)) {
 			java.lang.String constructorName = unescapedConsName(tree);
 			java.lang.String yield = TreeAdapter.yield(tree);
@@ -2535,11 +2535,11 @@ public class Prelude {
 				if (!type.isAbstractData() && !isUntypedNodeType(type)) {
 					throw RuntimeExceptionFactory.illegalArgument(tree, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type);
 				}
-
+				
 				if (isUntypedNodeType(type)) {
 					return values.node(constructorName, values.string(yield));
 				}
-
+				
 				Set<Type> conses = findConstructors(type, constructorName, 1, store);
 				Iterator<Type> iter = conses.iterator();
 				while (iter.hasNext()) {
@@ -2550,7 +2550,7 @@ public class Prelude {
 						IConstructor ast = makeConstructor(store, type, constructorName, values.string(yield));
 						String locLabel = store.getKeywordParameterType(type, "location") == TypeFactory.getInstance().sourceLocationType() ?
 						  "location" : "src";
-
+						
 						return ast.asWithKeywordParameters().setParameter(locLabel, loc);
 					}
 					catch (Backtrack b) {
@@ -2558,7 +2558,7 @@ public class Prelude {
 						continue;
 					}
 				}
-
+				
 				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Cannot find a constructor " + type));
 			}
 			if (type.isInteger()) {
@@ -2580,17 +2580,17 @@ public class Prelude {
 				// NB: in "node space" all lexicals become strings
 				return values.string(yield);
 			}
-
+			
 			throw RuntimeExceptionFactory.illegalArgument(tree, "Missing lexical constructor");
 		}
-
+		
 		//Set implementation added here by Jurgen at 19/07/12 16:45
 		if (TreeAdapter.isList(tree)) {
 			if (type.isList() || splicing || isUntypedNodeType(type)) {
-				// if in node space, we also make a list;
+				// if in node space, we also make a list; 
 				// NB: this breaks type safety if the top-level tree
 				// is itself a list.
-
+				
 				Type elementType = type;
 				if (!splicing && !isUntypedNodeType(type)) {
 					elementType = type.getElementType();
@@ -2614,7 +2614,7 @@ public class Prelude {
 			}
 		}
 		//Changes end here
-
+		
 		if (TreeAdapter.isOpt(tree) && type.isBool()) {
 			IList args = TreeAdapter.getArgs(tree);
 			if (args.isEmpty()) {
@@ -2622,7 +2622,7 @@ public class Prelude {
 			}
 			return values.bool(true);
 		}
-
+		
 		if (TreeAdapter.isOpt(tree)) {
 			if (!type.isList() && !isUntypedNodeType(type)) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Optional should match with a list and not " + type));
@@ -2645,7 +2645,7 @@ public class Prelude {
 			}
 			return w.done();
 		}
-
+		
 		if (TreeAdapter.isAmb(tree)) {
 			if (!type.isSet()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Ambiguous node should match with set and not " + type));
@@ -2657,14 +2657,14 @@ public class Prelude {
 			}
 			return w.done();
 		}
-
+		
 		if (ProductionAdapter.hasAttribute(TreeAdapter.getProduction(tree), RascalValueFactory.Attribute_Bracket)) {
 			return implode(store, type, (ITree) TreeAdapter.getASTArgs(tree).get(0), false);
 		}
-
+		
 		if (TreeAdapter.isAppl(tree)) {
 			IList args = TreeAdapter.getASTArgs(tree);
-
+			
 			int j = 0;
 			IMapWriter cw = values.mapWriter();
 			IListWriter aw = values.listWriter();
@@ -2676,8 +2676,8 @@ public class Prelude {
 					}
 					j++;
 				}
-				else if (!TreeAdapter.isLiteral((ITree) kid) &&
-						!TreeAdapter.isCILiteral((ITree) kid) &&
+				else if (!TreeAdapter.isLiteral((ITree) kid) && 
+						!TreeAdapter.isCILiteral((ITree) kid) && 
 						!TreeAdapter.isEmpty((ITree) kid)) {
 					aw.append(kid);
 				}
@@ -2685,7 +2685,7 @@ public class Prelude {
 			args = aw.done();
 			int length = args.length();
 			IMap comments = cw.done();
-
+			
 //			// this could be optimized.
 //			i = 0;
 //			int length = args.length();
@@ -2698,17 +2698,17 @@ public class Prelude {
 //					i++;
 //				}
 //			}
-
-
-			java.lang.String constructorName = unescapedConsName(tree);
-
+			
+			
+			java.lang.String constructorName = unescapedConsName(tree);			
+			
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
 					return implode(store, type, (ITree) args.get(0), splicing);
 				}
-
-
+				
+				
 				// make a tuple if we're in node space
 				if (isUntypedNodeType(type)) {
 					return values.tuple(implodeArgs(store, type, args));
@@ -2717,20 +2717,20 @@ public class Prelude {
 				if (!type.isTuple()) {
 					throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Constructor does not match with " + type));
 				}
-
+				
 				if (length != type.getArity()) {
 					throw new Backtrack(RuntimeExceptionFactory.arityMismatch(type.getArity(), length));
 				}
 
 				return values.tuple(implodeArgs(store, type, args));
 			}
-
+			
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args));
 				return ast.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
-
+			
 			// make a typed constructor
 			if (!type.isAbstractData()) {
 				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, "Constructor (" + constructorName + ") should match with abstract data type and not with " + type));
@@ -2738,8 +2738,8 @@ public class Prelude {
 
 			Set<Type> conses = findConstructors(type, constructorName, length, store);
 			Iterator<Type> iter = conses.iterator();
-
-
+			
+			
 			while (iter.hasNext()) {
 				try {
 					Type cons = iter.next();
@@ -2760,15 +2760,15 @@ public class Prelude {
 					continue;
 				}
 			}
-
+			
 			throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree,
                 "Cannot find a constructor for " + type + " with name " + constructorName + " and arity " + length + " for syntax type \'" + ProductionAdapter.getSortName(TreeAdapter.getProduction(tree)) + "\'"));
 		}
-
-		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree,
+		
+		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, 
 				"Cannot find a constructor for " + type));
 	}
-
+	
 	private IList extractComments(IConstructor layout) {
 		final IListWriter comments = values.listWriter();
 		TreeVisitor<RuntimeException> visitor = new TreeVisitor<RuntimeException>() {
@@ -2804,18 +2804,18 @@ public class Prelude {
 					 {
 				return arg;
 			}
-
+			
 		};
-
+		
 		layout.accept(visitor);
 		return comments.done();
 	}
 
 	protected boolean isUntypedNodeType(Type type) {
-		return (type.isNode() && !type.isConstructor() && !type.isAbstractData())
+		return (type.isNode() && !type.isConstructor() && !type.isAbstractData()) 
 				|| type.isTop();
 	}
-
+	
 	/*
 	 * Rational
 	 */
@@ -2834,11 +2834,11 @@ public class Prelude {
 	{
 	  return n.remainder();
 	}
-
+	
 	/*
 	 * Relation
 	 */
-
+	
 	/*
 	 * Set
 	 */
@@ -2859,10 +2859,10 @@ public class Prelude {
 			}
 			i++;
 		}
-
+		
 		throw RuntimeExceptionFactory.emptySet();
 	}
-
+	
 	public IValue getFirstFrom(ISet st)
     // @doc{getOneFrom -- pick the "first" element from a set}
     {
@@ -2875,7 +2875,7 @@ public class Prelude {
         for (IValue v : st) {
                 return v;
         }
-
+        
         throw RuntimeExceptionFactory.emptySet();
     }
 
@@ -2885,41 +2885,41 @@ public class Prelude {
 	{
 		return values.bool(st.isEmpty());
 	}
-
+	
 	public IValue size(ISet st)
 	// @doc{size -- number of elements in a set}
 	{
 		return values.integer(st.size());
 	}
-
+	
 	public IMap index(ISet s) {
 	    return indexIterable(values, s, s.size());
 	}
 	public IMap index(IList l) {
 	    return indexIterable(values, l, l.length());
 	}
-
+	
     public static IMap index(IValueFactory vf, ISet s) {
 	    return indexIterable(vf, s, s.size());
 	}
-
+	
 	private static IMap indexIterable(IValueFactory values, Iterable<IValue> s, int suggestedSize) {
 		Map<IValue, ISetWriter> map = new HashMap<>(suggestedSize);
-
+		
 		for (IValue t : s) {
 			ITuple tuple = (ITuple) t;
 			IValue key = tuple.get(0);
 			IValue value = tuple.get(1);
 			map.computeIfAbsent(key, (k) -> values.setWriter()).insert(value);
 		}
-
+		
 		IMapWriter mapWriter = values.mapWriter();
 		for (Entry<IValue, ISetWriter> ent: map.entrySet()) {
 			mapWriter.put(ent.getKey(), ent.getValue().done());
 		}
 		return mapWriter.done();
 	}
-
+	
 
 	public IValue takeOneFrom(ISet st)
 	// @doc{takeOneFrom -- remove an arbitrary element from a set,
@@ -2974,14 +2974,14 @@ public class Prelude {
 			}
 			wValSet.insert(val);
 		}
-
+		
 		IMapWriter w = values.mapWriter();
 		for(IValue v : hm.keySet()){
 			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}
-
+	
 	public IValue toMapUnique(ISet st)
 	// @doc{toMapUnique -- convert a set of tuples to a map; keys are unique}
 	{
@@ -2991,8 +2991,8 @@ public class Prelude {
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
 			IValue key = t.get(0);
-			IValue val = t.get(1);
-			if(seenKeys.containsKey(key)) {
+			IValue val = t.get(1); 
+			if(seenKeys.containsKey(key)) {  
 				throw RuntimeExceptionFactory.MultipleKey(key, seenKeys.get(key), val);
 			}
 			seenKeys.put(key, val);
@@ -3011,20 +3011,20 @@ public class Prelude {
 	{
 		return itoStringValue(st);
 	}
-
+	
 	/*
 	 * String
 	 */
-
+	
 	public IString arbString(IInteger n) {
 	    return (IString) createRandomValue(TypeFactory.getInstance().stringType(), n.intValue(), n.intValue());
 	}
 
-
+	
 	public IBool isValidCharacter(IInteger i) {
 		return values.bool(Character.isValidCodePoint(i.intValue()));
 	}
-
+	
 	public IValue stringChar(IInteger i) {
 		int intValue = i.intValue();
 		if (Character.isValidCodePoint(intValue)) {
@@ -3034,20 +3034,20 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(i);
 		}
 	}
-
+	
 	public IValue stringChars(IList lst){
 		int[] chars = new int[lst.length()];
-
+		
 		for (int i = 0; i < lst.length(); i ++) {
 			chars[i] = ((IInteger) lst.get(i)).intValue();
 			if (!Character.isValidCodePoint(chars[i])) {
 				throw RuntimeExceptionFactory.illegalArgument(values.integer(chars[i]));
 			}
 		}
-
+		
 		return values.string(chars);
 	}
-
+	
 	public IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
 	{
@@ -3064,11 +3064,11 @@ public class Prelude {
 	{
 	  return values.bool(s.getValue().endsWith(suffix.getValue()));
 	}
-
+	
 	public IString trim(IString s) {
 		return values.string(s.getValue().trim());
 	}
-
+	
 	public IString squeeze(IString src, IString charSet) {
 		if (charSet.getValue().isEmpty()) {
 			return src;
@@ -3096,7 +3096,7 @@ public class Prelude {
 		}
 		return values.string(result.toString());
 	}
-
+	
 	public IString capitalize(IString src) {
 		StringBuilder result = new StringBuilder(src.length());
 		boolean lastWhitespace= true;
@@ -3113,7 +3113,7 @@ public class Prelude {
 		}
 		return values.string(result.toString());
 	}
-
+	
 	public IString uncapitalize(IString src) {
 		StringBuilder result = new StringBuilder(src.length());
 		boolean lastWhitespace= true;
@@ -3130,7 +3130,7 @@ public class Prelude {
 		}
 		return values.string(result.toString());
 	}
-
+	
 	public IList split(IString sep, IString src) {
 		String[] lst = src.getValue().split(Pattern.quote(sep.getValue()));
 		IListWriter lw = values.listWriter();
@@ -3139,16 +3139,16 @@ public class Prelude {
 		}
 		return lw.done();
 	}
-
+	
 	public IString wrap(IString src, IInteger wrapLength) {
 		int wrapAt = wrapLength.intValue();
 		if (wrapAt < 1) {
 			wrapAt = 1;
 		}
-		final int iLength = src.length();
+		final int iLength = src.length(); 
 
 		final StringBuilder result = new StringBuilder(iLength + (iLength / wrapAt));
-
+		
 		int lineBegin = 0;
 		while (iLength - lineBegin > wrapAt) {
 			while (lineBegin < iLength && src.charAt(lineBegin) == ' ') {
@@ -3198,14 +3198,14 @@ public class Prelude {
 	    int padLen = pad.length();
 	    java.lang.String dirVal = dir.getValue();
 	    int start;
-
+	    
 	    if(dirVal.equals("right"))
 	       start = nVal - sLen;
 	    else if(dirVal.equals("center"))
 	       start = (nVal - sLen)/2;
 	    else
 	       start = 0;
-
+	    
 	    int i = 0;
 	    while(i < start){
 	         if(i + padLen < start){
@@ -3229,7 +3229,7 @@ public class Prelude {
 	    }
 	    return values.string(res.toString());
 	}
-
+	
 	public IValue isEmpty(IString s)
 	//@doc{isEmpty -- is string empty?}
 	{
@@ -3264,7 +3264,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.indexOutOfBounds(begin);
 		}
 	}
-
+	
 	public IValue substring(IString s, IInteger begin, IInteger end) {
 		try {
 			return s.substring(begin.intValue(),end.intValue());
@@ -3273,9 +3273,9 @@ public class Prelude {
 			IInteger culprit = (bval < 0 || bval >= s.length()) ? begin : end;
 		    throw RuntimeExceptionFactory.indexOutOfBounds(culprit);
 		}
-
+	
 	}
-
+	
 	public IValue toInt(IString s)
 	//@doc{toInt -- convert a string s to integer}
 	{
@@ -3283,11 +3283,11 @@ public class Prelude {
 			java.lang.String sval = s.getValue();
 			boolean isNegative = false;
 			int radix = 10;
-
+			
 			if (sval.equals("0")) {
 				return values.integer(0);
 			}
-
+			
 			if (sval.startsWith("-")) {
 				isNegative = true;
 				sval = sval.substring(1);
@@ -3306,18 +3306,18 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(s, e.getMessage());
 		}
 	}
-
+	
 	public IValue toInt(IString s, IInteger r)
 	{
 		try {
 			java.lang.String sval = s.getValue();
 			boolean isNegative = false;
 			int radix = r.intValue();
-
+			
 			if (sval.equals("0")) {
 				return values.integer(0);
 			}
-
+			
 			if (sval.startsWith("-")) {
 				isNegative = true;
 				sval = sval.substring(1);
@@ -3329,7 +3329,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument();
 		}
 	}
-
+	
 	public IValue toReal(IString s)
 	//@doc{toReal -- convert a string s to a real}
 	{
@@ -3340,7 +3340,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument();
 		}
 	}
-
+	
 	public IValue toReal(IRational s)
   //@doc{toReal -- convert a string s to a real}
   {
@@ -3372,8 +3372,8 @@ public class Prelude {
 	    buf.get(bytes, off, len);
 	    return len;
 	  }
-	}
-
+	}	
+	
 	private static void copy(InputStream from, OutputStream to) throws IOException {
 	  final byte[] buffer = new byte[FILE_BUFFER_SIZE];
 		int read;
@@ -3459,7 +3459,7 @@ public class Prelude {
 	{
 	  return values.string(s.getValue().toUpperCase());
 	}
-
+	
 	private boolean match(IString subject, int i, IString pattern){
 		if(i + pattern.length() > subject.length())
 			return false;
@@ -3470,14 +3470,14 @@ public class Prelude {
 		}
 		return true;
 	}
-
+	
 	public IValue replaceAll(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){
 			return str;
 		}
 		int iLength = str.length();
-		StringBuilder b = new StringBuilder(iLength * 2);
+		StringBuilder b = new StringBuilder(iLength * 2); 
 		int i = 0;
 		boolean matched = false;
 		while(i < iLength){
@@ -3492,14 +3492,14 @@ public class Prelude {
 		}
 		return (!matched) ? str : values.string(b.toString());
 	}
-
+	
 	public IValue replaceFirst(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){
 			return str;
 		}
 		int iLength = str.length();
-		StringBuilder b = new StringBuilder(iLength * 2);
+		StringBuilder b = new StringBuilder(iLength * 2); 
 
 		int i = 0;
 		boolean matched = false;
@@ -3508,7 +3508,7 @@ public class Prelude {
 				matched = true;
 				b.append(replacement.getValue());
 				i += fLength;
-
+				
 			} else {
 				b.appendCodePoint(str.charAt(i));
 				i++;
@@ -3516,15 +3516,15 @@ public class Prelude {
 		}
 		return (!matched) ? str : values.string(b.toString());
 	}
-
+	
 	public IValue replaceLast(IString str, IString find, IString replacement){
 		int fLength = find.length();
 		if(fLength == 0){
 			return str;
 		}
 		int iLength = str.length();
-		StringBuilder b = new StringBuilder(iLength * 2);
-
+		StringBuilder b = new StringBuilder(iLength * 2); 
+		
 		int i = iLength - fLength;
 		while(i >= 0){
 			if(match(str,i,find)){
@@ -3537,11 +3537,11 @@ public class Prelude {
 		}
 		return str;
 	}
-
-
+	
+	
 	public IValue escape(IString str, IMap substitutions) {
-		StringBuilder b = new StringBuilder(str.length() * 2);
-
+		StringBuilder b = new StringBuilder(str.length() * 2); 
+		
 		int sLength = str.length();
 		for (int c = 0; c < sLength; c++) {
 			IString chr = str.substring(c, c+1);
@@ -3556,16 +3556,16 @@ public class Prelude {
 		}
 		return values.string(b.toString());
 	}
-
+	
 	public IValue contains(IString str, IString find){
 		return values.bool(str.getValue().indexOf(find.getValue()) >= 0);
 	}
-
+	
 	public IValue findAll(IString str, IString find){
 		int iLength = str.length();
 		int fLength = find.length();
 		IListWriter w = values.listWriter();
-
+		
 		for(int i = 0; i <= iLength - fLength; i++){
 			if(match(str, i, find)){
 				w.append(values.integer(i));
@@ -3573,11 +3573,11 @@ public class Prelude {
 		}
 		return w.done();
 	}
-
+	
 	public IValue findFirst(IString str, IString find){
 		int iLength = str.length();
 		int fLength = find.length();
-
+		
 		for(int i = 0; i <= iLength - fLength; i++){
 			if(match(str, i, find)){
 				 return values.integer(i);
@@ -3585,11 +3585,11 @@ public class Prelude {
 		}
 		return values.integer(-1);
 	}
-
+	
 	public IValue findLast(IString str, IString find){
 		int iLength = str.length();
 		int fLength = find.length();
-
+		
 		for(int i = iLength - fLength; i >= 0; i--){
 			if(match(str, i, find)){
 				 return values.integer(i);
@@ -3597,12 +3597,12 @@ public class Prelude {
 		}
 		return values.integer(-1);
 	}
-
+	
 	/*
 	 *  !!EXPERIMENTAL!!
 	 * Tuple
 	 */
-
+	
 	public IList fieldsOf(IValue v){
 		if(!v.getType().isTuple())
 			throw RuntimeExceptionFactory.illegalArgument(v, "argument of type tuple is required");
@@ -3618,18 +3618,18 @@ public class Prelude {
 		}
 		return w.done();
 	}
-
+	
 	/*
 	 * ValueIO
 	 */
-
+	
 	public IInteger getFileLength(ISourceLocation g) {
 		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());
-			if (!f.exists() || f.isDirectory()) {
+			if (!f.exists() || f.isDirectory()) { 
 				throw RuntimeExceptionFactory.io(values.string(g.toString()));
 			}
-
+			
 			return values.integer(f.length());
 		}
 		else {
@@ -3647,15 +3647,15 @@ public class Prelude {
 			}
 		}
 	}
-
+	
 	public void registerLocations(IString scheme, IString auth, IMap map) {
 		if (monitor instanceof IDEServices) {
 			((IDEServices) monitor).registerLocations(scheme, auth, map);
 		}
-
+		
 		REGISTRY.registerLogical(new LogicalMapResolver(scheme.getValue(), auth.getValue(), map));
 	}
-
+	
 	public void unregisterLocations(IString scheme, IString auth) {
 		if (monitor instanceof IDEServices) {
 			((IDEServices) monitor).unregisterLocations(scheme, auth);
@@ -3664,7 +3664,7 @@ public class Prelude {
 			REGISTRY.unregisterLogical(scheme.getValue(), auth.getValue());
 		}
 	}
-
+	
 	public ISourceLocation resolveLocation(ISourceLocation loc) {
 		try {
 			return REGISTRY.logicalToPhysical(loc);
@@ -3686,7 +3686,7 @@ public class Prelude {
 
 		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
-
+		
 		try (IValueInputStream in = constructValueReader(loc)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
@@ -3719,7 +3719,7 @@ public class Prelude {
     public IInteger __getFileSize(ISourceLocation loc) throws URISyntaxException, IOException {
         return __getFileSize(values, loc);
     }
-
+    
 	static public IInteger __getFileSize(IValueFactory values, ISourceLocation loc) throws URISyntaxException, IOException {
 	    if (loc.getScheme().contains("compressed+")) {
 	        loc = URIUtil.changeScheme(loc, loc.getScheme().replace("compressed+", ""));
@@ -3734,12 +3734,12 @@ public class Prelude {
 	        return result;
 	    }
 	}
-
+	
 	public IValue readTextValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readTextValueFile: " + loc);
 	  	TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
-
+		
 		try (Reader in = REGISTRY.getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
@@ -3748,7 +3748,7 @@ public class Prelude {
 		}
 		catch (FactTypeUseException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-        }
+        } 
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
@@ -3756,20 +3756,20 @@ public class Prelude {
 		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
-
+	
 	public IValue readTextValueString(IValue type, IString input) {
 		TypeStore store = new TypeStore();
 		Type start = tr.valueToType((IConstructor) type, store);
-
+		
 		try (StringReader in = new StringReader(input.getValue())) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
 		catch (FactParseError e) {
 			throw RuntimeExceptionFactory.parseError(values.sourceLocation(URIUtil.rootLocation("unknown"), e.getOffset(), 1));
-		}
+		} 
 		catch (FactTypeUseException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-		}
+		} 
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
@@ -3798,8 +3798,8 @@ public class Prelude {
         }
         return new IValueOutputStream(registry.getOutputStream(loc, false), values, compression);
     }
-
-
+	
+    
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
         // ready for after new boot
@@ -3823,9 +3823,9 @@ public class Prelude {
     }
 
     public void writeTextValueFile(ISourceLocation loc, IValue value){
-        writeTextValueFile(values, trackIO, loc, value);
+        writeTextValueFile(values, trackIO, loc, value); 
     }
-
+    
 	static public void writeTextValueFile(IValueFactory values, boolean trackIO, ISourceLocation loc, IValue value){
 		if(trackIO) System.err.println("writeTextValueFile: " + loc);
 		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
@@ -3835,7 +3835,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
 		}
 	}
-
+	
 	public IBool rexpMatch(IString s, IString re) {
 		return values.bool(Pattern.matches(re.getValue(), s.getValue()));
 	}
@@ -3843,7 +3843,7 @@ public class Prelude {
 	public ISourceLocation uuid() {
 		return URIUtil.correctLocation("uuid", UUID.randomUUID().toString(), "");
 	}
-
+	
 	public IInteger uuidi() {
 		UUID uuid = UUID.randomUUID();
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -3852,19 +3852,19 @@ public class Prelude {
 			data.writeLong(uuid.getMostSignificantBits());
 			data.writeLong(uuid.getLeastSignificantBits());
 			return values.integer(bytes.toByteArray());
-		}
+		} 
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid));
 		}
 	}
-
+	
 
 	// **** util::Random ***
-
+	
 	public IValue randomValue(IValue type, IInteger depth, IInteger width){
 	    return randomValue(type, values.integer(random.nextInt()), depth, width);
 	}
-
+	
 	public IValue randomValue(IValue type, IInteger seed, IInteger depth, IInteger width){
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
@@ -3940,14 +3940,14 @@ public class Prelude {
 			}
 			// TODO: make sure not to have a pointer to the prelude module here!
 			callback.call(convertChangeEvent(e));
-
+			
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
 			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-
-
-			return values.constructor(changeEvent,
+			
+			
+			return values.constructor(changeEvent, 
 				e.getLocation(),
 				convertChangeType(e.getChangeType()),
 				convertFileType(e.getType())
@@ -3957,7 +3957,7 @@ public class Prelude {
 		private IValue convertFileType(ISourceLocationType type) {
 			Type file = store.lookupConstructors("file").iterator().next();
 			Type directory = store.lookupConstructors("directory").iterator().next();
-
+			
 			switch (type) {
 				case FILE:
 					return values.constructor(file);
@@ -3990,9 +3990,9 @@ public class Prelude {
 			if (obj instanceof ReleasableCallback) {
 				ReleasableCallback other = (ReleasableCallback)obj;
 				IFunction actualTarget = target.get();
-				return actualTarget != null
-					&& src.equals(other.src)
-					&& recursive == other.recursive
+				return actualTarget != null 
+					&& src.equals(other.src) 
+					&& recursive == other.recursive 
 					&& actualTarget.equals(other.target.get());
 			}
 			return false;
@@ -4044,7 +4044,7 @@ public class Prelude {
 		if (!a.hasFragment() && !b.hasFragment()) {
 			// fast path: use equals of ISourceLocations
 			return a.equals(b);
-		}
+		} 
 		// fallback, just compare everything except the fragment
 		return a.getScheme().equals(b.getScheme())
 			&& a.getAuthority().equals(b.getAuthority())
@@ -4110,9 +4110,9 @@ public class Prelude {
 		if (first.hasOffsetLength()) {
 			if (second.hasOffsetLength()) {
 				int firstStart = first.getOffset();
-				int firstEnd = firstStart + first.getLength() - 1; // Inclusive
+				int firstEnd = firstStart + first.getLength();
 				int secondStart = second.getOffset();
-				int secondEnd = secondStart + second.getLength() - 1; // Inclusive
+				int secondEnd = secondStart + second.getLength();
 
 				return values.bool(
 					   (firstStart <= secondStart && secondStart <= firstEnd)
