@@ -144,7 +144,8 @@ ModuleStatus rascalTModelForLocs(
         ms = getImportAndExtendGraph(topModuleNames, compilerConfig);
 
         if(/error(_,_) := ms.messages){
-            return ms;
+
+            return clearTModelCache(ms);
         }
 
         if(compilerConfig.forceCompilationTopModule){
@@ -213,9 +214,6 @@ ModuleStatus rascalTModelForLocs(
                 compatible_with_all_imports = compatible_with_all_imports && m_compatible;
             }
 
-            // for(m <- component){
-            //     println("ms.status[<m>]: <ms.status[m]>");
-            // }
             any_rsc_changed = any(m <- component, rsc_changed() in ms.status[m]);
             all_tmodels_uptodate = true;
             for(m <- component){
@@ -225,7 +223,9 @@ ModuleStatus rascalTModelForLocs(
             recheckCond = !compatible_with_all_imports || any_rsc_changed || !all_tmodels_uptodate;
 
              if(recheckCond){
-                println("recheck <component>: compatible_with_all_imports: <compatible_with_all_imports>, any_rsc_changed: <any_rsc_changed>, all_tmodels_uptodate: <all_tmodels_uptodate>");
+                if(ms.compilerConfig.verbose){
+                    println("recheck <component>: compatible_with_all_imports: <compatible_with_all_imports>, any_rsc_changed: <any_rsc_changed>, all_tmodels_uptodate: <all_tmodels_uptodate>");
+                }
 
                 <tm, ms> = rascalTModelComponent(component, ms);
                 moduleScopes += getModuleScopes(tm);
@@ -330,7 +330,7 @@ ModuleStatus rascalTModelForLocs(
     }
 
     jobEnd(jobName);
-    return ms;
+    return clearTModelCache(ms);
 }
 
 bool implicitlyUsesParseTree(str modulePath, TModel tm){

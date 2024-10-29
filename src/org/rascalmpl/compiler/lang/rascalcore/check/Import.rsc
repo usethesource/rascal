@@ -337,23 +337,10 @@ void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  Mod
         newBom = makeBom(qualifiedModuleName, imports, extends, ms);
         if(newBom != tm.store[key_bom]){
             tm.store[key_bom] = newBom;
-            //println("Updated BOM for <qualifiedModuleName>:"); //iprintln( tm.store[key_bom]);
+            ms.status[qualifiedModuleName] -= tpl_saved();
             addTModel(qualifiedModuleName, tm, ms);
-            <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, ms.pathConfig);
-            tm1 = readBinaryValueFile(#TModel, tplLoc);
-            tm1.store[key_bom] = newBom;
-            //tm1 = convertTModel2LogicalLocs(tm, ms.tmodels);
-            <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, ms.pathConfig);
-            if(!found){
-                throw "Cannot find tpl write location for <qualifiedModuleName>";
-            }
-            try {
-                 writeBinaryValueFile(tplLoc, tm1);
-             } catch value e: {
-                throw "Cannot write TPL file <tplLoc>, reason: <e>";
-            }
 
-            /*if(compilerConfig.logWrittenFiles)*/ println("Updated BOM: <tplLoc>");
+            if(ms.compilerConfig.logWrittenFiles) println("Updated BOM: <qualifiedModuleName>");
         }
     } else{
         println("Could not update BOM of <qualifiedModuleName>");
@@ -384,12 +371,10 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     for(qualifiedModuleName <- component){
         start_save = cpuTime();
         tm = transient_tms[qualifiedModuleName];
-        try {
+        //try {
             mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
             <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
-            // if(!found){
-            //     throw "Cannot find tpl write location for <qualifiedModuleName>";
-            // }
+
             imports = m_imports[qualifiedModuleName];
             extends = m_extends[qualifiedModuleName];
 
@@ -465,57 +450,15 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                     case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
-            m1.logical2physical = tm.logical2physical;
-            //println("Import, tmodel:"); iprintln(m1);
-            m1 = convertTModel2LogicalLocs(m1, ms.tmodels);
 
-            ////TODO temporary check: are external locations present in the TModel? If so, throw exception
-            //
-            //result = "";
-            //
-            //void checkPhysical(value v, str label){
-            //    visit(v){
-            //        case loc l:
-            //                if(!(isContainedInComponentScopes(l) || l == |global-scope:///| || contains(l.scheme, "rascal+")))
-            //                    result += "<label>, outside <qualifiedModuleName>: <l>\n";
-            //    }
-            //}
-            //checkPhysical(m1.moduleLocs, "moduleLocs");
-            //checkPhysical(m1.facts, "facts");
-            //checkPhysical(m1.specializedFacts, "specializedFacts");
-            //checkPhysical(m1.defines, "defines");
-            //checkPhysical(m1.definitions, "definitions");
-            //checkPhysical(m1.scopes, "scopes");
-            //checkPhysical(m1.store, "store");
-            //checkPhysical(m1.paths, "paths");
-            //checkPhysical(m1.useDef, "useDef");
-            //
-            //if(!isEmpty(result)){
-            //    println("------------- <qualifiedModuleName>:
-            //            '<result>");
-            //    iprintln(m1, lineLimit=10000);
-            //    throw "checkPhysical failed, see above";
-            //}
-
-            ms.status[qualifiedModuleName] += tpl_saved();
-            try {
-                writeBinaryValueFile(tplLoc, m1);
-                if(compilerConfig.logWrittenFiles) println("Written: <tplLoc>");
-                save_time = (cpuTime() - start_save)/1000000;
-                if(compilerConfig.verbose) {
-                    save_time = (cpuTime() - start_save)/1000000;
-                    println("Saved TPL .. <qualifiedModuleName> in <save_time> ms");
-                }
-            } catch value e: {
-                throw "Cannot write TPL file <tplLoc>, reason: <e>";
-            }
+            ms.status[qualifiedModuleName] -= {tpl_saved()};
             ms = addTModel(qualifiedModuleName, m1, ms);
             //println("doSaveModule"); iprintln(m1.logical2physical);
 
-        } catch value e: {
-            ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
-            return ms;
-        }
+        // } catch value e: {
+        //     ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
+        //     return ms;
+        // }
     }
     return ms;
 }

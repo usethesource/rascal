@@ -7,6 +7,7 @@ import util::Reflective;
 import util::Benchmark;
 import IO;
 import List;
+import ListRelation;
 
 test bool fixMissingImport(){
     clearMemory();
@@ -461,12 +462,15 @@ test bool onlyChangedModulesAreReChecked2(){
 
 // Benchmarks for incremental type checking
 
-map[str,num] benchmark(lrel[str, void()] cases){
+void benchmark(str title, lrel[str, void()] cases){
     measurements = [];
 	for (<str Name, runCase> <- cases) {
 		measurements+= <Name, realTimeOf(runCase)>;
 	}
-    return measurements;
+    sum(range(measurements));
+    println(title);
+    iprintln(measurements);
+    println("Total: <sum(range(measurements))>");
 }
 
 void miniBenchmarkRechecking(){
@@ -481,7 +485,7 @@ void miniBenchmarkRechecking(){
          <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
          <"Exception+Set", void(){ touchAndCheck(Top, ["Exception", "Set"], pcfg); }>
         ];
-    iprintln(benchmark(cases));
+    benchmark("miniBenchmarkRechecking", cases);
 }
 
 void mediumBenchmarkRechecking(){
@@ -498,7 +502,7 @@ void mediumBenchmarkRechecking(){
          <"Exception+Set+Grammar", void(){ touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg); }>
         ];
 
-    iprintln(benchmark(cases));
+    benchmark("mediumBenchmarkRechecking", cases);
 }
 
 void largeBenchmarkRechecking(){
@@ -515,5 +519,5 @@ void largeBenchmarkRechecking(){
          <"5 modules changed", void(){ touchAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg); }>
         ];
 
-    iprintln(benchmark(cases));
+    benchmark("largeBenchmarkRechecking", cases);
 }

@@ -179,9 +179,21 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
    }
 }
 
+/*
+ * We implement a caching mechanism for TModels with the following properties:
+ * - tmodelCacheSize tmodels are cached.
+ * - The most frequently uses modules are hardwired and are never removed.
+     They are determined by static analysis of the import/extend graph.
+ * - TModels on file (.tpl) physical locations have been replaced by logical locations where possible.
+ * - When a TModel is read in, physical locations are converted by logical logical locations
+ * - The policy is to keep TModels in the cache in this physical form as long as possible.
+ * - During its presence in the cache, the BOM of a TModel may get updated.
+ * - When a TModel has to be removed from the cache, it is converted back to the logical form and written back to file.
+ */
+
 set[str] hardwired = {};
 
-int tmodelCacheSize = 4; // should be > 0
+int tmodelCacheSize = 12; // should be > 0
 
 int maxHardwired = tmodelCacheSize/4;
 
@@ -203,25 +215,54 @@ void analyzeTModels(ModuleStatus ms){
     hardwired = toSet(domain(hardwire));
 }
 
+ModuleStatus clearTModelCache(ModuleStatus ms){
+    for(candidate <- ms.tmodelLIFO){
+        ms = removeOldestTModelFromCache(ms);
+    }
+    for(candidate <- hardwired){
+        ms = removeTModel(candidate, ms);
+    }
+    return ms;
+}
+
+ModuleStatus removeTModel(str candidate, ModuleStatus ms){
+    if(tpl_saved() notin ms.status[candidate]){
+        pcfg = ms.pathConfig;
+        if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
+        tm = ms.tmodels[candidate];
+        <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
+        tm = convertTModel2LogicalLocs(tm, ms.tmodels);
+        ms.status[candidate] += tpl_saved();
+        try {
+            writeBinaryValueFile(tplLoc, tm);
+            if(traceTPL) println("Written <tplLoc>");
+        } catch value e: {
+            throw "Cannot write TPL file <tplLoc>, reason: <e>";
+        }
+    }
+    ms.tmodels = delete(ms.tmodels, candidate);
+    return ms;
+}
+
+ModuleStatus removeOldestTModelFromCache(ModuleStatus ms){
+    if(size(ms.tmodelLIFO) > 0){
+        candidate = ms.tmodelLIFO[-1];
+        ms = removeTModel(candidate, ms);
+        if(traceTModelCache) println("*** deleting tmodel <candidate>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
+        ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+    }
+    return ms;
+}
+
 ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
     if(traceTModelCache) println("addTModel: <qualifiedModuleName>");
     if(tmodelCacheSize > 0){
-        if(tpl_saved() notin ms.status[qualifiedModuleName]){
-            iprintln(ms.status);
-            throw "Cannot add module <qualifiedModuleName> with unsaved tpl";
-        }
         ms.tmodels[qualifiedModuleName] = tm;
         if(qualifiedModuleName notin hardwired){
             if(qualifiedModuleName notin ms.tmodelLIFO){
                 ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
                 while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
-                    if(tpl_saved() notin ms.status[ms.tmodelLIFO[-1]]){
-                        iprintln(ms.status);
-                        throw "Cannot remove unsaved tpl <ms.tmodelLIFO[-1]>, <ms.status[ms.tmodelLIFO[-1]]>";
-                    }
-                    ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
-                    if(traceTModelCache) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
-                    ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+                    ms = removeOldestTModelFromCache(ms);
                 }
             }
         }
@@ -233,15 +274,10 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]? /*&& tpl_uptodate() in ms.status[qualifiedModuleName]*/){
-        // if(tpl_saved() notin ms.status[qualifiedModuleName]){
-        //     throw "Unsaved tmodel for <qualifiedModuleName> in cache";
-        // }
         return <true, ms.tmodels[qualifiedModuleName], ms>;
     }
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
-        ms.tmodels = delete(ms.tmodels, ms.tmodelLIFO[-1]);
-        if(traceTModelCache) println("*** deleting tmodel <ms.tmodelLIFO[-1]>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
-        ms.tmodelLIFO = ms.tmodelLIFO[..-1];
+        ms = removeOldestTModelFromCache(ms);
     }
 
     <found, tplLoc> = getTPLReadLoc(qualifiedModuleName, pcfg);
