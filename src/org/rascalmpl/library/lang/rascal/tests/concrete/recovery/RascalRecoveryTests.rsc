@@ -16,11 +16,6 @@ module lang::rascal::tests::concrete::recovery::RascalRecoveryTests
 
 import lang::rascal::\syntax::Rascal;
 
-import ParseTree;
-import util::ErrorRecovery;
-import IO;
-import util::Maybe;
-
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 bool debugging = false;
@@ -56,40 +51,34 @@ test bool rascalIfMissingExpr() = checkRecovery(#FunctionDeclaration, "void f(){
 
 test bool rascalIfBodyEmpty() = checkRecovery(#start[Module], "module A void f(){1;} void g(){if(1){}} void h(){1;}", ["{", "} "]);
 
-// Not working yet:
-/*
-test bool rascalMissingOpeningParen() {
-    Tree t = parseRascal("module A void f){} void g() { }");
+test bool rascalMissingOpeningParen() = checkRecovery(#start[Module], 
+"module A
+void f) {
+    }
+    void g() { 
+    }", ["}
+",") {"]);
 
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == "a}";
-}
+test bool rascalFunFunMissingCloseParen() = checkRecovery(#start[Module], "module A void f(){void g({}} void h(){}", ["void g({}", "} "]);
 
-test bool rascalFunFunMissingCloseParen() {
-    Tree t = parseRascal("module A void f(){void g({}} void h(){}");
+test bool rascalIfMissingOpeningParen() = checkRecovery(#start[Module], 
+"module A void f() {
+  if 1) {
+    1;
+  }}", ["1) "]);
 
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == "a}";
-}
+test bool rascalIfMissingCloseParen() = checkRecovery(#start[Module], 
+"module A
+void f() {
+  if (1 {
+    1;
+  }}", ["1 "]);
 
-test bool rascalIfMissingOpeningParen() {
-    Tree t = parseRascal("module A void f(){if 1){}}", visualize=false);
-
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == ";";
-}
-
-test bool rascalIfMissingCloseParen() {
-    Tree t = parseRascal("module A void f(){if(1{}}", visualize=false);
-
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == ";";
-}
-
-test bool rascalIfMissingSemi() {
-    Tree t = parseRascal("module A void f(){if (true) {a}}");
-
-    println("error text: <getErrorText(findFirstError(t))>");
-    return getErrorText(findFirstError(t)) == ";";
-}
-*/
+test bool rascalIfMissingSemi() = checkRecovery(#start[Module], 
+"module A
+void f() {
+  if (true) {
+    a
+  }
+}", ["{", "}
+"]);
