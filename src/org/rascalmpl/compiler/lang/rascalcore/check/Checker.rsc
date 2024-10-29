@@ -154,6 +154,7 @@ ModuleStatus rascalTModelForLocs(
             }
         }
 
+
         imports_and_extends = ms.strPaths<0,2>;
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
 
