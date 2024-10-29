@@ -72,8 +72,9 @@ test bool picoMissingSemi() = checkRecovery(#Program, "begin declare input : nat
           od
           input := input - 1
       od
-end", ["input := input - 1
-      od"]);
+end", ["od
+end", "input := input - 1
+"]);
 
 test bool picoTypoSmall() = checkRecovery(#Program, "begin declare;
   while input do
