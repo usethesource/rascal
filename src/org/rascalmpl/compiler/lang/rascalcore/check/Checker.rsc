@@ -479,29 +479,13 @@ list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
 
 // ---- Convenience check function during development -------------------------
 
-void find(str s, ModuleStatus ms){
-    if(ms.moduleLocs[s]?) println("moduleLocs[<s>] = <ms.moduleLocs[s]>");
-    for(mname <- ms.tmodels){
-        tm = ms.tmodels[mname];
-        for(d <- tm.definitions){
-            def = tm.definitions[d];
-            if(contains("<def>", s)) {println("<mname>: <def>"); }
-        }
-    }
-}
-
 map[str, list[Message]] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
     ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
     tmodels = ms.tmodels;
-    //find("Exception.rsc|(0,", ms);
     tmMsgs = (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
     return //(mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages))
          (mname : ms.messages[mname] + (tmMsgs[mname] ? []) | mname <- ms.messages, !isEmpty(ms.messages[mname]));
 }
-
-// ---- Convenience check function during development -------------------------
-
-
 
 // -- calculate rename changes
 // a change request happens at a symbol location that points to the lexical the cursor position, not necessarily a full symbol present in the TModel
