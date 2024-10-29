@@ -43,15 +43,15 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
         switch(defines[def].idRole){
         case functionId():
             { if(seenVAR) return false; seenFUNCTION = true; }
-        case variableId(): 
+        case variableId():
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case moduleVariableId(): 
+        case moduleVariableId():
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case formalId(): 
+        case formalId():
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case keywordFormalId(): 
+        case keywordFormalId():
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
-        case patternVariableId(): 
+        case patternVariableId():
             { if(seenVAR || seenFUNCTION) return false;  seenVAR = true;}
         case nonterminalId():
             { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
@@ -62,8 +62,8 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
         case keywordId():
             { if(seenNT || seenLAY || seenLEX) {  return false; } seenKEY = true; }
         case aliasId():
-            { if(seenALIAS) return false; seenALIAS = true; } 
-        
+            { if(seenALIAS) return false; seenALIAS = true; }
+
         }
     }
     return true;
@@ -86,10 +86,10 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
                 }
             }
             return ignoreContinue();
-       } else if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def                                              
+       } else if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def
                  && isContainedIn(def, use.scope)          // in an idRole that requires def before use
                 ){                                         // and the definition is in the same scope as the use
-      // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)      
+      // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
       if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
          list[loc] parts = allowedParts[use.scope];
          return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
@@ -98,7 +98,7 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
        }
     }
     }
-    
+
     // Uses of a keyword formal inside its initializing expression are rejected
     if(d.idRole == keywordFormalId() && isContainedIn(use.occ, d.defined)){
         return ignoreContinue();
@@ -109,35 +109,35 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
 Accept rascalIsAcceptableQualified(loc def, Use use, Solver s){
     // println("rascalIsAcceptableQualified: <def>, <use>");
     atype = s.getType(def);
-       
+
     defPath = def.path;
     qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
-        
+
     // qualifier and proposed definition are the same?
     if(endsWith(defPath, qualAsPath)){
        return acceptBinding();
     }
-        
+
     // Qualifier is a ADT name?
-        
+
     if(acons(aadt(adtName, _, _), list[AType] _fields, list[Keyword] _kwFields) := atype){
        return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
-    
+
     // Qualifier is a Production?
-   
+
     if(aprod(prod(aadt(adtName, _, _), list[AType] _atypes)) := atype){
        return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
     }
-     
+
     // Is there another acceptable qualifier via an extend?
-        
+
     extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- s.getPaths()}*;
- 
+
     if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
        return acceptBinding();
     }
-       
+
     return ignoreContinue();
 }
 
@@ -147,10 +147,10 @@ Accept rascalIsAcceptablePath(loc _defScope, loc def, Use _use, PathRole pathRol
         defIdRole = the_define.idRole;
         // Only data declarations, constructors and visible entities are visible
         if(!(defIdRole == dataId() || defIdRole == constructorId() || the_define.defInfo.vis == publicVis())){
-            return ignoreContinue();   
+            return ignoreContinue();
         }
     }
-    
+
     return acceptBinding();
 }
 
@@ -158,7 +158,7 @@ AType rascalInstantiateTypeParameters(Tree selector,
                                       def:aadt(str adtName1, list[AType] formals, SyntaxRole syntaxRole1),
                                       ins:aadt(str adtName2, list[AType] actuals, SyntaxRole syntaxRole2),
                                       AType act,
-                                      Solver s){ 
+                                      Solver s){
     nformals = size(formals);
     nactuals = size(actuals);
     if(nformals != nactuals) s.report(error(selector, "Expected %v type parameters for %q, found %v", nformals, adtName1, nactuals));
@@ -197,25 +197,25 @@ AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[I
     //println("rascalGetTypeInTypeFromDefine: <containerDef>, <selectorName>");
     //println("commonKeywordFields: <containerDef.defInfo.commonKeywordFields>");
     containerType = s.getType(containerDef.defined);
-    if(  fieldId() in idRolesSel 
-       && selectorName == "top" 
+    if(  fieldId() in idRolesSel
+       && selectorName == "top"
        && isStartNonTerminalType(containerType)
        ){
         return getStartNonTerminalType(containerType);
     }
-    if(   fieldId() in idRolesSel 
-       && selectorName == "top" 
+    if(   fieldId() in idRolesSel
+       && selectorName == "top"
        && isTreeType(containerType)
        ){
         return containerType;
     }
-    if(   keywordFieldId() in idRolesSel 
-       && selectorName == "src" 
+    if(   keywordFieldId() in idRolesSel
+       && selectorName == "src"
        && (isTreeType(containerType) || isNonTerminalAType(containerType))
        ){
         return aloc();
     }
-    
+
     for(kwf <- containerDef.defInfo.commonKeywordFields){
         if(prettyPrintName(kwf.name) == selectorName){
             return s.getType(kwf.\type);
@@ -252,18 +252,18 @@ bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] 
 bool rascalReportUnused(loc def, TModel tm){
     config = tm.config;
     if(!config.warnUnused) return false;
-     
+
     definitions = tm.definitions;
-    
+
     if(!definitions[def]? || !tm.moduleLocs[tm.modelName]?) return false;
-    
+
     if(!isContainedIn(definitions[def].defined, tm.moduleLocs[tm.modelName])){
         return false;
     }
-    
+
     scopes = tm.scopes;
     facts = tm.facts;
-    
+
     bool reportFormal(Define define){
        if(!config.warnUnusedFormals || isWildCard(define.id[0])) return false;
        container = tm.definitions[findContainer(def, definitions, scopes)];
@@ -273,7 +273,7 @@ bool rascalReportUnused(loc def, TModel tm){
        }
        return false;
     }
-    
+
     define = definitions[def];
     try {
         switch(define.idRole){
@@ -289,10 +289,10 @@ bool rascalReportUnused(loc def, TModel tm){
             case constructorId():       return false;
             case fieldId():             return false;
             case keywordFieldId():      return false;
-            case formalId():            return reportFormal(define); 
-            case nestedFormalId():      return reportFormal(define); 
-            case keywordFormalId():     return reportFormal(define); 
-                                        
+            case formalId():            return reportFormal(define);
+            case nestedFormalId():      return reportFormal(define);
+            case keywordFormalId():     return reportFormal(define);
+
             case patternVariableId():   { if(!config.warnUnusedVariables) return false;
                                           return !isWildCard(define.id[0]);
                                         }
@@ -311,7 +311,7 @@ bool rascalReportUnused(loc def, TModel tm){
             case keywordId():           return false;
         }
     } catch NoSuchKey(_): return false;
-    
+
     return true;
 }
 
@@ -324,18 +324,18 @@ TModel rascalPreSolver(map[str,Tree] _namedTrees, TModel m){
 
 void checkOverloading(map[str,Tree] namedTrees, Solver s){
     if(s.reportedErrors()) return;
-    
+
     set[Define] defines = s.getAllDefines();
     facts = s.getFacts();
     set[loc] actuallyUsedDefs = range(s.getUseDef());
     moduleScopes = { t@\loc | t <- range(namedTrees) };
-    
+
     funDefs = {<define.id, define> | define <- defines, define.idRole == functionId() };
     funIds = domain(funDefs);
     for(id <- funIds){
         set[Define] defs = funDefs[id];
         if(size(defs) > 1){
-            for(d1 <- defs, d2 <- defs, d1.defined != d2.defined, 
+            for(d1 <- defs, d2 <- defs, d1.defined != d2.defined,
                    t1 := facts[d1.defined]?afunc(avoid(),[],[]),
                    t2 := facts[d2.defined]?afunc(avoid(),[],[]),
                    d1.scope in moduleScopes, d2.scope in moduleScopes, size(t1.formals) == size(t2.formals)
@@ -357,36 +357,36 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                         msgs = [ error("Return type `<prettyAType(t1.ret)>` of function `<id>` is not comparable with return type `<prettyAType(r2)>` of other declaration with comparable arguments", d1.defined) ];
                         s.addMessages(msgs);
                     }
-            
+
                     list[str] getKwNames(list[Keyword] l) =  [k.fieldType.alabel | Keyword k <- l];
-                    
-                    if(comparableList(t1.formals, t2.formals)) {  
+
+                    if(comparableList(t1.formals, t2.formals)) {
                          t1_kwNames = getKwNames(t1.kwFormals);
                          t2_kwNames = getKwNames(t2.kwFormals);
-                         
-                         if(t1_kwNames != t2_kwNames){     
-                            diffkws = t2_kwNames - t1_kwNames;  
+
+                         if(t1_kwNames != t2_kwNames){
+                            diffkws = t2_kwNames - t1_kwNames;
                             plural = size(diffkws) > 1 ? "s" : "";
                             msgs = [ error("Other declaration of function `<id>` has different keyword parameter<plural> <intercalate(",", [ "`<k>`" | k <- diffkws])> at <d2.defined>", d1.defined) ];
                             s.addMessages(msgs);
                           }
                      }
                  }
-                 
+
                  if((t1 has isTest && t1.isTest) || (t2 has isTest && t2.isTest)){
                     msgs = [ error("Test name `<id>` should not be overloaded", d.defined) | d <- defs ];
                     s.addMessages(msgs);
                 }
             }
-            
+
             defaults = { d | d <- defs, t := facts[d.defined]?afunc(avoid(),[],[]), t.isDefault };
             if(size(defaults) > 1 && all(d1 <- defaults, d2 <- defaults, d1 != d2, d1.scope == d2.scope)){
                 msgs = [ info("Multiple defaults defined for function `<id>`, refactor or manually check non-overlap", d.defined) | d <- defaults ];
                 s.addMessages(msgs);
             }
-        }   
+        }
     }
-    
+
     consNameDef = {<define.id, define> | define <- defines, define.idRole == constructorId() };
 
 
@@ -394,7 +394,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
     for(id <- consIds){
         defs = consNameDef[id];
         allDefs = { d.defined | d <- defs };
-        for(d1 <- defs, d2 <- defs, 
+        for(d1 <- defs, d2 <- defs,
             d1.defined != d2.defined,
             t1 := facts[d1.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
             t2 := facts[d2.defined]?acons(aadt("***DUMMY***", [], dataSyntax()),[],[]),
@@ -404,7 +404,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             msgs = [];
             if(t1.adt == t2.adt){
                 msgs = [ error("Constructor `<id>` overlaps with other declaration for type `<prettyAType(t1.adt)>`, see <allDefs - d.defined>", d.defined) | d <- defs ];
-            } 
+            }
             // NOTE: After discussion about the relevance of the following checks they have been commented out
             //       and will be removed later
             // else if(d1.defined in actuallyUsedDefs && d2.defined in actuallyUsedDefs){
@@ -413,7 +413,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
             //     msgs = [ info("On use add a qualifier to constructor `<id>`, it overlaps with other declaration, see <allDefs - d.defined>", d.defined) | d <- defs ];
             // }
             s.addMessages(msgs);
-        }    
+        }
     }
     try {
         matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
@@ -431,10 +431,10 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-    
+
     if(!s.reportedErrors()){
        checkOverloading(namedTrees, s);
-    
+
         for(_mname <- namedTrees){
             addADTsAndCommonKeywordFields(s);
         }
@@ -443,7 +443,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
 
 bool isLogicalLoc(loc l)
     = startsWith(l.scheme, "rascal+");
-    
+
 loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        if(isLogicalLoc(def.defined)) return def.defined;
@@ -453,7 +453,7 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
        if(def.idRole == moduleId()){
             return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed><suffix>|;
        } else {
-            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|; 
+            return |<"rascal+<prettyRole(def.idRole)>">:///<moduleNameSlashed>/<reduceToURIChars(def.id)><suffix>|;
        }
      }
      return def.defined;
@@ -467,59 +467,61 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         bool warnUnusedFormals        = true,
         bool warnUnusedVariables      = true,
         bool warnUnusedPatternFormals = true,
-        
+        bool infoModuleChecked        = false,
+
         // Debugging
         bool verbose                  = false,    // for each compiled module, log module name and compilation time
         bool logImports               = false,
         bool logWrittenFiles          = false,   // log location of written files: .constants, .tpl, *.java
         bool logPathConfig            = false,   //  log PathConfig that is used
-        
+
         loc reloc                     = |noreloc:///|, // Currently unused
-       
+
         bool optimizeVisit            = true,   // Options for compiler developer
         bool enableAsserts            = true,
         bool forceCompilationTopModule= false
     )
     = tconfig(
         rascalTplVersion              = rascalTplVersion,
-        
+
         // Compiler options
         warnUnused                    = warnUnused,
         warnUnusedFormals             = warnUnusedFormals,
         warnUnusedVariables           = warnUnusedVariables,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
         warnUnusedPatternFormals      = warnUnusedPatternFormals,
-        
-        verbose                       = verbose,   
+        infoModuleChecked             = infoModuleChecked,
+
+        verbose                       = verbose,
         logImports                    = logImports,
         logWrittenFiles               = logWrittenFiles,
         logPathConfig                 = logPathConfig,
-        
-        reloc                         = reloc, 
-        optimizeVisit                 = optimizeVisit, 
+
+        reloc                         = reloc,
+        optimizeVisit                 = optimizeVisit,
         enableAsserts                 = enableAsserts,
         forceCompilationTopModule     = forceCompilationTopModule,
-    
+
         // Basic TypePalConfig options
         typepalPathConfig             = pcfg,
-         
+
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },
         isSubType                     = asubtype,
         getLub                        = alub,
-        
+
         isInferrable                  = rascalIsInferrable,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,
         isAcceptablePath              = rascalIsAcceptablePath,
-        
+
         mayOverload                   = rascalMayOverload,
-      
+
         getTypeNamesAndRole           = rascalGetTypeNamesAndRole,
         getTypeInTypeFromDefine       = rascalGetTypeInTypeFromDefine,
         getTypeInNamelessType         = rascalGetTypeInNamelessType,
         instantiateTypeParameters     = rascalInstantiateTypeParameters,
-        
+
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
         reportUnused                  = rascalReportUnused,

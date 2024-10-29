@@ -6,7 +6,7 @@ module lang::rascalcore::check::BasicRascalConfig
     The checker itself is configure in RascalConfig.
 */
 extend analysis::typepal::TypePal;
- 
+
 import lang::rascal::\syntax::Rascal;
 import Location;
 import util::SemVer;
@@ -36,14 +36,14 @@ data IdRole
 
 public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
-public set[IdRole] dataRoles = {aliasId(), dataId()}; 
+public set[IdRole] dataRoles = {aliasId(), dataId()};
 public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
 public set[IdRole] variableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
 public set[IdRole] inferrableRoles = formalRoles + {variableId(), moduleVariableId(), patternVariableId()};
-public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(), 
-                                                             fieldId(), keywordFieldId(), annoId(), 
+public set[IdRole] keepInTModelRoles = dataOrSyntaxRoles + { moduleId(), constructorId(), functionId(),
+                                                             fieldId(), keywordFieldId(), annoId(),
                                                              moduleVariableId(), productionId(), nonterminalId()
                                                            };
 public set[IdRole] assignableRoles = variableRoles;
@@ -52,7 +52,7 @@ data PathRole
     = importPath()
     | extendPath()
     ;
-    
+
 data ScopeRole
     = //moduleScope()
      functionScope()
@@ -130,21 +130,22 @@ alias RascalCompilerConfig = TypePalConfig;
 
 data TypePalConfig(
     str rascalTplVersion            = getCurrentRascalTplVersion(),
-    
+
     // Control message level
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,
     bool warnUnusedPatternFormals   = true,
-    
+    bool infoModuleChecked          = false,
+
     loc reloc                       = |noreloc:///|,  // Unused
-    
+
     // Debugging options
     bool verbose                    = true,    // for each compiled module, module name and compilation time
     bool logImports                 = false,   // log all imported files
     bool logWrittenFiles            = false,   // log all files written by compiler
     bool logPathConfig              = false,    // log PathConfig that is used
-      
+
     bool optimizeVisit              = true,     // Options for compiler developer
     bool enableAsserts              = true,
     bool forceCompilationTopModule  = false
