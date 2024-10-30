@@ -132,7 +132,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
-                if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
+                if(mloc.extension != "rsc" || isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
                 <compatible, ms> = isCompatibleBinaryLibrary(tm, domain(localImportsAndExtends), ms);
                 if(!compatible){
@@ -259,7 +259,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         ms.status[iname] = ms.status[iname] ? {};
         try {
             mloc = getModuleLocation(iname, ms.pathConfig);
-            //if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, ms.pathConfig)) throw "No src or library module 2";
+            //if(mloc.extension != "rsc" || isModuleLocationInLibs(iname, mloc, ms.pathConfig)) throw "No src or library module 2";
          } catch str msg: {
             ms.messages[moduleName] ? [] += [ error(msg, imod@\loc) ];
             ms.status[iname] += { rsc_not_found() };
@@ -332,6 +332,9 @@ rel[str,datetime,PathRole] makeBom(str qualifiedModuleName, set[str] imports, se
            + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
 }
 void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
+    if(isModuleLocationInLibs(qualifiedModuleName, ms.moduleLocs[qualifiedModuleName], ms.pathConfig)){
+        return;
+    }
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
     if(found){
         newBom = makeBom(qualifiedModuleName, imports, extends, ms);
@@ -451,6 +454,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
 
+            m1.convertedToPhysical = false;
             ms.status[qualifiedModuleName] -= {tpl_saved()};
             ms = addTModel(qualifiedModuleName, m1, ms);
             //println("doSaveModule"); iprintln(m1.logical2physical);
