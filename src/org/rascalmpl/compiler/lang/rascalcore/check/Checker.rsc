@@ -130,8 +130,8 @@ ModuleStatus rascalTModelForLocs(
 
     for (mloc <- mlocs) {
         m = getModuleName(mloc, pcfg);
-        if(isModuleLocationInLibs(mloc, pcfg)){
-            ms.status[m] ? {} += rsc_not_found();
+        if(isModuleLocationInLibs(m, mloc, pcfg)){
+            ms.status[m] ? {} += {rsc_not_found()};
         }
         topModuleNames += {m};
         ms.moduleLocs[m] = mloc;
@@ -186,6 +186,9 @@ ModuleStatus rascalTModelForLocs(
 
         while(mi < nmodules) {
             component = module2component[ordered[mi]];
+            if(component == {"IO"}){
+                println("IO");
+            }
             jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
 
             recheck = !all(m <- component, ms.status[m]?, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
@@ -382,7 +385,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         ms.status[nm] = {};
         ms.messages[nm] = [];
         mloc = getModuleLocation(nm, pcfg);
-        if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)){
+        if(mloc.extension != "rsc" || isModuleLocationInLibs(nm, mloc, pcfg)){
             continue;
         }
         <success, pt, ms> = getModuleParseTree(nm, ms);

@@ -73,8 +73,11 @@ data ModuleStatus =
 
 ModuleStatus newModuleStatus(RascalCompilerConfig ccfg) = moduleStatus({}, {}, (), [], (), [], (), (), (), (), ccfg.typepalPathConfig, ccfg);
 
-bool isModuleLocationInLibs(loc l, PathConfig pcfg)
-    = !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
+bool isModuleLocationInLibs(str mname, loc l, PathConfig pcfg){
+    res = l.extension == "tpl" || !isEmpty(pcfg.libs) && any(lib <- pcfg.libs, l.scheme == lib.scheme && l.path == lib.path);
+    //println("isModuleLocationInLibs: <mname>, <l> ==\> <res>");
+    return res;
+}
 
 bool traceTPL = false;
 bool traceParseTreeCache = false;
@@ -148,7 +151,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 // Make sure we found a real source module (as opposed to a tpl module in a library
-                if(mloc.extension != "rsc" || isModuleLocationInLibs(mloc, pcfg)) {
+                if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) {
                     ms.status[qualifiedModuleName] += {rsc_not_found()};
                     throw "No src or library module";
                 }
@@ -286,8 +289,12 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         try {
             tpl = readBinaryValueFile(#TModel, tplLoc);
             if(tpl.rascalTplVersion? && isValidRascalTplVersion(tpl.rascalTplVersion)){
+                tpl.convertedToPhysical = false; // temporary
                 tpl = convertTModel2PhysicalLocs(tpl);
-
+                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
+                    ms.status[qualifiedModuleName] ? {} += rsc_not_found();
+                }
                 ms.tmodels[qualifiedModuleName] = tpl;
                 ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
                 if(qualifiedModuleName notin hardwired){
