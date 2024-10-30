@@ -229,7 +229,7 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
 }
 
 ModuleStatus removeTModel(str candidate, ModuleStatus ms){
-    if(tpl_saved() notin ms.status[candidate]){
+    if(tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
         pcfg = ms.pathConfig;
         if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
         tm = ms.tmodels[candidate];
@@ -291,11 +291,11 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             if(tpl.rascalTplVersion? && isValidRascalTplVersion(tpl.rascalTplVersion)){
                 tpl.convertedToPhysical = false; // temporary
                 tpl = convertTModel2PhysicalLocs(tpl);
+                ms.tmodels[qualifiedModuleName] = tpl;
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
                     ms.status[qualifiedModuleName] ? {} += rsc_not_found();
                 }
-                ms.tmodels[qualifiedModuleName] = tpl;
                 ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
                 if(qualifiedModuleName notin hardwired){
                     ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
