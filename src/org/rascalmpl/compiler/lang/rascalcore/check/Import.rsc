@@ -98,7 +98,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-    if(found && rsc_not_found() notin ms.status[qualifiedModuleName]){
+    if(found /*&& rsc_not_found() notin ms.status[qualifiedModuleName]*/){
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
@@ -161,8 +161,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
          }
     }
 
-    else {
-        allImportsAndExtendsValid = false;
+    if(rsc_not_found() in ms.status[qualifiedModuleName]){
+        return ms;
     }
 
     <success, pt, ms> = getModuleParseTree(qualifiedModuleName, ms);
@@ -332,7 +332,7 @@ rel[str,datetime,PathRole] makeBom(str qualifiedModuleName, set[str] imports, se
            + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
 }
 void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
-    if(isModuleLocationInLibs(qualifiedModuleName, ms.moduleLocs[qualifiedModuleName], ms.pathConfig)){
+    if(rsc_not_found() in ms.status[qualifiedModuleName]){
         return;
     }
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
