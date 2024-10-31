@@ -16,7 +16,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 via ((executeDocumentEdits)) in the REPL or ((applyDocumentsEdits)) by the IDE.
 }
 @benefits{
-* Document edits can be attached to ((data:CodeAction))s and error ((data:Message))s, to achieve interactive 
+* Document edits can be attached to ((data:CodeAction))s and error ((util::IDEServices-Message))s, to achieve interactive 
 source code rewriting utilities. 
 * Document edits can be tested via ((executeDocumentEdits))
 * Document edits can be "high fidelity", avoiding unnecessary damage to a source text.   
