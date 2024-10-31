@@ -186,9 +186,6 @@ ModuleStatus rascalTModelForLocs(
 
         while(mi < nmodules) {
             component = module2component[ordered[mi]];
-            if(component == {"IO"}){
-                println("IO");
-            }
             jobStep(jobName, intercalate(" + ", [*component]), work=size(component));
 
             recheck = !all(m <- component, ms.status[m]?, (tpl_uptodate() in ms.status[m] || checked() in ms.status[m]));
