@@ -495,7 +495,7 @@ bool checkErrors(Tree t, list[str] expectedErrors) {
     for (error <- errors) {
         str errorText = getErrorText(error);
         if (errorText notin expectedErrors) {
-            println("Unexpected error: <errorText>");
+            println("Unexpected error: \'<errorText>\'");
             println("All errors found:");
             printErrors(errors);
             return false;
