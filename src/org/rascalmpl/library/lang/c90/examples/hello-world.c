@@ -7,7 +7,7 @@ void printHello(char *name) {
   print("!");
 }
 
-int main(int argc, char *argv[]) {                                                        
+int main(int argc, char *argv[]) {
   char *name;
   if (argc > 1) {
     name = argv[1];
