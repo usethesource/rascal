@@ -35,6 +35,10 @@ data DocumentEdit
     | changed(loc file, list[TextEdit] edits)
     ;
 
+@synopsis{Shorthand for file changes.}
+DocumentEdit changed(list[TextEdit] edits:[replace(loc l, str _), *_])
+    = changed(l.top, edits);
+
 @synopsis{String rewriting operations}
 @description{
 The core operation is to replace a substring with another.
