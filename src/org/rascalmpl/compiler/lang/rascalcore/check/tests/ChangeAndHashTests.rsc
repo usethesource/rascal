@@ -15,10 +15,10 @@ import lang::rascalcore::check::ATypeBase;
 
 TModel check(str moduleName, RascalCompilerConfig compilerConfig){
 
-        ModuleStatus result = rascalTModelForNames([moduleName],
+        ModuleStatus ms = rascalTModelForNames([moduleName],
                                                   compilerConfig,
                                                   dummy_compile1);
-       <found, tm, result> = getTModelForModule(moduleName, result);
+       <found, tm, ms> = getTModelForModule(moduleName, ms);
        if(found && verbose && !isEmpty(tm.messages)){
             iprintln(tm.messages);
        }
