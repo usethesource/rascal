@@ -511,7 +511,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				nextNextAlternative = nextNext.getCleanCopy(location);
 				nextNextAlternative.updateNode(next, nextResult);
 				
-					debugListener.propagated(next, nextResult, nextNextAlternative);
+				debugListener.propagated(next, nextResult, nextNextAlternative);
 			}
 			
 			IntegerObjectList<EdgesSet<P>> nextNextEdgesMap = nextNextAlternative.getEdges();
