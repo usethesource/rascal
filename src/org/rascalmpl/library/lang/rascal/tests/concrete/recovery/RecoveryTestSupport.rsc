@@ -327,7 +327,7 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
 
         if (ninetyFivePercentile == -1 && cumulativeCount >= ninetyFivePercentileLimit) {
             ninetyFivePercentile = val;
-    }
+        }
 
         total += val*count;
 
@@ -340,7 +340,7 @@ void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit
     if (totalCount == 0) {
         print("-");
     } else {
-        int mean = total/totalCount;
+        num mean = round(toReal(total)/totalCount, 0.01);
         print(right("<mean>", statFieldWidth));
         print(right("<median>", statFieldWidth));
         print(right("<ninetyFivePercentile>", statFieldWidth));
