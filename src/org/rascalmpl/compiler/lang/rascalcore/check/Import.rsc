@@ -201,25 +201,27 @@ str getModuleFromLogical(loc l){
 
 // Is what library module lib provides compatible with all uses in the modules libUsers?
 tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
-    libName = lib.modelName;
-    libProvides = domain(lib.logical2physical);
-    libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
-    usersRequire = {};
-    for(m <- libUsers){
-       <found, tm, ms> = getTModelForModule(m, ms);
-       if(found){
-           usersRequire += domain(tm.logical2physical);
-       }
-    }
-    usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
+    return <true, ms>;
 
-    if(usersRequireFromLib <= libProvides){
-        //println("isCompatibleBinaryLibrary <libName>: satisfied");
-        return <true, ms>;
-    } else {
-        //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
-        return <false, ms>;
-    }
+    // libName = lib.modelName;
+    // libProvides = domain(lib.logical2physical);
+    // libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
+    // usersRequire = {};
+    // for(m <- libUsers){
+    //    <found, tm, ms> = getTModelForModule(m, ms);
+    //    if(found){
+    //        usersRequire += domain(tm.logical2physical);
+    //    }
+    // }
+    // usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
+
+    // if(usersRequireFromLib <= libProvides){
+    //     println("isCompatibleBinaryLibrary <libName>: satisfied");
+    //     return <true, ms>;
+    // } else {
+    //     println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
+    //     return <false, ms>;
+    // }
 }
 
 tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[str] importsAndExtends, ModuleStatus ms){
@@ -331,6 +333,7 @@ rel[str,datetime,PathRole] makeBom(str qualifiedModuleName, set[str] imports, se
            + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
            + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
 }
+
 void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
     if(rsc_not_found() in ms.status[qualifiedModuleName]){
         return;
@@ -374,95 +377,93 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
     for(qualifiedModuleName <- component){
         start_save = cpuTime();
         tm = transient_tms[qualifiedModuleName];
-        //try {
-            mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
-            <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
+        mscope = getModuleScope(qualifiedModuleName, moduleScopes, pcfg);
+        <found, tplLoc> = getTPLWriteLoc(qualifiedModuleName, pcfg);
 
-            imports = m_imports[qualifiedModuleName];
-            extends = m_extends[qualifiedModuleName];
+        imports = m_imports[qualifiedModuleName];
+        extends = m_extends[qualifiedModuleName];
 
-            bom = makeBom(qualifiedModuleName, imports, extends, ms);
+        bom = makeBom(qualifiedModuleName, imports, extends, ms);
 
-            extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
-            extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
-            filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
+        extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
+        extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
+        filteredModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- (qualifiedModuleName + imports), checked() in ms.status[m]} + extendedModuleScopes;
 
-            TModel m1 = tmodel();
-            m1.rascalTplVersion = compilerConfig.rascalTplVersion;
-            m1.modelName = qualifiedModuleName;
-            m1.moduleLocs = (qualifiedModuleName : mscope);
+        TModel m1 = tmodel();
+        m1.rascalTplVersion = compilerConfig.rascalTplVersion;
+        m1.modelName = qualifiedModuleName;
+        m1.moduleLocs = (qualifiedModuleName : mscope);
 
-            m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInComponentScopes(key));
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, isContainedInComponentScopes(key));
 
-            m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
-            m1.facts += m1.specializedFacts;
+        m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, isContainedInComponentScopes(key), any(fms <- filteredModuleScopes, isContainedIn(key, fms)));
+        m1.facts += m1.specializedFacts;
 
-            m1.messages = sort( { msg | msg <- tm.messages, msg.at.path == mscope.path}, bool(Message a, Message b){ return a.at.begin.line < b.at.begin.line; });
-            ms.messages[qualifiedModuleName] = m1.messages;
+        m1.messages = sort( { msg | msg <- tm.messages, msg.at.path == mscope.path}, bool(Message a, Message b){ return a.at.begin.line < b.at.begin.line; });
+        ms.messages[qualifiedModuleName] = m1.messages;
 
-            filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
+        filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
 
-            //println("tm.scopes:"); iprintln(tm.scopes);
-            //m1.scopes = tm.scopes;
-            m1.scopes
+        m1.scopes
                 = ( inner : tm.scopes[inner]
                   | loc inner <- tm.scopes,
                     inner.path in filteredModuleScopePaths,
                     isContainedInComponentScopes(inner)
                   );
 
-            m1.store
+        m1.store
                 = (key_bom : bom);
-            m1.store[key_grammar]
+        m1.store[key_grammar]
                 = tm.store[key_grammar] ? grammar({}, ());
 
-            m1.store[key_ADTs]
+        m1.store[key_ADTs]
                 = tm.store[key_ADTs] ? {};
-            m1.store[key_common_keyword_fields]
+        m1.store[key_common_keyword_fields]
                 = tm.store[key_common_keyword_fields] ? [];
 
-            m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
+        m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- tm.paths, tup.from == mscope || tup.from in filteredModuleScopes /*|| tup.from in filteredModuleScopePaths*/ };
 
-            keepRoles = variableRoles + keepInTModelRoles;
-            m1.useDef = { <u, d>
-                        | <u, d> <- tm.useDef,
-                             isContainedIn(u, mscope)
-                          || (tm.definitions[d]? && tm.definitions[d].idRole in keepRoles)
-                        };
+        keepRoles = variableRoles + keepInTModelRoles;
+        m1.useDef = { <u, d>
+                    | <u, d> <- tm.useDef,
+                          isContainedIn(u, mscope)
+                       || (tm.definitions[d]? && tm.definitions[d].idRole in keepRoles)
+                    };
 
-            // Filter model for current module and replace functions in defType by their defined type
+        // Filter model for current module and replace functions in defType by their defined type
 
-            defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
-                       if( ( idRole in variableRoles ?  isContainedInComponentScopes(defined)
-                                                     : (  idRole in keepInTModelRoles
-                                                       && ( isContainedInComponentScopes(defined)
-                                                          || isContainedInFilteredModuleScopes(defined)
-                                                          )
+        defs = for(tup:<loc _scope, str _id, str _orgId, IdRole idRole, loc defined, DefInfo _defInfo> <- tm.defines){
+                    if( ( idRole in variableRoles ?  isContainedInComponentScopes(defined)
+                                                  : (  idRole in keepInTModelRoles
+                                                    && ( isContainedInComponentScopes(defined)
+                                                       || isContainedInFilteredModuleScopes(defined)
                                                        )
-                           )
-                           ){
+                                                    )
+                        )
+                      ){
                             append tup;
-                         }
-                   };
+                    }
+                };
 
-            m1.defines = toSet(defs);
+        m1.defines = toSet(defs);
 
-            m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
-            // Remove default expressions and fragments
-            m1 = visit(m1) {
+        m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
+        // Remove default expressions and fragments
+        m1 = visit(m1) {
                     case kwField(AType atype, str fieldName, str definingModule, Expression _defaultExp) => kwField(atype, fieldName, definingModule)
                     case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""];
                  };
+        log2phys = tm.logical2physical;
+        m1.logical2physical = tm.logical2physical;
+        // m1.logical2physical = ( lg : ph |
+        //                         lg <- log2phys,
+        //                         ph := log2phys[lg],
+        //                         isContainedInComponentScopes(ph)
+        //                       );
 
-            m1.convertedToPhysical = false;
-            ms.status[qualifiedModuleName] -= {tpl_saved()};
-            ms = addTModel(qualifiedModuleName, m1, ms);
-            //println("doSaveModule"); iprintln(m1.logical2physical);
-
-        // } catch value e: {
-        //     ms.messages[qualifiedModuleName] ? [] += tm.messages + [error("Could not save .tpl file for `<qualifiedModuleName>`, reason: <e>", |unknown:///|(0,0,<0,0>,<0,0>))];
-        //     return ms;
-        // }
+        m1.convertedToPhysical = false;
+        ms.status[qualifiedModuleName] -= {tpl_saved()};
+        ms = addTModel(qualifiedModuleName, m1, ms);
     }
     return ms;
 }
