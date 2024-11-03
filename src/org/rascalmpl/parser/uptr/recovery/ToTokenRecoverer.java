@@ -147,6 +147,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			return nodes; // No other nodes would be useful
 		}
 
+		// If we are the top-level node, just skip the rest of the input
+		if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
+			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
+			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+			return nodes; // No other nodes would be useful
+		}
+
 		// Find the last token of this production and skip until after that
 		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode.getProduction()[recoveryNode.getDot()]);
 		for (InputMatcher endMatcher : endMatchers) {
@@ -234,7 +241,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		throw new AssertionError("No end node found?"); // Should not happen, last node is always an end node
 	}
-	
+
+	// Check if a node is a top-level production (i.e., its parent production node has no parents and
+	// starts at position -1)
+	private boolean isTopLevelProduction(AbstractStackNode<IConstructor> node) {
+		return node.getProduction()[0].getStartLocation() == -1;
+	}
+
 	private void addEndMatchers(AbstractStackNode<IConstructor>[] prod, int dot, List<InputMatcher> matchers, Set<Integer> visitedNodes) {
 		if (prod == null || dot < 0 || dot >= prod.length) {
 			return;
