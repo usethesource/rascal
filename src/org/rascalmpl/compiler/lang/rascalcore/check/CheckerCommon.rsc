@@ -229,7 +229,7 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
 }
 
 ModuleStatus removeTModel(str candidate, ModuleStatus ms){
-    if(tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
+    if(ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
         pcfg = ms.pathConfig;
         if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
         tm = ms.tmodels[candidate];
