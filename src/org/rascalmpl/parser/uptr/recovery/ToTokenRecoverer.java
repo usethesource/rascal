@@ -27,6 +27,7 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
 import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
+import org.rascalmpl.parser.gtd.stack.ListStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
 import org.rascalmpl.parser.gtd.stack.RecoveryPointStackNode;
@@ -42,6 +43,7 @@ import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
+import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
@@ -143,17 +145,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
 			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 			return nodes; // No other nodes would be useful
-			}
-
-		// If we are the top-level node, just skip the rest of the input
-		if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
-			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
-			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
-			return nodes;	// No other nodes would be useful
 		}
 
 		// Find the last token of this production and skip until after that
-		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode);
+		List<InputMatcher> endMatchers = findEndMatchers(recoveryNode.getProduction()[recoveryNode.getDot()]);
 		for (InputMatcher endMatcher : endMatchers) {
 			// For now take a very large (basically unlimited) "max match length", experiment with smaller limit later
 			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
@@ -182,7 +177,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		final List<InputMatcher> matchers = new java.util.ArrayList<>();
 
 		AbstractStackNode<IConstructor>[] prod = stackNode.getProduction();
-		addEndMatchers(prod, prod.length-1, matchers, new HashSet<>());
+		addPrefixSharedEndMatchers(prod, stackNode.getDot(), matchers, new HashSet<>());
 
 		IConstructor parentProduction = stackNode.getParentProduction();
 		if (parentProduction != null && ProductionAdapter.isContextFree(parentProduction)) {
@@ -191,18 +186,61 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		return matchers;
 	}
+
+	@SuppressWarnings("java:S5125") // We purposely commented out some code
+	private void addPrefixSharedEndMatchers(AbstractStackNode<IConstructor>[] prod, int dot, List<InputMatcher> matchers, Set<Integer> visitedNodes) {
+		if (prod == null || dot < 0 || dot >= prod.length) {
+			return;
+		}
+
+		for (int i=dot; i<prod.length; i++) {
+			AbstractStackNode<IConstructor> last = prod[i];
+
+			if (visitedNodes.contains(last.getId())) {
+				continue;
+			}
+			visitedNodes.add(last.getId());
+
+			if (maybeEndNode(prod, i)) {
+				addEndMatchers(prod, i, matchers, visitedNodes);
+			}
+
+			// Although also following prefix shared productions to find end matchers helps
+			// in contrived examples (see PrefixSharingRecoveryTest.rsc), it does not significantly improve recovery
+			// quality in practice while slowing down error recovery considerably.
+			// So we have disabled this for now, but we may visit this topic in the future.
+
+			/*AbstractStackNode<IConstructor>[][] alternateProductions = last.getAlternateProductions();
+			if (alternateProductions != null) {
+				for (AbstractStackNode<IConstructor>[] alternateProduction : alternateProductions) {
+					addPrefixSharedEndMatchers(alternateProduction, dot, matchers, visitedNodes);
+				}
+			}
+			*/
+		}
+	}
+
+	private boolean maybeEndNode(AbstractStackNode<IConstructor>[] prod, int dot) {
+		while (dot < prod.length) {
+			if (prod[dot].isEndNode()) {
+				return true;
+			}
+			if (!isNullable(prod[dot])) {
+				return false;
+			}
+
+			dot = dot + 1;
+		}
+
+		throw new AssertionError("No end node found?"); // Should not happen, last node is always an end node
+	}
 	
-	private void addEndMatchers(AbstractStackNode<IConstructor>[] prod, int dot, List<InputMatcher> matchers,
-		Set<Integer> visitedNodes) {
+	private void addEndMatchers(AbstractStackNode<IConstructor>[] prod, int dot, List<InputMatcher> matchers, Set<Integer> visitedNodes) {
 		if (prod == null || dot < 0 || dot >= prod.length) {
 			return;
 		}
 
 		AbstractStackNode<IConstructor> last = prod[dot];
-		if (visitedNodes.contains(last.getId())) {
-			return;
-		}
-		visitedNodes.add(last.getId());
 
 		if (isNullable(last)) {
 			addEndMatchers(prod, dot-1, matchers, visitedNodes);
@@ -226,10 +264,13 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				String name = nonTerminal.getName();
 				AbstractStackNode<IConstructor>[] alternatives = expectsProvider.getExpects(name);
 				for (AbstractStackNode<IConstructor> alternative : alternatives) {
-					addEndMatchers(alternative.getProduction(), 0, matchers, visitedNodes);
+					AbstractStackNode<IConstructor>[] children = alternative.getProduction();
+					addPrefixSharedEndMatchers(children, children.length-1, matchers, visitedNodes);
 				}
 				return null;
 			}
+
+			// TODO: list of characters so we can match things like identifiers
 		});
 	}
 
@@ -302,7 +343,9 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				}
 
 				return null;
-		}
+			}
+
+			// TODO: list of characters so we can match things like identifiers
 		});
 	}
 
@@ -321,38 +364,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 
 		return false;
 	}
-
-	// Check if a node is a top-level production (i.e., its parent production node has no parents and
-	// starts at position -1)
-	// As this is experimental code, this method is extremely conservative.
-	// Any sharing will result in returning 'false'.
-	// We will need to change this strategy in the future to improve error recovery.
-	private boolean isTopLevelProduction(AbstractStackNode<IConstructor> node) {
-
-		while (node != null && node.getDot() != 0) {
-			node = getSinglePredecessor(node);
-		}
-
-		if (node != null) {
-			node = getSinglePredecessor(node);
-			return node != null && node.getStartLocation() == -1;
-		}
-
-		return false;
-	}
-
-	private AbstractStackNode<IConstructor> getSinglePredecessor(AbstractStackNode<IConstructor> node) {
-		IntegerObjectList<EdgesSet<IConstructor>> edgeMap = node.getEdges();
-		if (edgeMap.size() == 1) {
-			EdgesSet<IConstructor> edges = edgeMap.getValue(0);
-			if (edges.size() == 1) {
-				return edges.get(0);
-			}
-		}
-
-		return null;
-	}
-	
 
     private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(
 		int[] input,
