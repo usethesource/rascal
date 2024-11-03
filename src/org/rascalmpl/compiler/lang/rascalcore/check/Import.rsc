@@ -201,27 +201,26 @@ str getModuleFromLogical(loc l){
 
 // Is what library module lib provides compatible with all uses in the modules libUsers?
 tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
-    return <true, ms>;
 
-    // libName = lib.modelName;
-    // libProvides = domain(lib.logical2physical);
-    // libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
-    // usersRequire = {};
-    // for(m <- libUsers){
-    //    <found, tm, ms> = getTModelForModule(m, ms);
-    //    if(found){
-    //        usersRequire += domain(tm.logical2physical);
-    //    }
-    // }
-    // usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
+    libName = lib.modelName;
+    libProvides = domain(lib.logical2physical);
+    libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
+    usersRequire = {};
+    for(m <- libUsers){
+       <found, tm, ms> = getTModelForModule(m, ms);
+       if(found){
+           usersRequire += domain(tm.logical2physical);
+       }
+    }
+    usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
 
-    // if(usersRequireFromLib <= libProvides){
-    //     println("isCompatibleBinaryLibrary <libName>: satisfied");
-    //     return <true, ms>;
-    // } else {
-    //     println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
-    //     return <false, ms>;
-    // }
+    if(usersRequireFromLib <= libProvides){
+        println("isCompatibleBinaryLibrary <libName>: satisfied");
+        return <true, ms>;
+    } else {
+        println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
+        return <false, ms>;
+    }
 }
 
 tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[str] importsAndExtends, ModuleStatus ms){
