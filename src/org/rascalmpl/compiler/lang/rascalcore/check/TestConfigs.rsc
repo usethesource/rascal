@@ -16,22 +16,21 @@ data PathConfig(
 
 loc REPO =        |file:///Users/paulklint/git/|;
 loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8/rascal-0.40.8.jar!/|;
-loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.1/typepal-0.14.1.jar!/|;
- 
+loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.8-SNAPSHOT/typepal-0.14.8-SNAPSHOT.jar!/|;
 // ---- PathConfigs for testing purposes --------------------------------------
 
 private int npc = 0;
 @synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, not depending on any outside libraries.}
 @description{
 * gets source files exclusively from |memory://test-modules/| and |std:///| (for library code)
-* generates bin files in the in-memory file system  
+* generates bin files in the in-memory file system
 }
 public PathConfig getDefaultTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
-    return pathConfig(   
+    return pathConfig(
         srcs = [ |memory:///test-modules/|, |std:///|  ],
-        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
+        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
         resources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ ]
@@ -41,15 +40,15 @@ public PathConfig getDefaultTestingPathConfig() {
 @synopsis{PathConfig for testing generated modules in |memory://test-modules/| in memory file system, dependent on a previously released standard library}
 @description{
 * gets source files exclusively from |memory://test-modules/|
-* generates bin files in the in-memory file system 
-* depends only on the pre-compiled standard library from the rascal project 
+* generates bin files in the in-memory file system
+* depends only on the pre-compiled standard library from the rascal project
 }
 public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
-    return pathConfig(   
+    return pathConfig(
         srcs = [ |memory:///test-modules/| ],
-        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|, 
+        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
         resources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ |lib://rascal| ]
@@ -58,22 +57,22 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
 
 // ---- testing rascal standard library ---------------------------------------
 
-@synopsis{a path config for testing type-checking of the standard library in the rascal project}    
+@synopsis{a path config for testing type-checking of the standard library in the rascal project}
 public PathConfig getRascalProjectTestingPathConfig() {
     npc += 1;
     snpc = "<npc>";
-    return pathConfig(   
-        srcs = [|project://rascal/src/org/rascalmpl/library|], 
-        bin = |memory:///test-modules/rascal-lib-bin-<snpc>|, 
+    return pathConfig(
+        srcs = [|project://rascal/src/org/rascalmpl/library|],
+        bin = |memory:///test-modules/rascal-lib-bin-<snpc>|,
         libs = []
-    );  
-}  
+    );
+}
 
 // --- all source ------------------------------------------------------------
 
 public PathConfig getAllSrcPathConfig() {
-   return pathConfig(   
-        srcs = [ REPO + "rascal/src/org/rascalmpl/library", 
+   return pathConfig(
+        srcs = [ REPO + "rascal/src/org/rascalmpl/library",
                  REPO + "rascal/test/org/rascalmpl/benchmark/",
                  REPO + "rascal-core/src/org/rascalmpl/core/library",
                  REPO + "typepal/src"
@@ -92,7 +91,7 @@ public RascalCompilerConfig getAllSrcCompilerConfig(){
 // ---- rascal ----------------------------------------------------------------
 
 public PathConfig getRascalPathConfig() {
-   return pathConfig(   
+   return pathConfig(
         srcs = [ REPO + "rascal/src/org/rascalmpl/library", REPO + "rascal/test/org/rascalmpl/benchmark/" ],
         bin = REPO + "generated-sources/target/rascal/classes",
         generatedSources = REPO + "generated-sources/target/rascal/generated-sources/src/main/java/",
@@ -115,7 +114,7 @@ public RascalCompilerConfig getRascalCompilerConfig(){
 * has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
 }
 public PathConfig getRascalCorePathConfig() {
-   return pathConfig(   
+   return pathConfig(
         srcs = [ REPO + "rascal-core/src/org/rascalmpl/core/library" ],
         bin = |project://rascal-core/target/test-classes|,
         bin = REPO + "generated-sources/target/rascal-core/classes",
@@ -142,7 +141,7 @@ public RascalCompilerConfig getRascalCoreCompilerConfig(){
 * Included projects: rascal-tutor, flybytes, rascal-lsp
 }
 public PathConfig getRascalCorePathConfigDev() {
-   return pathConfig(   
+   return pathConfig(
         srcs = [ REPO + "rascal-core/src" ],
         bin = REPO + "generated-sources/target/rascal-core/classes",
         generatedSources = REPO + "generated-sources/target/rascal-core/generated-sources/src/main/java/",
@@ -163,7 +162,7 @@ public RascalCompilerConfig getRascalCoreCompilerConfigDev(PathConfig pcfg){
 // ---- typepal ---------------------------------------------------------------
 
 public PathConfig getTypePalProjectPathConfig() {
-    return pathConfig(   
+    return pathConfig(
         srcs = [ REPO + "typepal/src" ],
         bin = REPO + "generated-sources/target/typepal/classes",
         generatedSources = REPO + "generated-sources/target/typepal/generated-sources/src/main/java/",
@@ -184,7 +183,7 @@ public RascalCompilerConfig getTypePalCompilerConfig(){
 // ---- flybytes --------------------------------------------------------------
 
 public PathConfig getFlyBytesProjectPathConfig() {
-    return pathConfig(   
+    return pathConfig(
         srcs = [ REPO + "flybytes/src" ],
         bin = REPO + "generated-sources/target/flybytes/classes",
         generatedSources = REPO + "generated-sources/target/flybytes/generated-sources/src/main/java/",
@@ -205,7 +204,7 @@ public RascalCompilerConfig getFlyBytesCompilerConfig(){
 // ---- salix -----------------------------------------------------------------
 
 public PathConfig getSalixPathConfig() {
-    return pathConfig(   
+    return pathConfig(
         srcs = [ REPO + "salix-core/src/main/rascal", REPO + "salix-contrib/src/main/rascal" ],
         bin = REPO + "generated-sources/target/salix/classes",
         generatedSources = REPO + "generated-sources/target/salix/generated-sources/src/main/java/",
@@ -226,7 +225,7 @@ public RascalCompilerConfig getSalixCompilerConfig(){
 // ---- drambiguity -----------------------------------------------------------
 
 public PathConfig getDrAmbiguityPathConfig() {
-    return pathConfig(   
+    return pathConfig(
         srcs = [ REPO + "drambiguity/src", REPO + "salix-core/src/main/rascal" ],
         bin = REPO + "generated-sources/target/drambiguity/classes",
         generatedSources = REPO + "generated-sources/target/drambiguity/generated-sources/src/main/java/",
@@ -247,7 +246,7 @@ public RascalCompilerConfig getDrAmbiguityCompilerConfig(){
 // ---- rascal-language-server ------------------------------------------------
 
 public PathConfig getLSPPathConfig() {
-    return pathConfig(   
+    return pathConfig(
         srcs = [ REPO + "rascal-lsp/src/main/rascal", REPO + "rascal-lsp/src/test/rascal"],
         bin = REPO + "generated-sources/target/rascal-lsp/classes",
         generatedSources = REPO + "generated-sources/target/rascal-lsp/generated-sources/src/main/java/",
@@ -268,7 +267,7 @@ public RascalCompilerConfig getLSPCompilerConfig(){
 // ---- php-analysis -----------------------------------------------------------
 
 public PathConfig getPHPPathConfig() {
-    return pathConfig(   
+    return pathConfig(
         srcs = [ REPO + "php-analysis/src/main/rascal", REPO + "php-analysis/src/test/rascal"],
         bin = REPO + "generated-sources/target/php-analysis/classes",
         generatedSources = REPO + "generated-sources/target/php-analysis/generated-sources/src/main/java/",
