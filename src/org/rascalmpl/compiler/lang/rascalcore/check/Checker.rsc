@@ -216,12 +216,13 @@ ModuleStatus rascalTModelForLocs(
             }
 
             any_rsc_changed = any(m <- component, rsc_changed() in ms.status[m]);
+            any_from_lib = any(m <- component, rsc_not_found() in ms.status[m]);
             all_tmodels_uptodate = true;
             for(m <- component){
                 if(tpl_uptodate() notin ms.status[m] && checked() notin ms.status[m])
                     all_tmodels_uptodate = false;
             }
-            recheckCond = !compatible_with_all_imports || any_rsc_changed || !all_tmodels_uptodate;
+            recheckCond = !any_from_lib && (!compatible_with_all_imports || any_rsc_changed || !all_tmodels_uptodate);
 
              if(recheckCond){
                 if(ms.compilerConfig.verbose){
