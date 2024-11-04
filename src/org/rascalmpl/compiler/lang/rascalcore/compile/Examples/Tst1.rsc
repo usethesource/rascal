@@ -1,12 +1,11 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import lang::rascalcore::compile::Examples::Tst0;
+import ValueIO;
+import IO;
 
+data D(bool K = false) = d1(int n);
 
-
-
-
-
-
-
-public int T1 = f(3);
+void main(){
+    v = readBinaryValueFile(#D, |home:///tmp.txt|);
+    println("K = <v.K>, <v.K?>");
+}

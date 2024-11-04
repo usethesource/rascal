@@ -1,14 +1,12 @@
 module lang::rascalcore::compile::Examples::Tst0
 
+import ValueIO;
+import IO;
 
+data D = d1(int n);
 
-
-
-
-
-
-
-
-public int f(int n) = n;
-
-public int g() = 42;
+void main(){
+    v = d1(42);
+    writeBinaryValueFile(|home:///tmp.txt|, v);
+    println("written <v>");
+}
