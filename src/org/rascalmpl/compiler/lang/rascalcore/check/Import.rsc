@@ -203,9 +203,9 @@ str getModuleFromLogical(loc l){
 tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
 
     libName = lib.modelName;
-    libProvides = domain(lib.logical2physical);
-    libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
-    usersRequire = {};
+    set[loc] libProvides = domain(lib.logical2physical);
+    set[str] libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
+    set[loc] usersRequire = {};
     for(m <- libUsers){
        <found, tm, ms> = getTModelForModule(m, ms);
        if(found){
@@ -454,13 +454,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
                  };
         log2phys = tm.logical2physical;
         m1.logical2physical = tm.logical2physical;
-        // m1.logical2physical = ( lg : ph |
-        //                         lg <- log2phys,
-        //                         ph := log2phys[lg],
-        //                         isContainedInComponentScopes(ph)
-        //                       );
-
-        m1.convertedToPhysical = false;
+        m1.usesPhysicalLocs = true;
         ms.status[qualifiedModuleName] -= {tpl_saved()};
         ms = addTModel(qualifiedModuleName, m1, ms);
     }
