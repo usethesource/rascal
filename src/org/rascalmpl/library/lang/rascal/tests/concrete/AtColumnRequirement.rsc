@@ -5,32 +5,18 @@ import Exception;
 
 lexical C = C C C | "a"@2 | "b";
 
-test bool testA() {
+bool testParse(str input, bool shouldParse) {
     try {
-        parse(#C, "a");
-    } catch ParseError(e): {
-        return true;
+        parse(#C, input);
+    } catch ParseError(_): {
+        return !shouldParse;
     }
 
-    return false;
+    return shouldParse;
 }
 
-test bool testBab() {
-    try {
-        parse(#C, "bab");
-    } catch ParseError(e): {
-        return true;
-    }
+test bool testA() = testParse("a", false);
 
-    return false;
-}
+test bool testBab() = testParse("bab", false);
 
-test bool testBba() {
-    try {
-        parse(#C, "bba");
-    } catch ParseError(e): {
-        return false;
-    }
-
-    return true;
-}
+test bool testBba() = testParse("bba", true);
