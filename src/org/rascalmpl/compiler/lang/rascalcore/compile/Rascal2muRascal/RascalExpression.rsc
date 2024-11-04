@@ -699,7 +699,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   funBody));
 
   	leaveFunctionScope();
-  	return muFun(cname, ftype); // TODO!
+  	return muFun(uid, ftype); // TODO!
 }
 
 // -- range expression ----------------------------------------------
