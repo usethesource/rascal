@@ -113,7 +113,7 @@ public AProduction choice(AType s, set[AProduction] choices){
     if(any(choice(AType _, set[AProduction] _)  <- choices)){
         // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
         //return choice(s, { *(choice(Symbol t, set[AProduction] b) := ch ? b : {ch}) | ch <- choices });
-        changed = false;
+        bool changed = false;
         new_choices = {};
         for(ch <- choices){
             if(choice(AType _, set[AProduction] b) := ch){
