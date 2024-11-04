@@ -37,15 +37,12 @@ import util::Reflective;
 
 // ---- Rascal declarations ---------------------------------------------------
 
-int localFunCounter = 0;
-
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
 
     dataCounter = 0;
     variantCounter = 0;
     nalternatives = 0;
     syndefCounter = 0;
-    localFunCounter = 0;
 
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
@@ -240,12 +237,13 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.report(info(current, "Ignoring function declaration for `<decl.signature.name>`"));
         return;
     }
-    // Make md5hash of nested functions unique with counter
-    if(size(c.getStack(currentFunction)) > 0){
-        localFunCounter += 1;
+    // Make md5hash of nested functions unique by using all surrounding signatures
+    c.push(currentFunction, current);
+    allSignatures = "";
+    for(FunctionDeclaration outerFun <- c.getStack(currentFunction)){
+        allSignatures += md5Contrib4signature(outerFun.signature);
     }
-    c.push(currentFunction, ppfname);
-    md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><md5Contrib4signature(signature)>-<localFunCounter>";
+    md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><allSignatures>";
 
     <expected, expectedTagString> = getExpected(decl.tags);
     if(expected){
@@ -381,16 +379,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
 
         endUseBoundedTypeParameters(c);
 
-        surroundingFuns = c.getStack(currentFunction);
-
-        dt.md5 = md5Hash(size(surroundingFuns) == 1 ? md5Contrib : "<intercalate("/", surroundingFuns)><md5Contrib>");
+        dt.md5 = md5Hash(md5Contrib);
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt);
-        // println("<md5Contrib> =\> <dt.md5>");
     c.leaveScope(decl);
     c.pop(currentFunction);
-    if(size(c.getStack(currentFunction)) == 0){
-        localFunCounter = 0;
-    }
 }
 
 void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c){
