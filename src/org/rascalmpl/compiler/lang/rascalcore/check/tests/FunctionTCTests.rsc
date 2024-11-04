@@ -47,7 +47,7 @@ test bool matchNotOK1() = unexpectedType("bool f(&A \<: str a, &B \<:int b) = &A
        if ([&T h, *&T t] := l) {
          return \<h, t\>;
        }
-       return \<0,[]\>; 
+       return \<0,[]\>;
     }");
 
  test bool returnHeadTailOK() = checkOK("
@@ -61,7 +61,7 @@ test bool matchNotOK1() = unexpectedType("bool f(&A \<: str a, &B \<:int b) = &A
  test bool makeSmallerNotOK() = unexpectedType("
  &T \<: num makeSmallerThan(&T \<: num n) {
       if (int i := n) {
-         return i;    
+         return i;
       }
       return n;
   }");
