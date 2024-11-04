@@ -287,11 +287,11 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         try {
-            tpl = readBinaryValueFile(#TModel, tplLoc);
-            if(tpl.rascalTplVersion? && isValidRascalTplVersion(tpl.rascalTplVersion)){
-                tpl.convertedToPhysical = false; // temporary
-                tpl = convertTModel2PhysicalLocs(tpl);
-                ms.tmodels[qualifiedModuleName] = tpl;
+            tm = readBinaryValueFile(#TModel, tplLoc);
+            if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
+                tm.usesPhysicalLocs = false; // temporary
+                tm = convertTModel2PhysicalLocs(tm);
+                ms.tmodels[qualifiedModuleName] = tm;
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
                     ms.status[qualifiedModuleName] ? {} += rsc_not_found();
@@ -300,7 +300,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 if(qualifiedModuleName notin hardwired){
                     ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
                 }
-                return <true, tpl, ms>;
+                return <true, tm, ms>;
              }
         } catch e: {
             //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
