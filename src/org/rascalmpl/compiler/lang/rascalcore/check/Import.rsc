@@ -215,10 +215,10 @@ tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUser
     usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
 
     if(usersRequireFromLib <= libProvides){
-        println("isCompatibleBinaryLibrary <libName>: satisfied");
+        //println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <true, ms>;
     } else {
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
+        //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
         return <false, ms>;
     }
 }
