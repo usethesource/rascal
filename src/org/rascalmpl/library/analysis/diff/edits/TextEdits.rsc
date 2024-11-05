@@ -60,7 +60,7 @@ TextEdit insertBefore(loc range, str insertion, str separator=" ")
 
 @synopsis{Inserting after a given range.}
 TextEdit insertAfter(loc range, str insertion, str separator=" ")
-    = range.begin? 
+    = range.end? 
         ? replace(range.top(range.offset + range.length, 0, range.end, range.end), "<separator><insertion>");
         : replace(range.top(range.offset + range.length, 0), "<separator><insertion>");
  
