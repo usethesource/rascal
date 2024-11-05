@@ -37,12 +37,15 @@ import util::Reflective;
 
 // ---- Rascal declarations ---------------------------------------------------
 
+int localFunctionCounter = 0;
+
 void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
 
     dataCounter = 0;
     variantCounter = 0;
     nalternatives = 0;
     syndefCounter = 0;
+    localFunctionCounter = 0;
 
     mloc = getLoc(current);
     mname = prettyPrintName(header.name);
@@ -240,10 +243,16 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     // Make md5hash of nested functions unique by using all surrounding signatures
     c.push(currentFunction, current);
     allSignatures = "";
-    for(FunctionDeclaration outerFun <- c.getStack(currentFunction)){
+    fstk = c.getStack(currentFunction);
+
+    for(FunctionDeclaration outerFun <- fstk){
         allSignatures += md5Contrib4signature(outerFun.signature);
     }
     md5Contrib = "<md5Contrib4Tags(decl.tags)><decl.visibility><allSignatures>";
+    if(size(fstk) > 1){
+        localFunctionCounter += 1;
+        md5Contrib += "-<localFunctionCounter>";
+    }
 
     <expected, expectedTagString> = getExpected(decl.tags);
     if(expected){
@@ -383,6 +392,10 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt);
     c.leaveScope(decl);
     c.pop(currentFunction);
+    if(isEmpty(fstk)){
+        localFunctionCounter = 0;
+    }
+
 }
 
 void collect(current: (FunctionBody) `{ <Statement* statements> }`, Collector c){
