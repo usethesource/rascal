@@ -71,12 +71,11 @@ enum OptionType {INT, STR, BOOL, LOCS, LOC};
  * </code>
  */
 public class CommandOptions {
-    private static final String CLASSLOADERS_PATH_CONFIG_OPTION = "classloaders";
-    private static final String JAVA_COMPILER_PATH_PATH_CONFIG_OPTION = "javaCompilerPath";
     private static final String IGNORES_PATH_CONFIG_OPTION = "ignores";
     private static final String BIN_PATH_CONFIG_OPTION = "bin";
     private static final String LIB_PATH_CONFIG_OPTION = "lib";
-    private static final String PROJECT_PATH_CONFIG_OPTION = "project";
+	private static final String GENERATED_SOURCES_PATH_CONFIG_OPTION = "generated-sources";
+	private static final String PROJECT_PATH_CONFIG_OPTION = "project";
     private static final String SRC_PATH_CONFIG_OPTION = "src";
     
     protected TypeFactory tf;
@@ -568,9 +567,8 @@ public class CommandOptions {
             return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
                 getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
                 getCommandLocOption(BIN_PATH_CONFIG_OPTION),
-                getCommandLocsOption(IGNORES_PATH_CONFIG_OPTION),
-                getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
-                getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+                getCommandLocsOption(IGNORES_PATH_CONFIG_OPTION)
+			);
         }
 	}
 
@@ -604,13 +602,9 @@ public class CommandOptions {
         .locsDefault(PathConfig.getDefaultIgnoresList())
         .help("Add new ignored locations, use multiple --ignores arguments for multiple locations")
         
-        .locsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION)
-        .locsDefault(PathConfig.getDefaultJavaCompilerPathList())
-        .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
-    
-        .locsOption(CLASSLOADERS_PATH_CONFIG_OPTION)
-        .locsDefault(PathConfig.getDefaultClassloadersList())
-        .help("Add new java classloader location, use multiple --classloader options for multiple locations")
+        .locOption(GENERATED_SOURCES_PATH_CONFIG_OPTION)
+		.locDefault(PathConfig.getDefaultGeneratedSources())
+        .help("Add new target location for generated sources")
         
         ;
     
