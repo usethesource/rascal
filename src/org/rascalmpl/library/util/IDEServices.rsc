@@ -4,7 +4,6 @@ extend analysis::diff::edits::TextEdits;
 extend Content;
 extend Message;
 
-
 @synopsis{Open a browser for a given location.}
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary}
 java void browse(loc uri, str title = "<uri>", int viewColumn=1);
@@ -45,3 +44,28 @@ public java void registerDiagnostics(list[Message] messages);
 
 @javaClass{org.rascalmpl.library.util.IDEServicesLibrary} 
 public java void unregisterDiagnostics(list[loc] resources);
+
+@synopsis{Fixes are an extension to error messages that allow for interactive code fixes in the IDE.}
+@description{
+This definition adds lists of ((CodeAction))s as optional fields to any message. In collaboration
+with a language server, these messages then lead to interactive quick fixes in IDEs.
+}
+data Message(list[CodeAction] fixes = []);
+
+@synopsis{Code actions bundle synchronous text edits and command execution with a title for the menu option.}
+@description{
+For any action instance, the IDE will:
+* show a menu option with the given title.
+* if the title is selected, then the (optional) edits will be executed first
+* and then the (optional) command is executed via the `execution` service of the language service protocol.
+}
+data CodeAction
+    = action(list[DocumentEdit] edits = [], Command command = noop(), str title = command.title);
+
+@synopsis{Commands are an open data-type for describing interactive functions that may be attached to CodeActions.}
+@description{
+Commands are simply immutable constructors with parameters. To use a command you can attach it to a ((module:Message))
+via a ((CodeAction)), and then have it executed by the respective language server.
+}
+data Command(str title="") 
+    = noop();
