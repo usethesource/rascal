@@ -244,6 +244,16 @@ test bool clonesNotOK() = unexpectedDeclarationInModule("
         }
     ");
 
+test bool nearClonesDifferentParameterNameOK() = checkModuleOK("
+    module TwoBars
+        int bar(int a){
+            return 1;
+        }
+        int bar(int b){
+            return 2;
+        }
+    ");
+
 // Data declarations
 
 test bool commonKwFieldAdded()
