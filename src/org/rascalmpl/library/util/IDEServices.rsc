@@ -82,11 +82,13 @@ can test for changed file contents without waiting, in most cases (see pitfalls)
 @pitfalls{
 * ((CodeAction))s may use the other features of ((util::IDEServices)), and thus start editors or browsers as side-effects.
 * ((CodeAction))s code actions with ((DocumentEdit))s will write to disk and change the original files.
-* ((IDEServices-Command))s can only be executed by a parametrized command `evaluator``; if you do not provide it then 
-this test function will throw ((CallFailed)) exceptions for every unsupported ((IDEServices-Command)).
-* ((Command))s can start asynchronous effects by calling non-blocking functions that schedule other effects.
-An axamples is the starting and running of web ((Content)) via ((showInteractiveContent)). Testing properties of the
+* ((util::IDEServices::Command))s can only be executed by a parametrized command `evaluator``; if you do not provide it then 
+this test function will throw ((CallFailed)) exceptions for every unsupported (((util::IDEServices::Command)).
+* (((util::IDEServices::Command))s can start asynchronous effects by calling non-blocking functions that schedule other effects.
+An example is the starting and running of web ((Library:module:Content)) via ((showInteractiveContent)). Testing properties of the
 rendered content will require the use of asynchronous testing frameworks, like Selenium. 
+* Never call ((testCodeAction)) to execute actions in an interactive context. That must be done by the IDE client
+to synchronize the contents of editors and parse trees, etc. This function is only for unit testing code actions.
 }
 value testCodeAction(CodeAction action, value (Command _) evaluator = value (noop()) { return true; }) {
     if (action.edits?) {
