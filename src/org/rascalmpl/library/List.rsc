@@ -491,14 +491,7 @@ int add(int x, int y) { return x + y; }
 reducer([10, 20, 30, 40], add, 0); 
 ```
 }
-&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
-{
-  &T result = unit;
-  for(&T elm <- lst){
-     result = fn(result, elm);
-  }
-  return result;
-}
+&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit) = (unit | fn(it, elm) | elm <- lst);
 
 list[&T] remove(list[&T] lst, int indexToDelete) =
 	[ lst[i] | i <- index(lst), i != indexToDelete ];
