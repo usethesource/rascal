@@ -96,7 +96,7 @@ dup([3, 1, 5, 3, 1, 7, 1, 2]);
 list[&T] dup(list[&T] lst) 
   = ([] | (ix in it) ? it : it + [ix] | &T ix <- lst);
 
-@deprecated Use a list index instead}
+@deprecated{Use a list index instead}
 @javaClass{org.rascalmpl.library.Prelude}
 java &T elementAt(list[&T] lst, int index); 
 
