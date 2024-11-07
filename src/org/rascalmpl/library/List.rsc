@@ -418,7 +418,7 @@ list[&T] mix(list[&T] l, list[&T] r){
 	sizeL = size(l);
 	sizeR = size(r);
 	minSize = sizeL < sizeR ? sizeL : sizeR;
-	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
+	return [l[i],r[i] | i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
 }
 
 @synopsis{Compute all permutations of a list.}
