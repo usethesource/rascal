@@ -1833,10 +1833,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}				
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName(), bindTypeParameters);
 			}
+
 			if(arg.hasQualifiedName()){
 				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
 			}
-			throw new ImplementationError(null);
+
+			throw new UnsupportedOperation("splice operator outside of list or set", this);
 		}
 
 		@Override
@@ -1872,7 +1874,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if(arg.hasQualifiedName()){
 				return arg.getQualifiedName().typeOf(env, eval, instantiateTypeParameters);
 			}
-			throw new ImplementationError(null);
+
+			return arg.typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
