@@ -24,6 +24,7 @@ import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
@@ -139,6 +140,9 @@ public class TreeAdapter {
 	/**
 	 * This function assumes that getLabeledField does not return null for the same parameters!
 	 */
+	// TODO @PieterOlivier I guess we could extend this the way we also extended the getLabeledField.
+	// if the field is still on the parsed side of the dot then we're fine. Otherwise we could
+	// think about shifting the dot if we put in correct trees at the right places?
 	public static ITree putLabeledField(ITree tree, String field, ITree repl) {
 		if (isAppl(tree)) {
 			IConstructor prod = TreeAdapter.getProduction(tree);
@@ -264,6 +268,41 @@ public class TreeAdapter {
 						break;
 					default:
 						return null;
+				}
+			}
+			else if (ProductionAdapter.isError(prod)) {
+				int dot = ProductionAdapter.getErrorDot(prod);
+				IConstructor eprod = ProductionAdapter.getErrorProd(prod);
+				IList syms = ProductionAdapter.getSymbols(eprod);
+				int index = SymbolAdapter.indexOfLabel(syms, field);
+
+				if (index != -1) {
+					IConstructor sym = (IConstructor) syms.get(index);
+					sym = SymbolAdapter.stripLabelsAndConditions(sym);
+
+					if (dot <= index) {
+						// we have parsed the field so we can just return it.
+						// this is a likely scenario
+						return new FieldResult(sym, (ITree) tree.getArgs().get(index));
+					}
+					else {
+						// We have the right prodction and the field would be there, if we didn't recover from a parse error
+						// and are missing some of the children (including the indicated field).
+						// So we return a quasi tree that is of the right type, but it otherwise just an error tree
+						// like its parent. This tree does not have content, because we wouldn't know which of the skipped
+						// parts are meant.
+						var vf = IRascalValueFactory.getInstance();
+						// @PieterOlivier is this the right way to do this? I just need an empty tree of the right symbol.
+						var skipped = vf.constructor(RascalValueFactory.Production_Skipped);
+						var skippedProd = vf.constructor(RascalValueFactory.Production_Error, sym, skipped, vf.integer(0));
+						var skippedTree = vf.appl(skippedProd);
+						var parentLoc = getLocation(tree);
+						if (parentLoc != null) {
+							// TODO @PieterOlivier I guess we need the location of the last parsed element, and use an
+							// empty range that is just beyond that. But for now I'd like to test with this.
+						}
+						return new FieldResult(sym, skippedTree);
+					}
 				}
 			}
 		}

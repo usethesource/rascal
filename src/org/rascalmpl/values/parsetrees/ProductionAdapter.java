@@ -16,6 +16,7 @@
 package org.rascalmpl.values.parsetrees;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.INode;
@@ -206,4 +207,12 @@ public class ProductionAdapter {
 		}
 		return false;
 	}
+
+    public static int getErrorDot(IConstructor prod) {
+       return ((IInteger) prod.get("dot")).intValue();
+    }
+
+    public static IConstructor getErrorProd(IConstructor prod) {
+       return (IConstructor) prod.get("prod");
+    }
 }
