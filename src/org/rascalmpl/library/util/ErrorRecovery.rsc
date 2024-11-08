@@ -51,3 +51,24 @@ This filter removes error trees until no ambiguities caused by error recovery ar
 Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 }
 java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
+
+@synopsis{Removes error trees if they are in optional positions.}
+@description{
+Removing grammatically optional error trees can reduce the number of case distinctions
+required to make algorithms that process parse trees robust against parse errors.
+}
+Tree filterOptionalErrorTrees(Tree t) = visit(t) {
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[*pre, _sep, appl(error(_,_,_),_), *post])
+        => appl(p, [*pre, *post])[@\loc=t@\loc]
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[appl(error(_,_,_),_), _sep, *post])
+        => appl(p, post)[@\loc=t@\loc]
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_,_,_])),[*pre, _sep1, _sep2, _sep3, appl(error(_,_,_),_), *post])
+        => appl(p, [*pre, *post])[@\loc=t@\loc]
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_,_,_])),[appl(error(_,_,_),_), _sep1, _sep2, _sep3, *post])
+        => appl(p, post)[@\loc=t@\loc]
+    case t:appl(p:regular(/iter|iter-star/(_)),[*pre, appl(error(_,_,_),_), *post])
+        => appl(p, [*pre, *post])[@\loc=t@\loc]
+    case t:appl(p:regular(opt(_)), appl(error(_,_,_), _)) 
+        => appl(p, [])[@\loc=t@\loc]
+    // TODO: some forms of recursion could be flattened in the presence of errors mid-way.
+};
