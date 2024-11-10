@@ -72,7 +72,6 @@ ModuleStatus complete(ModuleStatus ms){
         } catch _: ;/* ignore non-existing module */
     }
     ms.strPaths = strPaths;
-    analyzeTModels(ms);
     return ms;
 }
 
