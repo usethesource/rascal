@@ -185,45 +185,18 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
 /*
  * We implement a caching mechanism for TModels with the following properties:
  * - tmodelCacheSize tmodels are cached.
- * - The most frequently uses modules are hardwired and are never removed.
-     They are determined by static analysis of the import/extend graph.
  * - TModels on file (.tpl) physical locations have been replaced by logical locations where possible.
- * - When a TModel is read in, physical locations are converted by logical logical locations
- * - The policy is to keep TModels in the cache in this physical form as long as possible.
+ * - When a TModel is read in, physical locations are NOT YET converted by logical logical locations
+ * - The policy is to keep TModels in the cache in this unconverted logical form as long as possible.
  * - During its presence in the cache, the BOM of a TModel may get updated.
- * - When a TModel has to be removed from the cache, it is converted back to the logical form and written back to file.
+ * - When a TModel has to be removed from the cache, it is converted back to the logical form (if needed) and written back to file.
  */
 
-set[str] hardwired = {};
-
 int tmodelCacheSize = 12; // should be > 0
-
-int maxHardwired = tmodelCacheSize/4;
-
-void analyzeTModels(ModuleStatus ms){
-    freq = ();
-    total = 0;
-    for(<_, _, m2> <- ms.strPaths){
-        freq[m2] ? 0 += 1;
-        total += 1;
-    }
-    sorted_freq = sort(toList(freq), bool(tuple[str s,int n] a, tuple[str s, int n] b){ return a.n > b.n; });
-    nmodules = size(freq);
-    cutoff = 2 * total/(nmodules + 1);
-    hardwire = [tp | tuple[str s, int n] tp <- sorted_freq , tp.n > cutoff][0..maxHardwired];
-    if(traceTModelCache){
-        println("analyzeTModels: <nmodules> modules, imports/extends: <total>, cutoff: <cutoff>");
-        iprintln(hardwire);
-    }
-    hardwired = toSet(domain(hardwire));
-}
 
 ModuleStatus clearTModelCache(ModuleStatus ms){
     for(candidate <- ms.tmodelLIFO){
         ms = removeOldestTModelFromCache(ms);
-    }
-    for(candidate <- hardwired){
-        ms = removeTModel(candidate, ms);
     }
     return ms;
 }
@@ -261,19 +234,17 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
     if(traceTModelCache) println("addTModel: <qualifiedModuleName>");
     if(tmodelCacheSize > 0){
         ms.tmodels[qualifiedModuleName] = tm;
-        if(qualifiedModuleName notin hardwired){
-            if(qualifiedModuleName notin ms.tmodelLIFO){
-                ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
-                while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
-                    ms = removeOldestTModelFromCache(ms);
-                }
+        if(qualifiedModuleName notin ms.tmodelLIFO){
+            ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
+            while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
+                ms = removeOldestTModelFromCache(ms);
             }
         }
     }
     return ms;
 }
 
-private map[str,Symbol] ReifiedTModel = #TModel;
+private type[TModel] ReifiedTModel = #TModel;
 
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, bool convert2physical=false){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
@@ -301,9 +272,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                     ms.status[qualifiedModuleName] ? {} += rsc_not_found();
                 }
                 ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
-                if(qualifiedModuleName notin hardwired){
-                    ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
-                }
+                ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
                 return <true, tm, ms>;
              }
         } catch e: {
@@ -315,12 +284,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
         println("INFO: <msg>)");
         throw rascalTplVersionError(msg);
     }
-    //if(qualifiedModuleName notin hardwired){
-    //    ms.tmodelLIFO = ms.tmodelLIFO[1..];
-    //}
-    //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
     return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>", |unknown:///<qualifiedModuleName>|)]), ms>;
-   // throw IO("Cannot read tpl for <qualifiedModuleName>");
 }
 
 int closureCounter = 0;
