@@ -273,7 +273,9 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
     return ms;
 }
 
-tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
+private map[str,Symbol] ReifiedTModel = #TModel;
+
+tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, bool convert2physical=false){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]? /*&& tpl_uptodate() in ms.status[qualifiedModuleName]*/){
@@ -287,10 +289,12 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     if(found){
         if(traceTPL) println("*** reading tmodel <tplLoc>");
         try {
-            tm = readBinaryValueFile(#TModel, tplLoc);
+            tm = readBinaryValueFile(ReifiedTModel, tplLoc);
             if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
                 tm.usesPhysicalLocs = false; // temporary
-                tm = convertTModel2PhysicalLocs(tm);
+                if(convert2physical){
+                    tm = convertTModel2PhysicalLocs(tm);
+                }
                 ms.tmodels[qualifiedModuleName] = tm;
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){

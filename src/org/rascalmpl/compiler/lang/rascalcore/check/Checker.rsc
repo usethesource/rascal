@@ -361,7 +361,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
         if(imp notin added){
             if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
-                <found, tm, ms> = getTModelForModule(imp, ms);
+                <found, tm, ms> = getTModelForModule(imp, ms, convert2physical=true);
                 try {
                     c.addTModel(tm);
                 } catch wrongTplVersion(str reason): {
