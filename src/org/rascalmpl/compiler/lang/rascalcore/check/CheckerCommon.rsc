@@ -187,12 +187,13 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
  * - tmodelCacheSize tmodels are cached.
  * - TModels on file (.tpl) physical locations have been replaced by logical locations where possible.
  * - When a TModel is read in, physical locations are NOT YET converted by logical logical locations
+ *   and only do that when absolutely needed
  * - The policy is to keep TModels in the cache in this unconverted logical form as long as possible.
  * - During its presence in the cache, the BOM of a TModel may get updated.
  * - When a TModel has to be removed from the cache, it is converted back to the logical form (if needed) and written back to file.
  */
 
-int tmodelCacheSize = 12; // should be > 0
+int tmodelCacheSize = 16; // should be > 0
 
 ModuleStatus clearTModelCache(ModuleStatus ms){
     for(candidate <- ms.tmodelLIFO){
@@ -244,12 +245,12 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
     return ms;
 }
 
-private type[TModel] ReifiedTModel = #TModel;
+private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, bool convert2physical=false){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
-    if(ms.tmodels[qualifiedModuleName]? /*&& tpl_uptodate() in ms.status[qualifiedModuleName]*/){
+    if(ms.tmodels[qualifiedModuleName]?){
         return <true, ms.tmodels[qualifiedModuleName], ms>;
     }
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
@@ -276,9 +277,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 return <true, tm, ms>;
              }
         } catch e: {
-            //ms.status[qualifiedModuleName] ? {} += rsc_not_found();
             return <false, tmodel(modelName=qualifiedModuleName, messages=[error("Cannot read TPL for <qualifiedModuleName>: <e>", tplLoc)]), ms>;
-            //throw IO("Cannot read tpl for <qualifiedModuleName>: <e>");
         }
         msg = "<tplLoc> has outdated or missing Rascal TPL version (required: <getCurrentRascalTplVersion()>)";
         println("INFO: <msg>)");
