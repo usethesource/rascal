@@ -583,7 +583,15 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             if (allowRecovery) {
                 recoverer = new ToTokenRecoverer(uri, parserInstance, new StackNodeIdDispenser(parserInstance));
             }
-            return (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
+            ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
+
+            if (!allowAmbiguity && allowRecovery) {
+                // Check for 'regular' (non-error) ambiguities
+                RascalValueFactory valueFactory = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
+                new ErrorRecovery(valueFactory).checkForRegularAmbiguities(parseForest);
+            }
+
+            return parseForest;
         }
     }
     

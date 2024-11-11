@@ -217,4 +217,8 @@ public class ErrorRecovery {
             collectErrors((ITree) alt, errors, processedTrees);
         }
     }
+
+    public void checkForRegularAmbiguities(IConstructor parseForest) {
+        disambiguate(parseForest, false, new HashMap<>());
+    }
 }
