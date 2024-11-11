@@ -309,8 +309,11 @@ ModuleStatus rascalTModelForLocs(
                 }
             } else {
                  for(m <- component){
-                    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
-                    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
+                    // imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
+                    // extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
+  
+                    imports = ms.strPaths[m,importPath()];
+                    extends = ms.strPaths[m,extendPath()];
                     updateBOM(m, imports, extends, ms);
                  }
             }
@@ -361,7 +364,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
         if(imp notin added){
             if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
-                <found, tm, ms> = getTModelForModule(imp, ms, convert2physical=true);
+                <found, tm, ms> = getTModelForModule(imp, ms);
                 try {
                     c.addTModel(tm);
                 } catch wrongTplVersion(str reason): {
@@ -428,6 +431,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             s = newSolver(namedTrees, tm);
             tm = s.run();
         }
+        tm.usesPhysicalLocs = true;
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;
