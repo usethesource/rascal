@@ -37,7 +37,7 @@ str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
 }
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
-ModuleStatus complete(ModuleStatus ms){
+ModuleStatus completeModuleStatus(ModuleStatus ms){
     pcfg = ms.pathConfig;
     moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
@@ -59,8 +59,9 @@ ModuleStatus complete(ModuleStatus ms){
             ms.messages[mname] = (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
         }
     }
+     paths += { *{<c, importPath(), a>| a <- extendPlus[b]} | < c, importPath(), b> <- paths };
+    //paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
 
-    paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
     ms.paths = paths;
 
    strPaths = {};
@@ -76,11 +77,11 @@ ModuleStatus complete(ModuleStatus ms){
 }
 
 ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, RascalCompilerConfig ccfg){
-    return complete((newModuleStatus(ccfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
+    return completeModuleStatus((newModuleStatus(ccfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
 }
 
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, RascalCompilerConfig ccfg){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(ccfg)));
+    return completeModuleStatus(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(ccfg)));
 }
 
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
@@ -188,7 +189,7 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
             <ms, imports_and_extends> = getModulePathsAsStr(m, ms);
         }
     }
-    return complete(ms);
+    return completeModuleStatus(ms);
 }
 
 // Example: |rascal+function:///util/Math/round$d80e373d64c01979| ==> util::Math
