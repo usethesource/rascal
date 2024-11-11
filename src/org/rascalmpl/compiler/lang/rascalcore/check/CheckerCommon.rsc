@@ -247,11 +247,13 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
 
 private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 
-tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, bool convert2physical=false){
+tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]?){
-        return <true, ms.tmodels[qualifiedModuleName], ms>;
+        tm = convertTModel2PhysicalLocs(ms.tmodels[qualifiedModuleName]);
+        ms.tmodels[qualifiedModuleName] = tm;
+        return <true, tm, ms>;
     }
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
         ms = removeOldestTModelFromCache(ms);
@@ -264,9 +266,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
             if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
                 tm.usesPhysicalLocs = false; // temporary
-                if(convert2physical){
-                    tm = convertTModel2PhysicalLocs(tm);
-                }
+                tm = convertTModel2PhysicalLocs(tm);
                 ms.tmodels[qualifiedModuleName] = tm;
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
