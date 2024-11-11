@@ -57,7 +57,7 @@ java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
 Removing grammatically optional error trees can reduce the number of case distinctions
 required to make algorithms that process parse trees robust against parse errors.
 }
-Tree filterOptionalErrorTrees(Tree t) = visit(t) {
+Tree filterOptionalErrorTrees(Tree x) = visit(x) {
     case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[*pre, _sep, appl(error(_,_,_),_), *post])
         => appl(p, [*pre, *post])[@\loc=t@\loc]
     case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[appl(error(_,_,_),_), _sep, *post])
@@ -71,4 +71,55 @@ Tree filterOptionalErrorTrees(Tree t) = visit(t) {
     case t:appl(p:regular(opt(_)), appl(error(_,_,_), _)) 
         => appl(p, [])[@\loc=t@\loc]
     // TODO: some forms of recursion could be flattened in the presence of errors mid-way.
+};
+
+@synopsis{Removes trees which contain error trees, if they are in optional positions.}
+@description{
+Removing grammatically optional error trees can reduce the number of case distinctions
+required to make algorithms that process parse trees robust against parse errors.
+}
+@benefits{
+* this algorithm is more aggressive and more successful in removing error trees
+then ((filterOptionalErrorTrees)) can be.
+}
+@pitfalls{
+* this algorithm may cut off entire branches which are otherwise fine to extract more information from.
+}
+Tree filterOptionalIndirectErrorTrees(Tree x) = visit(addErrorStats(x)) {
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[*pre, _sep, appl(_,_, erroneous=true), *post])
+        => appl(p, [*pre, *post])[@\loc=t@\loc]
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[appl(_,_, erroneous=true), _sep, *post])
+        => appl(p, post)[@\loc=t@\loc]
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_,_,_])),[*pre, _sep1, _sep2, _sep3, appl(_,_, erroneous=true), *post])
+        => appl(p, [*pre, *post])[@\loc=t@\loc]
+    case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_,_,_])),[appl(_,_, erroneous=true), _sep1, _sep2, _sep3, *post])
+        => appl(p, post)[@\loc=t@\loc]
+    case t:appl(p:regular(/iter|iter-star/(_)),[*pre, appl(_,_, erroneous=true), *post])
+        => appl(p, [*pre, *post])[@\loc=t@\loc]
+    case t:appl(p:regular(opt(_)), appl(_, _, erroneous=true)) 
+        => appl(p, [])[@\loc=t@\loc]
+} 
+
+@synopsis{Fields for storing the result of ((addErrorStats))}
+data Tree(int skipped = 0, bool erroneous=false);
+
+@synopsis{Annotates all nodes of a parse tree with error recovery statistics}
+@description{
+After this algorithm all nodes contain this information:
+* `int skipped` for the total number of skipped characters in a tree
+* `bool erroneous` that marks sub-trees which do contain errors with `true` while others remain `false`
+}
+@benefits{
+* local information about aggegrated information can be handy when filtering
+parse forests
+}
+@pitfalls{
+* statistics do not tell the whole truth about sub-trees. Filtering based on these numbers
+must be seen as a heuristic that sometimes pays-off, but sometimes hides crucial information.
+}
+Tree addErrorStats(Tree x) = bottom-up visit(x) {
+    case t:appl(skipped(_), args)   => t[skipped = size(args)][erroneous = true]
+    case t:appl(error(_,_,_), args) => t[skipped = (0 | it + a.skipped | a <- args)][erroneous = true]
+    case t:appl(prod(_,_,_), args)  => t[skipped = (0 | it + a.skipped | a <- args)][erroneous = (false | it || a.erroneous | a <- args)]
+    case t:amb(alts)                => t[skipped = (0 | min([it, a.skipped]) | a <- alts)][erroneous = (false | it && a.erroneous | a <- alts)]
 };
