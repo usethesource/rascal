@@ -70,6 +70,22 @@ java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
 @description{
 Removing grammatically optional error trees can reduce the number of case distinctions
 required to make algorithms that process parse trees robust against parse errors.
+
+The algorithm works bottom-up such that only the smallest possible trees are removed.
+After every removal, new error statistics are prepared for passing up to the next level.
+If errors are completely removed by the filter, then the parents will remain unchanged.
+}
+@benefits{
+* Removing error trees increases the robustness of downstream processors
+* By removing error trees from lists, the relative `src` origins remain the same for
+downstream processing. 
+* Sets of trees in ambiguity clusters may be reduced to singletons, making the ambiguity cluster dissappear. 
+This also improves the robustness of downstream processors.
+}
+@pitfalls{
+* this algorithm may remove relatively large sub-trees and thus through away valuable information.
+It is much better to use this as a recovery tool that increases the robustness of oblivious downstream processors,
+then to start an error repair or auto-complete algorithm.
 }
 Tree filterOptionalErrorTrees(Tree x) = visit(x) {
     case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[*pre, _sep, appl(error(_,_,_),_), *post])
@@ -91,13 +107,25 @@ Tree filterOptionalErrorTrees(Tree x) = visit(x) {
 @description{
 Removing grammatically optional error trees can reduce the number of case distinctions
 required to make algorithms that process parse trees robust against parse errors.
+
+The algorithm works bottom-up such that only the smallest possible trees are removed.
+After every removal, new error statistics are prepared for passing up to the next level.
+If errors are completely removed by the filter, then the parents will remain unchanged.
 }
 @benefits{
 * this algorithm is more aggressive and more successful in removing error trees
 then ((filterOptionalErrorTrees)) can be.
+* Removing error trees increases the robustness of downstream processors.
+* By removing error trees from lists, the relative `src` origins remain the same for
+downstream processing. 
+* Sets of trees in ambiguity clusters may be reduced to singletons, making the ambiguity cluster dissappear. 
+This also improves the robustness of downstream processors.
 }
 @pitfalls{
-* this algorithm may cut off entire branches which are otherwise fine to extract more information from.
+* this algorithm may remove (very) large sub-trees if they contain one error somewhere, and thus through away valuable information.
+It is much better to use this as a recovery tool that increases the robustness of oblivious downstream processors,
+then to start an error repair or auto-complete algorithm.
+
 }
 Tree filterOptionalIndirectErrorTrees(Tree x) = bottom-up visit(addErrorStats(x)) {
     case t:appl(p:regular(/iter-sep|iter-star-sep/(_,[_])),[*pre, _sep, appl(_,_, erroneous=true), *post])
