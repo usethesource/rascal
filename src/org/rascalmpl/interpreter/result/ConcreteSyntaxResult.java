@@ -145,6 +145,22 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 					}
 				}
 			}
+			else if (ProductionAdapter.isError(prod)) {
+				var eprod = ProductionAdapter.getErrorProd(prod);
+				int dot = ProductionAdapter.getErrorDot(prod);
+				IList syms = ProductionAdapter.getSymbols(eprod);
+				String tmp = Names.name(name);
+
+				// only look before the dot.
+				for (int i = 0; i < dot; i++) {
+					var sym = syms.get(i);
+					if (SymbolAdapter.isLabel((IConstructor) sym)) {
+						if (SymbolAdapter.getLabel((IConstructor) sym).equals(tmp)) {
+							return ResultFactory.bool(true, ctx);
+						}
+					}
+				}
+			}
 		}
 		return super.has(name);
 	}
