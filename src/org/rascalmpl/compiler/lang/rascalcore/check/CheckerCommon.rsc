@@ -96,8 +96,8 @@ tuple[bool,loc] getTPLReadLoc(str qualifiedModuleName, PathConfig pcfg){
            if(traceTPL) println("getTPLReadLoc: <qualifiedModuleName> =\> <fileLoc>");
            return <true, fileLoc>;
         } else {
-           if(traceTPL)
-            println("getTPLReadLoc: DOES NOT EXIST: <fileLoc>");
+        ;//    if(traceTPL)
+        //     println("getTPLReadLoc: DOES NOT EXIST: <fileLoc>");
         }
     }
     return <false, |error:///|>;
@@ -270,7 +270,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 ms.tmodels[qualifiedModuleName] = tm;
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
-                    ms.status[qualifiedModuleName] ? {} += rsc_not_found();
+                    ms.status[qualifiedModuleName] ? {} += {rsc_not_found()};
                 }
                 ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
                 ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];

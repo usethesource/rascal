@@ -124,10 +124,13 @@ tuple[str, int]  safeCheck(str \module, RascalCompilerConfig compilerConfig) {
     try {
        ModuleStatus result = rascalTModelForNames([\module], 
                                                   compilerConfig,
-                                                  dummy_compile1);
+                                                  dummy_compile1, shallow = false);
        //iprintln(result.tmodels[\module].facts);
        <found, tm, result> = getTModelForModule(\module, result);
        if(found && !isEmpty(tm.messages)){
+        if(/error(_,_) := tm.messages){
+          println("*** ERRORS ***");
+        }
             iprintln(tm.messages);
        }
        return <"", cpuTime()-start_time>;

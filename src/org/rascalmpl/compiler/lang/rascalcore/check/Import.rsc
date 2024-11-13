@@ -76,15 +76,16 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
     return ms;
 }
 
-ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, RascalCompilerConfig ccfg){
-    return completeModuleStatus((newModuleStatus(ccfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
+ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, RascalCompilerConfig ccfg, bool shallow){
+    return completeModuleStatus((newModuleStatus(ccfg) | getImportAndExtendGraph(qualifiedModuleName, it, shallow) | qualifiedModuleName <- qualifiedModuleNames));
 }
 
-ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, RascalCompilerConfig ccfg){
-    return completeModuleStatus(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(ccfg)));
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, RascalCompilerConfig ccfg, bool shallow){
+    return completeModuleStatus(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(ccfg), shallow));
 }
 
-ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
+ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms, bool shallow){
+//println("getImportAndExtendGraph: <qualifiedModuleName>, <shallow>");
     pcfg = ms.pathConfig;
     qualifiedModuleName = unescape(qualifiedModuleName);
 
@@ -98,7 +99,10 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-    if(found /*&& rsc_not_found() notin ms.status[qualifiedModuleName]*/){
+    if(!found){
+        shallow = false;
+    }
+    if(found){
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
@@ -130,6 +134,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             throw "No bill-of-materials found for <qualifiedModuleName>";
         }
         if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
+            shallow = false;
             try {
                 mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 if(mloc.extension != "rsc" || isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
@@ -154,8 +159,11 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
-            for(imp <- localImportsAndExtends<0>, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
-                ms = getImportAndExtendGraph(imp, ms);
+            ms.messages[qualifiedModuleName] ? [] += tm.messages;
+            if(!shallow){
+                for(imp <- localImportsAndExtends<0>, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
+                    ms = getImportAndExtendGraph(imp, ms, shallow);
+                }
             }
             return ms;
          }
@@ -171,7 +179,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
 
         for(<_, kind, imp> <- imports_and_extends, rsc_not_found() notin ms.status[imp]){
             ms.strPaths += {<qualifiedModuleName, kind, imp>};
-            ms = getImportAndExtendGraph(imp, ms);
+            ms = getImportAndExtendGraph(imp, ms, shallow);
         }
     } else {
          ms.status[qualifiedModuleName] += rsc_not_found();
