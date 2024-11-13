@@ -164,6 +164,13 @@ Tree addErrorStats(Tree x) = bottom-up visit(x) {
 };
 
 @synopsis{Reusable utility for re-computing error statistics per Tree node.}
+@description{
+This function must be applied in a bottom-up manner to make sense.
+}
+@benefits{
+* different bottom-up algorithms can reuse this function to re-compute
+the statistics based on a new state of the tree.
+}
 private Tree addStats(t:appl(prod(_,_,_), args)) 
     = t
         [skipped = (0 | it + a.skipped | a <- args)]
@@ -183,7 +190,7 @@ private Tree addStats(t:amb(alts))
     = t
         [skipped = (0 | min([it, a.skipped]) | a <- alts)]
         [erroneous = (false | it && a.erroneous | a <- alts)];
-        
+
 default private Tree addStats(Tree t) = t;
 
 @synopsis{Disambiguates error ambiguity clusters by selecting the alternatives with the shortest amount of skipped characters}
