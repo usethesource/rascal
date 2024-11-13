@@ -38,10 +38,15 @@ public class ProductionAdapter {
 	 * @return a constructor name if present or null otherwise
 	 */
 	public static String getConstructorName(IConstructor tree) {
-		IConstructor def = getDefined(tree);
+		if (isDefault(tree)) {
+			IConstructor def = getDefined(tree);
 		
-		if (SymbolAdapter.isLabel(def)) {
-			return SymbolAdapter.getLabel(def);
+			if (SymbolAdapter.isLabel(def)) {
+				return SymbolAdapter.getLabel(def);
+			}
+		}
+		else if (isError(tree)) {
+			return "recovered";
 		}
 		
 		return null;

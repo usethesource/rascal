@@ -55,6 +55,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 				return ResultFactory.bool(Names.name(name).equals(consName), ctx);
 			}
 		}
+		
 		return ResultFactory.bool(false, ctx);
 	}
 	
