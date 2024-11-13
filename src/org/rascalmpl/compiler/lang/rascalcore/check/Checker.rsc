@@ -118,7 +118,8 @@ list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Ra
 ModuleStatus rascalTModelForLocs(
     list[loc] mlocs,
     RascalCompilerConfig compilerConfig,
-    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
+    list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen,
+    bool shallow = true
 ){
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
@@ -141,7 +142,7 @@ ModuleStatus rascalTModelForLocs(
     str jobName = "";
 
     try {
-        ms = getImportAndExtendGraph(topModuleNames, compilerConfig);
+        ms = getImportAndExtendGraph(topModuleNames, compilerConfig, shallow);
 
         if(/error(_,_) := ms.messages){
 
@@ -153,9 +154,8 @@ ModuleStatus rascalTModelForLocs(
                 ms.status[nm] = {};
             }
         }
-
-
         imports_and_extends = ms.strPaths<0,2>;
+        //imports_and_extends = shallow ? { <a, b> | <a, _, b> <- ms.strPaths, a in topModuleNames } : ms.strPaths<0,2>;
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
 
         map[str, set[str]] module2component = (m : c | c <- components, m <- c);
@@ -449,8 +449,8 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
 
 ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   RascalCompilerConfig compilerConfig,
-                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen){
-
+                                  list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen,
+                                  bool shallow=true){
 
     pcfg = compilerConfig.typepalPathConfig;
     mlocs = [];
@@ -464,7 +464,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
             return ms;
         }
     }
-    return rascalTModelForLocs(mlocs, compilerConfig, codgen);
+    return rascalTModelForLocs(mlocs, compilerConfig, codgen, shallow=shallow);
 }
 
 // ---- checker functions for IDE
@@ -476,7 +476,7 @@ data ModuleMessages = program(loc src, set[Message] messages);
 list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
     pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     compilerConfig.typepalPathConfig = pcfg1;
-    ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
+    ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1, shallow=true);
     return [ program(ms.moduleLocs[mname] ? |unknown:///|, toSet(ms.messages[mname])) | mname <- ms.messages ];
 }
 
@@ -487,7 +487,7 @@ list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
 // ---- Convenience check function during development -------------------------
 
 map[str, list[Message]] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
-    ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1);
+    ModuleStatus ms = rascalTModelForNames(moduleNames, compilerConfig, dummy_compile1, shallow=true);
     tmodels = ms.tmodels;
     tmMsgs = (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
     return //(mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages))
