@@ -164,10 +164,26 @@ Tree addErrorStats(Tree x) = bottom-up visit(x) {
 };
 
 @synopsis{Reusable utility for re-computing error statistics per Tree node.}
-private Tree addStats(t:appl(prod(_,_,_), args)) = t[skipped = (0 | it + a.skipped | a <- args)][erroneous = (false | it || a.erroneous | a <- args)];
-private Tree addStats(t:appl(skipped(_), args))  = t[skipped = size(args)][erroneous = true];
-private Tree addStats(t:appl(error(_,_,_), args))= t[skipped = (0 | it + a.skipped | a <- args)][erroneous = true];
-private Tree addStats(t:amb(alts))               = t[skipped = (0 | min([it, a.skipped]) | a <- alts)][erroneous = (false | it && a.erroneous | a <- alts)];
+private Tree addStats(t:appl(prod(_,_,_), args)) 
+    = t
+        [skipped = (0 | it + a.skipped | a <- args)]
+        [erroneous = (false | it || a.erroneous | a <- args)];
+
+private Tree addStats(t:appl(skipped(_), args))  
+    = t
+        [skipped = size(args)]
+        [erroneous = true];
+
+private Tree addStats(t:appl(error(_,_,_), args))
+    = t
+        [skipped = (0 | it + a.skipped | a <- args)]
+        [erroneous = true];
+
+private Tree addStats(t:amb(alts)) 
+    = t
+        [skipped = (0 | min([it, a.skipped]) | a <- alts)]
+        [erroneous = (false | it && a.erroneous | a <- alts)];
+        
 default private Tree addStats(Tree t) = t;
 
 @synopsis{Disambiguates error ambiguity clusters by selecting the alternatives with the shortest amount of skipped characters}
