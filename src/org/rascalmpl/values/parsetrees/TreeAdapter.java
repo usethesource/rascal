@@ -194,6 +194,26 @@ public class TreeAdapter {
 						return null;
 				}
 			}
+			else if (ProductionAdapter.isError(prod)) {
+				var eprod = ProductionAdapter.getErrorProd(prod);
+				int dot = ProductionAdapter.getErrorDot(prod);
+				int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(eprod), field);
+				IList args = getArgs(tree);
+
+				if (index != -1) {
+					if (index < dot) {
+						// changing the normal part of the tree
+						return setArgs(tree, args.put(index, repl));
+					}
+					else if (index == dot) {
+						// extending the accepted part of the tree by one field
+						eprod = prod.set("prod", IRascalValueFactory.getInstance().integer(dot + 1));
+						return setProduction(setArgs(tree, args.append(repl)), eprod);
+					}
+
+					// otherwise we return null which indicates the field does not exist.
+				}
+			}
 		}
 
 		return null;
