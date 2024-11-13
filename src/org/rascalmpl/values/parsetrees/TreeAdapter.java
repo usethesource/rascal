@@ -210,8 +210,10 @@ public class TreeAdapter {
 						eprod = prod.set("prod", IRascalValueFactory.getInstance().integer(dot + 1));
 						return setProduction(setArgs(tree, args.append(repl)), eprod);
 					}
-
-					// otherwise we return null which indicates the field does not exist.
+					else {
+						// otherwise we return null which indicates the field does not exist.
+						return null;
+					}
 				}
 			}
 		}
@@ -306,22 +308,8 @@ public class TreeAdapter {
 						return new FieldResult(sym, (ITree) tree.getArgs().get(index));
 					}
 					else {
-						// We have the right prodction and the field would be there, if we didn't recover from a parse error
-						// and are missing some of the children (including the indicated field).
-						// So we return a quasi tree that is of the right type, but it otherwise just an error tree
-						// like its parent. This tree does not have content, because we wouldn't know which of the skipped
-						// parts are meant.
-						var vf = IRascalValueFactory.getInstance();
-						// @PieterOlivier is this the right way to do this? I just need an empty tree of the right symbol.
-						var skipped = vf.constructor(RascalValueFactory.Production_Skipped);
-						var skippedProd = vf.constructor(RascalValueFactory.Production_Error, sym, skipped, vf.integer(0));
-						var skippedTree = vf.appl(skippedProd);
-						var parentLoc = getLocation(tree);
-						if (parentLoc != null) {
-							// TODO @PieterOlivier I guess we need the location of the last parsed element, and use an
-							// empty range that is just beyond that. But for now I'd like to test with this.
-						}
-						return new FieldResult(sym, skippedTree);
+						// we simply don't have that field yet. too bad.
+						return null;
 					}
 				}
 			}
