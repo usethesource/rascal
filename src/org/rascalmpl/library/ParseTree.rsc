@@ -192,7 +192,7 @@ data Production
 
 data Production
      = \error(Symbol def, Production prod, int dot)
-     | \skipped(Symbol symbol);
+     | \skipped(Symbol def);
 
 @synopsis{Attributes in productions.}
 @description{
