@@ -119,7 +119,7 @@ ModuleStatus rascalTModelForLocs(
     list[loc] mlocs,
     RascalCompilerConfig compilerConfig,
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen,
-    bool shallow = true
+    bool shallow = false
 ){
     pcfg = compilerConfig.typepalPathConfig;
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
@@ -450,7 +450,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
 ModuleStatus rascalTModelForNames(list[str] moduleNames,
                                   RascalCompilerConfig compilerConfig,
                                   list[Message] (str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen,
-                                  bool shallow=true){
+                                  bool shallow=false){
 
     pcfg = compilerConfig.typepalPathConfig;
     mlocs = [];
