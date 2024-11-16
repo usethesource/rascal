@@ -3,7 +3,9 @@ module lang::rascal::tests::concrete::recovery::ErrorRecoveryBenchmark
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 import IO;
+import ValueIO;
 import util::Benchmark;
+import util::SystemAPI;
 import String;
 import List;
 
@@ -35,7 +37,13 @@ void runLanguageTests() {
 
 void runRascalBatchTest(int maxFiles=1000, int minFileSize=0, int maxFileSize=4000, int fromFile=0) {
     int startTime = realTime();
-    TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", maxFiles, minFileSize, maxFileSize, fromFile, |cwd:///rascal-recovery-stats.csv|);
+    
+    map[str,str] env = getSystemEnvironment();
+    loc statFile = "STATFILE" in env ? readTextValueString(#loc, env["STATFILE"]) : |cwd:///dev/null|;
+
+    println("Writing stats to <statFile>");
+
+    TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", maxFiles, minFileSize, maxFileSize, fromFile, statFile);
     int duration = realTime() - startTime;
     println();
     println("================================================================");
