@@ -56,7 +56,7 @@ public data TestStats = testStats(
     FrequencyTable errorCounts=(),
     FrequencyTable errorSizes=());
 
-private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile) {
+private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
     int disambDuration = -1;
@@ -94,7 +94,8 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     }
 
     if (statFile != |unknown:///|) {
-        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<disambDuration>,<errorCount>,<errorSize>\n");
+        int ratio = percent(duration, referenceParseTime);
+        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>\n");
     }
 
     return measurement;
@@ -223,7 +224,7 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
     while (i < len && (end == -1 || i<=end)) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
         source.query = "deletedChar=<i>";
-        TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile);
+        TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile, referenceParseTime);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         if (i < len && substring(input, i, i+1) == "\n") {
             println();
@@ -251,8 +252,8 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
                 continue;
             }
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
-            source.query = "deletedUntilEol=<line>,<pos>,<lineEnd>";
-            TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile);
+            source.query = "deletedUntilEol=<line>:<pos>:<lineEnd>";
+            TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile, referenceParseTime);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         }
         lineStart = lineEnd+1;
@@ -433,7 +434,7 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
 
 TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, loc statFile, TestStats cumulativeStats) {
     println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>, fromFile=<fromFile>)");
-    writeFile(statFile, "source,size,result,duration,disambiguationDuration,errorCount,errorSize\n");
+    writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
         if (isFile(file)) {
