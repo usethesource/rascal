@@ -19,14 +19,14 @@ lexical BooleanLiteral
 	| "false" ;
 
 syntax Literal
-	= integer: IntegerLiteral integerLiteral 
-	| regExp: RegExpLiteral regExpLiteral 
-	| \real: RealLiteral realLiteral 
+	= @category="number" integer: IntegerLiteral integerLiteral 
+	| @category="regexp" regExp: RegExpLiteral regExpLiteral 
+	| @category="number" \real: RealLiteral realLiteral 
 	| boolean: BooleanLiteral booleanLiteral 
 	| string: StringLiteral stringLiteral 
 	| dateTime: DateTimeLiteral dateTimeLiteral 
-	| location: LocationLiteral locationLiteral
-	| rational: RationalLiteral rationalLiteral
+	| @category="string" location: LocationLiteral locationLiteral
+	| @category="number" rational: RationalLiteral rationalLiteral
 	;
 
 syntax Expression = concrete: Concrete concrete;
