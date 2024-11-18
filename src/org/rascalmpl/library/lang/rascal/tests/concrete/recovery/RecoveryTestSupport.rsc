@@ -104,7 +104,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
 FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenceParseTime, int recoverySuccessLimit) {
     stats.totalParses += 1;
 
-    int ratio = referenceParseTime == 0 ? measurement.duration : measurement.duration/referenceParseTime;
+    int ratio = measurement.duration/referenceParseTime;
     int parseTimeRatio = ratio == 0 ? 0 : round(log2(ratio));
 
     switch (measurement) {
@@ -393,11 +393,15 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
         recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
 
+        // Initialization run
+        standardParser(input, testInput);
+
+        // Timed run
         int startTime = realTime();
         standardParser(input, testInput);
-        int referenceParseTime = realTime() - startTime;
+        int referenceParseTime = max(1, realTime() - startTime);
 
-            recoverySuccessLimit = size(input)/4;
+        recoverySuccessLimit = size(input)/4;
 
         println("Error recovery of <syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
 
@@ -429,12 +433,13 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
     fileNr = 0;
     fromFile = from;
 
+    writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
+
     return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());
 }
 
 TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, loc statFile, TestStats cumulativeStats) {
     println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>, fromFile=<fromFile>)");
-    writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
         if (isFile(file)) {
