@@ -36,13 +36,13 @@ lexical Concrete
   = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
 lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
+  = @category="string" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-  | @category="MetaVariable" hole : ConcreteHole hole
-  | @category="MetaSkipped" lt: "\\\<"
-  | @category="MetaSkipped" gt: "\\\>"
-  | @category="MetaSkipped" bq: "\\`"
-  | @category="MetaSkipped" bs: "\\\\"
+  | @category="string" hole : ConcreteHole hole
+  | @category="string" lt: "\\\<"
+  | @category="string" gt: "\\\>"
+  | @category="string" bq: "\\`"
+  | @category="string" bs: "\\\\"
   ;
   
 syntax ConcreteHole 
@@ -308,10 +308,10 @@ syntax StringTemplate
 	| \while     : "while" "(" Expression condition ")" "{" Statement* preStats StringMiddle body Statement* postStats "}" ;
 
 lexical PreStringChars
-	= @category="Constant" [\"] StringCharacter* [\<] ;
+	= @category="string" [\"] StringCharacter* [\<] ;
 
 lexical CaseInsensitiveStringConstant
-	= @category="Constant" "\'" StringCharacter* chars "\'" ;
+	= @category="string" "\'" StringCharacter* chars "\'" ;
 
 lexical Backslash
 	= [\\] !>> [/ \< \> \\] ;
@@ -373,7 +373,7 @@ syntax Assignable
 	| annotation        : Assignable receiver "@" Name annotation  ;
 
 lexical StringConstant
-	= @category="Constant" "\"" StringCharacter* chars "\"" ;
+	= @category="string" "\"" StringCharacter* chars "\"" ;
 
 
 
@@ -404,7 +404,7 @@ lexical JustTime
 	;
 
 lexical MidStringChars
-	= @category="Constant" [\>] StringCharacter* [\<] ;
+	= @category="string" [\>] StringCharacter* [\<] ;
 
 lexical ProtocolChars
 	= [|] URLChars "://" !>> [\t-\n \r \ \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000];
@@ -445,7 +445,7 @@ lexical RegExp
 	| [\\] [/ \< \> \\] 
 	| "\<" Name ":" NamedRegExp* "\>" 
 	| Backslash 
-	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
+	// | @category="variable" [\<]  Expression expression [\>] TODO: find out why this production existed 
 	;
 	
 
@@ -536,9 +536,9 @@ start syntax EvalCommand
   ;
  
 lexical Output   
-  = @category="Result" resultOutput: "⇨" ![\n\r]* [\n] 
-  | @category="StdOut" stdoutOutput: ^ "≫" ![\n\r]* [\n]
-  | @category="StdErr" stderrOutput: ^ "⚠" ![\n\r]* [\n]
+  = @category="string" resultOutput: "⇨" ![\n\r]* [\n] 
+  | @category="string" stdoutOutput: ^ "≫" ![\n\r]* [\n]
+  | @category="string" stderrOutput: ^ "⚠" ![\n\r]* [\n]
   ;
   
 start syntax Command
@@ -573,8 +573,8 @@ syntax StringLiteral
 	| nonInterpolated: StringConstant constant ;
 
 lexical Comment
-	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
-	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
+	= @category="comment" "/*" (![*] | [*] !>> [/])* "*/" 
+	| @category="comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
 
@@ -789,7 +789,7 @@ syntax Toplevel
 	= givenVisibility: Declaration declaration ;
 
 lexical PostStringChars
-	= @category="Constant" [\>] StringCharacter* [\"] ;
+	= @category="string" [\>] StringCharacter* [\"] ;
 
 lexical HexIntegerLiteral
 	= [0] [X x] [0-9 A-F a-f]+ !>> [0-9 A-Z _ a-z] ;
@@ -823,9 +823,9 @@ syntax BasicType
 	;
 
 lexical Char
-	= @category="Constant" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
-	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] 
-	| @category="Constant" UnicodeEscape 
+	= @category="string" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
+	| @category="string" ![\  \" \' \- \< \> \[ \\ \]] 
+	| @category="string" UnicodeEscape 
     ; 
     
 syntax Prod
@@ -879,9 +879,9 @@ syntax Pattern
     ;
     
 syntax Tag
-	= @Folded @category="Comment" \default   : "@" Name name TagString contents 
-	| @Folded @category="Comment" empty     : "@" Name name 
-	| @Folded @category="Comment" expression: "@" Name name "=" Expression expression !>> "@";
+	= @Folded @category="comment" \default  : "@" Name name TagString contents 
+	| @Folded @category="comment" empty     : "@" Name name 
+	| @Folded @category="comment" expression: "@" Name name "=" Expression expression !>> "@";
 
 syntax ModuleActuals
 	= \default: "[" {Type ","}+ types "]" ;
