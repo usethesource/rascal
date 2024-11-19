@@ -86,7 +86,7 @@ set[Message] getAllMessages(ModuleStatus r)
 
 ModuleStatus checkStatements(str stmts) {
 	mloc = composeModule(stmts);
-   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1, shallow=false);
+   	return rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfigForTesting())[infoModuleChecked=true], dummy_compile1);
 }
 
 bool checkStatementsAndFilter(str stmts, list[str] expected) {
@@ -105,7 +105,8 @@ bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = fa
 	return checkModuleAndFilter(mloc, expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
 }
 bool checkModuleAndFilter(loc mloc, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
-    msgs = getAllMessages(rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1, shallow=false));
+    ms = rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
+	msgs = getAllMessages(ms);
 	if (verbose) {
      	println(msgs);
 	 }
@@ -133,7 +134,7 @@ bool checkOK(str stmts) {
 }
 
 bool checkModuleOK(loc moduleToCheck, PathConfig pathConfig = pathConfigForTesting()) {
-     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1, shallow=false));
+     errors = getErrorMessages(rascalTModelForLocs([moduleToCheck], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1));
      if(size(errors) == 0)
         return true;
      throw abbrev("<errors>");
@@ -154,6 +155,7 @@ bool checkModuleOK(str moduleText, PathConfig pathConfig = pathConfigForTesting(
 // ---- unexpectedType --------------------------------------------------------
 
 list[str] unexpectedTypeMsgs = [
+	   
 	    "Incompatible type _",
 	    "Comparison not defined on _",
 	    "Initialization of _ should be _",
@@ -207,6 +209,9 @@ list[str] unexpectedTypeMsgs = [
 bool unexpectedTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unexpectedTypeMsgs);
 
+bool unexpectedTypeInModule(loc mloc)
+	= checkModuleAndFilter(mloc, unexpectedTypeMsgs);
+
 bool unexpectedType(str stmts)
 	= checkStatementsAndFilter(stmts, unexpectedTypeMsgs);
 
@@ -236,6 +241,9 @@ list[str] undeclaredVariableMsgs = [
 bool undeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredVariableMsgs);
 
+bool undeclaredVariableInModule(loc mloc)
+	= checkModuleAndFilter(mloc, undeclaredVariableMsgs);
+
 bool undeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredVariableMsgs);
 
@@ -246,6 +254,9 @@ list[str] undeclaredTypeMsgs = [
 ];
 bool undeclaredTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, undeclaredTypeMsgs);
+
+bool undeclaredTypeInModule(loc mloc)
+	= checkModuleAndFilter(mloc, undeclaredTypeMsgs);
 
 bool undeclaredType(str stmts) =
 	checkStatementsAndFilter(stmts, undeclaredTypeMsgs);
@@ -271,6 +282,9 @@ list[str] argumentMismatchMsgs = [
 bool argumentMismatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, argumentMismatchMsgs);
 
+bool argumentMismatchInModule(loc mloc)
+	= checkModuleAndFilter(mloc, argumentMismatchMsgs);
+
 bool argumentMismatch(str stmts) =
 	checkStatementsAndFilter(stmts, argumentMismatchMsgs);
 
@@ -283,6 +297,9 @@ list[str] redeclaredVariableMsgs = [
 
 bool redeclaredVariableInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, redeclaredVariableMsgs);
+
+bool redeclaredVariableInModule(loc mloc)
+	= checkModuleAndFilter(mloc, redeclaredVariableMsgs);
 
 bool redeclaredVariable(str stmts) =
 	checkStatementsAndFilter(stmts, redeclaredVariableMsgs);
@@ -301,6 +318,9 @@ list[str] cannotMatchMsgs = [
 
 bool cannotMatchInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, cannotMatchMsgs);
+
+bool cannotMatchInModule(loc mloc)
+	= checkModuleAndFilter(mloc, cannotMatchMsgs);
 
 bool cannotMatch(str stmts) =
 	checkStatementsAndFilter(stmts, cannotMatchMsgs);
@@ -333,6 +353,9 @@ list[str] unexpectedDeclarationMsgs = [
 bool unexpectedDeclarationInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs);
 
+bool unexpectedDeclarationInModule(loc mloc)
+	= checkModuleAndFilter(mloc, unexpectedDeclarationMsgs);
+
 bool unexpectedDeclaration(str stmts) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
@@ -345,6 +368,9 @@ list[str] missingModuleMsgs = [
 ];
 bool missingModuleInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, missingModuleMsgs);
+
+bool missingModuleInModule(loc mloc)
+	= checkModuleAndFilter(mloc, missingModuleMsgs);
 
 bool missingModule(str stmts) =
 	checkStatementsAndFilter(stmts, missingModuleMsgs);
@@ -359,6 +385,10 @@ list[str] illegalUseMsgs = [
 bool illegalUseInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, illegalUseMsgs);
 
+bool illegalUseInModule(loc mloc)
+	= checkModuleAndFilter(mloc, illegalUseMsgs);
+
+
 bool illegalUse(str stmts) =
     checkStatementsAndFilter(stmts, illegalUseMsgs);
 
@@ -370,6 +400,9 @@ list[str] nonVoidTypeMsgs = [
 
 bool nonVoidTypeInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, nonVoidTypeMsgs);
+
+bool nonVoidTypeInModule(loc mloc)
+	= checkModuleAndFilter(mloc, nonVoidTypeMsgs);
 
 bool nonVoidType(str stmts) =
     checkStatementsAndFilter(stmts, nonVoidTypeMsgs);
@@ -383,20 +416,23 @@ list[str] unsupportedMsgs = [
 bool unsupportedInModule(str moduleText)
 	= checkModuleAndFilter(moduleText, unsupportedMsgs);
 
+bool unsupportedInModule(loc mloc)
+	= checkModuleAndFilter(mloc, unsupportedMsgs);
+
 bool unsupported(str stmts) =
     checkStatementsAndFilter(stmts, unsupportedMsgs);
 
-// ---- expectChecks ----------------------------------------------------------
+// ---- expectReChecks --------------------------------------------------------
 
-bool expectReChecks(str moduleText, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting()){
+bool expectReChecks(str moduleText, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting(), bool errorsAllowed=false){
 	mloc = writeModule(moduleText);
 	pathConfig.srcs +=  pathConfigForTesting().srcs;
-	return expectReChecks(mloc, moduleNames, pathConfig=pathConfig);
+	return expectReChecks(mloc, moduleNames, pathConfig=pathConfig, errorsAllowed=errorsAllowed);
 }
 
-bool expectReChecks(loc mloc, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting()){
+bool expectReChecks(loc mloc, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting(), bool errorsAllowed=false){
 	msgs = [ "Checked <nm>" | nm <- moduleNames ];
-	return checkModuleAndFilter(mloc, msgs, matchAll=true, errorsAllowed=false, pathConfig = pathConfig);
+	return checkModuleAndFilter(mloc, msgs, matchAll=true, errorsAllowed=errorsAllowed, pathConfig = pathConfig);
 }
 
 bool expectReChecksWithErrors(str moduleText, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting()){
