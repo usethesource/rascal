@@ -10,7 +10,6 @@ extend lang::rascalcore::grammar::definition::Characters;
 
 import Node;
 import Set;
-//import IO;
 
 // ---- asubtype --------------------------------------------------------------
 
