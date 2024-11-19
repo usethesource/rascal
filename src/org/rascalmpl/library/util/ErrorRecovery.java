@@ -31,10 +31,12 @@ public class ErrorRecovery {
     private static class ScoredTree {
         public final IConstructor tree;
         public final int score;
+        public final boolean hasErrors;
 
-        public ScoredTree(IConstructor tree, int score) {
+        public ScoredTree(IConstructor tree, int score, boolean hasErrors) {
             this.tree = tree;
             this.score = score;
+            this.hasErrors = hasErrors;
         }
     }
 
@@ -60,8 +62,8 @@ public class ErrorRecovery {
         } else if (type == RascalValueFactory.Tree_Amb) {
             result = disambiguateAmb((ITree) tree, allowAmbiguity, processedTrees);
         } else {
-            // Other trees (cycle, char) do not have subtrees so they have a score of 0
-            result = new ScoredTree(tree, 0);
+            // Other trees (cycle, char) do not have subtrees so they have a score of 0 and no errors
+            result = new ScoredTree(tree, 0, false);
         }
 
         return result;
@@ -74,10 +76,11 @@ public class ErrorRecovery {
         }
 
         if (ProductionAdapter.isSkipped(appl.getProduction())) {
-            result = new ScoredTree(appl, ((IList) appl.get(1)).length());
+            result = new ScoredTree(appl, ((IList) appl.get(1)).length(), true);
         } else {
             IList args = TreeAdapter.getArgs(appl);
             int totalScore = 0;
+            boolean hasErrors = false;
             IListWriter disambiguatedArgs = null;
 
             // Disambiguate and score all children
@@ -85,6 +88,7 @@ public class ErrorRecovery {
                 IValue arg = args.get(i);
                 ScoredTree disambiguatedArg = disambiguate((IConstructor) arg, allowAmbiguity, processedTrees);
                 totalScore += disambiguatedArg.score;
+                hasErrors |= disambiguatedArg.hasErrors;
                 if (disambiguatedArg.tree != arg && disambiguatedArgs == null) {
                     disambiguatedArgs = rascalValues.listWriter();
                     for (int j=0; j<i; j++) {
@@ -107,7 +111,7 @@ public class ErrorRecovery {
                 resultTree = appl;
             }
 
-            result = new ScoredTree(resultTree, totalScore);
+            result = new ScoredTree(resultTree, totalScore, hasErrors);
         }
 
         processedTrees.put(appl, result);
@@ -127,17 +131,17 @@ public class ErrorRecovery {
         ScoredTree errorAltWithBestScore = null;
         for (IValue alt : originalAlts) {
             ScoredTree disambiguatedAlt = disambiguate((IConstructor) alt, allowAmbiguity, processedTrees);
-            if (disambiguatedAlt.score == 0) {
+            if (disambiguatedAlt.hasErrors) {
+                // Only keep the best of the error trees
+                if (errorAltWithBestScore == null || errorAltWithBestScore.score > disambiguatedAlt.score) {
+                    errorAltWithBestScore = disambiguatedAlt;
+                }
+            } else {
                 // Non-error tree
                 if (alternativesWithoutErrors == null) {
                     alternativesWithoutErrors = rascalValues.setWriter();
                 }
                 alternativesWithoutErrors.insert(disambiguatedAlt.tree);
-            } else {
-                // Only keep the best of the error trees
-                if (errorAltWithBestScore == null || errorAltWithBestScore.score > disambiguatedAlt.score) {
-                    errorAltWithBestScore = disambiguatedAlt;
-                }
             }
         }
 
@@ -166,7 +170,7 @@ public class ErrorRecovery {
             }
         }
 
-        result = new ScoredTree(resultTree, 0);
+        result = new ScoredTree(resultTree, 0, false);
         processedTrees.put(amb, result);
 
         return result;
