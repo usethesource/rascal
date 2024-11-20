@@ -9,17 +9,24 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Objects;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 import org.jline.jansi.Ansi;
+import org.jline.reader.Completer;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
@@ -211,19 +218,6 @@ public class RascalReplServices implements IREPLService {
             this.internalWriter = internalWriter;
             this.prettyPrinter = prettyPrinter;
         }
-        
-        @Override
-        public Reader asReader() {
-            try (var result = new StringWriter()) {
-                try (var resultWriter = new PrintWriter(result)) {
-                    write(resultWriter);
-                }
-                return new StringReader(result.toString());
-            }
-            catch (IOException ex) {
-                throw new IllegalStateException("StringWriter close should never throw exception", ex);
-            }
-        }
 
         @Override
         public void write(PrintWriter target) {
@@ -296,6 +290,26 @@ public class RascalReplServices implements IREPLService {
         // TODO figure out why this function is called?
         eval.getStdErr().flush();
         eval.getStdOut().flush();
+    }
+
+    private static final NavigableMap<String,String> commandLineOptions = new TreeMap<>();
+    static {
+        commandLineOptions.put(Configuration.GENERATOR_PROFILING_PROPERTY.substring("rascal.".length()), "enable sampling profiler for generator");
+        commandLineOptions.put(Configuration.PROFILING_PROPERTY.substring("rascal.".length()), "enable sampling profiler" );
+        commandLineOptions.put(Configuration.ERRORS_PROPERTY.substring("rascal.".length()), "print raw java errors");
+        commandLineOptions.put(Configuration.TRACING_PROPERTY.substring("rascal.".length()), "trace all function calls (warning: a lot of output will be generated)");
+    }
+
+    @Override
+    public boolean supportsCompletion() {
+        return true;
+    }
+
+    @Override
+    public List<Completer> completers() {
+        var result = new ArrayList<Completer>();
+        result.add(RascalCommandCompletion.buildCompleter(commandLineOptions,(s,c) -> {}, (s,c) -> {}));
+        return result;
     }
     
 }
