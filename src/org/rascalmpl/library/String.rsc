@@ -515,11 +515,16 @@ public java str trim(str s);
 Squeeze repeated occurrences in `src` of characters in `charSet` removed.
 See http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html[Apache]
 for the allowed syntax in `charSet`.
+
+This function was deprecated because it introduces yet another syntax for character classes, with
+specific escapes next to already existing notation in syntax symbols and regular expressions.
+Better use the other ((squeeze)) function.
 }
 @examples{
 ```rascal-shell
 import String;
 squeeze("hello", "el");
+squeeze("hello", "el") == squeeze("hello", #[el]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
@@ -531,7 +536,11 @@ public java str squeeze(str src, str charSet);
 Squeeze repeated occurrences in `src` of characters, if they are a member of `&CharClass`, removed.
 
 * `src` is any string
-* `&CharClass` is a reified character class type such as `#[a-z]` (a type that is a subtype of the class of all characters `#![]`)
+* `&CharClass` is a reified character class type such as `[a-z]` (a type that is a subtype of the class of all characters `![]`)
+* To pass in a char-class type used the type reifier operator: `#[a-z]` or `#![]`
+}
+@benefits{
+* to squeeze all characters use the universal character class: `#![]` (the negation of the empty class).
 }
 @pitfalls{
 * `![]` excludes the `0` character, so we can not squeeze the unicode codepoint `0` using `![]`. 
