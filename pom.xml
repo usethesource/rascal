@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.40.7-SNAPSHOT</version>
+    <version>0.40.18-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.40.0-BOOT1</tag>
+        <tag>v0.40.16</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -32,8 +32,18 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.28.0-RC1</rascal-maven.version>
+        <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
     </properties>
+
+    <licenses>
+        <license>
+            <name>BSD-2-Clause</name>
+            <url>https://opensource.org/license/BSD-2-Clause</url>
+            <distribution>repo</distribution>
+            <!-- we cannot define multiple licenses in this maven block, as it would mean the user can choose either of the licenses -->
+            <comments>Note, some older files are still licensed under Eclipse v1</comments>
+        </license>
+    </licenses>
 
 
     <build>
@@ -54,6 +64,9 @@
                     <include>META-INF/RASCAL.MF</include>
                     <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-resources</directory>
             </resource>
         </resources>
         <testSourceDirectory>test</testSourceDirectory>
@@ -135,7 +148,7 @@
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
                     </srcIgnores>
                     <enableStandardLibrary>false</enableStandardLibrary>
-                    <parallel>false</parallel>
+                    <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                     </parallelPreChecks>
@@ -269,6 +282,19 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.4.0</version>
+                <executions>
+                    <execution>
+                        <id>download-licenses</id>
+                        <goals>
+                            <goal>download-licenses</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.6.0</version>
@@ -291,6 +317,11 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>org/rascalmpl/uri/resolvers.config</resource>
                                     <resource>io/usethesource/vallang/type/types.config </resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+                                    <addHeader>false</addHeader>
                                 </transformer>
                             </transformers>
                             <relocations>

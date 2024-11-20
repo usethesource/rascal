@@ -33,7 +33,6 @@ data TypeSymbol
   | \null()
   | \array(TypeSymbol component, int dimension)
   | \typeVariable(loc decl)
-  | \unresolved()
   | \module(loc decl)
   ;  
   
