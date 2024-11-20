@@ -46,8 +46,8 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     // let's start with a simple graph and elaborate on details in later versions
     g = { <from, "I", to> | <from, to> <- m.imports, hideExternals ==> to notin m.external}
       + { <from, "E", to> | <from, to> <- m.extends, hideExternals ==> to notin m.external}
-      + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
-      + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
+    //   + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
+    //   + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
       ;
 
     loc modLinker(str name) {

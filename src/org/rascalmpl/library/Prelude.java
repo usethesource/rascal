@@ -1748,7 +1748,7 @@ public class Prelude {
 	}
 
 	public IValue last(IList lst)
-	// @doc{head -- get the last element of a list}
+	// @doc{last -- get the last element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(lst.length() - 1);
@@ -4110,9 +4110,9 @@ public class Prelude {
 		if (first.hasOffsetLength()) {
 			if (second.hasOffsetLength()) {
 				int firstStart = first.getOffset();
-				int firstEnd = firstStart + first.getLength();
+				int firstEnd = firstStart + first.getLength() - 1; // Inclusive
 				int secondStart = second.getOffset();
-				int secondEnd = secondStart + second.getLength();
+				int secondEnd = secondStart + second.getLength() - 1; // Inclusive
 
 				return values.bool(
 					   (firstStart <= secondStart && secondStart <= firstEnd)

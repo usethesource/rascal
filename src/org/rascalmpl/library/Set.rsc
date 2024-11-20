@@ -218,7 +218,7 @@ power1({1,2,3,4});
 }
 public set[set[&T]] power1(set[&T] st) = power(st) - {{}};
 
-@synopsis{Apply a function to successive elements of a set and combine the results (__deprecated__).}
+@synopsis{Apply a function to successive elements of a set and combine the results.}
 @description{
 Apply the function `fn` to successive elements of set `s` starting with `unit`.
 }
@@ -229,11 +229,7 @@ int add(int x, int y) { return x + y; }
 reducer({10, 20, 30, 40}, add, 0); 
 ```
 }
-@pitfalls{
-:::warning
-This function is *deprecated*, use a reducer expression instead, such as `(init | fn(it,e) | e <- st)`.
-:::
-}
+@deprecated{Use a reducer expression instead, such as `(init | fn(it,e) | e <- st)`.}
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit) =
 	(unit | fn(it,elm) | elm <- st);
 
