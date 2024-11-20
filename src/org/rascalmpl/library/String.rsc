@@ -531,10 +531,12 @@ public java str squeeze(str src, str charSet);
 Squeeze repeated occurrences in `src` of characters, if they are a member of `&CharClass`, removed.
 
 * `src` is any string
-* `&CharClass` is a character class type such as `[a-z]` (a type that is a subtype of the class of all characters `![]`)
+* `&CharClass` is a reified character class type such as `#[a-z]` (a type that is a subtype of the class of all characters `#![]`)
 }
 @pitfalls{
-* `![]` excludes the `0` character, so we can never squeeze the unicode codepoint `0`. We _can_ squeeze the number `0` of course, using `#[0-9]` for example.
+* `![]` excludes the `0` character, so we can not squeeze the unicode codepoint `0` using `![]`. 
+We use `#[\U000000-\U10FFFF]` to include the `0` character.
+* Do not confuse the character `0` (codepoint 48) with the zero codepoint: `#[0] != #[\a00]`
 }
 @examples{
 ```rascal-shell
