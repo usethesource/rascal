@@ -348,7 +348,7 @@ public class SymbolFactory {
 				return factory.integer(Integer.parseUnsignedInt(s.substring(2), 16));
 			}
 			else {
-				char cha = s.charAt(1);
+				int cha = s.codePointAt(1);
 				switch (cha) {
 				case 't': return factory.integer('\t');
 				case 'n': return factory.integer('\n');
@@ -365,7 +365,7 @@ public class SymbolFactory {
 			}
 		}
 		else {
-			char cha = s.charAt(0);
+			int cha = s.codePointAt(0);
 			return factory.integer(cha);
 		}
 	}
