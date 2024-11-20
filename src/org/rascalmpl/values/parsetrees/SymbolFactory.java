@@ -15,6 +15,7 @@ package org.rascalmpl.values.parsetrees;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;
@@ -338,30 +339,35 @@ public class SymbolFactory {
 	private static IValue char2int(Char character) {
 		String s = ((Char.Lexical) character).getString();
 		if (s.startsWith("\\")) {
-			if (s.length() > 1 && java.lang.Character.isDigit(s.charAt(1))) { // octal escape
-				// TODO
-				throw new NotYetImplemented("octal escape sequence in character class types");
+			if (ArrayUtils.contains(new int[] { 'a', 'u', 'U'}, s.charAt(1))) {
+			// lexical UnicodeEscape
+			// = utf16: "\\" [u] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
+		  	// | utf32: "\\" [U] (("0" [0-9 A-F a-f]) | "10") [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] // 24 bits 
+		  	// | ascii: "\\" [a] [0-7] [0-9A-Fa-f]
+		  	// ;
+				return factory.integer(Integer.parseUnsignedInt(s.substring(2), 16));
 			}
-			if (s.length() > 1 && s.charAt(1) == 'u') { // octal escape
-				// TODO
-				throw new NotYetImplemented("unicode escape sequence in character class types");
+			else {
+				char cha = s.charAt(1);
+				switch (cha) {
+				case 't': return factory.integer('\t');
+				case 'n': return factory.integer('\n');
+				case 'r': return factory.integer('\r');
+				case '\"' : return factory.integer('\"');
+				case '\'' : return factory.integer('\'');
+				case '-' : return factory.integer('-');
+				case '<' : return factory.integer('<');
+				case '>' : return factory.integer('>');
+				case '\\' : return factory.integer('\\');
+				default:
+					return factory.integer(cha);
+				}	
 			}
-			char cha = s.charAt(1);
-			switch (cha) {
-			case 't': return factory.integer('\t');
-			case 'n': return factory.integer('\n');
-			case 'r': return factory.integer('\r');
-			case '\"' : return factory.integer('\"');
-			case '\'' : return factory.integer('\'');
-			case '-' : return factory.integer('-');
-			case '<' : return factory.integer('<');
-			case '>' : return factory.integer('>');
-			case '\\' : return factory.integer('\\');
-			}
-			s = s.substring(1);
 		}
-		char cha = s.charAt(0);
-		return factory.integer(cha);
+		else {
+			char cha = s.charAt(0);
+			return factory.integer(cha);
+		}
 	}
 	
 	public static IConstructor charClass(int ch) {
