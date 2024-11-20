@@ -71,7 +71,7 @@ public class RascalLineParser implements Parser {
 
             @Override
             public int wordCursor() {
-                return atCursor == null ? -1 : (cursor - atCursor.begin);
+                return atCursor == null ? 0 : (cursor - atCursor.begin);
             }
 
             @Override
@@ -167,7 +167,7 @@ public class RascalLineParser implements Parser {
         if (!matcher.find()) {
             return position;
         }
-        return position + matcher.end();
+        return matcher.end();
     }
 
     // strings with rudementary interpolation support

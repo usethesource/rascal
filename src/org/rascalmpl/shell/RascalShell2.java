@@ -51,6 +51,7 @@ public class RascalShell2  {
             }
             var term = termBuilder.build();
 
+
             var repl = new BaseREPL2(new RascalReplServices((t) -> {
                 var monitor = new TerminalProgressBarMonitor(term);
                 IDEServices services = new BasicIDEServices(term.writer(), monitor);
