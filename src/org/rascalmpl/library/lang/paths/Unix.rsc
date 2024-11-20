@@ -26,7 +26,7 @@ lexical UnixPath
     = absolute: Slashes UnixFilePath?
     | relative: UnixFilePath 
     | home    : "~" (Slashes UnixFilePath)?
-    | user    : "~" UserName name (Slashes UnixFilePath)?
+    | user    : "~" UserName uname (Slashes UnixFilePath)?
     ;
 
 lexical UserName = ![/~]+;
@@ -36,7 +36,7 @@ lexical PathChar = ![/];
 lexical PathSegment
     = current: "."
     | parent : ".."
-    | name   : (PathChar \ "~" PathChar*) \ ".." \ "." \ "~"
+    | pname  : (PathChar \ "~" PathChar*) \ ".." \ "." \ "~"
     ;
 
 lexical Slashes = Slash+ !>> [/];
@@ -78,12 +78,12 @@ private loc mapPathToLoc((UnixPath) `~`)
     = |home:///|;
 
 @synopsis{User relative: relative to any specific user's home directory}
-private loc mapPathToLoc((UnixPath) `~<UserName name><Slash _><UnixFilePath path>`) 
-    = appendPath(|home:///../<name>/|, path);
+private loc mapPathToLoc((UnixPath) `~<UserName uname><Slash _><UnixFilePath path>`) 
+    = appendPath(|home:///../<uname>/|, path);
 
 @synopsis{User relative: relative to any specific user's home directory}
-private loc mapPathToLoc((UnixPath) `~<UserName name>`) 
-    = |home:///../<name>/|;
+private loc mapPathToLoc((UnixPath) `~<UserName uname>`) 
+    = |home:///../<uname>/|;
 
 private loc appendPath(loc root, UnixFilePath path)
     = (root | it + "<segment>" | segment <- path.segments);

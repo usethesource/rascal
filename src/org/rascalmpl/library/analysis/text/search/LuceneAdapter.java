@@ -154,146 +154,191 @@ public class LuceneAdapter {
         }
     }
 
-    public ISet listTerms(ISourceLocation indexFolder, IString fieldName, IInteger max) throws IOException {
-        DirectoryReader reader = makeReader(indexFolder);
-        ISetWriter result = vf.setWriter();
-        Fields fields = MultiFields.getFields(reader);
-        
-        for (String label : fields) {
-            if (label.equals(fieldName.getValue())) {
-                Terms terms = fields.terms(label);
-                
-                if (terms == null) {
-                    continue;
-                }
-                TermsEnum list = terms.iterator();
-                BytesRef bytes;
-                int countDown = max.intValue();
+    public ISet listTerms(ISourceLocation indexFolder, IString fieldName, IInteger max) {
+        try {
+            DirectoryReader reader = makeReader(indexFolder);
+            ISetWriter result = vf.setWriter();
+            Fields fields = MultiFields.getFields(reader);
 
-                while ((bytes = list.next()) != null && countDown-- > 0) {
-                    IString val = vf.string(bytes.utf8ToString());
-                    IInteger freq = vf.integer(reader.totalTermFreq(new Term(label, bytes)));
-                    result.insert(vf.tuple(val, freq));
+            for (String label : fields) {
+                if (label.equals(fieldName.getValue())) {
+                    Terms terms = fields.terms(label);
+
+                    if (terms == null) {
+                        continue;
+                    }
+                    TermsEnum list = terms.iterator();
+                    BytesRef bytes;
+                    int countDown = max.intValue();
+
+                    while ((bytes = list.next()) != null && countDown-- > 0) {
+                        IString val = vf.string(bytes.utf8ToString());
+                        IInteger freq = vf.integer(reader.totalTermFreq(new Term(label, bytes)));
+                        result.insert(vf.tuple(val, freq));
+                    }
                 }
             }
+
+            return result.done();
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
         }
-        
-        return result.done();
     }
     
-    public ISet listFields(ISourceLocation indexFolder) throws IOException {
-        DirectoryReader reader = makeReader(indexFolder);
-        ISetWriter result = vf.setWriter();
-        
-        // str field, int docCount, int percentage
-        for (LeafReaderContext subReader : reader.leaves()) {
-            LeafReader sub = subReader.reader();
-            for (FieldInfo field : sub.getFieldInfos()) {
-                IString name = vf.string(field.name);
-                IInteger docCount = vf.integer(sub.getDocCount(field.name));
-                IInteger termCount = vf.integer(sub.getSumTotalTermFreq(field.name));
-                result.insert(vf.tuple(name, docCount, termCount));
+    public ISet listFields(ISourceLocation indexFolder) {
+        try {
+            DirectoryReader reader = makeReader(indexFolder);
+            ISetWriter result = vf.setWriter();
+
+            // str field, int docCount, int percentage
+            for (LeafReaderContext subReader : reader.leaves()) {
+                LeafReader sub = subReader.reader();
+                for (FieldInfo field : sub.getFieldInfos()) {
+                    IString name = vf.string(field.name);
+                    IInteger docCount = vf.integer(sub.getDocCount(field.name));
+                    IInteger termCount = vf.integer(sub.getSumTotalTermFreq(field.name));
+                    result.insert(vf.tuple(name, docCount, termCount));
+                }
             }
+
+            return result.done();
+        } catch (IOException e){
+            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
         }
-        
-        return result.done();
     }
     
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory) throws IOException {
         return new SourceLocationDirectory(vf, lockFactory, indexFolder);
     }
 
-    public IList searchDocument(ISourceLocation doc, IString query, IConstructor analyzer, IInteger max, IString charset, IBool inferCharset) throws IOException, ParseException, InvalidTokenOffsetsException {
-        String entireDocument = Prelude.readFile(vf, false, doc, charset.getValue(), inferCharset.getValue()).getValue();
-        
-        try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc, charset.getValue())) {
-            TokenStream tokenStream = makeAnalyzer(analyzer).tokenStream(SRC_FIELD_NAME, reader);
-            QueryParser parser = makeQueryParser(analyzer);
-            Query queryExpression = parser.parse(query.getValue());
-            QueryScorer scorer = new QueryScorer(queryExpression);
-            final IListWriter result = vf.listWriter();
-            
-            Formatter formatter = new Formatter() {
-                @Override
-                public String highlightTerm(String originalText, TokenGroup tokenGroup) {
-                    if (tokenGroup.getScore(tokenGroup.getNumTokens() - 1) > 0) {
-                        int startOffset = tokenGroup.getStartOffset();
-                        int endOffset = tokenGroup.getEndOffset();
-                        result.append(vf.sourceLocation(doc, startOffset, endOffset - startOffset));
+    public IList searchDocument(ISourceLocation doc, IString query, IConstructor analyzer, IInteger max, IString charset, IBool inferCharset) {
+        try {
+            String entireDocument = Prelude.readFile(vf, false, doc, charset.getValue(), inferCharset.getValue()).getValue();
+
+            try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc, charset.getValue())) {
+                TokenStream tokenStream = makeAnalyzer(analyzer).tokenStream(SRC_FIELD_NAME, reader);
+                QueryParser parser = makeQueryParser(analyzer);
+                Query queryExpression = parser.parse(query.getValue());
+                QueryScorer scorer = new QueryScorer(queryExpression);
+                final IListWriter result = vf.listWriter();
+
+                Formatter formatter = new Formatter() {
+                    @Override
+                    public String highlightTerm(String originalText, TokenGroup tokenGroup) {
+                        if (tokenGroup.getScore(tokenGroup.getNumTokens() - 1) > 0) {
+                            int startOffset = tokenGroup.getStartOffset();
+                            int endOffset = tokenGroup.getEndOffset();
+                            result.append(vf.sourceLocation(doc, startOffset, endOffset - startOffset));
+                        }
+                        return tokenGroup.toString();
                     }
-                    return tokenGroup.toString();
-                }
-            };
+                };
+
+                new Highlighter(formatter, scorer).getBestFragments(tokenStream, entireDocument, max.intValue());
+
+                return result.done();
+            }
             
-            new Highlighter(formatter, scorer).getBestFragments(tokenStream, entireDocument, max.intValue());
-            
-            return result.done();
+        } catch (IOException e){
+            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+        }
+        catch (ParseException e) {
+            int beginLine = e.currentToken.next.beginLine;
+            int beginColumn = e.currentToken.next.beginColumn;
+            // TODO: fix the coordinates below
+            throw RuntimeExceptionFactory.parseError(vf.sourceLocation(doc, beginLine, beginColumn));
+
+        }
+        catch (ArithmeticException e) {
+            throw RuntimeExceptionFactory.arithmeticException(e.getMessage(), null, null);
+        }
+        catch (InvalidTokenOffsetsException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return vf.list();
         }
     }
     
-    public IList analyzeDocument(IString doc, IConstructor analyzer) throws IOException {
+    public IList analyzeDocument(IString doc, IConstructor analyzer) {
         return analyzeDocument(URIUtil.rootLocation("string"), new StringReader(doc.getValue()), analyzer);
     }
     
-    public IList analyzeDocument(ISourceLocation doc, IConstructor analyzer) throws IOException {
+    public IList analyzeDocument(ISourceLocation doc, IConstructor analyzer) {
         try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc)) {
             return analyzeDocument(doc, reader, analyzer);
         }
-    }
-    
-    private IList analyzeDocument(ISourceLocation src, Reader doc, IConstructor analyzer) throws IOException {
-        Analyzer theAnalyzer = makeAnalyzer(analyzer);
-        
-        TokenStream tokenStream = theAnalyzer.tokenStream(SRC_FIELD_NAME, doc);
-        OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
-        CharTermAttribute termAtt = tokenStream.addAttribute(CharTermAttribute.class);
-        TypeAttribute typeAtt = tokenStream.addAttribute(TypeAttribute.class);
-        IListWriter result = vf.listWriter();
-        
-        tokenStream.reset();
-        while (tokenStream.incrementToken()) {
-            int startOffset = offsetAttribute.startOffset();
-            result.append(vf.constructor(termCons, vf.string(termAtt.toString()), vf.sourceLocation(src, startOffset, termAtt.length()), vf.string(typeAtt.type())));
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
         }
-        
-        return result.done();
     }
     
-    public ISet searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
-        // TODO the searcher should be cached on the indexFolder key
-        IndexSearcher searcher = makeSearcher(indexFolder);
-        QueryParser parser = makeQueryParser(analyzer);
-        Query queryExpression = parser.parse(query.getValue());
-        TopDocs docs = searcher.search(queryExpression, max.intValue());
+    private IList analyzeDocument(ISourceLocation src, Reader doc, IConstructor analyzer) {
+        try {
+            Analyzer theAnalyzer = makeAnalyzer(analyzer);
 
-        ISetWriter result = vf.setWriter();
-        
-        for (ScoreDoc doc : docs.scoreDocs) {
-            org.apache.lucene.document.Document found = searcher.doc(doc.doc);
-            String loc = found.get(ID_FIELD_NAME);
-            ISourceLocation sloc = parseLocation(loc);
-            
-            if (loc != null) {
-                IConstructor node = vf.constructor(docCons, sloc);
-                Map<String, IValue> params = new HashMap<>();
-                
-                params.put("score", vf.real(doc.score));
-                
-                found.forEach((f) -> {
-                    String value = f.stringValue();
-                    String name = f.name();
-                    
-                    if (value != null && !name.equals(ID_FIELD_NAME)) {
-                        params.put(name, vf.string(value));
-                    }
-                });
-                
-                
-                result.insert(node.asWithKeywordParameters().setParameters(params));
+            TokenStream tokenStream = theAnalyzer.tokenStream(SRC_FIELD_NAME, doc);
+            OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
+            CharTermAttribute termAtt = tokenStream.addAttribute(CharTermAttribute.class);
+            TypeAttribute typeAtt = tokenStream.addAttribute(TypeAttribute.class);
+            IListWriter result = vf.listWriter();
+
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                int startOffset = offsetAttribute.startOffset();
+                result.append(vf.constructor(termCons, vf.string(termAtt.toString()), vf.sourceLocation(src, startOffset, termAtt.length()), vf.string(typeAtt.type())));
             }
+
+            return result.done();
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
         }
-        
-        return result.done();
+    }
+    
+    public ISet searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) {
+        try {
+            // TODO the searcher should be cached on the indexFolder key
+            IndexSearcher searcher = makeSearcher(indexFolder);
+            QueryParser parser = makeQueryParser(analyzer);
+            Query queryExpression = parser.parse(query.getValue());
+            TopDocs docs = searcher.search(queryExpression, max.intValue());
+
+            ISetWriter result = vf.setWriter();
+
+            for (ScoreDoc doc : docs.scoreDocs) {
+                org.apache.lucene.document.Document found = searcher.doc(doc.doc);
+                String loc = found.get(ID_FIELD_NAME);
+                ISourceLocation sloc = parseLocation(loc);
+
+                if (loc != null) {
+                    IConstructor node = vf.constructor(docCons, sloc);
+                    Map<String, IValue> params = new HashMap<>();
+
+                    params.put("score", vf.real(doc.score));
+
+                    found.forEach((f) -> {
+                        String value = f.stringValue();
+                        String name = f.name();
+
+                        if (value != null && !name.equals(ID_FIELD_NAME)) {
+                            params.put(name, vf.string(value));
+                        }
+                    });
+
+
+                    result.insert(node.asWithKeywordParameters().setParameters(params));
+                }
+            }
+
+            return result.done();
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
+        }
+        catch (ParseException e) {
+            int beginLine = e.currentToken.next.beginLine;
+            int beginColumn = e.currentToken.next.beginColumn;
+            // TODO: fix the coordinates below
+            throw RuntimeExceptionFactory.parseError(vf.sourceLocation(indexFolder, beginLine, beginColumn));
+        }
     }
 
     private ISourceLocation parseLocation(String loc) throws IOException {

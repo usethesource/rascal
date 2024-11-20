@@ -103,8 +103,14 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
-    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
+str makeFileName(str qualifiedModuleName, str extension = "rsc") {
+    str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
+    int n = findLast(qnameSlashes, "/");
+    str prefix = extension == "rsc" ? "" : "$";
+    str package = extension == "rsc" ? "" : "rascal/";
+    qnameSlashes = n < 0 ? "<prefix>" + qnameSlashes : qnameSlashes[0..n] + "/<prefix>" + qnameSlashes[n+1..];
+    return "<package><qnameSlashes><isEmpty(extension) ? "" : ".<extension>">";
+}
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
@@ -129,6 +135,7 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="tpl");
     for(loc dir <- pcfg.libs){
         fileLoc = dir + fileName;
+        
         if(exists(fileLoc)){
             return fileLoc;
         }
@@ -164,15 +171,11 @@ int commonPrefix(list[str] rdir, list[str] rm){
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
+    if(!(endsWith(modulePath, "rsc") || endsWith(modulePath, "tpl"))){
+        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
     }
-    <modulePathNoExt, ext> = splitFileExtension(modulePath);
-    if(modulePathNoExt[0] == "/"){
-        modulePathNoExt = modulePathNoExt[1..];
-    }
-    modulePathAsList = split("/", modulePathNoExt);
-    modulePathAsListReversed = reverse(modulePathAsList);
+    
+    // Find matching .rsc file in source directories
 
     for(loc dir <- pcfg.srcs){
         if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
@@ -185,25 +188,46 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
            return moduleName;
         }
     }
-
+    
+    // Find longest matching .tpl file in library directories
+  
+    <modulePathNoExt, ext> = splitFileExtension(modulePath);
+    while(modulePathNoExt[0] == "/"){
+        modulePathNoExt = modulePathNoExt[1..];
+    }
+    modulePathAsList = split("/", modulePathNoExt);
+    modulePathReversed = reverse(modulePathAsList);
+    
     int longestSuffix = 0;
     for(loc dir <- pcfg.libs){
         dir = dir + "rascal";
+        dpath = dir.path;
+       
+        while(dpath[0] == "/"){
+            dpath = dpath[1..];
+        }
+       
         for(loc file <- find(dir, "tpl")){
-            candidate = replaceFirst(file.path, dir.path, "");
-            candidate = replaceLast(candidate, "$", "");
-            if(candidate[0] == "/"){
+            candidate = replaceFirst(file.path, dpath, "");    
+            <candidate, ext> = splitFileExtension(candidate);
+            while(candidate[0] == "/"){
                 candidate = candidate[1..];
             }
-            <candidate, ext> = splitFileExtension(candidate);
+            
             candidateAsList = split("/", candidate);
-            n = commonPrefix(reverse(candidateAsList), modulePathAsListReversed);
-            //println("<candidateAsList>, <modulePathAsList> =\> <n>");
+            lastName = candidateAsList[-1];
+            if(lastName[0] == "$"){
+                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
+            }
+            //println("cand: <candidateAsList>, modpath: <modulePathAsList>");
+            n = commonPrefix(reverse(candidateAsList), modulePathReversed);
+                        
             if(n > longestSuffix){
                 longestSuffix = n;
             }
         }
     }
+    
     if(longestSuffix > 0){
         return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
     }
