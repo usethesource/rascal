@@ -194,3 +194,18 @@ test bool wordCount2(){
 	return cnt("abc def ghi") == 3;
 }
 
+// RegExp nested in other pattern
+
+test bool regExpInList1() = [/abc/] := ["abc"];
+test bool regExpInList2() = [/abc/, /def/] := ["abc", "def"];
+
+@ignore{Interpreter: "append statement without enclosing loop", compiler: "Parse error in concrete syntax"}
+test bool regExpInSet1() = {/abc/} := {"abc"};
+@ignore{Interpreter: "append statement without enclosing loop", compiler: "Parse error in concrete syntax"}
+test bool regExpInSet2() = {/abc/, /def/} := {"abc", "def"};
+
+test bool regExpInTuple1() = </abc/> := <"abc">;
+test bool regExpInTuple2() = </abc/, /def/> := <"abc", "def">;
+
+test bool regExpInNode1() = "f"(/abc/) := "f"("abc");
+test bool regExpInNode2() = "f"(/abc/, /def/) := "f"("abc", "def");

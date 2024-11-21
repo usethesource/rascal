@@ -44,13 +44,16 @@ The number can change over time but it's never higher than ((getMaxMemory))`
 java int getTotalMemory();
 
 @synopsis{Returns the maximum amount of memory that is available to the current JVM}
+@description{Amount returned in bytes.}
 @javaClass{org.rascalmpl.library.util.Benchmark}
 java int getMaxMemory();
 
 @synopsis{Returns the amount of memory that is currently in use by the programs running on this JVM}
+@description{Amount returned in bytes.}
 int getUsedMemory() = getTotalMemory() - getFreeMemory();
 
 @synopsis{Returns the amount of memory that is yet available, in principle, on the current JVM}
+@description{Amount returned in bytes.}
 int getMaxFreeMemory() = getMaxMemory() - getUsedMemory();
 
 @synopsis{CPU time in nanoseconds (10^-9^ sec)}

@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.35.0-RC9-SNAPSHOT</version>
+    <version>0.40.18-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>SNAPSHOT</tag>
+        <tag>v0.40.16</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -32,8 +32,18 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.25.0-RC2-SNAPSHOT</rascal-maven.version>
+        <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
     </properties>
+
+    <licenses>
+        <license>
+            <name>BSD-2-Clause</name>
+            <url>https://opensource.org/license/BSD-2-Clause</url>
+            <distribution>repo</distribution>
+            <!-- we cannot define multiple licenses in this maven block, as it would mean the user can choose either of the licenses -->
+            <comments>Note, some older files are still licensed under Eclipse v1</comments>
+        </license>
+    </licenses>
 
 
     <build>
@@ -54,6 +64,9 @@
                     <include>META-INF/RASCAL.MF</include>
                     <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>${project.build.directory}/generated-resources</directory>
             </resource>
         </resources>
         <testSourceDirectory>test</testSourceDirectory>
@@ -77,7 +90,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -90,7 +103,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -103,12 +116,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.3.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.13.0</version>
                 <configuration>
                     <compilerArgument>-parameters</compilerArgument> <!-- make sure parameters are compiled by name into the jar -->
                 </configuration>
@@ -116,9 +129,9 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.25.0-RC1</version>
+                <version>${rascal-maven.version}</version>
                 <configuration>
-                    <errorsAsWarnings>true</errorsAsWarnings>
+                    <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
@@ -176,12 +189,12 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             </ignores>
                         </configuration>
-                    </execution> 
+                        </execution>
                 </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.4.0</version>
                 <configuration>
                     <filesets>
                         <fileset>
@@ -198,7 +211,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.3.1</version>
                 <executions>
                     <execution>
                         <id>test</id>
@@ -218,6 +231,7 @@
                         </argLine>
                     <includes>
                         <include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
+                        <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
@@ -226,7 +240,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.5</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <goals>
@@ -245,7 +259,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.5.0</version>
+                <version>3.7.1</version>
                 <executions>
                     <execution>
                         <goals>
@@ -261,16 +275,29 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.1.0</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <arguments>-Drascal.compile.skip -Drascal.tutor.skip -DskipTests</arguments>
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.4.0</version>
+                <executions>
+                    <execution>
+                        <id>download-licenses</id>
+                        <goals>
+                            <goal>download-licenses</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.1</version>
+                <version>3.6.0</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -291,10 +318,25 @@
                                     <resource>org/rascalmpl/uri/resolvers.config</resource>
                                     <resource>io/usethesource/vallang/type/types.config </resource>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer">
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer">
+                                    <addHeader>false</addHeader>
+                                </transformer>
                             </transformers>
-                            <!--
-                                    http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html
-                                -->
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.fusesource.jansi</pattern>
+                                    <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
+                                    <excludes>
+                                        <exclude>org.fusesource.jansi.internal.*</exclude>
+                                    </excludes>
+                                </relocation>
+                                <relocation>
+                                    <pattern>jline</pattern>
+                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -305,6 +347,26 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin><!-- make sure users are using recent versions of maven -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>3.5.0</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                        <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>(3.8,)</version> <!-- ideally this would be 3.9+, but GH actions is still on 3.8 -->
+                                </requireMavenVersion>
+                            </rules>
                         </configuration>
                     </execution>
                 </executions>
@@ -360,7 +422,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
+            <version>4.13.2</version>
         </dependency>
         <dependency> 
             <groupId>io.usethesource</groupId>
@@ -370,27 +432,37 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.2</version>
+            <version>9.6</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-tree</artifactId>
-            <version>9.2</version>
+            <version>9.6</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math</artifactId>
             <version>2.2</version>
         </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
-            <version>2.6</version>
+        <dependency> <!-- used by the compression uri feature-->
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.26.1</version>
+        </dependency>
+        <dependency> <!-- needed by commons-compress for compressed+...://...zst -->
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+            <version>1.5.5-11</version>
+        </dependency>
+        <dependency> <!-- used for base32 encoding in IO and String, needed anyway for commons-compress -->
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.17.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.9</version>
+            <version>2.10.1</version>
         </dependency>
         <dependency>
             <groupId>jline</groupId>
@@ -400,7 +472,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.32</version>
+            <version>2.2</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -440,7 +512,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>69.1</version>
+            <version>74.2</version>
         </dependency>
     </dependencies>
 </project>
