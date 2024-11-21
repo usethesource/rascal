@@ -162,11 +162,6 @@ ModuleStatus rascalTModelForLocs(
         //     return clearTModelCache(ms);
         // }
 
-        // if(compilerConfig.forceCompilationTopModule){
-        //     for(str nm <- topModuleNames){
-        //         ms.status[nm] = {};
-        //     }
-        // }
         imports_and_extends = ms.strPaths<0,2>;
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
  //println("strong: <components>,  Ambiguity: <ms.status["analysis::grammars::Ambiguity"] ? {}>");

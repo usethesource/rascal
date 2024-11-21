@@ -478,8 +478,7 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         loc reloc                     = |noreloc:///|, // Currently unused
 
         bool optimizeVisit            = true,   // Options for compiler developer
-        bool enableAsserts            = true,
-        bool forceCompilationTopModule= false
+        bool enableAsserts            = true
     )
     = tconfig(
         rascalTplVersion              = rascalTplVersion,
@@ -500,7 +499,6 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         reloc                         = reloc,
         optimizeVisit                 = optimizeVisit,
         enableAsserts                 = enableAsserts,
-        forceCompilationTopModule     = forceCompilationTopModule,
 
         // Basic TypePalConfig options
         typepalPathConfig             = pcfg,
