@@ -20,6 +20,7 @@ package org.rascalmpl.interpreter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -73,5 +74,6 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public Stack<Accumulator> getAccumulators();
 	
 	
-	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier);
+	/** @return identifiers and their category (variable, function, etc) */
+	public Map<String, String> completePartialIdentifier(String qualifier, String partialIdentifier);
 }

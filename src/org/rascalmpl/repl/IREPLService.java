@@ -16,6 +16,10 @@ public interface IREPLService {
     String MIME_PLAIN = "text/plain";
     String MIME_ANSI = "text/x-ansi";
 
+    /**
+     * Does this language support completion
+     * @return
+     */
     default boolean supportsCompletion() {
         return false;
     }

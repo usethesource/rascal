@@ -78,9 +78,12 @@ public class BaseREPL2 {
         // todo:
         // - ctrl + c support
         // - ctrl + / support
-        // - multi-line input
         // - highlighting in the prompt?
-        // - 
+        // - nested REPLs
+        // - queued commands (if it's still needed for import IO etc);
+        // - support for html results 
+        // - measure time thing
+        // - source location history thingy
         
     }
 
