@@ -29,7 +29,6 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Target;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.exceptions.RascalStackOverflowError;
-import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.Accumulator;
 import org.rascalmpl.interpreter.AssignableEvaluator;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -943,7 +942,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 				IValue eValue = e.getException();
 
 				boolean handled = false;
-r
+
 				for (Catch c : handlers) {
 					if (c.isDefault()) {
 						res = c.getBody().interpret(eval);
@@ -994,11 +993,13 @@ r
 				return isCatchStackOverflow(pattern.getPattern());
 			}
 			else if (pattern.isCallOrTree()) {
-				return pattern.getArguments().isEmpty() && "StackOverflow".equals(Names.name(pattern.getName()));
+				var called = pattern.getExpression();
+				if (called.hasName()) {
+					return pattern.getArguments().isEmpty() && "StackOverflow".equals(Names.name(called.getName()));
+				}
 			}
-			else {
-				return false;
-			}
+			
+			return false;
 		}
 	}
 
