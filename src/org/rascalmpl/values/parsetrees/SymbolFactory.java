@@ -13,6 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.values.parsetrees;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -35,6 +37,8 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -198,101 +202,34 @@ public class SymbolFactory {
 	}
 
 	private static IValue literal2Symbol(StringConstant sep) {
-		String lit = ((StringConstant.Lexical) sep).getString();
-		StringBuilder builder = new StringBuilder(lit.length());
-		
-		// TODO: did we deal with all escapes here? probably not!
-		for (int i = 1; i < lit.length() - 1; i++) {
-			if (lit.charAt(i) == '\\') {
-				i++;
-				switch (lit.charAt(i)) {
-				case 'b':
-					builder.append('\b');
-					break;
-				case 'f':
-					builder.append('\f');
-					break;
-				case 'n':
-					builder.append('\n');
-					break;
-				case 't':
-					builder.append('\t');
-					break;
-				case 'r':
-					builder.append('\r');
-					break;
-				case '\\':
-					builder.append('\\');
-					break;
-				case '\"':
-					builder.append('\"');
-					break;
-				case '>':
-					builder.append('>');
-					break;
-				case '<':
-					builder.append('<');
-					break;
-				case '\'':
-					builder.append('\'');
-					break;
-				case 'u':
-					while (lit.charAt(i++) == 'u');
-					builder.append((char) Integer.decode("0x" + lit.substring(i, i+4)).intValue());
-					i+=4;
-					break;
-				default:
-					// octal escape
-					int a = lit.charAt(i++);
-					int b = lit.charAt(i++);
-					int c = lit.charAt(i);
-					builder.append( (char) (100 * a + 10 * b + c));	
-				}
-			}
-			else {
-				builder.append(lit.charAt(i));
-			}
+		try {
+			String lit = ((StringConstant.Lexical) sep).getString();
+			// this should be the exact notation for string literals in vallang
+			IValue string = new StandardTextReader().read(factory, new StringReader(lit));
+
+			return factory.constructor(RascalValueFactory.Symbol_Lit, string);
 		}
-		
-		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
+		catch (FactTypeUseException | IOException e) {
+			// this would mean Rascal's syntax definition for string constants is not aligned with vallang's string notation
+			throw new RuntimeException("Internal error: parsed stringconstant notation does not coincide with vallang stringconstant notation");
+		}
 	}
 	
 	private static IValue ciliteral2Symbol(CaseInsensitiveStringConstant constant) {
-		String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
-		StringBuilder builder = new StringBuilder(lit.length());
-		
-		for (int i = 1; i < lit.length() - 1; i++) {
-			if (lit.charAt(i) == '\\') {
-				i++;
-				switch (lit.charAt(i)) {
-				case 'n':
-					builder.append('\n');
-					break;
-				case 't':
-					builder.append('\t');
-					break;
-				case 'r':
-					builder.append('\r');
-					break;
-				case '\\':
-					builder.append('\\');
-					break;
-				case '\"':
-					builder.append('\'');
-					break;
-				default:
-					int a = lit.charAt(i++);
-					int b = lit.charAt(i++);
-					int c = lit.charAt(i);
-					builder.append( (char) (100 * a + 10 * b + c));	
-				}
-			}
-			else {
-				builder.append(lit.charAt(i));
-			}
+		try {
+			String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
+			// replace single quotes by double quotes first
+			lit = "\"" + lit.substring(1, lit.length() - 1) + "\"";
+			
+			// this should be the exact notation for string literals in vallang
+			IValue string = new StandardTextReader().read(factory, new StringReader(lit));
+
+			return factory.constructor(RascalValueFactory.Symbol_Cilit, string);
 		}
-		
-		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
+		catch (FactTypeUseException | IOException e) {
+			// this would mean Rascal's syntax definition for string constants is not aligned with vallang's string notation
+			throw new RuntimeException("Internal error: parsed stringconstant notation does not coincide with vallang stringconstant notation");
+		}
 	}
 
 	private static IConstructor charclass2Symbol(Class cc) {
