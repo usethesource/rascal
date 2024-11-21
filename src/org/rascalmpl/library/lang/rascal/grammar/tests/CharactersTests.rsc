@@ -70,3 +70,12 @@ test bool literalUtf16Escape() = lit("\n") == #"\u000A".symbol;
 test bool literalUtf32Escape1() = lit("\n") == #"\U00000A".symbol;
 test bool literalUtf32Escape2() = lit("🍕") == #"\U01F355".symbol;
 
+test bool ciliteralAsciiEscape1() = cilit("\n") == #'\a0A'.symbol;
+test bool ciliteralAsciiEscape2() = cilit("w") == #'\a77'.symbol;
+test bool ciliteralAsciiEscape3() = cilit("\f") == #'\a0C'.symbol;
+test bool ciliteralAsciiEscape4() = cilit("\n") == #'\n'.symbol;
+@ignore{vallang must re-introduce the \f notation}
+test bool ciliteralAsciiEscape5() = cilit("\f") == #'\f'.symbol;
+test bool ciliteralUtf16Escape() = cilit("\n") == #'\u000A'.symbol;
+test bool ciliteralUtf32Escape1() = cilit("\n") == #'\U00000A'.symbol;
+test bool ciliteralUtf32Escape2() = cilit("🍕") == #'\U01F355'.symbol;
