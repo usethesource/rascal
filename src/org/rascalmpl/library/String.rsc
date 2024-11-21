@@ -541,10 +541,16 @@ Squeeze repeated occurrences in `src` of characters, if they are a member of `&C
 }
 @benefits{
 * to squeeze all characters use the universal character class: `#![]` (the negation of the empty class).
+* this function is type-safe; you can only pass in correct reified character classes like `#[A-Za-z]`.
 }
 @pitfalls{
-* `![]` excludes the `0` character, so we can not squeeze the unicode codepoint `0` using `![]`. 
-We use `#[\U000000-\U10FFFF]` to include the `0` character.
+* `![]` excludes the 0'th unicode character, so we can not squeeze the unicode codepoint `0` using this function. 
+If you really need to squeeze 0 then it's best to write your own:
+```rascal
+visit (x) { 
+  case /<dot:.>+/ => "\a00" when dot == "\a00" 
+}
+````
 * Do not confuse the character `0` (codepoint 48) with the zero codepoint: `#[0] != #[\a00]`
 }
 @examples{
