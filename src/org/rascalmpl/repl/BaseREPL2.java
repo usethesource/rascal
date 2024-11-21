@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReader.Option;
 import org.jline.reader.LineReaderBuilder;
@@ -83,13 +84,14 @@ public class BaseREPL2 {
 
         // todo:
         // - ctrl + / support (might not be possible)
-        // - quiting of the REPL via `:quit`
         // - highlighting in the prompt? (future work, as it also hurts other parts)
         // - nested REPLs
         // - queued commands (if it's still needed for import IO etc);
         // - support for html results 
         // - measure time
         // - history?
+        // - completion of locations
+        // - escape & unescape of keywords in imports auto completion
         
     }
 
@@ -121,6 +123,11 @@ public class BaseREPL2 {
         }
         catch (InterruptedException _e) {
             // closing the runner
+        }
+        catch (EndOfFileException e) {
+            // user pressed ctrl+d or the terminal :quit command was given
+            // so exit cleanly
+            replService.errorWriter().println("Quiting REPL");
         }
         catch (Throwable e) {
             
