@@ -44,8 +44,11 @@ public class RascalKeywordCompletion implements Completer {
                 add(candidates, "extend", "statement", "extend a module into the repl");
             }
         }
-        for (var can: RASCAL_TYPE_KEYWORDS.subMap(line.word(), true, line.word() + Character.MAX_VALUE, false).entrySet()) {
-            add(candidates, can.getKey(), "type", can.getValue());
+        var firstWord = words.get(0);
+        if (!firstWord.equals("import") && !firstWord.equals("extend") && !firstWord.equals(":")) {
+            for (var can: RASCAL_TYPE_KEYWORDS.subMap(line.word(), true, line.word() + Character.MAX_VALUE, false).entrySet()) {
+                add(candidates, can.getKey(), "type", can.getValue());
+            }
         }
     }
 

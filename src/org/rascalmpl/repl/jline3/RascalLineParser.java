@@ -76,12 +76,12 @@ public class RascalLineParser implements Parser {
             int wordEnd = position;
             if (c == '"' || (c == '>' && inString)) {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_STRING);
-                inString = wordEnd != position && buffer.charAt(wordEnd - 1) != '"';
+                inString = wordEnd != buffer.length() && buffer.charAt(wordEnd - 1) != '"';
                 isWord = false;
             }
             else if (c == '|' || (c == '>' && inLocation)) {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_LOCATION);
-                inLocation = wordEnd != position && buffer.charAt(position - 1) == '<';
+                inLocation = wordEnd != buffer.length() && buffer.charAt(wordEnd - 1) == '<';
             }
             else if (Character.isJavaIdentifierPart(c) || c == '\\') {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_NAME);
