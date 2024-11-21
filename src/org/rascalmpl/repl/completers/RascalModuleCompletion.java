@@ -41,7 +41,7 @@ public class RascalModuleCompletion implements Completer {
         for (var mod : searchPathLookup.apply(moduleRoot)) {
             var fullPath = modulePrefix + mod;
             var isFullModulePath = !mod.endsWith("::");
-            candidates.add(new Candidate(fullPath + (isFullModulePath & importStatement? ";" : ""), fullPath, "modules", null, null, null, isFullModulePath));
+            candidates.add(new Candidate(fullPath + (isFullModulePath & importStatement? ";" : ""), fullPath, "modules", null, null, null, false));
         }
     }
 }
