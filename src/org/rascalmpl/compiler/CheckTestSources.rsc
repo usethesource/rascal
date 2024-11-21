@@ -124,7 +124,7 @@ tuple[str, int]  safeCheck(str \module, RascalCompilerConfig compilerConfig) {
     try {
        ModuleStatus result = rascalTModelForNames([\module], 
                                                   compilerConfig,
-                                                  dummy_compile1, shallow = false);
+                                                  dummy_compile1);
        //iprintln(result.tmodels[\module].facts);
        <found, tm, result> = getTModelForModule(\module, result);
        if(found && !isEmpty(tm.messages)){
