@@ -22,15 +22,11 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -40,9 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Stack;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -1681,13 +1678,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
     
     @Override
-    public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier) {
+    public Map<String, String> completePartialIdentifier(String qualifier, String partialIdentifier) {
         if (partialIdentifier.startsWith("\\")) {
             partialIdentifier = partialIdentifier.substring(1);
         }
         
         String partialModuleName = qualifier + "::" + partialIdentifier;
-        SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
+        SortedMap<String, String> result = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String a, String b) {
                 if (a.charAt(0) == '\\') {
@@ -1709,7 +1706,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return result;
     }
 
-    private void addCompletionsForModule(String qualifier, String partialIdentifier, String partialModuleName, SortedSet<String> result, ModuleEnvironment env, boolean skipPrivate) {
+    private void addCompletionsForModule(String qualifier, String partialIdentifier, String partialModuleName, SortedMap<String, String> result, ModuleEnvironment env, boolean skipPrivate) {
         for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
@@ -1719,7 +1716,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
                 
                 if (module.startsWith(qualifier)) {
-                    addIt(result, p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+                    addIt(result, "function", p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
                 }
             }
         }
@@ -1729,30 +1726,30 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 if (skipPrivate && env.isNamePrivate(entry.getKey())) {
                     continue;
                 }
-                addIt(result, entry.getKey(), qualifier, partialIdentifier);
+                addIt(result, "variable", entry.getKey(), qualifier, partialIdentifier);
             }
             
             for (Type t: env.getAbstractDatatypes()) {
                 if (inQualifiedModule) {
-                    addIt(result, t.getName(), qualifier, partialIdentifier);
+                    addIt(result, "ADT", t.getName(), qualifier, partialIdentifier);
                 }
             }
             
             for (Type t: env.getAliases()) {
-                addIt(result, t.getName(), qualifier, partialIdentifier);
+                addIt(result, "alias", t.getName(), qualifier, partialIdentifier);
             }
         }
         if (qualifier.isEmpty()) {
             Map<Type, Map<String, Type>> annos = env.getAnnotations();
             for (Type t: annos.keySet()) {
                 for (String k: annos.get(t).keySet()) {
-                    addIt(result, k, "", partialIdentifier);
+                    addIt(result, "annotation", k, "", partialIdentifier);
                 }
             }
         }
     }
 
-    private static void addIt(SortedSet<String> result, String v, String qualifier, String originalTerm) {
+    private static void addIt(SortedMap<String, String> result, String category, String v, String qualifier, String originalTerm) {
         if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
             if (v.contains("-")) {
                 v = "\\" + v;
@@ -1760,7 +1757,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             if (!qualifier.isEmpty() && !v.startsWith(qualifier)) {
                 v = qualifier + "::" + v;
             }
-            result.add(v);
+            result.put(v, category);
         }
     }
 

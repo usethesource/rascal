@@ -34,7 +34,9 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
+import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
+import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.jline3.RascalLineParser;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
@@ -318,8 +320,15 @@ public class RascalReplServices implements IREPLService {
     public List<Completer> completers() {
         var result = new ArrayList<Completer>();
         var moduleCompleter = new RascalModuleCompletion(m -> eval.getRascalResolver().listModuleEntries(m));
-        result.add(new RascalCommandCompletion(commandLineOptions,(s,c) -> {}, (s, c) -> moduleCompleter.completeModuleNames(s, c, false)));
+        var idCompleter = new RascalIdentifierCompletion((q, i) -> eval.completePartialIdentifier(q, i));
+        result.add(new RascalCommandCompletion(
+            commandLineOptions, 
+            idCompleter::completePartialIdentifier, 
+            (s, c) -> moduleCompleter.completeModuleNames(s, c, false)
+        ));
         result.add(moduleCompleter);
+        result.add(idCompleter);
+        result.add(new RascalKeywordCompletion());
         return result;
     }
     
