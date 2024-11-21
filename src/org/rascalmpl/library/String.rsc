@@ -515,15 +515,12 @@ public java str trim(str s);
 Squeeze repeated occurrences in `src` of characters in `charSet` removed.
 See http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html[Apache]
 for the allowed syntax in `charSet`.
-
-This function was deprecated because it introduces yet another syntax for character classes, with
-specific escapes next to already existing notation in syntax symbols and regular expressions.
-Better use the other ((squeeze)) function.
 }
 @examples{
 ```rascal-shell
 import String;
 squeeze("hello", "el");
+// the other squeeze function uses character class types instead:
 squeeze("hello", "el") == squeeze("hello", #[el]);
 ```
 }
