@@ -6,6 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jouke Stoel - jouke.stoel@cwi.nl - CWI}
+@deprecated{Use util::Monitor for the same effect with more support for different IDEs and commandline environments.}
 module util::Progress
 
 import String;
@@ -27,17 +28,6 @@ The total number of steps is the only required parameter to be passed in. All ot
   - `finished()` can be called at the end of the iteration to add a new line to the terminal  
 
   It is inspired on the progressbar described here: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
-}
-@examples{
-```rascal-shell
-  import util::Progress;
-  int total = 10; 
-  pb = progressBar(total, length = 15, limit = 100);
-  for (i <- [0..total]) {
-    pb.report(" : <i+1> of <total>");
-  }
-  pb.finished();  
-  ```
 }
 tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Progress:", int length = 50, int limit = total, str fill = "\u2588", str unfill = "-", str printEnd = "\r") {
     limit = limit > total ? total : limit;
@@ -63,16 +53,6 @@ tuple[void(str) report, void() finished] progressBar(int total, str prefix = "Pr
    It returns a function that can be called to make the spinner spin one rotation.
    This function takes a `suffix` string parameter that will be displayed behind the spinner
 } 
-@examples{
-```rascal-shell
-  import util::Progress;
-  import util::Math;
-  sp = spinner();
-  while (n := arbInt(100), n != 1) {
-    sp("<n>");
-  }
-  ```
-}
 void (str) spinner(str prefix = " ", str printEnd = "\r") {
   int stat = 0;
   

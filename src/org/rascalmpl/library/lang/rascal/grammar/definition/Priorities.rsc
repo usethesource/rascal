@@ -25,7 +25,6 @@ data Associativity = prio();
 public alias Extracted = rel[Production father, Associativity rule, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
-
 @synopsis{Extract which productions are not to be nested under which other productions, at given 
 recursive positions in the parents' defining symbols list.}
 @description{
@@ -105,26 +104,27 @@ public DoNotNest doNotNest(Grammar g) {
                            , same(ss, rr), same(t, lr), same(ss, t)}
         ; 
         
-     // and we warn about recursive productions which have been left ambiguous:
-    allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
-    ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, same(s, lr),
-                           q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
-                            same(t, rr), same(ss, t)};
-    ambiguous += {<p, q> | p:prod(Symbol ss, [*_, Symbol rr], _) <- allProds, same(s, rr), 
-                           q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
-                           same(t, lr), same(ss, t), <q, p> notin ambiguous}
-              ;
+    // and we warn about recursive productions which have been left ambiguous:
+    // TODO: this analysis can be done statically in the type-checker
+    // allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
+    // ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, same(s, lr),
+    //                        q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
+    //                         same(t, rr), same(ss, t)};
+    // ambiguous += {<p, q> | p:prod(Symbol ss, [*_, Symbol rr], _) <- allProds, same(s, rr), 
+    //                        q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
+    //                        same(t, lr), same(ss, t), <q, p> notin ambiguous}
+    //           ;
               
-    ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
-    ambiguous -= (groups + groups<1,0>); // somehow the pairs are associative
+    // ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
+    // ambiguous -= (groups + groups<1,0>); // somehow the pairs are associative
                   
     // TODO extract checking into separate function
-    for (<p,q> <- ambiguous) {
-         if (p == q) 
-           println("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity");
-         else   
-           println("warning, ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)");    
-    }
+    // for (<p,q> <- ambiguous) {
+    //      if (p == q) 
+    //        jobWarning("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity", |unknown:///|);
+    //      else   
+    //        jobWarning("warning, ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)", |unknown:///|);    
+    // }
   }
     
   return result + {*except(p, g) | /Production p <- g, p is prod || p is regular};
@@ -194,25 +194,25 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
   
   switch (s) {
     case \opt(conditional(t,cs)) : 
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter-star(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter(conditional(t,cs)) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \iter-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-star-seps(conditional(t,cs),ss) :
-      return {<p,0,q> | except(c) <- cs, just(q) := find(c,s,t,g)}
-           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};
+      return {<p,0,q> | except(c) <- cs, just(Production q) := find(c,s,t,g)}
+           + {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};
     case \iter-star-seps(_,ss) :
-      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(q) := find(ds,s,u,g)};       
+      return {<p,i+1,q> | i <- index(ss), conditional(u,css) := ss[i], except(ds) <- css, just(Production q) := find(ds,s,u,g)};       
     case \alt(as) :
-      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,0,q> | conditional(t,cs) <- as, except(c) <- cs, just(Production q) := find(c,s,t,g)};
     case \seq(ss) :
-      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,s,t,g)};
+      return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(Production q) := find(c,s,t,g)};
      default: return {};
   }
 }

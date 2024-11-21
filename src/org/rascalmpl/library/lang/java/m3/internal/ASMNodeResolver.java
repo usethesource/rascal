@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ARRAY_METHOD_SCHEME;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_CONSTRUCTOR_NAME;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMPILED_STATIC_CONSTRUCTOR_NAME;
@@ -44,6 +45,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.ModuleNode;
 import org.objectweb.asm.tree.ParameterNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -51,6 +53,7 @@ import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -60,19 +63,7 @@ import io.usethesource.vallang.type.TypeFactory;
 
 
 public class ASMNodeResolver implements NodeResolver {
-    
-    //---------------------------------------------
-    // Fields
-    //---------------------------------------------
-    
-    /**
-     * Supports the creation of Rascal values.
-     */
     private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
-    
-    /**
-     * Supports the creation of Rascal types.
-     */
     private static final TypeFactory typeFactory = TypeFactory.getInstance();
     
     /**
@@ -106,10 +97,6 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private final SourceLocationClassLoader loader;
     
-    
-    //---------------------------------------------
-    // Methods
-    //---------------------------------------------
     
     /**
      * ASMNodeResolver constructor
@@ -237,6 +224,9 @@ public class ASMNodeResolver implements NodeResolver {
             else if (node instanceof ClassNode) {
                 return resolveBinding((ClassNode) node);
             }
+            else if (node instanceof ModuleNode) {
+                return resolveBinding((ModuleNode) node);
+            }
             // FieldInsNode represents a field loading or storing instruction.
             else if (node instanceof FieldInsnNode) {
                 return resolveBinding((FieldInsnNode) node);
@@ -282,6 +272,15 @@ public class ASMNodeResolver implements NodeResolver {
         return M3LocationUtil.makeLocation(resolveClassScheme(node), "", node.name);
     }
     
+    /**
+     * Returns the location of a module node.
+     * @param node - module node
+     * @return logical location
+     */
+    private ISourceLocation resolveBinding(ModuleNode node) {
+        return M3LocationUtil.makeLocation("java+module", "", node.name);
+    }
+
     /**
      * Returns the location of a field store/access node.
      * @param node - field instruction node
@@ -362,8 +361,15 @@ public class ASMNodeResolver implements NodeResolver {
         String typeName = ((IString) M3LocationUtil.getLocationName(typePath)).getValue();
         String signature = getMethodSignature(name, desc, typeName);
         String path = typePath + "/" + signature;
-        
-        return M3LocationUtil.makeLocation(getMethodScheme(name), "", path);
+        String methodScheme = getMethodScheme(name, typeName);
+
+        if (methodScheme.equals(ARRAY_METHOD_SCHEME)) {
+            // the array type is not consequential since we only have the Object methods in Array (hashCode, equals, clone).
+            return M3LocationUtil.makeLocation(methodScheme, "", getMethodScheme(name, "java.lang.Object"));
+        }
+        else {
+            return M3LocationUtil.makeLocation(methodScheme, "", path);
+        }
     }
     
     /**
@@ -409,10 +415,17 @@ public class ASMNodeResolver implements NodeResolver {
      * @param name - method name
      * @return method's scheme
      */
-    private String getMethodScheme(String name) {
-        return (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME 
-            : (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) ? INITIALIZER_SCHEME 
-            : METHOD_SCHEME;
+    private String getMethodScheme(String name, String typeName) {
+        switch(name) {
+            case COMPILED_CONSTRUCTOR_NAME : return CONSTRUCTOR_SCHEME;
+            case COMPILED_STATIC_CONSTRUCTOR_NAME: return INITIALIZER_SCHEME;    
+        }
+
+        if (typeName.endsWith("[]")) {
+            return ARRAY_METHOD_SCHEME;
+        }
+
+        return METHOD_SCHEME;
     }
 
     /**
@@ -508,6 +521,69 @@ public class ASMNodeResolver implements NodeResolver {
     public String resolveClassScheme(ClassNode node) {
         typeSchemes.computeIfAbsent(node.name, k -> resolveClassScheme(node.access));
         return resolveClassScheme(node.access);
+    }
+
+    @Override
+    public IConstructor resolveLanguageVersion(ClassNode node) {
+        var classToVersions = Map.ofEntries(
+            Map.entry(Opcodes.V1_1, "1.1"),
+            Map.entry(Opcodes.V1_2, "1.2"),
+            Map.entry(Opcodes.V1_3, "1.3"),
+            Map.entry(Opcodes.V1_4, "1.4"),
+            Map.entry(Opcodes.V1_5, "1.5"),
+            Map.entry(Opcodes.V1_6, "1.6"),
+            Map.entry(Opcodes.V1_7, "1.7"),
+            Map.entry(Opcodes.V1_8, "1.8"),
+            Map.entry(Opcodes.V9, "9"),
+            Map.entry(Opcodes.V10, "10"),
+            Map.entry(Opcodes.V11, "11"),
+            Map.entry(Opcodes.V12, "12"),
+            Map.entry(Opcodes.V13, "13"),
+            Map.entry(Opcodes.V14, "14"),
+            Map.entry(Opcodes.V15, "15"),
+            Map.entry(Opcodes.V16, "16"),
+            Map.entry(Opcodes.V17, "17"),
+            Map.entry(Opcodes.V18, "18"),
+            Map.entry(Opcodes.V19, "19"),
+            Map.entry(Opcodes.V20, "20"),
+            Map.entry(Opcodes.V21, "21"),
+            Map.entry(Opcodes.V22, "22"));
+
+        var classToLevels = Map.ofEntries(
+            Map.entry(Opcodes.V1_1, 1),
+            Map.entry(Opcodes.V1_2, 2),
+            Map.entry(Opcodes.V1_3, 3),
+            Map.entry(Opcodes.V1_4, 4),
+            Map.entry(Opcodes.V1_5, 5),
+            Map.entry(Opcodes.V1_6, 6),
+            Map.entry(Opcodes.V1_7, 7),
+            Map.entry(Opcodes.V1_8, 8),
+            Map.entry(Opcodes.V9, 9),
+            Map.entry(Opcodes.V10, 10),
+            Map.entry(Opcodes.V11, 11),
+            Map.entry(Opcodes.V12, 12),
+            Map.entry(Opcodes.V13, 13),
+            Map.entry(Opcodes.V14, 14),
+            Map.entry(Opcodes.V15, 15),
+            Map.entry(Opcodes.V16, 16),
+            Map.entry(Opcodes.V17, 17),
+            Map.entry(Opcodes.V18, 18),
+            Map.entry(Opcodes.V19, 19),
+            Map.entry(Opcodes.V20, 20),
+            Map.entry(Opcodes.V21, 21),
+            Map.entry(Opcodes.V22, 22));
+
+       
+        IInteger classFileLevel = valueFactory.integer(classToLevels.get(node.version));
+        IString classFileVersion = valueFactory.string(classToVersions.get(node.version));
+
+        var Lang = typeStore.lookupAbstractDataType("Language");
+        var javaCons = typeStore.lookupConstructor(Lang, "java", typeFactory.tupleEmpty());
+        var langCons = valueFactory.constructor(javaCons);
+        langCons = langCons.asWithKeywordParameters().setParameter("version", classFileVersion);
+        langCons = langCons.asWithKeywordParameters().setParameter("level", classFileLevel);
+
+        return langCons;
     }
     
     @Override

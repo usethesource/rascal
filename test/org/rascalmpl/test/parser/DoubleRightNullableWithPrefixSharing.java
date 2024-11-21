@@ -9,6 +9,8 @@ import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.EmptyStackNode;
 import org.rascalmpl.parser.gtd.stack.LiteralStackNode;
 import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.values.RascalValueFactory;
@@ -40,6 +42,7 @@ public class DoubleRightNullableWithPrefixSharing extends org.rascalmpl.parser.g
 	
   protected static final TypeFactory _tf = TypeFactory.getInstance();
  
+  private static final IntegerKeyedHashMap<IntegerList> _dontNest = new IntegerKeyedHashMap<IntegerList>();
   private static final IntegerMap _resultStoreIdMappings = new IntegerMap();
 	
   // Production declarations
@@ -58,7 +61,7 @@ public class DoubleRightNullableWithPrefixSharing extends org.rascalmpl.parser.g
   protected static class Stmt {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }

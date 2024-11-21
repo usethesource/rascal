@@ -19,8 +19,8 @@ import Node;
 import Exception;
 import IO;
 
-private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
-private list[&T] emptyList(type[&T] _) = [];
+private map[&K,&V] emptyMap(type[map[&K,&V]] _) { map[&K,&V] e = (); return e; }
+private list[&T] emptyList(type[&T] _) { list[&T] e = []; return e; }
 private map[value,value] up(map[&K,&V] m) = m;
 
 // composition

@@ -24,6 +24,8 @@ import Set;
 import String;
 import Exception;
 
+import lang::paths::Windows;
+import lang::paths::Unix;
 
 @synopsis{Extracts a path relative to a parent location.}
 @description{
@@ -43,9 +45,32 @@ loc relativize(list[loc] haystack, loc needle) {
     }
 }
 
+@synopsis{Convert Windows path syntax to a `loc` value}
+@description{
+This conversion supports generic Windows path syntax, including:
+* Absolute drive-specific: `C:\Program Files`
+* Relative drive-specific: `C:hello.txt`
+* Relative: `hello.txt`
+* Directory-relative: `\hello.txt`
+* UNC format: `\\system07\C$\`
+
+Windows paths, against popular believe, support both `/` and `\` as path separators.
+}
+loc locFromWindowsPath(str path) = parseWindowsPath(path);
+
+@synopsis{Convert Unix path syntax to a `loc` value}
+@description{
+This conversion supports generic Unix path syntax, including:
+* Absolute: `/usr/local/bin`
+* Relative: `hello.txt`
+* Home: `~/hello.txt`
+* User: `~userName\hello.txt`
+}
+loc locFromUnixPath(str path) = parseUnixPath(path);
 
 @synopsis{Check that two locations refer to the same file.}    
-bool isSameFile(loc l, loc r) = l.top[fragment=""] == r.top[fragment=""];
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isSameFile(loc l, loc r);
 
 @synopsis{Compare two location values lexicographically.}
 @description{
@@ -76,22 +101,8 @@ Strict containment between two locations `inner` and `outer` holds when
 - both.
 }
 
-bool isStrictlyContainedIn(loc inner, loc outer){
-    if(inner == outer){
-        return false;
-    }
-    if(isSameFile(inner, outer)){
-       if(inner.offset?){
-          if(outer.offset?){
-            return    inner.offset == outer.offset && inner.offset + inner.length <  outer.offset + outer.length
-                   || inner.offset >  outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
-          } else {
-            return inner.offset > 0;
-          }
-       }
-    }
-    return false;
-}
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isStrictlyContainedIn(loc inner, loc outer);
 
 
 @synopsis{Is a location textually contained in another location?}
@@ -103,20 +114,8 @@ Containment between two locations `inner` and `outer` holds when
 - `inner` is strictly contained in `outer`.
 }
 
-bool isContainedIn(loc inner, loc outer){
-    if(isSameFile(inner, outer)){
-       if(inner.offset?){
-          if(outer.offset?){
-            return (inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
-          } else {
-            return true;
-          }
-       } else {
-         return !outer.offset?;
-       }
-    }
-    return false;
-}
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isContainedIn(loc inner, loc outer);
 
 
 @synopsis{Begins a location's text before (but may overlap with) another location's text?}
@@ -160,10 +159,8 @@ bool isImmediatelyAfter(loc l, loc r)
 
 
 @synopsis{Refer two locations to text that overlaps?}
-bool isOverlapping(loc l, loc r)
-    = isSameFile(l, r) && (  (l.offset <= r.offset && l.offset + l.length > r.offset) 
-                          || (r.offset <= l.offset && r.offset + r.length > l.offset)
-                          );
+@javaClass{org.rascalmpl.library.Prelude}
+java bool isOverlapping(loc l, loc r);
 
 
 @synopsis{Compute a location that textually covers the text of a list of locations.}

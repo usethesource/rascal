@@ -1,8 +1,29 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2024 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Ashim Shahi
+ *   * Jurgen Vinju
+ *   * Jouke Stoel
+ *   * Lina María Ochoa Venegas
+ *   * Davy Landman 
+*******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -102,23 +123,32 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 
-@SuppressWarnings({"rawtypes", "deprecation"})
+/**
+ * This big visitor class has a case for every type of AST node in the JDT's core DOM model.
+ * Each visit method maps the JDT DOM model to the M3 AST model as defined in lang::java::m3::AST.
+ * 
+ * If names can be resolved, they will be, and lead to `decl=` parameters on the declarations and uses.
+ * If types can be resolved, they will be interpreted as TypeSymbol's and stored on the AST nodes as `typ=` parameters.
+ * All nodes get `src=` parameters pointing to their exact location in the source file.
+ * 
+ * Otherwise the goal of this code is to satisfy the "AST correctness" specification in analysis::m3::AST,
+ * and the documentation written in lang::java::m3::AST. This means that the recovery is complete and completely
+ * specific, and all node src locations point to exactly the the right input subsentences. 
+ */
 public class ASTConverter extends JavaToRascalConverter {
-    /* 
-     * TODO:
-     * Type parameters need to come out of annotations
-     * calls may need to be broken up into superconstructor, constructor, supermethod, method calls or separate them in bindings
-     */
+    // prints a clickable trace while converting for easier diagnostics
+    private final boolean debug = false;
+
     public ASTConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
         super(typeStore, cache, collectBindings);
     }
 
+    @Override
     public void postVisit(ASTNode node) {
-        if (getAdtType() == DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE || getAdtType() == DATATYPE_RASCAL_AST_TYPE_NODE_TYPE) {
-            return;
-        }
         setKeywordParameter("src", getSourceLocation(node));
 
         if (collectBindings) {
@@ -126,7 +156,11 @@ public class ASTConverter extends JavaToRascalConverter {
             if (!decl.getScheme().equals("unknown")) {
                 setKeywordParameter("decl", decl); 
             }
-            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE) {
+            
+            if (getAdtType() != DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 
+                && !decl.getScheme().equals("java+package")
+                && !decl.getScheme().equals("java+module")
+                && !(node instanceof ModuleDeclaration)) {
                 IValue type = resolveType(node);
 
                 setKeywordParameter("typ", type);
@@ -154,54 +188,87 @@ public class ASTConverter extends JavaToRascalConverter {
             }
             else if (node instanceof VariableDeclaration) {
                 IVariableBinding binding = ((VariableDeclaration) node).resolveBinding();
-                return bindingsResolver.resolveType(binding.getType(), false);
+                if (binding != null && binding.getType() != null) { // some variables have inferred types
+                    return bindingsResolver.resolveType(binding.getType(), false);
+                }
             }
-        } catch (NullPointerException e) {
-            System.err.println("Got NPE for node " + node + ((e.getStackTrace().length > 0) ? ("\n\t" + e.getStackTrace()[0]) : ""));
+            else if (node instanceof ModuleDeclaration) {
+                IModuleBinding binding = ((ModuleDeclaration) node).resolveBinding();
+                return bindingsResolver.resolveType(binding, true);
+            }
+            else if (node instanceof Type) {
+                ITypeBinding binding = ((Type) node).resolveBinding();
+                return bindingsResolver.resolveType(binding, false);
+            }
+        } 
+        catch (NullPointerException e) {
+            e.printStackTrace();
+            // This happens sometime with type incorrect Java programs, but can also be due to an error in the mapping code.
+            assert false : "Resolving type for " + node.getClass().getCanonicalName() + " @ " + getSourceLocation(node);
+            
         }
 
+        // some nodes do not have a type, or type resolution has failed and then we simply do not store the type in the tree.
         return null;
     }
 
+    
+    @Override
+    public void preVisit(ASTNode node) {
+        if (debug) {
+            System.err.println("Now converting: " + node.getClass().getCanonicalName() + "@ " + getSourceLocation(node));
+        }
+    }
+    
+    
+    @Override
     public boolean visit(AnnotationTypeDeclaration node) {
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IList modifiers = visitChildren(node.modifiers());
+        IValue name = visitChild(node.getName());
 
-        IValueList bodyDeclarations = new IValueList(values);
-        for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+        IListWriter bodyDeclarations = values.listWriter();
+        for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
             BodyDeclaration d = (BodyDeclaration) it.next();
-            bodyDeclarations.add(visitChild(d));
+            bodyDeclarations.append(visitChild(d));
         }
 
-        ownValue = constructDeclarationNode("annotationType", name, bodyDeclarations.asList());
-        setKeywordParameters("modifiers", extendedModifiers);
+        ownValue = constructDeclarationNode("annotationType", modifiers, name, bodyDeclarations.done());
+        
         return false;
     }
 
+    @Override
     public boolean visit(AnnotationTypeMemberDeclaration node) {
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
+        IList modifiers = visitChildren(node.modifiers());
         IValue typeArgument = visitChild(node.getType());
 
-        String name = node.getName().getFullyQualifiedName();
+        IValue name = visitChild(node.getName());
 
-        IValue defaultBlock = node.getDefault() == null ? null : visitChild(node.getDefault());
-        ownValue = constructDeclarationNode("annotationTypeMember", typeArgument, values.string(name), defaultBlock);
-        setKeywordParameters("modifiers", extendedModifiers);
-        return false;
-    }
-
-    public boolean visit(AnonymousClassDeclaration node) {
-        IValueList bodyDeclarations = new IValueList(values);
-
-        for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
-            BodyDeclaration b = (BodyDeclaration) it.next();
-            bodyDeclarations.add(visitChild(b));
+        if (node.getDefault() != null)  {
+            IValue defaultBlock = visitChild(node.getDefault());
+            ownValue = constructDeclarationNode("annotationTypeMember", modifiers, typeArgument, name, defaultBlock);
         }
-        ownValue = constructDeclarationNode("class", bodyDeclarations.asList());
+        else {
+            ownValue = constructDeclarationNode("annotationTypeMember", modifiers, typeArgument, name);
+        }
+        
+        return false;
+    }
+
+    @Override
+    public boolean visit(AnonymousClassDeclaration node) {
+        IListWriter bodyDeclarations = values.listWriter();
+
+        for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
+            BodyDeclaration b = (BodyDeclaration) it.next();
+            bodyDeclarations.append(visitChild(b));
+        }
+        ownValue = constructDeclarationNode("class", bodyDeclarations.done());
 
         return false;
     }
 
+    @Override
     public boolean visit(ArrayAccess node) {
         IValue array = visitChild(node.getArray());
         IValue index = visitChild(node.getIndex());
@@ -211,51 +278,81 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
+    public boolean visit(CreationReference node) {
+        IValue type = visitChild(node.getType());
+        IValue typeArguments = visitChildren(node.typeArguments());
+
+        ownValue = constructExpressionNode("creationReference", type, typeArguments);
+        return false;
+    }
+
+    @Override
     public boolean visit(ArrayCreation node) {
         IValue type = visitChild(node.getType().getElementType());
 
-        IValueList dimensions = new IValueList(values);
-        for (Iterator it = node.dimensions().iterator(); it.hasNext();) {
+        IListWriter dimensions = values.listWriter();
+        for (Iterator<?> it = node.dimensions().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            dimensions.add(visitChild(e));
+            dimensions.append(visitChild(e));
         }
 
-        IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
-
-        ownValue = constructExpressionNode("newArray", type, dimensions.asList(), initializer);
+        if (node.getInitializer() != null) {
+            IValue initializer = visitChild(node.getInitializer());
+            ownValue = constructExpressionNode("newArray", type, dimensions.done(), initializer);
+        }
+        else {
+            ownValue = constructExpressionNode("newArray", type, dimensions.done()); 
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(ArrayInitializer node) {
-        IValueList expressions = new IValueList(values);
-        for (Iterator it = node.expressions().iterator(); it.hasNext();) {
+        IListWriter expressions = values.listWriter();
+        for (Iterator<?> it = node.expressions().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            expressions.add(visitChild(e));
+            expressions.append(visitChild(e));
         }
 
-        ownValue = constructExpressionNode("arrayInitializer", expressions.asList());
+        ownValue = constructExpressionNode("arrayInitializer", expressions.done());
 
         return false;
     }
 
+    @Override
     public boolean visit(ArrayType node) {
-        IValue type = visitChild(node.getComponentType());
+        int apiLevel = node.getAST().apiLevel();
 
-        ownValue = constructTypeNode("arrayType", type);
+        if (AST.JLS2 <= apiLevel && apiLevel <= AST.JLS4) {
+            IValue type = visitChild(node.getComponentType());
+            ownValue = constructTypeNode("arrayType", type);
+        }
+        else {
+            IValue type = visitChild(node.getElementType());
+            ownValue = constructTypeNode("arrayType", type);
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(AssertStatement node) {
         IValue expression = visitChild(node.getExpression());
-        IValue message = node.getMessage() == null ? null : visitChild(node.getMessage());
 
-        ownValue = constructStatementNode("assert", expression, message);
+        if (node.getMessage() != null) {
+            IValue message = visitChild(node.getMessage());
+            ownValue = constructStatementNode("assert", expression, message);
+        }
+        else {
+            ownValue = constructStatementNode("assert", expression);
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(Assignment node) {
         IValue leftSide = visitChild(node.getLeftHandSide());
         IValue rightSide = visitChild(node.getRightHandSide());
@@ -265,37 +362,51 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(Block node) {
-        IValueList statements = new IValueList(values);
-        for (Iterator it = node.statements().iterator(); it.hasNext();) {
+        IListWriter statements = values.listWriter();
+        for (Iterator<?> it = node.statements().iterator(); it.hasNext();) {
             Statement s = (Statement) it.next();
-            statements.add(visitChild(s));
+            statements.append(visitChild(s));
         }
 
-        ownValue = constructStatementNode("block", statements.asList());
+        ownValue = constructStatementNode("block", statements.done());
 
         return false;
     }
-
+    
+    @Override
     public boolean visit(BlockComment node) {
         return false;
     }
 
+    @Override
     public boolean visit(BooleanLiteral node) {
-        IValue booleanValue = values.bool(node.booleanValue());
+        IValue booleanValue = values.string(Boolean.toString(node.booleanValue()));
 
         ownValue = constructExpressionNode("booleanLiteral", booleanValue);
 
         return false;
     }
 
+    @Override
     public boolean visit(BreakStatement node) {
-        IValue label = node.getLabel() == null ? values.string("") : values.string(node.getLabel().getFullyQualifiedName());
-        ownValue = constructStatementNode("break", label);
+        if (node.getLabel() != null) {
+            IValue label = visitChild(node.getLabel());
+            ownValue = constructStatementNode("break", label);
+        }
+        else if (node.getAST().apiLevel() == AST.JLS12 && node.getExpression() != null) {
+            IValue label = visitChild(node.getExpression());
+            ownValue = constructStatementNode("break", label);
+        }
+        else {
+            ownValue = constructStatementNode("break");
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(CastExpression node) {
         IValue type = visitChild(node.getType());
         IValue expression = visitChild(node.getExpression());
@@ -305,6 +416,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(CatchClause node) {
         IValue exception = visitChild(node.getException());
         IValue body = visitChild(node.getBody());
@@ -314,6 +426,7 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(CharacterLiteral node) {
         IValue value = values.string(node.getEscapedValue()); 
 
@@ -322,11 +435,12 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ClassInstanceCreation node) {
         IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
         IValue type = null;
-        IValueList genericTypes = new IValueList(values);
+        IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() == AST.JLS2) {
             type = visitChild(node.getName());
         } 
@@ -334,45 +448,74 @@ public class ASTConverter extends JavaToRascalConverter {
             type = visitChild(node.getType()); 
 
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
-                    genericTypes.add(visitChild(t));
+                    genericTypes.append(visitChild(t));
                 }
             }
         }
 
-        IValueList arguments = new IValueList(values);
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        IListWriter arguments = values.listWriter();
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            arguments.add(visitChild(e));
+            arguments.append(visitChild(e));
         }
 
         IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
 
-        ownValue = constructExpressionNode("newObject", expression, type, arguments.asList(), anonymousClassDeclaration);
-        //setKeywordParameters("typeParameters", genericTypes);
+        if (expression != null) {
+            if (anonymousClassDeclaration != null) {
+                ownValue = constructExpressionNode("newObject", expression, type, genericTypes.done(), arguments.done(), anonymousClassDeclaration);
+            }
+            else {
+                ownValue = constructExpressionNode("newObject", expression, type, genericTypes.done(), arguments.done());
+            }
+        }
+        else {
+            if (anonymousClassDeclaration != null) {
+                ownValue = constructExpressionNode("newObject", type, genericTypes.done(), arguments.done(), anonymousClassDeclaration);
+            }
+            else {
+                ownValue = constructExpressionNode("newObject", type, genericTypes.done(), arguments.done());
+            }
+        }
+        
         return false;
     }
 
+    @Override
     public boolean visit(CompilationUnit node) {
-        IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
-
-        IValueList imports = new IValueList(values);
-        for (Iterator it = node.imports().iterator(); it.hasNext();) {
-            ImportDeclaration d = (ImportDeclaration) it.next();
-            imports.add(visitChild(d));
+        if (node.getModule() != null) {
+            ownValue = constructDeclarationNode("compilationUnit", visitChild(node.getModule()));
+            return false;
         }
+        else {
+            IValue packageOfUnit = node.getPackage() == null ? null : visitChild(node.getPackage());
 
-        IValueList typeDeclarations = new IValueList(values);
-        for (Iterator it = node.types().iterator(); it.hasNext();) {
-            AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
-            typeDeclarations.add(visitChild(d));
+            IListWriter imports = values.listWriter();
+            for (Iterator<?> it = node.imports().iterator(); it.hasNext();) {
+                ImportDeclaration d = (ImportDeclaration) it.next();
+                imports.append(visitChild(d));
+            }
+
+            IListWriter typeDeclarations = values.listWriter();
+            for (Iterator<?> it = node.types().iterator(); it.hasNext();) {
+                AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
+                typeDeclarations.append(visitChild(d));
+            }
+
+            if (packageOfUnit != null) {
+                ownValue = constructDeclarationNode("compilationUnit", packageOfUnit, imports.done(), typeDeclarations.done());		
+            }
+            else {
+                ownValue = constructDeclarationNode("compilationUnit", imports.done(), typeDeclarations.done());		
+            }
+
+            return false;
         }
-
-        ownValue = constructDeclarationNode("compilationUnit", packageOfUnit, imports.asList(), typeDeclarations.asList());		
-        return false;
     }
 
+    @Override
     public boolean visit(ConditionalExpression node) {
         IValue expression = visitChild(node.getExpression());
         IValue thenBranch = visitChild(node.getThenExpression());
@@ -383,40 +526,44 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(ConstructorInvocation node) {
-        IValueList types = new IValueList(values);
+        IListWriter types = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
-
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
-                    types.add(visitChild(t));
+                    types.append(visitChild(t));
                 }
             }
         }
 
-        IValueList arguments = new IValueList(values);
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        IListWriter arguments = values.listWriter();
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            arguments.add(visitChild(e));
+            arguments.append(visitChild(e));
         }
 
-        ownValue = constructStatementNode("constructorCall", values.bool(false),  arguments.asList());
-        //setKeywordParameters("typeParameters", types);
+        ownValue = constructStatementNode("constructorCall",  types.done(), arguments.done());
 
         return false;
     }
 
+    @Override
     public boolean visit(ContinueStatement node) {
-
-        IValue label = node.getLabel() == null ? null : values.string(node.getLabel().getFullyQualifiedName());
-        ownValue = constructStatementNode("continue", label);
+        if (node.getLabel() != null) {
+            IValue label = visitChild(node.getLabel());
+            ownValue = constructStatementNode("continue", label);
+        }
+        else {
+            ownValue = constructStatementNode("continue");
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(DoStatement node) {
-
         IValue body = visitChild(node.getBody());
         IValue whileExpression = visitChild(node.getExpression());
 
@@ -425,15 +572,15 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(EmptyStatement node) {
-
         ownValue = constructStatementNode("empty");
 
         return false;
     }
 
+    @Override
     public boolean visit(EnhancedForStatement node) {
-
         IValue parameter = visitChild(node.getParameter());
         IValue collectionExpression = visitChild(node.getExpression());
         IValue body = visitChild(node.getBody());
@@ -443,174 +590,269 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(EnumConstantDeclaration node) {
+        IList modifiers = visitChildren(node.modifiers());
+        IValue name = visitChild(node.getName());
 
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-        IValue name = values.string(node.getName().getFullyQualifiedName()); 
-
-        IValueList arguments = new IValueList(values);
+        IListWriter arguments = values.listWriter();
         if (!node.arguments().isEmpty()) {
-            for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
                 Expression e = (Expression) it.next();
-                arguments.add(visitChild(e));
+                arguments.append(visitChild(e));
             }
         }
 
-        IValue anonymousClassDeclaration = node.getAnonymousClassDeclaration() == null ? null : visitChild(node.getAnonymousClassDeclaration());
-
-        ownValue = constructDeclarationNode("enumConstant", name, arguments.asList(), anonymousClassDeclaration);
-        setKeywordParameters("modifiers", extendedModifiers);
+        if (node.getAnonymousClassDeclaration() != null) {
+            IValue anonymousClassDeclaration = visitChild(node.getAnonymousClassDeclaration());
+            ownValue = constructDeclarationNode("enumConstant", modifiers, name, arguments.done(), anonymousClassDeclaration);
+        }
+        else {
+            ownValue = constructDeclarationNode("enumConstant", modifiers, name, arguments.done());
+        }
+        
         return false;
     }
 
+    @Override
     public boolean visit(EnumDeclaration node) {
+        IList modifiers = visitChildren(node.modifiers());
+        IValue name = visitChild(node.getName());
 
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-        IValue name = values.string(node.getName().getFullyQualifiedName()); 
-
-        IValueList implementedInterfaces = new IValueList(values);
+        IListWriter implementedInterfaces = values.listWriter();
         if (!node.superInterfaceTypes().isEmpty()) {
-            for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.superInterfaceTypes().iterator(); it.hasNext();) {
                 Type t = (Type) it.next();
-                implementedInterfaces.add(visitChild(t));
+                implementedInterfaces.append(visitChild(t));
             }
         }
 
-        IValueList enumConstants = new IValueList(values);
-        for (Iterator it = node.enumConstants().iterator(); it.hasNext();) {
+        IListWriter enumConstants = values.listWriter();
+        for (Iterator<?> it = node.enumConstants().iterator(); it.hasNext();) {
             EnumConstantDeclaration d = (EnumConstantDeclaration) it.next();
-            enumConstants.add(visitChild(d));
+            enumConstants.append(visitChild(d));
         }
 
-        IValueList bodyDeclarations = new IValueList(values);
+        IListWriter bodyDeclarations = values.listWriter();
         if (!node.bodyDeclarations().isEmpty()) {
-            for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
                 BodyDeclaration d = (BodyDeclaration) it.next();
-                bodyDeclarations.add(visitChild(d));
+                bodyDeclarations.append(visitChild(d));
             }
         }
 
-        ownValue = constructDeclarationNode("enum", name, implementedInterfaces.asList(), enumConstants.asList(), bodyDeclarations.asList());
-        setKeywordParameters("modifiers", extendedModifiers);
+        ownValue = constructDeclarationNode("enum", modifiers, name, implementedInterfaces.done(), enumConstants.done(), bodyDeclarations.done());
+        
         return false;
     }
 
+    @Override
     public boolean visit(ExpressionStatement node) {
-
         IValue expression = visitChild(node.getExpression());
         ownValue = constructStatementNode("expressionStatement", expression);
 
         return false;
     }
 
+    @Override
     public boolean visit(FieldAccess node) {
-
         IValue expression = visitChild(node.getExpression());
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
-        ownValue = constructExpressionNode("fieldAccess", values.bool(false), expression, name);
+        ownValue = constructExpressionNode("fieldAccess", expression, name);
 
         return false;
     }
 
+    @Override
     public boolean visit(FieldDeclaration node) {
+        IList modifiers = visitChildren(node.modifiers());
 
-        IValueList extendedModifiers = parseExtendedModifiers(node);
         IValue type = visitChild(node.getType());
 
-        IValueList fragments = new IValueList(values);
-        for (Iterator it = node.fragments().iterator(); it.hasNext();) {
+        IListWriter fragments = values.listWriter();
+        for (Iterator<?> it = node.fragments().iterator(); it.hasNext();) {
             VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
-            fragments.add(visitChild(f));
+            fragments.append(visitChild(f));
         }
 
-        ownValue = constructDeclarationNode("field", type, fragments.asList());
-        setKeywordParameters("modifiers", extendedModifiers);
+        ownValue = constructDeclarationNode("field", modifiers, type, fragments.done());
+        
         return false;
     }
 
+    @Override
     public boolean visit(ForStatement node) {
-
-        IValueList initializers = new IValueList(values);
-        for (Iterator it = node.initializers().iterator(); it.hasNext();) {
+        IListWriter initializers = values.listWriter();
+        for (Iterator<?> it = node.initializers().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            initializers.add(visitChild(e));
+            initializers.append(visitChild(e));
         }
 
         IValue booleanExpression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
-        IValueList updaters = new IValueList(values);
-        for (Iterator it = node.updaters().iterator(); it.hasNext();) {
+        IListWriter updaters = values.listWriter();
+        for (Iterator<?> it = node.updaters().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            updaters.add(visitChild(e));
+            updaters.append(visitChild(e));
         }
 
         IValue body = visitChild(node.getBody());
 
-        ownValue = constructStatementNode("for", initializers.asList(), booleanExpression, updaters.asList(), body);
-
-        return false;
-    }
-
-    public boolean visit(IfStatement node) {
-
-        IValue booleanExpression = visitChild(node.getExpression());
-        IValue thenStatement = visitChild(node.getThenStatement());
-        IValue elseStatement = node.getElseStatement() == null ? null : visitChild(node.getElseStatement());
-
-        ownValue = constructStatementNode("if", booleanExpression, thenStatement, elseStatement);
-
-        return false;
-    }
-
-    public boolean visit(ImportDeclaration node) {
-
-        String name = node.getName().getFullyQualifiedName();
-
-        IValueList importModifiers = new IValueList(values);
-        if (node.getAST().apiLevel() >= AST.JLS3) {
-            if (node.isStatic())
-                importModifiers.add(constructModifierNode("static"));
-
-            if (node.isOnDemand())
-                importModifiers.add(constructModifierNode("onDemand"));
+        if (booleanExpression != null) {
+            ownValue = constructStatementNode("for", initializers.done(), booleanExpression, updaters.done(), body);
+        }
+        else {
+            ownValue = constructStatementNode("for", initializers.done(), updaters.done(), body);
         }
 
-        ownValue = constructDeclarationNode("import", values.string(name));
-        setKeywordParameters("modifiers", importModifiers);
+        return false;
+    }
+
+    @Override
+    public boolean visit(IfStatement node) {
+        IValue booleanExpression = visitChild(node.getExpression());
+        IValue thenStatement = visitChild(node.getThenStatement());
+
+        if (node.getElseStatement() != null) {
+            IValue elseStatement = visitChild(node.getElseStatement());
+
+            ownValue = constructStatementNode("if", booleanExpression, thenStatement, elseStatement);
+        }
+        else {
+            ownValue = constructStatementNode("if", booleanExpression, thenStatement);
+        }
 
         return false;
     }
 
-    public boolean visit(InfixExpression node) {
+    @Override
+    public boolean visit(ImportDeclaration node) {
+        IValue name = visitChild(node.getName());
 
-        IValue operator = values.string(node.getOperator().toString());
+        IListWriter importModifiers = values.listWriter();
+        if (node.getAST().apiLevel() >= AST.JLS3) {
+            if (node.isStatic()) {
+                var entireNode = getSourceLocation(node);
+                var namePosition = getSourceLocation(node.getName());
+                // we assume the following positioning:
+                // import static class
+                //       ^^^^^^^^
+                //       position of the static keyword can be anything between the import keyword and the imported class or method.
+                int staticStart = entireNode.getOffset() + "import".length();
+                var staticPos = values.sourceLocation(entireNode.top(),
+                    staticStart,
+                    namePosition.getOffset() - staticStart);
+
+                importModifiers.append(constructModifierNode(staticPos, "static"));
+}
+        }
+
+        if (node.isOnDemand()) {
+            ownValue = constructDeclarationNode("import", importModifiers.done(), name);
+        }
+        else {
+            ownValue = constructDeclarationNode("importOnDemand", importModifiers.done(), name);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(InfixExpression node) {
+        Operator op = node.getOperator();
         IValue leftSide = visitChild(node.getLeftOperand());
         IValue rightSide = visitChild(node.getRightOperand());
 
-        IValue intermediateExpression = constructExpressionNode("infix", leftSide, operator, rightSide);
-        for (Iterator it = node.extendedOperands().iterator(); it.hasNext();) {
-            Expression e = (Expression) it.next();
-            intermediateExpression = constructExpressionNode("infix", intermediateExpression, operator, visitChild(e));
+        switch (op.toString()) {
+            case "*":
+                ownValue = constructExpressionNode("times", leftSide, rightSide);
+                break;
+            case "/":
+                ownValue = constructExpressionNode("divide", leftSide, rightSide);
+                break;
+            case "%":
+                ownValue = constructExpressionNode("remainder", leftSide, rightSide);
+                break;
+            case "+":
+                ownValue = constructExpressionNode("plus", leftSide, rightSide);
+                break;
+            case "-":
+                ownValue = constructExpressionNode("minus", leftSide, rightSide);
+                break;
+            case "<<":
+                ownValue = constructExpressionNode("leftShift", leftSide, rightSide);
+                break;
+            case ">>":
+                ownValue = constructExpressionNode("rightShift", leftSide, rightSide);
+                break;
+            case ">>>":
+                ownValue = constructExpressionNode("rightShiftSigned", leftSide, rightSide);
+                break;
+            case "<":
+                ownValue = constructExpressionNode("less", leftSide, rightSide);
+                break;
+            case ">":
+                ownValue = constructExpressionNode("greater", leftSide, rightSide);
+                break;
+            case "<=":
+                ownValue = constructExpressionNode("lessEquals", leftSide, rightSide);
+                break;
+            case ">=":
+                ownValue = constructExpressionNode("greaterEquals", leftSide, rightSide);
+                break;
+            case "==":
+                ownValue = constructExpressionNode("equals", leftSide, rightSide);
+                break;
+            case "!=":
+                ownValue = constructExpressionNode("notEquals", leftSide, rightSide);
+                break;
+            case "^":
+                ownValue = constructExpressionNode("xor", leftSide, rightSide);
+                break;
+            case "|":
+                ownValue = constructExpressionNode("or", leftSide, rightSide);
+                break;
+            case "&":
+                ownValue = constructExpressionNode("and", leftSide, rightSide);
+                break;
+            case "||":
+                ownValue = constructExpressionNode("conditionalOr", leftSide, rightSide);
+                break;
+            case "&&":
+                ownValue = constructExpressionNode("conditionalAnd", leftSide, rightSide);
+                break;
+            default:   
+            throw new IllegalArgumentException(node.getOperator().getClass().getCanonicalName());
         }
 
-        ownValue = intermediateExpression;
-
         return false;
     }
 
-    public boolean visit(Initializer node) {
+    @Override
+    public boolean visit(NameQualifiedType node) {
+        IValue qualifier = visitChild(node.getQualifier());
+        IList annos = visitChildren(node.annotations());
 
-        IValueList extendedModifiers = parseExtendedModifiers(node);
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructTypeNode("qualifiedType", annos, qualifier, name);
+
+        return false;
+    }
+    
+    @Override
+    public boolean visit(Initializer node) {
+        IList modifiers = visitChildren(node.modifiers());
         IValue body = visitChild(node.getBody());
 
-        ownValue = constructDeclarationNode("initializer", body);
-        setKeywordParameters("modifiers", extendedModifiers);
+        ownValue = constructDeclarationNode("initializer", modifiers, body);
+        
         return false;
     }
 
+    @Override
     public boolean visit(InstanceofExpression node) {
-
         IValue leftSide = visitChild(node.getLeftOperand());
         IValue rightSide = visitChild(node.getRightOperand());
 
@@ -619,13 +861,13 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(Javadoc node) {
-
         return false;
     }
 
+    @Override
     public boolean visit(LabeledStatement node) {
-
         IValue label = values.string(node.getLabel().getFullyQualifiedName());
         IValue body = visitChild(node.getBody());
 
@@ -634,26 +876,27 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(LineComment node) {
-
         return false;
     }
 
+    @Override
     public boolean visit(MarkerAnnotation node) {
-
-        IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
-        ownValue = constructExpressionNode("markerAnnotation", typeName);
+        IValue typeName = visitChild(node.getTypeName());
+        ownValue = constructModifierNode("markerAnnotation", typeName);
 
         return false;
     }
 
+    @Override
     public boolean visit(MemberRef node) {
         return false;
     }
 
+    @Override
     public boolean visit(MemberValuePair node) {
-
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
         IValue value = visitChild(node.getValue());
 
         ownValue = constructExpressionNode("memberValuePair", name, value);
@@ -661,16 +904,17 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(MethodDeclaration node) {
         String constructorName = "method";
-        IValueList extendedModifiers = parseExtendedModifiers(node);
+        IList modifiers = visitChildren(node.modifiers());
 
-        IValueList genericTypes = new IValueList(values);
+        IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeParameters().isEmpty()) {
-                for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeParameters().iterator(); it.hasNext();) {
                     TypeParameter t = (TypeParameter) it.next();
-                    genericTypes.add(visitChild(t));
+                    genericTypes.append(visitChild(t));
                 }
             }
         }
@@ -683,77 +927,118 @@ public class ASTConverter extends JavaToRascalConverter {
                 returnType = visitChild(node.getReturnType2());
             } else {
 
-
                 returnType = constructTypeNode("void");
             }
         } else {
             constructorName = "constructor";
         }
 
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
-        IValueList parameters = new IValueList(values);
-        for (Iterator it = node.parameters().iterator(); it.hasNext();) {
+        IListWriter parameters = values.listWriter();
+        for (Iterator<?> it = node.parameters().iterator(); it.hasNext();) {
             SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-            parameters.add(visitChild(v));
+            parameters.append(visitChild(v));
         }
 
-        IValueList possibleExceptions = new IValueList(values);
-        if (!node.thrownExceptions().isEmpty()) {
+        IListWriter possibleExceptions = values.listWriter();
 
-            for (Iterator it = node.thrownExceptions().iterator(); it.hasNext();) {
-                Name n = (Name) it.next();
-                possibleExceptions.add(visitChild(n));
+        var apiLevel = node.getAST().apiLevel();
+        if (apiLevel == AST.JLS2 || apiLevel == AST.JLS3 || apiLevel == AST.JLS4) {
+            if (!node.thrownExceptions().isEmpty()) {
+                for (Iterator<?> it = node.thrownExceptions().iterator(); it.hasNext();) {
+                    Name n = (Name) it.next();
+                    possibleExceptions.append(visitChild(n));
+                }
+            }
+        }
+        else {
+            if (!node.thrownExceptionTypes().isEmpty()) {
+                ((List<?>) node.thrownExceptionTypes()).stream()
+                    .map(o -> ((ASTNode) o))
+                    .map((ASTNode n) -> visitChild(n))
+                    .collect(possibleExceptions);
             }
         }
 
         IValue body = node.getBody() == null ? null : visitChild(node.getBody()); 
         if (body == null && constructorName.equals("constructor")) {
-            body = constructStatementNode("empty");
+            body = constructStatementNode("empty"); // TODO: what about the source location of this stub?
         }
 
-        ownValue = constructDeclarationNode(constructorName, returnType, name, parameters.asList(), possibleExceptions.asList(), body);
-        setKeywordParameters("modifiers", extendedModifiers);
-        // FIXME: this doesn't seem to be in use anymore
-        //setKeywordParameters("typeParameters", genericTypes);
+        if (body != null) {
+            if ("constructor".equals(constructorName)) {
+                // constructors do not have return types or additional generic types
+                ownValue = constructDeclarationNode(constructorName, modifiers, name, parameters.done(), possibleExceptions.done(), body);
+            }
+            else {
+                if (modifiers.getElementType() == TypeFactory.getInstance().nodeType()) {
+                    System.err.println(modifiers);
+                }
+                ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done(), body);
+            }
+        }
+        else {
+            assert !constructorName.equals("constructor"); // constructors must have a body
+            ownValue = constructDeclarationNode(constructorName, modifiers, genericTypes.done(), returnType, name, parameters.done(), possibleExceptions.done());
+        }
+        
         return false;
     }
-
+    
+    @Override
     public boolean visit(MethodInvocation node) {
-
-        IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-
-        IValueList genericTypes = new IValueList(values);
+        IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
-                    genericTypes.add(visitChild(t));
+                    genericTypes.append(visitChild(t));
                 }
             }
         }
 
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IValue name = visitChild(node.getName());
 
-        IValueList arguments = new IValueList(values);
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
+        IListWriter arguments = values.listWriter();
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
             Expression e = (Expression) it.next();
-            arguments.add(visitChild(e));
-        }		
+            arguments.append(visitChild(e));
+            // this sometimes procudes Type instead of Expression nodes?
+            if (!arguments.get(0).getType().getName().equals("Expression")) {
+                System.err.println(arguments.done());
+            }
+        }	
+        
 
-        ownValue = constructExpressionNode("methodCall", values.bool(false), expression, name, arguments.asList());
-        //setKeywordParameters("typeParameters", genericTypes);
+        if (node.getExpression() != null) {
+            IValue expression = visitChild(node.getExpression());
+            ownValue = constructExpressionNode("methodCall", expression, genericTypes.done(), name, arguments.done());
+        }
+        else {
+            ownValue = constructExpressionNode("methodCall", genericTypes.done(), name, arguments.done());
+        }
+        
         return false;
     }
 
+    @Override
     public boolean visit(MethodRef node) {
+        // Because we do not implement the JavaDoc syntax and
+        // semantics, this reference to a method inside a JavaDoc comment
+        // does nothing for the moment.
         return false;
     }
 
+    @Override
     public boolean visit(MethodRefParameter node) {
+        // Because we do not implement the JavaDoc syntax and
+        // semantics, this reference to a parameter of a method inside a JavaDoc comment
+        // does nothing for the moment.
         return false;
     }
 
+    @Override
     public boolean visit(Modifier node) {
         String modifier = node.getKeyword().toString();
         ownValue = constructModifierNode(modifier);
@@ -761,30 +1046,30 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(NormalAnnotation node) {
+        IValue typeName = visitChild(node.getTypeName());
 
-        IValue typeName = values.string(node.getTypeName().getFullyQualifiedName());
-
-        IValueList memberValuePairs = new IValueList(values);
-        for (Iterator it = node.values().iterator(); it.hasNext();) {
+        IListWriter memberValuePairs = values.listWriter();
+        for (Iterator<?> it = node.values().iterator(); it.hasNext();) {
             MemberValuePair p = (MemberValuePair) it.next();
-            memberValuePairs.add(visitChild(p));
+            memberValuePairs.append(visitChild(p));
         }
 
-        ownValue = constructExpressionNode("normalAnnotation", typeName, memberValuePairs.asList());
+        ownValue = constructModifierNode("normalAnnotation", typeName, memberValuePairs.done());
 
         return false;
     }
 
+    @Override
     public boolean visit(NullLiteral node) {
-
         ownValue = constructExpressionNode("null");
 
         return false;
     }
 
+    @Override
     public boolean visit(NumberLiteral node) {
-
         IValue number = values.string(node.getToken());
 
         ownValue = constructExpressionNode("number", number);
@@ -792,115 +1077,151 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(PackageDeclaration node) {
-        IValueList annotations = new IValueList(values);
+        IValue name = visitChild(node.getName());
+        IList annotations = visitChildren(node.annotations());
+                        
+        ownValue = constructDeclarationNode("package", annotations, name);
 
-        annotations = parseExtendedModifiers(node.annotations());
-
-        ownValue = null;
-        for (String component: node.getName().getFullyQualifiedName().split("\\.")) {
-            if (ownValue == null) {
-                ownValue = constructDeclarationNode("package", values.string(component));
-                setKeywordParameter("decl", resolveBinding(component));
-                continue;
-            }
-            ownValue = constructDeclarationNode("package", ownValue, values.string(component));
-            setKeywordParameter("decl", resolveBinding(component));
-        }
-        setKeywordParameters("modifiers", annotations);
         return false;
     }
 
+    @Override
     public boolean visit(ParameterizedType node) {
-
         IValue type = visitChild(node.getType());
 
-        IValueList genericTypes = new IValueList(values);
-        for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
+        IListWriter genericTypes = values.listWriter();
+        for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
             Type t = (Type) it.next();
-            genericTypes.add(visitChild(t));
+            genericTypes.append(visitChild(t));
         }
 
-        ownValue = constructTypeNode("parameterizedType", type);
-        //setKeywordParameters("typeParameters", genericTypes);
+        ownValue = constructTypeNode("parameterizedType", type, genericTypes.done());
+    
         return false;
     }
 
+    @Override
     public boolean visit(ParenthesizedExpression node) {
-
         IValue expression = visitChild(node.getExpression());
         ownValue = constructExpressionNode("bracket", expression);
 
         return false;
     }
 
+    @Override
     public boolean visit(PostfixExpression node) {
-
+        org.eclipse.jdt.core.dom.PostfixExpression.Operator op = node.getOperator();
         IValue operand = visitChild(node.getOperand());
-        IValue operator = values.string(node.getOperator().toString());
-
-        ownValue = constructExpressionNode("postfix", operand, operator);
+        
+        switch (op.toString()) {
+            case "++":
+                ownValue = constructExpressionNode("postIncrement", operand);
+                break;
+            case "--":
+                ownValue = constructExpressionNode("postDecrement", operand);
+                break;
+            default:
+                throw new IllegalArgumentException(op.toString());
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(PrefixExpression node) {
-
         IValue operand = visitChild(node.getOperand());
-        IValue operator = values.string(node.getOperator().toString());
+        org.eclipse.jdt.core.dom.PrefixExpression.Operator operator = node.getOperator();
 
-        ownValue = constructExpressionNode("prefix", operator, operand);
+        switch (operator.toString()) {
+            case "++":
+                ownValue = constructExpressionNode("preIncrement", operand);
+                break;
+            case "--":
+                ownValue = constructExpressionNode("preDecrement", operand);
+                break;
+            case "+":
+                ownValue = constructExpressionNode("prePlus", operand);
+                break;
+            case "-":
+                ownValue = constructExpressionNode("preMinus", operand);
+                break;
+            case "~":
+                ownValue = constructExpressionNode("preComplement", operand);
+                break;
+            case "!":
+                ownValue = constructExpressionNode("preNot", operand);
+                break;
+            default:
+                throw new IllegalArgumentException(operator.toString());
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(PrimitiveType node) {
         ownValue = constructTypeNode(node.toString());
 
         return false;
     }
 
+    @Override
     public boolean visit(QualifiedName node) {
-
-        IValue qualifier = visitChild(node.getQualifier());
-
-
+        IConstructor qualifier = (IConstructor) visitChild(node.getQualifier());
         IValue name = visitChild(node.getName());
 
-        ownValue = constructExpressionNode("qualifiedName", qualifier, name);
+        IListWriter names = values.listWriter();
+        if (qualifier.getConstructorType().getName().equals("qualifiedName")) {
+            // flatten
+            names.appendAll((IList) qualifier.get("identifiers"));
+        }
+        else {
+            names.append(qualifier);
+        }
+        names.append(name);
+
+        ownValue = constructExpressionNode("qualifiedName", names.done());
 
         return false;
     }
 
+    @Override
     public boolean visit(QualifiedType node) {
-
         IValue qualifier = visitChild(node.getQualifier());
-
+        IList annos = visitChildren(node.annotations());
 
         IValue name = visitChild(node.getName());
 
-        ownValue = constructTypeNode("qualifiedType", qualifier, name);
+        ownValue = constructTypeNode("qualifiedType", annos, qualifier, name);
 
         return false;
     }
 
+    @Override
     public boolean visit(ReturnStatement node) {
-
-        IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-        ownValue = constructStatementNode("return", expression);
+        if (node.getExpression() != null) {
+            IValue expression = visitChild(node.getExpression());
+            ownValue = constructStatementNode("return", expression);
+        }
+        else {
+            ownValue = constructStatementNode("return");
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(SimpleName node) {
-
         IValue value = values.string(node.getFullyQualifiedName());
 
-        ownValue = constructExpressionNode("simpleName", value);
+        ownValue = constructExpressionNode("id", value);
 
         return false;
     }
 
+    @Override
     public boolean visit(SimpleType node) {
         IValue value = visitChild(node.getName());
         ownValue = constructTypeNode("simpleType", value);
@@ -908,135 +1229,343 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(SingleMemberAnnotation node) {
-
-        IValue name = values.string(node.getTypeName().getFullyQualifiedName());
+        IValue name = visitChild(node.getTypeName());
         IValue value = visitChild(node.getValue());
 
-        ownValue = constructExpressionNode("singleMemberAnnotation", name, value);
+        ownValue = constructModifierNode("singleMemberAnnotation", name, value);
 
         return false;
     }
 
+    @Override
     public boolean visit(SingleVariableDeclaration node) {
-
-        IValue name = values.string(node.getName().getFullyQualifiedName());
-
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
+        IValue name = visitChild(node.getName());
+        IList modifiers = visitChildren(node.modifiers());
 
         IValue type = visitChild(node.getType());
         IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
 
-        ownValue = constructDeclarationNode("parameter", type, name, values.integer(node.getExtraDimensions()), initializer);
-        if (node.getAST().apiLevel() >= AST.JLS3 && node.isVarargs())
-            ownValue = constructDeclarationNode("vararg", type, name);
+        IList dimensions = ((List<?>) node.extraDimensions())
+            .stream()
+            .map(o -> (ASTNode) o) 
+            .map(d -> visitChild(d))
+            .collect(values.listWriter());
 
-        setKeywordParameters("modifiers", extendedModifiers);
+        if (node.getAST().apiLevel() >= AST.JLS3 && node.isVarargs()) {
+            assert initializer == null;
+            ownValue = constructDeclarationNode("vararg", modifiers, type, name);
+        }
+        else {
+            if (initializer != null) {
+                ownValue = constructDeclarationNode("parameter", modifiers, type, name, dimensions, initializer);
+            }
+            else {
+                ownValue = constructDeclarationNode("parameter", modifiers, type, name, dimensions);
+            }
+        }
 
         return false;
     }
+    
+    @Override
+    public boolean visit(Dimension node) {
+        var annos = visitChildren(node.annotations());
+        ownValue = constructDeclarationNode("dimension", annos);
+        return false;
+    }
 
+    @Override
     public boolean visit(StringLiteral node) {
+        IString escaped = values.string(node.getEscapedValue());		
+        IString literal = values.string(node.getLiteralValue());
+        ownValue = constructExpressionNode("stringLiteral", escaped).asWithKeywordParameters().setParameter("literal", literal);
 
-        IValue value = values.string(node.getEscapedValue());		
-        ownValue = constructExpressionNode("stringLiteral", value);
+        return false;
+    }
+  
+    @Override
+    public boolean visit(TextBlock node) {
+        IString escaped = values.string(node.getEscapedValue());		
+        IString literal = values.string(node.getLiteralValue());
+        ownValue = constructExpressionNode("textBlock", escaped).asWithKeywordParameters().setParameter("literal", literal);
 
         return false;
     }
 
-    public boolean visit(SuperConstructorInvocation node) {
 
-        IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-
-        IValueList genericTypes = new IValueList(values);	
-        if (node.getAST().apiLevel() >= AST.JLS3) {
-            if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
-                    Type t = (Type) it.next();
-                    genericTypes.add(visitChild(t));
-                }
-            }
-        }
-
-        IValueList arguments = new IValueList(values);
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
-            Expression e = (Expression) it.next();
-            arguments.add(visitChild(e));
-        }
-
-        ownValue = constructStatementNode("constructorCall", values.bool(true), expression, arguments.asList());
-        //setKeywordParameters("typeParameters", genericTypes);
+    @Override
+    public boolean visit(YieldStatement node) {
+        IValue exp = visitChild(node.getExpression());
+        ownValue = constructStatementNode("yield", exp);
         return false;
     }
 
-    public boolean visit(SuperFieldAccess node) {
-
-        IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
-        IValue name = values.string((node.getName().getFullyQualifiedName()));
-
-        ownValue = constructExpressionNode("fieldAccess", values.bool(true), qualifier, name);
-
+    @Override
+    public boolean visit(LambdaExpression node) {
+        IList parameters = visitChildren(node.parameters());
+        
+        ownValue = constructExpressionNode("lambda", parameters, visitChild(node.getBody()));
         return false;
     }
 
-    public boolean visit(SuperMethodInvocation node) {
-
-        IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
-
-        IValueList genericTypes = new IValueList(values);
-        if (node.getAST().apiLevel() >= AST.JLS3) {
-            if (!node.typeArguments().isEmpty()) {
-                for (Iterator it = node.typeArguments().iterator(); it.hasNext();) {
-                    Type t = (Type) it.next();
-                    genericTypes.add(visitChild(t));
-                }
-            }
-        }
-
-        IValue name = values.string(node.getName().getFullyQualifiedName());
-
-        IValueList arguments = new IValueList(values);
-        for (Iterator it = node.arguments().iterator(); it.hasNext();) {
-            Expression e = (Expression) it.next();
-            arguments.add(visitChild(e));
-        }
-
-        ownValue = constructExpressionNode("methodCall", values.bool(true), qualifier, name, arguments.asList());
-        //setKeywordParameters("typeParameters", genericTypes);
-        return false;
-    }
-
-    public boolean visit(SwitchCase node) {
-
-
-        IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
-        String constructorName = "case";
-
-        if (node.isDefault())
-            constructorName = "defaultCase";
-
-        ownValue = constructStatementNode(constructorName, expression);			
-
-        return false;
-    }
-
-    public boolean visit(SwitchStatement node) {
-
+    @Override
+    public boolean visit(SwitchExpression node) {
         IValue expression = visitChild(node.getExpression());
 
-        IValueList statements = new IValueList(values);
-        for (Iterator it = node.statements().iterator(); it.hasNext();) {
+        IListWriter statements = values.listWriter();
+        for (Iterator<?> it = node.statements().iterator(); it.hasNext();) {
             Statement s = (Statement) it.next();
-            statements.add(visitChild(s));
+            statements.append(visitChild(s));
         }
 
-        ownValue = constructStatementNode("switch", expression, statements.asList());
+        ownValue = constructExpressionNode("switch", expression, statements.done());
 
         return false;
     }
 
-    public boolean visit(SynchronizedStatement node) {
+    @Override
+    public boolean visit(SuperConstructorInvocation node) {
+        IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
 
+        IListWriter genericTypes = values.listWriter();	
+        if (node.getAST().apiLevel() >= AST.JLS3) {
+            if (!node.typeArguments().isEmpty()) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
+                    Type t = (Type) it.next();
+                    genericTypes.append(visitChild(t));
+                }
+            }
+        }
+
+        IListWriter arguments = values.listWriter();
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
+            Expression e = (Expression) it.next();
+            arguments.append(visitChild(e));
+        }
+
+        if (expression != null) {
+            ownValue = constructStatementNode("superConstructorCall", expression, genericTypes.done(), arguments.done());
+        }
+        else {
+            ownValue = constructStatementNode("superConstructorCall", genericTypes.done(), arguments.done());
+        }
+        
+        return false;
+    }
+
+    @Override
+    public boolean visit(SuperFieldAccess node) {
+        IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
+        IValue name = visitChild(node.getName());
+
+        if (qualifier != null) {
+            ownValue = constructExpressionNode("fieldAccess", qualifier, name);
+        }
+        else {
+            ownValue = constructExpressionNode("fieldAccess", name);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(SuperMethodInvocation node) {
+        IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
+
+        IListWriter genericTypes = values.listWriter();
+        if (node.getAST().apiLevel() >= AST.JLS3) {
+            if (!node.typeArguments().isEmpty()) {
+                for (Iterator<?> it = node.typeArguments().iterator(); it.hasNext();) {
+                    Type t = (Type) it.next();
+                    genericTypes.append(visitChild(t));
+                }
+            }
+        }
+
+        IValue name = visitChild(node.getName());
+
+        IListWriter arguments = values.listWriter();
+        for (Iterator<?> it = node.arguments().iterator(); it.hasNext();) {
+            Expression e = (Expression) it.next();
+            arguments.append(visitChild(e));
+        }
+
+        if (qualifier != null) {
+            ownValue = constructExpressionNode("superMethodCall", qualifier, genericTypes.done(), name, arguments.done());
+        }
+        else {
+            ownValue = constructExpressionNode("superMethodCall", genericTypes.done(), name, arguments.done());
+        }
+        
+        return false;
+    }
+
+    @Override
+    public boolean visit(SwitchCase node) {
+        IValue expression = node.getExpression() == null ? null : visitChild(node.getExpression());
+        List<?> expressions = node.expressions();
+
+        String constructorName = "case";
+
+        IList exprs = expression == null 
+            ? values.list(expression)
+            : expressions.stream()
+                .map(o -> (Expression) o)
+                .map(e -> visitChild(e)).collect(values.listWriter());
+        
+        if (node.isSwitchLabeledRule()) {
+            constructorName = "caseRule";
+            ownValue = constructStatementNode(constructorName, exprs);
+        }
+        else if (node.isDefault()) {
+            constructorName = "defaultCase";
+            ownValue = constructStatementNode(constructorName);
+        }
+        else {
+            ownValue = constructStatementNode(constructorName, exprs);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(TypeMethodReference node) {
+        IValue type = visitChild(node.getType());
+        IList args = ((List<?>) node.typeArguments())
+            .stream()
+            .map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructExpressionNode("methodReference", type, args, name);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ExpressionMethodReference node) {
+        IValue type = visitChild(node.getExpression());
+        IList args = ((List<?>) node.typeArguments())
+            .stream()
+            .map(o -> (Type) o).map(t -> visitChild(t)).collect(values.listWriter());
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructExpressionNode("methodReference", type, args, name);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ModuleDeclaration node) {
+        IList mod = node.isOpen() ? values.list(constructModifierNode("open")) : values.list();
+        IValue name = visitChild(node.getName());
+
+        IList stats
+            = ((List<?>) node.moduleStatements())
+                .stream()
+                .map(o -> (ASTNode) o)
+                .map(s -> visitChild(s))
+                .collect(values.listWriter());
+
+        ownValue = constructDeclarationNode("module", mod, name, stats);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ModuleModifier node) {
+        if (node.isStatic()) {
+            ownValue = constructModifierNode("static");
+        }
+        else if (node.isTransitive()) {
+            ownValue = constructModifierNode("static");
+        }
+        else {
+            // unknown module requirement modifier?
+            assert false;
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(OpensDirective node) {
+        IValue name = visitChild(node.getName());
+        IList modules = ((List<?>) node.modules()).stream()
+            .map(e -> ((ASTNode) e)) 
+            .map(n -> visitChild(n))
+            .collect(values.listWriter());
+        
+        ownValue = constructDeclarationNode("opensPackage", name, modules);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ProvidesDirective node) {
+        IValue name = visitChild(node.getName());
+        IList implementations = ((List<?>) node.implementations()).stream()
+            .map(e -> ((ASTNode) e)) 
+            .map(n -> visitChild(n)) 
+            .collect(values.listWriter());
+        
+        ownValue = constructDeclarationNode("providesImplementations", name, implementations);
+        return false;
+    }
+
+    @Override
+    public boolean visit(RequiresDirective node) {
+        IList modifiers = ((List<?>) node.modifiers()).stream()
+            .map(e -> ((ASTNode) e)) 
+            .map(n -> visitChild(n)) 
+            .collect(values.listWriter());
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructDeclarationNode("requires", modifiers, name);
+        return false;
+    }
+
+    @Override
+    public boolean visit(UsesDirective node) {
+        IValue name = visitChild(node.getName());
+        
+        ownValue = constructDeclarationNode("uses", name);
+        return false;
+    }
+
+    @Override
+    public boolean visit(ExportsDirective node) {
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructDeclarationNode("exports", name, visitChildren(node.modules()));
+        return false;
+    }
+
+    @Override
+    public boolean visit(SuperMethodReference node) {
+        IList args = ((List<?>) node.typeArguments())
+            .stream().map(o -> (Type) o)
+            .map(t -> visitChild(t)).collect(values.listWriter());
+        IValue name = visitChild(node.getName());
+
+        ownValue = constructExpressionNode("superMethodReference", args, name);
+        return false;
+    }
+        
+    @Override
+    public boolean visit(SwitchStatement node) {
+        IValue expression = visitChild(node.getExpression());
+
+        IListWriter statements = values.listWriter();
+        for (Iterator<?> it = node.statements().iterator(); it.hasNext();) {
+            Statement s = (Statement) it.next();
+            statements.append(visitChild(s));
+        }
+
+        ownValue = constructStatementNode("switch", expression, statements.done());
+
+        return false;
+    }
+
+    @Override
+    public boolean visit(SynchronizedStatement node) {
         IValue expression = visitChild(node.getExpression());
         IValue body = visitChild(node.getBody());
 
@@ -1045,27 +1574,36 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TagElement node) {
-
+        // These are recognized elements in JavaDoc code such as @see and @link.
+        // We currently skip parsing those parts of the syntax so we return nothing here.
         return false;
     }
 
+    @Override
     public boolean visit(TextElement node) {
-
+        // These are recognized elements in JavaDoc code such as @see and @link.
+        // We currently skip parsing those parts of the syntax so we return nothing here.
         return false;
     }
 
+    @Override
     public boolean visit(ThisExpression node) {
+        if (node.getQualifier() != null) {
+            IValue qualifier = visitChild(node.getQualifier());
 
-        IValue qualifier = node.getQualifier() == null ? null : visitChild(node.getQualifier());
-
-        ownValue = constructExpressionNode("this", qualifier);
+            ownValue = constructExpressionNode("this", qualifier);
+        }
+        else {
+            ownValue = constructExpressionNode("this");
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(ThrowStatement node) {
-
         IValue expression = visitChild(node.getExpression());
 
         ownValue = constructStatementNode("throw", expression);
@@ -1073,79 +1611,85 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TryStatement node) {
-
         IValue body = visitChild(node.getBody());
 
-        IValueList catchClauses = new IValueList(values);
-        for (Iterator it = node.catchClauses().iterator(); it.hasNext();) {
+        IListWriter catchClauses = values.listWriter();
+        for (Iterator<?> it = node.catchClauses().iterator(); it.hasNext();) {
             CatchClause cc = (CatchClause) it.next();
-            catchClauses.add(visitChild(cc));
+            catchClauses.append(visitChild(cc));
         }
 
-        IValue finallyBlock = node.getFinally() == null ? null : visitChild(node.getFinally()); 
+        if (node.getFinally() != null) {
+            IValue finallyBlock = visitChild(node.getFinally()); 
 
-        ownValue = constructStatementNode("try", body, catchClauses.asList(), finallyBlock);
+            ownValue = constructStatementNode("try", body, catchClauses.done(), finallyBlock);
+        }
+        else {
+            ownValue = constructStatementNode("try", body, catchClauses.done());
+        }
 
         return false;
     }
 
+    @Override
     public boolean visit(TypeDeclaration node) {
+        IList modifiers = visitChildren(node.modifiers());
 
-        IValueList extendedModifiers = parseExtendedModifiers(node);
         String objectType = node.isInterface() ? "interface" : "class";
-        IValue name = values.string(node.getName().getFullyQualifiedName()); 
+        IValue name = visitChild(node.getName());
 
-        IValueList genericTypes = new IValueList(values);
+        IListWriter genericTypes = values.listWriter();
         if (node.getAST().apiLevel() >= AST.JLS3) {
             if (!node.typeParameters().isEmpty()) {			
-                for (Iterator it = node.typeParameters().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.typeParameters().iterator(); it.hasNext();) {
                     TypeParameter t = (TypeParameter) it.next();
-                    genericTypes.add(visitChild(t));			
+                    genericTypes.append(visitChild(t));			
                 }
             }
         }
 
-        IValueList extendsClass = new IValueList(values);
-        IValueList implementsInterfaces = new IValueList(values);
+        IListWriter extendsClass = values.listWriter();
+        IListWriter implementsInterfaces = values.listWriter();
 
         if (node.getAST().apiLevel() == AST.JLS2) {
             if (node.getSuperclass() != null) {
-                extendsClass.add(visitChild(node.getSuperclass()));
+                extendsClass.append(visitChild(node.getSuperclass()));
             }
             if (!node.superInterfaces().isEmpty()) {
-                for (Iterator it = node.superInterfaces().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.superInterfaces().iterator(); it.hasNext();) {
                     Name n = (Name) it.next();
-                    implementsInterfaces.add(visitChild(n));
+                    implementsInterfaces.append(visitChild(n));
                 }
             }
         } else if (node.getAST().apiLevel() >= AST.JLS3) {
             if (node.getSuperclassType() != null) {
-                extendsClass.add(visitChild(node.getSuperclassType()));
+                extendsClass.append(visitChild(node.getSuperclassType()));
             }
             if (!node.superInterfaceTypes().isEmpty()) {
-                for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext();) {
+                for (Iterator<?> it = node.superInterfaceTypes().iterator(); it.hasNext();) {
                     Type t = (Type) it.next();
-                    implementsInterfaces.add(visitChild(t));
+                    implementsInterfaces.append(visitChild(t));
                 }
             }
         }
 
-        IValueList bodyDeclarations = new IValueList(values);
-        for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext();) {
+        IListWriter bodyDeclarations = values.listWriter();
+        for (Iterator<?> it = node.bodyDeclarations().iterator(); it.hasNext();) {
             BodyDeclaration d = (BodyDeclaration) it.next();
-            bodyDeclarations.add(visitChild(d));
+            bodyDeclarations.append(visitChild(d));
         }
 
-        ownValue = constructDeclarationNode(objectType, name, extendsClass.asList(), implementsInterfaces.asList(), bodyDeclarations.asList());
-        setKeywordParameters("modifiers", extendedModifiers);
-        //setKeywordParameters("typeParameters", genericTypes);
+        ownValue = constructDeclarationNode(objectType, modifiers, name, genericTypes.done(), extendsClass.done(), implementsInterfaces.done(), bodyDeclarations.done());
+        
         return false;
     }
 
+    @Override
     public boolean visit(TypeDeclarationStatement node) {
-
         IValue typeDeclaration;
+
         if (node.getAST().apiLevel() == AST.JLS2) {
             typeDeclaration = visitChild(node.getTypeDeclaration());
         }
@@ -1158,8 +1702,8 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TypeLiteral node) {
-
         IValue type = visitChild(node.getType());
 
         ownValue = constructExpressionNode("type", type);
@@ -1167,93 +1711,115 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(TypeParameter node) {
+        IValue name = visitChild(node.getName());
 
-        IValue name = values.string(node.getName().getFullyQualifiedName());
-
-        IValueList extendsList = new IValueList(values);
+        IListWriter extendsList = values.listWriter();
         if (!node.typeBounds().isEmpty()) {
-            for (Iterator it = node.typeBounds().iterator(); it.hasNext();) {
+            for (Iterator<?> it = node.typeBounds().iterator(); it.hasNext();) {
                 Type t = (Type) it.next();
-                extendsList.add(visitChild(t));
+                extendsList.append(visitChild(t));
             }
         }
 
-        ownValue = constructDeclarationNode("typeParameter", name, extendsList.asList());
+        ownValue = constructDeclarationNode("typeParameter", name, extendsList.done());
 
         return false;
     }
 
+    @Override
     public boolean visit(UnionType node) {
-
-        IValueList typesValues = new IValueList(values);
-        for(Iterator types = node.types().iterator(); types.hasNext();) {
+        IListWriter typesValues = values.listWriter();
+        for(Iterator<?> types = node.types().iterator(); types.hasNext();) {
             Type type = (Type) types.next();
-            typesValues.add(visitChild(type));
+            typesValues.append(visitChild(type));
         }
 
-        ownValue = constructTypeNode("unionType", typesValues.asList());
+        ownValue = constructTypeNode("unionType", typesValues.done());
 
         return false;
     }
 
+    @Override
+    public boolean visit(IntersectionType node) {
+        IListWriter typesValues = values.listWriter();
+        for(Iterator<?> types = node.types().iterator(); types.hasNext();) {
+            Type type = (Type) types.next();
+            typesValues.append(visitChild(type));
+        }
+
+        ownValue = constructTypeNode("intersectionType", typesValues.done());
+
+        return false;
+    }
+
+    @Override
     public boolean visit(VariableDeclarationExpression node) {
-
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-
+        IList modifiers = visitChildren(node.modifiers());
 
         IValue type = visitChild(node.getType());
 
-        IValueList fragments = new IValueList(values);
-        for (Iterator it = node.fragments().iterator(); it.hasNext();) {
+        IListWriter fragments = values.listWriter();
+        for (Iterator<?> it = node.fragments().iterator(); it.hasNext();) {
             VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
-            fragments.add(visitChild(f));
+            fragments.append(visitChild(f));
         }
 
-        ownValue = constructDeclarationNode("variables", type, fragments.asList());
-        setKeywordParameters("modifiers", extendedModifiers);
-
+        // intented nesting; we're reusing the Declaration AST node here.
+        ownValue = constructDeclarationNode("variables", modifiers, type, fragments.done());
+        postVisit(node);
+        
         ownValue = constructExpressionNode("declarationExpression", ownValue);
 
-
         return false;
     }
 
+    @Override
     public boolean visit(VariableDeclarationFragment node) {
+        IValue name = visitChild(node.getName());
 
-        IValue name = values.string(node.getName().getFullyQualifiedName());
+        IList dimensions = ((List<?>) node.extraDimensions())
+            .stream()
+            .map(o -> (ASTNode) o) 
+            .map(d -> visitChild(d))
+            .collect(values.listWriter());
 
-        IValue initializer = node.getInitializer() == null ? null : visitChild(node.getInitializer());
-
-        ownValue = constructExpressionNode("variable", name, values.integer(node.getExtraDimensions()), initializer);
+        if (node.getInitializer() != null) {
+            IValue initializer = visitChild(node.getInitializer());
+            ownValue = constructDeclarationNode("variable", name, dimensions, initializer);
+        }
+        else {
+            ownValue = constructDeclarationNode("variable", name, dimensions);
+        }
 
 
         return false;
     }
 
+    @Override
     public boolean visit(VariableDeclarationStatement node) {
-
-        IValueList extendedModifiers = parseExtendedModifiers(node.modifiers());
-
+        IList modifiers = visitChildren(node.modifiers());
 
         IValue type = visitChild(node.getType());
 
-        IValueList fragments = new IValueList(values);
-        for (Iterator it = node.fragments().iterator(); it.hasNext();) {
+        IListWriter fragments = values.listWriter();
+        for (Iterator<?> it = node.fragments().iterator(); it.hasNext();) {
             VariableDeclarationFragment f = (VariableDeclarationFragment) it.next();
-            fragments.add(visitChild(f));
+            fragments.append(visitChild(f));
         }
 
-        ownValue = constructDeclarationNode("variables", type, fragments.asList());
-        setKeywordParameters("modifiers", extendedModifiers);
+        // intented nesting; we reuse the declaration node inside a statement node
+        ownValue = constructDeclarationNode("variables", modifiers, type, fragments.done());
+        postVisit(node);
 
         ownValue = constructStatementNode("declarationStatement", ownValue);
 
         return false;
     }
 
+    @Override
     public boolean visit(WhileStatement node) {
-
         IValue expression = visitChild(node.getExpression());
         IValue body = visitChild(node.getBody());
 
@@ -1262,21 +1828,25 @@ public class ASTConverter extends JavaToRascalConverter {
         return false;
     }
 
+    @Override
     public boolean visit(WildcardType node) {
-        //FIXME: upperbound/lowerbound that should have been type annotation are replaced by TypeSymbol
-        IValue type = null;
         String name = "wildcard";
+        IList annos = visitChildren(node.annotations());
 
         if (node.getBound() != null) {
-            type = visitChild(node.getBound());
+            var bound = visitChild(node.getBound());
             if (node.isUpperBound()) {
-                name = "upperbound";
+                name = "extends";
+            } 
+            else {
+                name = "super";
+            }    
 
-            } else {
-                name = "lowerbound";
-            }
+            ownValue = constructTypeNode(name, annos, bound);
         }
-        ownValue = constructTypeNode(name, type);
+        else {
+            ownValue = constructTypeNode(name, annos);
+        }
 
         return false;
     }

@@ -24,6 +24,8 @@ import io.usethesource.vallang.ISourceLocation;
 
 public interface NodeResolver {    
     
+    IConstructor resolveLanguageVersion(ClassNode node);
+    
     /**
      * Returns the location of a bytecode node given a bytecode 
      * object and its parent logical location.

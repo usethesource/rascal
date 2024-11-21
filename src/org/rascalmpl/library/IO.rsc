@@ -100,6 +100,36 @@ is a module name, then `lang/x/myLanguage/examples/myExampleFile.mL` is an examp
 java set[loc] findResources(str fileName);
 set[loc] findResources(loc path) = findResources(path.path) when path.scheme == "relative";
 
+@synopsis{Search for a single resource instance, and fail if no or multiple instances are found}
+@description{
+This is a utility wrapper around ((findResources)).
+It processes the result set of ((findResources)) to:
+* return a singleton location if the `fileName`` was found.
+* throw an IO exception if no instances of `fileName` was found.
+* throw an IO exception if multiple instances of `fileName` were found.
+}
+@benefits{
+* Save some code to unpack of the set that ((findResources)) produces.
+}
+@pitfalls{
+* ((getResource)) searches for all instances in the entire run-time context of the current 
+module. So if the search path (classpath) grows, new similar files may be added that match and this
+function will start throwing IO exceptions. If you can influence the `fileName`, then make sure
+to pick a name that is always going to be unique for the current project. 
+}
+loc getResource(str fileName) throws IO {
+  result = findResources(fileName);
+
+  switch (result) {
+    case {}: 
+      throw IO("<fileName> not found");
+    case {loc singleton}: 
+      return singleton;
+    default:
+      throw IO("<fileName> found more than once: <result>");
+  }
+}
+ 
 @synopsis{Append a value to a file.}
 @description{
 Append a textual representation of some values to an existing or a newly created file:
@@ -533,24 +563,43 @@ Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
 public str readFileEnc(loc file, str charset) throws PathNotFound, IO
   = readFile(file, inferCharset=false, charset=charset);
 
+@synopsis{Read the content of a file and return it as a base-64 encoded string.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase64(loc file)
+public java str readBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @deprecated{
-Use readBase64 instead. Uuencode was a misnomer.
+Use readBase64 instead.
 }
 public str uuencode(loc file) = readBase64(file);
 
+@synopsis{Decode a base-64 encoded string and write the resulting bytes to a file.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
 @deprecated{
-Use writeBase65 instead. Uudecode was a misnomer.
+Use writeBase64 instead.
 }
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
+@synopsis{Read the content of a file and return it as a base-32 encoded string.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str readBase32(loc file, bool includePadding=true)
+throws PathNotFound, IO;
+
+@synopsis{Decode a base-32 encoded string and write the resulting bytes to a file.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBase32(loc file, str content)
+throws PathNotFound, IO;
 
 @synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
@@ -662,21 +711,24 @@ public java str createLink(str title, str target);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(loc file)
+@deprecated{
+Use `readBase64` instead.
+}
+public java str toBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);

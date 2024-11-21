@@ -642,13 +642,6 @@ public bool isListType(Symbol::\list(_)) = true;
 public bool isListType(Symbol::\lrel(_)) = true;
 public default bool isListType(Symbol _) = false;
 
-@synopsis{Determine if the given type is an lrel.}
-public bool isListRelType(Symbol::\alias(_,_,Symbol at)) = isListRelType(at);
-public bool isListRelType(Symbol::\parameter(_,Symbol tvb)) = isListRelType(tvb);
-public bool isListRelType(Symbol::\label(_,Symbol lt)) = isListRelType(lt);
-public bool isListRelType(Symbol::\lrel(_)) = true;
-public default bool isListRelType(Symbol _) = false;
-
 @synopsis{Determine if the given type is an map.}
 public bool isMapType(Symbol::\alias(_,_,Symbol at)) = isMapType(at);
 public bool isMapType(Symbol::\parameter(_,Symbol tvb)) = isMapType(tvb);

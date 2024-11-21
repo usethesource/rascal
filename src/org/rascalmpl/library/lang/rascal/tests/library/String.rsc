@@ -14,7 +14,7 @@
   *******************************************************************************/
   
 import String;
-  
+
 // center
   
 test bool center1() = center("a", 0) == "a";
@@ -231,9 +231,33 @@ test bool toUpperCase2() = toUpperCase("") == "";
 test bool toUpperCase3() = String::toUpperCase("abc") == "ABC";
 test bool toUpperCase4() = String::toUpperCase("abc123") == "ABC123";
   	
-  
-  	
- 
-  	
-  
- 
+
+// Base64
+bool testBase64(str s) {
+     return fromBase64(toBase64(s)) == s && fromBase64(toBase64(s, includePadding=false)) == s;
+}
+
+test bool toBase64Empty() = toBase64("") == "";
+test bool toBase64Single() = toBase64("a") == "YQ==";
+test bool toBase64SingleNoPadding() = toBase64("a", includePadding=false) == "YQ";
+
+test bool testBase64SomeChars() = testBase64("Hello World!");
+test bool testBase64AllChars1() = testBase64("`1234567890-=~!@#$%^&*");
+test bool testBase64AllChars2() = testBase64("()_+qwertyuiop[]\\QWERTYUIOP");
+test bool testBase64AllChars3() = testBase64("{}|asdfghjkl;\'ASDFGHJKL:\"");
+test bool testBase64AllChars4() = testBase64("zxcvbnm,./ZXCVBNM\<\>? ");
+
+// Base32
+bool testBase32(str s) {
+     return fromBase32(toBase32(s)) == s && fromBase32(toBase32(s, includePadding=false)) == s;
+}
+
+test bool toBase32Empty() = toBase32("") == "";
+test bool toBase32EmptyNoPadding() = toBase32("", includePadding=false) == "";
+test bool toBase32Single() = toBase32("a") == "ME======";
+test bool toBase32SingleNoPadding() = toBase32("a", includePadding=false) == "ME";
+test bool testBase32SomeChars() = testBase32("Hello World!");
+test bool testBase32AllChars1() = testBase32("`1234567890-=~!@#$%^&*");
+test bool testBase32AllChars2() = testBase32("()_+qwertyuiop[]\\QWERTYUIOP");
+test bool testBase32AllChars3() = testBase32("{}|asdfghjkl;\'ASDFGHJKL:\"");
+test bool testBase32AllChars4() = testBase32("zxcvbnm,./ZXCVBNM\<\>? ");

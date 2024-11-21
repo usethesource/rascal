@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +21,7 @@ import java.util.zip.ZipEntry;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarURIResolver;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -256,7 +256,7 @@ public class RascalManifest {
 
     public InputStream manifest(ISourceLocation root) {
         try {
-            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(jarify(root), META_INF_RASCAL_MF));
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(JarURIResolver.jarify(root), META_INF_RASCAL_MF));
         } catch (IOException e) {
             return null;
         }
@@ -287,22 +287,6 @@ public class RascalManifest {
         }
 
         return new PathConfig(srcs, libs, binFolder);
-    }
-
-    public static ISourceLocation jarify(ISourceLocation loc) {
-        if (!loc.getPath().endsWith(".jar")) {
-            return loc;
-        }
-        
-        try {
-            loc = URIUtil.changeScheme(loc, "jar+" + loc.getScheme());
-            loc = URIUtil.changePath(loc, loc.getPath() + "!/");
-            return loc;
-        }
-        catch (URISyntaxException e) {
-            assert false;  // this can never happen;
-            return loc;
-        }
     }
 
     public InputStream manifest(JarInputStream stream) {

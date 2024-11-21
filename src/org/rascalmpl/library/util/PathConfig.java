@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -485,7 +486,7 @@ public class PathConfig {
             String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
             
             if (libProjectName != null) {
-                mavenLibs.put(libProjectName, RascalManifest.jarify(dep));
+                mavenLibs.put(libProjectName, JarURIResolver.jarify(dep));
             }
         }
 

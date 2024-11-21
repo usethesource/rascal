@@ -223,6 +223,7 @@ public class QuickCheck {
                 // out.println(thrownException.toString());
                 thrownException.printStackTrace(out);
             }
+            out.flush();
         }
     }
 
