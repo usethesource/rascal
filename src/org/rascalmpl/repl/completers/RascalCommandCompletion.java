@@ -1,4 +1,4 @@
-package org.rascalmpl.repl;
+package org.rascalmpl.repl.completers;
 
 
 import java.util.ArrayList;
@@ -18,26 +18,39 @@ import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.repl.CompletionFunction;
+import org.rascalmpl.repl.CompletionResult;
 
-public class RascalCommandCompletion {
+public class RascalCommandCompletion implements Completer {
     private static final NavigableMap<String,String> COMMAND_KEYWORDS;
     static {
         COMMAND_KEYWORDS = new TreeMap<>();
-        COMMAND_KEYWORDS.put(":set", "change a evaluator setting");
-        COMMAND_KEYWORDS.put(":undeclare", "undeclare a local variable of the REPL");
-        COMMAND_KEYWORDS.put(":help", "print help message");
-        COMMAND_KEYWORDS.put(":edit", "open a rascal module in the editor");
-        COMMAND_KEYWORDS.put(":unimport", "unload an imported module from the REPL");
-        COMMAND_KEYWORDS.put(":declarations", "show declarations"); // TODO figure out what it does
-        COMMAND_KEYWORDS.put(":quit", "cleanly exit the REPL");
-        COMMAND_KEYWORDS.put(":history", "history"); // TODO: figure out what it does
-        COMMAND_KEYWORDS.put(":test", "run rest modules");
-        COMMAND_KEYWORDS.put(":modules", "show imported modules");// TODO: figure out what it does 
-        COMMAND_KEYWORDS.put(":clear", "clear evaluator");// TODO: figure out what it does 
+        COMMAND_KEYWORDS.put("set", "change a evaluator setting");
+        COMMAND_KEYWORDS.put("undeclare", "undeclare a local variable of the REPL");
+        COMMAND_KEYWORDS.put("help", "print help message");
+        COMMAND_KEYWORDS.put("edit", "open a rascal module in the editor");
+        COMMAND_KEYWORDS.put("unimport", "unload an imported module from the REPL");
+        COMMAND_KEYWORDS.put("declarations", "show declarations"); // TODO figure out what it does
+        COMMAND_KEYWORDS.put("quit", "cleanly exit the REPL");
+        COMMAND_KEYWORDS.put("history", "history"); // TODO: figure out what it does
+        COMMAND_KEYWORDS.put("test", "run rest modules");
+        COMMAND_KEYWORDS.put("modules", "show imported modules");// TODO: figure out what it does 
+        COMMAND_KEYWORDS.put("clear", "clear evaluator");// TODO: figure out what it does 
+    }
+
+    private final NavigableMap<String, String> setOptions;
+    private final BiConsumer<String, List<Candidate>> completeIdentifier;
+    private final BiConsumer<String, List<Candidate>> completeModule;
+    public RascalCommandCompletion(NavigableMap<String, String> setOptions, BiConsumer<String, List<Candidate>> completeIdentifier, BiConsumer<String, List<Candidate>> completeModule) {
+        this.setOptions = setOptions;
+        this.completeIdentifier = completeIdentifier;
+        this.completeModule = completeModule;
     }
 
 
+
     private static final Pattern splitCommand = Pattern.compile("^[\\t ]*:(?<command>[a-z]*)([\\t ]|$)");
+    /**@deprecated remove this function */
     public static CompletionResult complete(String line, int cursor, SortedSet<String> commandOptions, CompletionFunction completeIdentifier, CompletionFunction completeModule) {
         assert line.trim().startsWith(":");
         Matcher m = splitCommand.matcher(line);
@@ -64,7 +77,7 @@ public class RascalCommandCompletion {
                 case "edit":
                 case "unimport": return completeModule.complete(line, line.length());
                 default: {
-                    if (COMMAND_KEYWORDS.containsKey(":" + currentCommand)) {
+                    if (COMMAND_KEYWORDS.containsKey(currentCommand)) {
                         return null; // nothing to complete after a full command
                     }
                     List<String> result = null;
@@ -73,7 +86,7 @@ public class RascalCommandCompletion {
                     }
                     else {
                         result = COMMAND_KEYWORDS.keySet().stream()
-                                        .filter(s -> s.startsWith(":" + currentCommand))
+                                        .filter(s -> s.startsWith(currentCommand))
                                         .collect(Collectors.toList());
                     }
                     if (!result.isEmpty()) {
@@ -84,42 +97,41 @@ public class RascalCommandCompletion {
         }
         return null;
     }
-    public static Completer buildCompleter(NavigableMap<String, String> setOptions, BiConsumer<String, List<Candidate>> completeIdentifier, BiConsumer<String, List<Candidate>> completeModule) {
-        return (LineReader reader, ParsedLine line, List<Candidate> candidates) -> {
-            var words = line.words();
-            if (words.isEmpty() || !words.get(0).startsWith(":")) {
-                return;
-            }
-            if (line.wordIndex() == 0) {
-                // complete initial command/modifier
-                generateCandidates(line.word(), COMMAND_KEYWORDS, "interpreter modifiers", candidates);
-                return;
-            }
-            if (line.wordIndex() == 1 || words.size() == 1) {
-                // complete arguments for first
-                var arg = words.size() == 1 ? "" : line.word();
-                switch (words.get(0)) {
-                    case ":set": 
-                        generateCandidates(arg, setOptions, "evaluator settings", candidates);
-                        return;
-                    case "undeclare": 
-                        completeIdentifier.accept(arg, candidates);
-                        return;
-                    case "edit": // intended fall-through
-                    case "unimport": 
-                        completeModule.accept(arg, candidates);
-                        return;
-                    default: return;
-                }
-            }
-            // for the future it would be nice to also support completing thinks like `:set profiling <cursor>`
-        };
-    }
 
     private static void generateCandidates(String partial, NavigableMap<String, String> candidates, String group, List<Candidate> target) {
         for (var can : candidates.subMap(partial, true, partial + Character.MAX_VALUE, false).entrySet()) {
             target.add(new Candidate(can.getKey(), can.getKey(), group, can.getValue(), null, null, true));
         }
+    }
+
+    @Override
+    public void complete(LineReader reader, ParsedLine line, List<Candidate> candidates) {
+        var words = line.words();
+        if (words.isEmpty() || !words.get(0).equals(":")) {
+            return;
+        }
+        if (line.wordIndex() == 1) {
+            // complete initial command/modifier
+            generateCandidates(line.word(), COMMAND_KEYWORDS, "interpreter modifiers", candidates);
+            return;
+        }
+        if (line.wordIndex() == 2) {
+            // complete arguments for first
+            switch (words.get(1)) {
+                case "set": 
+                    generateCandidates(line.word(), setOptions, "evaluator settings", candidates);
+                    return;
+                case "undeclare": 
+                    completeIdentifier.accept(line.word(), candidates);
+                    return;
+                case "edit": // intended fall-through
+                case "unimport": 
+                    completeModule.accept(line.word(), candidates);
+                    return;
+                default: return;
+            }
+        }
+        // for the future it would be nice to also support completing thinks like `:set profiling <cursor>`
     }
 
 }

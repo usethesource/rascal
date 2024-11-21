@@ -11,12 +11,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
-import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -28,17 +26,22 @@ import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.completers.RascalCommandCompletion;
+import org.rascalmpl.repl.completers.RascalModuleCompletion;
+import org.rascalmpl.repl.jline3.RascalLineParser;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -71,9 +74,15 @@ public class RascalReplServices implements IREPLService {
         this.eval = buildEvaluator.apply(term);
     }
 
+    private static final ISourceLocation PROMPT_LOCATION = URIUtil.rootLocation("prompt");
+
     @Override
     public Parser inputParser() {
-        return new RascalLineParser(() -> eval);
+        return new RascalLineParser(prompt -> {
+            synchronized(eval) {
+                return eval.parseCommand(new NullRascalMonitor(), prompt, PROMPT_LOCATION);
+            }
+        });
     }
 
     @Override
@@ -308,7 +317,9 @@ public class RascalReplServices implements IREPLService {
     @Override
     public List<Completer> completers() {
         var result = new ArrayList<Completer>();
-        result.add(RascalCommandCompletion.buildCompleter(commandLineOptions,(s,c) -> {}, (s,c) -> {}));
+        var moduleCompleter = new RascalModuleCompletion(m -> eval.getRascalResolver().listModuleEntries(m));
+        result.add(new RascalCommandCompletion(commandLineOptions,(s,c) -> {}, (s, c) -> moduleCompleter.completeModuleNames(s, c, false)));
+        result.add(moduleCompleter);
         return result;
     }
     
