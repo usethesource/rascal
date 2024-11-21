@@ -264,8 +264,8 @@ public class RascalReplServices implements IREPLService {
     }
 
     @Override
-    public void handleReset(Map<String, IOutputPrinter> output, Map<String, String> metadata)
-        throws InterruptedException {
+    public void handleInterrupt() throws InterruptedException {
+        eval.interrupt();
     }
 
     @Override
