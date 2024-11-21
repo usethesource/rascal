@@ -33,7 +33,7 @@ data TypeSymbol
   | \null()
   | \array(TypeSymbol component, int dimension)
   | \typeVariable(loc decl)
-  | \unresolved()
+  | \module(loc decl)
   ;  
   
 default bool subtype(TypeSymbol s, TypeSymbol t) = s == t;

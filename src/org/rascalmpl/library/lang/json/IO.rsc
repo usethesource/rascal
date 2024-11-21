@@ -16,19 +16,19 @@ module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
-use writeJSON
+Use writeJSON
 }
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
-use asJSON
+Use asJSON
 }
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
-use readJSON
+Use readJSON
 }
 public java &T fromJSON(type[&T] typ, str src);
 
@@ -52,6 +52,11 @@ In general the translation behaves as the same as for ((readJSON)).}
 java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
+@synopsis{writes `val` to the location `target`}
+@description{
+  If `dateTimeAsInt` is set to `true`, the dateTime values are converted to an int that represents the number of milliseconds from 1970-01-01T00:00Z.
+  If `indent` is set to a number greater than 0, the JSON file will be formatted with `indent` number of spaces as indentation.
+}
 java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}

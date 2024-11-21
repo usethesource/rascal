@@ -8,14 +8,11 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 module resource::jdbc::JDBC
 
-import Exception;
 import Type;
 import Map;
 import String;
 import List;
 import Set;
-import IO;
-import lang::rascal::types::AbstractType;
 
 @synopsis{Given the name of a JDBC driver class, register it so it can be used in connections.}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
@@ -120,7 +117,6 @@ public java set[Table] getViews(Connection connection);
 public java Table getTable(Connection connection, str tableName);
 
 @synopsis{Get the Table metadata for a named view.}
-@javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public Table getView(Connection connection, str viewName) = getTable(connection, viewName);
 
 @synopsis{An exception thrown when we try to translate (or otherwise use) a JDBC type with no Rascal equivalent.}
@@ -165,39 +161,50 @@ public Symbol jdbc2RascalType(varBinary()) = \list(\int());
 public Symbol jdbc2RascalType(varChar()) = \str();
 
 @synopsis{Represents values which may or may not be null.}
-data Nullable[&T] = null() | notnull(&T item);
+data NULLable[&T] = NULL() | notNULL(&T item);
 
-@synopsis{Load the contents of a table. This will turn the contents into a set, which by its nature will remove any
-     duplicates and discard any order. To maintain duplicates, or the order inherent in the table,
-     use loadTableOrdered instead.}
+@synopsis{Load the contents of a table.}
+@description{
+This will turn the contents into a set, which by its nature will remove any
+duplicates and discard any order. To maintain duplicates, or the order inherent in the table,
+use loadTableOrdered instead.
+}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[&T] loadTable(type[&T] resType, Connection connection, str tableName);
 
-@synopsis{Load the contents of a table. This will turn the contents into a set, which by its nature will remove any
-     duplicates and discard any order. To maintain duplicates, or the order inherent in the table, use 
-     loadTableOrdered instead. This versions uses no type information, meaning that it returns a set of values.} 
+@synopsis{Load the contents of a table.}
+@description{
+This will turn the contents into a set, which by its nature will remove any
+duplicates and discard any order. To maintain duplicates, or the order inherent in the table, use 
+loadTableOrdered instead. This versions uses no type information, meaning that it returns a set of values.
+} 
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java set[value] loadTable(Connection connection, str tableName);
 
-@synopsis{Load the contents of a table. This maintains order and duplicates, but does not provide access to the
-     relational operations provided by loadTable.}
+@synopsis{Load the contents of a table.}
+@description{
+This maintains order and duplicates, but does not provide access to the
+relational operations provided by loadTable.
+}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java list[&T] loadTableOrdered(type[&T] resType, Connection connection, str tableName);
 
-@synopsis{Load the contents of a table. This maintains order and duplicates, but does not provide access to the
-     relational operations provided by loadTable. Also, with no type information, this version returns a list
-     of values.}
+@synopsis{Load the contents of a table.}
+@description{
+This maintains order and duplicates, but does not provide access to the
+relational operations provided by loadTable. Also, with no type information, this version returns a list
+of values.
+}
 @javaClass{org.rascalmpl.library.resource.jdbc.JDBC}
 public java list[value] loadTableOrdered(Connection connection, str tableName);
 
-@resource{
-jdbctables
+@resource{jdbctables}
+@synopsis{Prints all available schemas.}
+@description{
+The JDBC tables schema should be given as: `jdbctables+connect-string`
+where `connect-string` is the database-specific information needed to connect,
+encoded as a URI, for instance: `jdbctables+mysql://localhost/bugs?user=my_user_name&password=my_password`
 }
-@synopsis{The JDBC tables schema should be given as:
-    jdbctables+connect-string
-  where connect-string is the database-specific information needed to connect,
-  encoded as a URI, for instance:
-    jdbctables+mysql://localhost/bugs?user=my_user_name&password=my_password}
 public str allTableSchemas(str moduleName, loc uri) {
     // This indicates which driver we need (MySQL, Oracle, etc)
     driverType = uri.scheme;
@@ -228,16 +235,16 @@ public str allTableSchemas(str moduleName, loc uri) {
     // Then, generate the accessor function for each
     list[str] tfuns = [ ];
     for (Table t <- ts) {
-        columnTypes = [ nullable ? \label("\\<cn>",\adt("Nullable",[rt])) : \label("\\<cn>",rt) | table(tn,cl) := t, column(cn,ct,nullable) <- cl, rt := jdbc2RascalType(ct) ];
+        columnTypes = [ nullable ? \label("\\<cn>",\adt("NULLable",[rt])) : \label("\\<cn>",rt) | table(_tn,cl) := t, column(cn,ct,nullable) <- cl, rt := jdbc2RascalType(ct) ];
         columnTuple = \tuple(columnTypes);
 
-        tfun = "alias \\<t.tableName>RowType = <prettyPrintType(columnTuple)>;
-               'alias \\<t.tableName>Type = rel[<intercalate(",",[prettyPrintType(ct) | ct <- columnTypes])>];
+        tfun = "alias \\<t.tableName>RowType = <format(columnTuple)>;
+               'alias \\<t.tableName>Type = rel[<intercalate(",",[format(ct) | ct <- columnTypes])>];
                '
                'public \\<t.tableName>Type \\<t.tableName>() {
                '    registerJDBCClass(\"<drivers[driverType]>\");
                '    con = createConnection(\"<connectString>\");
-               '    \\<t.tableName>Type res = loadTable(#<prettyPrintType(columnTuple)>,con,\"<t.tableName>\");
+               '    \\<t.tableName>Type res = loadTable(#<format(columnTuple)>,con,\"<t.tableName>\");
                '    closeConnection(con);
                '    return res;
                '}
@@ -260,8 +267,7 @@ public str allTableSchemas(str moduleName, loc uri) {
     return mbody;
 }
 
-@resource{
-jdbctable
+@resource{jdbctable
 }
 public str tableSchema(str moduleName, loc uri) {
     // This indicates which driver we need (MySQL, Oracle, etc)
@@ -297,7 +303,7 @@ public str tableSchema(str moduleName, loc uri) {
     con = createConnection(connectString);
     t = getTable(con,tableName);
     
-    columnTypes = [ nullable ? \label("\\<cn>",\adt("Nullable",[rt])) : \label("\\<cn>",rt) | table(tn,cl) := t, column(cn,ct,nullable) <- cl, rt := jdbc2RascalType(ct) ];
+    columnTypes = [ nullable ? \label("\\<cn>",\adt("Nullable",[rt])) : \label("\\<cn>",rt) | table(_tn,cl) := t, column(cn,ct,nullable) <- cl, rt := jdbc2RascalType(ct) ];
     columnTuple = \tuple(columnTypes);
     
     closeConnection(con);
@@ -305,13 +311,13 @@ public str tableSchema(str moduleName, loc uri) {
     mbody = "module <moduleName>
             'import resource::jdbc::JDBC;
             '
-            'alias \\<tableName>RowType = <prettyPrintType(columnTuple)>;
-            'alias \\<tableName>Type = rel[<intercalate(",",[prettyPrintType(ct) | ct <- columnTypes])>];
+            'alias \\<tableName>RowType = <format(columnTuple)>;
+            'alias \\<tableName>Type = rel[<intercalate(",",[format(ct) | ct <- columnTypes])>];
             '
             'public \\<tableName>Type <funname>() {
             '   registerJDBCClass(\"<drivers[driverType]>\");
             '   con = createConnection(\"<connectString>\");
-            '   \\<tableName>Type res = loadTable(#<prettyPrintType(columnTuple)>,con,\"<tableName>\");
+            '   \\<tableName>Type res = loadTable(#<format(columnTuple)>,con,\"<tableName>\");
             '   closeConnection(con);
             '   return res;
             '}
@@ -319,3 +325,5 @@ public str tableSchema(str moduleName, loc uri) {
     
     return mbody;
 }
+
+private str format(Symbol s) = "<type(s, ())>";

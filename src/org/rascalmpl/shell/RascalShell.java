@@ -15,8 +15,17 @@
 package org.rascalmpl.shell;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
+import org.fusesource.jansi.internal.Kernel32;
+import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+
 
 import jline.Terminal;
 import jline.TerminalFactory;
@@ -32,6 +41,9 @@ public class RascalShell  {
     }
     
     public static void main(String[] args) throws IOException {
+        setupWindowsCodepage();
+        enableWindowsAnsiEscapesIfPossible();
+        System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
         printVersionNumber();
 
         try {
@@ -44,7 +56,8 @@ public class RascalShell  {
                     return;
                 }
                 else {
-                    runner = new ModuleRunner(System.in, System.out, System.err);
+                    var monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+                    runner = new ModuleRunner(System.in, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, System.err, monitor);
                 }
             } 
             else {
@@ -60,7 +73,11 @@ public class RascalShell  {
                     }
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
-                runner = new REPLRunner(System.in, System.err, System.out, term);
+
+                IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+
+                IDEServices services = new BasicIDEServices(new PrintWriter(System.err), monitor);
+                runner = new REPLRunner(System.in, System.err, monitor instanceof OutputStream ? (OutputStream) monitor : System.out, term, services);
             }
             runner.run(args);
 
@@ -74,6 +91,59 @@ public class RascalShell  {
         finally {
             System.out.flush();
             System.err.flush();
+        }
+    }
+
+    private static boolean IS_WINDOWS = System.getProperty("os.name", "?").toLowerCase().contains("windows");
+
+    private static int ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+    public static void enableWindowsAnsiEscapesIfPossible() {
+        if (IS_WINDOWS) {
+            // Since Windows 10, it's possible to setup ANSI escapes for the terminal process
+            // but jline2 doesn't do this itself. Some terminals on windows take care of it, some don't.
+            // so we get the handle, and set it up
+            long stdOut = Kernel32.GetStdHandle(Kernel32.STD_OUTPUT_HANDLE);
+            if (stdOut == Kernel32.INVALID_HANDLE_VALUE) {
+                return; // there is no output stream allocated for this process
+            }
+            int[] mode = new int[1];
+            if (Kernel32.GetConsoleMode(stdOut, mode) == 0) {
+                // not a console, but a file/stream output, no need to turn ANSI on.
+                return; 
+            }
+            int newMode = mode[0] | ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            if (newMode != mode[0]) {
+                int errno;
+                if ((errno = Kernel32.SetConsoleMode(stdOut, newMode)) != 0) {
+                    // will only fail on older versions of Windows
+                    System.err.println("Windows console mode could not be enabled, errno=" + errno);
+                }; 
+            }
+        }
+    }
+
+    private static final int WINDOWS_UTF8_CODE_PAGE = 65001;
+    public static void setupWindowsCodepage() {
+        if (IS_WINDOWS) {
+            // On windows, we rarely get started as utf8, but lots of places in the repl assume utf8
+            // both conhost & terminal on windows support utf8, as long as we setup the correct
+            // codepage. so we do that.
+            // after that we update the properties and continue as if all is wll.
+            try {
+                // this enables unicode output, but unicode input is not working, we need jline3 for that
+                // as the has both `SetConsoleCP` but more importantly: the `readConsoleInput` function actually deals with unicode chars
+                if (Kernel32.SetConsoleOutputCP(WINDOWS_UTF8_CODE_PAGE) == 0) {
+                    throw new Exception("SetConsoleOutputCP failed with: " + Kernel32.GetLastError());
+                }
+                System.setOut(new PrintStream(System.out, false, StandardCharsets.UTF_8));
+                System.setErr(new PrintStream(System.err, true, StandardCharsets.UTF_8));
+                System.setProperty("file.encoding", StandardCharsets.UTF_8.name());
+                System.setProperty("input.encoding", StandardCharsets.UTF_8.name());
+            } catch (Exception e) {
+                System.err.println("Error setting console code point to UTF8: " + e.getMessage());
+                System.err.println("Most likely, non-ascii characters will not print correctly, please report this on our github.");
+            }
         }
     }
     private static final class TMSimpleTerminal extends TerminalSupport {

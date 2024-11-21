@@ -7,6 +7,7 @@ module lang::java::flow::JavaToObjectFlow
 
 import IO;
 import List;
+import String;
 import analysis::flow::ObjectFlow; 
 import lang::java::m3::TypeSymbol;
 import lang::java::m3::AST;
@@ -71,13 +72,13 @@ bool isContainerExtract(Expression recv, str name) {
 
 list[Declaration] fixCollections(list[Declaration] ast) {
   return visit (ast) {
-    case oe:methodCall(_, Expression receiver, methodName,args):  {
-      if (isContainerInsert(receiver, methodName)) {
-        insert assignment(receiver, "=", correctInsertArg(receiver, methodName, args))
+    case oe:methodCall(Expression receiver, _, methodName, args):  {
+      if (isContainerInsert(receiver, methodName.identifier)) {
+        insert assignment(receiver, "=", correctInsertArg(receiver, methodName.identifier, args))
           [typ = receiver.typ]
           [src = oe.src];
       }
-      else if(isContainerExtract(receiver, methodName)) {
+      else if(isContainerExtract(receiver, methodName.identifier)) {
         insert receiver;
       }
     }
@@ -94,44 +95,20 @@ set[str] primitiveTypes = {
   , "Double", "java.lang.Double"
 };
 
-bool ignoreType(arrayType(t)) = ignoreType(t);
-bool ignoreType(upperbound(t)) = ignoreType(t);
-bool ignoreType(lowerbound(t)) = ignoreType(t);
-bool ignoreType(parameterizedType(_)) = false;
-bool ignoreType(Type::qualifiedType(t,_)) = ignoreType(t);
+bool ignoreType(arrayType(Type t)) = ignoreType(t);
+bool ignoreType(super(_, Type t)) = ignoreType(t);
+bool ignoreType(extends(_, Type t)) = ignoreType(t);
+bool ignoreType(parameterizedType(_, _)) = false;
+bool ignoreType(qualifiedType(_, Type t, _)) = ignoreType(t);
+bool ignoreType(qualifiedType(_, Expression e,_)) = ignoreType(e);
 bool ignoreType(simpleType(t)) = ignoreType(t);// t in primitiveTypes;
 bool ignoreType(unionType(tt)) = (false | it || ignoreType(t) | t <- tt);
 default bool ignoreType(Type t) = true;
 
-bool ignoreType(Expression::simpleName(n)) = n in primitiveTypes;
-bool ignoreType(Expression::qualifiedName(Expression q, n)) {
-  if (simpleName(nn) := n && nn in primitiveTypes) {
-    // could be a primitive type
-    // lets build the fullTypeName
-    result = nn;
-    parent = q;
-    while (true) {
-      if (qualifiedName(p,simpleName(c)) := parent) {
-        result = c + "." + result;
-        parent = p;
-      }
-      else if (simpleName(c) := parent) {
-        result = c + "." + result;
-        break;
-      }
-      else {
-        throw "unexpected parent c";
-      }
-    }
-    return result in primitiveTypes;
-  }
-  else {
-    return false;
-  }
-}
-default bool ignoreType(Expression e) { throw "you forgot: <e>"; }
-
-
+bool ignoreType(id(str n)) = n in primitiveTypes;
+bool ignoreType(Expression::qualifiedName([*_, Expression last])) 
+  = replaceAll(last.decl.path, "/", ".") in primitiveTypes;
+  
 bool ignoreType(TypeSymbol::interface(_,_)) = false;
 bool ignoreType(TypeSymbol::\enum(_)) = false;
 bool ignoreType(TypeSymbol::\typeParameter(_,_)) = false;
@@ -146,43 +123,43 @@ default bool ignoreType(TypeSymbol t) = true;
 
 
 set[FlowDecl] getDeclarations(set[Declaration] asts) 
-  = { FlowDecl::attribute(v.decl) | /field(t,frags) <- asts, !ignoreType(t), v <- frags}
-  + { FlowDecl::method(m.decl, [p.decl | p:parameter(t,_,_) <- params, !ignoreType(t)]) | /m:Declaration::method(_,_, list[Declaration] params, _, _)  <- asts}
-  + { FlowDecl::method(m.decl, [p.decl | p:parameter(t,_,_) <- params, !ignoreType(t)]) | /m:Declaration::method(_,_, list[Declaration] params, _)  <- asts}
-  + { FlowDecl::constructor(c.decl, [p.decl | p:parameter(t,_,_) <- params, !ignoreType(t)]) | /c:Declaration::constructor(_, list[Declaration] params, _,_)  <- asts}      
+  = { FlowDecl::attribute(v.decl) | /field(_,t,frags) <- asts, !ignoreType(t), v <- frags}
+  + { FlowDecl::method(m.decl, [p.decl | p:parameter(_,t,_,_) <- params, !ignoreType(t)]) | /m:method(_, _, _ ,_ , list[Declaration] params, _, _)  <- asts}
+  + { FlowDecl::method(m.decl, [p.decl | p:parameter(_,t,_,_) <- params, !ignoreType(t)]) | /m:method(_, _, _ ,_ , list[Declaration] params, _)  <- asts}
+  + { FlowDecl::constructor(c.decl, [p.decl | p:parameter(_,t,_,_) <- params, !ignoreType(t)]) | /c:constructor(_, _, list[Declaration] params, _,_)  <- asts}      
   // add implicit constructor
-  + { FlowDecl::constructor((c.decl)[scheme="java+constructor"] + "<name>()", []) | /c:class(name, _, _, b) <- asts, !(Declaration::constructor(_, _, _, _) <- b)}   
+  + { FlowDecl::constructor((c.decl)[scheme="java+constructor"] + "<name>()", []) | /c:class(_, name, _, _, _, b) <- asts, !(constructor(_, _, _, _, _) <- b)}   
   ;
 
-loc lhsDecl(arrayAccess(e,_)) = e.decl;
-loc lhsDecl(f:fieldAccess(_,_,_)) = f.decl;
+loc lhsDecl(arrayAccess(e,_))   = e.decl;
 loc lhsDecl(f:fieldAccess(_,_)) = f.decl;
-loc lhsDecl(v:variable(_,_)) = v.decl;
-loc lhsDecl(s:simpleName(_)) = s.decl;
-loc lhsDecl(q:qualifiedName(_,_)) = q.decl;
-default loc lhsDecl(Expression e) { throw "forgot: <e>"; }
+loc lhsDecl(f:fieldAccess(_))   = f.decl;
+loc lhsDecl(v:variable(_,_))    = v.decl;
+loc lhsDecl(s:id(_))            = s.decl;
+loc lhsDecl(q:qualifiedName(_)) = q.decl;
 
 set[FlowStm] getStatements(set[Declaration] asts) {
+  // TODO: add lambda's here?
   allMethods 
-    = [ m | /m:Declaration::method(_,_,_,_,_) <- asts]
-    + [Declaration::method(t, n, p, e, empty())[decl=m.decl] | /m:Declaration::method(Type t,n,p,e) <- asts] 
-    + [Declaration::method(simpleType(simpleName(n)), n, p, e, b)[decl=m.decl] | /m:Declaration::constructor(str n,p,e, b) <- asts]
+    = [ m | /m:Declaration::method(_, _, _, _, _, _, _) <- asts]
+    + [Declaration::method([],[], t, n, p, excep, empty())[decl=m.decl] | /m:Declaration::method(_,_, Type t, n, p, excep) <- asts] 
+    + [Declaration::method([],[], simpleType(n), n, p, excep, b)[decl=m.decl] | /m:Declaration::constructor(_, Expression n, p, excep, b) <- asts]
     ;
 
   allMethods = fixCollections(allMethods);
   // now remove all nested classes to make all statements relative to a method
   allMethods = visit(allMethods) {
-    case declarationExpression(Declaration::class(_)) => Expression::null()
-    case declarationExpression(Declaration::class(_,_,_,_)) => Expression::null()
-    case declarationExpression(Declaration::enum(_,_,_,_)) => Expression::null()
-    case declarationStatement(Declaration::class(_)) => empty()
-    case declarationStatement(Declaration::class(_,_,_,_)) => empty()
-    case declarationStatement(Declaration::enum(_,_,_,_)) => empty()
+    case declarationExpression(Declaration::class(_))                => Expression::null()
+    case declarationExpression(Declaration::class(_, _, _, _, _, _)) => Expression::null()
+    case declarationExpression(Declaration::enum(_ ,_ ,_ ,_ ,_))     => Expression::null()
+    case declarationStatement(Declaration::class(_))                 => empty()
+    case declarationStatement(Declaration::class(_, _, _, _, _, _))  => empty()
+    case declarationStatement(Declaration::enum(_,_,_,_,_))          => empty()
   };
 
   set[FlowStm] result = {};
 
-  for (m:Declaration::method(_, _, _, _, b) <- allMethods) {
+  for (m:Declaration::method(_,_, _, _, _, b) <- allMethods) {
     top-down-break visit(b) {
       case \return(e) : 
         result += { *translate(m.decl, m.decl + "return", e)};
@@ -195,14 +172,12 @@ set[FlowStm] getStatements(set[Declaration] asts) {
             result += { *translate(m.decl, lhsDecl(l2), r2)};
           }
         }
-      case v:Expression::variable(_,_,r) : 
-        if (!ignoreType(v.typ)) {
-          result += { *translate(m.decl, v.decl, r)};
-        }
+
       // regular method calls with no target
-      case m2:Expression::methodCall(_ ,_, _):
+      case m2:Expression::methodCall(_ , _, _):
         result += { *translate(m.decl, emptyId, m2)};
-      case m2:Expression::methodCall(_ ,_, _, _):
+
+      case m2:Expression::methodCall(_ , _, _, _):
         result += { *translate(m.decl, emptyId, m2)};
     }
   }
@@ -219,6 +194,9 @@ set[FlowStm] translate(loc base, loc target, c:cast(_, e)) {
   return { s.target == target ? s[cast=c.typ.decl] : s | s <- result};
 }
 
+// TODO: what about switch expressions (JLS14)?
+// TODO: what about lambda expressions ?
+
 set[FlowStm] translate(loc base, loc target, conditional(con, t, e)) 
   = translate(base, emptyId, con)
   + translate(base, target, t)
@@ -226,12 +204,13 @@ set[FlowStm] translate(loc base, loc target, conditional(con, t, e))
   ;
 
 // TODO: check what the second argument could mean (Expr)
-set[FlowStm] translate(loc base, loc target, f:fieldAccess(_,_,_))
-  = {FlowStm::assign(target, emptyId, f.decl)};
 set[FlowStm] translate(loc base, loc target, f:fieldAccess(_,_))
   = {FlowStm::assign(target, emptyId, f.decl)};
 
-set[FlowStm] translate(loc base, loc target, s:simpleName(_))
+set[FlowStm] translate(loc base, loc target, f:fieldAccess(_))
+  = {FlowStm::assign(target, emptyId, f.decl)};
+
+set[FlowStm] translate(loc base, loc target, s:id(_))
   = {FlowStm::assign(target, emptyId, s.decl)};
 
 // nested assignment a = b = c;
@@ -240,9 +219,28 @@ set[FlowStm] translate(loc base, loc target, a:assignment(l,_,r))
   + translate(base, target, r)
   ;
 
-set[FlowStm] translate(loc base, loc target, m:methodCall(s, n, a))
-= translate(base, target, methodCall(s, this(), n, a)[decl=m.decl][typ=m.typ][src=m.src]);
-set[FlowStm] translate(loc base, loc target, m:methodCall(_, r, n, a)) {
+set[FlowStm] translate(loc base, loc target, m:methodCall(targs, n, args))
+  = translate(base, target, methodCall(this(), targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superMethodCall(targs, n, args))
+  = translate(base, target, methodCall(super(), targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superMethodCall(qual, targs, n, args))
+// TODO: not sure this passing of `qualifier` does the trick here
+  = translate(base, target, methodCall(qual, targs, n, args)[decl=m.decl][typ=m.typ][src=m.src]);
+
+// TODO: check if this is the way to handle this new constructor for constructorCall
+set[FlowStm] translate(loc base, loc target, m:constructorCall(targs, args))
+  = translate(base, target, methodCall(this(), targs, id(m.decl.file), args)[decl=m.decl][typ=class(base, [t.typ | t <- targs])][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superConstructorCall(qual, targs, args))
+// TODO: not sure this passing of `qualifier` does the trick here
+  = translate(base, target, methodCall(qual, targs, id(m.decl.file), args)[decl=m.decl][typ=class(base, [t.typ | t <- targs])][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:superConstructorCall(targs, args))
+  = translate(base, target, methodCall(super(), targs, id(m.decl.file), args)[decl=m.decl][typ=class(base, [t.typ | t <- targs])][src=m.src]);
+
+set[FlowStm] translate(loc base, loc target, m:methodCall(r, _, n, a)) {
   set[FlowStm] stms = {};
   loc recv = emptyId;
   if (this() := r) {
@@ -260,24 +258,24 @@ set[FlowStm] translate(loc base, loc target, m:methodCall(_, r, n, a)) {
   return newStms + { FlowStm::call(target, emptyId, recv, m.decl, args) };
 }
 
-private Expression newObject(Type t, list[Expression] args, Expression original) {
+private Expression newObject(Type t, list[Declaration] targs, list[Expression] args, Expression original) {
   assert original is newObject;
-  return newObject(t, args)
+  return newObject(t, targs, args)
     [typ = original.typ]
     [src = original.src]
     [decl = original.decl];
 }
 
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Expression _, Type t, list[Expression] a))
-  = translate(base, target, newObject(t, a, ob));
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Expression _, Type t, list[Declaration] targs, list[Expression] a))
+  = translate(base, target, newObject(t, targs, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, list[Expression] a, Declaration _))
-  = translate(base, target, newObject(t, a, ob));
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t,  list[Declaration] targs, list[Expression] a, Declaration _))
+  = translate(base, target, newObject(t, targs, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, list[Expression] a, Declaration _))
-  = translate(base, target, newObject(t, a, ob));
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t,  list[Declaration] targs, list[Expression] a, Declaration _))
+  = translate(base, target, newObject(t, targs, a, ob));
   
-set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a)) {
+set[FlowStm] translate(loc base, loc target, Expression ob:newObject(_, Type t, _, a)) {
   assert target != emptyId;
   if (ignoreType(ob.typ))
     return {};
@@ -286,12 +284,12 @@ set[FlowStm] translate(loc base, loc target, Expression ob:newObject(Type t, a))
   return stms + { FlowStm::newAssign(target, ob.typ.decl, ob.decl, args)};
 }
 
-bool simpleExpression(fieldAccess(_,_,_)) = true;
-bool simpleExpression(fieldAccess(_,_)) = true;
-bool simpleExpression(qualifiedName(_,e)) = simpleExpression(e);
+bool simpleExpression(fieldAccess(_,_))      = true;
+bool simpleExpression(fieldAccess(_))        = true;
+bool simpleExpression(qualifiedName([*_, e]))= simpleExpression(e);
 bool simpleExpression(this()) = true;
 bool simpleExpression(this(_)) = true;
-bool simpleExpression(simpleName(_)) = true;
+bool simpleExpression(id(_)) = true;
 default bool simpleExpression(Expression e) = false;
 
 Expression removeNesting(cast(_, e)) = removeNesting(e);

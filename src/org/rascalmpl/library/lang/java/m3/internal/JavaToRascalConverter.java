@@ -1,23 +1,31 @@
+/*******************************************************************************
+ * Copyright (c) 2009-2024 CWI
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   * Ashim Shahi
+ *   * Jurgen Vinju
+ *   * Jouke Stoel
+ *   * Lina María Ochoa Venegas
+ *   * Davy Landman 
+*******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.objectweb.asm.tree.ModuleNode;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -29,6 +37,10 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
+/**
+ * This is a utility abstract class with reusable infrastructor for the bridge between
+ * the JDT DOM and Rascal models (AST's or M3 databases).
+ */
 public abstract class JavaToRascalConverter extends ASTVisitor {
     protected static final IValueFactory values = ValueFactoryFactory.getValueFactory();
     protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -36,6 +48,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected final LimitedTypeStore typeStore;
 
     protected IValue ownValue;
+    
     private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
     private static final String DATATYPE_RASCAL_AST_MODIFIER_NODE 		= "Modifier";
     private static final String DATATYPE_RASCAL_AST_DECLARATION_NODE 	= "Declaration";
@@ -50,7 +63,8 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_AST_TYPE_NODE_TYPE;
     protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE;
     protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_DATA_TYPE;
-    protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE;
+    protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE1;
+    protected final io.usethesource.vallang.type.Type DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2;
 
     protected CompilationUnit compilUnit;
     protected ISourceLocation loc;
@@ -60,7 +74,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 
     protected IListWriter messages;
     protected final Map<String, ISourceLocation> locationCache;
-
+    
     JavaToRascalConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
         super(true);
         this.typeStore = typeStore;
@@ -72,7 +86,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         this.DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_EXPRESSION_NODE);
         this.DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE 	= typeStore.lookupAbstractDataType(DATATYPE_RASCAL_AST_STATEMENT_NODE);
         DATATYPE_RASCAL_MESSAGE_DATA_TYPE          = typeStore.lookupAbstractDataType(DATATYPE_RASCAL_MESSAGE);
-        DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR).iterator().next();
+        TypeFactory tf = TypeFactory.getInstance();
+        DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE1    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR, tf.tupleType(tf.stringType()));
+        DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2    = typeStore.lookupConstructor(DATATYPE_RASCAL_MESSAGE_DATA_TYPE, DATATYPE_RASCAL_MESSAGE_ERROR, tf.tupleType(tf.stringType(), tf.sourceLocationType()));
         this.locationCache = cache;
 
         messages = values.listWriter();
@@ -98,7 +114,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         return packageBinding;
     }
 
-    protected ISourceLocation resolveBinding(CompilationUnit node) {
+    protected final ISourceLocation resolveBinding(CompilationUnit node) {
         ISourceLocation compilationUnit = new BindingsResolver(typeStore, locationCache, true) {
             public ISourceLocation resolveBinding(CompilationUnit node) {
                 return makeBinding("java+compilationUnit", null, loc.getPath());
@@ -110,8 +126,9 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 
     protected ISourceLocation resolveBinding(IBinding binding) {
         ISourceLocation resolvedBinding = bindingsResolver.resolveBinding(binding);
-        if (binding != null)
+        if (binding != null) {
             locationCache.put(binding.getKey(), resolvedBinding);
+        }
         return resolvedBinding;
     }
 
@@ -119,11 +136,14 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         ISourceLocation resolvedBinding;
         if (binding instanceof ITypeBinding) {
             resolvedBinding = bindingsResolver.resolveBinding(((ITypeBinding) binding).getDeclaringClass());
-        } else if (binding instanceof IMethodBinding) {
+        } 
+        else if (binding instanceof IMethodBinding) {
             resolvedBinding = bindingsResolver.resolveBinding(((IMethodBinding) binding).getDeclaringClass());
-        } else if (binding instanceof IVariableBinding) {
+        } 
+        else if (binding instanceof IVariableBinding) {
             resolvedBinding = bindingsResolver.resolveBinding(((IVariableBinding) binding).getDeclaringClass());
-        } else {
+        } 
+        else {
             binding = null;
             resolvedBinding = bindingsResolver.resolveBinding(binding);
         }
@@ -134,8 +154,13 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         if (node instanceof CompilationUnit) {
             return resolveBinding((CompilationUnit) node);
         }
+    
         return bindingsResolver.resolveBinding(node, true);
     }
+
+    protected ISourceLocation resolveBinding(ModuleNode module) {
+		return bindingsResolver.makeBinding("java+module", "", ((ModuleNode) module).name);
+	}
 
     protected ISourceLocation getSourceLocation(ASTNode node) {
         try {
@@ -146,7 +171,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                 int end = start + nodeLength -1;
 
                 if (end < start && ((node.getFlags() & 9) > 0)) {
-                    insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+                    insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
                         values.string("Recovered/Malformed node, guessing the length"),
                         values.sourceLocation(loc, 0, 0)));
 
@@ -157,63 +182,16 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                 return values.sourceLocation(loc, 
                     start, nodeLength, 
                     compilUnit.getLineNumber(start), compilUnit.getLineNumber(end), 
-                    // TODO: only adding 1 at the end seems to work, need to test.
-                    compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end)+1);
+                    // our end columns are exclusive
+                    compilUnit.getColumnNumber(start), compilUnit.getColumnNumber(end) + 1);
             }
-        } catch (IllegalArgumentException e) {
-            insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE,
+        } 
+        catch (IllegalArgumentException e) {
+            insert(messages, values.constructor(DATATYPE_RASCAL_MESSAGE_ERROR_NODE_TYPE2,
                 values.string("Most probably missing dependency"),
                 values.sourceLocation(loc, 0, 0)));
         }
         return values.sourceLocation(loc, 0, 0, 0, 0, 0, 0);
-    }
-
-    protected IValue[] removeNulls(IValue... withNulls) {
-        List<IValue> withOutNulls = new ArrayList<IValue>();
-        for (IValue child : withNulls) {
-            if (!(child == null)) {
-                withOutNulls.add(child);
-            }
-        }
-        return withOutNulls.toArray(new IValue[withOutNulls.size()]);
-    }
-
-    protected IValueList parseModifiers(int modifiers) {
-        IValueList extendedModifierList = new IValueList(values);
-
-
-        for (String constructor: java.lang.reflect.Modifier.toString(modifiers).split(" ")) {
-            Set<io.usethesource.vallang.type.Type> exConstr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor);
-            for (io.usethesource.vallang.type.Type con: exConstr) {
-                extendedModifierList.add(values.constructor(con));
-            }
-        }
-
-        return extendedModifierList;
-    }
-
-    @SuppressWarnings({"rawtypes"})
-    protected IValueList parseExtendedModifiers(List ext) {
-        IValueList extendedModifierList = new IValueList(values);
-
-        for (Iterator it = ext.iterator(); it.hasNext();) {
-            ASTNode p = (ASTNode) it.next();
-            IValue val = visitChild(p);
-            if (p instanceof Annotation) {
-                val = constructModifierNode("annotation", val);
-            }
-            extendedModifierList.add(val);
-        }
-        return extendedModifierList;
-    }
-
-    @SuppressWarnings("deprecation")
-    protected IValueList parseExtendedModifiers(BodyDeclaration node) {
-        if (node.getAST().apiLevel() == AST.JLS2) {
-            return parseModifiers(node.getModifiers());
-        } else {
-            return parseExtendedModifiers(node.modifiers());
-        }
     }
 
     protected IValue visitChild(ASTNode node) {
@@ -221,14 +199,32 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         return this.getValue();
     }
 
+    protected IList visitChildren(List<?> childrenList) {
+        if (childrenList == null) {
+            return values.list();
+        }
+
+        return childrenList
+            .stream()
+            .map(o -> (ASTNode) o)
+            .map(a -> visitChild(a))
+            .collect(values.listWriter());
+    }
+
     public IValue getValue() {
         return this.ownValue;
     }
 
+    protected IConstructor constructModifierNode(ISourceLocation src, String constructor, IValue... children) {
+        return constructModifierNode(constructor, children)
+            .asWithKeywordParameters().setParameter("src", src);
+    }
+    
     protected IConstructor constructModifierNode(String constructor, IValue... children) {
-        io.usethesource.vallang.type.Type args = TF.tupleType(removeNulls(children));
+        io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE, constructor, args);
-        return values.constructor(constr, removeNulls(children));
+        assert constr != null : "No constructor " + constructor + " for " + args;
+        return values.constructor(constr, children);
     }
 
     protected void setKeywordParameter(String label, IValue value) {
@@ -240,40 +236,42 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
         }
     }
 
-    protected void setKeywordParameters(String label, IValueList valueList) {
-        IList values = (IList) valueList.asList();
-        if(this.ownValue == null) {
+    protected void setKeywordParameters(String label, IList values) {
+        if (this.ownValue == null) {
             return ;
         }
-        if (valueList != null && !values.isEmpty()) {
+        if (values != null && !values.isEmpty()) {
             this.ownValue = ((IConstructor) this.ownValue).asWithKeywordParameters().setParameter(label, values);
         }
     }
 
     protected IValue constructDeclarationNode(String constructor, IValue... children) {
-        io.usethesource.vallang.type.Type args = TF.tupleType(removeNulls(children));
+        io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_DECLARATION_NODE_TYPE, constructor, args);
-        return values.constructor(constr, removeNulls(children));
+        assert constr != null : "No constructor " + constructor + " for " + args;
+        return values.constructor(constr, children);
     }
 
     protected IValue constructExpressionNode(String constructor, IValue... children) {
-        io.usethesource.vallang.type.Type args = TF.tupleType(removeNulls(children));
+        io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_EXPRESSION_NODE_TYPE, constructor, args);
-        return values.constructor(constr, removeNulls(children));
+        assert constr != null : "No constructor " + constructor + " for " + args;
+        return values.constructor(constr, children);
     }
 
     protected IValue constructStatementNode(String constructor, IValue... children) {
-        io.usethesource.vallang.type.Type args = TF.tupleType(removeNulls(children));
+        io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_STATEMENT_NODE_TYPE, constructor, args);
-        return values.constructor(constr, removeNulls(children));
+        assert constr != null : "No constructor " + constructor + " for " + args;
+        return values.constructor(constr, children);
     }
 
     protected IValue constructTypeNode(String constructor, IValue... children) {
-        io.usethesource.vallang.type.Type args = TF.tupleType(removeNulls(children));
+        io.usethesource.vallang.type.Type args = TF.tupleType(children);
         io.usethesource.vallang.type.Type constr = typeStore.lookupConstructor(DATATYPE_RASCAL_AST_TYPE_NODE_TYPE, constructor, args);
-        return values.constructor(constr, removeNulls(children));
+        assert constr != null : "No constructor " + constructor + " for " + args;
+        return values.constructor(constr, children);
     }
-
 
     protected Type getAdtType() {
         if (ownValue == null) {
@@ -285,11 +283,11 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
     protected void insertCompilationUnitMessages(boolean insertErrors, IList otherMessages) {
         io.usethesource.vallang.type.Type args = TF.tupleType(TF.stringType(), TF.sourceLocationType());
 
-        IValueList result = new IValueList(values);
+        IListWriter result = values.listWriter();
 
         if (otherMessages != null) {
             for (IValue message : otherMessages) {
-                result.add(message);
+                result.append(message);
             }
         }
 
@@ -308,10 +306,10 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
                 } else {
                     constr = typeStore.lookupConstructor(this.typeStore.lookupAbstractDataType("Message"), "warning", args);
                 }
-                result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
+                result.append(values.constructor(constr, values.string(problems[i].getMessage()), pos));
             }
         }
-        setKeywordParameter("messages", result.asList());
+        setKeywordParameter("messages", result.done());
     }
 
     public void insert(IListWriter listW, IValue message) {

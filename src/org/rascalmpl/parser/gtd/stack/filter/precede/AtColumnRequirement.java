@@ -27,7 +27,7 @@ public class AtColumnRequirement implements IEnterFilter{
 	}
 	
 	public boolean isFiltered(int[] input, int start, PositionStore positionStore){
-		return positionStore.isAtColumn(start, column);
+		return !positionStore.isAtColumn(start, column);
 	}
 	
 	public boolean isEqual(IEnterFilter otherEnterFilter){
