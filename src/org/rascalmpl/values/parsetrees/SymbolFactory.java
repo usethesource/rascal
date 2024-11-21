@@ -77,7 +77,7 @@ public class SymbolFactory {
 		boolean noExpand = lex || layout == null;
 
 		if (symbol.isCaseInsensitiveLiteral()) {
-			return factory.constructor(RascalValueFactory.Symbol_Cilit, ciliteral2Symbol(symbol.getCistring()));
+			return ciliteral2Symbol(symbol.getCistring());
 		}
 		if (symbol.isCharacterClass()) {
 			Class cc = symbol.getCharClass();
@@ -220,7 +220,7 @@ public class SymbolFactory {
 			String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
 			// replace single quotes by double quotes first
 			lit = "\"" + lit.substring(1, lit.length() - 1) + "\"";
-			
+
 			// this should be the exact notation for string literals in vallang
 			IValue string = new StandardTextReader().read(factory, new StringReader(lit));
 
