@@ -12,7 +12,6 @@ extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
 extend lang::rascalcore::check::BasicRascalConfig;
-//import lang::rascalcore::check::RascalConfig;
 
 import analysis::typepal::Collector;
 
@@ -53,6 +52,7 @@ data MStatus =
     | tpl_uptodate()
     | tpl_saved()
     | ignored()
+    | bom_update_needed()
     ;
 
 data ModuleStatus =
@@ -65,7 +65,7 @@ data ModuleStatus =
       list[str] tmodelLIFO,
       map[str,loc] moduleLocs,
       map[str,datetime] moduleLastModified,
-      map[str, list[Message]] messages,
+      map[str, set[Message]] messages,
       map[str, set[MStatus]] status,
       PathConfig pathConfig,
       RascalCompilerConfig compilerConfig
@@ -129,7 +129,17 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
     }
 }
 
-int parseTreeCacheSize = 10;
+bool tplOutdated(str qualifiedModuleName, PathConfig pcfg){
+    mloc = getModuleLocation(qualifiedModuleName, pcfg);
+    <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
+    lmMloc = lastModified(mloc);
+    lmTpl = lastModified(tpl);
+    res = !found || lmMloc > lmTpl;
+    //println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
+    return res;
+}
+
+int parseTreeCacheSize = 20;
 
 tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, ModuleStatus ms){
     pcfg = ms.pathConfig;
@@ -193,39 +203,100 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
  * - When a TModel has to be removed from the cache, it is converted back to the logical form (if needed) and written back to file.
  */
 
-int tmodelCacheSize = 16; // should be > 0
+int tmodelCacheSize = 30; // should be > 0
 
 ModuleStatus clearTModelCache(ModuleStatus ms){
+    todo = { mname | mname <- ms.status, bom_update_needed() in ms.status[mname]};
     for(candidate <- ms.tmodelLIFO){
-        ms = removeOldestTModelFromCache(ms);
+        ms = removeOldestTModelFromCache(ms, updateBOMneeded=true);
+        todo -= candidate;
+    }
+    for(candidate <- todo){
+        //  if(candidate == "analysis::grammar::Ambiguity"){
+        //         println("clearTModelCache");
+        //  }
+        ms = removeTModel(candidate, ms, updateBOMneeded=true);
+        ms.status[candidate] -= bom_update_needed();
     }
     return ms;
 }
 
-ModuleStatus removeTModel(str candidate, ModuleStatus ms){
+rel[str,datetime,PathRole] makeBom(str qualifiedModuleName, ModuleStatus ms){
+    map[str,datetime] moduleLastModified = ms.moduleLastModified;
+    pcfg = ms.pathConfig;
+    imports = ms.strPaths[qualifiedModuleName,importPath()];
+    extends = ms.strPaths[qualifiedModuleName, extendPath()];
+    return   { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
+           + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
+           + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
+}
+
+ModuleStatus updateBOM(str qualifiedModuleName, ModuleStatus ms){
+    if(rsc_not_found() in ms.status[qualifiedModuleName]){
+        return ms;
+    }
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
+    if(found){
+        
+        newBom = makeBom(qualifiedModuleName, 
+        ms);
+        if(newBom != tm.store[key_bom]){
+            tm.store[key_bom] = newBom;
+            ms.status[qualifiedModuleName] -= tpl_saved();
+            ms = addTModel(qualifiedModuleName, tm, ms);
+
+            if(ms.compilerConfig.logWrittenFiles) println("Updated BOM: <qualifiedModuleName>");
+        }
+    } else{
+        println("Could not update BOM of <qualifiedModuleName>");
+    }
+    return ms;
+}
+
+ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded = false){
+    // if(candidate == "analysis::grammar::Ambiguity"){
+    //     println("removeTModel: <candidate>, <ms.status[candidate]>");
+    // }
+    messages = [];
     if(ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
         pcfg = ms.pathConfig;
-        if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
-        tm = ms.tmodels[candidate];
+        if(updateBOMneeded){
+            ms = updateBOM(candidate, ms);
+         } else {
+            ms.status[candidate] += bom_update_needed();
+         }
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
+        tm = ms.tmodels[candidate];
         tm = convertTModel2LogicalLocs(tm, ms.tmodels);
+        messages = tm.messages;
         ms.status[candidate] += tpl_saved();
+        if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
         try {
             writeBinaryValueFile(tplLoc, tm);
+            // if(candidate == "analysis::grammar::Ambiguity"){
+            //     println("removeTModel <candidate>: <getLastModified(candidate, ms.pathConfig)>, tpl: <lastModified(tplLoc)>");
+            // }
             if(traceTPL) println("Written <tplLoc>");
         } catch value e: {
             throw "Cannot write TPL file <tplLoc>, reason: <e>";
         }
     }
+    // if(!isEmpty(messages)){
+    //     ms.messages[candidate] = messages;
+    //     println("<candidate>:"); iprintln(messages);
+    // }
     ms.tmodels = delete(ms.tmodels, candidate);
+    //if(candidate == "analysis::grammar::Ambiguity"){
+    //    println("removeTModel, end: <candidate>, <ms.status[candidate]>");
+    //}
     return ms;
 }
 
-ModuleStatus removeOldestTModelFromCache(ModuleStatus ms){
+ModuleStatus removeOldestTModelFromCache(ModuleStatus ms, bool updateBOMneeded = false){
     if(size(ms.tmodelLIFO) > 0){
         candidate = ms.tmodelLIFO[-1];
-        ms = removeTModel(candidate, ms);
-        if(traceTModelCache) println("*** deleting tmodel <candidate>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
+        ms = removeTModel(candidate, ms, updateBOMneeded=updateBOMneeded);
+        if(traceTModelCache) println("*** deleted tmodel <candidate>, tmodels: <size(ms.tmodels)>, lifo: <size(ms.tmodelLIFO)>");
         ms.tmodelLIFO = ms.tmodelLIFO[..-1];
     }
     return ms;
@@ -249,6 +320,9 @@ private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 
 tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
+    // if(qualifiedModuleName == "analysis::grammars::Ambiguity"){
+    //     println("getTModelForModule: analysis::grammars::Ambiguity");
+    // }
     pcfg = ms.pathConfig;
     if(ms.tmodels[qualifiedModuleName]?){
         tm = convertTModel2PhysicalLocs(ms.tmodels[qualifiedModuleName]);
@@ -273,6 +347,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                     ms.status[qualifiedModuleName] ? {} += {rsc_not_found()};
                 }
                 ms.status[qualifiedModuleName] ? {} += {tpl_uptodate(), tpl_saved()};
+                ms.messages[qualifiedModuleName] = toSet(tm.messages);
                 ms.tmodelLIFO = [qualifiedModuleName, *ms.tmodelLIFO];
                 return <true, tm, ms>;
              }
