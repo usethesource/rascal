@@ -2,8 +2,11 @@ package org.rascalmpl.repl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.channels.AcceptPendingException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.jline.reader.LineReader;
@@ -13,6 +16,8 @@ import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
+import org.jline.terminal.Terminal.SignalHandler;
 import org.jline.utils.ShutdownHooks;
 
 public class BaseREPL2 {
@@ -49,6 +54,7 @@ public class BaseREPL2 {
         }
         reader.option(Option.HISTORY_IGNORE_DUPS, replService.historyIgnoreDuplicates());
 
+
         if (replService.supportsCompletion()) {
             reader.completer(new AggregateCompleter(replService.completers()));
         }
@@ -76,35 +82,40 @@ public class BaseREPL2 {
 
 
         // todo:
-        // - ctrl + c support
-        // - ctrl + / support
-        // - highlighting in the prompt?
+        // - ctrl + / support (might not be possible)
+        // - quiting of the REPL via `:quit`
+        // - highlighting in the prompt? (future work, as it also hurts other parts)
         // - nested REPLs
         // - queued commands (if it's still needed for import IO etc);
         // - support for html results 
-        // - measure time thing
-        // - source location history thingy
+        // - measure time
+        // - history?
         
     }
 
     public void run() throws IOException {
         try {
             replService.connect(term);
+            var running = setupInterruptHandler();
+
             while (keepRunning) {
                 try {
+                    replService.flush();
                     String line = reader.readLine(this.currentPrompt);
                     if (line == null) {
                         // EOF
                         break;
                     }
+                    running.set(true);
                     handleInput(line);
                 }
                 catch (UserInterruptException u) {
-                    reader.printAbove("> interrupted");
+                    // only thrown while `readLine` is active
+                    reader.printAbove(">>>>>>> Interrupted");
                     term.flush();
-                    var out = new HashMap<String, IOutputPrinter>();
-                    replService.handleReset(out, new HashMap<>());
-                    writeResult(out);
+                }
+                finally {
+                    running.set(false);
                 }
             }
         }
@@ -136,6 +147,29 @@ public class BaseREPL2 {
                 this.history.save();
             }
         }
+    }
+
+    private AtomicBoolean setupInterruptHandler() {
+        var running = new AtomicBoolean(false);
+        var original = new AtomicReference<SignalHandler>(null);
+        original.set(term.handle(Signal.INT, (s) -> {
+            if (running.get()) {
+                try {
+                    replService.handleInterrupt();
+                }
+                catch (InterruptedException e) {
+                    return;
+                }
+            }
+            else {
+                var fallback = original.get();
+                if (fallback != null) {
+                    fallback.handle(s);
+                }
+            }
+        }));
+
+        return running;
     }
 
 

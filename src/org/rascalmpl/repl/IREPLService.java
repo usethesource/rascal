@@ -67,9 +67,10 @@ public interface IREPLService {
     // todo see if we really need the meta-data
     void handleInput(String input, Map<String, IOutputPrinter> output, Map<String, String> metadata) throws InterruptedException;
 
-
-    // todo see if we really need the meta-data
-    void handleReset(Map<String, IOutputPrinter> output, Map<String, String> metadata) throws InterruptedException;
+    /**
+     * Will be called from a different thread then the one that called `handleInput`
+     */
+    void handleInterrupt() throws InterruptedException;
 
     /**
      * Default prompt
@@ -85,6 +86,9 @@ public interface IREPLService {
     PrintWriter errorWriter();
     PrintWriter outputWriter();
 
+    /**
+     * Flush the streams, will be triggered at the end of execution, and before showing the prompt.
+     */
     void flush();
 
 }

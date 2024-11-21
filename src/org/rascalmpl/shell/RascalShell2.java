@@ -49,6 +49,7 @@ public class RascalShell2  {
             if (OSUtils.IS_WINDOWS) {
                 termBuilder.encoding(StandardCharsets.UTF_8);
             }
+            termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
             var term = termBuilder.build();
 
 
