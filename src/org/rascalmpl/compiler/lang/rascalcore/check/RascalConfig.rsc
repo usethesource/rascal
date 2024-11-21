@@ -346,7 +346,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                           ];
                    s.addMessages(msgs);
                 }
-                if(t1.ret == avoid() && t2.ret != avoid()){
+                if(isVoidAType(t1.ret) && !isVoidAType(t2.ret)){
                    msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
                    s.addMessages(msgs);
                 }
