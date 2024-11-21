@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import org.jline.jansi.Ansi;
 import org.jline.reader.Completer;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp.Capability;
@@ -37,6 +38,7 @@ import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
+import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.jline3.RascalLineParser;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
@@ -128,6 +130,7 @@ public class RascalReplServices implements IREPLService {
                 reportError(output, (w, sw) -> {
                     w.println("Quiting REPL");
                 });
+                throw new EndOfFileException("Quiting REPL");
             }
             catch (Throwable e) {
                 reportError(output, (w, sw) -> {
@@ -329,6 +332,7 @@ public class RascalReplServices implements IREPLService {
         result.add(moduleCompleter);
         result.add(idCompleter);
         result.add(new RascalKeywordCompletion());
+        result.add(new RascalLocationCompletion());
         return result;
     }
     

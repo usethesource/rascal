@@ -53,5 +53,14 @@ public class JlineParserTest {
         assertEquals("lang::rascal", completeParser("import lang::rascal").word());
     }
 
+    @Test
+    public void locations() {
+        assertEquals("|", completeParser("|").word());
+        assertEquals("|file", completeParser("|file").word());
+        assertEquals("|file://", completeParser("|file://").word());
+        assertEquals("|file:///home/dir", completeParser("|file:///home/dir").word());
+        assertEquals("|file:///home/dir|", completeParser("|file:///home/dir|").word());
+    }
+
     
 }
