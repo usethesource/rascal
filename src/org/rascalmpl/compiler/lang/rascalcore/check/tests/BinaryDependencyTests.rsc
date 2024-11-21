@@ -107,7 +107,7 @@ bool expectNoErrors(map[str, list[Message]] msgsMap){
 }
 
 bool checkExpectNoErrors(str mname, PathConfig pcfg, list[Project] remove = []){
-    cfg = rascalCompilerConfig(pcfg)[verbose=verbose][logWrittenFiles=verbose][forceCompilationTopModule=true];
+    cfg = rascalCompilerConfig(pcfg)[verbose=verbose][logWrittenFiles=verbose];
     if(verbose) ("checkExpectNoErrors: <mname>");
     try {
         res = expectNoErrors(checkModules([mname], cfg));
@@ -132,7 +132,7 @@ bool expectErrors(map[str, list[Message]] msgsMap, list[str] expected){
 }
 
 bool checkExpectErrors(str mname, list[str] expected, PathConfig pcfg, list[Project] remove = []){
-    cfg = rascalCompilerConfig(pcfg)[verbose=verbose][logWrittenFiles=verbose][forceCompilationTopModule=true];
+    cfg = rascalCompilerConfig(pcfg)[verbose=verbose][logWrittenFiles=verbose];
     if(verbose) println("checkExpectErrors: <mname>, <expected>");
     try {
         res = expectErrors(checkModules([mname], cfg), expected);
@@ -145,7 +145,7 @@ bool checkExpectErrors(str mname, list[str] expected, PathConfig pcfg, list[Proj
 }
 
 TModel check(str mname, RascalCompilerConfig cfg){
-    ModuleStatus ms = rascalTModelForNames([mname], cfg[forceCompilationTopModule=true], dummy_compile1);
+    ModuleStatus ms = rascalTModelForNames([mname], cfg, dummy_compile1);
     tmodels = ms.tmodels;
     return ms.tmodels[mname];
 }
