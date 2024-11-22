@@ -994,8 +994,9 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 			}
 			else if (pattern.isCallOrTree()) {
 				var called = pattern.getExpression();
-				if (called.hasName()) {
-					return pattern.getArguments().isEmpty() && "StackOverflow".equals(Names.name(called.getName()));
+				if (called.isQualifiedName()) {
+					var qname = called.getQualifiedName();
+					return pattern.getArguments().isEmpty() && "StackOverflow".equals(Names.consName(qname));
 				}
 			}
 			
