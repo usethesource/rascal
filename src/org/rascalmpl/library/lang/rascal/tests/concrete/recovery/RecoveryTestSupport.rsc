@@ -131,7 +131,7 @@ FileStats updateStats(FileStats stats, TestMeasurement measurement, int referenc
         }
         case parseError(): {
             stats.parseTimeRatios = increment(stats.parseTimeRatios, parseTimeRatio);
-        print("?");
+            print("?");
             stats.parseErrors += 1;
         }
     }
@@ -433,7 +433,9 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
     fileNr = 0;
     fromFile = from;
 
-    writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
+    if (statFile != |unknown:///|) {
+        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
+    }
 
     return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());
 }
