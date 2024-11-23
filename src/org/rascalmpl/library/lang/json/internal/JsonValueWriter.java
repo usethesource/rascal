@@ -234,7 +234,7 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
-        if (!explicitConstructorNames && o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
+        if (!explicitConstructorNames && !explicitDataTypes && o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
           // enums!
           out.value(o.getName());
           return null;
