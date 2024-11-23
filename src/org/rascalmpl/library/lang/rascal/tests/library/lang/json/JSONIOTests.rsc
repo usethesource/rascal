@@ -5,7 +5,7 @@ import lang::json::IO;
 import util::UUID;
 import IO;
 
-loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
+loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
 bool jsonFeaturesSupported(value v) {
     for (/num r := v, size("<r>") > 10) {

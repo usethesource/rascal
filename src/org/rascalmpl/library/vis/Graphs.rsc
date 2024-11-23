@@ -40,9 +40,9 @@ import vis::Graphs;
 import IO;
 d = [<|std:///|, e> | e <- |std:///|.ls];
 d += [<e,f> | <_, e> <- d, isDirectory(e), f <- e.ls];
-graph(d, \layout=defaultCoseLayout());
+graph(d, \layout=defaultDagreLayout());
 // here we adapt the node labeler to show only the last file name in the path of the location:
-graph(d, \layout=defaultCoseLayout(), nodeLabeler=str (loc l) { return l.file; });
+graph(d, \layout=defaultDagreLayout(), nodeLabeler=str (loc l) { return l.file; });
 ```
 }
 Content graph(lrel[&T x, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeLinker, NodeLabeler[&T] nodeLabeler=defaultNodeLabeler, EdgeLabeler[&T] edgeLabeler=defaultEdgeLabeler, str title="Graph", CytoLayout \layout=defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle()) 
@@ -79,16 +79,18 @@ Content graph(rel[&T x, &L edge, &T y] v, NodeLinker[&T] nodeLinker=defaultNodeL
     = content(title, graphServer(cytoscape(graphData(v, nodeLinker=nodeLinker, nodeLabeler=nodeLabeler), \layout=\layout, nodeStyle=nodeStyle, edgeStyle=edgeStyle)));
 
 alias NodeLinker[&T] = loc (&T _id1);
-loc defaultNodeLinker(loc l) = l;
+loc defaultNodeLinker(/loc l) = l;
 default loc defaultNodeLinker(&T _) = |nothing:///|;
 
 alias NodeLabeler[&T]= str (&T _id2);
-str defaultNodeLabeler(&T v) = "<v>";
+str defaultNodeLabeler(/str s) = s;
+str defaultNodeLabeler(loc l)  = l.file != "" ? l.file : "<l>";
+default str defaultNodeLabeler(&T v) = "<v>";
 
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
 str defaultEdgeLabeler(&T _source, &T _target)  = "";
 
-
+@synopsis{Produces an overall cytoscape.js wrapper which is sent as JSON to the client side.}
 Cytoscape cytoscape(list[CytoData] \data, \CytoLayout \layout=\defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle())
     = cytoscape(
         elements=\data,        
@@ -99,6 +101,7 @@ Cytoscape cytoscape(list[CytoData] \data, \CytoLayout \layout=\defaultCoseLayout
         \layout=\layout
     );
 
+@synopsis{Translates different types of Rascal data conveniently to the Cytoscape.js data format.}
 list[CytoData] graphData(rel[loc x, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[loc] edgeLabeler=defaultEdgeLabeler)
     = [cytodata(\node("<e>", label=nodeLabeler(e), editor="<nodeLinker(e)>")) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
@@ -167,6 +170,7 @@ data CytoNodeShape
     | \polygon()
     ;
 
+@synopsis{Overall cytoscape.js object for sending to the client side.}
 data Cytoscape 
     = cytoscape(
         list[CytoData] elements = [],
@@ -240,6 +244,11 @@ data CytoStyleOf
 CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoNodeStyleOf(selector=\node(), style=style);
 CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoEdgeStyleOf(selector=\edge(), style=style);
 
+@synopsis{Instantiates a default node style}
+@description{
+Because the JSON writer can not instantiate default values for keyword fields,
+we have to do it manually here.
+}
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
         width             = "label",
@@ -254,6 +263,11 @@ CytoStyle defaultNodeStyle()
         \text-valign      = CytoVerticalAlign::\center()
     );
 
+@synopsis{Instantiates a default edge style}
+@description{
+Because the JSON writer can not instantiate default values for keyword fields
+we have to do it manually here.
+}
 CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         width               = 3,
@@ -261,7 +275,7 @@ CytoStyle defaultEdgeStyle()
         \line-color         = "black",
         \target-arrow-color = "black",
         \source-arrow-color = "black",
-        \target-arrow-shape = triangle(),
+        \target-arrow-shape = CytoArrowHeadStyle::triangle(),
         \source-arrow-shape = CytoArrowHeadStyle::none(),
         \curve-style        = bezier(),
         \label              = "data(label)"
@@ -286,9 +300,9 @@ data CytoStyle
         CytoFontWeight \font-weight = normal(),
         str \background-color   = "blue",
         str label               = "data(label)",
-        CytoNodeShape shape     = circle(),
-        CytoHorizontalAlign \text-halign = center(),
-        CytoVerticalAlign \text-valign = \top(),
+        CytoNodeShape shape     = CytoNodeShape::ellipse(),
+        CytoHorizontalAlign \text-halign = CytoHorizontalAlign::center(),
+        CytoVerticalAlign \text-valign = CytoVerticalAlign::\top(),
         CytoTextWrap \text-wrap = CytoTextWrap::none(),
         str \text-max-width     = "100px",
         CytoHorizontalAlign \text-justification = CytoHorizontalAlign::center(),
@@ -300,9 +314,9 @@ data CytoStyle
         str color               = "red",
         str \target-arrow-color = "black",
         str \source-arrow-color = "black",
-        CytoArrowHeadStyle \target-arrow-shape = triangle(),
-        CytoArrowHeadStyle \source-arrow-shape = none(),
-        CytoCurveStyle \curve-style = bezier(),
+        CytoArrowHeadStyle \target-arrow-shape = CytoArrowHeadStyle::triangle(),
+        CytoArrowHeadStyle \source-arrow-shape = CytoArrowHeadStyle::none(),
+        CytoCurveStyle \curve-style            = CytoCurveStyle::bezier(),
         int \source-text-offset = 1,
         int \target-text-offset = 1,
         str label               = "data(label)"
@@ -319,9 +333,16 @@ data CytoLayoutName
     | circle()
     | breadthfirst()
     | cose()
+    | dagre()
     ;
 
-data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
+@synopsis{An alias for dagre layout for documentation purposes.}
+@description{
+Dagre is a hierarchical graph layout.
+}
+CytoLayoutName hierarchical() = dagre();
+
+data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     = cytolayout()
     | breadthfirstLayout(
         CytoLayoutName name = CytoLayoutName::breadthfirst(),
@@ -336,15 +357,19 @@ data CytoLayout(CytoLayoutName name = cose(), bool animate=false)
         int rows=2,
         int cols=2,
         bool avoidOverlap=true,
-        num spacingFactor=1
+        num spacingFactor=.1
     )
     | circleLayout(
         CytoLayoutName name = CytoLayoutName::circle(),
         bool avoidOverlap=true,
-        num spacingFactor=1
+        num spacingFactor=.1
     )
     | coseLayout(
         CytoLayoutName name = cose()
+    )
+    | dagreLayout(
+        CytoLayoutName name = dagre(),
+        num spacingFactor = .1
     )
     ;
 
@@ -355,7 +380,7 @@ CytoLayout defaultCoseLayout()
     )
     ;
 
-CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
+CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=.1)
     = circleLayout(
         name = CytoLayoutName::circle(),
         animate=false,
@@ -363,7 +388,7 @@ CytoLayout defaultCircleLayout(bool avoidOverlap=true, num spacingFactor=1)
         spacingFactor=spacingFactor
     );
 
-CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=1)
+CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, num spacingFactor=.1)
     = gridLayout(
         name=CytoLayoutName::grid(),
         animate=false,
@@ -374,7 +399,7 @@ CytoLayout defaultGridLayout(int rows=2, int cols=rows, bool avoidOverlap=true, 
     )
     ;
 
-CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, bool grid=!circle, bool directed=false)
+CytoLayout defaultBreadthfirstLayout(num spacingFactor=.1, bool circle=false, bool grid=!circle, bool directed=false)
     = 
     breadthfirstLayout(
         name=CytoLayoutName::breadthfirst(),
@@ -383,6 +408,13 @@ CytoLayout defaultBreadthfirstLayout(num spacingFactor=1, bool circle=false, boo
         circle=circle,
         grid=grid,
         directed=directed
+    );
+
+CytoLayout defaultDagreLayout(num spacingFactor=1)
+    = dagreLayout(
+        name=CytoLayoutName::dagre(),
+        animate=false,
+        spacingFactor=spacingFactor
     );
 
 
@@ -413,11 +445,22 @@ Response (Request) graphServer(Cytoscape ch) {
     return reply;
 }
 
-@synopsis{default HTML wrapper for a chart}
+@synopsis{default HTML wrapper for a cytoscape.js graph}
+@description{
+This client features:
+* cytoscape.js loading with cytoscape-dagre and dagre present.
+* fetching of graph data via `http://localhost/cytoscape` URL
+* clickable links in every node that has an 'editor' data field that holds a `loc`, via the `http://localhost/editor?src=loc` URL
+* full screen graph view
+
+This client mirrors the server defined by ((graphServer)).
+}
 private HTMLElement plotHTML()
     = html([
         head([ 
-            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.umd.js"),
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
+            script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;

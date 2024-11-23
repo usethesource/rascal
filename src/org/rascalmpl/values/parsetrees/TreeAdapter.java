@@ -19,7 +19,6 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
@@ -289,6 +288,7 @@ public class TreeAdapter {
 			return SymbolAdapter.charClass(TreeAdapter.getCharacter(tree));
 		}
 		else if (isAmb(tree)) {
+			// ambiguities are never empty
 			return getType((ITree) getAlternatives(tree).iterator().next());
 		}
 		throw new ImplementationError("ITree does not have a type");
@@ -325,11 +325,7 @@ public class TreeAdapter {
 	}
 
 	public static IList getArgs(ITree tree) {
-		if (isAppl(tree)) {
-			return (IList) tree.get("args");
-		}
-
-		throw new ImplementationError(NO_ARGS_EXCEPTION_MESSAGE + tree.getName());
+		return tree.getArgs();
 	}
 
 	public static ITree setArgs(ITree tree, IList args) {
@@ -1035,6 +1031,11 @@ public class TreeAdapter {
 			}
 		}
 		return w.done();
+	}
+
+	public static int getListLength(ITree in) {
+		// [1,s1,s2,s3,2,s1,s2,s3,3]  9 / 3 
+		return (in.getArgs().length() / getSeparatorCount(in) + 1);
 	}
 
 }

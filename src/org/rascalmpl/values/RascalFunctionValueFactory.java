@@ -58,6 +58,7 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.SymbolAdapter;
+import org.rascalmpl.values.parsetrees.SymbolFactory;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -104,7 +105,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
         try {
-            return getParserGenerator().getNewParser(new NullRascalMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
+            return getParserGenerator().getNewParser(ctx.getEvaluator().getMonitor(), URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
         } 
         catch (ExceptionInInitializerError e) {
             throw new ImplementationError(e.getMessage(), e);
@@ -117,7 +118,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
     protected void writeParserClass(IMap grammar, ISourceLocation target) throws IOException {
         getParserGenerator().writeNewParser(
-            new NullRascalMonitor(), 
+            ctx.getEvaluator().getMonitor(), 
             URIUtil.rootLocation("parser-generator"), 
             "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), 
             grammar, 
@@ -216,9 +217,14 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         
         // the return type of the generated parse function is instantiated here to the start nonterminal of
         // the provided grammar:
-        Type functionType = tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
-            tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
-            tf.tupleEmpty());
+        Type functionType = !firstAmbiguity.getValue() 
+            ? tf.functionType(reifiedGrammar.getType().getTypeParameters().getFieldType(0),
+                tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+                tf.tupleEmpty())
+            : tf.functionType(RascalFunctionValueFactory.Tree,
+                tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
+                tf.tupleEmpty())
+            ;
         
         Class<IGTD<IConstructor, ITree, ISourceLocation>>parser = getParserClass((IMap) ((IConstructor) reifiedGrammar).get("definitions"));
         IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
@@ -298,6 +304,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
+        @SuppressWarnings({"unchecked"})
         final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
             = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
                 .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
@@ -323,7 +330,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
       
-
+        @SuppressWarnings({"unchecked"})
         final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
             = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
                 .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
@@ -369,7 +376,13 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
     }
 
     public IString createHole(ITree part, IInteger index) {
-        return getParserGenerator().createHole(part, index);
+        ITree hole = TreeAdapter.getArg(part, "hole");
+        ITree sym = TreeAdapter.getArg(hole, "symbol");
+        IConstructor symbol = SymbolFactory.typeToSymbol(sym , false, null);
+
+        IString result =  ctx.getValueFactory().string("\u0000" + symbol.toString() + ":" + index + "\u0000");
+
+        return result;
     }
 
     public IConstructor sym2symbol(ITree parsedSym) {
@@ -531,8 +544,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
 
         protected IValue parse(String methodName, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean hasSideEffects) {
-            if (origin == null) {
-                origin = input;
+            if (origin != null && !origin.equals(input)) {
+                throw new IllegalArgumentException("input and origin should be equal: <input> != <origin>");
             }
             
             try {

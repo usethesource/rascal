@@ -14,7 +14,7 @@ import ParseTree;
 
 @synopsis{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
 GrammarDefinition \layouts(GrammarDefinition def) {
-  deps = extends(def) + imports(def);
+  deps = dependencies(def);
   for (str name <- def.modules) {
     def.modules[name].grammar 
       = layouts(def.modules[name].grammar, 
@@ -86,8 +86,13 @@ list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
   return syms;
 }
 
-private bool sepInOthers(Symbol sep, set[Symbol] others)    // TODO: factored out due to compiler issue
-    = sep in others || (seq([a,_,b]) := sep && (a in others || b in others));
+private bool sepInOthers(Symbol sep, set[Symbol] others)
+    // TODO: factored out due to compiler issue
+    // TODO: rewritten to satisfy stricter variable rules for or operator
+    { if(sep in others) return true;
+      if(seq([a,_,b]) := sep) return (a in others || b in others);
+      return false;
+    }
 
 private Symbol regulars(Symbol s, Symbol l, set[Symbol] others) {
   return visit(s) {

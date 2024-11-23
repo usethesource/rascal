@@ -141,7 +141,7 @@ public class RascalYAML {
 		// Structural types may be shared.
 		if (visited.containsKey(obj)) {
 			assert anchors.get(obj) != - 1;
-			return values.constructor(Node_reference, values.integer(anchors.get(obj)));
+			return values.constructor(Node_reference).asWithKeywordParameters().setParameter(ANCHOR_ANNO, values.integer(anchors.get(obj)));
 		}
 		visited.put(obj, true);
 		

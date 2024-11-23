@@ -12,14 +12,14 @@ lexical A = [A];
 syntax As = A+;
 
 test bool storeParserNonModule() {
-  storeParsers(#As, |test-temp:///parsersA.jar|);
-  p = loadParsers(|test-temp:///parsersA.jar|);
+  storeParsers(#As, |memory://test-tmp/parsersA.jar|);
+  p = loadParsers(|memory://test-tmp/parsersA.jar|);
 
   return p(type(sort("As"), ()), "A A", |origin:///|) == parse(#As, "A A", |origin:///|);
 }
 
 loc constructExampleProject() {
-    root = |test-temp:///example-prj-<"<arbInt()>">|;
+    root = |memory://test-tmp/example-prj-<"<arbInt()>">|;
     newRascalProject(root);
     return root;
 }

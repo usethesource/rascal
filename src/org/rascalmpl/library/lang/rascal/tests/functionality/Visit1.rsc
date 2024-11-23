@@ -656,8 +656,6 @@ public &T delAnnotationsRec2(&T v) = visit(v) {
      case node n: { insert delAnnotations(n); }
   };
 
-anno int NODE@pos;
-
 public NODE A1 = leaf(3);
 public NODE A2 = leaf(3)[@pos = 1];
 
@@ -752,6 +750,84 @@ test bool StringVisit73() = deescape("\\\\") == "\\";
 test bool StringVisit74() = deescape("\\\<") == "\<";
 test bool StringVisit75() = deescape("\\\>") == "\>";
 test bool StringVisit76() = deescape("\\n") == "n";
+
+// test some unicode features of string visiting
+test bool StringUnicodeVisitEmoji1() {
+	return visit ("Hello 🌈World") {
+		case /🌈/ => ""
+	} == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1TD() {
+    return top-down visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1TDB() {
+    return top-down-break visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1BU() {
+    return bottom-up visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1BUB() {
+    return bottom-up-break visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1INNER() {
+    return innermost visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji1OUTER() {
+    return outermost visit ("Hello 🌈World") {
+        case /🌈/ => ""
+    } == "Hello World";
+}
+
+test bool StringUnicodeVisitEmoji2() {
+	return visit ("Hello World") {
+		case / / => "🌈"
+	} == "Hello🌈World";
+}
+test bool StringUnicodeVisitEmoji3() {
+	return visit ("Hello👍🏽World") {
+		case /👍🏽/ => "🌈"
+	} == "Hello🌈World";
+}
+
+test bool StringUnicodeVisitEmoji4() {
+	return visit ("Hello🫂🌈World") {
+		case /🫂/ => "🌈"
+	} == "Hello🌈🌈World";
+}
+test bool StringUnicodeVisitEmoji5() {
+	return visit ("Hello🫂🫂🫂World") {
+		case /[🫂]+/ => "🌈"
+	} == "Hello🌈World";
+}
+
+test bool StringUnicodeVisitEmoji6() {
+	return visit ("Hello🫂🫂🫂World") {
+		case /🫂[🫂]*/ => "🌈"
+	} == "Hello🌈World";
+}
+
+
+test bool StringUnicodeVisitEmoji7() {
+	return visit ("Hello🌈World") {
+		case /World/ => "🌍"
+	} == "Hello🌈🌍";
+}
 
 // Keywords and visit
 

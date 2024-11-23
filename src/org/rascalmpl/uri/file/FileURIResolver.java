@@ -143,6 +143,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	* To override to build resolvers to specific locations using a prefix for example.
 	*/
 	protected String getPath(ISourceLocation uri) {
+		assert !uri.hasAuthority();
 		return uri.getPath();
 	}
 	
@@ -233,7 +234,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 				options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.APPEND };
 			}
 			else {
-				options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ };
+				options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING };
 			}
 			return FileChannel.open(new File(path).toPath(), options);
 		}
