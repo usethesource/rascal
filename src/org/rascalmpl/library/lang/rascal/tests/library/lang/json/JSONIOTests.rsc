@@ -70,3 +70,31 @@ test bool originTracking() {
 
    return true;
 }
+
+test bool explicitConstructorNames() {
+    example = data4(e=z());
+    json = asJSON(example, explicitConstructorNames=true);
+    
+    assert json == "{\"_constructor\":\"data4\",\"e\":{\"_constructor\":\"z\"}}";
+
+    assert parseJSON(#DATA4, json, explicitConstructorNames=true) == example;
+
+    // here we can't be sure to get z() back, but we will get some Enum
+    assert data4(e=Enum _) := parseJSON(#DATA4, json, explicitConstructorNames=false);
+
+    return true;
+}
+
+test bool explicitDataTypes() {
+    example = data4(e=z());
+    json = asJSON(example, explicitDataTypes=true);
+    
+    assert json == "{\"_constructor\":\"data4\",\"_type\":\"DATA4\",\"e\":{\"_constructor\":\"z\",\"_type\":\"Enum\"}}";
+
+    assert parseJSON(#DATA4, json, explicitDataTypes=true) == example;
+
+    // here we can't be sure to get z() back, but we will get some Enum
+    // assert data4(e=Enum _) := parseJSON(#DATA4, json, explicitDataTypes=false);
+
+    return true;
+}

@@ -115,6 +115,9 @@ public class JsonValueReader {
 
    public JsonValueReader setExplicitDataTypes(boolean value) {
     this.explicitDataTypes = value;
+    if (value) {
+      this.explicitConstructorNames = true;
+    }
     return this;
   }
 
@@ -507,33 +510,61 @@ public class JsonValueReader {
           throw new IOException("no nullary constructor found for " + type);
         }
 
-        assert in.peek() == JsonToken.BEGIN_OBJECT;
+        Set<Type> alternatives = null;
 
-         Set<Type> alternatives = null;
-
+        in.beginObject();
+        int startPos = getPos();
+        int startLine = getLine();
+        int startCol = getCol();
+        
         // use explicit information in the JSON to select and filter constructors from the TypeStore
         // we expect always to have the field _constructor before _type.
-        if (explicitConstructorNames) {
+        if (explicitConstructorNames || explicitDataTypes) {
+          String consName = null;
+          String typeName = null; // this one is optional, and the order with cons is not defined.
+
           String consLabel = in.nextName();
-          if ("_constructor".equals(consLabel)) {
-            String consName = in.nextString();
 
-            alternatives = store.lookupConstructors(consName);
+          // first we read either a cons name or a type name
+          if (explicitConstructorNames && "_constructor".equals(consLabel)) {
+            consName = in.nextString();
+          }
+          else if (explicitDataTypes && "_type".equals(consLabel)) {
+            typeName = in.nextString();
+          }
 
-            if (explicitDataTypes) {
-              String dtLabel = in.nextName();
-
-              if ("_type".equals(dtLabel)) {
-                String dtValue = in.nextString();
-                alternatives = alternatives.stream().filter(t -> t.isAbstractData() && t.getName().equals(dtValue)).collect(Collectors.toSet());
-              }
-              else {
-                throw new IOException("Expected _type field but got " + dtLabel);    
-              }
+          // optionally read the second field
+          if (explicitDataTypes && typeName == null) {
+            // we've read a constructor name, but we still need a type name
+            consLabel = in.nextName();
+            if (explicitDataTypes && "_type".equals(consLabel)) {
+              typeName = in.nextString();
             }
           }
+          else if (explicitDataTypes && consName == null) {
+            // we've read type name, but we still need a constructor name
+            consLabel = in.nextName();
+            if (explicitDataTypes && "_constructor".equals(consLabel)) {
+              consName = in.nextString();
+            }
+          }
+
+          if (explicitDataTypes && typeName == null) {
+              throw new IOException("Missing a _type field: " + in.getPath());
+          }
+          else if (explicitConstructorNames && consName == null) {
+              throw new IOException("Missing a _constructor field: " + in.getPath());
+          }
+
+          if (typeName != null && consName != null) {
+            // first focus on the given type name
+            var dataType = TF.abstractDataType(store, typeName);
+            alternatives = store.lookupConstructor(dataType, consName);
+          }
           else {
-            throw new IOException("Expected _constructor field but got " + consLabel);
+            // we only have a constructor name
+            // lookup over all data types by constructor name
+            alternatives = store.lookupConstructors(consName);
           }
         }
         else {
@@ -545,10 +576,6 @@ public class JsonValueReader {
         }
         Type cons = alternatives.iterator().next();
        
-        in.beginObject();
-        int startPos = getPos();
-        int startLine = getLine();
-        int startCol = getCol();
         
         IValue[] args = new IValue[cons.getArity()];
         Map<String,IValue> kwParams = new HashMap<>();
@@ -576,7 +603,20 @@ public class JsonValueReader {
             }
           }
           else { // its a normal arg, pass its label to the child
-            throw new IOException("Unknown field " + label + ":" + in.getPath());
+            if (!explicitConstructorNames && "_constructor".equals(label)) {
+              // ignore additional _constructor fields.
+              in.nextString(); // skip the constructor value
+              continue;
+            }
+            else if (!explicitDataTypes && "_type".equals(label)) {
+              // ignore additional _type fields.
+              in.nextString(); // skip the type value
+              continue;
+            }
+            else {
+              // field label does not match data type definition
+              throw new IOException("Unknown field " + label + ":" + in.getPath());
+            }
           }
         }
         
