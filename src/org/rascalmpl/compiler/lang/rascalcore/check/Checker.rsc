@@ -490,7 +490,7 @@ bool otherModulesWithOutdatedTpls(list[loc] candidates, PathConfig pcfg){
         for(loc mloc <- find(srcdir, "rsc")){
             mname = getModuleName(mloc, pcfg);
             <found, tpl> = getTPLReadLoc(mname, pcfg);
-            if(found && mname notin candidates && lastModified(mloc) > lastModified(tpl)){
+            if(found && (mloc notin candidates) && (lastModified(mloc) > lastModified(tpl))){
                 return true;
             }
         }
