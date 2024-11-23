@@ -129,5 +129,5 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     comp_time = (cpuTime() - start_comp)/1000000;
     if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleName> in <comp_time> ms [total]"); }
 	
-    return ms.messages[qualifiedModuleName] ? [];
+    return toList(ms.messages[qualifiedModuleName] ? {});
 }
