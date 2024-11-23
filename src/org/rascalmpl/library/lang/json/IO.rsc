@@ -62,12 +62,11 @@ The `dateTimeFormat` parameter dictates how `datetime` values will be printed.
 
 The `unpackedLocations` parameter will produce an object with many fields for every property of a `loc` value, but
 if set to false a `loc` will be printed as a string.
-
-:::warning
-It is understood that Rascal's number types have arbitrary precision, but this is not supported by the JSON writer.
+}
+@pitfalls{
+* It is understood that Rascal's number types have arbitrary precision, but this is not supported by the JSON writer.
 As such when an `int` is printed that does not fit into a JVM `long`, there will be truncation to the lower 64 bits.
 For `real` numbers that are larger than JVM's double you get "negative infinity" or "positive infinity" as a result.
-:::
 }
 java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
