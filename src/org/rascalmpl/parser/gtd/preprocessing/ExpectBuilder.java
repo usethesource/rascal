@@ -15,6 +15,8 @@ import java.util.Iterator;
 
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.util.DoubleArrayList;
+import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
@@ -26,13 +28,15 @@ import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
  */
 @SuppressWarnings("cast")
 public class ExpectBuilder<P>{
+	private final IntegerKeyedHashMap<IntegerList> dontNest;
 	private final IntegerMap resultStoreMappings;
 	
 	private final SortedIntegerObjectList<DoubleArrayList<P, AbstractStackNode<P>[]>> alternatives;
 	
-	public ExpectBuilder(IntegerMap resultStoreMappings){
+	public ExpectBuilder(IntegerKeyedHashMap<IntegerList> dontNest, IntegerMap resultStoreMappings){
 		super();
-		
+
+		this.dontNest = dontNest;
 		this.resultStoreMappings = resultStoreMappings;
 		
 		alternatives = new SortedIntegerObjectList<DoubleArrayList<P, AbstractStackNode<P>[]>>();
@@ -86,7 +90,7 @@ public class ExpectBuilder<P>{
 				AbstractStackNode<P> first = alternative[0];
 				int firstItemResultStoreId = resultStoreMappings.get(first.getId());
 				
-				if(isSharable(production)){
+				if(isSharable(production) && dontNest.get(first.getId()) == null){
 					// Check if the first symbol in the alternative, with the same nesting restrictions, has been encountered before in another alternative.
 					sharedExpect = constructedExpects.get(first, firstItemResultStoreId);
 				}
@@ -105,10 +109,13 @@ public class ExpectBuilder<P>{
 					int k = 1;
 					CHAIN: for(; k < alternative.length; ++k){
 						AbstractStackNode<P> alternativeItem = alternative[k];
+						if(dontNest.get(alternativeItem.getId()) != null) {
+							break; // Don't share items with nesting restrictions associated with them
+						}
 						int alternativeItemResultStoreId = resultStoreMappings.get(alternativeItem.getId());
 						
 						AbstractStackNode<P> sharedExpectItem = sharedExpect[k];
-						
+
 						// Can't share the current alternative's symbol with the shared alternative we are currently matching against; try all other possible continuations to find a potential match.
 						if(!alternativeItem.isEqual(sharedExpectItem) || alternativeItemResultStoreId != resultStoreMappings.get(sharedExpectItem.getId())){
 							AbstractStackNode<P>[][] otherSharedExpects = sharedExpectItem.getAlternateProductions();

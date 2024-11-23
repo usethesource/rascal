@@ -45,7 +45,7 @@ public class StaticChecker {
 	public StaticChecker(OutputStream stderr, OutputStream stdout) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("$staticchecker$", heap));
-		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, stderr, stdout, root, heap);
+		eval = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, stderr, stdout, root, heap, IRascalMonitor.buildConsoleMonitor(System.in, System.out));
 		eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		checkerEnabled = false;
 		initialized = false;

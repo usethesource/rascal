@@ -147,19 +147,14 @@ map[Concept[&Object, &Attribute], int] makeNodes(ConceptLattice[&Object, &Attrib
      return r;
      }
      
-set[&Attribute] newAdded1(ConceptLattice[&Object, &Attribute] q,  Concept[&Object, &Attribute] c) {
+set[&Attribute] addConcept(ConceptLattice[&Object, &Attribute] q,  Concept[&Object, &Attribute] c) {
      set[Concept[&Object, &Attribute]] parents = range(domainR(q, {c}));
      return c[1] - union({p[1]|Concept[&Object, &Attribute] p <-parents});
-     }
+}
  
-set[Concept[&Object, &Attribute]] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, &Attribute] c) {
-     set[Concept[&Object, &Attribute]] parents = domain(rangeR(q, {c}));
-     return c[0] - union({p[0]|Concept[&Object, &Attribute] p <-parents});
-     }  
-
 Stm compose(Concept[&Object, &Attribute] c, map[Concept[&Object, &Attribute], int] z, bool lab) {
      return N("\"<z[c]>\"", lab?[<"label", "<c>">]:[]);
-     } 
+} 
      
    
 

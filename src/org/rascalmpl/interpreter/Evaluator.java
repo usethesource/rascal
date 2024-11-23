@@ -99,6 +99,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalFunctionValueFactory;
@@ -121,6 +122,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
+   
     private final RascalFunctionValueFactory vf; // sharable
     private static final TypeFactory tf = TypeFactory.getInstance(); // always shared
     protected volatile Environment currentEnvt; // not sharable
@@ -174,7 +176,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     /**
      * True if we're doing profiling
      */
-    private static boolean doProfiling = false;
+    private boolean doProfiling = false;
 
     /**
      * Track if we already started a profiler, to avoid starting duplicates after a callback to an eval function.
@@ -229,8 +231,24 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     
     private static final Object dummy = new Object();	
 
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, input, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    /**
+     * Promotes the monitor to the outputstream automatically if so required.
+     */
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    }
+
+    /**
+     * If your monitor should wrap stdout (like TerminalProgressBarMonitor) then you can use this constructor.
+     */
+    public <M extends OutputStream & IRascalMonitor> Evaluator(IValueFactory f, InputStream input, OutputStream stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+        setMonitor(monitor);
+    }
+
+    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
+        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+        setMonitor(monitor);
     }
 
     public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
@@ -316,6 +334,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         interrupt = false;
         IRascalMonitor old = this.monitor;
         this.monitor = monitor;
+
         return old;
     }
 
@@ -324,6 +343,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         if (monitor != null)
             return monitor.jobEnd(name, succeeded);
         return 0;
+    }
+
+    @Override
+    public void endAllJobs() {
+        if (monitor != null) {
+            monitor.endAllJobs();
+        }
     }
 
     @Override	
@@ -774,11 +800,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             ParserGenerator pgen = getParserGenerator();
             String main = uri.getAuthority();
             ModuleEnvironment env = getHeap().getModule(main);
-            monitor.jobStart("Expanding Grammar");
             return pgen.getExpandedGrammar(monitor, main, env.getSyntaxDefinition());
         }
         finally {
-            monitor.jobEnd("Expanding Grammar", true);
             setMonitor(old);
         }
     }
@@ -804,14 +828,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
 
             Evaluator self = this;
-            job("Loading parser generator", () -> {
-                synchronized (self) {
-                    if (parserGenerator == null) {
-                        parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
-                    }
-                    return true;
+
+            synchronized (self) {
+                if (parserGenerator == null) {
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (OutputStream) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
                 }
-            });
+            }
         }
 
         return parserGenerator;
@@ -866,12 +888,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         __setInterrupt(false);
         try {
             Profiler profiler = null;
-            if (Evaluator.doProfiling && !profilerRunning) {
+            if (doProfiling && !profilerRunning) {
                 profiler = new Profiler(this);
                 profiler.start();
                 profilerRunning = true;
             }
             currentAST = stat;
+           
             try {
                 return stat.interpret(this);
             } finally {
@@ -881,12 +904,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     profilerRunning = false;
                 }
                 getEventTrigger().fireIdleEvent();
+                endAllJobs();
             }
-        } catch (Return e) {
+        } 
+        catch (Return e) {
             throw new UnguardedReturn(stat);
-        } catch (Failure e) {
+        } 
+        catch (Failure e) {
             throw new UnguardedFail(stat, e);
-        } catch (Insert e) {
+        } 
+        catch (Insert e) {
             throw new UnguardedInsert(stat);
         }
     }
@@ -908,6 +935,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return eval(command, location);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -930,6 +958,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return evalMore(commands, location);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -1054,6 +1083,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             return eval(command);
         }
         finally {
+            endAllJobs();
             setMonitor(old);
             getEventTrigger().fireIdleEvent();
         }
@@ -1062,7 +1092,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(Commands commands) {
         __setInterrupt(false);
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
@@ -1085,13 +1115,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private Result<IValue> eval(Command command) {
         __setInterrupt(false);
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
         }
         try {
-            return command.interpret(this);
+            if (command.isImport()) {
+                return job(LOADING_JOB_CONSTANT, 1, (jobName, step) -> {
+                    try {
+                        return command.interpret(this);
+                    }
+                    finally{
+                        step.accept(jobName, 1);
+                    }
+                });
+            }
+            else {
+                return command.interpret(this);
+            }
         } finally {
             if (profiler != null) {
                 profiler.pleaseStop();
@@ -1124,12 +1166,46 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
     }
 
-    public void doImport(IRascalMonitor monitor, String string) {
+    /**
+     * This starts a comprehensive batch of imports with its
+     * own monitoring job. The bar will grow as new modules
+     * are discovered to be recursively imported or extended.
+     * @param monitor
+     * @param string
+     */
+    public void doImport(IRascalMonitor monitor, String... string) {
+        IRascalMonitor old = setMonitor(monitor);
+        interrupt = false;
+        try {
+            monitor.jobStart(LOADING_JOB_CONSTANT, string.length);
+            ISourceLocation uri = URIUtil.rootLocation("import");
+            for (String module : string) {
+                monitor.jobStep(LOADING_JOB_CONSTANT, "Starting on " + module);
+                org.rascalmpl.semantics.dynamic.Import.importModule(module, uri, this);
+            }
+        }
+        finally {
+            monitor.jobEnd(LOADING_JOB_CONSTANT, true);
+            setMonitor(old);
+            setCurrentAST(null);
+        }
+    }
+
+    /**
+     * This is if a LOADING_JOB_CONSTANT-named job is already running, and
+     * we need to execute the next few imports. It assumed at least names.length
+     * work is on the todo list for the monitor. The todo work will grow
+     * as recursively imported or extended modules are discovered.
+     */
+    public void doNextImport(String jobName, String... names) {
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
             ISourceLocation uri = URIUtil.rootLocation("import");
-            org.rascalmpl.semantics.dynamic.Import.importModule(string, uri, this);
+            for (String module : names) {
+                monitor.jobStep(jobName, "Starting on " + module);
+                org.rascalmpl.semantics.dynamic.Import.importModule(module, uri, this);
+            }
         }
         finally {
             setMonitor(old);
@@ -1146,61 +1222,53 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
         SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
+
         try {
             Set<String> onHeap = new HashSet<>();
             Set<String> extendingModules = new HashSet<>();
             PrintWriter errStream = getErrorPrinter();
-
-            try {
-                monitor.jobStart("Cleaning modules", names.size());
-                for (String mod : names) {
-                    if (heap.existsModule(mod)) {
-                        onHeap.add(mod);
-                        if (recurseToExtending) {
-                            extendingModules.addAll(heap.getExtendingModules(mod));
-                        }
-                        heap.removeModule(heap.getModule(mod));
+ 
+            for (String mod : names) {
+                if (heap.existsModule(mod)) {
+                    onHeap.add(mod);
+                    if (recurseToExtending) {
+                        extendingModules.addAll(heap.getExtendingModules(mod));
                     }
-                    monitor.jobStep("Cleaning modules", "Processed " + mod, 1);
+                    heap.removeModule(heap.getModule(mod));
                 }
-                extendingModules.removeAll(names);
-            } finally {
-                monitor.jobEnd("Cleaning modules", true);
             }
+            extendingModules.removeAll(names);
 
-            try {
-                monitor.jobStart("Reloading modules", onHeap.size());
+            job(LOADING_JOB_CONSTANT, onHeap.size(), (jobName, step) ->  {
                 for (String mod : onHeap) {
-                    wrapped.clear();
-                    if (!heap.existsModule(mod)) {
-                        errStream.println("Reloading module " + mod);
-                        reloadModule(mod, errorLocation, affectedModules);
+                    try {
+                        wrapped.clear();
                         if (!heap.existsModule(mod)) {
-                            // something went wrong with reloading, let's print that:
-                            errStream.println("** Something went wrong while reloading module " + mod + ":");
-                            for (String s : wrapped.getWarnings()) {
-                                errStream.println(s);
+                            reloadModule(mod, errorLocation, affectedModules, jobName);
+                            if (!heap.existsModule(mod)) {
+                                // something went wrong with reloading, let's print that:
+                                errStream.println("** Something went wrong while reloading module " + mod + ":");
+                                for (String s : wrapped.getWarnings()) {
+                                    errStream.println(s);
+                                }
+                                errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
+                                errStream.println("*** if the error persists, start a new console session.");
                             }
-                            errStream.println("*** Note: after fixing the error, you will have to manually reimport the modules that you already imported.");
-                            errStream.println("*** if the error persists, start a new console session.");
-                        }
-                    }
-                    monitor.jobStep("Reloading modules", "loaded " + mod, 1);
+                        }    
+                    } finally {
+                        step.accept(mod, 1);
+                    }      
                 }
-            } finally {
-                monitor.jobEnd("Reloading modules", true);
-            }
 
-            Set<String> dependingImports = new HashSet<>();
-            Set<String> dependingExtends = new HashSet<>();
-            dependingImports.addAll(getImportingModules(names));
-            dependingExtends.addAll(getExtendingModules(names));
+                Set<String> dependingImports = new HashSet<>();
+                Set<String> dependingExtends = new HashSet<>();
+                dependingImports.addAll(getImportingModules(names));
+                dependingExtends.addAll(getExtendingModules(names));
 
-            try {
-                monitor.jobStart("Reconnecting importers of affected modules");
                 for (String mod : dependingImports) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getImports());
+                    
                     for (String imp : todo) {
                         if (names.contains(imp)) {
                             env.unImport(imp);
@@ -1214,20 +1282,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                                 warning("could not reimport " + imp, errorLocation);
                             }
                         }
-
                     }
-                    monitor.jobStep("Reconnecting importers of affected modules", "Reconnected " + mod, 1);
                 }
-            }
-            finally {
-                monitor.jobEnd("Reconnecting importers of affected modules", true);
-            }
 
-            try {
-                monitor.jobStart("Reconnecting extenders of affected modules");
                 for (String mod : dependingExtends) {
                     ModuleEnvironment env = heap.getModule(mod);
                     Set<String> todo = new HashSet<>(env.getExtends());
+
                     for (String ext : todo) {
                         if (names.contains(ext)) {
                             env.unExtend(ext);
@@ -1241,27 +1302,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                             }
                         }
                     }
-                    monitor.jobStep("Reconnecting extenders of affected modules", "Reconnected " + mod, 1);
                 }
-            }
-            finally {
-                monitor.jobEnd("Reconnecting extenders of affected modules", true);
-            }
 
-            if (recurseToExtending && !extendingModules.isEmpty()) {
-                reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
-            }
+                if (recurseToExtending && !extendingModules.isEmpty()) {
+                    reloadModules(monitor, extendingModules, errorLocation, false, affectedModules);
+                }
 
-            if (!names.isEmpty()) {
-                notifyConstructorDeclaredListeners();
-            }
+                if (!names.isEmpty()) {
+                    notifyConstructorDeclaredListeners();
+                }
+
+                return true;
+            });
         }
         finally {
             setMonitor(old);
         }
     }
 
-    private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded) {
+    private void reloadModule(String name, ISourceLocation errorLocation, Set<String> reloaded, String jobName) {
         try {
             org.rascalmpl.semantics.dynamic.Import.loadModule(errorLocation, name, this);
             reloaded.add(name);
@@ -1394,14 +1453,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * effect of declaring non-terminal types in the given environment.
      */
     @Override
-    public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location) throws IOException{
-        return parseModuleAndFragments(monitor, getResourceContent(location), location);
+    public ITree parseModuleAndFragments(IRascalMonitor monitor, ISourceLocation location, String jobName) throws IOException{
+        return parseModuleAndFragments(monitor, jobName, getResourceContent(location), location);
     }
 
-    public ITree parseModuleAndFragments(IRascalMonitor monitor, char[] data, ISourceLocation location){
+    public ITree parseModuleAndFragments(IRascalMonitor monitor, String jobName, char[] data, ISourceLocation location){
         IRascalMonitor old = setMonitor(monitor);
         try {
-            return org.rascalmpl.semantics.dynamic.Import.parseModuleAndFragments(data, location, this);
+            return org.rascalmpl.semantics.dynamic.Import.parseModuleAndFragments(data, location, jobName, this);
         }
         finally{
             setMonitor(old);
@@ -1410,7 +1469,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     @Override	
     public void updateProperties() {
-        Evaluator.doProfiling = config.getProfilingProperty();
+        doProfiling = config.getProfilingProperty();
 
         setCallTracing(config.getTracingProperty());
     }
@@ -1543,7 +1602,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
     public Result<IValue> call(IRascalMonitor monitor, ICallableValue fun, Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
         Profiler profiler = null;
-        if (Evaluator.doProfiling && !profilerRunning) {
+        if (doProfiling && !profilerRunning) {
             profiler = new Profiler(this);
             profiler.start();
             profilerRunning = true;
@@ -1793,6 +1852,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         @Override
         public void jobTodo(String name, int work) {
             monitor.jobTodo(name, work);
+        }
+
+        @Override
+        public void endAllJobs() {
+            monitor.endAllJobs();
         }
 
         @Override

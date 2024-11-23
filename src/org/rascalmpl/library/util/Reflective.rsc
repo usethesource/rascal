@@ -12,9 +12,13 @@
 @bootstrapParser
 module util::Reflective
 
-import ParseTree;
+
 import IO;
+import List;
+import ParseTree;
 import String;
+import util::FileSystem;
+
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
@@ -99,8 +103,14 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
-    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
+str makeFileName(str qualifiedModuleName, str extension = "rsc") {
+    str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
+    int n = findLast(qnameSlashes, "/");
+    str prefix = extension == "rsc" ? "" : "$";
+    str package = extension == "rsc" ? "" : "rascal/";
+    qnameSlashes = n < 0 ? "<prefix>" + qnameSlashes : qnameSlashes[0..n] + "/<prefix>" + qnameSlashes[n+1..];
+    return "<package><qnameSlashes><isEmpty(extension) ? "" : ".<extension>">";
+}
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
@@ -113,16 +123,24 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
-loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
-    fileName = makeFileName(qualifiedModuleName, extension=extension);
+@synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
+loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
+    fileName = makeFileName(qualifiedModuleName, extension="rsc");
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
-            //println("getModuleLocation <qualifiedModuleName> =\> <fileLoc>");
             return fileLoc;
         }
     }
-    throw "Module <qualifiedModuleName> not found, <pcfg>";
+    fileName = makeFileName(qualifiedModuleName, extension="tpl");
+    for(loc dir <- pcfg.libs){
+        fileLoc = dir + fileName;
+        
+        if(exists(fileLoc)){
+            return fileLoc;
+        }
+    }
+    throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
 tuple[str,str] splitFileExtension(str path){
@@ -131,17 +149,38 @@ tuple[str,str] splitFileExtension(str path){
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
-str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", "tpl"}){
+@synopsis{Determine length of common suffix of list of strings}
+int commonSuffix(list[str] dir, list[str] m)
+    = commonPrefix(reverse(dir), reverse(m));
+
+@synopsis{Determine length of common prefix of list of strings}
+int commonPrefix(list[str] rdir, list[str] rm){
+    for(int i <- index(rm)){
+        if(i >= size(rdir)){
+            return i;
+        } else if(rdir[i] != rm[i]){
+            return i;
+        } else {
+            continue;
+        }
+    }
+    return size(rm);
+}
+
+@synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
+str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
     
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
+    if(!(endsWith(modulePath, "rsc") || endsWith(modulePath, "tpl"))){
+        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
     }
-   
+    
+    // Find matching .rsc file in source directories
+
     for(loc dir <- pcfg.srcs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
+        if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
            moduleName = replaceFirst(modulePath, dir.path, "");
-           moduleName = replaceLast(moduleName, ".rsc", "");
+           <moduleName, ext> = splitFileExtension(moduleName);
            if(moduleName[0] == "/"){
               moduleName = moduleName[1..];
            }
@@ -150,24 +189,50 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg, set[str] extensions = {"tc", 
         }
     }
     
-     for(loc dir <- pcfg.libs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(ext in extensions){
-               if(moduleName[0] == "/"){
-                  moduleName = moduleName[1..];
-               }
-               moduleName = replaceAll(moduleName, "/", "::");
-               return moduleName;
-           }
+    // Find longest matching .tpl file in library directories
+  
+    <modulePathNoExt, ext> = splitFileExtension(modulePath);
+    while(modulePathNoExt[0] == "/"){
+        modulePathNoExt = modulePathNoExt[1..];
+    }
+    modulePathAsList = split("/", modulePathNoExt);
+    modulePathReversed = reverse(modulePathAsList);
+    
+    int longestSuffix = 0;
+    for(loc dir <- pcfg.libs){
+        dir = dir + "rascal";
+        dpath = dir.path;
+       
+        while(dpath[0] == "/"){
+            dpath = dpath[1..];
+        }
+       
+        for(loc file <- find(dir, "tpl")){
+            candidate = replaceFirst(file.path, dpath, "");    
+            <candidate, ext> = splitFileExtension(candidate);
+            while(candidate[0] == "/"){
+                candidate = candidate[1..];
+            }
+            
+            candidateAsList = split("/", candidate);
+            lastName = candidateAsList[-1];
+            if(lastName[0] == "$"){
+                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
+            }
+            //println("cand: <candidateAsList>, modpath: <modulePathAsList>");
+            n = commonPrefix(reverse(candidateAsList), modulePathReversed);
+                        
+            if(n > longestSuffix){
+                longestSuffix = n;
+            }
         }
     }
     
-    
+    if(longestSuffix > 0){
+        return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
+    }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
-
 
 @synopsis{Derive a location from a given module name for reading}
 @description{
@@ -287,6 +352,17 @@ public java int getFingerprint(value val, int arity, bool concretePatterns);
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprintNode(node nd);
 
+@synopsis{Get the internal hash code of a value. For the benefit of debugging the Rascal implementation.}
+@description{
+This function is useless for Rascal programmer's as it is a part of the under-the-hood implementation of values.
+You can use a value directly as a lookup key. The internal data-structures probably use this hashCode for
+optimal lookups in `O(log(size))`. 
+
+We use this function to diagnose possible performance issues caused by hash collisions.
+}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java int getHashCode(value v);
+
 @synopsis{Throw a raw Java NullPointerException, to help simulate an unexpected exception in test scenarios}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java void throwNullPointerException();
@@ -333,7 +409,7 @@ private str rascalMF(str name)
     'Project-Name: <name>
     'Source: src/main/rascal
     'Require-Libraries: 
-    ";
+    '";
 
 private str pomXml(str name, str group, str version)  
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>

@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -35,6 +36,7 @@ import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -80,51 +82,77 @@ public class BindingsResolver {
 	    if (collectBindings) {
 	        if (node instanceof TypeDeclaration) {
 	            return resolveBinding(((TypeDeclaration) node).resolveBinding());
-	        } else if (node instanceof EnumDeclaration) {
+	        } 
+			else if (node instanceof ModuleDeclaration) {
+				return resolveBinding(((ModuleDeclaration) node).resolveBinding());
+			}
+			else if (node instanceof EnumDeclaration) {
 	            return resolveBinding(((EnumDeclaration) node).resolveBinding());
-	        } else if (node instanceof AnnotationTypeDeclaration) {
+	        } 
+			else if (node instanceof AnnotationTypeDeclaration) {
 	            return resolveBinding(((AnnotationTypeDeclaration) node).resolveBinding());
-	        } else if (node instanceof AnnotationTypeMemberDeclaration) {
+	        } 
+			else if (node instanceof AnnotationTypeMemberDeclaration) {
 	            return resolveBinding(((AnnotationTypeMemberDeclaration) node).resolveBinding());
-	        } else if (node instanceof AnonymousClassDeclaration) {
+	        } 
+			else if (node instanceof AnonymousClassDeclaration) {
 	            return resolveBinding(((AnonymousClassDeclaration) node).resolveBinding());
-	        } else if (node instanceof EnumConstantDeclaration) {
+	        } 
+			else if (node instanceof EnumConstantDeclaration) {
 	            return resolveBinding(((EnumConstantDeclaration) node).resolveVariable());
-	        } else if (node instanceof ClassInstanceCreation) {
+	        } 
+			else if (node instanceof ClassInstanceCreation) {
 	            return resolveBinding(((ClassInstanceCreation) node).resolveConstructorBinding());
-	        } else if (node instanceof FieldAccess) {
+	        }
+			else if (node instanceof FieldAccess) {
 	            return resolveFieldAccess((FieldAccess) node);
-	        } else if (node instanceof MethodInvocation) {
+	        } 
+			else if (node instanceof MethodInvocation) {
 	            return resolveBinding(((MethodInvocation) node).resolveMethodBinding());
-	        } else if (node instanceof QualifiedName) {
+	        } 
+			else if (node instanceof QualifiedName) {
 	            return resolveQualifiedName((QualifiedName) node);
-	        } else if (node instanceof SimpleName) {
+	        } 
+			else if (node instanceof SimpleName) {
 	            return resolveSimpleName(node, tryHard);
-	        } else if (node instanceof SuperFieldAccess) {
+	        } 
+			else if (node instanceof SuperFieldAccess) {
 	            return resolveBinding(((SuperFieldAccess) node).resolveFieldBinding());
-	        } else if (node instanceof SuperMethodInvocation) {
+	        } 
+			else if (node instanceof SuperMethodInvocation) {
 	            return resolveBinding(((SuperMethodInvocation) node).resolveMethodBinding());
-	        } else if (node instanceof MemberRef) {
+	        } 
+			else if (node instanceof MemberRef) {
 	            return resolveBinding(((MemberRef) node).resolveBinding());
-	        } else if (node instanceof MethodDeclaration) {
+	        } 
+			else if (node instanceof MethodDeclaration) {
 	            return resolveBinding(((MethodDeclaration) node).resolveBinding());
-	        } else if (node instanceof MethodRef) {
+	        } 
+			else if (node instanceof MethodRef) {
 	            return resolveBinding(((MethodRef) node).resolveBinding());
-	        } else if (node instanceof PackageDeclaration) {
+	        } 
+			else if (node instanceof PackageDeclaration) {
 	            return resolveBinding(((PackageDeclaration) node).resolveBinding());
-	        } else if (node instanceof Type) {
+	        } 
+			else if (node instanceof Type) {
 	            return resolveBinding(((Type) node).resolveBinding());
-	        } else if (node instanceof TypeParameter) {
+	        } 
+			else if (node instanceof TypeParameter) {
 	            return resolveBinding(((TypeParameter) node).resolveBinding());
-	        } else if (node instanceof VariableDeclaration) {
+	        } 
+			else if (node instanceof VariableDeclaration) {
 	            return resolveVariable(node);
-	        } else if (node instanceof ConstructorInvocation) {
+	        } 
+			else if (node instanceof ConstructorInvocation) {
 	            return resolveBinding(((ConstructorInvocation) node).resolveConstructorBinding());
-	        } else if (node instanceof SuperConstructorInvocation) {
+	        } 
+			else if (node instanceof SuperConstructorInvocation) {
 	            return resolveBinding(((SuperConstructorInvocation) node).resolveConstructorBinding());
-	        } else if (node instanceof TypeDeclarationStatement) {
+	        } 
+			else if (node instanceof TypeDeclarationStatement) {
 	            return resolveBinding(((TypeDeclarationStatement) node).resolveBinding());
-	        } else if (node instanceof Initializer) {
+	        } 
+			else if (node instanceof Initializer) {
 	            return resolveInitializer((Initializer) node);
 	        } 
 	    }
@@ -147,9 +175,14 @@ public class BindingsResolver {
         IBinding resolveBinding = n.resolveBinding();
         ISourceLocation result = resolveBinding(resolveBinding);
         // Have to move towards parent to make the binding unique
-        if (result.getScheme() == "unresolved" && tryHard) {
+
+		if (result.getScheme().equals("unresolved") && n.getIdentifier().equals("java") && node.getParent() instanceof QualifiedName) {
+			result = makeBinding("java+package", "", "java");
+		}
+		else if (result.getScheme().equals("unresolved") && tryHard) {
         	result = resolveBinding(n.getParent(), resolveBinding, n);
         }
+
         return result;
     }
 
@@ -240,20 +273,27 @@ public class BindingsResolver {
 		initializerLookUp.put(node, result);
 		return result;
 	}
-	
+
 	public ISourceLocation resolveBinding(IBinding binding) {
 		if (binding == null) {
-	      return makeBinding("unresolved", null, null);
+			return makeBinding("unresolved", null, null);
 	    }
 		if (binding instanceof ITypeBinding) {
-	      return resolveBinding((ITypeBinding) binding);
-	    } else if (binding instanceof IMethodBinding) {
-	      return resolveBinding((IMethodBinding) binding);
-	    } else if (binding instanceof IPackageBinding) {
-	      return resolveBinding((IPackageBinding) binding);
-	    } else if (binding instanceof IVariableBinding) {
-	      return resolveBinding((IVariableBinding) binding);
+			return resolveBinding((ITypeBinding) binding);
+		} 
+		else if (binding instanceof IMethodBinding) {
+			return resolveBinding((IMethodBinding) binding);
+	    } 
+		else if (binding instanceof IPackageBinding) {
+			return resolveBinding((IPackageBinding) binding);
+	    } 
+		else if (binding instanceof IVariableBinding) {
+			return resolveBinding((IVariableBinding) binding);
 	    }
+		else if (binding instanceof IModuleBinding) {
+			return makeBinding("java+module", "", ((IModuleBinding) binding).getName());
+		}
+
 		return makeBinding("unknown", null, null);
 	}
 	
@@ -265,12 +305,17 @@ public class BindingsResolver {
 		if (binding != null) {
 			ISourceLocation uri = resolveBinding(binding);
 		    if (binding instanceof ITypeBinding) {
-		      return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
-		    } else if (binding instanceof IMethodBinding) {
-		      return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
-		    } else if (binding instanceof IVariableBinding) {
-		      return resolveType(((IVariableBinding) binding).getType(), isDeclaration);
+				return computeTypeSymbol(uri, (ITypeBinding) binding, isDeclaration);
+		    } 
+			else if (binding instanceof IMethodBinding) {
+				return computeMethodTypeSymbol(uri, (IMethodBinding) binding, isDeclaration);
+		    } 
+			else if (binding instanceof IVariableBinding) {
+				return resolveType(((IVariableBinding) binding).getType(), isDeclaration);
 		    }
+			else if (binding instanceof IModuleBinding) {
+				return computeTypeSymbol(uri);
+			}
 		}
 	    return result;
 	}
@@ -340,7 +385,11 @@ public class BindingsResolver {
 
   private Set<ITypeBinding> wildCardBoundsVisited = new HashSet<>();
   
-   private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
+    private IConstructor computeTypeSymbol(ISourceLocation decl) {
+		return moduleSymbol(decl);
+	}
+
+	private IConstructor computeTypeSymbol(ISourceLocation decl, ITypeBinding binding, boolean isDeclaration) {
     if (binding.isPrimitive()) {
       return primitiveSymbol(binding.getName());
     }
@@ -467,6 +516,11 @@ private IConstructor nullSymbol() {
     return values.constructor(cons);
   }
 
+  private IConstructor moduleSymbol(ISourceLocation name) {
+    io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), "module", tf.sourceLocationType());
+    return values.constructor(cons, name);
+  }
+
   private IConstructor arraySymbol(IConstructor elem, int dimensions) {
     io.usethesource.vallang.type.Type cons = store.lookupConstructor(getTypeSymbol(), "array", tf.tupleType(elem.getType(), tf.integerType()));
     return values.constructor(cons, elem, values.integer(dimensions));
@@ -498,11 +552,14 @@ private IConstructor nullSymbol() {
 		}
 		signature = signature.concat(binding.getMethodDeclaration().getName() + "(" + params + ")");
 		String scheme = "unknown";
+		
 		if (binding.isConstructor()) {
 	      scheme = "java+constructor";
-	    } else {
+	    } 
+		else {
 	      scheme = "java+method";
 	    }
+
 		ISourceLocation result = makeBinding(scheme, null, signature);
 		locationCache.put(binding.getKey(), result);
 		return result;
@@ -510,10 +567,12 @@ private IConstructor nullSymbol() {
 	
 	private ISourceLocation resolveBinding(IPackageBinding binding) {
 		if (binding == null) {
-	      return makeBinding("unresolved", null, null);
+			return makeBinding("unresolved", null, null);
 	    }
-		if (locationCache.containsKey(binding.getKey()))
+		if (locationCache.containsKey(binding.getKey())) {
 			return locationCache.get(binding.getKey());
+		}
+		
 		ISourceLocation result = makeBinding("java+package", null, binding.getName().replaceAll("\\.", "/"));
 		locationCache.put(binding.getKey(), result);
 		return result;
@@ -569,7 +628,7 @@ private IConstructor nullSymbol() {
 	        }
 
 	        if (binding.isWildcardType()) {
-	            return makeBinding("unknown", null, null);
+	            return makeBinding("java+wildcardType", null, null);
 	        }
 
 	        if (binding.isLocal()) {

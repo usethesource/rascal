@@ -20,6 +20,7 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -30,7 +31,6 @@ import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -385,8 +385,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
+		// This is where the "reified type contract" is implemented. 
+		// A few inocuous lines of code that have a lot riding on them.
+		
+		// Contract: The dynamic type of a `type(symbol, definitionsMap)` constructor instance 
+		// is `type[what the symbol value represents]`.
+		// So here the symbol value is "unlifted" to the {@see Type} representation (by `symbolToType`). 
+		// Therefore you can count on that, for example, `type(int(), ())` has type `type[int]`.
 		java.util.Map<Type,Type> bindings = 
 		        Collections.singletonMap(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		
 		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
 	}
 	
@@ -505,12 +513,17 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	 * and {@link AbstractArgumentList} abstract classes.
 	 */
 	
-	static class CharInt implements ITree, IExternalValue {
+	static class CharInt implements ITree {
 		final int ch;
-		
+
 		@Override
 		public boolean isChar() {
 			return true;
+		}
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 3052374 /* "char".hashCode() */ + ch;
 		}
 		
 		@Override
@@ -525,11 +538,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		public CharInt(int ch) {
 			this.ch = ch;
-		}
-
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override
@@ -675,11 +683,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
 	}
 	
-	private static class CharByte implements ITree, IExternalValue {
+	private static class CharByte implements ITree {
 		final byte ch;
 		
 		public CharByte(byte ch) {
 			this.ch = ch;
+		}
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 3052374 /* "char".hashCode() */ + ch;
 		}
 		
 		@Override
@@ -695,11 +708,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeChar(this);
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 
 		@Override
@@ -850,13 +858,18 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
 	}
 	
-	private static class Cycle implements ITree, IExternalValue {
+	private static class Cycle implements ITree {
 		protected final IConstructor symbol;
 		protected final int cycleLength;
 		
 		public Cycle(IConstructor symbol, int cycleLength) {
 			this.symbol = symbol;
 			this.cycleLength = cycleLength;
+		}
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 95131878 /* "cycle".hashCode() */ + 13 * symbol.hashCode();
 		}
 		
 		@Override
@@ -867,11 +880,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeCycle(this);
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override
@@ -1034,26 +1042,31 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 	
-	private static class Amb implements ITree, IExternalValue {
+	private static class Amb implements ITree {
 		protected final ISet alternatives;
 		
 		public Amb(ISet alts) {
+			assert alts.size() > 0;
 			this.alternatives = alts;
 		}
 		
 		@Override
+		public int getConcreteMatchFingerprint() {
+			if (alternatives.isEmpty()) {
+				return 96694;
+			}
+			
+			return 96694 /* "amb".hashCode() */ + 43 * ((NonTerminalType) alternatives.getElementType()).getSymbol().hashCode();
+		}
+
+		@Override
 		public boolean isAmb() {
 			return true;
 		}
-		
+
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeAmb(this);
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override
@@ -1114,8 +1127,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 				public IValue next() {
 					count++;
 					switch(count) {
-					case 1: return getAlternatives();
-					default: return null;
+						case 1: return getAlternatives();
+						default: return null;
 					}
 				}
 			};
@@ -1230,6 +1243,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeAppl(this);
@@ -1281,6 +1299,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeAmb(this);
@@ -1327,6 +1350,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeCycle(this);
@@ -1369,6 +1397,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             super(content, parameters);
         }
 
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return ((ITree) content).getConcreteMatchFingerprint();
+		}
+
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return v.visitTreeChar(this);
@@ -1410,11 +1443,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
     }
 	
-	private static abstract class AbstractAppl implements ITree, IExternalValue {
+	private static abstract class AbstractAppl implements ITree {
 		protected final IConstructor production;
 		protected final boolean isMatchIgnorable;
 		protected Type type = null;
         
+
+		@Override
+		public int getConcreteMatchFingerprint() {
+			return 3000939 /* "appl".hashCode() */ + 41 * production.hashCode();
+		}
 
 		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
@@ -1437,11 +1475,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean isAppl() {
 			return true;
-		}
-		
-		@Override
-		public IConstructor encodeAsConstructor() {
-			return this;
 		}
 		
 		@Override

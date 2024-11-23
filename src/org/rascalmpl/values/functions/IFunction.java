@@ -22,6 +22,11 @@ import io.usethesource.vallang.IValue;
 
 public interface IFunction extends IExternalValue {
     
+    @Override
+    default int getMatchFingerprint() {
+        return 3154628 /* "func".hashCode() */ + 89 * getType().hashCode();
+    }
+
     /**
      * Invokes the receiver function.
      * 

@@ -416,19 +416,27 @@ which leads to the prefix of the `src` fields of the resulting tree.
 
 The parse function behaves differently depending of the given keyword parameters:
      *  `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
-     *                    the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
-     *                    if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
+                         the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
+                         if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
      * 
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
-     *                    interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
-     *  
-     *  `firstAmbiguity`: if true, then the parser returns the subforest for the first (left-most innermost) ambiguity instead of a parse tree for
-     *                    the entire input string. This is for grammar debugging purposes a much faster solution then waiting for an entire 
-     *                    parse forest to be constructed in polynomial time.
+                         interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={}); 
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
+@benefits{
+* Instead of trying to build a polynomially sized parse forest, this function only builds the smallest part of
+the tree that exhibits ambiguity. This can be done very quickly, while the whole forest could take minutes to hours to construct.
+* Use this function for ambiguity diagnostics and regression testing for ambiguity.
+}
+@pitfalls{
+* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
+The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
+}
+java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @synopsis{Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.}
 @description{
@@ -436,7 +444,20 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false,  set[Tree(Tree)] filters={}); 
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
+@benefits{
+* Instead of trying to build a polynomially sized parse forest, this function only builds the smallest part of
+the tree that exhibits ambiguity. This can be done very quickly, while the whole forest could take minutes to hours to construct.
+* Use this function for ambiguity diagnostics and regression testing for ambiguity.
+}
+@pitfalls{
+* The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
+The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
+}
+java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
 @description{
@@ -447,10 +468,10 @@ the cost of constructing nested ambiguity clusters.
 If the input sentence is not ambiguous after all, simply the entire tree is returned.
 }
 Tree firstAmbiguity(type[Tree] begin, str input)
-  = parser(begin, firstAmbiguity=true)(input, |unknown:///|);
+  = firstAmbiguityFinder(begin)(input, |unknown:///|);
 
 Tree firstAmbiguity(type[Tree] begin, loc input)
-  = parser(begin, firstAmbiguity=true)(input, input);
+  = firstAmbiguityFinder(begin)(input, input);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generate a parser and store it in serialized form for later reuse.}
@@ -492,7 +513,7 @@ First we store a parser:
 ```rascal-shell
 import ParseTree;
 syntax E = E "+" E | "e";
-storeParsers(#E, |test-temp:///E.parsers|)
+storeParsers(#E, |memory://test-tmp/E.parsers|)
 ```
 
 Here we show a new shell does not even know about the grammar:
@@ -503,7 +524,7 @@ Here we show a new shell does not even know about the grammar:
 Then in a next run, we load the parser and use it:
 ```rascal-shell
 import ParseTree;
-p = loadParsers(|test-temp:///E.parsers|);
+p = loadParsers(|memory://test-tmp/E.parsers|);
 p(type(sort("E"), ()), "e+e", |src:///|);
 ```
 }
@@ -514,7 +535,7 @@ p(type(sort("E"), ()), "e+e", |src:///|);
 * reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
 this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
 }
-java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={});
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
 @description{
@@ -522,7 +543,7 @@ This loader behaves just like ((loadParsers)), except that the resulting parser 
 bound to a specific non-terminal. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, bool firstAmbiguity=false, set[Tree(Tree)] filters={});
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Yield the string of characters that form the leafs of the given parse tree.}
 @description{

@@ -51,16 +51,16 @@ public class ProductionAdapter {
 	}
 	
 	public static IConstructor getDefined(IConstructor tree) {
-		return (IConstructor) tree.get("def");
+		return (IConstructor) tree.get(0);
 	}
 	
 	public static IConstructor setDefined(IConstructor tree, IConstructor sym) {
-    return (IConstructor) tree.set("def", sym);
+    return (IConstructor) tree.set(0 /*def */, sym);
   }
 	
 	public static IList getSymbols(IConstructor tree) {
 		if (isDefault(tree)) {
-			return (IList) tree.get("symbols");
+			return (IList) tree.get(1 /*symbols */);
 		}
 		return null;
 	}
@@ -84,7 +84,8 @@ public class ProductionAdapter {
 	}
 	
 	public static boolean isContextFree(IConstructor tree) {
-		return SymbolAdapter.isSort(getType(tree));
+		IConstructor t = getType(tree);
+		return SymbolAdapter.isSort(t) || SymbolAdapter.isParameterizedSort(t);
 	}
 	
 	public static boolean isLayout(IConstructor tree) {
@@ -107,7 +108,7 @@ public class ProductionAdapter {
 	
 	public static ISet getAttributes(IConstructor tree) {
 		if (isDefault(tree)) {
-			return (ISet) tree.get("attributes");
+			return (ISet) tree.get(2 /* "attributes" */);
 		}
 		
 		return ValueFactoryFactory.getValueFactory().set();
@@ -157,11 +158,15 @@ public class ProductionAdapter {
 	}
 
 	public static String getCategory(IConstructor tree) {
+		return getTagValue(tree, "category");
+	}
+
+	public static String getTagValue(IConstructor tree, String name) {
 		if (!isRegular(tree)) {
 			for (IValue attr : getAttributes(tree)) {
 				if (attr.getType().isAbstractData() && ((IConstructor) attr).getConstructorType() == RascalValueFactory.Attr_Tag) {
 					IValue value = ((IConstructor)attr).get("tag");
-					if (value.getType().isNode() && ((INode) value).getName().equals("category")) {
+					if (value.getType().isNode() && ((INode) value).getName().equals(name)) {
 						return ((IString) ((INode) value).get(0)).getValue();
 					}
 				}
