@@ -346,7 +346,7 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
                           ];
                    s.addMessages(msgs);
                 }
-                if(t1.ret == avoid() && t2.ret != avoid()){
+                if(isVoidAType(t1.ret) && !isVoidAType(t2.ret)){
                    msgs = [ error("Declaration clashes with other declaration of function `<id>` with <facts[d1.defined].ret == avoid() ? "non-`void`" : "`void`"> result type at <d2.defined>", d1.defined) ];
                    s.addMessages(msgs);
                 }
@@ -478,8 +478,7 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         loc reloc                     = |noreloc:///|, // Currently unused
 
         bool optimizeVisit            = true,   // Options for compiler developer
-        bool enableAsserts            = true,
-        bool forceCompilationTopModule= false
+        bool enableAsserts            = true
     )
     = tconfig(
         rascalTplVersion              = rascalTplVersion,
@@ -500,7 +499,6 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         reloc                         = reloc,
         optimizeVisit                 = optimizeVisit,
         enableAsserts                 = enableAsserts,
-        forceCompilationTopModule     = forceCompilationTopModule,
 
         // Basic TypePalConfig options
         typepalPathConfig             = pcfg,

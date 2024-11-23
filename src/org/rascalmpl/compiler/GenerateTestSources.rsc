@@ -36,7 +36,7 @@ void generateTestSources(list[str] cmdLineArgs) {
      libs = [ ]
      );
      
-   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false][forceCompilationTopModule=false];
+   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false];
    
    map[str,int] durations = ();
      

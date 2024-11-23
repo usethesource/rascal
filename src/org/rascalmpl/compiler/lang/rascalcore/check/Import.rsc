@@ -56,7 +56,7 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
         set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
                          { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
         if(size(cycle) > 1){
-            ms.messages[mname] = (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+            ms.messages[mname] = (ms.messages[mname] ? {}) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
         }
     }
      paths += { *{<c, importPath(), a>| a <- extendPlus[b]} | < c, importPath(), b> <- paths };
@@ -80,11 +80,16 @@ ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, RascalCompil
     return completeModuleStatus((newModuleStatus(ccfg) | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
 }
 
+ModuleStatus getImportAndExtendGraph(set[str] qualifiedModuleNames, ModuleStatus ms){
+    return completeModuleStatus((ms | getImportAndExtendGraph(qualifiedModuleName, it) | qualifiedModuleName <- qualifiedModuleNames));
+}
+
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, RascalCompilerConfig ccfg){
     return completeModuleStatus(getImportAndExtendGraph(qualifiedModuleName, newModuleStatus(ccfg)));
 }
 
 ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
+//println("getImportAndExtendGraph: <qualifiedModuleName>");
     pcfg = ms.pathConfig;
     qualifiedModuleName = unescape(qualifiedModuleName);
 
@@ -98,7 +103,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
 
     <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-    if(found /*&& rsc_not_found() notin ms.status[qualifiedModuleName]*/){
+    if(found){
+        ms.paths = tm.paths;
         allImportsAndExtendsValid = true;
         rel[str, PathRole] localImportsAndExtends = {};
 
@@ -119,6 +125,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
                     ms.status[m] -= {tpl_uptodate(), checked()};
+                    ms.status[qualifiedModuleName] -= tpl_saved();
                     if(ms.compilerConfig.verbose){
                         println("--- using <lm> (most recent) version of <m>,
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
@@ -138,7 +145,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                 if(!compatible){
                     msg = error("Binary module `qualifiedModuleName` needs recompilation", |unknown:///|);
                     tm.messages += [msg];
-                    ms.messages[qualifiedModuleName] ? [] += [msg];
+                    ms.messages[qualifiedModuleName] ? {} += { msg };
                     throw rascalBinaryNeedsRecompilation(qualifiedModuleName);
                 } else {
                     allImportsAndExtendsValid = true;
@@ -154,7 +161,9 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             ms.paths += tm.paths;
             ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
             ms.status[qualifiedModuleName] += module_dependencies_extracted();
-            for(imp <- localImportsAndExtends<0>, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
+            ms.messages[qualifiedModuleName] ? {} += toSet(tm.messages);
+            for(<imp, pr> <- localImportsAndExtends, isEmpty({module_dependencies_extracted()} & ms.status[imp])  ){
+                ms.status[imp] -= tpl_saved();
                 ms = getImportAndExtendGraph(imp, ms);
             }
             return ms;
@@ -262,7 +271,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
             mloc = getModuleLocation(iname, ms.pathConfig);
             //if(mloc.extension != "rsc" || isModuleLocationInLibs(iname, mloc, ms.pathConfig)) throw "No src or library module 2";
          } catch str msg: {
-            ms.messages[moduleName] ? [] += [ error(msg, imod@\loc) ];
+            ms.messages[moduleName] ? {} += { error(msg, imod@\loc) };
             ms.status[iname] += { rsc_not_found() };
          }
     }
@@ -294,18 +303,18 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
     dependencies_ok = true;
     for(m <- component, rsc_not_found() notin ms.status[m], MStatus::ignored() notin ms.status[m]){
         if(parse_error() in ms.status[m]){
-            return <(m : tmodel(modelName=m,messages=ms.messages[m])) ,ms>;
+            return <(m : tmodel(modelName=m,messages=toList(ms.messages[m]))) ,ms>;
         }
         for(imp <- m_imports[m] + m_extends[m], rsc_not_found() notin ms.status[imp], MStatus::ignored() notin ms.status[m]){
             imp_status = ms.status[imp];
             if(parse_error() in imp_status || checked() notin imp_status){
                 dependencies_ok = false;
                 cause = (rsc_not_found() in imp_status) ? "module not found" : "due to syntax error";
-                ms.messages[m] = (ms.messages[imp] ? []) + error("<imp in m_imports[imp] ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", moduleScopes[m]);
+                ms.messages[m] = (ms.messages[imp] ? {}) + error("<imp in m_imports[imp] ? "Imported" : "Extended"> module <imp> could not be checked (<cause>)", moduleScopes[m]);
             }
         }
         if(!dependencies_ok){
-            return <(m: tmodel(modelName=m,messages=ms.messages[m])), ms>;
+            return <(m: tmodel(modelName=m,messages=toList(ms.messages[m]))), ms>;
         }
     }
     transient_tms = (m : tm | m <- component);
@@ -320,36 +329,10 @@ tuple[map[str,TModel], ModuleStatus] prepareForCompilation(set[str] component, m
 
         transient_tms[m] = tm;
         <tm, ms> = addGrammar(m, m_imports[m], m_extends[m], transient_tms, ms);
-        ms.messages[m] = tm.messages;
+        ms.messages[m] = toSet(tm.messages);
         transient_tms[m] = tm;
     }
     return <transient_tms, ms>;
-}
-rel[str,datetime,PathRole] makeBom(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
-    map[str,datetime] moduleLastModified = ms.moduleLastModified;
-    pcfg = ms.pathConfig;
-    return   { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
-           + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
-           + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
-}
-
-void updateBOM(str qualifiedModuleName, set[str] imports, set[str] extends,  ModuleStatus ms){
-    if(rsc_not_found() in ms.status[qualifiedModuleName]){
-        return;
-    }
-    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
-    if(found){
-        newBom = makeBom(qualifiedModuleName, imports, extends, ms);
-        if(newBom != tm.store[key_bom]){
-            tm.store[key_bom] = newBom;
-            ms.status[qualifiedModuleName] -= tpl_saved();
-            addTModel(qualifiedModuleName, tm, ms);
-
-            if(ms.compilerConfig.logWrittenFiles) println("Updated BOM: <qualifiedModuleName>");
-        }
-    } else{
-        println("Could not update BOM of <qualifiedModuleName>");
-    }
 }
 
 ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[str,set[str]] m_extends, ModuleStatus ms, map[str,loc] moduleScopes, map[str, TModel] transient_tms, RascalCompilerConfig compilerConfig){
@@ -382,7 +365,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         imports = m_imports[qualifiedModuleName];
         extends = m_extends[qualifiedModuleName];
 
-        bom = makeBom(qualifiedModuleName, imports, extends, ms);
+        bom = makeBom(qualifiedModuleName, ms);
 
         extendedModuleScopes = {getModuleScope(m, moduleScopes, pcfg) | str m <- extends, checked() in ms.status[m]};
         extendedModuleScopes += {*tm.paths[ems,importPath()] | ems <- extendedModuleScopes}; // add imports of extended modules
@@ -399,7 +382,7 @@ ModuleStatus doSaveModule(set[str] component, map[str,set[str]] m_imports, map[s
         m1.facts += m1.specializedFacts;
 
         m1.messages = sort( { msg | msg <- tm.messages, msg.at.path == mscope.path}, bool(Message a, Message b){ return a.at.begin.line < b.at.begin.line; });
-        ms.messages[qualifiedModuleName] = m1.messages;
+        ms.messages[qualifiedModuleName] = toSet(m1.messages);
 
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
 

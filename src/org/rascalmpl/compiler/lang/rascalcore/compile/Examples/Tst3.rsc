@@ -17,7 +17,6 @@ tuple[PathConfig, RascalCompilerConfig] testConfigs(loc projectPath) {
     );
 
     RascalCompilerConfig ccfg = rascalCompilerConfig(pcfg)
-        //[forceCompilationTopModule = true]
         [verbose = false];
 
     return <pcfg, ccfg>;

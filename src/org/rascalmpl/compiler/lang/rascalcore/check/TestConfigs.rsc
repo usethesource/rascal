@@ -86,7 +86,7 @@ public PathConfig getAllSrcPathConfig() {
 }
 
 public RascalCompilerConfig getAllSrcCompilerConfig(){
-    return rascalCompilerConfig(getAllSrcPathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+    return rascalCompilerConfig(getAllSrcPathConfig())[verbose = true][logWrittenFiles=true];
 }
 // ---- rascal ----------------------------------------------------------------
 
@@ -102,7 +102,7 @@ public PathConfig getRascalPathConfig() {
 }
 
 public RascalCompilerConfig getRascalCompilerConfig(){
-    return rascalCompilerConfig(getRascalPathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+    return rascalCompilerConfig(getRascalPathConfig())[verbose = true][logWrittenFiles=true];
 }
 
 // ---- rascal-core -----------------------------------------------------------
@@ -126,11 +126,11 @@ public PathConfig getRascalCorePathConfig() {
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfig(){
-    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][logWrittenFiles=true];
 }
 
 @synopsis{Developers version: PathConfig for type-checking modules in other (named) Rascal projects}
@@ -152,7 +152,7 @@ public PathConfig getRascalCorePathConfigDev() {
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfigDev(){
-    return rascalCompilerConfig(getRascalCorePathConfigDev())[verbose = true][forceCompilationTopModule = true][logWrittenFiles=true];
+    return rascalCompilerConfig(getRascalCorePathConfigDev())[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfigDev(PathConfig pcfg){
@@ -173,11 +173,11 @@ public PathConfig getTypePalProjectPathConfig() {
 }
 
 public RascalCompilerConfig getTypePalCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getTypePalCompilerConfig(){
-    return rascalCompilerConfig(getTypePalProjectPathConfig())[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(getTypePalProjectPathConfig())[verbose = true][logWrittenFiles=true];
 }
 
 // ---- flybytes --------------------------------------------------------------
@@ -194,7 +194,7 @@ public PathConfig getFlyBytesProjectPathConfig() {
 }
 
 public RascalCompilerConfig getFlyBytesCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getFlyBytesCompilerConfig(){
@@ -215,7 +215,7 @@ public PathConfig getSalixPathConfig() {
 }
 
 public RascalCompilerConfig getSalixCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getSalixCompilerConfig(){
@@ -236,7 +236,7 @@ public PathConfig getDrAmbiguityPathConfig() {
 }
 
 public RascalCompilerConfig getDrAmbiguityCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getDrAmbiguityCompilerConfig(){
@@ -257,7 +257,7 @@ public PathConfig getLSPPathConfig() {
 }
 
 public RascalCompilerConfig getLSPCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getLSPCompilerConfig(){
@@ -278,7 +278,7 @@ public PathConfig getPHPPathConfig() {
 }
 
 public RascalCompilerConfig getPHPCompilerConfig(PathConfig pcfg){
-    return rascalCompilerConfig(pcfg)[verbose = true][forceCompilationTopModule = false][logWrittenFiles=true];
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getPHPCompilerConfig(){

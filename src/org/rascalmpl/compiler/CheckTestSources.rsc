@@ -23,7 +23,7 @@ void checkTestSources(list[str] cmdLineArgs) {
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = rascalCompilerConfig(testConfig)[logPathConfig=false][forceCompilationTopModule=false];
+   testCompilerConfig = rascalCompilerConfig(testConfig)[logPathConfig=false];
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
@@ -128,6 +128,9 @@ tuple[str, int]  safeCheck(str \module, RascalCompilerConfig compilerConfig) {
        //iprintln(result.tmodels[\module].facts);
        <found, tm, result> = getTModelForModule(\module, result);
        if(found && !isEmpty(tm.messages)){
+        if(/error(_,_) := tm.messages){
+          println("*** ERRORS ***");
+        }
             iprintln(tm.messages);
        }
        return <"", cpuTime()-start_time>;
