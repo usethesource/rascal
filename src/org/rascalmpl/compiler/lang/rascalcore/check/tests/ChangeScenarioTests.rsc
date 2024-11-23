@@ -13,8 +13,8 @@ import ListRelation;
 import util::FileSystem;
 
 bool validateBOMs(PathConfig pcfg){
-    lastModRSC = ();
-    lastModTPL = ();
+    map[str,datetime] lastModRSC = ();
+    map[str,datetime] lastModTPL = ();
     nOudatedTPLs = 0;
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
