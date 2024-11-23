@@ -3,11 +3,64 @@ module lang::rascalcore::check::tests::ChangeScenarioTests
 
 import lang::rascalcore::check::tests::StaticTestingUtils;
 import lang::rascalcore::check::TestConfigs;
+extend lang::rascalcore::check::CheckerCommon;
 import util::Reflective;
 import util::Benchmark;
 import IO;
+import ValueIO;
 import List;
 import ListRelation;
+import util::FileSystem;
+
+bool validateBOMs(PathConfig pcfg){
+    lastModRSC = ();
+    lastModTPL = ();
+    nOudatedTPLs = 0;
+    for(srcdir <- pcfg.srcs){
+        for(loc mloc <- find(srcdir, "rsc")){
+            m = getModuleName(mloc, pcfg);
+            lastModRSC[m] = lastModified(mloc);
+            <found, tpl> = getTPLReadLoc(m, pcfg);
+            if(found){
+                lastModTPL[m] = lastModified(tpl);
+                if(lastModRSC[m] > lastModTPL[m]){
+                    nOudatedTPLs += 1;
+                    println("<m>: rsc: <lastModRSC[m]> \> <lastModTPL[m]>");
+                }
+                //println("<m>: <lastModRSC[m]> (rsc), <lastModTPL[m]> (tpl)");
+            }
+        }
+    }
+    //println("<nOudatedTPLs> outdated TPLs");
+    valid = nOudatedTPLs == 0;
+    for(srcdir <- pcfg.srcs){
+        for(loc mloc <- find(srcdir, "rsc")){
+            m = getModuleName(mloc, pcfg);
+            <found, tpl> = getTPLReadLoc(m, pcfg);
+           
+            if(found){
+                tm = readBinaryValueFile(#TModel, tpl);
+                if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
+                   for(<str mname, datetime timestampInBom, PathRole pathRole> <- bom){
+                        if(timestampInBom != lastModRSC[mname]){
+                            valid = false;
+                            println("In BOM of <m> (<lastModRSC[m]>), unequal src time for <mname>: <timestampInBom> != <lastModRSC[mname]>");
+                        }
+                        if(timestampInBom > lastModTPL[mname]){
+                            valid = false;
+                            println("In BOM of <m> (<lastModRSC[m]>), outdated tpl for <mname>: <timestampInBom> \> <lastModTPL[mname]>");
+                        }
+                        if(mname == m && timestampInBom != lastModRSC[m]){
+                            valid = false;
+                            println("In BOM of <m> (<lastModRSC[m]>), <timestampInBom> != <lastModRSC[m]>");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return valid;
+}
 
 test bool fixMissingImport(){
     clearMemory();
@@ -374,6 +427,7 @@ test bool onlyTouchedModulesAreReChecked1(){
     remove(pcfg.resources, recursive=true);
     Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
+    assert validateBOMs(pcfg);
 
     assert touchAndCheck(Top, ["Exception"], pcfg);
     assert touchAndCheck(Top, ["Set"], pcfg);
@@ -387,6 +441,7 @@ test bool onlyTouchedModulesAreReChecked2(){
     remove(pcfg.resources, recursive=true);
     Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
+    assert validateBOMs(pcfg);
 
     assert touchAndCheck(Top, ["Exception"], pcfg);
     assert touchAndCheck(Top, ["Set"], pcfg);
@@ -399,11 +454,12 @@ test bool onlyTouchedModulesAreReChecked2(){
 
 str MARKER = "//TEMPORARILY ADDED FOR TESTING";
 
-void changeModules(list[str] moduleNames, PathConfig pcfg){
+void changeModules(list[str] moduleNames, PathConfig pcfg, str injectedError=""){
     for(moduleName <- moduleNames){
         mloc = getModuleLocation(moduleName, pcfg);
         lines = readFileLines(mloc);
         lines += MARKER;
+        lines += injectedError;
         writeFileLines(mloc, lines);
     }
 }
@@ -421,24 +477,49 @@ void restoreModules(list[str] moduleNames, PathConfig pcfg){
     }
 }
 
-bool changeAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
+bool changeAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg, str injectedError=""){
     println("CHANGE <moduleNames>");
-    changeModules(moduleNames, pcfg);
-    return expectReChecks(Top, moduleNames, pathConfig=pcfg);
+    changeModules(moduleNames, pcfg, injectedError=injectedError);
+    return expectReChecks(Top, moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
 }
 
+value main(){
+    pcfg = getAllSrcPathConfig();
+    TopName = "Boolean";
+    Top = getModuleLocation(TopName, pcfg);
+    //assert changeAndCheck(Top, [TopName, "Exception"], pcfg, injectedError="int X = false;");
+    changeModules([TopName], pcfg, injectedError="int X = false;");
+    assert unexpectedDeclarationInModule(Top);
+    restoreModules([TopName], pcfg);
+    assert checkModuleOK(Top);
+    return true;
+}
 test bool onlyChangedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    TopName = "analysis::grammars::Ambiguity";
+    Top = getModuleLocation(TopName, pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
+    assert validateBOMs(pcfg);
 
     assert changeAndCheck(Top, ["Exception"], pcfg);
     assert changeAndCheck(Top, ["Set"], pcfg);
     assert changeAndCheck(Top, ["Grammar"], pcfg);
     assert changeAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg);
+    
+    assert validateBOMs(pcfg);
 
     restoreModules(["Exception", "Set", "Grammar"], pcfg);
+
+    // // Error scenario's
+    // assert changeAndCheck(Top, [TopName], pcfg, injectedError="int X = false;");
+    // assert unexpectedDeclarationInModule(Top);
+    
+    // assert changeAndCheck(Top, ["Exception"], pcfg);
+    // assert unexpectedDeclarationInModule(Top);
+    // restoreModules([TopName], pcfg);
+    // assert checkModuleOK(Top);
+
     return true;
 }
 
@@ -448,6 +529,7 @@ test bool onlyChangedModulesAreReChecked2(){
     remove(pcfg.resources, recursive=true);
     Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
+    assert validateBOMs(pcfg);
 
     assert changeAndCheck(Top, ["Exception"], pcfg);
     assert changeAndCheck(Top, ["Set"], pcfg);
@@ -455,6 +537,8 @@ test bool onlyChangedModulesAreReChecked2(){
     assert changeAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg);
     assert changeAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                                       "lang::rascalcore::check::CollectType"], pcfg);
+     
+     assert validateBOMs(pcfg);
     restoreModules(["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                     "lang::rascalcore::check::CollectType"], pcfg);
     return true;
@@ -465,6 +549,7 @@ test bool onlyChangedModulesAreReChecked2(){
 void benchmark(str title, lrel[str, void()] cases){
     measurements = [];
 	for (<str Name, runCase> <- cases) {
+        println("Running <Name>");
 		measurements+= <Name, realTimeOf(runCase)>;
 	}
     sum(range(measurements));
@@ -473,14 +558,28 @@ void benchmark(str title, lrel[str, void()] cases){
     println("Total: <sum(range(measurements))>");
 }
 
+void touchOne(){
+    pcfg = getRascalPathConfig();
+    remove(pcfg.resources, recursive=true);
+    TopName = "ParseTree";
+    Top = getModuleLocation("ParseTree", pcfg);
+    cases =
+        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>
+  //       <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>
+        ];
+    benchmark("touchOne", cases);
+}
+
 void miniBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
+    TopName = "ParseTree";
     Top = getModuleLocation("ParseTree", pcfg);
 
     cases =
-        [<"ParseTree, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"ParseTree, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"<TopName>, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>,
          <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
          <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
          <"Exception+Set", void(){ touchAndCheck(Top, ["Exception", "Set"], pcfg); }>
@@ -491,11 +590,13 @@ void miniBenchmarkRechecking(){
 void mediumBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    TopName = "analysis::grammars::Ambiguity";
+    Top = getModuleLocation(TopName, pcfg);
 
     cases =
-        [<"analysis::grammars::Ambiguity, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"analysis::grammars::Ambiguity, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"<TopName>, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>,
          <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
          <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
          <"Grammar", void(){ touchAndCheck(Top, ["Grammar"], pcfg); }>,
@@ -508,16 +609,26 @@ void mediumBenchmarkRechecking(){
 void largeBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    TopName = "lang::rascalcore::check::Checker";
+    Top = getModuleLocation(TopName, pcfg);
 
     cases =
-        [<"lang::rascalcore::check::Checker", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"<TopName>, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
+         <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>,
          <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
          <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
-         <"Exception+Set", void(){ touchAndCheck(Top, ["Exception", "Set"], pcfg); }>,
+         <"Grammar", void(){ touchAndCheck(Top, ["Grammar"], pcfg); }>,
+         <"Exception+Set+Grammar", void(){ touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg); }>,
          <"lang::rascalcore::check::CollectType", void(){ touchAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg); }>,
          <"5 modules changed", void(){ touchAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg); }>
         ];
 
     benchmark("largeBenchmarkRechecking", cases);
+}
+
+void allBenchmarks(){
+    miniBenchmarkRechecking();
+    mediumBenchmarkRechecking();
+    largeBenchmarkRechecking();
 }

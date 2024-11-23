@@ -147,6 +147,5 @@ data TypePalConfig(
     bool logPathConfig              = false,    // log PathConfig that is used
 
     bool optimizeVisit              = true,     // Options for compiler developer
-    bool enableAsserts              = true,
-    bool forceCompilationTopModule  = false
+    bool enableAsserts              = true
 );
