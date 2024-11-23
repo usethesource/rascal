@@ -276,7 +276,11 @@ public class JsonValueWriter {
 
       @Override
       public Void visitMap(IMap o) throws IOException {
-        if (o.getKeyType().isString()) {
+        if (o.isEmpty()) {
+          out.beginObject();
+          out.endObject();
+        }
+        else if (o.getKeyType().isString()) {
           out.beginObject();
           for (IValue key : o) {
             out.name(((IString) key).getValue()); 

@@ -35,11 +35,10 @@ public class Modules {
     return get(tree, "syntax");
   }
   
-  public static List<Toplevel> getTypeDeclarations(ITree tree) {
+  public static List<Toplevel> getTypeDeclarations(ITree tree, ASTBuilder builder) {
       ITree body = TreeAdapter.getArg(tree, "body");
       ITree toplevels = TreeAdapter.getArg(body, "toplevels");
       List<Toplevel> result = new LinkedList<>();
-      ASTBuilder builder = new ASTBuilder();
       
       for (IValue toplevel : TreeAdapter.getListASTArgs(toplevels)) {
           ITree declaration = TreeAdapter.getArg((ITree) toplevel, "declaration");

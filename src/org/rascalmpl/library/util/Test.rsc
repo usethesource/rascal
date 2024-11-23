@@ -12,8 +12,6 @@ with tests, but also to query larger volumes of failing tests.
 }
 module util::Test
 
-extend Message;
-
 data TestResult = \testResult(str name, bool success, loc src, str message = "", list[value] exceptions = []);
 
 @synopsis{Run all tests for the given module name}

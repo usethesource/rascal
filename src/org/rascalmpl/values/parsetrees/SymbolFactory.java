@@ -13,8 +13,11 @@
 *******************************************************************************/
 package org.rascalmpl.values.parsetrees;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.rascalmpl.ast.CaseInsensitiveStringConstant;
 import org.rascalmpl.ast.Char;
 import org.rascalmpl.ast.Class;
@@ -25,6 +28,7 @@ import org.rascalmpl.ast.Sym;
 import org.rascalmpl.ast.Type;
 import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.parser.ASTBuilder;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -33,16 +37,23 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
 
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SymbolFactory {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
+	private static ASTBuilder builder = new ASTBuilder();
 	
+	public static IConstructor typeToSymbol(ITree parseTree, boolean lex, String layout) {
+		return SymbolFactory.typeToSymbol((Sym) builder.buildValue(parseTree), lex, layout);
+	}
+
 	public static IConstructor typeToSymbol(Sym type, boolean lex, String layout) {
 	  return (IConstructor) symbolAST2SymbolConstructor(type, lex, layout);
-  }
+  	}
   
 	public static IConstructor typeToSymbol(Type type, boolean lex, String layout) {
 		if (type.isUser()) {
@@ -63,16 +74,17 @@ public class SymbolFactory {
 	
 	// TODO: distribute this code over the dynamic.Sym classes in typeOf method
 	private static IValue symbolAST2SymbolConstructor(Sym symbol, boolean lex, String layout) {
-		
+		boolean noExpand = lex || layout == null;
+
 		if (symbol.isCaseInsensitiveLiteral()) {
-			return factory.constructor(RascalValueFactory.Symbol_Cilit, ciliteral2Symbol(symbol.getCistring()));
+			return ciliteral2Symbol(symbol.getCistring());
 		}
 		if (symbol.isCharacterClass()) {
 			Class cc = symbol.getCharClass();
 			return charclass2Symbol(cc);
 		}
 		if (symbol.isIter()) {
-			if (lex) {
+			if (noExpand) {
 				return factory.constructor(RascalValueFactory.Symbol_Iter, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
@@ -83,7 +95,7 @@ public class SymbolFactory {
 			}
 		}
 		if (symbol.isIterStar()) {
-			if (lex) {
+			if (noExpand) {
 				return factory.constructor(RascalValueFactory.Symbol_IterStar, symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout));
 			}
 			else {
@@ -99,7 +111,7 @@ public class SymbolFactory {
 			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
 			IValue seps;
 			
-			if (lex) {
+			if (noExpand) {
 				seps = factory.list(sepSym);
 			}
 			else {
@@ -114,7 +126,7 @@ public class SymbolFactory {
 			IValue elementSym = symbolAST2SymbolConstructor(symbol.getSymbol(), lex, layout);
 			IValue sepSym = symbolAST2SymbolConstructor(symbol.getSep(), lex, layout);
 			IValue seps;
-			if (lex) {
+			if (noExpand) {
 				seps = factory.list(sepSym);
 			}
 			else {
@@ -148,10 +160,10 @@ public class SymbolFactory {
 		if(symbol.isSequence()){
 			List<Sym> symbols = symbol.getSequence();
 			IValue layoutSymbol = factory.constructor(RascalValueFactory.Symbol_Layouts, factory.string(layout));
-			IValue[] symValues = new IValue[lex ? symbols.size() : symbols.size() * 2 - 1];
-			for(int i = symbols.size() - 1; i >= 0; i -= lex ? 1 : 2) {
-				symValues[lex ? i : i * 2] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
-				if (lex && i > 0) {
+			IValue[] symValues = new IValue[noExpand ? symbols.size() : symbols.size() * 2 - 1];
+			for(int i = symbols.size() - 1; i >= 0; i -= noExpand ? 1 : 2) {
+				symValues[noExpand ? i : i * 2] = symbolAST2SymbolConstructor(symbols.get(i), lex, layout);
+				if (!noExpand && i > 0) {
 					symValues[i - 1] = layoutSymbol;
 				}
 			}
@@ -190,101 +202,34 @@ public class SymbolFactory {
 	}
 
 	private static IValue literal2Symbol(StringConstant sep) {
-		String lit = ((StringConstant.Lexical) sep).getString();
-		StringBuilder builder = new StringBuilder(lit.length());
-		
-		// TODO: did we deal with all escapes here? probably not!
-		for (int i = 1; i < lit.length() - 1; i++) {
-			if (lit.charAt(i) == '\\') {
-				i++;
-				switch (lit.charAt(i)) {
-				case 'b':
-					builder.append('\b');
-					break;
-				case 'f':
-					builder.append('\f');
-					break;
-				case 'n':
-					builder.append('\n');
-					break;
-				case 't':
-					builder.append('\t');
-					break;
-				case 'r':
-					builder.append('\r');
-					break;
-				case '\\':
-					builder.append('\\');
-					break;
-				case '\"':
-					builder.append('\"');
-					break;
-				case '>':
-					builder.append('>');
-					break;
-				case '<':
-					builder.append('<');
-					break;
-				case '\'':
-					builder.append('\'');
-					break;
-				case 'u':
-					while (lit.charAt(i++) == 'u');
-					builder.append((char) Integer.decode("0x" + lit.substring(i, i+4)).intValue());
-					i+=4;
-					break;
-				default:
-					// octal escape
-					int a = lit.charAt(i++);
-					int b = lit.charAt(i++);
-					int c = lit.charAt(i);
-					builder.append( (char) (100 * a + 10 * b + c));	
-				}
-			}
-			else {
-				builder.append(lit.charAt(i));
-			}
+		try {
+			String lit = ((StringConstant.Lexical) sep).getString();
+			// this should be the exact notation for string literals in vallang
+			IValue string = new StandardTextReader().read(factory, new StringReader(lit));
+
+			return factory.constructor(RascalValueFactory.Symbol_Lit, string);
 		}
-		
-		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
+		catch (FactTypeUseException | IOException e) {
+			// this would mean Rascal's syntax definition for string constants is not aligned with vallang's string notation
+			throw new RuntimeException("Internal error: parsed stringconstant notation does not coincide with vallang stringconstant notation");
+		}
 	}
 	
 	private static IValue ciliteral2Symbol(CaseInsensitiveStringConstant constant) {
-		String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
-		StringBuilder builder = new StringBuilder(lit.length());
-		
-		for (int i = 1; i < lit.length() - 1; i++) {
-			if (lit.charAt(i) == '\\') {
-				i++;
-				switch (lit.charAt(i)) {
-				case 'n':
-					builder.append('\n');
-					break;
-				case 't':
-					builder.append('\t');
-					break;
-				case 'r':
-					builder.append('\r');
-					break;
-				case '\\':
-					builder.append('\\');
-					break;
-				case '\"':
-					builder.append('\'');
-					break;
-				default:
-					int a = lit.charAt(i++);
-					int b = lit.charAt(i++);
-					int c = lit.charAt(i);
-					builder.append( (char) (100 * a + 10 * b + c));	
-				}
-			}
-			else {
-				builder.append(lit.charAt(i));
-			}
+		try {
+			String lit = ((CaseInsensitiveStringConstant.Lexical) constant).getString();
+			// replace single quotes by double quotes first
+			lit = "\"" + lit.substring(1, lit.length() - 1) + "\"";
+
+			// this should be the exact notation for string literals in vallang
+			IValue string = new StandardTextReader().read(factory, new StringReader(lit));
+
+			return factory.constructor(RascalValueFactory.Symbol_Cilit, string);
 		}
-		
-		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
+		catch (FactTypeUseException | IOException e) {
+			// this would mean Rascal's syntax definition for string constants is not aligned with vallang's string notation
+			throw new RuntimeException("Internal error: parsed stringconstant notation does not coincide with vallang stringconstant notation");
+		}
 	}
 
 	private static IConstructor charclass2Symbol(Class cc) {
@@ -331,30 +276,35 @@ public class SymbolFactory {
 	private static IValue char2int(Char character) {
 		String s = ((Char.Lexical) character).getString();
 		if (s.startsWith("\\")) {
-			if (s.length() > 1 && java.lang.Character.isDigit(s.charAt(1))) { // octal escape
-				// TODO
-				throw new NotYetImplemented("octal escape sequence in character class types");
+			if (ArrayUtils.contains(new int[] { 'a', 'u', 'U'}, s.charAt(1))) {
+			// lexical UnicodeEscape
+			// = utf16: "\\" [u] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] 
+		  	// | utf32: "\\" [U] (("0" [0-9 A-F a-f]) | "10") [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] [0-9 A-F a-f] // 24 bits 
+		  	// | ascii: "\\" [a] [0-7] [0-9A-Fa-f]
+		  	// ;
+				return factory.integer(Integer.parseUnsignedInt(s.substring(2), 16));
 			}
-			if (s.length() > 1 && s.charAt(1) == 'u') { // octal escape
-				// TODO
-				throw new NotYetImplemented("unicode escape sequence in character class types");
+			else {
+				int cha = s.codePointAt(1);
+				switch (cha) {
+				case 't': return factory.integer('\t');
+				case 'n': return factory.integer('\n');
+				case 'r': return factory.integer('\r');
+				case '\"' : return factory.integer('\"');
+				case '\'' : return factory.integer('\'');
+				case '-' : return factory.integer('-');
+				case '<' : return factory.integer('<');
+				case '>' : return factory.integer('>');
+				case '\\' : return factory.integer('\\');
+				default:
+					return factory.integer(cha);
+				}	
 			}
-			char cha = s.charAt(1);
-			switch (cha) {
-			case 't': return factory.integer('\t');
-			case 'n': return factory.integer('\n');
-			case 'r': return factory.integer('\r');
-			case '\"' : return factory.integer('\"');
-			case '\'' : return factory.integer('\'');
-			case '-' : return factory.integer('-');
-			case '<' : return factory.integer('<');
-			case '>' : return factory.integer('>');
-			case '\\' : return factory.integer('\\');
-			}
-			s = s.substring(1);
 		}
-		char cha = s.charAt(0);
-		return factory.integer(cha);
+		else {
+			int cha = s.codePointAt(0);
+			return factory.integer(cha);
+		}
 	}
 	
 	public static IConstructor charClass(int ch) {

@@ -184,9 +184,6 @@ public class Environment implements IRascalFrame {
 
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
 		this.parent = parent;
-		if(loc == null) {
-			System.err.println("*** Environment created with empty location");
-		}
 		this.loc = loc;
 		this.name = name;
 		this.callerScope = callerScope;
@@ -570,7 +567,6 @@ public class Environment implements IRascalFrame {
 	 * module scope if needed.
 	 */
 	public void storeVariable(String name, Result<IValue> value) {
-		//System.err.println("storeVariable: " + name + value.getValue());
 		Map<String,Result<IValue>> env = getVariableDefiningEnvironment(name);
 		
 		if (env == null) {

@@ -10,13 +10,9 @@ import java.nio.charset.Charset;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
 
-import com.github.luben.zstd.ZstdInputStream;
-import com.github.luben.zstd.ZstdOutputStream;
-
 import io.usethesource.vallang.ISourceLocation;
 
 public class CompressedStreamResolver implements ISourceLocationInputOutput {
-    private static final String ZSTD_COMPRESSION = "ZSTD";
     private final URIResolverRegistry registry;
     
     public CompressedStreamResolver(URIResolverRegistry registry) {
@@ -42,9 +38,6 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 
 	private static final InputStream getInputStream(String compressionMethod, InputStream original) throws IOException, CompressorException {
-	    if (compressionMethod == ZSTD_COMPRESSION) {
-	        return new ZstdInputStream(original);
-	    }
 	    return new CompressorStreamFactory().createCompressorInputStream(compressionMethod, original);
 	}
 	
@@ -68,9 +61,6 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 	}
 	
 	private static final OutputStream getOutputStream(String compressionMethod, OutputStream original) throws IOException, CompressorException {
-	    if (compressionMethod == ZSTD_COMPRESSION) {
-	        return new ZstdOutputStream(original);
-	    }
 	    return new CompressorStreamFactory().createCompressorOutputStream(compressionMethod, original);
 	}
 	
@@ -120,7 +110,7 @@ public class CompressedStreamResolver implements ISourceLocationInputOutput {
 			case "lzma" : return CompressorStreamFactory.LZMA;
 			case "Z" : return CompressorStreamFactory.Z;
 			case "xz": return CompressorStreamFactory.XZ;
-			case "zst": return ZSTD_COMPRESSION;
+			case "zst": return CompressorStreamFactory.ZSTANDARD;
 			case "7z":
 			case "zip":
 			case "rar":

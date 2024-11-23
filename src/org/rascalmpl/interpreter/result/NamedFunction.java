@@ -164,7 +164,7 @@ abstract public class NamedFunction extends AbstractFunction {
         Map<Type, Type> bindings = new HashMap<>();
         
         for (int i = 0; i < actuals.length; i++) {
-            formals.get(i).typeOf(declarationEnvironment, getEval(), false).match(renameType(actuals[i].getType(), renamings), bindings);
+            formals.get(i).typeOf(declarationEnvironment, getEval(), false).match(renameType(actuals[i].getType(), renamings, ctx.getCurrentAST().getLocation()), bindings);
         }
         
         if (!getReturnType().isBottom() && getReturnType().instantiate(bindings).isBottom()) {

@@ -512,7 +512,7 @@ lexical EscapeSeq =
   ;
 
 layout LAYOUTLIST  =
-  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> (  [/]  [*]  ) !>> (  [/]  [/]  ) !>> "/*" !>> "//"
+  LAYOUT* !>> [\t-\n \a0C-\a0D \ ] !>> "/*" !>> "//"
   ;
 
 syntax ResultType =

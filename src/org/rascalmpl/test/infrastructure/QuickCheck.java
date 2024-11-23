@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.test.infrastructure;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +26,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -196,7 +198,7 @@ public class QuickCheck {
         }
     }
 
-    public class UnExpectedExceptionThrownResult extends TestFailedResult {
+    public static class UnExpectedExceptionThrownResult extends TestFailedResult {
 
         public UnExpectedExceptionThrownResult(String functionName, Type[] actualTypes,
             Map<Type, Type> tpbindings, IValue[] values, Throwable thrownException) {
@@ -210,16 +212,22 @@ public class QuickCheck {
             out.println("Exception:");
             if (thrownException instanceof Throw) {
                 out.println(((Throw)thrownException).getMessage());
+                try {
+                    ((Throw) thrownException).getTrace().prettyPrintedString(out, new StandardTextWriter(true));
+                }
+                catch (IOException e) {
+                    // should not happen
+                }
             }
             else {
-                out.println(thrownException.toString());
+                // out.println(thrownException.toString());
                 thrownException.printStackTrace(out);
             }
+            out.flush();
         }
-
     }
 
-    public class ExceptionNotThrownResult extends TestFailedResult {
+    public static class ExceptionNotThrownResult extends TestFailedResult {
         public ExceptionNotThrownResult(String functionName, Type[] actualTypes,
             Map<Type, Type> tpbindings, IValue[] values, String expected) {
             super(functionName, "test did not throw '" + expected + "' exception", actualTypes, tpbindings, values);

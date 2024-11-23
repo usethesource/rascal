@@ -100,6 +100,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     @Override
     public void cancelRunningCommandRequested() {
         eval.interrupt();
+        eval.endAllJobs();
     }
 
     @Override
@@ -117,6 +118,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
             err.flush();
         }
         catch (IOException e) {
+
         }
     }
 

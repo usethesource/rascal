@@ -56,14 +56,15 @@ public class TestFramework {
 		heap = new GlobalEnvironment();
 		root = heap.addModule(new ModuleEnvironment("___test___", heap));
 		
-		stderr = new PrintWriter(System.err);
-		stdout = new PrintWriter(System.out);
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out,  root, heap);
-		
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, RascalJUnitTestRunner.getCommonMonitor(), root, heap);
+	
+		stdout = evaluator.getOutPrinter();
+		stderr = evaluator.getErrorPrinter();
+
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 		
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-		evaluator.addRascalSearchPath(URIUtil.rootLocation("benchmarks"));
+		RascalJUnitTestRunner.configureProjectEvaluator(evaluator, RascalJUnitTestRunner.inferProjectRoot(TestFramework.class));
+		
 		try {
 			assert (false);
 			throw new RuntimeException("Make sure you enable the assert statement in your run configuration ( add -ea )");
@@ -90,9 +91,7 @@ public class TestFramework {
             catch (IOException e) {
             }
 		}
-		generatedModules.clear();
-		
-		
+		generatedModules.clear();	
 		evaluator.getAccumulators().clear();
 	}
 	
@@ -134,7 +133,6 @@ public class TestFramework {
 		try {
 			reset();
 			execute(command);
-
 		}
 		catch (StaticError e) {
 			throw e;
@@ -164,7 +162,7 @@ public class TestFramework {
 	public boolean prepareModule(String name, String module) throws FactTypeUseException {
 		reset();
         try {
-            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("test-modules", null, "/" + name.replace("::", "/") + ".rsc");
+            ISourceLocation moduleLoc = ValueFactoryFactory.getValueFactory().sourceLocation("memory", "test-modules", "/" + name.replace("::", "/") + ".rsc");
             generatedModules.add(moduleLoc);
             try (OutputStream target = URIResolverRegistry.getInstance().getOutputStream(moduleLoc, false)) {
                 target.write(module.getBytes(StandardCharsets.UTF_8));
