@@ -25,8 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IInteger;
@@ -494,7 +492,6 @@ public class JsonValueReader {
         }
       }
 
-
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
         if (in.peek() == JsonToken.STRING) {
@@ -573,6 +570,9 @@ public class JsonValueReader {
 
         if (alternatives.size() > 1) {
           monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
+        }
+        else if (alternatives.size() == 0) {
+          throw new IOException("No fitting constructor found for " + in.getPath());
         }
         Type cons = alternatives.iterator().next();
        
