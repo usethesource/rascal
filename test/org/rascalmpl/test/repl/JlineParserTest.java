@@ -51,6 +51,8 @@ public class JlineParserTest {
     public void qualifiedNames() {
         assertEquals("IO::print", completeParser("IO::print").word());
         assertEquals("lang::rascal", completeParser("import lang::rascal").word());
+        assertEquals("lang::rascal::\\syntax", completeParser("import lang::rascal::\\syntax").word());
+        assertEquals("lang::rascal::\\syntax::Rascal", completeParser("import lang::rascal::\\syntax::Rascal").word());
     }
 
     @Test

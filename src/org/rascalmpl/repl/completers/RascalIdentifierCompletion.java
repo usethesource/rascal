@@ -41,11 +41,13 @@ public class RascalIdentifierCompletion implements Completer {
     }
 
     public void completePartialIdentifier(String name, List<Candidate> candidates) {
+        name = RascalQualifiedNames.unescape(name); // remove escape that the interpreter cannot deal with
         int qualifiedSplit = name.lastIndexOf("::");
         String qualifier = qualifiedSplit > -1 ? name.substring(0, qualifiedSplit) : "";
         String partial = qualifiedSplit > -1 ? name.substring(qualifiedSplit + 2) : name;
         for (var can: lookupPartialIdentifiers.apply(qualifier, partial).entrySet()) {
-            candidates.add(new Candidate(can.getKey(), can.getKey(), can.getValue(), null, null, null, false));
+            String id = RascalQualifiedNames.escape(can.getKey());
+            candidates.add(new Candidate(id, id, can.getValue(), null, null, null, false));
         }
     }
     

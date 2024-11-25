@@ -200,7 +200,7 @@ public class RascalLineParser implements Parser {
         = Pattern.compile("^[\\|\\>][^\\|\\<\\t-\\n\\r ]*[\\|\\<]?");
 
     private static final Pattern RASCAL_NAME
-        = Pattern.compile("^(([A-Za-z_]([A-Za-z0-9_]|::)*)|([\\\\][A-Za-z_]([\\-A-Za-z0-9_]|::)*))");
+        = Pattern.compile("^((([A-Za-z_][A-Za-z0-9_]*)|([\\\\][A-Za-z_]([\\-A-Za-z0-9_])*))(::)?)+");
 
     // only unicode spaces & multi-line comments
     private static final Pattern RASCAL_WHITE_SPACE
