@@ -143,13 +143,17 @@ ModuleStatus rascalTModelForLocs(
     }
 
     for (mloc <- mlocs) {
-        m = getModuleName(mloc, pcfg);
-        if(isModuleLocationInLibs(m, mloc, pcfg)){
-            ms.status[m] ? {} += {rsc_not_found()};
+        try {
+            m = getModuleName(mloc, pcfg);
+            if(isModuleLocationInLibs(m, mloc, pcfg)){
+                ms.status[m] ? {} += {rsc_not_found()};
+            }
+            topModuleNames += {m};
+            ms.moduleLocs[m] = mloc;
+            msgs += toList(ms.messages[m] ? {});
+        } catch e:{
+            msgs += error(e, mloc);
         }
-        topModuleNames += {m};
-        ms.moduleLocs[m] = mloc;
-        msgs += toList(ms.messages[m] ? {});
     }
 
     str jobName = "";
