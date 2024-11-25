@@ -16,19 +16,19 @@ module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
-use writeJSON
+Use writeJSON
 }
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
-use asJSON
+Use asJSON
 }
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @deprecated{
-use readJSON
+Use readJSON
 }
 public java &T fromJSON(type[&T] typ, str src);
 

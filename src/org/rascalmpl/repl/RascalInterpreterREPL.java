@@ -19,6 +19,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
@@ -150,6 +151,10 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         }
         catch (ParseError pe) {
             parseErrorMessage(eval.getErrorPrinter(), lastLine, "prompt", pe, indentedPrettyPrinter);
+            return null;
+        }
+        catch (RascalStackOverflowError e) {
+            throwMessage(eval.getErrorPrinter(), e.makeThrow(), indentedPrettyPrinter);
             return null;
         }
         catch (StaticError e) {

@@ -571,7 +571,7 @@ public java str readBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @deprecated{
-Use readBase64 instead. Uuencode was a misnomer.
+Use readBase64 instead.
 }
 public str uuencode(loc file) = readBase64(file);
 
@@ -583,7 +583,7 @@ public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
 @deprecated{
-Use writeBase64 instead. Uudecode was a misnomer.
+Use writeBase64 instead.
 }
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
@@ -712,7 +712,7 @@ public java str createLink(str title, str target);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @deprecated{
-  use `readBase64` instead.
+Use `readBase64` instead.
 }
 public java str toBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
@@ -721,14 +721,14 @@ throws PathNotFound, IO;
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);
