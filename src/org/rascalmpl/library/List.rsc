@@ -96,9 +96,7 @@ dup([3, 1, 5, 3, 1, 7, 1, 2]);
 list[&T] dup(list[&T] lst) 
   = ([] | (ix in it) ? it : it + [ix] | &T ix <- lst);
 
-@deprecated{
-use the indexing instead
-}
+@deprecated{Use a list index instead}
 @javaClass{org.rascalmpl.library.Prelude}
 java &T elementAt(list[&T] lst, int index); 
 
@@ -420,7 +418,7 @@ list[&T] mix(list[&T] l, list[&T] r){
 	sizeL = size(l);
 	sizeR = size(r);
 	minSize = sizeL < sizeR ? sizeL : sizeR;
-	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
+	return [l[i],r[i] | i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
 }
 
 @synopsis{Compute all permutations of a list.}
@@ -481,7 +479,8 @@ push("eagle", ["zebra", "elephant", "snake", "owl"]);
 list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
 
 
-@synopsis{Apply a function to successive elements of list and combine the results (__deprecated__).}
+@synopsis{Apply a function to successive elements of list and combine the results.}
+@deprecated{This function is deprecated. Use a reducer expression instead, like `(init | f(it, e) | e <- lst)`.}
 @description{
 Apply the function `fn` to successive elements of list `lst` starting with `unit`.
 }
@@ -492,22 +491,7 @@ int add(int x, int y) { return x + y; }
 reducer([10, 20, 30, 40], add, 0); 
 ```
 }
-@benefits{
-
-}
-@pitfalls{
-:::warning
-This function is *deprecated*, use a reducer expression instead. E.g. `(init | f(it, e) | e <- lst)`.
-:::
-}
-&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
-{
-  &T result = unit;
-  for(&T elm <- lst){
-     result = fn(result, elm);
-  }
-  return result;
-}
+&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit) = (unit | fn(it, elm) | elm <- lst);
 
 list[&T] remove(list[&T] lst, int indexToDelete) =
 	[ lst[i] | i <- index(lst), i != indexToDelete ];
@@ -845,9 +829,7 @@ l = [10,20,30,40];
 s = {*l};
 ```
 }
-@deprecated{
-Please use {*myList} instead.
-}
+
 @javaClass{org.rascalmpl.library.Prelude}
 java set[&T] toSet(list[&T] lst);
 
