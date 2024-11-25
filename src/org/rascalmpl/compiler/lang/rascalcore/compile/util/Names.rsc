@@ -103,6 +103,11 @@ str asBaseClassName(str qname){
     return n >= 0 ? "$<qname[n+1 ..]>" : "$<qname>";
 }
 
+str asBaseModuleName(str qname){
+    n = findLast(qname, "::");
+    return n >= 0 ? qname[n+2 ..] : qname;
+}
+
 str asBaseInterfaceName(str qname){
     qname = normalizeQName(qname);
     n = findLast(qname, ".");
