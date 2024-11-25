@@ -54,6 +54,7 @@ public class BaseREPL2 {
             this.history = null;
         }
         reader.option(Option.HISTORY_IGNORE_DUPS, replService.historyIgnoreDuplicates());
+        reader.option(Option.DISABLE_EVENT_EXPANSION, true); // stop jline expending escaped characters in the input
 
 
         if (replService.supportsCompletion()) {
@@ -74,7 +75,7 @@ public class BaseREPL2 {
                 this.mimeType = ANSI_MIME_TYPE;
                 break;
         }
-        this.unicodeSupported = term.encoding().newEncoder().canEncode("👍🏽");
+        this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");
         this.currentPrompt = replService.prompt(ansiSupported, unicodeSupported);
         reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiSupported, unicodeSupported));
 
