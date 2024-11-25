@@ -77,7 +77,6 @@ public class RascalLineParser implements Parser {
             if (c == '"' || (c == '>' && inString)) {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_STRING);
                 inString = wordEnd != buffer.length() && buffer.charAt(wordEnd - 1) != '"';
-                isWord = false;
             }
             else if (c == '|' || (c == '>' && inLocation)) {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_LOCATION);
