@@ -91,9 +91,6 @@ public class BaseREPL2 {
         // - support for html results 
         // - measure time
         // - history?
-        // - completion of locations
-        // - escape & unescape of keywords in imports auto completion
-        
     }
 
     public void run() throws IOException {
