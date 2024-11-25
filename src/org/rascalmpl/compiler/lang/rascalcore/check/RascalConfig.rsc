@@ -16,6 +16,7 @@ import lang::rascalcore::check::CheckerCommon;
 
 import Location;
 import util::Reflective;
+import lang::rascalcore::compile::util::Names;
 
 import IO;
 import List;
@@ -459,6 +460,32 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      return def.defined;
 }
 
+list[str] rascalSimilarNames(Use u, TModel tm){
+    w = getOrgId(u);
+    nw = size(w);
+    idRoles = u.idRoles;
+    pcfg = tm.config.typepalPathConfig;
+    vocabulary = [];
+    longNames = {};
+    if(moduleId() in idRoles){
+        for(srcdir <- pcfg.srcs){
+            for(loc mloc <- find(srcdir, "rsc")){
+                try {
+                        longName = getModuleName(mloc, pcfg);
+                        shortName = asBaseModuleName(longName);
+                        vocabulary += shortName;
+                        longNames += <shortName, longName>;
+                } catch _: ;
+            }
+        }
+    } else {
+        vocabulary = [ d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope) ];
+    }
+    //println("similarNames: <u>, <idRoles>, <vocabulary>");
+    similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
+    return [ *(longNames[s]) | s <- similar ];
+}
+
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
 
         str rascalTplVersion          = getCurrentRascalTplVersion(),
@@ -523,5 +550,6 @@ RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
         preSolver                     = rascalPreSolver,
         postSolver                    = rascalPostSolver,
         reportUnused                  = rascalReportUnused,
-        createLogicalLoc              = rascalCreateLogicalLoc
+        createLogicalLoc              = rascalCreateLogicalLoc,
+        similarNames                  = rascalSimilarNames
     );
