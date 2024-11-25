@@ -35,11 +35,12 @@ public class RascalModuleCompletion implements Completer {
     public void completeModuleNames(String word, List<Candidate> candidates, boolean importStatement) {
         // as jline will take care to filter prefixes, we only have to report modules in the directory (or siblings of the name)
         // we do not have to filter out prefixes
+        word = RascalQualifiedNames.unescape(word); // remove escape that the interpreter cannot deal with
         int rootedIndex = word.lastIndexOf("::");
         String moduleRoot = rootedIndex == -1? "": word.substring(0, rootedIndex);
         String modulePrefix = moduleRoot.isEmpty() ? "" : moduleRoot + "::";
         for (var mod : searchPathLookup.apply(moduleRoot)) {
-            var fullPath = modulePrefix + mod;
+            var fullPath = RascalQualifiedNames.escape(modulePrefix + mod);
             var isFullModulePath = !mod.endsWith("::");
             candidates.add(new Candidate(fullPath + (isFullModulePath & importStatement? ";" : ""), fullPath, "modules", null, null, null, false));
         }
