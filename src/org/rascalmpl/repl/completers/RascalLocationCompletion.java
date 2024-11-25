@@ -47,7 +47,7 @@ public class RascalLocationCompletion implements Completer {
                 String fullPath = directory.getPath();
                 int lastSeparator = fullPath.lastIndexOf('/');
                 fileName = fullPath.substring(lastSeparator +  1);
-                fullPath = fullPath.substring(0, lastSeparator);
+                fullPath = fullPath.substring(0, lastSeparator + 1);
                 directory = VF.sourceLocation(directory.getScheme(), directory.getAuthority(), fullPath);
                 if (!REG.isDirectory(directory)) {
                     return;
