@@ -15,15 +15,18 @@
 module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use writeJSON}
+@synopsis{Maps any Rascal value to a JSON string}
+@deprecated{use ((writeJSON))}
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use asJSON}
+@synopsis{Maps any Rascal value to a JSON string, optionally in compact form.}
+@deprecated{use ((asJSON))}
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use readJSON}
+@deprecated{use ((readJSON))}
+@synopsis{Parses a JSON string and maps it to the requested type of Rascal value.}
 public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
