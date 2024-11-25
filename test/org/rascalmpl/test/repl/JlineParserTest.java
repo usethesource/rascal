@@ -33,8 +33,8 @@ public class JlineParserTest {
     @Test
     public void stringsAreNotParsedAsWords() {
         assertEquals(1, completeParser("\"long string with multiple spaces\"").words().size()); // word
-        assertEquals("", completeParser("\"long string with multiple spaces\"",11).word());
-        assertEquals("", completeParser("\"long string with multiple spaces\"").word());
+        assertEquals("\"long string with multiple spaces\"", completeParser("\"long string with multiple spaces\"",11).word());
+        assertEquals("\"long string with multiple spaces\"", completeParser("\"long string with multiple spaces\"").word());
         assertEquals(2, completeParser("x = \"long string with multiple spaces\";").words().size());
     }
 
@@ -43,8 +43,8 @@ public class JlineParserTest {
         assertEquals("exp", completeParser("\"string <exp",11).word());
         assertEquals("exp", completeParser("\"string <exp more words",11).word());
         assertEquals("exp", completeParser("\"string <exp string ending\"",11).word());
-        assertEquals(1, completeParser("\"string <exp> string ending\"",11).words().size());
-        assertEquals(2, completeParser("\"string <exp> string ending\"").words().size()); // at the end always an extra one
+        assertEquals(3, completeParser("\"string <exp> string ending\"",11).words().size());
+        assertEquals(3, completeParser("\"string <exp> string ending\"").words().size()); // at the end always an extra one
     }
 
     @Test
