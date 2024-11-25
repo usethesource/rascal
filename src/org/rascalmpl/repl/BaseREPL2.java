@@ -2,9 +2,8 @@ package org.rascalmpl.repl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.channels.AcceptPendingException;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -87,7 +86,6 @@ public class BaseREPL2 {
         // - ctrl + / support (might not be possible)
         // - highlighting in the prompt? (future work, as it also hurts other parts)
         // - nested REPLs
-        // - queued commands (if it's still needed for import IO etc);
         // - support for html results 
         // - measure time
         // - history?
@@ -102,6 +100,7 @@ public class BaseREPL2 {
                 try {
                     replService.flush();
                     String line = reader.readLine(this.currentPrompt);
+
                     if (line == null) {
                         // EOF
                         break;
@@ -152,6 +151,14 @@ public class BaseREPL2 {
                 this.history.save();
             }
         }
+    }
+
+    /**
+     * Queue a command (separated by newlines) to be "entered"
+     * No support for multi-line input
+     */
+    public void queueCommand(String command) {
+        reader.addCommandsInBuffer(Arrays.asList(command.split("[\\n\\r]")));
     }
 
     private AtomicBoolean setupInterruptHandler() {
