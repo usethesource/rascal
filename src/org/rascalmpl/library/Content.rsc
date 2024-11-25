@@ -4,7 +4,7 @@ module Content
 
 
 @synopsis{Content wraps the HTTP Request/Response API to support interactive visualization types
-on the terminal ((RascalShell)).}
+on the terminal.}
 @description{
 Values wrapped in a `Content` wrapper will be displayed by interactive
 Rascal applications such as the IDE, the REPL terminal and the documentation pages. 
