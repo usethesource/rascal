@@ -485,7 +485,7 @@ list[str] rascalSimilarNames(Use u, TModel tm){
     }
     //println("similarNames: <u>, <idRoles>, <vocabulary>");
     similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
-    return [ *(longNames[s]) | s <- similar ];
+    return [ *sort(longNames[s], bool (str a, str b) { return size(a) < size(b); }) | s <- similar ];
 }
 
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,
