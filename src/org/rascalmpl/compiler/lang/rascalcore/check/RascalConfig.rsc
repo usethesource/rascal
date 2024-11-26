@@ -467,7 +467,7 @@ list[str] rascalSimilarNames(Use u, TModel tm){
     nw = size(w);
     idRoles = u.idRoles;
     pcfg = tm.config.typepalPathConfig;
-    vocabulary = [];
+    vocabulary = {};
     longNames = {};
     if(moduleId() in idRoles){
         for(srcdir <- pcfg.srcs){
@@ -481,7 +481,7 @@ list[str] rascalSimilarNames(Use u, TModel tm){
             }
         }
     } else {
-        vocabulary = [ d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope) ];
+        vocabulary = { d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope) };
     }
     //println("similarNames: <u>, <idRoles>, <vocabulary>");
     similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
