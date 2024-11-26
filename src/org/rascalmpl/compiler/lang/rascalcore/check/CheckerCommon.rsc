@@ -180,7 +180,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
                 ms.status[qualifiedModuleName] += parsed();
                 return <true, pt, ms>;
             } catch _: {//ParseError(loc src): {
-                ms.messages[qualifiedModuleName] ? [] = [error("Parse error in <qualifiedModuleName>", mloc)];
+                ms.messages[qualifiedModuleName] ? {} = {error("Parse error in <qualifiedModuleName>", mloc)};
                 ms.moduleLocs[qualifiedModuleName] = mloc;
                 ms.status[qualifiedModuleName] += parse_error();
                 return <false, [Module] "module <qualifiedModuleName>", ms>;
