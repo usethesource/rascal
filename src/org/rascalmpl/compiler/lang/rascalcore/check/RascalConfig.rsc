@@ -15,8 +15,10 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::check::CheckerCommon;
 
 import Location;
+import util::FileSystem;
 import util::Reflective;
 import lang::rascalcore::compile::util::Names;
+import analysis::typepal::StringSimilarity;
 
 import IO;
 import List;
