@@ -317,7 +317,11 @@
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>org/rascalmpl/uri/resolvers.config</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>io/usethesource/vallang/type/types.config</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/sisu/javax.inject.Named</resource> <!-- Needed for dependency injection in MavenCli -->
                                 </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer"/> <!-- Needed for dependency injection in MavenCli -->
