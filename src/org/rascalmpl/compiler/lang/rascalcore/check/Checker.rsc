@@ -394,7 +394,17 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
     for(str nm <- moduleNames){
         //ms.status[nm] = {};
         ms.messages[nm] = {};
-        mloc = getModuleLocation(nm, pcfg);
+        mloc = |unknown:///|(0,0,<0,0>,<0,0>);
+        try {
+            mloc = getModuleLocation(nm, pcfg);
+        } catch e: {
+            err = error("Cannot get location for <nm>: <e>", mloc);
+            ms.messages[nm] = { err };
+            ms.status[nm] += { rsc_not_found() };
+            tm = tmodel(modelName=nm, messages=[ err ]);
+            ms = addTModel(nm, tm, ms);
+            return <tm, ms>;
+        }
         if(mloc.extension != "rsc" || isModuleLocationInLibs(nm, mloc, pcfg)){
             continue;
         }
@@ -470,8 +480,9 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
             mlocs += [ getModuleLocation(moduleName, pcfg) ];
         } catch value e: {
             mloc = |unknown:///|(0,0,<0,0>,<0,0>);
+            err = error("Cannot get location for <moduleName>: <e>", mloc);
             ms = newModuleStatus(compilerConfig);
-            ms.messages[moduleName] = { error("<e>", mloc) };
+            ms.messages[moduleName] = { err };
             return ms;
         }
     }
