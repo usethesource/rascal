@@ -18,9 +18,9 @@ module lang::rascalcore::check::CollectType
 extend lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::grammar::definition::Symbols;
-import lang::rascalcore::grammar::definition::Characters;
-import lang::rascalcore::grammar::definition::Literals;
+import lang::rascalcore::agrammar::definition::Symbols;
+import lang::rascalcore::agrammar::definition::Characters;
+import lang::rascalcore::agrammar::definition::Literals;
 import lang::rascalcore::check::ScopeInfo;
 
 import IO;

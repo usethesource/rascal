@@ -1,4 +1,4 @@
-module  lang::rascalcore::grammar::tests::RascalGrammar
+module  lang::rascalcore::agrammar::tests::RascalGrammar
 
 import Grammar;
 import ParseTree;

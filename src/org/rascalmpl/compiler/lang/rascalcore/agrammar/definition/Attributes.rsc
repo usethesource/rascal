@@ -5,10 +5,10 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascalcore::grammar::definition::Attributes
+module lang::rascalcore::agrammar::definition::Attributes
  
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::grammar::definition::Literals;
+import lang::rascalcore::agrammar::definition::Literals;
 import lang::rascalcore::check::ATypeBase;
 import IO;
 import ValueIO;

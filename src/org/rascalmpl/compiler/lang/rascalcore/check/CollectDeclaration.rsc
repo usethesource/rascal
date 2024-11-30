@@ -18,8 +18,8 @@ import lang::rascalcore::check::CollectExpression;
 import lang::rascalcore::check::CollectPattern;
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::grammar::definition::Symbols;
-import lang::rascalcore::grammar::definition::Attributes;
+import lang::rascalcore::agrammar::definition::Symbols;
+import lang::rascalcore::agrammar::definition::Attributes;
 import lang::rascalcore::check::SyntaxGetters;
 
 import IO;

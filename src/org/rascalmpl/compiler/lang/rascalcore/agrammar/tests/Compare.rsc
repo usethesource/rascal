@@ -1,4 +1,4 @@
-module lang::rascalcore::grammar::tests::Compare
+module lang::rascalcore::agrammar::tests::Compare
 
 import IO;
 import List;

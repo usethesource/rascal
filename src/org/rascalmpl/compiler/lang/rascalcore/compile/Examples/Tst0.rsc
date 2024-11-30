@@ -1,7 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst0
 
 import ValueIO;
-import IO;
+import Reflective;
 
 data D = d1(int n);
 

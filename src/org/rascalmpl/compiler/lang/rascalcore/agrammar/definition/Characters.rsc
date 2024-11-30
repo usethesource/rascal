@@ -12,7 +12,7 @@
   
   It also provides a number of convenience functions on character classes.
 }
-module lang::rascalcore::grammar::definition::Characters
+module lang::rascalcore::agrammar::definition::Characters
 
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::ATypeBase;
