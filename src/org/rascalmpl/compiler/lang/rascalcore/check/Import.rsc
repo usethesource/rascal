@@ -29,7 +29,7 @@ import util::Reflective;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
+private str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     if(moduleStrs[mloc]? ){
         return moduleStrs[mloc];
     }
@@ -138,7 +138,17 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
         }
         if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
             try {
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                 mloc = |unknown:///|(0,0,<0,0>,<0,0>);
+                try {
+                    mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                } catch e: {
+                    err = error("Cannot get location for <qualifiedModuleName>: <e>", mloc);
+                    ms.messages[qualifiedModuleName] = { err };
+                    tm = tmodel(modelName=qualifiedModuleName, messages=[ err ]);
+                    ms = addTModel(qualifiedModuleName, tm, ms);
+                    ms.status[qualifiedModuleName] += { rsc_not_found() };
+                    return ms;
+                }
                 if(mloc.extension != "rsc" || isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
                 <compatible, ms> = isCompatibleBinaryLibrary(tm, domain(localImportsAndExtends), ms);
@@ -269,9 +279,9 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         ms.status[iname] = ms.status[iname] ? {};
         try {
             mloc = getModuleLocation(iname, ms.pathConfig);
-            //if(mloc.extension != "rsc" || isModuleLocationInLibs(iname, mloc, ms.pathConfig)) throw "No src or library module 2";
          } catch str msg: {
-            ms.messages[moduleName] ? {} += { error(msg, imod@\loc) };
+            err = error("Cannot get location for <iname>: <msg>", imod@\loc);
+            ms.messages[moduleName] ? {} += { err };
             ms.status[iname] += { rsc_not_found() };
          }
     }
