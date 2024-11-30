@@ -11,8 +11,8 @@ import IO;
 import Set;
 import util::Maybe;
 
-import lang::rascalcore::grammar::definition::Symbols;
-import lang::rascalcore::grammar::definition::Attributes;
+import lang::rascalcore::agrammar::definition::Symbols;
+import lang::rascalcore::agrammar::definition::Attributes;
 
 import lang::rascal::\syntax::Rascal;
 

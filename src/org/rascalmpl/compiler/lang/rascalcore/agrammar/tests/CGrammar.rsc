@@ -1,4 +1,4 @@
-module lang::rascalcore::grammar::tests::CGrammar
+module lang::rascalcore::agrammar::tests::CGrammar
 
 import IO;
 import Grammar;

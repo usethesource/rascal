@@ -1,10 +1,10 @@
-module lang::rascalcore::grammar::tests::LayoutTests
+module lang::rascalcore::agrammar::tests::LayoutTests
 
-//import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::agrammar::definition::Grammar;
 import lang::rascalcore::check::AType;
-import lang::rascalcore::grammar::definition::Layout;
+import lang::rascalcore::agrammar::definition::Layout;
 
-import lang::rascalcore::grammar::tests::TestGrammars;
+import lang::rascalcore::agrammar::tests::TestGrammars;
  
 test bool intermix1() = 
     intermix([alit("a")], layouts("$default$"), {}) ==  [alit("a")];

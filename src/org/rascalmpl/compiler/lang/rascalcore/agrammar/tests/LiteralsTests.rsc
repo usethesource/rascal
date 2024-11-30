@@ -1,7 +1,7 @@
-module lang::rascalcore::grammar::tests::LiteralsTests
+module lang::rascalcore::agrammar::tests::LiteralsTests
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::grammar::definition::Literals;
+import lang::rascalcore::agrammar::definition::Literals;
 import lang::rascalcore::check::AType;
 
 test bool tstLiteral1() = literal("") == prod(alit(""),[]);

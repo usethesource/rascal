@@ -1,6 +1,6 @@
-module lang::rascalcore::grammar::tests::CharactersTests
+module lang::rascalcore::agrammar::tests::CharactersTests
 
-import lang::rascalcore::grammar::definition::Characters;
+import lang::rascalcore::agrammar::definition::Characters;
 import lang::rascalcore::check::AType;
 
 test bool testFlip() = \new-char-class([arange(2,2), arange(1,1)]) == \achar-class([arange(1,2)]);

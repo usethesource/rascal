@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::rascalcore::grammar::definition::Literals
+module lang::rascalcore::agrammar::definition::Literals
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ATypeBase;

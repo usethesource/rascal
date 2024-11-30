@@ -5,11 +5,11 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascalcore::grammar::definition::Keywords
+module lang::rascalcore::agrammar::definition::Keywords
 
 import lang::rascalcore::check::ATypeBase;
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::grammar::definition::Symbols;
+import lang::rascalcore::agrammar::definition::Symbols;
 //import IO;
 import Node;
 

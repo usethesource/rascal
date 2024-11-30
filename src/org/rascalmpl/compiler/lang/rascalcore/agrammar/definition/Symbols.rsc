@@ -5,10 +5,10 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascalcore::grammar::definition::Symbols
+module lang::rascalcore::agrammar::definition::Symbols
 
-import lang::rascalcore::grammar::definition::Literals;
-import lang::rascalcore::grammar::definition::Characters;
+import lang::rascalcore::agrammar::definition::Literals;
+import lang::rascalcore::agrammar::definition::Characters;
 import lang::rascal::\syntax::Rascal;
 //import ParseTree;
 import lang::rascalcore::check::ATypeBase;
