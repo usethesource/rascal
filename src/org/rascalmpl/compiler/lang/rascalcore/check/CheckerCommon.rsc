@@ -130,13 +130,17 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
 }
 
 bool tplOutdated(str qualifiedModuleName, PathConfig pcfg){
-    mloc = getModuleLocation(qualifiedModuleName, pcfg);
-    <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
-    lmMloc = lastModified(mloc);
-    lmTpl = lastModified(tpl);
-    res = !found || lmMloc > lmTpl;
-    //println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
-    return res;
+    try {
+        mloc = getModuleLocation(qualifiedModuleName, pcfg);
+        <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
+        lmMloc = lastModified(mloc);
+        lmTpl = lastModified(tpl);
+        res = !found || lmMloc > lmTpl;
+        //println("tplOutdated <qualifiedModuleName>: <res>; mloc: <lmMloc> \> tpl: <lmTpl>: <lmMloc > lmTpl>, (<mloc>, <tpl>)");
+        return res;
+    } catch e: {
+        return false;
+    }
 }
 
 int parseTreeCacheSize = 20;
@@ -166,7 +170,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
                     throw "No src or library module";
                 }
             } catch _: {
-                //ms.messages[qualifiedModuleName] ? [] = [error("Module <qualifiedModuleName> not found", mloc)];
+                ms.messages[qualifiedModuleName] ? {} += {error("Module <qualifiedModuleName> not found", mloc)};
                 mpt = [Module] "module <qualifiedModuleName>";
                 //ms.parseTrees[qualifiedModuleName] = mpt;
                 ms.moduleLocs[qualifiedModuleName] = mloc;
