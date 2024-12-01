@@ -80,6 +80,9 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             errorCount = size(errors);
             disambDuration = realTime() - parseEndTime;
             result = "recovery";
+            if ("<t>" != input) {
+                throw "Yield of recovered tree does not match the original input";
+            }
             if (errors == []) {
                 measurement = successfulDisambiguation(source=source, duration=duration);
             } else {
@@ -237,11 +240,15 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
 
 FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) {
     FileStats stats = fileStats();
-    int lineStart = begin;
+    int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
 
-    int line = 1;
+    int line = 0;
     for (int lineEnd <- lineEndings) {
+        line = line+1;
+        if (lineEnd < begin) {
+            continue;
+        }
         lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
             // Check boundaries (only used for quick bug testing)
@@ -258,7 +265,6 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
         }
         lineStart = lineEnd+1;
         println();
-        line = line+1;
     }
 
     return stats;
