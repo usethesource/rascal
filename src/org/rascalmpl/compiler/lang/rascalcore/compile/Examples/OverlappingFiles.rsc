@@ -23,21 +23,22 @@ void main(){
     rascalCoreDir =  |file:///Users/paulklint/git/rascal-core/src/|;
     typepalDir =  |file:///Users/paulklint/git/typepal/src|;
 
-    rfiles =  getFiles(rascalDir);
-    rcfiles =  getFiles(rascalCoreDir);
-    tyfiles = getFiles(typepalDir);
-    identical = range(rfiles) & range(rcfiles);
+    srcDir = rascalCoreDir;
+    rascalFiles =  getFiles(rascalDir);
+    srcFiles =  getFiles(srcDir);
+   
+    identical = range(rascalFiles) & range(srcFiles);
     println("<size(identical)> identical files:");
     iprintln(identical);
 
     approved = {"AST.rsc", "TestGrammars.rsc", "Characters.rsc", "Names.rsc", "Keywords.rsc",
     "PicoGrammar.rsc", "CGrammar.rsc", "Layout.rsc", "LayoutTests.rsc", "LiteralsTests.rsc",
     "Attributes.rsc"};
-    sameName = domain(rfiles) & domain(rcfiles) - approved;
+    sameName = domain(rascalFiles) & domain(srcFiles) - approved;
 
     println("<size(sameName)> files with same name:");
     for(c <- sameName){
-        println("<c>:<for(f <- rfiles[c]+rcfiles[c]){>
+        println("<c>:<for(f <- rascalFiles[c]+srcFiles[c]){>
                 '   <f><}>");
 
    }
