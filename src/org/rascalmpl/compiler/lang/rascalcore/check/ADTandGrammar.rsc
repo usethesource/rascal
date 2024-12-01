@@ -148,7 +148,10 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
             } else {
                 <found, tm1, ms> = getTModelForModule(m, ms);
                 if(!found) {
-                    throw "addGrammar: tmodel for <m> not found";
+                    msg = error("Cannot add grammar, tmodel for <m> not found", ms.moduleLocs[qualifiedModuleName] ? |unknown:///|);
+                    ms.messages[qualifiedModuleName] ? {} += { msg };
+                    tm1 = tmodel(modelName=qualifiedModuleName, messages=[msg]);
+                    return <tm1, ms>;
                 }
             }
             facts = tm1.facts;
