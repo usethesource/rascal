@@ -13,8 +13,10 @@
 package org.rascalmpl.parser.uptr.recovery;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.tuple.Triple;
@@ -82,8 +84,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		DoubleArrayList<AbstractStackNode<IConstructor>, ArrayList<IConstructor>> recoveryNodes) {
 		DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> recoveredNodes = new DoubleArrayList<>();
 
-		Set<Triple<Integer, IConstructor, Integer>> skippedIds = new HashSet<>();
-
 		// Sort nodes by start location
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
@@ -92,6 +92,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			visualizer.visualizeRecoveryNodes(recoveryNodes);
 		}
 		
+		//  Keep track of previously added nodes so we can reuse them when we encounter
+		// a node with the same constructor, start location, and skip length
+		Map<Triple<IConstructor, Integer, Integer>, SkippingStackNode<IConstructor>> addedNodes = new HashMap<>();
+
 		for (int i = 0; i<recoveryNodes.size(); i++) {
 			AbstractStackNode<IConstructor> recoveryNode = recoveryNodes.getFirst(i);
 			ArrayList<IConstructor> prods = recoveryNodes.getSecond(i);
@@ -103,33 +107,48 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			for (int j = prods.size() - 1; j >= 0; --j) {
 				IConstructor prod = prods.get(j);
 				
-				IConstructor type = ProductionAdapter.getType(prod);
+				IConstructor sort = ProductionAdapter.getType(prod);
 
-				List<SkippingStackNode<IConstructor>> skippingNodes =
-				findSkippingNodes(input, location, recoveryNode, prod, startLocation);
+				List<SkippingStackNode<IConstructor>> skippingNodes = findSkippingNodes(input, location, recoveryNode, prod, startLocation);
 				for (SkippingStackNode<IConstructor> skippingNode : skippingNodes) {
 					int skipLength = skippingNode.getLength();
+					Triple<IConstructor, Integer, Integer> key = Triple.of(sort, startLocation, skipLength);
 
-					if (!skippedIds.add(Triple.ofNonNull(startLocation, type, skipLength))) {
-						// Do not add this skipped node if a node with the same startLocation, type, and skipLength has been added already
-						continue;
+					// See if we already have added a node with this constructor, start location, and skip length
+					SkippingStackNode<IConstructor> previouslyAddedNode = addedNodes.get(key);
+					if (previouslyAddedNode == null) {
+						// No, add the current node
+						addedNodes.put(key, skippingNode);
+						skippingNode.initEdges();
+						recoveredNodes.add(skippingNode, skippingNode.getResult());
+					} else {
+						// We already added a similar node, use that instead
+						skippingNode = previouslyAddedNode;
 					}
 
 					AbstractStackNode<IConstructor> continuer = new RecoveryPointStackNode<>(stackNodeIdDispenser.dispenseId(), prod, recoveryNode);
-
 					EdgesSet<IConstructor> edges = new EdgesSet<>(1);
 					edges.add(continuer);
-				
 					continuer.setIncomingEdges(edges);
 
-					skippingNode.initEdges();
 					skippingNode.addEdges(edges, startLocation);
-					recoveredNodes.add(skippingNode, skippingNode.getResult());
 				}
 			}
 		}
 		
 		return recoveredNodes;
+	}
+
+	// Add a new SkippingStackNode, but only if another node with the same result does not already exist
+	private void addSkippingStackNode(List<SkippingStackNode<IConstructor>> nodes, IConstructor prod, int startLocation, SkippedNode result) {
+		for (SkippingStackNode<IConstructor> node : nodes) {
+			if (((SkippedNode)node.getResult()).getLength() == result.getLength()) {
+				// Already added
+				return;
+			}
+		}
+
+		nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
 	}
 
 	private List<SkippingStackNode<IConstructor>> findSkippingNodes(int[] input, int location,
@@ -141,15 +160,8 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// If we are at the end of the input, skip nothing
 		if (location >= input.length) {
 			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
-			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+			addSkippingStackNode(nodes, prod, startLocation, result);
 			return nodes; // No other nodes would be useful
-			}
-
-		// If we are the top-level node, just skip the rest of the input
-		if (!recoveryNode.isEndNode() && isTopLevelProduction(recoveryNode)) {
-			result = SkippingStackNode.createResultUntilEndOfInput(uri, input, startLocation);
-			nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
-			return nodes;	// No other nodes would be useful
 		}
 
 		// Find the last token of this production and skip until after that
@@ -159,7 +171,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			MatchResult endMatch = endMatcher.findMatch(input, startLocation, Integer.MAX_VALUE/2);
 			if (endMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, endMatch.getEnd());
-				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+				addSkippingStackNode(nodes, prod, startLocation, result);
 			}
 		}
 
@@ -170,7 +182,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			MatchResult nextMatch = nextMatcher.findMatch(input, startLocation+1, Integer.MAX_VALUE/2);
 			if (nextMatch != null) {
 				result = SkippingStackNode.createResultUntilChar(uri, input, startLocation, nextMatch.getStart());
-				nodes.add(new SkippingStackNode<>(stackNodeIdDispenser.dispenseId(), prod, result, startLocation));
+				addSkippingStackNode(nodes, prod, startLocation, result);
 			}
 		}
 
@@ -322,38 +334,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		return false;
 	}
 
-	// Check if a node is a top-level production (i.e., its parent production node has no parents and
-	// starts at position -1)
-	// As this is experimental code, this method is extremely conservative.
-	// Any sharing will result in returning 'false'.
-	// We will need to change this strategy in the future to improve error recovery.
-	private boolean isTopLevelProduction(AbstractStackNode<IConstructor> node) {
-
-		while (node != null && node.getDot() != 0) {
-			node = getSinglePredecessor(node);
-		}
-
-		if (node != null) {
-			node = getSinglePredecessor(node);
-			return node != null && node.getStartLocation() == -1;
-		}
-
-		return false;
-	}
-
-	private AbstractStackNode<IConstructor> getSinglePredecessor(AbstractStackNode<IConstructor> node) {
-		IntegerObjectList<EdgesSet<IConstructor>> edgeMap = node.getEdges();
-		if (edgeMap.size() == 1) {
-			EdgesSet<IConstructor> edges = edgeMap.getValue(0);
-			if (edges.size() == 1) {
-				return edges.get(0);
-			}
-		}
-
-		return null;
-	}
-	
-
     private DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode> reviveFailedNodes(
 		int[] input,
 		int location,
@@ -367,7 +347,7 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			long id = (long) failedNode.getId() << 32 | failedNode.getStartLocation();
 			if (!processedNodes.add(id)) {
 				continue;
-		}
+			}
 
 			findRecoveryNodes(failedNodes.get(i), recoveryNodes);
 		}
