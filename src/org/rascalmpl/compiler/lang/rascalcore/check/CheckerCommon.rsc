@@ -258,10 +258,6 @@ ModuleStatus updateBOM(str qualifiedModuleName, ModuleStatus ms){
 }
 
 ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded = false){
-    // if(candidate == "analysis::grammar::Ambiguity"){
-    //     println("removeTModel: <candidate>, <ms.status[candidate]>");
-    // }
-    messages = [];
     if(ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
         pcfg = ms.pathConfig;
         if(updateBOMneeded){
@@ -272,27 +268,17 @@ ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded =
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
         tm = convertTModel2LogicalLocs(tm, ms.tmodels);
-        messages = tm.messages;
         ms.status[candidate] += tpl_saved();
         if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
         try {
             writeBinaryValueFile(tplLoc, tm);
-            // if(candidate == "analysis::grammar::Ambiguity"){
-            //     println("removeTModel <candidate>: <getLastModified(candidate, ms.pathConfig)>, tpl: <lastModified(tplLoc)>");
-            // }
             if(traceTPL) println("Written <tplLoc>");
         } catch value e: {
-            throw "Cannot write TPL file <tplLoc>, reason: <e>";
+            mloc = ms.moduleLocs[candidate] ? |unknown:///|;
+            ms.messages[candidate] += { error("Cannot write TPL file <tplLoc>, reason: <e>",  mloc) };
         }
     }
-    // if(!isEmpty(messages)){
-    //     ms.messages[candidate] = messages;
-    //     println("<candidate>:"); iprintln(messages);
-    // }
     ms.tmodels = delete(ms.tmodels, candidate);
-    //if(candidate == "analysis::grammar::Ambiguity"){
-    //    println("removeTModel, end: <candidate>, <ms.status[candidate]>");
-    //}
     return ms;
 }
 
