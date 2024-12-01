@@ -209,7 +209,7 @@ Content graph(rel[&T x, &L edge, &T y] v, CytoGraphConfig cfg=cytoGraphConfig())
 @description{
 This data-structure is serialized to JSON and communicated directly to initialize cytoscape.js.
 The serialization is done by the generic ((lang::json::IO)) library under the hood of a ((util::Webserver)).
-}
+}@synopsis{Produces an overall cytoscape.js wrapper which is sent as JSON to the client side.}
 Cytoscape cytoscape(list[CytoData] \data, CytoGraphConfig cfg=cytoGraphConfig())
     = cytoscape(
         elements=\data,        
@@ -297,6 +297,7 @@ data CytoNodeShape
     | \polygon()
     ;
 
+@synopsis{Overall cytoscape.js object for sending to the client side.}
 data Cytoscape 
     = cytoscape(
         list[CytoData] elements = [],
@@ -367,6 +368,11 @@ data CytoStyleOf
 CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoStyleOf(selector=\node(), style=style);
 CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoStyleOf(selector=\edge(), style=style);
 
+@synopsis{Instantiates a default node style}
+@description{
+Because the JSON writer can not instantiate default values for keyword fields,
+we have to do it manually here.
+}
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
         visibility        = "visible", /* hidden, collapse */
@@ -383,6 +389,11 @@ CytoStyle defaultNodeStyle()
         \text-valign      = CytoVerticalAlign::\center()
     );
 
+@synopsis{Instantiates a default edge style}
+@description{
+Because the JSON writer can not instantiate default values for keyword fields
+we have to do it manually here.
+}
 CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         visibility          = "visible", /* hidden, collapse */
@@ -618,7 +629,16 @@ Response (Request) graphServer(Cytoscape ch) {
     return reply;
 }
 
-@synopsis{default HTML wrapper for a chart}
+@synopsis{default HTML wrapper for a cytoscape.js graph}
+@description{
+This client features:
+* cytoscape.js loading with cytoscape-dagre and dagre present.
+* fetching of graph data via `http://localhost/cytoscape` URL
+* clickable links in every node that has an 'editor' data field that holds a `loc`, via the `http://localhost/editor?src=loc` URL
+* full screen graph view
+
+This client mirrors the server defined by ((graphServer)).
+}
 private HTMLElement plotHTML()
     = html([
         head([ 

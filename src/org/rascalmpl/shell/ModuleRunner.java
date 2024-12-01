@@ -27,11 +27,11 @@ public class ModuleRunner implements ShellRunner {
     }
     module = module.replaceAll("/", "::");
 
-    eval.doImport(null, module);
+    eval.doImport(eval.getMonitor(), module);
     String[] realArgs = new String[args.length - 1];
     System.arraycopy(args, 1, realArgs, 0, args.length - 1);
 
-    IValue v = eval.main(null, module, "main", realArgs);
+    IValue v = eval.main(eval.getMonitor(), module, "main", realArgs);
 
     if (v != null && !(v instanceof IInteger)) {
       new StandardTextWriter(true).write(v, eval.getOutPrinter());

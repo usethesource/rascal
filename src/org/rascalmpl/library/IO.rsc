@@ -563,24 +563,43 @@ Use `readFile(file, inferCharset=false, charset=DEFAULT_CHARSET)` instead.
 public str readFileEnc(loc file, str charset) throws PathNotFound, IO
   = readFile(file, inferCharset=false, charset=charset);
 
+@synopsis{Read the content of a file and return it as a base-64 encoded string.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str readBase64(loc file)
+public java str readBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @deprecated{
-Use readBase64 instead. Uuencode was a misnomer.
+Use readBase64 instead.
 }
 public str uuencode(loc file) = readBase64(file);
 
+@synopsis{Decode a base-64 encoded string and write the resulting bytes to a file.}
+@description {
+}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeBase64(loc file, str content)
 throws PathNotFound, IO;
 
 @deprecated{
-Use writeBase65 instead. Uudecode was a misnomer.
+Use writeBase64 instead.
 }
 public void uudecode(loc file, str content) = writeBase64(file, content);
 
+@synopsis{Read the content of a file and return it as a base-32 encoded string.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str readBase32(loc file, bool includePadding=true)
+throws PathNotFound, IO;
+
+@synopsis{Decode a base-32 encoded string and write the resulting bytes to a file.}
+@description {
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBase32(loc file, str content)
+throws PathNotFound, IO;
 
 @synopsis{Read the contents of a file and return it as a list of bytes.}
 @javaClass{org.rascalmpl.library.Prelude}
@@ -692,21 +711,24 @@ public java str createLink(str title, str target);
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(loc file)
+@deprecated{
+Use `readBase64` instead.
+}
+public java str toBase64(loc file, bool includePadding=true)
 throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void copy(loc source, loc target, bool recursive=false, bool overwrite=true) throws IO;
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyFile(loc source, loc target) {
   copy(source, target, recursive=false, overwrite=true);
 }
 
 @deprecated{
-use the `copy` function instead
+Use the `copy` function instead
 }
 void copyDirectory(loc source, loc target) {
   copy(source, target, recursive=true, overwrite=true);

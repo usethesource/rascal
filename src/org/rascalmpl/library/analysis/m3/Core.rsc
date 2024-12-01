@@ -236,7 +236,7 @@ M3 modifyM3(loc id, list[M3] models, value (&T,&T) fun) {
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";
 
-@deprecated{does not make much sense since containment usually contains only logical locations..}
+@deprecated{Does not make much sense since containment usually contains only logical locations.}
 set[loc] files(M3 model) {
  todo = top(model.containment);
  done = {};
