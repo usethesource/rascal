@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -161,6 +160,142 @@ public class JsonValueReader {
       if (isNull()) {
         return inferNullValue(nulls, type);
       }
+  private static final TypeFactory TF = TypeFactory.getInstance();
+  private final TypeStore store;
+  private final IValueFactory vf;
+  private ThreadLocal<SimpleDateFormat> format;
+  private final IRascalMonitor monitor;
+  private ISourceLocation src;
+  private VarHandle posHandler;
+  private VarHandle lineHandler;
+  private VarHandle lineStartHandler;
+  private boolean explicitConstructorNames;
+  private boolean explicitDataTypes;
+  
+  /**
+   * @param vf     factory which will be used to construct values
+   * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
+   */
+  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor, ISourceLocation src) {
+    this.vf = vf;
+    this.store = store;
+    this.monitor = monitor;
+    this.src = src;
+    setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+    if (src != null) {
+      try {
+        var lookup = MethodHandles.lookup();
+        var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
+        this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
+        this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+        this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+      }
+      catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+        // we disable the origin tracking if we can not get to the fields
+        src = null;
+        monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
+      }
+    }
+  }
+  
+  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
+    this(vf, new TypeStore(), monitor, src);
+  }
+  
+  /**
+   * Builder method to set the format to use for all date-time values encoded as strings
+   */
+  public JsonValueReader setCalendarFormat(String format) {
+    // SimpleDateFormat is not thread safe, so here we make sure
+    // we can use objects of this reader in different threads at the same time
+    this.format = new ThreadLocal<SimpleDateFormat>() {
+      protected SimpleDateFormat initialValue() {
+        return new SimpleDateFormat(format);
+      }
+    };
+    return this;
+  }
+
+  public JsonValueReader setExplicitConstructorNames(boolean value) {
+    this.explicitConstructorNames = value;
+    return this;
+  }
+
+   public JsonValueReader setExplicitDataTypes(boolean value) {
+    this.explicitDataTypes = value;
+    if (value) {
+      this.explicitConstructorNames = true;
+    }
+    return this;
+  }
+
+
+  /**
+   * Read and validate a Json stream as an IValue
+   * @param  in       json stream
+   * @param  expected type to validate against (recursively)
+   * @return an IValue of the expected type
+   * @throws IOException when either a parse error or a validation error occurs
+   */
+  public IValue read(JsonReader in, Type expected) throws IOException {
+    IValue res = expected.accept(new ITypeVisitor<IValue, IOException>() {
+      @Override
+      public IValue visitInteger(Type type) throws IOException {
+        try {
+          switch (in.peek()) {
+            case NUMBER:
+              return vf.integer(in.nextLong());
+            case STRING:
+              return vf.integer(in.nextString());
+            case NULL:
+              return null;
+            default:
+              throw new IOException("Expected integer but got " + in.peek());
+          }
+        }
+        catch (NumberFormatException e) {
+          throw new IOException("Expected integer but got " + e.getMessage());
+        }
+      }
+      
+      public IValue visitReal(Type type) throws IOException {
+        try {
+          switch (in.peek()) {
+            case NUMBER:
+              return vf.real(in.nextDouble());
+            case STRING:
+              return vf.real(in.nextString());
+            case NULL:
+              return null;
+            default:
+              throw new IOException("Expected integer but got " + in.peek());
+          }
+        }
+        catch (NumberFormatException e) {
+          throw new IOException("Expected integer but got " + e.getMessage());
+        }
+      }
+      
+      @Override
+      public IValue visitExternal(Type type) throws IOException {
+        throw new IOException("External type " + type + "is not implemented yet by the json reader:" + in.getPath());
+      }
+      
+      @Override
+      public IValue visitString(Type type) throws IOException {
+        if (isNull()) {
+          return null;
+        }
+        
+        return vf.string(in.nextString());
+      }
+      
+      @Override
+      public IValue visitTuple(Type type) throws IOException {
+        if (isNull()) {
+          return null;
+        }
 
       List<IValue> l = new ArrayList<>();
       in.beginArray();
@@ -469,7 +604,6 @@ public class JsonValueReader {
         return 0;
       }
     }
-
     protected Throw parseErrorHere(String cause) {
       var location = src == null ?  URIUtil.rootLocation("unknown") : src;
       int offset = Math.max(getPos(), lastPos);
@@ -583,7 +717,20 @@ public class JsonValueReader {
           }
         }
         else { // its a normal arg, pass its label to the child
-          throw parseErrorHere("Unknown field " + label + ":" + in.getPath());
+            if (!explicitConstructorNames && "_constructor".equals(label)) {
+              // ignore additional _constructor fields.
+              in.nextString(); // skip the constructor value
+              continue;
+            }
+            else if (!explicitDataTypes && "_type".equals(label)) {
+              // ignore additional _type fields.
+              in.nextString(); // skip the type value
+              continue;
+            }
+            else {
+              // field label does not match data type definition
+            throw parseErrorHere("Unknown field " + label + ":" + in.getPath());
+            }
         }
       }
       

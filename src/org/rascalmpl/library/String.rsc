@@ -20,7 +20,10 @@ module String
 
 extend Exception;
 import List;
+import ParseTree;
 
+@synopsis{All functions in this module that have a charset parameter use this as default.}
+private str DEFAULT_CHARSET = "UTF-8";
 
 @synopsis{Center a string in given space.}
 @description{
@@ -517,11 +520,46 @@ for the allowed syntax in `charSet`.
 ```rascal-shell
 import String;
 squeeze("hello", "el");
+// the other squeeze function uses character class types instead:
+squeeze("hello", "el") == squeeze("hello", #[el]);
 ```
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@deprecated{Use the other squeence function that accepts Rascal character class syntax.}
 public java str squeeze(str src, str charSet);
 
+@synopsis{Squeeze repeated occurrences of characters.}
+@description{
+Squeeze repeated occurrences in `src` of characters, if they are a member of `&CharClass`, removed.
+
+* `src` is any string
+* `&CharClass` is a reified character class type such as `[a-z]` (a type that is a subtype of the class of all characters `![]`)
+* To pass in a char-class type used the type reifier operator: `#[a-z]` or `#![]`
+}
+@benefits{
+* to squeeze all characters use the universal character class: `#![]` (the negation of the empty class).
+* this function is type-safe; you can only pass in correct reified character classes like `#[A-Za-z]`.
+}
+@pitfalls{
+* `![]` excludes the 0'th unicode character, so we can not squeeze the unicode codepoint `0` using this function. 
+If you really need to squeeze 0 then it's best to write your own:
+```rascal
+visit (x) { 
+  case /<dot:.>+/ => "\a00" when dot == "\a00" 
+}
+````
+* Do not confuse the character `0` (codepoint 48) with the zero codepoint: `#[0] != #[\a00]`
+}
+@examples{
+```rascal-shell
+import String;
+squeeze("hello", #[el]);
+```
+}
+public str squeeze(str src, type[&CharClass] _:type[![]] _) = visit(src) {
+    case /<c:.><c>+/ => c
+      when &CharClass _ := Tree::char(charAt(c, 0))
+};
 
 
 @synopsis{Split a string into a list of strings based on a literal separator.}
@@ -534,11 +572,37 @@ public java str capitalize(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str uncapitalize(str src);
 
+@synopsis{Base-64 encode the characters of a string.}
+@description{
+   Convert the characters of a string to a list of bytes using UTF-8 encoding and then encode these bytes using base-64 encoding
+   as defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str toBase64(str src);
+public java str toBase64(str src, str charset=DEFAULT_CHARSET, bool includePadding=true);
 
+@synopsis{Decode a base-32 encoded string.}
+@description {
+  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
+  The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
 @javaClass{org.rascalmpl.library.Prelude}
-public java str fromBase64(str src);
+public java str fromBase64(str src, str charset=DEFAULT_CHARSET);
+
+@synopsis{Base-32 encode the characters of a string.}
+@description{
+   Convert the characters of a string to a list of bytes using UTF-8 encoding and then encode these bytes using base-32 encoding
+   as defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str toBase32(str src, str charset=DEFAULT_CHARSET, bool includePadding=true);
+
+@synopsis{Decode a base-32 encoded string.}
+@description {
+  Convert a base-32 encoded string to bytes and then convert these bytes to a string using the specified cahracter set.
+  The base-32 encoding used is defined by RFC 4648: https://www.ietf.org/rfc/rfc4648.txt.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java str fromBase32(str src, str charset=DEFAULT_CHARSET);
 
 
 @synopsis{Word wrap a string to fit in a certain width.}
@@ -560,7 +624,7 @@ private java str format(str s, str dir, int n, str pad);
 @synopsis{Determine if a string matches the given (Java-syntax) regular expression.}
 @javaClass{org.rascalmpl.library.Prelude}
 @deprecated{
-use `/re/ := s` instead
+Use `/re/ := s` instead
 }
 public java bool rexpMatch(str s, str re);
 
@@ -577,7 +641,7 @@ toLocation("http://grammarware.net");
 toLocation("document.xml");
 ```
 }
-@deprecated{Use ((Location::locFromWindowsPath)) for example. The current function does not handle all the different intricasies of path notation.}
+@deprecated{Use ((Location::locFromWindowsPath)) for example; toLocation does not handle all intricasies of path notation.}
 public loc toLocation(str s) = (/<car:.*>\:\/\/<cdr:.*>/ := s) ? |<car>://<cdr>| : |cwd:///<s>|;
 
 
