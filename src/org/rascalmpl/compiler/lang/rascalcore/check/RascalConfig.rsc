@@ -89,17 +89,18 @@ Accept rascalIsAcceptableSimple(loc def, Use use, Solver s){
                 }
             }
             return ignoreContinue();
-       } else if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def
-                 && isContainedIn(def, use.scope)          // in an idRole that requires def before use
-                ){                                         // and the definition is in the same scope as the use
-      // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
-      if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
-         list[loc] parts = allowedParts[use.scope];
-         return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
-       } else {
-            throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStack(key_allow_use_before_def)>";
-       }
-    }
+       } else 
+       if(!isEmpty(use.idRoles & defBeforeUseRoles) // If we encounter a use before def
+                 && isContainedIn(def, use.scope)   // in an idRole that requires def before use
+                ){                                  // and the definition is in the same scope as the use
+            // then only allow this when inside explicitly defined areas (typically the result part of a comprehension)
+            if(lrel[loc,loc] allowedParts := s.getStack(key_allow_use_before_def)){
+                list[loc] parts = allowedParts[use.scope];
+                return !isEmpty(parts) && any(part <- parts, isContainedIn(use.occ, part)) ? acceptBinding() : ignoreContinue();
+            } else {
+                throw "Inconsistent value stored for <key_allow_use_before_def>: <s.getStack(key_allow_use_before_def)>";
+            }
+        }
     }
 
     // Uses of a keyword formal inside its initializing expression are rejected
