@@ -105,7 +105,7 @@ public class IO {
     }
     
 	
-	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls) {
+	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
       
@@ -120,6 +120,8 @@ public class IO {
             .setCalendarFormat(dateTimeFormat.getValue())
 			.setParsers(parsers)
 			.setNulls(unreify(nulls))
+			.setExplicitConstructorNames(explicitConstructorNames.getValue())
+			.setExplicitDataTypes(explicitDataTypes.getValue())
             .read(in, start);
       }
       catch (IOException e) {
@@ -137,7 +139,7 @@ public class IO {
 			.collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
 	}
 
-	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls) {
+	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
 	      TypeStore store = new TypeStore();
 	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
 
@@ -148,6 +150,8 @@ public class IO {
 	            .setCalendarFormat(dateTimeFormat.getValue())
 				.setParsers(parsers)
 				.setNulls(unreify(nulls))
+				.setExplicitConstructorNames(explicitConstructorNames.getValue())
+				.setExplicitDataTypes(explicitDataTypes.getValue())
 	            .read(in, start);
 	      }
 	      catch (IOException e) {
@@ -158,7 +162,7 @@ public class IO {
 	      }
 	    }
 	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter) {
+	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames, IBool explicitDataTypes) {
 	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
 	        if (indent.intValue() > 0) {
 	            out.setIndent("        ".substring(0, indent.intValue() % 9));
@@ -170,13 +174,15 @@ public class IO {
 	        .setUnpackedLocations(unpackedLocations.getValue())
 			.setDropOrigins(dropOrigins.getValue())
 			.setFormatters(formatter)
+			.setExplicitConstructorNames(explicitConstructorNames.getValue())
+			.setExplicitDataTypes(explicitDataTypes.getValue())
 	        .write(out, value);
 	    } catch (IOException e) {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 	    } 
 	}
 	
-	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter) {
+	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames, IBool explicitDataTypes) {
 	    StringWriter string = new StringWriter();
 
 	    try (JsonWriter out = new JsonWriter(string)) {
@@ -189,6 +195,8 @@ public class IO {
 	        	.setUnpackedLocations(unpackedLocations.getValue())
 				.setDropOrigins(dropOrigins.getValue())
 				.setFormatters(formatter)
+				.setExplicitConstructorNames(explicitConstructorNames.getValue())
+				.setExplicitDataTypes(explicitDataTypes.getValue())
 	        	.write(out, value);
 
 	        return values.string(string.toString());
@@ -196,7 +204,4 @@ public class IO {
 	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 	    } 
 	}
-	
-	
-	
 }
