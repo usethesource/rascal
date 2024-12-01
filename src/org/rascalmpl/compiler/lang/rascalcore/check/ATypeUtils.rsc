@@ -258,7 +258,7 @@ set[Production] aprods2prods(set[AType] alts) = {aprod2prod(p) | p <- alts/*, ac
 Production aprod2prod(aprod(AProduction prod)) = aprod2prod(prod);
 
 default Production aprod2prod(AType t) {
-  throw "internal error: do not know how to translate a <t> to a production rule?!";
+  throw rascalCheckerInternalError("Do not know how to translate a <t> to a production rule");
 }
 
 Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[AAttr] as))
