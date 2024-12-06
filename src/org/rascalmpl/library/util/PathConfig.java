@@ -543,8 +543,10 @@ public class PathConfig {
                         switch (mode) {
                             case INTERPRETER:
                                 srcsWriter.appendAll(childConfig.getSrcs());
+                                libsWriter.append(childConfig.getBin());
                                 break;
                             case COMPILER:
+                                // FIXME (?): Add something to `srcsWriter` here?
                                 libsWriter.append(setTargetScheme(projectLoc));
                                 break;
                         }
