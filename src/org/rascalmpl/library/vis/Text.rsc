@@ -50,6 +50,7 @@ str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false,
   str nodeLabel(char(9))                                      = "\\t";
   str nodeLabel(amb(_) )                                      = "❖";
   str nodeLabel(loc src)                                      = "<src>";
+  str nodeLabel(cycle(Symbol nt, int len))                    = "cycle(<type(nt,())>, <len>)";
   default str nodeLabel(Tree v)                               = "<v>";
 
   lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t@\loc> | src, t@\loc?] + [<"", k> | Tree k <- args, include(k)];
