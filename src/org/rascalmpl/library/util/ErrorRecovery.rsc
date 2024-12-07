@@ -51,3 +51,13 @@ This filter removes error trees until no ambiguities caused by error recovery ar
 Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 }
 java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
+
+@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@synopsis{Check if two parse trees are equal. For "normal" parse trees `==` will suffice, but for highly ambiguous (error) trees we need an
+equality check that takes advantage of the sharing present in those trees.
+Note that this equality check only takes into account the offset and length fields of source locations. All other fields are ignored.}
+java bool treeEquality(Tree t1, Tree t2);
+
+@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@synopsis{Generate a dot representation of a parse forest.}
+java void parseTree2Dot(Tree tree, loc dotFile);
