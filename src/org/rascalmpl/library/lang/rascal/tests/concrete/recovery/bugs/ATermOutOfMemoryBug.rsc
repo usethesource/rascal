@@ -7,75 +7,48 @@ import IO;
 import String;
 import vis::Text;
 import util::ErrorRecovery;
-import Set;
+import util::Benchmark;
 
-@memo
-void treeDiff(appl(prod1, args1), appl(prod2, args2)) {
-    if (prod1 != prod2) {
-        println("<prod1>");
-        println("<prod2>");
-        throw "prods do not match";
-    }
-
-    if (size(args1) != size(args2)) {
-        throw "argument size mismatch";
-    }
-
-    for (int i <- [0..size(args1)]) {
-        arg1 = args1[i];
-        arg2 = args2[i];
-        treeDiff(arg1, arg2);
-    }
-}
-
-@memo
-void treeDiff(cycle(sym1, length1), cycle(sym2, length2)) {
-    if (sym1 != sym2) {
-        throw "cycle symbols do not match";
-    }
-
-    if (length1 != length2) {
-        throw "cycle lengths do not match";
-    }
-}
-
-@memo
-void treeDiff(char(c1), char(c2)) {
-    if (c1 != c2) {
-        throw "character mismatch";
-    }
-}
-
-@memo
-void treeDiff(amb(alts1), amb(alts2)) {
-    if (size(alts1) != size(alts2)) {
-        throw "alts size mismatch";
-    }
-
-    while (!isEmpty(alts1)) {
-        <alt1, alts1> = takeFirstFrom(alts1);
-        <alt2, alts2> = takeFirstFrom(alts2);
-
-        treeDiff(alt1, alt2);
-    }
-}
-
-Tree testBug() {
+void testBug() {
     standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
     loc source = |std:///lang/aterm/syntax/ATerm.rsc|;
+    loc sourceNoMemo = |std:///lang/aterm/syntax/ATerm.rsc?disable-memoization=true|;
+
+    // "enable-cache" Does nothing for now
     loc sourceCache = |std:///lang/aterm/syntax/ATerm.rsc?enable-cache=true|;
     input = readFile(source);
-    //modifiedInput = substring(input, 0, 369) + substring(input, 399);
     modifiedInput = substring(input, 0, 369) + substring(input, 399);
-    println("without caching");
+
+    println("without optimized cycles");    
+    withoutCyclesStart = realTime();
     Tree t1 = recoveryParser(modifiedInput, source);
+    withoutCyclesDuration = realTime() - withoutCyclesStart;
+    println("without cycle optimization duration: <withoutCyclesDuration>");
+
+/*
+    println("without default memoization");
+    withoutMemoStart = realTime();
+    Tree tm = recoveryParser(modifiedInput, sourceNoMemo);
+    withoutMemoDuration = realTime() - withoutMemoStart;
+    println("without cycle optimization duration: <withoutMemoDuration>");
+    */
+
     println("with caching");
-    Tree t2 = recoveryParser(modifiedInput, source);
-    if (t1 == t2) {
+    withCacheStart = realTime();
+    Tree t2 = recoveryParser(modifiedInput, sourceCache);
+    withCacheDuration = realTime() - withCacheStart;
+    println("with cache duration: <withCacheDuration>");
+
+    int equalityStart = realTime();
+    if (treeEquality(t1, t2)) {
         println("equal");
+        if (t1 != t2) {
+            println("but not the same?");
+        }
     } else {
-        println("not equal");
+        int equalityDuration = realTime() - equalityStart;
+        println("not equal in <equalityDuration> ms");
         if ("<t1>" != "<t2>") {
             println("yields are not equal");
         } else {
@@ -98,6 +71,6 @@ Tree testBug() {
 
     //treeDiff(t1, t2);
     //println("trees are equal");
-    return t1;
+    //return t1;
     //testDeleteUntilEol(standardParser, recoveryParser, source, input, 200, 150, 369, 369);
 }
