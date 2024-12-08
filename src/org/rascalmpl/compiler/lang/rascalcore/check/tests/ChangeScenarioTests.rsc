@@ -62,6 +62,8 @@ bool validateBOMs(PathConfig pcfg){
     return valid;
 }
 
+// ------------------------------- Tests --------------------------------------
+
 test bool fixMissingImport(){
     clearMemory();
     assert missingModuleInModule("module B import A;");
