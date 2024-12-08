@@ -7,6 +7,7 @@ are only available as binary (e.g., as.tpl files on the libs path).
 module lang::rascalcore::check::tests::BinaryDependencyTests
 
 import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::TestConfigs;
 import util::Reflective;
 import IO;
 import lang::rascalcore::check::Import;
@@ -146,8 +147,46 @@ bool checkExpectErrors(str mname, list[str] expected, PathConfig pcfg, list[Proj
 
 TModel check(str mname, RascalCompilerConfig cfg){
     ModuleStatus ms = rascalTModelForNames([mname], cfg, dummy_compile1);
-    tmodels = ms.tmodels;
-    return ms.tmodels[mname];
+    <found, tm, ms> = getTModelForModule(mname, ms);
+    if(found) return tm;
+    throw "check: no TModel found for <mname>";
+}
+
+// ---  Tests for source libraries --------------------------------------------
+
+test bool importSimpleSourceModuleWithRascalAsLib(){
+    libName = "test-lib";
+    lib =
+        createProject(
+                libName,
+                ("Lib": "int fib(int n) {
+                        '   if (n \< 2) {
+                        '        return 1;
+                        '    }
+                        '   return fib(n - 1) + fib(n -2);
+                        '}"),
+                createPathConfig(libName)
+                );
+
+    assert checkExpectNoErrors("Lib", lib.pcfg);
+
+    rascalPCFG = getRascalPathConfig();
+    clientName = "test-project";
+    client =
+        createProject(
+            clientName,
+            ("LibCall": "import Lib;
+                        'import IO;
+                        '
+                        'int main() {
+                        '  println(fib(4));
+                        '  return 0;
+                        '}"),
+            createPathConfig(clientName)
+                    [libs=[rascalPCFG.resources]]
+                    [srcs=[src(clientName), src(libName)]]
+                );
+    return checkExpectNoErrors("LibCall", client.pcfg, remove = [lib, client]);
 }
 
 // ---- Tests for binary libraries --------------------------------------------
