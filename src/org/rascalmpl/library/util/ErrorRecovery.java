@@ -242,11 +242,13 @@ public class ErrorRecovery {
             hashCode = Objects.hash(System.identityHashCode(tree1), System.identityHashCode(tree2));
         }
 
+        @Override
         public boolean equals(Object peer) {
             TreePair pair = (TreePair) peer;
             return tree1 == pair.tree1 && tree2 == pair.tree2;
         }
 
+        @Override
         public int hashCode() {
             return hashCode;
         }
