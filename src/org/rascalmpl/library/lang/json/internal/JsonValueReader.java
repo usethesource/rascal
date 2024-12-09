@@ -43,6 +43,7 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
@@ -57,7 +58,6 @@ import com.google.gson.stream.MalformedJsonException;
 /**
  * This class streams a JSON stream directly to an IValue representation and validates the content
  * to a given type as declared in a given type store. See the Rascal file lang::json::IO::readJson for documentation.
- 
  */
 public class JsonValueReader {
   private final class ExpectedTypeDispatcher implements ITypeVisitor<IValue, IOException> {
@@ -110,6 +110,7 @@ public class JsonValueReader {
       }
     }
 
+    @Override
     public IValue visitReal(Type type) throws IOException {
       try {
         switch (in.peek()) {
@@ -128,7 +129,7 @@ public class JsonValueReader {
         throw parseErrorHere("Expected integer but got " + e.getMessage());
       }
     }
-
+  
     private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
         return nulls.keySet().stream()
           .sorted((x,y) -> x.compareTo(y))                         // smaller types are matched first 
@@ -136,7 +137,7 @@ public class JsonValueReader {
           .findFirst()                                             // give the most specific match
           .map(t -> nulls.get(t))                                  // lookup the corresponding null value
           .filter(r -> r.getType().isSubtypeOf(expected))          // the value in the table still has to fit the currently expected type
-          .orElse(null);                                     // or muddle on and throw NPE elsewhere
+          .orElse(null);                                           // or muddle on and throw NPE elsewhere
 
         // The NPE triggering "elsewhere" should help with fault localization. 
     }
@@ -155,142 +156,6 @@ public class JsonValueReader {
       return vf.string(nextString());
     }
 
-    @Override
-    public IValue visitTuple(Type type) throws IOException {
-      if (isNull()) {
-        return inferNullValue(nulls, type);
-      }
-  private static final TypeFactory TF = TypeFactory.getInstance();
-  private final TypeStore store;
-  private final IValueFactory vf;
-  private ThreadLocal<SimpleDateFormat> format;
-  private final IRascalMonitor monitor;
-  private ISourceLocation src;
-  private VarHandle posHandler;
-  private VarHandle lineHandler;
-  private VarHandle lineStartHandler;
-  private boolean explicitConstructorNames;
-  private boolean explicitDataTypes;
-  
-  /**
-   * @param vf     factory which will be used to construct values
-   * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
-   */
-  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor, ISourceLocation src) {
-    this.vf = vf;
-    this.store = store;
-    this.monitor = monitor;
-    this.src = src;
-    setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-
-    if (src != null) {
-      try {
-        var lookup = MethodHandles.lookup();
-        var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
-        this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
-        this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
-        this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
-      }
-      catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
-        // we disable the origin tracking if we can not get to the fields
-        src = null;
-        monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
-      }
-    }
-  }
-  
-  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
-    this(vf, new TypeStore(), monitor, src);
-  }
-  
-  /**
-   * Builder method to set the format to use for all date-time values encoded as strings
-   */
-  public JsonValueReader setCalendarFormat(String format) {
-    // SimpleDateFormat is not thread safe, so here we make sure
-    // we can use objects of this reader in different threads at the same time
-    this.format = new ThreadLocal<SimpleDateFormat>() {
-      protected SimpleDateFormat initialValue() {
-        return new SimpleDateFormat(format);
-      }
-    };
-    return this;
-  }
-
-  public JsonValueReader setExplicitConstructorNames(boolean value) {
-    this.explicitConstructorNames = value;
-    return this;
-  }
-
-   public JsonValueReader setExplicitDataTypes(boolean value) {
-    this.explicitDataTypes = value;
-    if (value) {
-      this.explicitConstructorNames = true;
-    }
-    return this;
-  }
-
-
-  /**
-   * Read and validate a Json stream as an IValue
-   * @param  in       json stream
-   * @param  expected type to validate against (recursively)
-   * @return an IValue of the expected type
-   * @throws IOException when either a parse error or a validation error occurs
-   */
-  public IValue read(JsonReader in, Type expected) throws IOException {
-    IValue res = expected.accept(new ITypeVisitor<IValue, IOException>() {
-      @Override
-      public IValue visitInteger(Type type) throws IOException {
-        try {
-          switch (in.peek()) {
-            case NUMBER:
-              return vf.integer(in.nextLong());
-            case STRING:
-              return vf.integer(in.nextString());
-            case NULL:
-              return null;
-            default:
-              throw new IOException("Expected integer but got " + in.peek());
-          }
-        }
-        catch (NumberFormatException e) {
-          throw new IOException("Expected integer but got " + e.getMessage());
-        }
-      }
-      
-      public IValue visitReal(Type type) throws IOException {
-        try {
-          switch (in.peek()) {
-            case NUMBER:
-              return vf.real(in.nextDouble());
-            case STRING:
-              return vf.real(in.nextString());
-            case NULL:
-              return null;
-            default:
-              throw new IOException("Expected integer but got " + in.peek());
-          }
-        }
-        catch (NumberFormatException e) {
-          throw new IOException("Expected integer but got " + e.getMessage());
-        }
-      }
-      
-      @Override
-      public IValue visitExternal(Type type) throws IOException {
-        throw new IOException("External type " + type + "is not implemented yet by the json reader:" + in.getPath());
-      }
-      
-      @Override
-      public IValue visitString(Type type) throws IOException {
-        if (isNull()) {
-          return null;
-        }
-        
-        return vf.string(in.nextString());
-      }
-      
       @Override
       public IValue visitTuple(Type type) throws IOException {
         if (isNull()) {
@@ -470,6 +335,7 @@ public class JsonValueReader {
         }
     }
 
+    @Override
     public IValue visitRational(Type type) throws IOException {
       if (isNull()) {
         return inferNullValue(nulls, type);
@@ -604,6 +470,7 @@ public class JsonValueReader {
         return 0;
       }
     }
+
     protected Throw parseErrorHere(String cause) {
       var location = src == null ?  URIUtil.rootLocation("unknown") : src;
       int offset = Math.max(getPos(), lastPos);
@@ -892,7 +759,7 @@ public class JsonValueReader {
 
   private static final TypeFactory TF = TypeFactory.getInstance();
   private final TypeStore store;
-  private final IRascalValueFactory vf;
+  private final IValueFactory vf;
   private ThreadLocal<SimpleDateFormat> format;
   private final IRascalMonitor monitor;
   private ISourceLocation src;
@@ -900,10 +767,59 @@ public class JsonValueReader {
   private VarHandle posHandler;
   private VarHandle lineHandler;
   private VarHandle lineStartHandler;
+  private boolean explicitConstructorNames;
+  private boolean explicitDataTypes;
   private IFunction parsers;
   private Map<Type, IValue> nulls = Collections.emptyMap();
   
+  /**
+   * @param vf     factory which will be used to construct values
+   * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
+   * @param monitor provides progress reports and warnings
+   * @param src    loc to use to identify the entire file.
+   */
+  public JsonValueReader(IValueFactory vf, TypeStore store, IRascalMonitor monitor, ISourceLocation src) {
+    this.vf = vf;
+    this.store = store;
+    this.monitor = monitor;
+    this.src = src;
+    setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+
+    if (src != null) {
+      try {
+        var lookup = MethodHandles.lookup();
+        var privateLookup = MethodHandles.privateLookupIn(JsonReader.class, lookup);
+        this.posHandler = privateLookup.findVarHandle(JsonReader.class, "pos", int.class);
+        this.lineHandler = privateLookup.findVarHandle(JsonReader.class, "lineNumber", int.class);
+        this.lineStartHandler = privateLookup.findVarHandle(JsonReader.class, "lineStart", int.class);
+        this.originTracking = (src != null);
+      }
+      catch (NoSuchFieldException | SecurityException | IllegalAccessException e) {
+        // we disable the origin tracking if we can not get to the fields
+        src = null;
+        originTracking = false;
+        monitor.warning("Unable to retrieve origin information due to: " + e.getMessage(), src);
+      }
+    }
+  }
   
+  public JsonValueReader(IValueFactory vf, IRascalMonitor monitor, ISourceLocation src) {
+    this(vf, new TypeStore(), monitor, src);
+  }
+
+  public JsonValueReader setExplicitConstructorNames(boolean value) {
+    this.explicitConstructorNames = value;
+    return this;
+  }
+
+  public JsonValueReader setExplicitDataTypes(boolean value) {
+    this.explicitDataTypes = value;
+    if (value) {
+      this.explicitConstructorNames = true;
+    }
+    return this;
+  }
+
   /**
    * @param vf     factory which will be used to construct values
    * @param store  type store to lookup constructors of abstract data-types in and the types of keyword fields
@@ -914,7 +830,6 @@ public class JsonValueReader {
     this.monitor = monitor;
     this.src = (src == null) ? URIUtil.rootLocation("unknown") : src;
    
-
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     // this is for origin tracking as well as accurate parse errors
