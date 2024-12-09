@@ -61,9 +61,11 @@ java &T readJSON(
   loc src, 
   str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
   bool lenient=false, 
-  bool trackOrigins=false, bool explicitConstructorNames=false, bool explicitDataTypes=false, 
+  bool trackOrigins=false,
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
-  map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues
+  map [type[value] forType, value nullValue] nulls = defaultJSONNULLValues,
+  bool explicitConstructorNames = false,
+  bool explicitDataTypes = false
 );
 
 public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
@@ -89,10 +91,10 @@ java &T parseJSON(
   str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
   bool lenient=false, 
   bool trackOrigins=false, 
-  bool explicitConstructorNames=false,
-  bool explicitDataTypes=false, 
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
-  map[type[value] forType, value nullValue] nulls = defaultJSONNULLValues
+  map[type[value] forType, value nullValue] nulls = defaultJSONNULLValues,
+  bool explicitConstructorNames = false,
+  bool explicitDataTypes = false
 );
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
