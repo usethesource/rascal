@@ -471,7 +471,9 @@ public class ListContainerNodeFlattener<P, T, S>{
 					}
 				}
 			}
-			
+		}
+
+		if (depth <= cycleMark.depth) {
 			cycleMark.reset();
 		}
 		
