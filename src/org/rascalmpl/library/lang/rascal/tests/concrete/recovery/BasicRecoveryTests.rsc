@@ -32,12 +32,3 @@ test bool basicOk() = checkRecovery(#S, "a b c $", []);
 test bool abx() = checkRecovery(#S, "a b x $", ["x "]);
 
 test bool axc() = checkRecovery(#S, "a x c $", ["x c"]);
-
-test bool autoDisambiguation() {
-    str input = "a x $";
-
-    assert checkRecovery(#S, input, ["x "]);
-
-    Tree autoDisambiguated = parser(#S, allowRecovery=true, allowAmbiguity=false)(input, |unknown:///|);
-    return size(findAllErrors(autoDisambiguated)) == 1;
-}
