@@ -51,7 +51,13 @@ public class CharNode extends AbstractNode{
 	public boolean isNonterminalSeparator(){
 		return false;
 	}
+
 	
+	@Override
+	public String toString() {
+		return "CharNode[c=" + character + "]";
+	}
+
 	/**
 	 * Create a new character node.
 	 * If it's a 7 bit ascii character cache it as well, so we can reuse it.

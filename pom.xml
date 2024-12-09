@@ -169,6 +169,7 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
+		    <!--
                     <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
@@ -191,6 +192,7 @@
                             </ignores>
                         </configuration>
                         </execution>
+		    -->
                 </executions>
             </plugin>
             <plugin>
