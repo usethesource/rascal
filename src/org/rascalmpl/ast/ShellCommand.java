@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class ShellCommand extends AbstractAST {
   public ShellCommand(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
@@ -72,6 +73,8 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
     }
   
     @Override
@@ -79,6 +82,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Clear)) {
         return false;
       }        
+      Clear tmp = (Clear) o;
       return true ; 
     }
    
@@ -198,6 +202,8 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
+      
     }
   
     @Override
@@ -205,6 +211,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Help)) {
         return false;
       }        
+      Help tmp = (Help) o;
       return true ; 
     }
    
@@ -250,6 +257,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
       
     }
   
@@ -258,6 +266,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof History)) {
         return false;
       }        
+      History tmp = (History) o;
       return true ; 
     }
    
@@ -303,6 +312,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
       
     }
   
@@ -311,6 +321,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof ListDeclarations)) {
         return false;
       }        
+      ListDeclarations tmp = (ListDeclarations) o;
       return true ; 
     }
    
@@ -356,6 +367,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
       
     }
   
@@ -364,6 +376,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof ListModules)) {
         return false;
       }        
+      ListModules tmp = (ListModules) o;
       return true ; 
     }
    
@@ -409,6 +422,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
       
     }
   
@@ -417,6 +431,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Quit)) {
         return false;
       }        
+      Quit tmp = (Quit) o;
       return true ; 
     }
    
@@ -555,6 +570,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (getLocation().getBeginLine() == $line) {
         $result.add(this);
       }
+      ISourceLocation $l;
       
     }
   
@@ -563,6 +579,7 @@ public abstract class ShellCommand extends AbstractAST {
       if (!(o instanceof Test)) {
         return false;
       }        
+      Test tmp = (Test) o;
       return true ; 
     }
    
