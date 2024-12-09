@@ -546,7 +546,6 @@ public class PathConfig {
                                 libsWriter.append(childConfig.getBin());
                                 break;
                             case COMPILER:
-                                // FIXME (?): Add something to `srcsWriter` here?
                                 libsWriter.append(setTargetScheme(projectLoc));
                                 break;
                         }
