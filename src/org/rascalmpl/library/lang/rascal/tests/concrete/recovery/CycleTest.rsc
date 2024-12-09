@@ -17,7 +17,6 @@ void testCycles() {
     str input = "bc$";
     //str input = "bcbcbcccbb$";
     Tree t1 = parse(#S, input, |unknown:///|, allowAmbiguity=true);
-    Tree t1b = parse(#S, input, |unknown:///|, allowAmbiguity=true);
     Tree t2 = parse(#S, input, |unknown:///?disable-memoization=true|, allowAmbiguity=true);
     println(prettyTree(t1));
     println(prettyTree(t2));
@@ -26,17 +25,5 @@ void testCycles() {
         println("equal");
     } else {
         println("NOT EQUAL");
-    }
-
-    if (treeEquality(t1, t1b)) {
-        println("t1 and t1b are tree-equal");
-    } else {
-        println("t1 and t1b NOT EQUAL");
-    }
-
-    if (t1 == t1b) {
-        println("identical");
-    } else {
-        println("IDENTICAL PARSE CALLS BUT NOT IDENTICAL");
     }
 }
