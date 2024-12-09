@@ -15,25 +15,23 @@
 module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{
-Use writeJSON
-}
+@synopsis{Maps any Rascal value to a JSON string}
+@deprecated{use ((writeJSON))}
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{
-Use asJSON
-}
+@synopsis{Maps any Rascal value to a JSON string, optionally in compact form.}
+@deprecated{use ((asJSON))}
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{
-Use readJSON
-}
+@deprecated{use ((readJSON))}
+@synopsis{Parses a JSON string and maps it to the requested type of Rascal value.}
 public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{reads JSON values from a stream
+@synopsis{reads JSON values from a stream}
+@description{
 In general the translation behaves as follows:
  * Objects translate to map[str,value] by default, unless a node is expected (properties are then translated to keyword fields)
  * Arrays translate to lists by default, or to a set if that is expected or a tuple if that is expected. Arrays may also be interpreted as constructors or nodes (see below)
@@ -44,20 +42,40 @@ In general the translation behaves as follows:
  * If num, int, real or rat are expected both strings and number values are mapped
  * If loc is expected than strings which look like URI are parsed (containing :/) or a file:/// URI is build, or if an object is found each separate field of
    a location object is read from the respective properties: { scheme : str, authority: str?, path: str?, fragment: str?, query: str?, offset: int, length: int, begin: [bl, bc], end: [el, ec]}}
-java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
+java &T readJSON(type[&T] expected, loc src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{parses JSON values from a string
 In general the translation behaves as the same as for ((readJSON)).}
-java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false);
+java &T parseJSON(type[&T] expected, str src, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool lenient=false, bool trackOrigins=false, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{writes `val` to the location `target`}
+@synopsis{Serializes a value as a JSON string and stream it}
 @description{
-  If `dateTimeAsInt` is set to `true`, the dateTime values are converted to an int that represents the number of milliseconds from 1970-01-01T00:00Z.
-  If `indent` is set to a number greater than 0, the JSON file will be formatted with `indent` number of spaces as indentation.
+This function tries to map Rascal values to JSON values in a natural way.
+In particular it tries to create a value that has the same number of recursive levels,
+such that one constructor maps to one object. The serialization is typically _lossy_ since
+JSON values by default do not explicitly encode the class or constructor while Rascal data types do.
+
+If you need the names of constructors or data-types in your result, then use the parameters:
+* `explicitConstructorNames=true` will store the name of every constructor in a field `_constructor`
+* `explicitDataTypes=true` will store the name of the ADT in a field called `_type`
+
+The `dateTimeFormat` parameter dictates how `datetime` values will be printed.
+
+The `unpackedLocations` parameter will produce an object with many fields for every property of a `loc` value, but
+if set to false a `loc` will be printed as a string.
 }
-java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true);
+@pitfalls{
+* It is understood that Rascal's number types have arbitrary precision, but this is not supported by the JSON writer.
+As such when an `int` is printed that does not fit into a JVM `long`, there will be truncation to the lower 64 bits.
+For `real` numbers that are larger than JVM's double you get "negative infinity" or "positive infinity" as a result.
+}
+java void writeJSON(loc target, value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent=0, bool dropOrigins=true, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true);
+@synopsis{Serializes a value as a JSON string and stores it as a string}
+@description{
+This function uses `writeJSON` and stores the result in a string.
+}
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, bool explicitConstructorNames=false, bool explicitDataTypes=false);

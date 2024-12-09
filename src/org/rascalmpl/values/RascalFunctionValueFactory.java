@@ -551,8 +551,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
 
         protected IValue parse(String methodName, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
-            if (origin == null) {
-                origin = input;
+            if (origin != null && !origin.equals(input)) {
+                throw new IllegalArgumentException("input and origin should be equal: <input> != <origin>");
             }
             
             try {

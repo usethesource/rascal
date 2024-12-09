@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class DatePart extends AbstractAST {
   public DatePart(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
