@@ -238,10 +238,15 @@ public class Webserver {
 
                 IValue dtf = kws.getParameter("dateTimeFormat");
                 IValue dai = kws.getParameter("dateTimeAsInt");
+                IValue ecn = kws.getParameter("explicitConstructorNames");
+                IValue edt = kws.getParameter("explicitDataTypes");
 
                 JsonValueWriter writer = new JsonValueWriter()
                     .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
-                    .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true);
+                    .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
+                    .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
+                    .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
+                    ;
 
                 try {
                     final ByteArrayOutputStream baos = new ByteArrayOutputStream();

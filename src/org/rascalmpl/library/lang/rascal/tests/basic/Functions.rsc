@@ -588,3 +588,14 @@ test bool innerAndOuterFunctionUseSameParameterName4(){
     
     return outer("a") == 3;
 }
+
+test bool stackoverflow() {
+    int f(int i) = f(i);
+
+    try {
+        f(1);
+        return false;
+    }
+    catch StackOverflow():
+        return true;
+}
