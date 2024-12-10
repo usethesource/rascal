@@ -544,26 +544,84 @@ public class JsonValueReader {
      * @throws IOException
      */
     private IValue visitObjectAsAbstractData(Type type) throws IOException {
-      Set<Type> alternatives = store.lookupAlternatives(type);
-      if (alternatives.size() > 1) {
-        monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
-      }
-      Type cons = alternatives.iterator().next();
-     
+      Set<Type> alternatives = null;
+
       in.beginObject();
       int startPos = getPos();
       int startLine = getLine();
       int startCol = getCol();
       
+      // use explicit information in the JSON to select and filter constructors from the TypeStore
+      // we expect always to have the field _constructor before _type.
+      if (explicitConstructorNames || explicitDataTypes) {
+        String consName = null;
+        String typeName = null; // this one is optional, and the order with cons is not defined.
+        String consLabel = in.nextName();
+
+        // first we read either a cons name or a type name
+        if (explicitConstructorNames && "_constructor".equals(consLabel)) {
+          consName = in.nextString();
+        }
+        else if (explicitDataTypes && "_type".equals(consLabel)) {
+          typeName = in.nextString();
+        }
+
+        // optionally read the second field
+        if (explicitDataTypes && typeName == null) {
+          // we've read a constructor name, but we still need a type name
+          consLabel = in.nextName();
+          if (explicitDataTypes && "_type".equals(consLabel)) {
+            typeName = in.nextString();
+          }
+        }
+        else if (explicitDataTypes && consName == null) {
+          // we've read type name, but we still need a constructor name
+          consLabel = in.nextName();
+          if (explicitDataTypes && "_constructor".equals(consLabel)) {
+            consName = in.nextString();
+          }
+        }
+
+        if (explicitDataTypes && typeName == null) {
+            throw parseErrorHere("Missing a _type field: " + in.getPath());
+        }
+        else if (explicitConstructorNames && consName == null) {
+            throw parseErrorHere("Missing a _constructor field: " + in.getPath());
+        }
+
+        if (typeName != null && consName != null) {
+          // first focus on the given type name
+          var dataType = TF.abstractDataType(store, typeName);
+          alternatives = store.lookupConstructor(dataType, consName);
+        }
+        else {
+          // we only have a constructor name
+          // lookup over all data types by constructor name
+          alternatives = store.lookupConstructors(consName);
+        }
+      }
+      else {
+        alternatives = store.lookupAlternatives(type);
+      }
+
+      if (alternatives.size() > 1) {
+        monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
+      }
+      else if (alternatives.size() == 0) {
+        throw parseErrorHere("No fitting constructor found for " + in.getPath());
+      }
+      
+      Type cons = alternatives.iterator().next();
+        
       IValue[] args = new IValue[cons.getArity()];
       Map<String,IValue> kwParams = new HashMap<>();
-      
+        
       if (!cons.hasFieldNames() && cons.getArity() != 0) {
         throw parseErrorHere("For the object encoding constructors must have field names " + in.getPath());
       }
-      
+    
       while (in.hasNext()) {
-        String label = nextName();
+        String label = in.nextName();
         if (cons.hasField(label)) {
           IValue val = read(in, cons.getFieldType(label));
           if (val != null) {
@@ -578,29 +636,35 @@ public class JsonValueReader {
             IValue val = read(in, store.getKeywordParameterType(cons, label));
             // null can still happen if the nulls map doesn't have a default
             if (val != null) {
-              // if the value is null we'd use the default value of the defined field in the constructor
-              kwParams.put(label, val);
+                // if the value is null we'd use the default value of the defined field in the constructor
+                kwParams.put(label, val);
             }
           }
-        }
+          else {
+            var nullValue = inferNullValue(nulls, cons.getAbstractDataType());
+            if (nullValue != null) {
+              kwParams.put(label, nullValue);
+            }
+          }
+        } 
         else { // its a normal arg, pass its label to the child
-            if (!explicitConstructorNames && "_constructor".equals(label)) {
-              // ignore additional _constructor fields.
-              in.nextString(); // skip the constructor value
-              continue;
-            }
-            else if (!explicitDataTypes && "_type".equals(label)) {
-              // ignore additional _type fields.
-              in.nextString(); // skip the type value
-              continue;
-            }
-            else {
-              // field label does not match data type definition
+          if (!explicitConstructorNames && "_constructor".equals(label)) {
+            // ignore additional _constructor fields.
+            in.nextString(); // skip the constructor value
+            continue;
+          }
+          else if (!explicitDataTypes && "_type".equals(label)) {
+            // ignore additional _type fields.
+            in.nextString(); // skip the type value
+            continue;
+          }
+          else {
+            // field label does not match data type definition
             throw parseErrorHere("Unknown field " + label + ":" + in.getPath());
-            }
+          }
         }
-      }
-      
+      } 
+        
       in.endObject();
       int endPos = getPos();
       int endLine = getLine();
@@ -612,10 +676,9 @@ public class JsonValueReader {
         }
       }
       
-      if (originTracking) {
+      if (src != null) {
         kwParams.put(kwParams.containsKey("src") ? "rascal-src" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
       }
-
 
       return vf.constructor(cons, args, kwParams);
     }
