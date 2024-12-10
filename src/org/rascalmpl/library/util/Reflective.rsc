@@ -219,7 +219,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
             if(lastName[0] == "$"){
                 candidateAsList = [*candidateAsList[..-1],lastName[1..]];
             }
-            //println("cand: <candidateAsList>, modpath: <modulePathAsList>");
+            println("cand: <candidateAsList>, modpath: <modulePathAsList>");
             n = commonPrefix(reverse(candidateAsList), modulePathReversed);
                         
             if(n > longestSuffix){
