@@ -132,7 +132,7 @@ test bool explicitConstructorNames() {
     
     assert json == "{\"_constructor\":\"data4\",\"e\":{\"_constructor\":\"z\"}}";
 
-    assert parseJSON(#DATA4, json, explicitConstructorNames=true) == tmp;
+    assert tmp2 := parseJSON(#DATA4, json, explicitConstructorNames=true) && tmp2 := tmp;
 
     // here we can't be sure to get z() back, but we will get some Enum
     assert data4(e=Enum _) := parseJSON(#DATA4, json, explicitConstructorNames=false);
@@ -147,11 +147,11 @@ test bool explicitDataTypes() {
     assert json == "{\"_constructor\":\"data4\",\"_type\":\"DATA4\",\"e\":{\"_constructor\":\"z\",\"_type\":\"Enum\"}}";
 
     // _constructor and _type must be the first fields
-    assert tmp := parseJSON(#DATA4, json, explicitDataTypes=true) ;
+    assert tmp2 := parseJSON(#DATA4, json, explicitDataTypes=true) && tmp := tmp2 ;
 
     // _type and _constructor may appear in a different order
     flippedJson = "{\"_type\":\"DATA4\",\"_constructor\":\"data4\",\"e\":{\"_constructor\":\"z\",\"_type\":\"Enum\"}}";
-    assert tmp := parseJSON(#DATA4, flippedJson, explicitDataTypes=true);
+    assert tmp2 := parseJSON(#DATA4, flippedJson, explicitDataTypes=true) && tmp := tmp2;
 
     // here we can't be sure to get z() back, but we will get some Enum
     assert data4(e=Enum _) := parseJSON(#DATA4, json, explicitDataTypes=false);
