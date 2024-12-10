@@ -536,7 +536,7 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
     pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     compilerConfig.typepalPathConfig = pcfg1;
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
-    messagesNoModule = [];
+    messagesNoModule = {};
     for(mname <- ms.messages, !ms.moduleLocs[mname]?){
         messagesNoModule += ms.messages[mname];
     }   
