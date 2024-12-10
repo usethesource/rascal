@@ -463,30 +463,42 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      return def.defined;
 }
 
+@memo
+rel[str shortName, str longName] getModuleNames(PathConfig pcfg){
+    longNames = {};
+    for(srcdir <- pcfg.srcs){
+        for(loc mloc <- find(srcdir, "rsc")){
+            try {
+                longName = getModuleName(mloc, pcfg);
+                longNames += <asBaseModuleName(longName), longName>;
+            } catch _: ;
+        }
+    }
+    for(libdir <- pcfg.libs){
+        for(loc mloc <- find(libdir, "tpl")){
+            try {
+                longName = getModuleName(mloc, pcfg);
+                longNames += <asBaseModuleName(longName), longName>;
+            } catch _: ;
+        }
+    }
+    return longNames;
+}
+
 list[str] rascalSimilarNames(Use u, TModel tm){
     w = getOrgId(u);
     nw = size(w);
     idRoles = u.idRoles;
     pcfg = tm.config.typepalPathConfig;
-    vocabulary = {};
-    longNames = {};
     if(moduleId() in idRoles){
-        for(srcdir <- pcfg.srcs){
-            for(loc mloc <- find(srcdir, "rsc")){
-                try {
-                        longName = getModuleName(mloc, pcfg);
-                        shortName = asBaseModuleName(longName);
-                        vocabulary += shortName;
-                        longNames += <shortName, longName>;
-                } catch _: ;
-            }
-        }
+        longNames = getModuleNames(pcfg);
+        similar = similarWords(w, domain(longNames), tm.config.cutoffForNameSimilarity)[0..10];
+        return sort({*longNames[s] | s <- similar }, bool (str a, str b) { return size(a) < size(b); });
     } else {
         vocabulary = { d.orgId | d <- tm.defines, d.idRole in idRoles, isContainedIn(u.occ, d.scope) };
+        similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
+        return sort(similar, bool (str a, str b) { return a < b; });
     }
-    //println("similarNames: <u>, <idRoles>, <vocabulary>");
-    similar = similarWords(w, vocabulary, tm.config.cutoffForNameSimilarity)[0..10];
-    return [ *sort(longNames[s], bool (str a, str b) { return size(a) < size(b); }) | s <- similar ];
 }
 
 RascalCompilerConfig rascalCompilerConfig(PathConfig pcfg,

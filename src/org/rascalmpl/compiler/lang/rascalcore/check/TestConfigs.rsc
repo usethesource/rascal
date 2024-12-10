@@ -284,3 +284,26 @@ public RascalCompilerConfig getPHPCompilerConfig(PathConfig pcfg){
 public RascalCompilerConfig getPHPCompilerConfig(){
     return rascalCompilerConfig(getPHPPathConfig());
 }
+
+// ---- VSCode-----------------------------------------------------------------
+
+public PathConfig getVSCodePathConfig() {
+    return 
+        pathConfig(
+        ignores=[],
+        javaCompilerPath=[],
+        bin=|target://rascal-core|,
+        classloaders=[],
+        libs=[
+            |lib://rascal|,
+            |target://typepal|   ],
+        srcs=[|file:///Users/paulklint/git/rascal-core/src/org/rascalmpl/core/library|]);
+}
+
+public RascalCompilerConfig getVSCodeCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getVSCodeCompilerConfig(){
+    return rascalCompilerConfig(getVSCodePathConfig());
+}
