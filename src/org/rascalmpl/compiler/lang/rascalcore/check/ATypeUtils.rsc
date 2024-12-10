@@ -50,7 +50,7 @@ str prettyAType(areal()) = "real";
 str prettyAType(arat()) = "rat";
 str prettyAType(astr()) = "str";
 str prettyAType(anum()) = "num";
-str prettyAType(anode(list[AType fieldType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.alabel> = ..." | ft <- fields])>)";
+str prettyAType(anode(list[AType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.alabel> = ..." | ft <- fields])>)";
 str prettyAType(avoid()) = "void";
 str prettyAType(avalue()) = "value";
 str prettyAType(aloc()) = "loc";
