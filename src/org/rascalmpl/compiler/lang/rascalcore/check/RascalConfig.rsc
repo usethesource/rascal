@@ -463,7 +463,7 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
      return def.defined;
 }
 
-@memo
+@memo{expireAfter(minutes=5),maximumSize(1000)}
 rel[str shortName, str longName] getModuleNames(PathConfig pcfg){
     longNames = {};
     for(srcdir <- pcfg.srcs){
