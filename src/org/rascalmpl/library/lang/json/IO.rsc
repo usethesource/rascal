@@ -15,6 +15,7 @@
 module lang::json::IO
 
 import util::Maybe;
+import Exception;
 
 @synopsis{JSON parse errors have more information than general parse errors}
 @description{
@@ -22,7 +23,7 @@ import util::Maybe;
 * `cause` is a factual diagnosis of what was expected at that position, versus what was found.
 * `path` is a path query string into the JSON value from the root down to the leaf where the error was detected.
 }
-data RuntimeException = ParseError(loc location, str cause="", str path="");
+data RuntimeException(str cause="", str path="");
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{Maps any Rascal value to a JSON string}
