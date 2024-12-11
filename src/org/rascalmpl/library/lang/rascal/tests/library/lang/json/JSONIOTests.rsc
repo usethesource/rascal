@@ -72,6 +72,26 @@ test bool originTracking() {
    return true;
 }
 
+test bool accurateParseErrors() {
+   ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
+   broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
+
+   try {
+       ex2 = parseJSON(#node, broken, trackOrigins=true);   
+   }
+   catch ParseError(loc l): 
+        return l.begin.line == 14;
+
+   try {
+        // accurate locations have to be provided also when trackOrigins=false
+       ex2 = parseJSON(#node, broken, trackOrigins=false);   
+   }
+   catch ParseError(loc l): // , cause=/^Unterminated object.*/, path="$.glossary.GlossDiv.GlossList.GlossEntry.GlossTerm") : 
+        return l.begin.line == 14;
+
+   return true;
+}
+
 data Cons = cons(str bla = "null");
 
 test bool dealWithNull() {
