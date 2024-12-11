@@ -5,23 +5,16 @@ import lang::json::IO;
 import util::UUID;
 import util::Maybe;
 import IO;
+import util::Math;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
-bool jsonFeaturesSupported(value v) {
-    for (/num r := v, size("<r>") > 10) {
-         // json can only contain double precision numbers (doubles)
-         // so let's ignore the cases where we get higher random numbers
-        return false;
-    }
-    
-    return true;
-}    
-
 bool writeRead(type[&T] returnType, &T dt) {
-    if (!jsonFeaturesSupported(dt)) {
-        return true;
+    dt = visit (dt) {
+        case real r => fitDouble(r)
+        case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
+
     json = toJSON(dt);
     return fromJSON(returnType, json) == dt;
 }
