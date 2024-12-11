@@ -725,13 +725,25 @@ public class JsonValueReader {
       int startCol = getCol();
      
       Map<String,IValue> kws = new HashMap<>();
-      
+      Map<String,IValue> args = new HashMap<>();
+
       while (in.hasNext()) {
         String kwName = nextName();
-        IValue value = read(in, TF.valueType());
-        
-        if (value != null) {
-          kws.put(kwName, value);
+        boolean positioned = kwName.startsWith("arg");
+
+        if (!isNull()) { // lookahead for null to give default parameters the preference.
+          IValue val = read(in, TF.valueType());
+          
+          if (val != null) {
+              // if the value is null we'd use the default value of the defined field in the constructor
+              (positioned ? args : kws).put(kwName, val);
+          }
+        }
+        else {
+          var nullValue = inferNullValue(nulls, TF.valueType());
+          if (nullValue != null) {
+            (positioned ? args : kws).put(kwName, nullValue);
+          }
         }
       }
       
@@ -744,7 +756,12 @@ public class JsonValueReader {
         kws.put(kws.containsKey("src") ? "rascal-src" : "src", vf.sourceLocation(src, startPos, endPos - startPos + 1, startLine, endLine, startCol, endCol + 1));
       }
       
-      return vf.node("object", new IValue[] { }, kws);
+      IValue[] argArray = args.entrySet().stream()
+        .sorted((e, f) -> e.getKey().compareTo(f.getKey()))
+        .map(e -> e.getValue())
+        .toArray(IValue[]::new);
+
+      return vf.node("object", argArray, kws);
     }
 
     @Override
