@@ -27,6 +27,7 @@ import Set;
 import String;
 import ValueIO;
 import util::Reflective;
+import util::FileSystem;
 
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 import lang::rascalcore::compile::CompileTimeError;
