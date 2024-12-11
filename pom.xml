@@ -178,7 +178,7 @@
                         <configuration>
                             <isPackageCourse>false</isPackageCourse>
                             <enableStandardLibrary>false</enableStandardLibrary>
-                            <errorsAsWarnings>true</errorsAsWarnings>
+                            <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
                             <license>${project.basedir}/LICENSE</license>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
