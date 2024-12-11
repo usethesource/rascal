@@ -25,6 +25,7 @@ import analysis::statistics::Descriptive;
 import util::Math;
 import Set;
 import List;
+import Exception;
 
 import lang::rascal::grammar::definition::Modules;
 
@@ -56,6 +57,31 @@ public data TestStats = testStats(
     FrequencyTable errorCounts=(),
     FrequencyTable errorSizes=());
 
+// When this is turned on, memoization is checked for correctness. This makes the tests take much longer.
+// Note that this test requires the posibility to disable memoization.
+// In the current test version this can be done by including a "disable-memoization" query parameter.
+// We expect this feature to be removed eventually and then the `verifyMemoizationCorrectness` flag becomes useless.
+bool verifyMemoizationCorrectness = false;
+
+// When verifying memoization we need to be able to timeout the conversin from parse graph to parse forest.
+// We can do this by using a parse filter.
+int timeoutLimit = 0;
+
+void setTimeout(int limit) {
+    timeoutLimit = limit;
+}
+
+void clearTimeout() {
+    timeoutLimit = 0;
+}
+
+Tree timeoutFilter(Tree tree) {
+    if (timeoutLimit != 0 && realTime() > timeoutLimit) {
+        throw Timeout();
+    }
+    return tree;
+}
+
 private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
@@ -76,6 +102,20 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             Tree t = recoveryParser(input, source);
             int parseEndTime = realTime();
             duration = parseEndTime - startTime;
+
+            if (verifyMemoizationCorrectness) {
+                noMemoSource = source;
+                noMemoSource.query = noMemoSource.query + "&disable-memoization";
+                setTimeout(realTime() + 2000);
+                try {
+                    Tree noMemoTree = recoveryParser(input, noMemoSource);
+                    if (!treeEquality(t, noMemoTree)) {
+                        throw "Memo tree and non-memo tree are not equal for <source>";
+                    }
+                } catch Timeout(): print("#");
+                clearTimeout();
+            }
+
             list[Tree] errors = findBestErrors(t);
             errorCount = size(errors);
             disambDuration = realTime() - parseEndTime;
@@ -397,7 +437,8 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
+        set[Tree(Tree)] filters = verifyMemoizationCorrectness ? {timeoutFilter} : {};
+        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true, filters=filters);
 
         // Initialization run
         standardParser(input, testInput);
