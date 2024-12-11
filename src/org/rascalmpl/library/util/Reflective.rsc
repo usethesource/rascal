@@ -195,7 +195,11 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     while(modulePathNoExt[0] == "/"){
         modulePathNoExt = modulePathNoExt[1..];
     }
+    
     modulePathAsList = split("/", modulePathNoExt);
+    if(modulePathAsList[0] == "rascal"){
+         modulePathAsList = modulePathAsList[1..];
+    }
     modulePathReversed = reverse(modulePathAsList);
     
     int longestSuffix = 0;
@@ -215,11 +219,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
             }
             
             candidateAsList = split("/", candidate);
-            lastName = candidateAsList[-1];
-            if(lastName[0] == "$"){
-                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
-            }
-            //println("cand: <candidateAsList>, modpath: <modulePathAsList>");
+            // println("cand: <candidateAsList>, modpath: <modulePathAsList>");
             n = commonPrefix(reverse(candidateAsList), modulePathReversed);
                         
             if(n > longestSuffix){
@@ -229,6 +229,10 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     
     if(longestSuffix > 0){
+        lastName = modulePathAsList[-1];
+        if(lastName[0] == "$"){
+            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
+        }
         return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
     }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
