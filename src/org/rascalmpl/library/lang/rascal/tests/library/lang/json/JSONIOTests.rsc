@@ -11,7 +11,9 @@ loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
 bool writeRead(type[&T] returnType, &T dt) {
     dt = visit (dt) {
+        // reals must fit in double
         case real r => fitDouble(r)
+        // integers must not overflow 
         case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
 
