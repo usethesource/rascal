@@ -7,7 +7,7 @@ import util::FileSystem;
 import util::Reflective;
 import util::UUID;
     
-private loc testLibraryLoc = |memory://myTestLibrary-<uuid().path>/|;
+private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
 
 test bool commonSuffixCommutative(list[str] a, list[str] b) = commonSuffix(a, b) == commonSuffix(b, a);
 test bool cs1() = commonSuffix([], ["c"]) == 0;
