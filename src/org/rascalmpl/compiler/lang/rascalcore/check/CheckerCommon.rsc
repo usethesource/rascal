@@ -107,10 +107,6 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     if(!( rscFile || tplFile )){
         throw "Not a Rascal .src or .tpl file: <moduleLoc>";
     }
-
-    if(contains(modulePath, "Content")){
-        println("Content");
-    }
     
     // Find matching .rsc file in source directories
     if(rscFile){
@@ -158,10 +154,6 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
         for(loc file <- find(dir, "tpl")){
             candidate = replaceFirst(file.path, dpath, "");    
             <candidate, ext> = splitFileExtension(candidate);
-            
-             if(contains(candidate, "Content")){
-                println("Content");
-            }
             while(candidate[0] == "/"){
                 candidate = candidate[1..];
             }
@@ -461,9 +453,6 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
         todo -= candidate;
     }
     for(candidate <- todo){
-        //  if(candidate == "analysis::grammar::Ambiguity"){
-        //         println("clearTModelCache");
-        //  }
         ms = removeTModel(candidate, ms, updateBOMneeded=true);
         ms.status[candidate] -= bom_update_needed();
     }
