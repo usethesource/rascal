@@ -26,6 +26,7 @@ import util::Math;
 import Set;
 import List;
 import Exception;
+import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
@@ -89,7 +90,10 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     int errorCount = 0;
     int errorSize=0;
     str result = "?";
+    str verificationResult = "-";
+
     TestMeasurement measurement = successfulParse();
+    clearTimeout();
     try {
         startTime = realTime();
         Tree t = standardParser(input, source);
@@ -104,22 +108,65 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             duration = parseEndTime - startTime;
 
             if (verifyMemoizationCorrectness) {
+                bool noMemoTimeout = false;
+                bool linkCorrect = true;
+                bool nodeMemoTimeout = false;
+                bool nodeCorrect = true;
+                //bool nodeLinkEqual = true;
+
                 noMemoSource = source;
-                noMemoSource.query = noMemoSource.query + "&disable-memoization";
+                noMemoSource.query = noMemoSource.query + "&parse-memoization=none";
+                setTimeout(realTime() + 2000);
+                Tree noMemoTree = char(0);
+                try {
+                    Tree noMemo = recoveryParser(input, noMemoSource);
+                    noMemoTree = noMemo;
+                    linkMemoCorrect = treeEquality(t, noMemoTree);
+                } catch Timeout(): {
+                    print("#");
+                    noMemoTimeout = true;
+                }
+                clearTimeout();
+
+                nodeMemoSource = source;
+                nodeMemoSource.query = nodeMemoSource.query + "&parse-memoization=node";
                 setTimeout(realTime() + 2000);
                 try {
-                    Tree noMemoTree = recoveryParser(input, noMemoSource);
-                    if (!treeEquality(t, noMemoTree)) {
-                        throw "Memo tree and non-memo tree are not equal for <source>";
+                    Tree nodeMemoTree = recoveryParser(input, nodeMemoSource);
+                    //nodeLinkEqual = treeEquality(t, nodeMemoTree); // Too expensive
+                    if (!noMemoTimeout) {
+                        nodeCorrect = treeEquality(noMemoTree, nodeMemoTree);
                     }
-                } catch Timeout(): print("#");
+                } catch Timeout(): {
+                    print("@");
+                    nodeMemoTimeout = true;
+                }
                 clearTimeout();
+
+                if (!linkCorrect) {
+                    if (nodeMemoTimeout) {
+                        println("\nlink memoization incorrect, node memoization timeout for <source>");
+                        verificationResult = "linkFailed:nodeTimeout";
+                    } else if (nodeCorrect) {
+                        verificationResult = "linkFailed:nodeSucceeded";
+                        println("\nonly link memoization incorrect for <source>");
+                    } else {
+                        verificationResult = "linkFailed:nodeFailed";
+                        println("\nboth node memoization and link memoization incorrect for <source>");
+                    }
+                } else if (!nodeCorrect) {
+                    verificationResult = "linkSucceeded:nodeFailed";
+                    println("\nonly node memoization incorrect for <source>");
+                } else if (noMemoTimeout) {
+                    verificationResult="noMemoTimeout";
+                } else {
+                    verificationResult = "linkSucceeded:nodeSucceeded";
+                }
             }
 
             list[Tree] errors = findBestErrors(t);
             errorCount = size(errors);
             disambDuration = realTime() - parseEndTime;
-            result = "recovery";
             if ("<t>" != input) {
                 throw "Yield of recovered tree does not match the original input";
             }
@@ -129,8 +176,9 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
                 errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
                 measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
             }
-        } catch ParseError(_): { 
-            result = "error";
+            result = "recovery";
+        } catch ParseError(_): {
+            result = "error"; 
             duration = realTime() - startTime;
             measurement = parseError(source=source, duration=duration);
         }
@@ -138,7 +186,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
 
     if (statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>\n");
+        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult>\n");
     }
 
     return measurement;
@@ -481,7 +529,7 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
     fromFile = from;
 
     if (statFile != |unknown:///|) {
-        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
+        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification\n");
     }
 
     return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());
