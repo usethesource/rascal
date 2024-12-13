@@ -404,7 +404,8 @@ public class URIResolverRegistry {
 		}
 		var fallBack = fallbackLogicalResolver;
 		if (fallBack != null) {
-			return resolveAndFixOffsets(loc == null ? original : loc, fallBack, Collections.emptyList());
+			var fallbackResult = resolveAndFixOffsets(loc == null ? original : loc, fallBack, Collections.emptyList());
+			return fallbackResult == null ? loc : fallbackResult;
 		}
 		return loc;
 	}
