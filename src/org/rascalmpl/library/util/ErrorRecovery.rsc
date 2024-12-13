@@ -58,6 +58,26 @@ equality check that takes advantage of the sharing present in those trees.
 Note that this equality check only takes into account the offset and length fields of source locations. All other fields are ignored.}
 java bool treeEquality(Tree t1, Tree t2);
 
+int nodeCount(appl(_, args)) {
+    int count = 1;
+    for (Tree arg <- args) {
+        count += nodeCount(arg);
+    }
+    return count;
+}
+
+int nodeCount(amb(alts)) {
+    int count = 1;
+    for (Tree alt <- alts) {
+        count += nodeCount(alt);
+    }
+    return count;
+}
+
+int nodeCount(char(_)) = 1;
+
+int nodeCount(cycle(_,_)) = 1;
+
 @javaClass{org.rascalmpl.library.util.ErrorRecovery}
 @synopsis{Generate a dot representation of a parse forest.}
 java void parseTree2Dot(Tree tree, loc dotFile);
