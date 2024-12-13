@@ -255,10 +255,10 @@ public class ErrorRecovery {
     };
 
     public IBool treeEquality(IConstructor tree1, IConstructor tree2) {
-        return rascalValues.bool(checkTreeEquality((ITree) tree1, (ITree) tree2, new HashSet<>(), true));
+        return rascalValues.bool(checkTreeEquality((ITree) tree1, (ITree) tree2, new HashSet<>()));
     }
 
-    private boolean checkTreeEquality(ITree tree1, ITree tree2, Set<TreePair> equalTrees, boolean logInequality) {
+    private boolean checkTreeEquality(ITree tree1, ITree tree2, Set<TreePair> equalTrees) {
         if (tree1 == tree2) {
             return true;
         }
@@ -266,39 +266,17 @@ public class ErrorRecovery {
         Type type = tree1.getConstructorType();
 
         if (!type.equals(tree2.getConstructorType())) {
-            if (logInequality) {
-                System.out.println("types not equal");
-            }
             return false;
         }
 
         if (!checkLocationEquality(tree1, tree2)) {
-            if (logInequality) {
-                System.out.println("locations not equal");
-            }
             return false;
         }
 
         if (type == RascalValueFactory.Tree_Char) {
-            if (checkCharEquality(tree1, tree2)) {
-                return true;
-            }
-        
-            if (logInequality) {
-                System.out.println("char nodes not equal");
-            }
-
-            return false;
+            return checkCharEquality(tree1, tree2);
         } else if (type == RascalValueFactory.Tree_Cycle) {
-            if (checkCycleEquality(tree1, tree2)) {
-                return true;
-            }
-
-            if (logInequality) {
-                System.out.println("char nodes not equal");
-            }
-
-            return false;
+            return checkCycleEquality(tree1, tree2);
         }
 
         TreePair pair = new TreePair(tree1, tree2);
@@ -308,15 +286,9 @@ public class ErrorRecovery {
 
         boolean result;
         if (type == RascalValueFactory.Tree_Appl) {
-            result = checkApplEquality(tree1, tree2, equalTrees, logInequality);
-            if (logInequality && !result) {
-                System.out.println("appls not equal");
-            }
+            result = checkApplEquality(tree1, tree2, equalTrees);
         } else if (type == RascalValueFactory.Tree_Amb) {
-            result = checkAmbEquality(tree1, tree2, equalTrees, logInequality);
-            if (logInequality && !result) {
-                System.out.println("ambs not equal");
-            }
+            result = checkAmbEquality(tree1, tree2, equalTrees);
         } else {
             throw new IllegalArgumentException("unknown tree type: " + type);
         }
@@ -328,14 +300,11 @@ public class ErrorRecovery {
         return result;
     }
 
-    private boolean checkApplEquality(ITree tree1, ITree tree2, Set<TreePair> equalTrees, boolean logInequality) {
+    private boolean checkApplEquality(ITree tree1, ITree tree2, Set<TreePair> equalTrees) {
         IConstructor type1 = ProductionAdapter.getType(tree1);
         IConstructor type2 = ProductionAdapter.getType(tree2);
 
         if (!type1.equals(type2)) {
-            if (logInequality) {
-                System.out.println("types do not match: " + DebugUtil.prodToString(type1) + " != " + DebugUtil.prodToString(type2));
-            }
             return false;
         }
 
@@ -343,16 +312,13 @@ public class ErrorRecovery {
         IList args2 = TreeAdapter.getArgs(tree2);
         int size = args1.size();
         if (size != args2.size()) {
-            if (logInequality) {
-                System.out.println("argument count mismatch");
-            }
             return false;
         }
 
         for (int i = 0; i < size; i++) {
             ITree arg1 = (ITree) args1.get(i);
             ITree arg2 = (ITree) args2.get(i);
-            if (!checkTreeEquality(arg1, arg2, equalTrees, logInequality)) {
+            if (!checkTreeEquality(arg1, arg2, equalTrees)) {
                 return false;
             }
         }
@@ -360,14 +326,11 @@ public class ErrorRecovery {
         return true;
     }
 
-    private boolean checkAmbEquality(ITree tree1, ITree tree2, Set<TreePair> equalTrees, boolean logInequality) {
+    private boolean checkAmbEquality(ITree tree1, ITree tree2, Set<TreePair> equalTrees) {
         ISet alts1 = tree1.getAlternatives();
         ISet alts2 = tree2.getAlternatives();
 
         if (alts1.size() != alts2.size()) {
-            if (logInequality) {
-                System.out.println("amb nodes do not have an equal size");
-            }
             return false;
         }
 
@@ -381,7 +344,7 @@ public class ErrorRecovery {
             int index2 = 0;
             // This relies on iteration order being stable, which is a pretty safe bet.
             for (IValue alt2 : alts2) {
-                if (!alts2Checked.get(index2) && checkTreeEquality((ITree) alt1, (ITree) alt2, equalTrees, false)) {
+                if (!alts2Checked.get(index2) && checkTreeEquality((ITree) alt1, (ITree) alt2, equalTrees)) {
                     alts2Checked.set(index2);
                     break;
                 }
@@ -405,7 +368,7 @@ public class ErrorRecovery {
             for (IValue alt2 : alts2) {
                 if (!alts2Checked.get(index2)) {
                     System.err.println("  lhs amb node not found: " + index2);
-                    checkTreeEquality((ITree) missingAlt, (ITree) alt2, equalTrees, true);
+                    checkTreeEquality((ITree) missingAlt, (ITree) alt2, equalTrees, LOG_INEQUALITY);
                     System.err.println();
                 }
                 index2++;
