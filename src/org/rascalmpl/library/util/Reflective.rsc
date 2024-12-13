@@ -177,22 +177,26 @@ int commonPrefix(list[str] rdir, list[str] rm){
 @synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
+
+    rscFile = endsWith(modulePath, "rsc");
+    tplFile = endsWith(modulePath, "tpl");
     
-    if(!(endsWith(modulePath, "rsc") || endsWith(modulePath, "tpl"))){
+    if(!( rscFile || tplFile )){
         throw "Not a Rascal .src or .tpl file: <moduleLoc>";
     }
     
     // Find matching .rsc file in source directories
-
-    for(loc dir <- pcfg.srcs){
-        if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(moduleName[0] == "/"){
-              moduleName = moduleName[1..];
-           }
-           moduleName = replaceAll(moduleName, "/", "::");
-           return moduleName;
+    if(rscFile){
+        for(loc dir <- pcfg.srcs){
+            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
+                moduleName = replaceFirst(modulePath, dir.path, "");
+                <moduleName, ext> = splitFileExtension(moduleName);
+                if(moduleName[0] == "/"){
+                    moduleName = moduleName[1..];
+                }
+                moduleName = replaceAll(moduleName, "/", "::");
+                return moduleName;
+            }
         }
     }
     
@@ -204,6 +208,12 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     
     modulePathAsList = split("/", modulePathNoExt);
+    if(tplFile){
+        lastName = modulePathAsList[-1];
+        if(lastName[0] == "$"){
+            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
+        }
+    }
     if(modulePathAsList[0] == "rascal"){
          modulePathAsList = modulePathAsList[1..];
     }
@@ -226,6 +236,10 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
             }
             
             candidateAsList = split("/", candidate);
+            lastName = candidateAsList[-1];
+            if(lastName[0] == "$"){
+                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
+            }
             // println("cand: <candidateAsList>, modpath: <modulePathAsList>");
             n = commonPrefix(reverse(candidateAsList), modulePathReversed);
                         
