@@ -26,32 +26,5 @@ public interface INodeFlattener<T, P>{
 	 */
 	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
 	
-	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
-	
-	/**
-	 * Internal helper structure for cycle detection and handling.
-	 */
-	static class CycleMark{
-		public int depth = Integer.MAX_VALUE;
-		
-		public CycleMark(){
-			super();
-		}
-		
-		/**
-		 * Marks the depth at which a cycle was detected.
-		 */
-		public void setMark(int depth){
-			if(depth < this.depth){
-				this.depth = depth;
-			}
-		}
-		
-		/**
-		 * Resets the mark.
-		 */
-		public void reset(){
-			depth = Integer.MAX_VALUE;
-		}
-	}
+	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);	
 }

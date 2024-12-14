@@ -2,7 +2,6 @@ module lang::rascal::tests::concrete::MemoCycleTest
 
 import ParseTree;
 import vis::Text;
-import IO;
 
 syntax S = T | U;
 
@@ -12,6 +11,7 @@ syntax U = X T? | "$";
 
 syntax X = "b"? | "c";
 
+// Test for regression of a bug in the node flattener
 test bool memoCycleBug() {
    Tree tree = parse(#S, "bc$", |unknown:///|, allowAmbiguity=true);
    if (amb({appl1, appl2 }) := tree) {
