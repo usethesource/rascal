@@ -8,10 +8,10 @@ import String;
 import vis::Text;
 import util::ErrorRecovery;
 import util::Benchmark;
-import Exception;
 
 /**
-Originally memoization inside cycles was turned off. This caused this test to take a long time and then crash with an out-of-memory error.
+* Originally memoization inside cycles was turned off. This caused this test to take a long time and then crash with an out-of-memory error.
+* With the new link memoization this test should run fine.
 */
 void testCycleMemoizationFailure() {
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
