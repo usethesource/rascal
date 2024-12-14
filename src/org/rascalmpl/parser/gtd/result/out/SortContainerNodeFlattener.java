@@ -24,7 +24,6 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.ForwardLink;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
 import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
 import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 
 /**
