@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.result.out;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -40,11 +41,14 @@ public class ListContainerNodeFlattener<P, T, S>{
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<Object, T>> preCache;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
 	
+	private final Map<Link, ArrayList<T>> linkCache;
+
 	public ListContainerNodeFlattener(){
 		super();
 
 		preCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<Object, T>>();
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
+		linkCache = new java.util.HashMap<>();
 	}
 	
 	/**
@@ -235,7 +239,21 @@ public class ListContainerNodeFlattener<P, T, S>{
 	/**
 	 * Gather all the alternatives ending with the given child.
 	 */
-	protected void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix<T>> sharedPrefixCache, PositionStore positionStore, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	protected void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix<T>> sharedPrefixCache, PositionStore positionStore, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, boolean hasSideEffects){
+		ArrayList<T> gatheredAlts;
+
+		if (!hasSideEffects) {
+			gatheredAlts = linkCache.get(child);
+			if (gatheredAlts != null) {
+				for (int i=0; i<gatheredAlts.size(); i++) {
+					gatheredAlternatives.add(gatheredAlts.get(i));
+				}
+				return;
+			}
+
+		}
+		gatheredAlts = new ArrayList<T>();
+
 		AbstractNode childNode = child.getNode();
 		
 		if(!(childNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
@@ -244,18 +262,26 @@ public class ListContainerNodeFlattener<P, T, S>{
 				CycleNode cycle = gatherCycle(child, new AbstractNode[]{childNode}, blackList);
 				if(cycle != null){ // Encountered a cycle.
 					if(cycle.cycle.length == 1){
-						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredAlts, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 					}else{
 						ForwardLink<AbstractNode> cycleLink = new ForwardLink<AbstractNode>(NO_NODES, cycle);
-						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(cycleLink, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(cycleLink, childNode), gatheredAlts, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 					}
 					return;
 				}
 			}
 			// Encountered non-cyclic child.
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, childNode), gatheredAlts, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}else{ // Has a single epsilon result.
-			buildAlternative(converter, nodeConstructorFactory, noChildren, NO_NODES, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment);
+			buildAlternative(converter, nodeConstructorFactory, noChildren, NO_NODES, production, gatheredAlts, stack, depth, cycleMark, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment);
+		}
+
+		for (int i = 0; i < gatheredAlts.size(); i++) {
+			gatheredAlternatives.add(gatheredAlts.get(i));
+		}
+
+		if (!hasSideEffects) {
+			linkCache.put(child, gatheredAlts);
 		}
 	}
 	
@@ -461,17 +487,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 		Object rhs = nodeConstructorFactory.getRhs(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 		
-		if(depth <= cycleMark.depth){ // Only check for sharing if we are not currently inside a cycle.
-			if(!hasSideEffects){ // If this sort node and its direct and indirect children do not rely on side-effects from semantic actions, check the cache for existing results.
-				ObjectIntegerKeyedHashMap<Object, T> levelCache = preCache.get(offset);
-				if(levelCache != null){
-					T cachedResult = levelCache.get(rhs, endOffset);
-					if(cachedResult != null){
-						return cachedResult;
-					}
-				}
-			}
-			
+		if (depth <= cycleMark.depth) {
 			cycleMark.reset();
 		}
 		
@@ -503,12 +519,12 @@ public class ListContainerNodeFlattener<P, T, S>{
 		// Gather the alternatives.
 		HashMap<ArrayList<Link>, SharedPrefix<T>> sharedPrefixCache = new HashMap<ArrayList<Link>, SharedPrefix<T>>();
 		ArrayList<T> gatheredAlternatives = new ArrayList<T>();
-		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment);
+		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, node.getFirstProduction(), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
 		ArrayList<P> productions = node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment);
+				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, sharedPrefixCache, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
 			}
 		}
 		
@@ -537,38 +553,22 @@ public class ListContainerNodeFlattener<P, T, S>{
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
 		
-		if(result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
-			if(!hasSideEffects){ // Cache side-effect free tree.
-				ObjectIntegerKeyedHashMap<Object, T> levelCache = preCache.get(offset);
-				if(levelCache != null){
-					T cachedResult = levelCache.get(rhs, endOffset);
-					if(cachedResult != null){
-						return cachedResult;
-					}
-					
-					levelCache.putUnsafe(rhs, endOffset, result);
-					return result;
+		if (hasSideEffects) {
+			// Cache tree with side-effects to keep as much sharing as possible in the resulting parse forest
+			ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
+			if(levelCache != null){
+				T cachedResult = levelCache.getEquivalent(result, endOffset);
+				if(cachedResult != null){
+					return cachedResult;
 				}
 				
-				levelCache = new ObjectIntegerKeyedHashMap<Object, T>();
-				levelCache.putUnsafe(rhs, endOffset, result);
-				preCache.put(offset, levelCache);
-			}else{ // Cache tree with side-effects.
-				ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
-				if(levelCache != null){
-					T cachedResult = levelCache.getEquivalent(result, endOffset);
-					if(cachedResult != null){
-						return cachedResult;
-					}
-					
-					levelCache.putUnsafe(result, endOffset);
-					return result;
-				}
-				
-				levelCache = new ObjectIntegerKeyedHashSet<T>();
 				levelCache.putUnsafe(result, endOffset);
-				cache.putUnsafe(offset, levelCache);
+				return result;
 			}
+			
+			levelCache = new ObjectIntegerKeyedHashSet<T>();
+			levelCache.putUnsafe(result, endOffset);
+			cache.putUnsafe(offset, levelCache);
 		}
 		
 		return result;
