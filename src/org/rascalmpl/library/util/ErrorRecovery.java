@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.parser.util.DebugUtil;
 import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -354,24 +353,7 @@ public class ErrorRecovery {
 
             if (index2 == alts2.size()) {
                 // We did not find alt1 in alts2
-                if (logInequality) {
-                    System.out.println("amb nodes not equal");
-                    System.err.println("  rhs amb node not found: " + index2);
-                    missingAlt = alt1;
-                }
                 ok = false;
-            }
-        }
-
-        if (!ok && logInequality && missingAlt != null) {
-            int index2 = 0;
-            for (IValue alt2 : alts2) {
-                if (!alts2Checked.get(index2)) {
-                    System.err.println("  lhs amb node not found: " + index2);
-                    checkTreeEquality((ITree) missingAlt, (ITree) alt2, equalTrees, LOG_INEQUALITY);
-                    System.err.println();
-                }
-                index2++;
             }
         }
 
