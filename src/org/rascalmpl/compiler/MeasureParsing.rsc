@@ -5,6 +5,7 @@ import util::Benchmark;
 import lang::rascal::\syntax::Rascal;
 import IO;
 import ValueIO;
+import lang::rascalcore::check::ModuleLocations;
 
 data PathConfig(
     loc resources = |unknown:///|,
