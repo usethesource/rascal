@@ -103,6 +103,7 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
     int n = findLast(qnameSlashes, "/");
@@ -112,6 +113,7 @@ str makeFileName(str qualifiedModuleName, str extension = "rsc") {
     return "<package><qnameSlashes><isEmpty(extension) ? "" : ".<extension>">";
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
         fileLoc = dir + filePath;
@@ -123,6 +125,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
@@ -143,16 +146,19 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 tuple[str,str] splitFileExtension(str path){
     int n = findLast(path, ".");
     if(n < 0) return <path, "">;
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Determine length of common suffix of list of strings}
 int commonSuffix(list[str] dir, list[str] m)
     = commonPrefix(reverse(dir), reverse(m));
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Determine length of common prefix of list of strings}
 int commonPrefix(list[str] rdir, list[str] rm){
     for(int i <- index(rm)){
@@ -167,6 +173,7 @@ int commonPrefix(list[str] rdir, list[str] rm){
     return size(rm);
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
@@ -252,6 +259,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Derive a location from a given module name for reading}
 @description{
 Given a module name, a file name extension, and a PathConfig,
@@ -301,6 +309,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     return <false, |error:///|>;
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Derive a location from a given module name for writing}
 @description{
 Given a module name, a file name extension, and a PathConfig,
