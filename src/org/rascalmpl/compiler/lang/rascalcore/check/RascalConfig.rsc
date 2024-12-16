@@ -451,7 +451,7 @@ bool isLogicalLoc(loc l)
 loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
     if(def.idRole in keepInTModelRoles){
        if(isLogicalLoc(def.defined)) return def.defined;
-       moduleName = getModuleName(def.defined, pcfg);
+       moduleName = getRascalModuleName(def.defined, pcfg);
        moduleNameSlashed = replaceAll(moduleName, "::", "/");
        suffix = def.defInfo.md5? ? "$<def.defInfo.md5[0..16]>" : "";
        if(def.idRole == moduleId()){
@@ -464,12 +464,12 @@ loc rascalCreateLogicalLoc(Define def, str _modelName, PathConfig pcfg){
 }
 
 @memo{expireAfter(minutes=5),maximumSize(1000)}
-rel[str shortName, str longName] getModuleNames(PathConfig pcfg){
+rel[str shortName, str longName] getRascalModuleNames(PathConfig pcfg){
     longNames = {};
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
             try {
-                longName = getModuleName(mloc, pcfg);
+                longName = getRascalModuleName(mloc, pcfg);
                 longNames += <asBaseModuleName(longName), longName>;
             } catch _: ;
         }
@@ -477,7 +477,7 @@ rel[str shortName, str longName] getModuleNames(PathConfig pcfg){
     for(libdir <- pcfg.libs){
         for(loc mloc <- find(libdir, "tpl")){
             try {
-                longName = getModuleName(mloc, pcfg);
+                longName = getRascalModuleName(mloc, pcfg);
                 longNames += <asBaseModuleName(longName), longName>;
             } catch _: ;
         }
@@ -491,7 +491,7 @@ list[str] rascalSimilarNames(Use u, TModel tm){
     idRoles = u.idRoles;
     pcfg = tm.config.typepalPathConfig;
     if(moduleId() in idRoles){
-        longNames = getModuleNames(pcfg);
+        longNames = getRascalModuleNames(pcfg);
         similar = similarWords(w, domain(longNames), tm.config.cutoffForNameSimilarity)[0..10];
         return sort({*longNames[s] | s <- similar }, bool (str a, str b) { return size(a) < size(b); });
     } else {

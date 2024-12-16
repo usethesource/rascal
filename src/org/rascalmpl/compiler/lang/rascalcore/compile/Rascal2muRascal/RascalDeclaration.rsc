@@ -48,14 +48,14 @@ public void translateToplevel((Toplevel) `<Declaration decl>`) {
 // -- variable declaration ------------------------------------------
 
 void translateDecl(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	str module_name = asUnqualifiedName(getModuleName());
+	str module_name = asUnqualifiedName(getRascalModuleName());
     enterFunctionScope("<module_name>_init");
    	for(var <- variables){
    	    unescapedVarName = unescapeName("<var.name>");
    		addVariableToModule(muModuleVar(getType(tp), unescapedVarName));
    		if(var is initialized) {
    		   init_code =  translate(var.initial);
-   		   asg = muAssign( muVar(unescapedVarName, getModuleNameUnderscores(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
+   		   asg = muAssign( muVar(unescapedVarName, getRascalModuleNameUnderscores(), -1, filterOverloads(getType(tp), {variableId()}), variableId()), init_code);
    		   addVariableInitializationToModule(asg);
    		}
    	}

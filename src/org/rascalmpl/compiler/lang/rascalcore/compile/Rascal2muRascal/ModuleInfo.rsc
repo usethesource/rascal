@@ -30,9 +30,9 @@ public void setModuleName(str name){
 	module_name = name;
 }
 
-public str getModuleName() = module_name;
+public str getRascalModuleName() = module_name;
 
-public str getModuleNameUnderscores() = replaceAll(module_name, "::", "_");
+public str getRascalModuleNameUnderscores() = replaceAll(module_name, "::", "_");
 
 public void setModuleTags(map[str,str] mtags){
     module_tags = mtags;

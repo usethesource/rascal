@@ -29,11 +29,11 @@ import util::Reflective;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names; // TODO: refactor, this is an undesired dependency on compile
 
-private str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
+private str getRascalModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     if(moduleStrs[mloc]? ){
         return moduleStrs[mloc];
     }
-    return getModuleName(mloc, pcfg);
+    return getRascalModuleName(mloc, pcfg);
 }
 
 // Complete a ModuleStatus by adding a contains relation that adds transitive edges for extend
@@ -52,9 +52,9 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
                              || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths };
 
     for(mloc <- cyclicMixed){
-        mname = getModuleName(mloc, moduleStrs, pcfg);
-        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
-                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
+        mname = getRascalModuleName(mloc, moduleStrs, pcfg);
+        set[str] cycle = { getRascalModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclicMixed } +
+                         { getRascalModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclicMixed };
         if(size(cycle) > 1){
             ms.messages[mname] = (ms.messages[mname] ? {}) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
         }
@@ -67,8 +67,8 @@ ModuleStatus completeModuleStatus(ModuleStatus ms){
    strPaths = {};
     for(<loc from, PathRole r, loc to> <- paths){
         try {
-            mfrom = getModuleName(from, moduleStrs, pcfg);
-            mto = getModuleName(to, moduleStrs, pcfg);
+            mfrom = getRascalModuleName(from, moduleStrs, pcfg);
+            mto = getRascalModuleName(to, moduleStrs, pcfg);
             strPaths += <mfrom, r, mto >;
         } catch _: ;/* ignore non-existing module */
     }
@@ -140,7 +140,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             try {
                  mloc = |unknown:///|(0,0,<0,0>,<0,0>);
                 try {
-                    mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                    mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 } catch e: {
                     err = error("Cannot get location for <qualifiedModuleName>: <e>", mloc);
                     ms.messages[qualifiedModuleName] = { err };
@@ -278,7 +278,7 @@ tuple[ModuleStatus, rel[str, PathRole, str]] getModulePathsAsStr(Module m, Modul
         imports_and_extends += <moduleName, imod is \default ? importPath() : extendPath(), iname>;
         ms.status[iname] = ms.status[iname] ? {};
         try {
-            mloc = getModuleLocation(iname, ms.pathConfig);
+            mloc = getRascalModuleLocation(iname, ms.pathConfig);
          } catch str msg: {
             err = error("Cannot get location for <iname>: <msg>", imod@\loc);
             ms.messages[moduleName] ? {} += { err };
@@ -299,7 +299,7 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes, PathConf
         return moduleScopes[qualifiedModuleName];
     }
     for(l <- range(moduleScopes)){
-        if(getModuleName(l, pcfg) == qualifiedModuleName){
+        if(getRascalModuleName(l, pcfg) == qualifiedModuleName){
             return l;
         }
     }

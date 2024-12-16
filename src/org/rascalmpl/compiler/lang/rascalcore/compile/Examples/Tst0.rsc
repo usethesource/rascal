@@ -1,9 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst0
  
            
-import util::Reflective;      
+import Reflect;      
                  
 int XX1 = 14  ;   
 int XXX = 13;
  
-int main() = XX1;
+int main() = XX;

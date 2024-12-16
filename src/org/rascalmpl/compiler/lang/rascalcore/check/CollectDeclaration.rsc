@@ -76,7 +76,7 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
     if([PathConfig pcfg] := pcfgVal){
         mname = prettyPrintName(qualifiedModuleName);
         try {
-            mloc1 = getModuleLocation(mname, pcfg);
+            mloc1 = getRascalModuleLocation(mname, pcfg);
             if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
                 c.report(error(qualifiedModuleName, "Module name `%v` is incompatible with its file location %v", mname, mloc));
             }
