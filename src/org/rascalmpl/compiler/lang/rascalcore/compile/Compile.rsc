@@ -107,7 +107,7 @@ list[Message] compile(loc moduleLoc, RascalCompilerConfig compilerConfig) {
     }
     moduleName = "**unknown**";
     try {
-        moduleName = getModuleName(moduleLoc, pcfg);
+        moduleName = getRascalModuleName(moduleLoc, pcfg);
     } catch str e: {
         return [ error("Cannot find name for location, reason: <e>", moduleLoc) ];
     }

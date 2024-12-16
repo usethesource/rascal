@@ -32,7 +32,7 @@ void main(){
     write_time = 0;
     for(int _ <- [1..10]){
         for(qualifiedModuleName <- ["Boolean", "Type", "ParseTree", "List"]){
-            mloc = getModuleLocation(qualifiedModuleName, pcfg);    
+            mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);    
             ploc = |file:///tmp/<qualifiedModuleName>.parsetree|;        
             //println("*** parsing <qualifiedModuleName> from <mloc>");
             start_time = cpuTime();

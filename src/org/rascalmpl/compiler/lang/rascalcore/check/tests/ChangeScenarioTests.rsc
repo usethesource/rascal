@@ -18,7 +18,7 @@ bool validateBOMs(PathConfig pcfg){
     nOudatedTPLs = 0;
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
-            m = getModuleName(mloc, pcfg);
+            m = getRascalModuleName(mloc, pcfg);
             lastModRSC[m] = lastModified(mloc);
             <found, tpl> = getTPLReadLoc(m, pcfg);
             if(found){
@@ -35,7 +35,7 @@ bool validateBOMs(PathConfig pcfg){
     valid = nOudatedTPLs == 0;
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
-            m = getModuleName(mloc, pcfg);
+            m = getRascalModuleName(mloc, pcfg);
             <found, tpl> = getTPLReadLoc(m, pcfg);
            
             if(found){
@@ -419,7 +419,7 @@ test bool breakingChange1(){
 bool touchAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
     println("TOUCH <moduleNames>");
     for(mname <- moduleNames){
-        touch(getModuleLocation(mname, pcfg));
+        touch(getRascalModuleLocation(mname, pcfg));
     }
     return expectReChecks(Top, moduleNames, pathConfig=pcfg);
 }
@@ -427,7 +427,7 @@ bool touchAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
 test bool onlyTouchedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    Top = getModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    Top = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
@@ -441,7 +441,7 @@ test bool onlyTouchedModulesAreReChecked1(){
 test bool onlyTouchedModulesAreReChecked2(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    Top = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
@@ -458,7 +458,7 @@ str MARKER = "//TEMPORARILY ADDED FOR TESTING";
 
 void changeModules(list[str] moduleNames, PathConfig pcfg, str injectedError=""){
     for(moduleName <- moduleNames){
-        mloc = getModuleLocation(moduleName, pcfg);
+        mloc = getRascalModuleLocation(moduleName, pcfg);
         lines = readFileLines(mloc);
         lines += MARKER;
         lines += injectedError;
@@ -468,7 +468,7 @@ void changeModules(list[str] moduleNames, PathConfig pcfg, str injectedError="")
 
 void restoreModules(list[str] moduleNames, PathConfig pcfg){
     for(moduleName <- moduleNames){
-        mloc = getModuleLocation(moduleName, pcfg);
+        mloc = getRascalModuleLocation(moduleName, pcfg);
         lines = readFileLines(mloc);
         for(int i <- index(lines)){
             if(lines[i] == MARKER){
@@ -488,7 +488,7 @@ bool changeAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg, str injecte
 value main(){
     pcfg = getAllSrcPathConfig();
     TopName = "Boolean";
-    Top = getModuleLocation(TopName, pcfg);
+    Top = getRascalModuleLocation(TopName, pcfg);
     //assert changeAndCheck(Top, [TopName, "Exception"], pcfg, injectedError="int X = false;");
     changeModules([TopName], pcfg, injectedError="int X = false;");
     assert unexpectedDeclarationInModule(Top);
@@ -500,7 +500,7 @@ test bool onlyChangedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
     TopName = "analysis::grammars::Ambiguity";
-    Top = getModuleLocation(TopName, pcfg);
+    Top = getRascalModuleLocation(TopName, pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
@@ -529,7 +529,7 @@ test bool onlyChangedModulesAreReChecked1(){
 test bool onlyChangedModulesAreReChecked2(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
-    Top = getModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    Top = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
@@ -564,7 +564,7 @@ void touchOne(){
     pcfg = getRascalPathConfig();
     remove(pcfg.resources, recursive=true);
     TopName = "ParseTree";
-    Top = getModuleLocation("ParseTree", pcfg);
+    Top = getRascalModuleLocation("ParseTree", pcfg);
     cases =
         [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>
   //       <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>
@@ -576,7 +576,7 @@ void miniBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
     TopName = "ParseTree";
-    Top = getModuleLocation("ParseTree", pcfg);
+    Top = getRascalModuleLocation("ParseTree", pcfg);
 
     cases =
         [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
@@ -593,7 +593,7 @@ void mediumBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
     TopName = "analysis::grammars::Ambiguity";
-    Top = getModuleLocation(TopName, pcfg);
+    Top = getRascalModuleLocation(TopName, pcfg);
 
     cases =
         [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
@@ -612,7 +612,7 @@ void largeBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
     TopName = "lang::rascalcore::check::Checker";
-    Top = getModuleLocation(TopName, pcfg);
+    Top = getRascalModuleLocation(TopName, pcfg);
 
     cases =
         [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,

@@ -39,6 +39,7 @@ extend lang::rascalcore::check::RascalConfig;
 extend lang::rascalcore::check::CheckerCommon;
 
 import lang::rascalcore::compile::CompileTimeError;
+import lang::rascalcore::check::ModuleLocations;
 extend lang::rascalcore::check::TestConfigs;
 
 import analysis::typepal::Exception;
@@ -135,7 +136,7 @@ ModuleStatus rascalTModelForLocs(
                 append  "LocationDoesNotExist: <mloc>";
             } else {
                 try {
-                    append getModuleName(mloc, pcfg);
+                    append getRascalModuleName(mloc, pcfg);
                 } catch e: {
                     append "NoModuleNameFound: <mloc>";
                     msgs += error("No module name found for <mloc>", mloc);
@@ -406,7 +407,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         ms.messages[nm] = {};
         mloc = |unknown:///|(0,0,<0,0>,<0,0>);
         try {
-            mloc = getModuleLocation(nm, pcfg);
+            mloc = getRascalModuleLocation(nm, pcfg);
         } catch e: {
             err = error("Cannot get location for <nm>: <e>", mloc);
             ms.messages[nm] = { err };
@@ -487,7 +488,7 @@ ModuleStatus rascalTModelForNames(list[str] moduleNames,
     mlocs = [];
     for(moduleName <- moduleNames){
         try {
-            mlocs += [ getModuleLocation(moduleName, pcfg) ];
+            mlocs += [ getRascalModuleLocation(moduleName, pcfg) ];
         } catch value e: {
             mloc = |unknown:///|(0,0,<0,0>,<0,0>);
             err = error("Cannot get location for <moduleName>: <e>", mloc);
@@ -514,7 +515,7 @@ bool otherModulesWithOutdatedTpls(list[loc] candidates, PathConfig pcfg){
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
             try {
-                mname = getModuleName(mloc, pcfg);
+                mname = getRascalModuleName(mloc, pcfg);
                 <found, tpl> = getTPLReadLoc(mname, pcfg);
                 if(found && (mloc notin candidates) && (lastModified(mloc) > lastModified(tpl))){
                     return true;

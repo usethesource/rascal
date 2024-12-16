@@ -12,6 +12,7 @@ extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
 extend lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::ModuleLocations;
 
 import analysis::typepal::Collector;
 
@@ -119,7 +120,7 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
         return res;
    } catch NoSuchKey(_): {
         try {
-            mloc = getModuleLocation(qualifiedModuleName, pcfg);
+            mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
             res = lastModified(mloc);
             //println("getLastModified <mloc> via lastModified: <res>");
             return res;
@@ -131,7 +132,7 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
 
 bool tplOutdated(str qualifiedModuleName, PathConfig pcfg){
     try {
-        mloc = getModuleLocation(qualifiedModuleName, pcfg);
+        mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
         <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
         lmMloc = lastModified(mloc);
         lmTpl = lastModified(tpl);
@@ -163,7 +164,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
             mloc = |unknown:///<qualifiedModuleName>|;
             try {
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 // Make sure we found a real source module (as opposed to a tpl module in a library
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) {
                     ms.status[qualifiedModuleName] += {rsc_not_found()};
@@ -329,7 +330,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 tm.usesPhysicalLocs = false; // temporary
                 tm = convertTModel2PhysicalLocs(tm);
                 ms.tmodels[qualifiedModuleName] = tm;
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
                     ms.status[qualifiedModuleName] ? {} += {rsc_not_found()};
                 }
