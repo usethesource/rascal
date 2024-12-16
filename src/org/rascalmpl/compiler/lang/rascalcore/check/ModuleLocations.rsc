@@ -2,6 +2,7 @@
 module lang::rascalcore::check::ModuleLocations
 
 import IO;
+import List;
 import String;
 import util::Reflective;
 import util::FileSystem;
