@@ -535,7 +535,7 @@ public class PathConfig {
                 }
 
                 if (libProjectName != null) {
-                    if (reg.exists(projectLoc) && dep != rascalProject) {
+                    if (reg.exists(projectLoc)) {
                         // The project we depend on is available in the current workspace. 
                         // so we configure for using the current state of that project.
                         PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode);
@@ -555,9 +555,6 @@ public class PathConfig {
 
                         // error messages are transitively collected
                         messages.appendAll(childConfig.getMessages());
-                    }
-                    else if (dep == rascalProject) {
-                        // not adding it again (we added rascal already above)
                     }
                     else {
                         // just a pre-installed dependency in the local maven repository
@@ -614,7 +611,7 @@ public class PathConfig {
                 
                 if (!builtinVersion.equals(dependentVersion)) {
                     messages.append(Messages.info("Effective rascal version: " + builtinVersion, getPomXmlLocation(manifestRoot)));
-                    messages.append(Messages.warning("Different rascal dependency is not used: " + dependentVersion, getPomXmlLocation(manifestRoot)));
+                    messages.append(Messages.warning("Standard library in different rascal dependency is not used: " + dependentVersion, getPomXmlLocation(manifestRoot)));
                 }
             }
 
@@ -635,8 +632,11 @@ public class PathConfig {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
 
-
         for (String srcName : manifest.getSourceRoots(manifestRoot)) {
+            if (refersToStd(projectName, srcName)) {
+                continue; // Never load Rascal modules of `std` from a non-current `rascal`
+            }
+
             var srcFolder = URIUtil.getChildLocation(manifestRoot, srcName);
             
             if (!reg.exists(srcFolder) || !reg.isDirectory(srcFolder)) {
@@ -661,18 +661,16 @@ public class PathConfig {
             return;
         }
 
-       
         var manifest = new RascalManifest();
-
-        // the rascal dependency leads to a dependency on the std:/// location, somewhere _inside_ of the rascal jar
-        if (manifest.getProjectName(jar).equals("rascal")) {
-            srcsWriter.append(URIUtil.rootLocation("std"));
-            return;            
-        }
+        var projectName = manifest.getProjectName(jar);
 
         boolean foundSrc = false;
 
         for (String src : manifest.getSourceRoots(jar)) {
+            if (refersToStd(projectName, src)) {
+                continue; // Never load Rascal modules of `std` from a non-current `rascal`
+            }
+
             ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
             if (reg.exists(srcLib)) {
                 srcsWriter.append(srcLib);
@@ -687,6 +685,10 @@ public class PathConfig {
             // if we could not find source roots, we default to the jar root
             srcsWriter.append(jar);
         }
+    }
+
+    private static boolean refersToStd(String projectName, String srcName) {
+        return projectName.equals("rascal") && srcName.equals("src/org/rascalmpl/library");
     }
 
     private static ISourceLocation setTargetScheme(ISourceLocation projectLoc) {
