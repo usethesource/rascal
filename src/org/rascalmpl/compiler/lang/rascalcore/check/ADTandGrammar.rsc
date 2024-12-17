@@ -72,7 +72,7 @@ void addCommonKeywordFields(Solver s){
                 fieldName = "<kwf.name>";
                 fieldType = s.getType(kwf);
                 fieldType.alabel = fieldName;
-                moduleName = getModuleName(kwf.expression@\loc, s.getConfig().typepalPathConfig);
+                moduleName = getRascalModuleName(kwf.expression@\loc, s.getConfig().typepalPathConfig);
                 commonKeywordFields += <adtType, kwField(fieldType, fieldName, moduleName, kwf.expression)>;
                 //commonKeywordFieldNames += <adtType, fieldName, fieldType>;
                 // TODO: reconsider this
@@ -148,7 +148,10 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
             } else {
                 <found, tm1, ms> = getTModelForModule(m, ms);
                 if(!found) {
-                    throw "addGrammar: tmodel for <m> not found";
+                    msg = error("Cannot add grammar, tmodel for <m> not found", ms.moduleLocs[qualifiedModuleName] ? |unknown:///|);
+                    ms.messages[qualifiedModuleName] ? {} += { msg };
+                    tm1 = tmodel(modelName=qualifiedModuleName, messages=[msg]);
+                    return <tm1, ms>;
                 }
             }
             facts = tm1.facts;

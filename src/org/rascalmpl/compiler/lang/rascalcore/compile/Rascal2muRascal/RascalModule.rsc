@@ -52,7 +52,7 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
       if(ignoreTest(mtags)){
             e = info("Ignore tag suppressed compilation", M@\loc);
             tmodel.messages += [e];
-            return <tmodel, errorMuModule(getModuleName(), {e}, M@\loc)>;
+            return <tmodel, errorMuModule(getRascalModuleName(), {e}, M@\loc)>;
       }
      
       //if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
@@ -95,14 +95,14 @@ tuple[TModel, MuModule] r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmo
         if (compilerConfig.verbose) { println("Parse error in concrete syntax <l>; returning error module"); }
         msg = error("Parse error in concrete syntax fragment", l);
         tmodel.messages += [msg];
-        return <tmodel, errorMuModule(getModuleName(), {msg}, M@\loc)>;
+        return <tmodel, errorMuModule(getRascalModuleName(), {msg}, M@\loc)>;
    }
    catch CompileTimeError(Message m): {
         tmodel.messages += [m];
-        return <tmodel, errorMuModule(getModuleName(), {m}, M@\loc)>;
+        return <tmodel, errorMuModule(getRascalModuleName(), {m}, M@\loc)>;
    }
    //catch value e: {
-   //     return <tmodel, errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc)>;
+   //     return <tmodel, errorMuModule(getRascalModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc)>;
    //}
    finally {
    	   resetModuleInfo(compilerConfig);
