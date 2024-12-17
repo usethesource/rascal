@@ -35,7 +35,7 @@ public class RascalCommandCompletion implements Completer {
         COMMAND_KEYWORDS.put("history", "history"); // TODO: figure out what it does
         COMMAND_KEYWORDS.put("test", "run rest modules");
         COMMAND_KEYWORDS.put("modules", "show imported modules");// TODO: figure out what it does 
-        COMMAND_KEYWORDS.put("clear", "clear evaluator");// TODO: figure out what it does 
+        COMMAND_KEYWORDS.put("clear", "clear repl screen");
     }
 
     private final NavigableMap<String, String> setOptions;

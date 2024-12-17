@@ -73,6 +73,10 @@ public interface IDEServices extends IRascalMonitor {
     throw new UnsupportedOperationException("registerLanguage is not implemented in this environment.");
   }
 
+  default void clearRepl() {
+    throw new UnsupportedOperationException("Clear REPL is not supported in this IDE Service");
+  }
+
   /**
    * Asks the IDE to apply document edits as defined in the standard library module
    * analysis::diff::edits::TextEdits, according to the semantics defined in
