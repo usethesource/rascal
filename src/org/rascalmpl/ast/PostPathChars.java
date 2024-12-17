@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class PostPathChars extends AbstractAST {
   public PostPathChars(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
