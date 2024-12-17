@@ -18,6 +18,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -591,35 +594,42 @@ public class PathConfig {
         }
 
         try {
-            if (!projectName.equals("rascal") && rascalProject == null) {
-                // always add the standard library but not for the project named "rascal"
-                // which contains the (source of) the standard library, and if we already
-                // have a dependency on the rascal project we don't add it here either.
-                var rascalLib = resolveCurrentRascalRuntimeJar();
-                messages.append(Messages.info("Effective rascal library: " + rascalLib, getPomXmlLocation(manifestRoot)));
+            var currentRascal = resolveCurrentRascalRuntimeJar();
+            var currentRascalPhysical = reg.logicalToPhysical(currentRascal);
+            var currentRascalVersion =  RascalManifest.getRascalVersionNumber();
+
+            // Checks if location `otherRascal` represents the same version of
+            // the project named "rascal" as location `currentRascal`
+            Predicate<ISourceLocation> isCurrentRascal = otherRascal -> {
+                try {
+                    var otherRascalPhysical = reg.logicalToPhysical(otherRascal);
+                    var otherRascalVersion = new RascalManifest().getManifestVersionNumber(otherRascalPhysical);
+                    return Objects.equals(currentRascalPhysical, otherRascalPhysical)
+                        || Objects.equals(currentRascalVersion, otherRascalVersion);
+                } catch (IOException e) {
+                    return false;
+                }
+            };
+
+            Consumer<String> report = s -> messages.append(Messages.info(s, getPomXmlLocation(manifestRoot)));
+            report.accept("Using Rascal standard library at " + currentRascal + ". Version: " + currentRascalVersion + ".");
+
+            // When this path config's project is `rascal`...
+            if (projectName.equals("rascal") && !isCurrentRascal.test(target)) {
+                report.accept("Ignoring Rascal standard library at " + target + " (self-application)");
             }
-            else if (projectName.equals("rascal")) {
-                messages.append(Messages.info("detected rascal self-application", getPomXmlLocation(manifestRoot)));
-            }
-            else if (rascalProject != null) {
-                // The Rascal interpreter can not escape its own classpath, whether
+
+            // When a dependency of this path config's project is `rascal`...
+            if (rascalProject != null && !isCurrentRascal.test(rascalProject)) {
+                report.accept("Ignoring Rascal standard library at " + rascalProject + " (dependency in POM)");
+
+                // Note: The Rascal interpreter can not escape its own classpath, whether
                 // or not we configure a different version in the current project's 
                 // pom.xml or not. So that pom dependency is always ignored!
-
                 // We check this also in COMPILED mode, for the sake of consistency,
                 // but it is not strictly necessary since the compiler can check and compile
                 // against any standard library on the libs path, even if it's running
                 // itself against a different rascal runtime and standard library.
-
-                RascalManifest rmf = new RascalManifest();
-                var builtinVersion = RascalManifest.getRascalVersionNumber();
-                var dependentRascalProject = reg.logicalToPhysical(rascalProject);
-                var dependentVersion = rmf.getManifestVersionNumber(dependentRascalProject);
-                
-                if (!builtinVersion.equals(dependentVersion)) {
-                    messages.append(Messages.info("Effective rascal version: " + builtinVersion, getPomXmlLocation(manifestRoot)));
-                    messages.append(Messages.warning("Standard library in different rascal dependency is not used: " + dependentVersion, getPomXmlLocation(manifestRoot)));
-                }
             }
 
             ISourceLocation projectLoc = URIUtil.correctLocation("project", projectName, "");
