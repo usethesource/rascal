@@ -18,9 +18,6 @@ import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
-import org.rascalmpl.repl.CompletionFunction;
-import org.rascalmpl.repl.CompletionResult;
-
 public class RascalCommandCompletion implements Completer {
     private static final NavigableMap<String,String> COMMAND_KEYWORDS;
     static {
@@ -47,56 +44,6 @@ public class RascalCommandCompletion implements Completer {
         this.completeModule = completeModule;
     }
 
-
-
-    private static final Pattern splitCommand = Pattern.compile("^[\\t ]*:(?<command>[a-z]*)([\\t ]|$)");
-    /**@deprecated remove this function */
-    public static CompletionResult complete(String line, int cursor, SortedSet<String> commandOptions, CompletionFunction completeIdentifier, CompletionFunction completeModule) {
-        assert line.trim().startsWith(":");
-        Matcher m = splitCommand.matcher(line);
-        if (m.find()) {
-            String currentCommand = m.group("command");
-            switch(currentCommand) {
-                case "set": {
-                    OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
-                    if (identifier != null && identifier.offset > m.end("command")) {
-                        Collection<String> suggestions = commandOptions.stream()
-                                        .filter(s -> s.startsWith(identifier.term))
-                                        .sorted()
-                                        .collect(Collectors.toList());
-                        if (suggestions != null && ! suggestions.isEmpty()) {
-                            return new CompletionResult(identifier.offset, suggestions);
-                        }
-                    }
-                    else if (line.trim().equals(":set")) {
-                        return new CompletionResult(line.length(), commandOptions);
-                    }
-                    return null;
-                }
-                case "undeclare": return completeIdentifier.complete(line, cursor);
-                case "edit":
-                case "unimport": return completeModule.complete(line, line.length());
-                default: {
-                    if (COMMAND_KEYWORDS.containsKey(currentCommand)) {
-                        return null; // nothing to complete after a full command
-                    }
-                    List<String> result = null;
-                    if (currentCommand.isEmpty()) {
-                        result = new ArrayList<>(COMMAND_KEYWORDS.keySet());
-                    }
-                    else {
-                        result = COMMAND_KEYWORDS.keySet().stream()
-                                        .filter(s -> s.startsWith(currentCommand))
-                                        .collect(Collectors.toList());
-                    }
-                    if (!result.isEmpty()) {
-                        return new CompletionResult(m.start("command"), result);
-                    }
-                }
-            }
-        }
-        return null;
-    }
 
     private static void generateCandidates(String partial, NavigableMap<String, String> candidates, String group, List<Candidate> target) {
         for (var can : candidates.subMap(partial, true, partial + Character.MAX_VALUE, false).entrySet()) {

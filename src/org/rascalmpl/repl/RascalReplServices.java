@@ -36,30 +36,41 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
-import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
+import org.rascalmpl.repl.completers.RascalModuleCompletion;
+import org.rascalmpl.repl.http.REPLContentServer;
+import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.repl.jline3.RascalLineParser;
+import org.rascalmpl.repl.streams.ItalicErrorWriter;
+import org.rascalmpl.repl.streams.LimitedLineWriter;
+import org.rascalmpl.repl.streams.LimitedWriter;
+import org.rascalmpl.repl.streams.RedErrorWriter;
+import org.rascalmpl.repl.streams.ReplTextWriter;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
 public class RascalReplServices implements IREPLService {
     private final Function<Terminal, Evaluator> buildEvaluator;
     private Evaluator eval;
+    private final REPLContentServerManager contentManager = new REPLContentServerManager();
     private static final StandardTextWriter ansiIndentedPrinter = new ReplTextWriter(true);
     private static final StandardTextWriter plainIndentedPrinter = new StandardTextWriter(true);
     private final static int LINE_LIMIT = 200;
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
     private String newline = System.lineSeparator();
     
+
 
     public RascalReplServices(Function<Terminal, Evaluator> buildEvaluator) {
         super();
@@ -78,6 +89,31 @@ public class RascalReplServices implements IREPLService {
         this.eval = buildEvaluator.apply(term);
     }
 
+    public static PrintWriter generateErrorStream(Terminal tm, Writer out) {
+        // previously we would alway write errors to System.err, but that tends to mess up terminals
+        // and also our own error print
+        // so now we try to not write to System.err
+        if (supportsColors(tm)) {
+            return new PrintWriter(new RedErrorWriter(out), true);
+        }
+        if (supportsItalic(tm)) {
+            return new PrintWriter(new ItalicErrorWriter(out), true);
+        }
+        return new PrintWriter(System.err, true);
+    
+    }
+
+    private static boolean supportsColors(Terminal tm) {
+        Integer cols = tm.getNumericCapability(Capability.max_colors);
+        return cols != null && cols >= 8;
+    }
+
+    private static boolean supportsItalic(Terminal tm) {
+        String ital = tm.getStringCapability(Capability.enter_italics_mode);
+        return ital != null && !ital.equals("");
+    }
+
+
     private static final ISourceLocation PROMPT_LOCATION = URIUtil.rootLocation("prompt");
 
     @Override
@@ -89,11 +125,6 @@ public class RascalReplServices implements IREPLService {
         });
     }
 
-    @Override
-    public boolean isInputComplete(String input) {
-        throw new UnsupportedOperationException("Unimplemented method 'isInputComplete'");
-    }
-
 
     @Override
     public void handleInput(String input, Map<String, IOutputPrinter> output, Map<String, String> metadata)
@@ -103,7 +134,7 @@ public class RascalReplServices implements IREPLService {
             try {
                 Result<IValue> value;
                     value = eval.eval(eval.getMonitor(), input, URIUtil.rootLocation("prompt"));
-                outputResult(output, value);
+                outputResult(output, value, metadata);
             }
             catch (InterruptException ex) {
                 reportError(output, (w, sw) -> {
@@ -140,7 +171,7 @@ public class RascalReplServices implements IREPLService {
         }
     }
 
-    private void outputResult(Map<String, IOutputPrinter> output, IRascalResult result) {
+    private void outputResult(Map<String, IOutputPrinter> output, IRascalResult result, Map<String, String> metadata) {
         if (result == null || result.getValue() == null) {
             output.put(MIME_PLAIN, new StringOutputPrinter("ok", newline));
             return;
@@ -149,8 +180,7 @@ public class RascalReplServices implements IREPLService {
         Type type = result.getStaticType();
 
         if (type.isSubtypeOf(RascalValueFactory.Content) && !type.isBottom()) {
-            output.put(MIME_PLAIN, new StringOutputPrinter("Serving content", newline));
-            // TODO: serve content!
+            serveContent(output, (IConstructor)value, metadata);
             return;
         }
 
@@ -211,6 +241,52 @@ public class RascalReplServices implements IREPLService {
 
         output.put(MIME_PLAIN, new ExceptionPrinter(typePrefixed, plainIndentedPrinter));
         output.put(MIME_ANSI, new ExceptionPrinter(typePrefixed, ansiIndentedPrinter));
+
+    }
+
+    private Function<IValue, IValue> addEvalLock(IFunction func) {
+        return a -> {
+            synchronized(eval) {
+                return func.call(a);
+            }
+        };
+    }
+
+    private void serveContent(Map<String, IOutputPrinter> output, IConstructor provider, Map<String, String> metadata) {
+        String id;
+        Function<IValue, IValue> target;
+        
+        if (provider.has("id")) {
+            id = ((IString) provider.get("id")).getValue();
+            target = addEvalLock(((IFunction) provider.get("callback")));
+        }
+        else {
+            id = "*static content*";
+            target = (r) -> provider.get("response");
+        }
+
+        try {
+            // this installs the provider such that subsequent requests are handled.
+            REPLContentServer server  = contentManager.addServer(id, target);
+
+            // now we need some HTML to show
+            String URL = "http://localhost:" + server.getListeningPort() + "/";
+            
+            IWithKeywordParameters<? extends IConstructor> kp = provider.asWithKeywordParameters();
+
+            metadata.put("url", URL);
+            metadata.put("title", kp.hasParameter("title") ? ((IString) kp.getParameter("title")).getValue() : id);
+            metadata.put("viewColumn", kp.hasParameter("viewColumn") ? kp.getParameter("title").toString() : "1");
+
+            output.put(MIME_PLAIN, new StringOutputPrinter("Serving \'" + id + "\' at |" + URL + "|", newline));
+            output.put(MIME_HTML, new StringOutputPrinter("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>", newline));
+        }
+        catch (IOException e) {
+            reportError(output, (w, sw) -> {
+                w.println("Could not start webserver to render html content: ");
+                w.println(e.getMessage());
+            });
+        }
 
     }
 

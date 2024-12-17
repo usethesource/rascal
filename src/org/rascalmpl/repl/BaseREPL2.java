@@ -19,7 +19,6 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.Terminal.SignalHandler;
 import org.jline.utils.ShutdownHooks;
-import org.jline.utils.InfoCmp.Capability;
 
 public class BaseREPL2 {
     
@@ -78,9 +77,7 @@ public class BaseREPL2 {
         this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");
         this.currentPrompt = replService.prompt(ansiSupported, unicodeSupported);
         reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiSupported, unicodeSupported));
-
         this.reader = reader.build();
-
 
 
         // todo:
@@ -90,7 +87,9 @@ public class BaseREPL2 {
         // - support for html results 
         // - measure time
         // - history?
-        // - possible to tee output
+        // - possible to tee output (future work)
+        // - check if the REPL close properly closes the right streams
+        // - fix progress bar speed & proper recovering from intermediate prints
     }
 
     public void run() throws IOException {
