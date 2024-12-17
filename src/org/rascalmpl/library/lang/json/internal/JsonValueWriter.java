@@ -44,6 +44,8 @@ public class JsonValueWriter {
   private boolean datesAsInts = true;
   private boolean unpackedLocations = false;
   private boolean dropOrigins = true;
+  private boolean explicitConstructorNames = false;
+  private boolean explicitDataTypes;
   
   public JsonValueWriter() {
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -75,6 +77,16 @@ public class JsonValueWriter {
 
   public JsonValueWriter setDropOrigins(boolean setting) {
     this.dropOrigins = setting;
+    return this;
+  }
+
+  public JsonValueWriter setExplicitConstructorNames(boolean setting) {
+    this.explicitConstructorNames = setting;
+    return this;
+  }
+
+  public JsonValueWriter setExplicitDataTypes(boolean setting) {
+    this.explicitDataTypes = setting;
     return this;
   }
 
@@ -222,13 +234,24 @@ public class JsonValueWriter {
 
       @Override
       public Void visitConstructor(IConstructor o) throws IOException {
-        if (o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
+        if (!explicitConstructorNames && !explicitDataTypes && o.getConstructorType().getArity() == 0 && !o.asWithKeywordParameters().hasParameters()) {
           // enums!
           out.value(o.getName());
           return null;
         }
 
         out.beginObject();
+
+        if (explicitConstructorNames || explicitDataTypes) {
+          out.name("_constructor");
+          out.value(o.getName());
+        }
+
+        if (explicitDataTypes) {
+          out.name("_type");
+          out.value(o.getType().getName());
+        }
+
         int i = 0;
         for (IValue arg : o) {
           out.name(o.getConstructorType().getFieldName(i));
