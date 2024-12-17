@@ -66,7 +66,16 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-			return null;
+			IRascalMonitor monitor = __eval.getMonitor();
+
+			if (monitor instanceof IDEServices) {
+				IDEServices services = (IDEServices) monitor;
+				services.clearRepl();
+			}
+			else {
+				__eval.getStdErr().println("The current Rascal execution environment does not know how to clear the REPL.");
+			}
+			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
 		
 	}

@@ -19,6 +19,7 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.Terminal.SignalHandler;
 import org.jline.utils.ShutdownHooks;
+import org.jline.utils.InfoCmp.Capability;
 
 public class BaseREPL2 {
     
@@ -89,6 +90,7 @@ public class BaseREPL2 {
         // - support for html results 
         // - measure time
         // - history?
+        // - possible to tee output
     }
 
     public void run() throws IOException {
