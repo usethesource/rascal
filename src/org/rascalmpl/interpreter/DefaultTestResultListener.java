@@ -15,7 +15,7 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.repl.ReplTextWriter;
+import org.rascalmpl.repl.streams.ReplTextWriter;
 
 import io.usethesource.vallang.ISourceLocation;
 
