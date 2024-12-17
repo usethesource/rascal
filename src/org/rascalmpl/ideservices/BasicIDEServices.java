@@ -34,15 +34,25 @@ import io.usethesource.vallang.ISourceLocation;
 public class BasicIDEServices implements IDEServices {
   private final IRascalMonitor monitor;
   private final PrintWriter stderr;
+  private final Runnable clearRepl;
 
   public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor){
+    this(stderr, monitor, () -> {});
+  }
+  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor, Runnable clearRepl){
     this.stderr = stderr;
     this.monitor = monitor;
+    this.clearRepl = clearRepl;
   }
 
   @Override
   public PrintWriter stderr() {
     return stderr;
+  }
+
+  @Override
+  public void clearRepl() {
+    this.clearRepl.run();
   }
   
   public void browse(ISourceLocation loc, String title, int viewColumn){

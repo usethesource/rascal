@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.OSUtils;
+import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
@@ -55,13 +56,13 @@ public class RascalShell2  {
 
             var repl = new BaseREPL2(new RascalReplServices((t) -> {
                 var monitor = new TerminalProgressBarMonitor(term);
-                IDEServices services = new BasicIDEServices(term.writer(), monitor);
+                IDEServices services = new BasicIDEServices(term.writer(), monitor, () -> term.puts(Capability.clear_screen));
 
 
                 GlobalEnvironment heap = new GlobalEnvironment();
                 ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                Evaluator evaluator = new Evaluator(vf, term.reader(), new PrintWriter(System.err, true), term.writer(), root, heap, monitor);
+                Evaluator evaluator = new Evaluator(vf, term.reader(), new PrintWriter(System.err, true), term.writer(), root, heap, services);
                 evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
                 return evaluator;
             }), term);
