@@ -474,15 +474,18 @@ public class PathConfig {
         IListWriter srcsWriter = vf.listWriter();
         IListWriter messages = vf.listWriter();
 
-        // Always add the standard library, also for the project named "rascal".
-        // If the "current" version (as per `resolveCurrentRascalRuntimeJar`) is
-        // different from the version of `manifestRoot`, then:
-        //   - Rascal modules inside `std` are loaded from the current version.
-        //   - Rascal modules outside `std` are loaded from `manifestRoot`.
-        //   - Java classes (regardless of inside/outside `std`) are loaded from
-        //     the current version. Thus, Rascal modules and Java classes inside
-        //     `std` -- but not outside! -- are consistently loaded.
+        // Approach:
+        //   - Rascal modules of `rascal` inside `std` are loaded from the
+        //     "current `rascal`" (as per `resolveCurrentRascalRuntimeJar`).
+        //   - Rascal modules of `rascal` outside `std` are loaded from the
+        //     "current project" of this path config (as per `manifestRoot`).
+        //   - Java classes of `rascal`, regardless of inside/outside `std`, are
+        //     loaded from the current `rascal`.
+        //
+        // Thus, Rascal modules and Java classes of `rascal` inside `std` are
+        // guaranteed to be consistently loaded from the same version.
         try {
+            srcsWriter.append(URIUtil.rootLocation("std"));
             libsWriter.append(resolveCurrentRascalRuntimeJar());
         }
         catch (IOException e) {
