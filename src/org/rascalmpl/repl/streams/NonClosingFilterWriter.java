@@ -1,11 +1,11 @@
-package org.rascalmpl.repl;
+package org.rascalmpl.repl.streams;
 
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
 
 
-public abstract class NonClosingFilterWriter extends FilterWriter {
+abstract class NonClosingFilterWriter extends FilterWriter {
 
     protected NonClosingFilterWriter(Writer out) {
         super(out);

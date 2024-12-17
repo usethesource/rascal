@@ -15,6 +15,10 @@ public interface IREPLService {
 
     String MIME_PLAIN = "text/plain";
     String MIME_ANSI = "text/x-ansi";
+    String MIME_HTML = "text/html";
+    String MIME_PNG = "image/png";
+    String MIME_JPEG = "image/jpeg";
+    String MIME_SVG = "image/svg+xml";
 
     /**
      * Does this language support completion
@@ -40,6 +44,10 @@ public interface IREPLService {
     }
 
 
+    /**
+     * Should the history of the REPL be stored
+     * @return
+     */
     default boolean storeHistory() {
         return false;
     }
@@ -58,17 +66,12 @@ public interface IREPLService {
     default String name() { return "Rascal REPL"; }
 
 
-    /**
-     * Check if an input is valid, for multi-line support
-     */
-    boolean isInputComplete(String input);
-
-
     // todo see if we really need the meta-data
     void handleInput(String input, Map<String, IOutputPrinter> output, Map<String, String> metadata) throws InterruptedException;
 
     /**
      * Will be called from a different thread then the one that called `handleInput`
+     * Should try to stop the running command 
      */
     void handleInterrupt() throws InterruptedException;
 
@@ -76,14 +79,27 @@ public interface IREPLService {
      * Default prompt
      */
     String prompt(boolean ansiSupported, boolean unicodeSupported);
+
     /**
      * Continuation prompt
      */
     String parseErrorPrompt(boolean ansiSupported, boolean unicodeSupported);
 
+    /**
+     * Connect the REPL to the Terminal, most likely want to take a copy of at least the {@link Terminal#writer()}.
+     * @param term
+     */
     void connect(Terminal term);
 
+    /**
+     * if a REPL service has wrapped the writer for error output, return that instance
+     * @return
+     */
     PrintWriter errorWriter();
+    /**
+     * if a REPL service has wrapped the writer for regular output, return that instance
+     * @return
+     */
     PrintWriter outputWriter();
 
     /**

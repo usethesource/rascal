@@ -79,7 +79,7 @@ public interface ILanguageProtocol {
      * @param cursor The cursor offset in the line.
      * @return suggestions for the line.
      */
-    CompletionResult completeFragment(String line, int cursor);
+    void/*CompletionResult*/ completeFragment(String line, int cursor);
 
     /**
      * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
