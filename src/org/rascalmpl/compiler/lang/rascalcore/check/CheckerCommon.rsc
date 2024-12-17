@@ -12,6 +12,7 @@ extend lang::rascalcore::check::SyntaxGetters;
 extend analysis::typepal::FailMessage;
 
 extend lang::rascalcore::check::BasicRascalConfig;
+extend lang::rascalcore::check::ModuleLocations;
 
 import analysis::typepal::Collector;
 
@@ -119,7 +120,7 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
         return res;
    } catch NoSuchKey(_): {
         try {
-            mloc = getModuleLocation(qualifiedModuleName, pcfg);
+            mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
             res = lastModified(mloc);
             //println("getLastModified <mloc> via lastModified: <res>");
             return res;
@@ -131,7 +132,7 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
 
 bool tplOutdated(str qualifiedModuleName, PathConfig pcfg){
     try {
-        mloc = getModuleLocation(qualifiedModuleName, pcfg);
+        mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
         <found, tpl> = getTPLReadLoc(qualifiedModuleName, pcfg);
         lmMloc = lastModified(mloc);
         lmTpl = lastModified(tpl);
@@ -163,7 +164,7 @@ tuple[bool, Module, ModuleStatus] getModuleParseTree(str qualifiedModuleName, Mo
             ms.parseTreeLIFO = [qualifiedModuleName, *ms.parseTreeLIFO];
             mloc = |unknown:///<qualifiedModuleName>|;
             try {
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 // Make sure we found a real source module (as opposed to a tpl module in a library
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) {
                     ms.status[qualifiedModuleName] += {rsc_not_found()};
@@ -216,9 +217,6 @@ ModuleStatus clearTModelCache(ModuleStatus ms){
         todo -= candidate;
     }
     for(candidate <- todo){
-        //  if(candidate == "analysis::grammar::Ambiguity"){
-        //         println("clearTModelCache");
-        //  }
         ms = removeTModel(candidate, ms, updateBOMneeded=true);
         ms.status[candidate] -= bom_update_needed();
     }
@@ -258,10 +256,6 @@ ModuleStatus updateBOM(str qualifiedModuleName, ModuleStatus ms){
 }
 
 ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded = false){
-    // if(candidate == "analysis::grammar::Ambiguity"){
-    //     println("removeTModel: <candidate>, <ms.status[candidate]>");
-    // }
-    messages = [];
     if(ms.status[candidate]? && tpl_saved() notin ms.status[candidate] && rsc_not_found() notin ms.status[candidate]){
         pcfg = ms.pathConfig;
         if(updateBOMneeded){
@@ -272,27 +266,17 @@ ModuleStatus removeTModel(str candidate, ModuleStatus ms, bool updateBOMneeded =
         <found, tplLoc> = getTPLWriteLoc(candidate, pcfg);
         tm = ms.tmodels[candidate];
         tm = convertTModel2LogicalLocs(tm, ms.tmodels);
-        messages = tm.messages;
         ms.status[candidate] += tpl_saved();
         if(ms.compilerConfig.verbose) println("Save <candidate> before removing from cache <ms.status[candidate]>");
         try {
             writeBinaryValueFile(tplLoc, tm);
-            // if(candidate == "analysis::grammar::Ambiguity"){
-            //     println("removeTModel <candidate>: <getLastModified(candidate, ms.pathConfig)>, tpl: <lastModified(tplLoc)>");
-            // }
             if(traceTPL) println("Written <tplLoc>");
         } catch value e: {
-            throw "Cannot write TPL file <tplLoc>, reason: <e>";
+            mloc = ms.moduleLocs[candidate] ? |unknown:///|;
+            ms.messages[candidate] += { error("Cannot write TPL file <tplLoc>, reason: <e>",  mloc) };
         }
     }
-    // if(!isEmpty(messages)){
-    //     ms.messages[candidate] = messages;
-    //     println("<candidate>:"); iprintln(messages);
-    // }
     ms.tmodels = delete(ms.tmodels, candidate);
-    //if(candidate == "analysis::grammar::Ambiguity"){
-    //    println("removeTModel, end: <candidate>, <ms.status[candidate]>");
-    //}
     return ms;
 }
 
@@ -346,7 +330,7 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
                 tm.usesPhysicalLocs = false; // temporary
                 tm = convertTModel2PhysicalLocs(tm);
                 ms.tmodels[qualifiedModuleName] = tm;
-                mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
                     ms.status[qualifiedModuleName] ? {} += {rsc_not_found()};
                 }

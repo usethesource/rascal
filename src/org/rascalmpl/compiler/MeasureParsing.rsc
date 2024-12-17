@@ -5,6 +5,7 @@ import util::Benchmark;
 import lang::rascal::\syntax::Rascal;
 import IO;
 import ValueIO;
+import lang::rascalcore::check::ModuleLocations;
 
 data PathConfig(
     loc resources = |unknown:///|,
@@ -32,7 +33,7 @@ void main(){
     write_time = 0;
     for(int _ <- [1..10]){
         for(qualifiedModuleName <- ["Boolean", "Type", "ParseTree", "List"]){
-            mloc = getModuleLocation(qualifiedModuleName, pcfg);    
+            mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);    
             ploc = |file:///tmp/<qualifiedModuleName>.parsetree|;        
             //println("*** parsing <qualifiedModuleName> from <mloc>");
             start_time = cpuTime();

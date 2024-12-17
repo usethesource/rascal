@@ -350,7 +350,7 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
 //    
 //    <_, msgs> = checkModules([qualifiedModuleName], rascalTypePalConfig(), pcfg);
 //    iprintln(msgs);       
-//    mTplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
+//    mTplLoc = getRascalModuleDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
 //    mOrgModel = readBinaryValueFile(#TModel, mTplLoc);
 //    
 //    differences = ();
@@ -434,7 +434,7 @@ void allFiles(PathConfig pcfg = pathConfig(
     nskipped = 0;
     ncount = 0;
     for(p <- modulePaths){
-        qualifiedModuleName = getModuleName(p, pcfg);
+        qualifiedModuleName = getRascalModuleName(p, pcfg);
         ncount += 1;
         if(blacklisted(qualifiedModuleName)){
            println("\>\>\> <ncount>: SKIPPING <qualifiedModuleName>");

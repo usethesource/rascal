@@ -50,7 +50,7 @@ str prettyAType(areal()) = "real";
 str prettyAType(arat()) = "rat";
 str prettyAType(astr()) = "str";
 str prettyAType(anum()) = "num";
-str prettyAType(anode(list[AType fieldType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.alabel> = ..." | ft <- fields])>)";
+str prettyAType(anode(list[AType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.alabel> = ..." | ft <- fields])>)";
 str prettyAType(avoid()) = "void";
 str prettyAType(avalue()) = "value";
 str prettyAType(aloc()) = "loc";
@@ -74,7 +74,7 @@ str prettyAType(aadt(str s, [], SyntaxRole _)) = s;
 str prettyAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyAType(ps)>]" when size(ps) > 0;
 
 str prettyAType(t: acons(AType adt, /*str consName,*/ 
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields))
                  = "<prettyAType(adt)>::<t.alabel>(<intercalate(", ", ["<prettyAType(ft)><ft.alabel? ? " <ft.alabel>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(kw.fieldType)> <kw.fieldName>=..." | Keyword kw <- kwFields])>)";
 
@@ -140,7 +140,7 @@ Symbol atype2symbol1(areal()) = Symbol::\real();
 Symbol atype2symbol1(arat()) = \rat();
 Symbol atype2symbol1(astr()) = \str();
 Symbol atype2symbol1(anum()) = Symbol::\num();
-Symbol atype2symbol1(anode( list[AType fieldType] fields)) = Symbol::\node();
+Symbol atype2symbol1(anode( list[AType] fields)) = Symbol::\node();
 Symbol atype2symbol1(avoid()) = Symbol::\void();
 Symbol atype2symbol1(avalue()) = Symbol::\value();
 Symbol atype2symbol1(aloc()) = Symbol::\loc();
@@ -171,7 +171,7 @@ Symbol atype2symbol1(aadt(str s, ps, contextFreeSyntax())) = \parameterized-sort
 Symbol atype2symbol1(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0; 
 
 Symbol atype2symbol1(t: acons(AType adt,
-                list[AType fieldType] fields,
+                list[AType] fields,
                 list[Keyword] kwFields))
  = Symbol::cons(atype2symbol(adt), t.alabel, [atype2symbol(f) | f <- fields]); // we loose kw fields here
 
@@ -258,7 +258,7 @@ set[Production] aprods2prods(set[AType] alts) = {aprod2prod(p) | p <- alts/*, ac
 Production aprod2prod(aprod(AProduction prod)) = aprod2prod(prod);
 
 default Production aprod2prod(AType t) {
-  throw "internal error: do not know how to translate a <t> to a production rule?!";
+  throw rascalCheckerInternalError("Do not know how to translate a <t> to a production rule");
 }
 
 Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attributes=set[AAttr] as))
