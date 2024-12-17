@@ -57,6 +57,22 @@
                 </excludes>
             </resource>
             <resource>
+                <targetPath>test/org/rascalmpl/benchmark</targetPath>
+                <directory>test/org/rascalmpl/benchmark</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                    <exclude>**/*.class</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <targetPath>test/org/rascalmpl/test/data</targetPath>
+                <directory>test/org/rascalmpl/test/data</directory>
+                <excludes>
+                    <exclude>**/*.java</exclude>
+                    <exclude>**/*.class</exclude>
+                </excludes>
+            </resource>
+            <resource>
                 <directory>.</directory>
                 <filtering>false</filtering>
                 <includes>
