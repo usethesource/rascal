@@ -409,7 +409,7 @@ private str rascalMF(str name)
     'Project-Name: <name>
     'Source: src/main/rascal
     'Require-Libraries: 
-    ";
+    '";
 
 private str pomXml(str name, str group, str version)  
   = "\<?xml version=\"1.0\" encoding=\"UTF-8\"?\>

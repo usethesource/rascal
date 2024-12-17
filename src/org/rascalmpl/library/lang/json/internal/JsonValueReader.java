@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IInteger;
@@ -59,6 +58,8 @@ public class JsonValueReader {
   private VarHandle posHandler;
   private VarHandle lineHandler;
   private VarHandle lineStartHandler;
+  private boolean explicitConstructorNames;
+  private boolean explicitDataTypes;
   
   /**
    * @param vf     factory which will be used to construct values
@@ -104,6 +105,20 @@ public class JsonValueReader {
     };
     return this;
   }
+
+  public JsonValueReader setExplicitConstructorNames(boolean value) {
+    this.explicitConstructorNames = value;
+    return this;
+  }
+
+   public JsonValueReader setExplicitDataTypes(boolean value) {
+    this.explicitDataTypes = value;
+    if (value) {
+      this.explicitConstructorNames = true;
+    }
+    return this;
+  }
+
 
   /**
    * Read and validate a Json stream as an IValue
@@ -477,7 +492,6 @@ public class JsonValueReader {
         }
       }
 
-
       @Override
       public IValue visitAbstractData(Type type) throws IOException {
         if (in.peek() == JsonToken.STRING) {
@@ -493,18 +507,75 @@ public class JsonValueReader {
           throw new IOException("no nullary constructor found for " + type);
         }
 
-        assert in.peek() == JsonToken.BEGIN_OBJECT;
+        Set<Type> alternatives = null;
 
-        Set<Type> alternatives = store.lookupAlternatives(type);
-        if (alternatives.size() > 1) {
-          monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
-        }
-        Type cons = alternatives.iterator().next();
-       
         in.beginObject();
         int startPos = getPos();
         int startLine = getLine();
         int startCol = getCol();
+        
+        // use explicit information in the JSON to select and filter constructors from the TypeStore
+        // we expect always to have the field _constructor before _type.
+        if (explicitConstructorNames || explicitDataTypes) {
+          String consName = null;
+          String typeName = null; // this one is optional, and the order with cons is not defined.
+
+          String consLabel = in.nextName();
+
+          // first we read either a cons name or a type name
+          if (explicitConstructorNames && "_constructor".equals(consLabel)) {
+            consName = in.nextString();
+          }
+          else if (explicitDataTypes && "_type".equals(consLabel)) {
+            typeName = in.nextString();
+          }
+
+          // optionally read the second field
+          if (explicitDataTypes && typeName == null) {
+            // we've read a constructor name, but we still need a type name
+            consLabel = in.nextName();
+            if (explicitDataTypes && "_type".equals(consLabel)) {
+              typeName = in.nextString();
+            }
+          }
+          else if (explicitDataTypes && consName == null) {
+            // we've read type name, but we still need a constructor name
+            consLabel = in.nextName();
+            if (explicitDataTypes && "_constructor".equals(consLabel)) {
+              consName = in.nextString();
+            }
+          }
+
+          if (explicitDataTypes && typeName == null) {
+              throw new IOException("Missing a _type field: " + in.getPath());
+          }
+          else if (explicitConstructorNames && consName == null) {
+              throw new IOException("Missing a _constructor field: " + in.getPath());
+          }
+
+          if (typeName != null && consName != null) {
+            // first focus on the given type name
+            var dataType = TF.abstractDataType(store, typeName);
+            alternatives = store.lookupConstructor(dataType, consName);
+          }
+          else {
+            // we only have a constructor name
+            // lookup over all data types by constructor name
+            alternatives = store.lookupConstructors(consName);
+          }
+        }
+        else {
+          alternatives = store.lookupAlternatives(type);
+        }
+
+        if (alternatives.size() > 1) {
+          monitor.warning("selecting arbitrary constructor for " + type, vf.sourceLocation(in.getPath()));
+        }
+        else if (alternatives.size() == 0) {
+          throw new IOException("No fitting constructor found for " + in.getPath());
+        }
+        Type cons = alternatives.iterator().next();
+       
         
         IValue[] args = new IValue[cons.getArity()];
         Map<String,IValue> kwParams = new HashMap<>();
@@ -532,7 +603,20 @@ public class JsonValueReader {
             }
           }
           else { // its a normal arg, pass its label to the child
-            throw new IOException("Unknown field " + label + ":" + in.getPath());
+            if (!explicitConstructorNames && "_constructor".equals(label)) {
+              // ignore additional _constructor fields.
+              in.nextString(); // skip the constructor value
+              continue;
+            }
+            else if (!explicitDataTypes && "_type".equals(label)) {
+              // ignore additional _type fields.
+              in.nextString(); // skip the type value
+              continue;
+            }
+            else {
+              // field label does not match data type definition
+              throw new IOException("Unknown field " + label + ":" + in.getPath());
+            }
           }
         }
         

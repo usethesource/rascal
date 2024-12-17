@@ -90,7 +90,7 @@ default str defaultNodeLabeler(&T v) = "<v>";
 alias EdgeLabeler[&T]= str (&T _source, &T _target);
 str defaultEdgeLabeler(&T _source, &T _target)  = "";
 
-
+@synopsis{Produces an overall cytoscape.js wrapper which is sent as JSON to the client side.}
 Cytoscape cytoscape(list[CytoData] \data, \CytoLayout \layout=\defaultCoseLayout(), CytoStyle nodeStyle=defaultNodeStyle(), CytoStyle edgeStyle=defaultEdgeStyle())
     = cytoscape(
         elements=\data,        
@@ -101,6 +101,7 @@ Cytoscape cytoscape(list[CytoData] \data, \CytoLayout \layout=\defaultCoseLayout
         \layout=\layout
     );
 
+@synopsis{Translates different types of Rascal data conveniently to the Cytoscape.js data format.}
 list[CytoData] graphData(rel[loc x, loc y] v, NodeLinker[loc] nodeLinker=defaultNodeLinker, NodeLabeler[loc] nodeLabeler=defaultNodeLabeler, EdgeLabeler[loc] edgeLabeler=defaultEdgeLabeler)
     = [cytodata(\node("<e>", label=nodeLabeler(e), editor="<nodeLinker(e)>")) | e <- {*v<x>, *v<y>}] +
       [cytodata(\edge("<from>", "<to>", label=edgeLabeler(from, to))) | <from, to> <- v]
@@ -169,6 +170,7 @@ data CytoNodeShape
     | \polygon()
     ;
 
+@synopsis{Overall cytoscape.js object for sending to the client side.}
 data Cytoscape 
     = cytoscape(
         list[CytoData] elements = [],
@@ -242,6 +244,11 @@ data CytoStyleOf
 CytoStyleOf cytoNodeStyleOf(CytoStyle style) = cytoNodeStyleOf(selector=\node(), style=style);
 CytoStyleOf cytoEdgeStyleOf(CytoStyle style) = cytoEdgeStyleOf(selector=\edge(), style=style);
 
+@synopsis{Instantiates a default node style}
+@description{
+Because the JSON writer can not instantiate default values for keyword fields,
+we have to do it manually here.
+}
 CytoStyle defaultNodeStyle()
     = cytoNodeStyle(
         width             = "label",
@@ -256,6 +263,11 @@ CytoStyle defaultNodeStyle()
         \text-valign      = CytoVerticalAlign::\center()
     );
 
+@synopsis{Instantiates a default edge style}
+@description{
+Because the JSON writer can not instantiate default values for keyword fields
+we have to do it manually here.
+}
 CytoStyle defaultEdgeStyle()
     = cytoEdgeStyle(
         width               = 3,
@@ -433,7 +445,16 @@ Response (Request) graphServer(Cytoscape ch) {
     return reply;
 }
 
-@synopsis{default HTML wrapper for a chart}
+@synopsis{default HTML wrapper for a cytoscape.js graph}
+@description{
+This client features:
+* cytoscape.js loading with cytoscape-dagre and dagre present.
+* fetching of graph data via `http://localhost/cytoscape` URL
+* clickable links in every node that has an 'editor' data field that holds a `loc`, via the `http://localhost/editor?src=loc` URL
+* full screen graph view
+
+This client mirrors the server defined by ((graphServer)).
+}
 private HTMLElement plotHTML()
     = html([
         head([ 

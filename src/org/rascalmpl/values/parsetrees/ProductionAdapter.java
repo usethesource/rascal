@@ -166,11 +166,15 @@ public class ProductionAdapter {
 	}
 
 	public static String getCategory(IConstructor tree) {
+		return getTagValue(tree, "category");
+	}
+
+	public static String getTagValue(IConstructor tree, String name) {
 		if (!isRegular(tree)) {
 			for (IValue attr : getAttributes(tree)) {
 				if (attr.getType().isAbstractData() && ((IConstructor) attr).getConstructorType() == RascalValueFactory.Attr_Tag) {
 					IValue value = ((IConstructor)attr).get("tag");
-					if (value.getType().isNode() && ((INode) value).getName().equals("category")) {
+					if (value.getType().isNode() && ((INode) value).getName().equals(name)) {
 						return ((IString) ((INode) value).get(0)).getValue();
 					}
 				}

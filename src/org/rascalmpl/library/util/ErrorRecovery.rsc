@@ -51,3 +51,6 @@ This filter removes error trees until no ambiguities caused by error recovery ar
 Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 }
 java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
+
+Tree(Tree) createErrorFilter(bool allowAmbiguity) =
+    Tree(Tree t)  { return disambiguateErrors(t, allowAmbiguity=allowAmbiguity); };

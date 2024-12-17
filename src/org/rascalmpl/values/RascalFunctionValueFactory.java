@@ -551,8 +551,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
         }
 
         protected IValue parse(String methodName, ISet filters, ISourceLocation input, ISourceLocation origin, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
-            if (origin == null) {
-                origin = input;
+            if (origin != null && !origin.equals(input)) {
+                throw new IllegalArgumentException("input and origin should be equal: <input> != <origin>");
             }
             
             try {
@@ -585,10 +585,10 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
             ITree parseForest = (ITree) parserInstance.parse(methodName, uri, input, exec, new DefaultNodeFlattener<>(), new UPTRNodeFactory(allowRecovery || allowAmbiguity), recoverer, debugListener);
 
-            if (!allowAmbiguity && allowRecovery && filters.isEmpty()) {
-                // Filter error-induced ambiguities
+            if (!allowAmbiguity && allowRecovery) {
+                // Check for 'regular' (non-error) ambiguities
                 RascalValueFactory valueFactory = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
-                parseForest = (ITree) new ErrorRecovery(valueFactory).disambiguateErrors(parseForest, valueFactory.bool(false));
+                new ErrorRecovery(valueFactory).checkForRegularAmbiguities(parseForest);
             }
 
             return parseForest;
