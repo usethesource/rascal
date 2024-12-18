@@ -4,22 +4,14 @@ import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.jline.reader.Completer;
 import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.repl.output.ICommandOutput;
 
 public interface IREPLService {
-
-    String MIME_PLAIN = "text/plain";
-    String MIME_ANSI = "text/x-ansi";
-    String MIME_HTML = "text/html";
-    String MIME_PNG = "image/png";
-    String MIME_JPEG = "image/jpeg";
-    String MIME_SVG = "image/svg+xml";
-
     /**
      * Does this language support completion
      * @return
@@ -66,8 +58,7 @@ public interface IREPLService {
     default String name() { return "Rascal REPL"; }
 
 
-    // todo see if we really need the meta-data
-    void handleInput(String input, Map<String, IOutputPrinter> output, Map<String, String> metadata) throws InterruptedException;
+    ICommandOutput handleInput(String input) throws InterruptedException;
 
     /**
      * Will be called from a different thread then the one that called `handleInput`
@@ -78,12 +69,12 @@ public interface IREPLService {
     /**
      * Default prompt
      */
-    String prompt(boolean ansiSupported, boolean unicodeSupported);
+    String prompt(boolean ansiColorsSupported, boolean unicodeSupported);
 
     /**
      * Continuation prompt
      */
-    String parseErrorPrompt(boolean ansiSupported, boolean unicodeSupported);
+    String parseErrorPrompt(boolean ansiColorSupported, boolean unicodeSupported);
 
     /**
      * Connect the REPL to the Terminal, most likely want to take a copy of at least the {@link Terminal#writer()}.
