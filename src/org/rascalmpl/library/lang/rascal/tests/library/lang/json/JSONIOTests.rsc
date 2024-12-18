@@ -84,6 +84,11 @@ test bool originTracking() {
 
 @synopsis{Normalizer used to create lists out of other containers}
 value allContainersToLists(set[value] x) = [*x];
+value allContainersToLists(value tup) = [] when \tuple(_) := typeOf(tup), "<tup>" == "\<\>";
+value allContainersToList(<x>) = [x];
+value allContainersToList(<x,y>) = [x,y];
+value allContainersToList(<x,y,z>) = [x,y,z];
+
 default value allContainersToLists(value x) = x;
 
 test bool accurateParseErrors() {
