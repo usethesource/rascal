@@ -6,10 +6,11 @@ import util::UUID;
 import util::Maybe;
 import IO;
 import util::Math;
+import Type;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
-bool writeRead(type[&T] returnType, &T dt) {
+bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }) {
     dt = visit (dt) {
         // reals must fit in double
         case real r => fitDouble(r)
@@ -18,7 +19,16 @@ bool writeRead(type[&T] returnType, &T dt) {
     }
 
     json = asJSON(dt);
-    return parseJSON(returnType, json) == dt;
+    readBack = parseJSON(returnType, json);
+    if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
+        println("What is read back, a <type(typeOf(readBack),())>:");
+        iprintln(readBack);
+        println("Is different from the original, a <type(typeOf(normalizer(dt)),())>:");
+        iprintln(normalizer(dt));
+        return false;
+    }
+
+    return true;
 }
 	
 // only single constructors supported for now
@@ -45,7 +55,12 @@ test bool jsonWithNode1(node  dt) = writeRead(#node, dt);
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
 
-test bool jsonRandom1(value dt) = writeRead(#value, dt);
+@synopsis{all values can be written and read again}
+@description{
+However sets are always read back in as lists if we don't have 
+a specific abstract data-type that can enforce sets.
+}
+test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=allContainersToLists);
 
 test bool json1() = writeRead(#DATA1, data1(123));
 test bool json2() = writeRead(#DATA2, data2("123"));
@@ -66,6 +81,10 @@ test bool originTracking() {
 
    return true;
 }
+
+@synopsis{Normalizer used to create lists out of other containers}
+value allContainersToLists(set[value] x) = [*x];
+default value allContainersToLists(value x) = x;
 
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
