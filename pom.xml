@@ -169,7 +169,8 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
-                    <execution>
+                        <!-- commented out for bootstrapping purposes; 
+                            <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
                         <goals>
@@ -190,7 +191,7 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             </ignores>
                         </configuration>
-                        </execution>
+                        </execution> -->
                 </executions>
             </plugin>
             <plugin>
