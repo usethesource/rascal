@@ -384,7 +384,7 @@ public class JsonValueReader {
       switch (in.peek()) {
         case BEGIN_OBJECT:
           in.beginObject();
-          if (!type.getKeyType().isString()) {
+          if (!type.getKeyType().isString() && in.peek() != JsonToken.END_OBJECT) {
             throw parseErrorHere("Can not read JSon object as a map if the key type of the map (" + type + ") is not a string at " + in.getPath());
           }
           
