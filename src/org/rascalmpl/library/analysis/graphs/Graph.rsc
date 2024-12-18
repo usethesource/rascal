@@ -289,3 +289,6 @@ reduction's worst case complexity is in the same order as transitive closure its
 * reduces cyclic sub-graphs to "empty"
 }
 Graph[&T] transitiveReduction(Graph[&T] g) = g - (g o g+);
+
+@synopsis{Select the short-cut edges, the ones that transitively close at least two other edges.}
+Graph[&T] transitiveEdges(Graph[&T] g) = g o g+;
