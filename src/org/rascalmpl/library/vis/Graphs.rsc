@@ -504,6 +504,27 @@ str formatCytoSelector(greaterEqual(str field, int lim)) = "[<field> \>= <lim>]"
 str formatCytoSelector(lessEqual(str field, int lim)) = "[<field> \<= <lim>]";
 str formatCytoSelector(less(str field, int lim)) = "[<field> \< <lim>]";
 
+@synopsis{Choice of different node layout algorithms.}
+@description{
+The different algorithms use heuristics to find a layout
+that shows the structure of a graph best. Different types
+of graph data call for different algorithms:
+* `grid` is best when there are very few edges or when edges are not important. The edge relation
+is not used at all for deciding where each node will end up. Grid 
+is typically used for an initial exploration of the graph. It is very fast.
+* `circle` puts all nodes on the edge of a circle and draws edges between them. The order on the
+circle is arbitrary. This layout fails on larger collections of nodes because the points on the 
+circle will become really small and indistinguishable. However for graphs with less than 100 nodes 
+it provides a quick and natural overview.
+* `breadthfirst` computes a breadthfirst spanning tree, and uses path length to decide on which
+layer each node will reside. Cross-edges (between branches) and back-edges are allowed but if there
+are many the graph will be messy. So this layout is best when you have a mostly hierarchical graph.
+Examples are flow charts and dependency graphs.
+* `cose` is a so-called "force-directed" layout. The edges become springs that both push nodes
+apart as well as pull them together. Nodes drag on the surface but have an initial momentum such
+that they can find a spot on the plain. This layout is very natural for scale-free networks such
+as biological organisms, friends graphs and software ecosystems.
+}
 data CytoLayoutName
     = grid()
     | circle()

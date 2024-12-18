@@ -107,7 +107,8 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
         title="Rascal Import/Extend Graph",
         nodeClassifier=nodeClass,
         edgeClassifier=edgeClass,
-        nodeLinker=modLinker
+        nodeLinker=modLinker,
+        edgeStyle=defaultEdgeStyle()[\curve-style=taxi()]
     );
 
     showInteractiveContent(graph(g, cfg=cfg), title=cfg.title);
