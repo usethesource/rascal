@@ -226,6 +226,9 @@ public class JsonValueWriter {
       @Override
       public Void visitNode(INode o) throws IOException {
         out.beginObject();
+        out.name("_name");
+        out.value(o.getName());
+
         int i = 0;
         for (IValue arg : o) {
           out.name("arg" + i++); 
