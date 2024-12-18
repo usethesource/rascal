@@ -7,9 +7,9 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.Writer;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +42,14 @@ import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.http.REPLContentServer;
 import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.repl.jline3.RascalLineParser;
+import org.rascalmpl.repl.output.IAnsiCommandOutput;
+import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.IHtmlCommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.IWebContentOutput;
+import org.rascalmpl.repl.output.MimeTypes;
+import org.rascalmpl.repl.output.impl.StringOutputPrinter;
 import org.rascalmpl.repl.streams.ItalicErrorWriter;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.repl.streams.LimitedWriter;
@@ -53,6 +61,7 @@ import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -125,63 +134,60 @@ public class RascalReplServices implements IREPLService {
         });
     }
 
-
     @Override
-    public void handleInput(String input, Map<String, IOutputPrinter> output, Map<String, String> metadata)
-        throws InterruptedException {
+    public ICommandOutput handleInput(String input) throws InterruptedException {
         synchronized(eval) {
             Objects.requireNonNull(eval, "Not initialized yet");
             try {
-                Result<IValue> value;
-                    value = eval.eval(eval.getMonitor(), input, URIUtil.rootLocation("prompt"));
-                outputResult(output, value, metadata);
+                Result<IValue> value = eval.eval(eval.getMonitor(), input, URIUtil.rootLocation("prompt"));
+                return outputResult(value);
             }
             catch (InterruptException ex) {
-                reportError(output, (w, sw) -> {
+                return reportError((w, sw) -> {
                     w.println("Interrupted");
                     ex.getRascalStackTrace().prettyPrintedString(w, sw);
                 });
             }
             catch (ParseError pe) {
-                reportError(output, (w, sw) -> {
+                return reportError((w, sw) -> {
                     parseErrorMessage(w, input, "prompt", pe, sw);
                 });
             }
             catch (StaticError e) {
-                reportError(output, (w, sw) -> {
+                return reportError((w, sw) -> {
                     staticErrorMessage(w, e, sw);
                 });
             }
             catch (Throw e) {
-                reportError(output, (w, sw) -> {
+                return reportError((w, sw) -> {
                     throwMessage(w,e, sw);
                 });
             }
             catch (QuitException q) {
-                reportError(output, (w, sw) -> {
+                throw new EndOfFileException("Quiting REPL");
+                /* 
+                return reportError((w, sw) -> {
                     w.println("Quiting REPL");
                 });
-                throw new EndOfFileException("Quiting REPL");
+                */
             }
             catch (Throwable e) {
-                reportError(output, (w, sw) -> {
+                return reportError((w, sw) -> {
                     throwableMessage(w, e, eval.getStackTrace(), sw);
                 });
             }
         }
     }
 
-    private void outputResult(Map<String, IOutputPrinter> output, IRascalResult result, Map<String, String> metadata) {
+    private ICommandOutput outputResult(IRascalResult result) {
         if (result == null || result.getValue() == null) {
-            output.put(MIME_PLAIN, new StringOutputPrinter("ok", newline));
-            return;
+            return () -> new StringOutputPrinter("ok", newline, MimeTypes.PLAIN_TEXT);
         }
         IValue value = result.getValue();
         Type type = result.getStaticType();
 
         if (type.isSubtypeOf(RascalValueFactory.Content) && !type.isBottom()) {
-            serveContent(output, (IConstructor)value, metadata);
-            return;
+            return serveContent((IConstructor)value);
         }
 
         ThrowingWriter resultWriter;
@@ -239,9 +245,25 @@ public class RascalReplServices implements IREPLService {
             w.println();
         };
 
-        output.put(MIME_PLAIN, new ExceptionPrinter(typePrefixed, plainIndentedPrinter));
-        output.put(MIME_ANSI, new ExceptionPrinter(typePrefixed, ansiIndentedPrinter));
+        return new DoubleOutput(typePrefixed);
+    }
 
+    private static class DoubleOutput implements IAnsiCommandOutput {
+        private ThrowingWriter writer;
+        
+        DoubleOutput(ThrowingWriter writer) {
+            this.writer = writer;
+        }
+
+        @Override
+        public IOutputPrinter asAnsi() {
+            return new ParameterizedPrinterOutput(writer, ansiIndentedPrinter, MimeTypes.ANSI);
+        }
+
+        @Override
+        public IOutputPrinter asPlain() {
+            return new ParameterizedPrinterOutput(writer, plainIndentedPrinter, MimeTypes.PLAIN_TEXT);
+        }
     }
 
     private Function<IValue, IValue> addEvalLock(IFunction func) {
@@ -252,7 +274,7 @@ public class RascalReplServices implements IREPLService {
         };
     }
 
-    private void serveContent(Map<String, IOutputPrinter> output, IConstructor provider, Map<String, String> metadata) {
+    private ICommandOutput serveContent(IConstructor provider) {
         String id;
         Function<IValue, IValue> target;
         
@@ -267,32 +289,86 @@ public class RascalReplServices implements IREPLService {
 
         try {
             // this installs the provider such that subsequent requests are handled.
-            REPLContentServer server  = contentManager.addServer(id, target);
+            REPLContentServer server = contentManager.addServer(id, target);
 
             // now we need some HTML to show
-            String URL = "http://localhost:" + server.getListeningPort() + "/";
             
             IWithKeywordParameters<? extends IConstructor> kp = provider.asWithKeywordParameters();
+            String title = kp.hasParameter("title") ? ((IString) kp.getParameter("title")).getValue() : id;
+            int viewColumn = kp.hasParameter("viewColumn") ? ((IInteger)kp.getParameter("viewColumn")).intValue() : 1;
+            URI serverUri = new URI("http", null, "localhost", server.getListeningPort(), "/", null, null);
 
-            metadata.put("url", URL);
-            metadata.put("title", kp.hasParameter("title") ? ((IString) kp.getParameter("title")).getValue() : id);
-            metadata.put("viewColumn", kp.hasParameter("viewColumn") ? kp.getParameter("title").toString() : "1");
+            return new HostedWebContentOutput(id, serverUri, title, viewColumn);
 
-            output.put(MIME_PLAIN, new StringOutputPrinter("Serving \'" + id + "\' at |" + URL + "|", newline));
-            output.put(MIME_HTML, new StringOutputPrinter("<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ URL +"\"></iframe>", newline));
         }
         catch (IOException e) {
-            reportError(output, (w, sw) -> {
+            return reportError((w, sw) -> {
                 w.println("Could not start webserver to render html content: ");
                 w.println(e.getMessage());
             });
         }
-
+        catch (URISyntaxException e) {
+            return reportError((w, sw) -> {
+                w.println("Could not start build the uri: ");
+                w.println(e.getMessage());
+            });
+        }
     }
 
-    private static void reportError(Map<String, IOutputPrinter> output, ThrowingWriter writer) {
-        output.put(MIME_PLAIN, new ExceptionPrinter(writer, plainIndentedPrinter));
-        output.put(MIME_ANSI, new ExceptionPrinter(writer, ansiIndentedPrinter));
+    private class HostedWebContentOutput implements IWebContentOutput, IHtmlCommandOutput {
+        private final String id;
+        private final URI uri;
+        private final String title;
+        private final int viewColumn;
+
+        HostedWebContentOutput(String id, URI uri, String title, int viewColumn) {
+            this.id = id;
+            this.uri = uri;
+            this.title = title;
+            this.viewColumn = viewColumn;
+        }
+
+        @Override
+        public IOutputPrinter asPlain() {
+            return new StringOutputPrinter("Serving \'" + id + "\' at |" + uri + "|", newline, MimeTypes.PLAIN_TEXT);
+        }
+
+        @Override
+        public IOutputPrinter asHtml() {
+            return new StringOutputPrinter(
+                "<iframe class=\"rascal-content-frame\" style=\"display: block; width: 100%; height: 100%; resize: both\" src=\""+ uri +"\"></iframe>", 
+                newline, MimeTypes.HTML
+            );
+        }
+
+        @Override
+        public URI webUri() {
+            return uri;
+        }
+
+        @Override
+        public String webTitle() {
+            return title;
+        }
+
+        @Override
+        public int webviewColumn() {
+            return viewColumn;
+        }
+    }
+
+    private static IErrorCommandOutput reportError(ThrowingWriter writer) {
+        return new IErrorCommandOutput() {
+            @Override
+            public ICommandOutput getError() {
+                return new DoubleOutput(writer);
+            }
+
+            @Override
+            public IOutputPrinter asPlain() {
+                return new ParameterizedPrinterOutput(writer, plainIndentedPrinter, MimeTypes.PLAIN_TEXT);
+            }
+        };
     }
 
     @FunctionalInterface
@@ -300,13 +376,20 @@ public class RascalReplServices implements IREPLService {
         void write(PrintWriter writer, StandardTextWriter prettyPrinter) throws IOException;
     }
 
-    private static class ExceptionPrinter implements IOutputPrinter {
+    private static class ParameterizedPrinterOutput implements IOutputPrinter {
         private final ThrowingWriter internalWriter;
         private final StandardTextWriter prettyPrinter;
+        private final String mimeType;
 
-        public ExceptionPrinter(ThrowingWriter internalWriter, StandardTextWriter prettyPrinter) {
+        public ParameterizedPrinterOutput(ThrowingWriter internalWriter, StandardTextWriter prettyPrinter, String mimeType) {
             this.internalWriter = internalWriter;
             this.prettyPrinter = prettyPrinter;
+            this.mimeType = mimeType;
+        }
+
+        @Override
+        public String mimeType() {
+            return mimeType;
         }
 
         @Override
@@ -322,43 +405,23 @@ public class RascalReplServices implements IREPLService {
         }
     }
 
-    private static class StringOutputPrinter implements IOutputPrinter {
-        private final String value;
-        private final String newline;
-
-        public StringOutputPrinter(String value, String newline) {
-            this.value = value;
-            this.newline = newline;
-        }
-
-        @Override
-        public void write(PrintWriter target) {
-            target.println(value);
-        }
-
-        @Override
-        public Reader asReader() {
-            return new StringReader(value + newline);
-        }
-    }
-
     @Override
     public void handleInterrupt() throws InterruptedException {
         eval.interrupt();
     }
 
     @Override
-    public String prompt(boolean ansiSupported, boolean unicodeSupported) {
-        if (ansiSupported) {
+    public String prompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+        if (ansiColorsSupported) {
             return Ansi.ansi().reset().bold() + "rascal>" + Ansi.ansi().reset();
         }
         return "rascal>";
     }
 
     @Override
-    public String parseErrorPrompt(boolean ansiSupported, boolean unicodeSupported) {
+    public String parseErrorPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
         String errorPrompt = (unicodeSupported ? "│" : "|") + "%N %P>";
-        if (ansiSupported) {
+        if (ansiColorsSupported) {
             return Ansi.ansi().reset().bold() + errorPrompt + Ansi.ansi().reset();
         }
         return errorPrompt;
@@ -377,7 +440,6 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public void flush() {
-        // TODO figure out why this function is called?
         eval.getStdErr().flush();
         eval.getStdOut().flush();
     }

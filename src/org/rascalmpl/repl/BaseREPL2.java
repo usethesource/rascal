@@ -19,6 +19,11 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.Terminal.SignalHandler;
 import org.jline.utils.ShutdownHooks;
+import org.rascalmpl.repl.output.IAnsiCommandOutput;
+import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.impl.StringOutputPrinter;
 
 public class BaseREPL2 {
     
@@ -28,11 +33,9 @@ public class BaseREPL2 {
     private volatile boolean keepRunning = true;
     private final @MonotonicNonNull DefaultHistory history;
     private String currentPrompt;
-    private static final String FALLBACK_MIME_TYPE = "text/plain";
-    private static final String ANSI_MIME_TYPE = "text/x-ansi";
-    private final boolean ansiSupported;
+    private final boolean ansiColorsSupported;
+    private final boolean advancedTermFeaturesSupported;
     private final boolean unicodeSupported;
-    private final String mimeType;
 
     public BaseREPL2(IREPLService replService, Terminal term) {
         this.replService = replService;
@@ -62,21 +65,21 @@ public class BaseREPL2 {
 
         switch (term.getType()) {
             case Terminal.TYPE_DUMB:
-                this.ansiSupported = false;
-                this.mimeType = FALLBACK_MIME_TYPE;
+                this.ansiColorsSupported = false;
+                this.advancedTermFeaturesSupported = false;
                 break;
             case Terminal.TYPE_DUMB_COLOR:
-                this.ansiSupported = false;
-                this.mimeType = ANSI_MIME_TYPE;
+                this.ansiColorsSupported = false;
+                this.advancedTermFeaturesSupported = true;
                 break;
             default:
-                this.ansiSupported = true;
-                this.mimeType = ANSI_MIME_TYPE;
+                this.ansiColorsSupported = true;
+                this.advancedTermFeaturesSupported = true;
                 break;
         }
         this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");
-        this.currentPrompt = replService.prompt(ansiSupported, unicodeSupported);
-        reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiSupported, unicodeSupported));
+        this.currentPrompt = replService.prompt(ansiColorsSupported, unicodeSupported);
+        reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiColorsSupported, unicodeSupported));
         this.reader = reader.build();
 
 
@@ -187,22 +190,24 @@ public class BaseREPL2 {
 
 
     private void handleInput(String line) throws InterruptedException {
-        var result = new HashMap<String, IOutputPrinter>();
-        var meta = new HashMap<String, String>();
-        replService.handleInput(line, result, meta);
-        writeResult(result);
+        writeResult(replService.handleInput(line));
     }
 
-    private void writeResult(HashMap<String, IOutputPrinter> result) {
-        var writer = result.get(this.mimeType);
-        if (writer == null) {
-            writer = result.get(FALLBACK_MIME_TYPE);
+    private void writeResult(ICommandOutput result) {
+        PrintWriter target = replService.outputWriter();
+        if (result instanceof IErrorCommandOutput) {
+            target = replService.errorWriter();
+            result = ((IErrorCommandOutput)result).getError();
         }
-        if (writer == null) {
-            replService.outputWriter().println("Ok");
+
+        IOutputPrinter writer;
+        if (ansiColorsSupported && result instanceof IAnsiCommandOutput) {
+            writer = ((IAnsiCommandOutput)result).asAnsi();
         }
         else {
-            writer.write(replService.outputWriter());
+            writer = result.asPlain();
         }
+
+        writer.write(target);
     }
 }
