@@ -17,8 +17,8 @@ bool writeRead(type[&T] returnType, &T dt) {
         case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
 
-    json = toJSON(dt);
-    return fromJSON(returnType, json) == dt;
+    json = asJSON(dt);
+    return parseJSON(returnType, json) == dt;
 }
 	
 // only single constructors supported for now
