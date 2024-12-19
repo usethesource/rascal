@@ -323,8 +323,6 @@ public interface IASTVisitor<T> {
 
   public T visitExpressionTuple(Expression.Tuple x);
 
-  public T visitExpressionTuple(Expression.Tuple x);
-
   public T visitExpressionTypedVariable(Expression.TypedVariable x);
 
   public T visitExpressionTypedVariableBecomes(Expression.TypedVariableBecomes x);

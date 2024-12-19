@@ -866,7 +866,7 @@ syntax Pattern
 	| splicePlus          : "+" Pattern argument 
 	| negative            : "-" Pattern argument
 	| literal             : Literal literal 
-	| \tuple               : "\<" {Pattern ","}+ elements "\>" 
+	| \tuple               : "\<" {Pattern ","}* elements0 "\>" 
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
