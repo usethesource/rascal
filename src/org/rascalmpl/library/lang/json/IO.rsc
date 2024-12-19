@@ -25,6 +25,8 @@ import Exception;
 }
 data RuntimeException(str cause="", str path="");
 
+private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
+
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{reads JSON values from a stream}
 @description{
@@ -45,7 +47,7 @@ First the expected type is used as a literal lookup, and then each value is test
 java &T readJSON(
   type[&T] expected, 
   loc src, 
-  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZ", 
+  str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
   bool lenient=false, 
   bool trackOrigins=false,
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
@@ -74,7 +76,7 @@ In general the translation behaves as the same as for ((readJSON)).}
 java &T parseJSON(
   type[&T] expected, 
   str src, 
-  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZ", 
+  str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
   bool lenient=false, 
   bool trackOrigins=false, 
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
@@ -106,7 +108,7 @@ For `real` numbers that are larger than JVM's double you get "negative infinity"
 }
 java void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
-  str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZ", 
+  str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
   bool dateTimeAsInt=false, 
   int indent=0, 
   bool dropOrigins=true, 
@@ -121,7 +123,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{
