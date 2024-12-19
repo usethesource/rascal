@@ -33,13 +33,6 @@ public abstract class Expression extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasElements() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasElements0() {
     return false;
   }
@@ -6446,7 +6439,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 347 * elements0.hashCode() ; 
+      return 599 + 863 * elements0.hashCode() ; 
     } 
   
     
@@ -6530,7 +6523,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 + 53 * type.hashCode() + 983 * name.hashCode() ; 
+      return 331 + 347 * type.hashCode() + 487 * name.hashCode() ; 
     } 
   
     
@@ -6633,7 +6626,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 653 + 29 * type.hashCode() + 487 * name.hashCode() + 653 * pattern.hashCode() ; 
+      return 53 + 983 * type.hashCode() + 653 * name.hashCode() + 29 * pattern.hashCode() ; 
     } 
   
     
@@ -6735,7 +6728,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 373 + 449 * name.hashCode() + 251 * pattern.hashCode() ; 
+      return 487 + 653 * name.hashCode() + 373 * pattern.hashCode() ; 
     } 
   
     
@@ -6828,7 +6821,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 109 + 967 * label.hashCode() + 269 * visit.hashCode() ; 
+      return 449 + 251 * label.hashCode() + 109 * visit.hashCode() ; 
     } 
   
     
@@ -6923,7 +6916,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 97 + 101 * parameters.hashCode() + 467 * statements0.hashCode() ; 
+      return 967 + 269 * parameters.hashCode() + 97 * statements0.hashCode() ; 
     } 
   
     

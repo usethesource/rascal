@@ -85,6 +85,7 @@ test bool originTracking() {
 @synopsis{Normalizer used to create lists out of other containers}
 value allContainersToLists(set[value] x) = [*x];
 value allContainersToLists(value tup) = [] when \tuple(_) := typeOf(tup), "<tup>" == "\<\>";
+value allContainersToLists(<>) = [];
 value allContainersToLists(<x>) = [x];
 value allContainersToLists(<x,y>) = [x,y];
 value allContainersToLists(<x,y,z>) = [x,y,z];

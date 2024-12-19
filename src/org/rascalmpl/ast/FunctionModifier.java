@@ -74,7 +74,7 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 2 ; 
+      return 457 ; 
     } 
   
     	
@@ -129,7 +129,7 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 461 ; 
+      return 839 ; 
     } 
   
     	
@@ -184,7 +184,7 @@ public abstract class FunctionModifier extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 877 ; 
+      return 2 ; 
     } 
   
     	
