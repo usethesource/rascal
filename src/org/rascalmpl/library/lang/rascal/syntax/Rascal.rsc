@@ -210,7 +210,7 @@ syntax Expression
 	| \list           : "[" {Expression ","}* elements0 "]"
 	| reifyType      : "#" Type type !>> "[" !selector
 	| range          : "[" Expression first ".." Expression last "]"
-	| \tuple          : "\<" {Expression ","}+ elements "\>" 
+	| \tuple          : "\<" {Expression ","}* elements0 "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
