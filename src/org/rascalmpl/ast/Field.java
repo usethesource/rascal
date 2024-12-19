@@ -98,7 +98,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 101 + 467 * fieldIndex.hashCode() ; 
+      return 89 + 727 * fieldIndex.hashCode() ; 
     } 
   
     
@@ -172,7 +172,7 @@ public abstract class Field extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 89 + 727 * fieldName.hashCode() ; 
+      return 673 + 743 * fieldName.hashCode() ; 
     } 
   
     

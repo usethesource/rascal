@@ -6466,6 +6466,82 @@ public abstract class Expression extends AbstractAST {
     }
             
   }
+  public boolean isTuple() {
+    return false;
+  }
+
+  static public class Tuple extends Expression {
+    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")],breakable=false)
+  
+    
+    private final java.util.List<org.rascalmpl.ast.Expression> elements0;
+  
+    public Tuple(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
+      super(src, node);
+      
+      this.elements0 = elements0;
+    }
+  
+    @Override
+    public boolean isTuple() { 
+      return true; 
+    }
+  
+    @Override
+    public <T> T accept(IASTVisitor<T> visitor) {
+      return visitor.visitExpressionTuple(this);
+    }
+  
+    @Override
+    protected void addForLineNumber(int $line, java.util.List<AbstractAST> $result) {
+      if (getLocation().getBeginLine() == $line) {
+        $result.add(this);
+      }
+      ISourceLocation $l;
+      
+      for (AbstractAST $elem : elements0) {
+        $l = $elem.getLocation();
+        if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
+          $elem.addForLineNumber($line, $result);
+        }
+        if ($l.getBeginLine() > $line) {
+          return;
+        }
+  
+      }
+    }
+  
+    @Override
+    public boolean equals(Object o) {
+      if (!(o instanceof Tuple)) {
+        return false;
+      }        
+      Tuple tmp = (Tuple) o;
+      return true && tmp.elements0.equals(this.elements0) ; 
+    }
+   
+    @Override
+    public int hashCode() {
+      return 331 + 347 * elements0.hashCode() ; 
+    } 
+  
+    
+    @Override
+    public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
+      return this.elements0;
+    }
+  
+    @Override
+    public boolean hasElements0() {
+      return true;
+    }	
+  
+    @Override
+    public Object clone()  {
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements0));
+    }
+            
+  }
   public boolean isTypedVariable() {
     return false;
   }
@@ -6530,7 +6606,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 331 + 347 * type.hashCode() + 487 * name.hashCode() ; 
+      return 487 + 53 * type.hashCode() + 983 * name.hashCode() ; 
     } 
   
     
@@ -6633,7 +6709,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 53 + 983 * type.hashCode() + 653 * name.hashCode() + 29 * pattern.hashCode() ; 
+      return 653 + 29 * type.hashCode() + 487 * name.hashCode() + 653 * pattern.hashCode() ; 
     } 
   
     
@@ -6735,7 +6811,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 487 + 653 * name.hashCode() + 373 * pattern.hashCode() ; 
+      return 373 + 449 * name.hashCode() + 251 * pattern.hashCode() ; 
     } 
   
     
@@ -6828,7 +6904,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 449 + 251 * label.hashCode() + 109 * visit.hashCode() ; 
+      return 109 + 967 * label.hashCode() + 269 * visit.hashCode() ; 
     } 
   
     
@@ -6923,7 +6999,7 @@ public abstract class Expression extends AbstractAST {
    
     @Override
     public int hashCode() {
-      return 967 + 269 * parameters.hashCode() + 97 * statements0.hashCode() ; 
+      return 97 + 101 * parameters.hashCode() + 467 * statements0.hashCode() ; 
     } 
   
     
