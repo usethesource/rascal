@@ -629,10 +629,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitExpressionTuple(Expression.Tuple x) { 
-    return null; 
-  }
-
   public T visitExpressionTypedVariable(Expression.TypedVariable x) { 
     return null; 
   }
