@@ -50,7 +50,7 @@ test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
-test bool jsonWithNode1(node  dt) = writeRead(#node, dt);
+test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = allContainersToLists);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
@@ -85,9 +85,9 @@ test bool originTracking() {
 @synopsis{Normalizer used to create lists out of other containers}
 value allContainersToLists(set[value] x) = [*x];
 value allContainersToLists(value tup) = [] when \tuple(_) := typeOf(tup), "<tup>" == "\<\>";
-value allContainersToList(<x>) = [x];
-value allContainersToList(<x,y>) = [x,y];
-value allContainersToList(<x,y,z>) = [x,y,z];
+value allContainersToLists(<x>) = [x];
+value allContainersToLists(<x,y>) = [x,y];
+value allContainersToLists(<x,y,z>) = [x,y,z];
 
 default value allContainersToLists(value x) = x;
 

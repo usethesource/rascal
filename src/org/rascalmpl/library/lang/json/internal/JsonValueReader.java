@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.math.RoundingMode;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,6 +52,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
+import com.google.common.math.DoubleMath;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -774,7 +776,26 @@ public class JsonValueReader {
 
     @Override
     public IValue visitNumber(Type type) throws IOException {
-      return visitInteger(type);
+        if (in.peek() == JsonToken.NUMBER) {
+          double d = in.nextDouble();
+
+          if (DoubleMath.isMathematicalInteger(d)) {
+            return vf.integer(DoubleMath.roundToLong(d, RoundingMode.FLOOR));
+          }
+          else {
+            return vf.real(d);
+          }
+        }
+        else if (in.peek() == JsonToken.STRING) {
+          var num = in.nextString();
+
+          if (num.contains("r")) {
+            var parts = num.split("r");
+            return vf.rational(vf.integer(parts[0]),vf.integer(parts[1]));
+          }
+        }
+
+        throw parseErrorHere("unexpected kind of number");
     }
 
     @Override
