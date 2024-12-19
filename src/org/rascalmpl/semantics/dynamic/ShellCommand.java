@@ -13,6 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.semantics.dynamic;
 
+import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -69,8 +70,14 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 			IRascalMonitor monitor = __eval.getMonitor();
 
 			if (monitor instanceof IDEServices) {
-				IDEServices services = (IDEServices) monitor;
-				services.clearRepl();
+				var services = (IDEServices) monitor;
+				var term = services.activeTerminal();
+				if (term != null) {
+					term.puts(Capability.clear_screen);
+				}
+				else {
+					__eval.getStdErr().println("There is not terminal available to clear");
+				}
 			}
 			else {
 				__eval.getStdErr().println("The current Rascal execution environment does not know how to clear the REPL.");

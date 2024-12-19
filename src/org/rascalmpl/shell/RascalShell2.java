@@ -55,12 +55,14 @@ public class RascalShell2  {
 
             var repl = new BaseREPL2(new RascalReplServices((t) -> {
                 var monitor = new TerminalProgressBarMonitor(term);
-                IDEServices services = new BasicIDEServices(term.writer(), monitor, () -> term.puts(Capability.clear_screen));
+                var err = RascalReplServices.generateErrorStream(t, monitor);
+
+                IDEServices services = new BasicIDEServices(err, monitor, () -> term.puts(Capability.clear_screen));
 
                 GlobalEnvironment heap = new GlobalEnvironment();
                 ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                Evaluator evaluator = new Evaluator(vf, term.reader(), RascalReplServices.generateErrorStream(t, monitor), monitor, root, heap, services);
+                Evaluator evaluator = new Evaluator(vf, term.reader(), err, monitor, root, heap, services);
                 evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
                 return evaluator;
             }), term);

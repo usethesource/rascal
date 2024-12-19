@@ -9,14 +9,13 @@ import org.rascalmpl.repl.output.MimeTypes;
 
 public class StringOutputPrinter implements IOutputPrinter {
     private final String body;
-    private final String newline;
+
     
-    public StringOutputPrinter(String body, String newline) {
-        this(body, newline, MimeTypes.PLAIN_TEXT);
+    public StringOutputPrinter(String body) {
+        this(body, MimeTypes.PLAIN_TEXT);
     }
-    public StringOutputPrinter(String body, String newline, String mimeType) {
+    public StringOutputPrinter(String body, String mimeType) {
         this.body = body;
-        this.newline = newline;
     }
 
     @Override
@@ -26,12 +25,11 @@ public class StringOutputPrinter implements IOutputPrinter {
 
     @Override
     public void write(PrintWriter target) {
-        target.print(body);
-        target.print(newline);
+        target.println(body);
     }
     
     @Override
     public Reader asReader() {
-        return new StringReader(body + newline);
+        return new StringReader(body + System.lineSeparator());
     }
 }
