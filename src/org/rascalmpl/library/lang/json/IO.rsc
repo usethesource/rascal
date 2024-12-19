@@ -25,20 +25,7 @@ import Exception;
 }
 data RuntimeException(str cause="", str path="");
 
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{Maps any Rascal value to a JSON string}
-@deprecated{use ((writeJSON))}
-public java str toJSON(value v);
-
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{Maps any Rascal value to a JSON string, optionally in compact form.}
-@deprecated{use ((asJSON))}
-public java str toJSON(value v, bool compact);
-
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use ((readJSON))}
-@synopsis{Parses a JSON string and maps it to the requested type of Rascal value.}
-public java &T fromJSON(type[&T] typ, str src);
+private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{reads JSON values from a stream}
@@ -60,7 +47,7 @@ First the expected type is used as a literal lookup, and then each value is test
 java &T readJSON(
   type[&T] expected, 
   loc src, 
-  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
   bool lenient=false, 
   bool trackOrigins=false,
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
@@ -89,7 +76,7 @@ In general the translation behaves as the same as for ((readJSON)).}
 java &T parseJSON(
   type[&T] expected, 
   str src, 
-  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
   bool lenient=false, 
   bool trackOrigins=false, 
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
@@ -121,7 +108,7 @@ For `real` numbers that are larger than JVM's double you get "negative infinity"
 }
 java void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
-  str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
   bool dateTimeAsInt=false, 
   int indent=0, 
   bool dropOrigins=true, 
@@ -136,7 +123,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{

@@ -6,10 +6,11 @@ import util::UUID;
 import util::Maybe;
 import IO;
 import util::Math;
+import Type;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
-bool writeRead(type[&T] returnType, &T dt) {
+bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }) {
     dt = visit (dt) {
         // reals must fit in double
         case real r => fitDouble(r)
@@ -17,8 +18,17 @@ bool writeRead(type[&T] returnType, &T dt) {
         case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
 
-    json = toJSON(dt);
-    return fromJSON(returnType, json) == dt;
+    json = asJSON(dt);
+    readBack = parseJSON(returnType, json);
+    if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
+        println("What is read back, a <type(typeOf(readBack),())>:");
+        iprintln(readBack);
+        println("Is different from the original, a <type(typeOf(normalizer(dt)),())>:");
+        iprintln(normalizer(dt));
+        return false;
+    }
+
+    return true;
 }
 	
 // only single constructors supported for now
@@ -40,12 +50,17 @@ test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
-test bool jsonWithNode1(node  dt) = writeRead(#node, dt);
+test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = allContainersToLists);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
 
-test bool jsonRandom1(value dt) = writeRead(#value, dt);
+@synopsis{all values can be written and read again}
+@description{
+However sets are always read back in as lists if we don't have 
+a specific abstract data-type that can enforce sets.
+}
+test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=allContainersToLists);
 
 test bool json1() = writeRead(#DATA1, data1(123));
 test bool json2() = writeRead(#DATA2, data2("123"));
@@ -66,6 +81,16 @@ test bool originTracking() {
 
    return true;
 }
+
+@synopsis{Normalizer used to create lists out of other containers}
+value allContainersToLists(set[value] x) = [*x];
+value allContainersToLists(value tup) = [] when \tuple(_) := typeOf(tup), "<tup>" == "\<\>";
+value allContainersToLists(<>) = [];
+value allContainersToLists(<x>) = [x];
+value allContainersToLists(<x,y>) = [x,y];
+value allContainersToLists(<x,y,z>) = [x,y,z];
+
+default value allContainersToLists(value x) = x;
 
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
