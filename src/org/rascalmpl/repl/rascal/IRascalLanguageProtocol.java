@@ -28,16 +28,18 @@ import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
+import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.values.parsetrees.ITree;
 
 
+
 public interface IRascalLanguageProtocol {
 
 
-    IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor);
+    IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term);
 
     /**
      * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
@@ -73,7 +75,7 @@ public interface IRascalLanguageProtocol {
      * 
      * If possible, print the current stack trace.
      */
-    void stackTraceRequested();
+    ICommandOutput stackTraceRequested();
 
 
     void flush();

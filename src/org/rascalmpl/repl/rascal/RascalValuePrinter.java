@@ -18,7 +18,7 @@ import org.rascalmpl.repl.output.IHtmlCommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.repl.output.MimeTypes;
-import org.rascalmpl.repl.output.impl.StringOutputPrinter;
+import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.repl.streams.LimitedWriter;
 import org.rascalmpl.repl.streams.ReplTextWriter;
@@ -53,26 +53,40 @@ public abstract class RascalValuePrinter {
 
     @FunctionalInterface
     public static interface ThrowingWriter {
-        void write(PrintWriter writer, StandardTextWriter prettyPrinter) throws IOException;
+        void write(PrintWriter writer, StandardTextWriter prettyPrinter, boolean unicodeSupported) throws IOException;
     }
 
     public IErrorCommandOutput outputError(ThrowingWriter writer) {
         return new IErrorCommandOutput() {
             @Override
             public ICommandOutput getError() {
-                return new DoubleOutput(writer);
+                return prettyPrinted(writer);
             }
 
             @Override
             public IOutputPrinter asPlain() {
-                return new ParameterizedPrinterOutput(writer, plainIndentedPrinter, MimeTypes.PLAIN_TEXT);
+                return new PrettyPrintedOutput(writer, plainIndentedPrinter, MimeTypes.PLAIN_TEXT);
+            }
+        };
+    }
+
+    public ICommandOutput prettyPrinted(ThrowingWriter writer) {
+        return new IAnsiCommandOutput() {
+            @Override
+            public IOutputPrinter asAnsi() {
+                return new PrettyPrintedOutput(writer, ansiIndentedPrinter, MimeTypes.ANSI);
+            }
+
+            @Override
+            public IOutputPrinter asPlain() {
+                return new PrettyPrintedOutput(writer, plainIndentedPrinter, MimeTypes.PLAIN_TEXT);
             }
         };
     }
 
     public ICommandOutput outputResult(IRascalResult result) {
         if (result == null || result.getValue() == null) {
-            return () -> new StringOutputPrinter("ok", MimeTypes.PLAIN_TEXT);
+            return () -> new AsciiStringOutputPrinter("ok", MimeTypes.PLAIN_TEXT);
         }
         IValue value = result.getValue();
         Type type = result.getStaticType();
@@ -83,14 +97,14 @@ public abstract class RascalValuePrinter {
 
         ThrowingWriter resultWriter;
         if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
-            resultWriter = (w, sw) -> {
+            resultWriter = (w, sw, _u) -> {
                 w.write("(" + type.toString() +") `");
                 TreeAdapter.yield((IConstructor)value, sw == ansiIndentedPrinter, w);
                 w.write("`");
             };
         }
         else if (type.isString()) {
-            resultWriter = (w, sw) -> {
+            resultWriter = (w, sw, u) -> {
                 // TODO: do something special for the reader version of IString, when that is released
                 // for now, we only support write
 
@@ -103,7 +117,7 @@ public abstract class RascalValuePrinter {
                     // "Self-suppression not permitted"
                 }
                 w.println();
-                w.println("---");
+                printShortLine(w, u);
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     ((IString) value).write(wrt);
                 }
@@ -113,11 +127,11 @@ public abstract class RascalValuePrinter {
                     // "Self-suppression not permitted"
                 }
                 w.println();
-                w.print("---");
+                printShortLine(w, u);
             };
         }
         else {
-            resultWriter = (w, sw) -> {
+            resultWriter = (w, sw, _u) -> {
                 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
                     sw.write(value, wrt);
                 }
@@ -129,31 +143,22 @@ public abstract class RascalValuePrinter {
             };
         }
 
-        ThrowingWriter typePrefixed = (w, sw) -> {
+        ThrowingWriter typePrefixed = (w, sw, u) -> {
             w.write(type.toString());
             w.write(": ");
-            resultWriter.write(w, sw);
+            resultWriter.write(w, sw, u);
             w.println();
         };
 
-        return new DoubleOutput(typePrefixed);
+        return prettyPrinted(typePrefixed);
     }
 
-    private static class DoubleOutput implements IAnsiCommandOutput {
-        private ThrowingWriter writer;
-        
-        DoubleOutput(ThrowingWriter writer) {
-            this.writer = writer;
+    private void printShortLine(PrintWriter writer, boolean unicodeSupported) {
+        if (unicodeSupported) {
+            writer.println("───");
         }
-
-        @Override
-        public IOutputPrinter asAnsi() {
-            return new ParameterizedPrinterOutput(writer, ansiIndentedPrinter, MimeTypes.ANSI);
-        }
-
-        @Override
-        public IOutputPrinter asPlain() {
-            return new ParameterizedPrinterOutput(writer, plainIndentedPrinter, MimeTypes.PLAIN_TEXT);
+        else {
+            writer.println("---");
         }
     }
 
@@ -185,13 +190,13 @@ public abstract class RascalValuePrinter {
 
         }
         catch (IOException e) {
-            return outputError((w, sw) -> {
+            return outputError((w, sw, _u) -> {
                 w.println("Could not start webserver to render html content: ");
                 w.println(e.getMessage());
             });
         }
         catch (URISyntaxException e) {
-            return outputError((w, sw) -> {
+            return outputError((w, sw, _u) -> {
                 w.println("Could not start build the uri: ");
                 w.println(e.getMessage());
             });
@@ -215,13 +220,17 @@ public abstract class RascalValuePrinter {
         public IOutputPrinter asPlain() {
             return new IOutputPrinter() {
                 @Override
-                public void write(PrintWriter target) {
+                public void write(PrintWriter target, boolean unicodeSupported) {
+                    if (unicodeSupported) {
+                        target.print("🔗 ");
+                    }
                     target.print("Serving \'");
                     target.print(id);
                     target.print("\' at |");
                     target.print(uri.toASCIIString());
                     target.println("|");
                 }
+
                 @Override
                 public String mimeType() {
                     return MimeTypes.PLAIN_TEXT;
@@ -233,7 +242,7 @@ public abstract class RascalValuePrinter {
         public IOutputPrinter asHtml() {
             return new IOutputPrinter() {
                 @Override
-                public void write(PrintWriter target) {
+                public void write(PrintWriter target, boolean unicodeSupported) {
                     target.print("<iframe class=\"rascal-content-frame\"");
                     target.print(" style=\"display: block; width: 100%; height: 100%; resize: both\"");
                     target.print(" src=\"");
@@ -265,12 +274,12 @@ public abstract class RascalValuePrinter {
     }
     
 
-    private static class ParameterizedPrinterOutput implements IOutputPrinter {
+    private static class PrettyPrintedOutput implements IOutputPrinter {
         private final ThrowingWriter internalWriter;
         private final StandardTextWriter prettyPrinter;
         private final String mimeType;
 
-        public ParameterizedPrinterOutput(ThrowingWriter internalWriter, StandardTextWriter prettyPrinter, String mimeType) {
+        public PrettyPrintedOutput(ThrowingWriter internalWriter, StandardTextWriter prettyPrinter, String mimeType) {
             this.internalWriter = internalWriter;
             this.prettyPrinter = prettyPrinter;
             this.mimeType = mimeType;
@@ -282,9 +291,9 @@ public abstract class RascalValuePrinter {
         }
 
         @Override
-        public void write(PrintWriter target) {
+        public void write(PrintWriter target, boolean unicodeSupported) {
             try {
-                internalWriter.write(target, prettyPrinter);
+                internalWriter.write(target, prettyPrinter, unicodeSupported);
             }
             catch (IOException e) {
                 target.println("Internal failure: printing exception failed with:");

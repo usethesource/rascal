@@ -8,14 +8,16 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwa
 
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.HashMap;
 
 import org.jline.reader.EndOfFileException;
+import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.exceptions.StackTrace;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
@@ -40,7 +42,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
-public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
+public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     private Evaluator eval;
     
     private final RascalValuePrinter printer;
@@ -70,8 +72,8 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     @Override
-    public IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor) {
-        return new BasicIDEServices(err, monitor);
+    public IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
+        return new BasicIDEServices(err, monitor, term);
     }
 
     /**
@@ -110,23 +112,26 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 return printer.outputResult(value);
             }
             catch (InterruptException ex) {
-                return printer.outputError((w, sw) -> {
+                return printer.outputError((w, sw, u) -> {
+                    if (u) {
+                        w.print("»» ");
+                    }
                     w.println("Interrupted");
                     ex.getRascalStackTrace().prettyPrintedString(w, sw);
                 });
             }
             catch (ParseError pe) {
-                return printer.outputError((w, sw) -> {
+                return printer.outputError((w, sw, _u) -> {
                     parseErrorMessage(w, command, "prompt", pe, sw);
                 });
             }
             catch (StaticError e) {
-                return printer.outputError((w, sw) -> {
+                return printer.outputError((w, sw, _u) -> {
                     staticErrorMessage(w, e, sw);
                 });
             }
             catch (Throw e) {
-                return printer.outputError((w, sw) -> {
+                return printer.outputError((w, sw, _u) -> {
                     throwMessage(w,e, sw);
                 });
             }
@@ -134,7 +139,7 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 throw new EndOfFileException("Quiting REPL");
             }
             catch (Throwable e) {
-                return printer.outputError((w, sw) -> {
+                return printer.outputError((w, sw, _u) -> {
                     throwableMessage(w, e, eval.getStackTrace(), sw);
                 });
             }
@@ -149,9 +154,13 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     @Override
-    public void stackTraceRequested() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'stackTraceRequested'");
+    public ICommandOutput stackTraceRequested() {
+        StackTrace trace = eval.getStackTrace();
+        return printer.prettyPrinted((w, sw, u) -> {
+            w.println("Current stack trace:");
+            trace.prettyPrintedString(w, sw);
+            w.flush();
+        });
     }
 
     @Override
@@ -174,6 +183,12 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
         commandLineOptions.put(Configuration.ERRORS_PROPERTY.substring("rascal.".length()), "print raw java errors");
         commandLineOptions.put(Configuration.TRACING_PROPERTY.substring("rascal.".length()), "trace all function calls (warning: a lot of output will be generated)");
         return commandLineOptions;
+    }
+
+    @Override
+    public void flush() {
+        eval.getStdErr().flush();
+        eval.getStdOut().flush();
     }
 
 }

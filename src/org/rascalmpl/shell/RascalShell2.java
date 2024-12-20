@@ -17,21 +17,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.jline.terminal.TerminalBuilder;
-import org.jline.utils.InfoCmp.Capability;
 import org.jline.utils.OSUtils;
-import org.rascalmpl.ideservices.BasicIDEServices;
-import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.repl.BaseREPL2;
-import org.rascalmpl.repl.RascalReplServices;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import io.usethesource.vallang.IValueFactory;
+import org.rascalmpl.repl.BaseREPL;
+import org.rascalmpl.repl.rascal.RascalInterpreterREPL;
+import org.rascalmpl.repl.rascal.RascalReplServices;
 
 
 public class RascalShell2  {
@@ -44,28 +34,15 @@ public class RascalShell2  {
         System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
         printVersionNumber();
 
-        //try {
-            var termBuilder = TerminalBuilder.builder();
-            if (OSUtils.IS_WINDOWS) {
-                termBuilder.encoding(StandardCharsets.UTF_8);
-            }
-            termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
-            var term = termBuilder.build();
+        var termBuilder = TerminalBuilder.builder();
+        if (OSUtils.IS_WINDOWS) {
+            termBuilder.encoding(StandardCharsets.UTF_8);
+        }
+        termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
+        var term = termBuilder.build();
 
-
-            var repl = new BaseREPL2(new RascalReplServices((t) -> {
-                var monitor = new TerminalProgressBarMonitor(term);
-                var err = RascalReplServices.generateErrorStream(t, monitor);
-
-                IDEServices services = new BasicIDEServices(err, monitor, () -> term.puts(Capability.clear_screen));
-
-                GlobalEnvironment heap = new GlobalEnvironment();
-                ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-                IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                Evaluator evaluator = new Evaluator(vf, term.reader(), err, monitor, root, heap, services);
-                evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-                return evaluator;
-            }), term);
-            repl.run();
+        var repl = new BaseREPL(new RascalReplServices(new RascalInterpreterREPL()), term);
+        repl.run();
     }
+
 }
