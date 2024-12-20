@@ -1,2 +1,0 @@
-module A
-int n = 0;
