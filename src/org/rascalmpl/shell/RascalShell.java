@@ -25,7 +25,7 @@ import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 
-public class RascalShell2  {
+public class RascalShell  {
 
     private static void printVersionNumber(){
         System.err.println("Version: " + RascalManifest.getRascalVersionNumber());
