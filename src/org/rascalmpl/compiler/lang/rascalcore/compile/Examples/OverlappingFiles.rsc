@@ -31,9 +31,9 @@ void main(){
     println("<size(identical)> identical files:");
     iprintln(identical);
 
-    approved = {"AST.rsc", "TestGrammars.rsc", "Characters.rsc", "Names.rsc", "Keywords.rsc",
-    "PicoGrammar.rsc", "CGrammar.rsc", "Layout.rsc", "LayoutTests.rsc", "LiteralsTests.rsc",
-    "Attributes.rsc"};
+    approved = {"AST.rsc", "TestGrammars.rsc", "Characters.rsc", "CharactersTests.rsc", "Names.rsc", "Keywords.rsc",
+    "Layout.rsc", "LayoutTests.rsc", "LiteralsTests.rsc", "Symbols.rsc", "Literals.rsc",
+    "Attributes.rsc", "Tests.rsc", "ModuleInfo.rsc", "Names.java"};
     sameName = domain(rascalFiles) & domain(srcFiles) - approved;
 
     println("<size(sameName)> files with same name:");
