@@ -1,18 +1,16 @@
 package org.rascalmpl.repl.rascal;
 
 import java.io.PrintWriter;
-import java.io.Writer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.jansi.Ansi;
-import org.jline.jansi.AnsiColors;
-import org.jline.jansi.Ansi.Color;
 import org.jline.reader.Completer;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
@@ -22,17 +20,19 @@ import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.jline3.RascalLineParser;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.streams.ItalicErrorWriter;
-import org.rascalmpl.repl.streams.RedErrorWriter;
+import org.rascalmpl.repl.streams.StreamUtil;
 
 public class RascalReplServices implements IREPLService {
     private final IRascalLanguageProtocol lang;
+    private final @Nullable Path historyFile;
 
     private PrintWriter out;
     private PrintWriter err;
+    
 
-    public RascalReplServices(IRascalLanguageProtocol lang) {
+    public RascalReplServices(IRascalLanguageProtocol lang, @Nullable Path historyFile) {
         this.lang=  lang;
+        this.historyFile = historyFile;
     }
 
     @Override
@@ -42,36 +42,8 @@ public class RascalReplServices implements IREPLService {
         }
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
-        err = generateErrorStream(term, monitor);
-        var service = lang.buildIDEService(err, monitor, term);
-
-        lang.initialize(term.reader(), out, err, service);
-    }
-
-
-
-    private static PrintWriter generateErrorStream(Terminal tm, Writer out) {
-        // previously we would alway write errors to System.err, but that tends to mess up terminals
-        // and also our own error print
-        // so now we try to not write to System.err
-        if (supportsColors(tm)) {
-            return new PrintWriter(new RedErrorWriter(out), true);
-        }
-        if (supportsItalic(tm)) {
-            return new PrintWriter(new ItalicErrorWriter(out), true);
-        }
-        return new PrintWriter(System.err, true);
-    
-    }
-
-    private static boolean supportsColors(Terminal tm) {
-        Integer cols = tm.getNumericCapability(Capability.max_colors);
-        return cols != null && cols >= 8;
-    }
-
-    private static boolean supportsItalic(Terminal tm) {
-        String ital = tm.getStringCapability(Capability.enter_italics_mode);
-        return ital != null && !ital.equals("");
+        err = StreamUtil.generateErrorStream(term, monitor);
+        lang.initialize(term.reader(), out, err, monitor, term);
     }
 
     @Override
@@ -159,5 +131,14 @@ public class RascalReplServices implements IREPLService {
         }
         return prompt;
     }
-    
+
+    @Override
+    public boolean storeHistory() {
+        return this.historyFile != null;
+    }
+
+    @Override
+    public Path historyFile() {
+        return historyFile;
+    }
 }

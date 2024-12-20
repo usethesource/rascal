@@ -70,9 +70,7 @@ public class BaseREPL {
         // - ctrl + / support (might not be possible)
         // - highlighting in the prompt? (future work, as it also hurts other parts)
         // - nested REPLs
-        // - support for html results 
         // - measure time
-        // - history?
         // - possible to tee output (future work)
         // - check if the REPL close properly closes the right streams
         // - fix progress bar speed & proper recovering from intermediate prints
