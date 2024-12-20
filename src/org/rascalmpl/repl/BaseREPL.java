@@ -69,7 +69,6 @@ public class BaseREPL {
         // todo:
         // - ctrl + / support (might not be possible)
         // - highlighting in the prompt? (future work, as it also hurts other parts)
-        // - nested REPLs
         // - measure time
         // - possible to tee output (future work)
         // - check if the REPL close properly closes the right streams

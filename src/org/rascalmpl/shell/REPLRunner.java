@@ -1,6 +1,5 @@
 package org.rascalmpl.shell;
 
-import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
@@ -12,7 +11,6 @@ import org.jline.terminal.Terminal;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.BaseREPL;
-import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.repl.rascal.RascalInterpreterREPL;
 import org.rascalmpl.repl.rascal.RascalReplServices;
 
@@ -31,26 +29,6 @@ public class REPLRunner implements ShellRunner {
             protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr,
                 IDEServices services) {
                     return ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, services);
-            }
-
-            @Override
-            protected void openWebContent(IWebContentOutput webContent) {
-                try {
-                    // Note that Desktop.isDesktopSupported can not be factored into a class constant because
-                    // it may throw exceptions on headless machines which are ignored below.
-                    if (Desktop.isDesktopSupported()) {
-                        try {
-                            Desktop.getDesktop().browse(webContent.webUri());
-                        }
-                        catch (IOException e) {
-                            eval.getStdErr().println("failed to display content: " + e.getMessage());
-                        }
-                    }
-                }
-                catch (Throwable e) {
-                    // we fail silently in order to support headless machines
-                }
-
             }
         }, getHistoryFile()), term);
         repl.run();

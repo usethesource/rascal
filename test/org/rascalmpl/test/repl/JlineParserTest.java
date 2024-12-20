@@ -6,7 +6,7 @@ import org.jline.reader.ParsedLine;
 import org.jline.reader.Parser.ParseContext;
 import org.junit.Test;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.repl.jline3.RascalLineParser;
+import org.rascalmpl.repl.rascal.RascalLineParser;
 import org.rascalmpl.uri.URIUtil;
 
 public class JlineParserTest {
