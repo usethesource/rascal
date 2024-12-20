@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
+import java.math.RoundingMode;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,6 +43,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
@@ -50,6 +52,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
+import com.google.common.math.DoubleMath;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -384,7 +387,7 @@ public class JsonValueReader {
       switch (in.peek()) {
         case BEGIN_OBJECT:
           in.beginObject();
-          if (!type.getKeyType().isString()) {
+          if (!type.getKeyType().isString() && in.peek() != JsonToken.END_OBJECT) {
             throw parseErrorHere("Can not read JSon object as a map if the key type of the map (" + type + ") is not a string at " + in.getPath());
           }
           
@@ -726,9 +729,16 @@ public class JsonValueReader {
      
       Map<String,IValue> kws = new HashMap<>();
       Map<String,IValue> args = new HashMap<>();
+      String name = "object";
 
       while (in.hasNext()) {
         String kwName = nextName();
+
+        if (kwName.equals("_name")) {
+          name = ((IString) read(in, TF.stringType())).getValue();
+          continue;
+        }
+
         boolean positioned = kwName.startsWith("arg");
 
         if (!isNull()) { // lookahead for null to give default parameters the preference.
@@ -761,12 +771,26 @@ public class JsonValueReader {
         .map(e -> e.getValue())
         .toArray(IValue[]::new);
 
-      return vf.node("object", argArray, kws);
+      return vf.node(name, argArray, kws);
     }
 
     @Override
     public IValue visitNumber(Type type) throws IOException {
-      return visitInteger(type);
+        if (in.peek() == JsonToken.NUMBER) {
+          double d = in.nextDouble();
+
+          if (DoubleMath.isMathematicalInteger(d)) {
+            return vf.integer(DoubleMath.roundToLong(d, RoundingMode.FLOOR));
+          }
+          else {
+            return vf.real(d);
+          }
+        }
+        else if (in.peek() == JsonToken.BEGIN_ARRAY) {
+          return visitRational(type);
+        }
+
+        throw parseErrorHere("unexpected kind of number");
     }
 
     @Override
