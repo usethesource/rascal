@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.TreeMap;
 
 import org.jline.jansi.Ansi;
+import org.jline.jansi.AnsiColors;
+import org.jline.jansi.Ansi.Color;
 import org.jline.reader.Completer;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
@@ -41,7 +43,7 @@ public class RascalReplServices implements IREPLService {
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
         err = generateErrorStream(term, monitor);
-        var service = lang.buildIDEService(err, monitor);
+        var service = lang.buildIDEService(err, monitor, term);
 
         lang.initialize(term.reader(), out, err, service);
     }
@@ -90,6 +92,7 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public String prompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+
         if (ansiColorsSupported) {
             return Ansi.ansi().reset().bold() + "rascal>" + Ansi.ansi().reset();
         }
@@ -143,6 +146,18 @@ public class RascalReplServices implements IREPLService {
         result.add(new RascalKeywordCompletion());
         result.add(new RascalLocationCompletion());
         return result;
+    }
+
+    @Override
+    public String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+        String prompt = ">>>>>>> Interrupted";
+        if (unicodeSupported) {
+            prompt = prompt.replace(">", "»");
+        }
+        if (ansiColorsSupported) {
+            prompt = Ansi.ansi().reset().fgRed().bold() + prompt + Ansi.ansi().reset();
+        }
+        return prompt;
     }
     
 }
