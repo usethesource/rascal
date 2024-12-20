@@ -31,6 +31,7 @@ void main(){
     println("<size(identical)> identical files:");
     iprintln(identical);
 
+    // These files have the same name but cannot clash when merged
     approved = {"AST.rsc", "TestGrammars.rsc", "Characters.rsc", "CharactersTests.rsc", "Names.rsc", "Keywords.rsc",
     "Layout.rsc", "LayoutTests.rsc", "LiteralsTests.rsc", "Symbols.rsc", "Literals.rsc",
     "Attributes.rsc", "Tests.rsc", "ModuleInfo.rsc", "Names.java"};
