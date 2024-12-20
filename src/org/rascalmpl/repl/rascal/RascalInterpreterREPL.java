@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -42,8 +43,11 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
-public class RascalInterpreterREPL implements IRascalLanguageProtocol {
-    private Evaluator eval;
+/**
+ * In most cases you might want to override the {@link #buildIDEService(PrintWriter, IRascalMonitor, Terminal)} and the {@link #buildEvaluator(Reader, PrintWriter, PrintWriter, IDEServices)} functions.
+ */
+public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
+    protected Evaluator eval;
     
     private final RascalValuePrinter printer;
 
@@ -71,13 +75,19 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         };
     }
 
-    @Override
-    public IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
+    /**
+     * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
+     * @param err
+     * @param monitor
+     * @param term
+     * @return
+     */
+    protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
         return new BasicIDEServices(err, monitor, term);
     }
 
     /**
-     * You might want to override this function for different cases of where we're building a REPL
+     * You might want to override this function for different cases of where we're building a REPL (possible only extend on the result of it)
      * @param input
      * @param stdout
      * @param stderr
@@ -94,8 +104,12 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         return evaluator;
     }
 
+    protected abstract void openWebContent(IWebContentOutput webContent);
+
     @Override
-    public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
+    public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor,
+        Terminal term) {
+        var services = buildIDEService(stderr, monitor, term);
         if (eval != null) {
             throw new IllegalStateException("Already initialized");
         }
@@ -109,7 +123,13 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         synchronized(eval) {
             try {
                 Result<IValue> value = eval.eval(eval.getMonitor(), command, PROMPT_LOCATION);
-                return printer.outputResult(value);
+                var result = printer.outputResult(value);
+                if (result instanceof IWebContentOutput) {
+                    try {
+                        openWebContent((IWebContentOutput)result);
+                    } catch (Throwable _ignore) {}
+                }
+                return result;
             }
             catch (InterruptException ex) {
                 return printer.outputError((w, sw, u) -> {

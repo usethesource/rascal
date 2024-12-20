@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.values.parsetrees.ITree;
 
@@ -38,15 +37,13 @@ import org.rascalmpl.values.parsetrees.ITree;
 
 public interface IRascalLanguageProtocol {
 
-
-    IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term);
-
     /**
-     * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
+     * Once a REPL is ready and setup, we ask to make sure the rascal runtime (compiler/evaluator) gets initialized.
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
+     * @param IDEServes which ide services to use
      */
-    void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services);
+    void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, Terminal term);
 
 
     /**
