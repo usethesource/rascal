@@ -12,11 +12,6 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.Reader;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -24,7 +19,6 @@ import java.util.function.Supplier;
 
 
 import org.jline.terminal.Terminal;
-import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.interpreter.BatchProgressMonitor;
 import org.rascalmpl.interpreter.NullRascalMonitor;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
