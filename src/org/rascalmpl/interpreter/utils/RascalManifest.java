@@ -68,13 +68,16 @@ public class RascalManifest {
      * This looks into the META-INF/MANIFEST.MF file for a Name and Specification-Version
      */
     public String getManifestVersionNumber(ISourceLocation project) throws IOException {
-        Manifest mf = new Manifest(javaManifest(project));
+        InputStream is = javaManifest(project);
+        if (is != null) {
+            Manifest mf = new Manifest(is);
 
-        String bundleName = mf.getMainAttributes().getValue("Name");
-        if (bundleName != null && bundleName.equals("rascal")) {
-            String result = mf.getMainAttributes().getValue("Specification-Version");
-            if (result != null) {
-                return result;
+            String bundleName = mf.getMainAttributes().getValue("Name");
+            if (bundleName != null && bundleName.equals("rascal")) {
+                String result = mf.getMainAttributes().getValue("Specification-Version");
+                if (result != null) {
+                    return result;
+                }
             }
         }
 
