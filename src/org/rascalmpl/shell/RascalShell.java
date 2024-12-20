@@ -31,13 +31,16 @@ public class RascalShell  {
         System.err.println("Version: " + RascalManifest.getRascalVersionNumber());
     }
 
-    public static void main(String[] args) throws IOException {
-        System.setProperty("org.jline.terminal.exec.redirectPipeCreationMode", "native");// configure jline to avoid reflective warning 
-        if (System.getProperty("__ECLIPSE_CONNECTION") != null) {
-            System.err.println("*** Warning, this REPL has limited functionality in the deprecated Rascal Eclipse extension");
-        }
+    public static void setupJavaProcessForREPL() {
+        // configure jline3 to avoid reflective access warnings printed by jdk
+        System.setProperty("org.jline.terminal.exec.redirectPipeCreationMode", "native");
+        // avoid getting a separate icon in OSX
+        System.setProperty("apple.awt.UIElement", "true");
+    }
 
-        System.setProperty("apple.awt.UIElement", "true"); // turns off the annoying desktop icon
+    public static void main(String[] args) throws IOException {
+        setupJavaProcessForREPL();
+        checkOutdatedEclipseContext();
         printVersionNumber();
 
         var termBuilder = TerminalBuilder.builder();
@@ -67,6 +70,12 @@ public class RascalShell  {
             runner = new REPLRunner(term);
         }
         runner.run(args);
+    }
+
+    private static void checkOutdatedEclipseContext() {
+        if (System.getProperty("__ECLIPSE_CONNECTION") != null) {
+            System.err.println("*** Warning, this REPL has limited functionality in the deprecated Rascal Eclipse extension");
+        }
     }
 
 }

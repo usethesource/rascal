@@ -6,14 +6,6 @@
     "configurations": [
         {
             "type": "java",
-            "name": "RascalShell2",
-            "request": "launch",
-            "mainClass": "org.rascalmpl.shell.RascalShell2",
-            "projectName": "rascal",
-            "console": "integratedTerminal"
-        },
-        {
-            "type": "java",
             "name": "Launch DocRunner",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.DocRunner",
