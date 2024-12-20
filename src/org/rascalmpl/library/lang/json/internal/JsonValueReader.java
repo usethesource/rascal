@@ -786,13 +786,8 @@ public class JsonValueReader {
             return vf.real(d);
           }
         }
-        else if (in.peek() == JsonToken.STRING) {
-          var num = in.nextString();
-
-          if (num.contains("r")) {
-            var parts = num.split("r");
-            return vf.rational(vf.integer(parts[0]),vf.integer(parts[1]));
-          }
+        else if (in.peek() == JsonToken.BEGIN_ARRAY) {
+          return visitRational(type);
         }
 
         throw parseErrorHere("unexpected kind of number");

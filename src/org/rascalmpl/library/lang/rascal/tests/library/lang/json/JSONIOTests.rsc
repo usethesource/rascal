@@ -42,7 +42,7 @@ test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
 test bool jsonWithInt1(int dt) = writeRead(#int, dt);
 test bool jsonWithReal1(real dt) = writeRead(#real, dt);
 test bool jsonWithRat1(rat dt) = writeRead(#rat, dt);
-test bool jsonWithNum1(num dt) = writeRead(#num, dt);
+test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=toDefaultValue);
 
 test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
 test bool jsonWithStr1(str dt) = writeRead(#str, dt);
@@ -50,7 +50,7 @@ test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
-test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = allContainersToLists);
+test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultValue);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
@@ -60,7 +60,7 @@ test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
 However sets are always read back in as lists if we don't have 
 a specific abstract data-type that can enforce sets.
 }
-test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=allContainersToLists);
+test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=toDefaultValue);
 
 test bool json1() = writeRead(#DATA1, data1(123));
 test bool json2() = writeRead(#DATA2, data2("123"));
@@ -82,15 +82,18 @@ test bool originTracking() {
    return true;
 }
 
-@synopsis{Normalizer used to create lists out of other containers}
-value allContainersToLists(set[value] x) = [*x];
-value allContainersToLists(value tup) = [] when \tuple(_) := typeOf(tup), "<tup>" == "\<\>";
-value allContainersToLists(<>) = [];
-value allContainersToLists(<x>) = [x];
-value allContainersToLists(<x,y>) = [x,y];
-value allContainersToLists(<x,y,z>) = [x,y,z];
-
-default value allContainersToLists(value x) = x;
+@synopsis{Normalizer used to replace unrecoverable types with their default representatives}
+value toDefaultValue(value readBack) = visit(readBack) {
+    case value _:set[value] x=>  [*x]
+    case value _:map[void,void] _ =>  "object"()
+    case value _:<> =>  []
+    case value _:<x> =>  [x]
+    case value _:<x,y> =>  [x,y]
+    case value _:<x,y,z>=>  [x,y,z]
+    case value _:loc l =>  "<l>"
+    case value _:datetime t => "<t>"
+    case value _:real r =>  round(r) when r - round(r) == 0
+};
 
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
