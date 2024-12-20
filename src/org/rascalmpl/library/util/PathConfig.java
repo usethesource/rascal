@@ -810,7 +810,19 @@ public class PathConfig {
      */
     public void printInterpreterConfigurationStatus(PrintWriter out) {
         out.println("Module paths:");
-        getSrcs().forEach((f) -> out.println(" ".repeat(4) + f));
+        getSrcs().forEach((f) -> {
+            var s = f.toString();
+            if (((ISourceLocation) f).getScheme().equals("std")) {
+                s += " at ";
+                try {
+                    s += resolveCurrentRascalRuntimeJar();
+                }
+                catch (IOException e) {
+                    s += "unknown physical location";
+                }
+            }
+            out.println(" ".repeat(4) + s);
+        });
         out.println("JVM library classpath:");
         getLibsAndTarget().forEach((l) -> out.println(" ".repeat(4) + l));
         out.flush();
