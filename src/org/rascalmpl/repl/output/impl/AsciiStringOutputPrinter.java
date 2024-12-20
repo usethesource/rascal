@@ -7,14 +7,14 @@ import java.io.StringReader;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.MimeTypes;
 
-public class StringOutputPrinter implements IOutputPrinter {
+public class AsciiStringOutputPrinter implements IOutputPrinter {
     private final String body;
 
     
-    public StringOutputPrinter(String body) {
+    public AsciiStringOutputPrinter(String body) {
         this(body, MimeTypes.PLAIN_TEXT);
     }
-    public StringOutputPrinter(String body, String mimeType) {
+    public AsciiStringOutputPrinter(String body, String mimeType) {
         this.body = body;
     }
 
@@ -24,12 +24,12 @@ public class StringOutputPrinter implements IOutputPrinter {
     }
 
     @Override
-    public void write(PrintWriter target) {
+    public void write(PrintWriter target, boolean unicodeSupported) {
         target.println(body);
     }
     
     @Override
-    public Reader asReader() {
+    public Reader asReader(boolean unicodeSupported) {
         return new StringReader(body + System.lineSeparator());
     }
 }

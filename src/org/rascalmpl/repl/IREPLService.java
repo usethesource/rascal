@@ -98,4 +98,6 @@ public interface IREPLService {
      */
     void flush();
 
+    String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
+
 }

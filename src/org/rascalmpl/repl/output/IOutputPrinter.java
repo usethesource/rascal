@@ -14,8 +14,9 @@ public interface IOutputPrinter {
     /**
      * Write the output on this print writer interface. It should always print something, even if it's a warning saying it cannot be printed
      * @param target where to write the output to.
+     * @param unicodeSupported if the target can render unicode characters
      */
-    void write(PrintWriter target);
+    void write(PrintWriter target, boolean unicodeSupported);
 
     String mimeType();
 
@@ -24,12 +25,13 @@ public interface IOutputPrinter {
      * The standard implementation takes care to just call the write function with a buffer.
      * If you however can provide a streaming reading, override this function instead, depending
      * on the consumer, it might be called instead of the write function.
+     * @param unicodeSupported if the consumer can render unicode characters
      * @return a reader that produces the same contents as the write function, but in a pull style instead of push. 
      */
-    default Reader asReader() {
+    default Reader asReader(boolean unicodeSupported) {
         try (var result = new StringWriter()) {
             try (var resultWriter = new PrintWriter(result)) {
-                write(resultWriter);
+                write(resultWriter, unicodeSupported);
             }
             return new StringReader(result.toString());
         }

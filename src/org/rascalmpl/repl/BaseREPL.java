@@ -23,19 +23,18 @@ import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IErrorCommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 
-public class BaseREPL2 {
+public class BaseREPL {
     
     private final IREPLService replService;
     private final Terminal term;
     private final LineReader reader;
     private volatile boolean keepRunning = true;
     private final @MonotonicNonNull DefaultHistory history;
-    private String currentPrompt;
+    private final String normalPrompt;
     private final boolean ansiColorsSupported;
-    private final boolean advancedTermFeaturesSupported;
     private final boolean unicodeSupported;
 
-    public BaseREPL2(IREPLService replService, Terminal term) {
+    public BaseREPL(IREPLService replService, Terminal term) {
         this.replService = replService;
         this.term = term;
 
@@ -60,23 +59,9 @@ public class BaseREPL2 {
         if (replService.supportsCompletion()) {
             reader.completer(new AggregateCompleter(replService.completers()));
         }
-
-        switch (term.getType()) {
-            case Terminal.TYPE_DUMB:
-                this.ansiColorsSupported = false;
-                this.advancedTermFeaturesSupported = false;
-                break;
-            case Terminal.TYPE_DUMB_COLOR:
-                this.ansiColorsSupported = false;
-                this.advancedTermFeaturesSupported = true;
-                break;
-            default:
-                this.ansiColorsSupported = true;
-                this.advancedTermFeaturesSupported = true;
-                break;
-        }
+        this.ansiColorsSupported = !term.getType().equals(Terminal.TYPE_DUMB);
         this.unicodeSupported = term.encoding().newEncoder().canEncode("💓");
-        this.currentPrompt = replService.prompt(ansiColorsSupported, unicodeSupported);
+        this.normalPrompt = replService.prompt(ansiColorsSupported, unicodeSupported);
         reader.variable(LineReader.SECONDARY_PROMPT_PATTERN, replService.parseErrorPrompt(ansiColorsSupported, unicodeSupported));
         this.reader = reader.build();
 
@@ -101,7 +86,7 @@ public class BaseREPL2 {
             while (keepRunning) {
                 try {
                     replService.flush();
-                    String line = reader.readLine(this.currentPrompt);
+                    String line = reader.readLine(this.normalPrompt);
 
                     if (line == null) {
                         // EOF
@@ -112,7 +97,7 @@ public class BaseREPL2 {
                 }
                 catch (UserInterruptException u) {
                     // only thrown while `readLine` is active
-                    reader.printAbove(">>>>>>> Interrupted");
+                    reader.printAbove(replService.interruptedPrompt(ansiColorsSupported, unicodeSupported));
                     term.flush();
                 }
                 finally {
@@ -206,6 +191,6 @@ public class BaseREPL2 {
             writer = result.asPlain();
         }
 
-        writer.write(target);
+        writer.write(target, unicodeSupported);
     }
 }
