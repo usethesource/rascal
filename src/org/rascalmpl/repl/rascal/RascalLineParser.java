@@ -1,4 +1,4 @@
-package org.rascalmpl.repl.jline3;
+package org.rascalmpl.repl.rascal;
 
 import java.util.ArrayList;
 import java.util.List;

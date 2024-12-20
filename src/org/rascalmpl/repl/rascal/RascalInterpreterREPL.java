@@ -46,7 +46,8 @@ import io.usethesource.vallang.IValueFactory;
 /**
  * In most cases you might want to override the {@link #buildIDEService(PrintWriter, IRascalMonitor, Terminal)} and the {@link #buildEvaluator(Reader, PrintWriter, PrintWriter, IDEServices)} functions.
  */
-public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
+public class RascalInterpreterREPL implements IRascalLanguageProtocol {
+    protected IDEServices services;
     protected Evaluator eval;
     
     private final RascalValuePrinter printer;
@@ -104,12 +105,10 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
         return evaluator;
     }
 
-    protected abstract void openWebContent(IWebContentOutput webContent);
-
     @Override
     public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor,
         Terminal term) {
-        var services = buildIDEService(stderr, monitor, term);
+        services = buildIDEService(stderr, monitor, term);
         if (eval != null) {
             throw new IllegalStateException("Already initialized");
         }
@@ -126,7 +125,8 @@ public abstract class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 var result = printer.outputResult(value);
                 if (result instanceof IWebContentOutput) {
                     try {
-                        openWebContent((IWebContentOutput)result);
+                        var webResult = (IWebContentOutput)result;
+                        services.browse(webResult.webUri(), webResult.webTitle(), webResult.webviewColumn());
                     } catch (Throwable _ignore) {}
                 }
                 return result;
