@@ -107,13 +107,13 @@ public class DoubleArrayList<F, S>{
 		return size;
 	}
 
-    private java.util.List<Pair<F,S>> zip() {
+	private java.util.List<Pair<F,S>> zip() {
 		java.util.List<Pair<F,S>> entries = new java.util.ArrayList<>(size);
 		for (int i=0; i<size; i++) {
 			entries.add(Pair.of(first[i], second[i]));
 		}
-        return entries;
-		}
+		return entries;
+	}
 
 	public void sort(Comparator<Pair<F,S>> comparator) {
 		java.util.List<Pair<F,S>> entries = zip();
