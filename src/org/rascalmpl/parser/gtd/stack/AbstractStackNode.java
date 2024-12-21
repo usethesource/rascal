@@ -753,6 +753,9 @@ public abstract class AbstractStackNode<P>{
 		return propagatedReductions;
 	}
 
+	/**
+	 * Return a short string representation of this object for debugging purposes
+	 */
 	public abstract String toShortString();
 
 	@Override
