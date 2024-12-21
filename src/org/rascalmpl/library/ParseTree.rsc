@@ -240,7 +240,7 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 <4>  Layout symbols
 <5>  Terminal symbols that are keywords
 <6>  Parameterized context-free non-terminal
-<7> Parameterized lexical non-terminal
+<7>  Parameterized lexical non-terminal
 <8>  Terminal.
 <9>  Case-insensitive terminal.
 <10> Character class
@@ -355,12 +355,11 @@ is the length of the input.
 The `allowRecovery` can be set to `true` to enable error recovery. This is an experimental feature.
 When error recovery is enabled, the parser will attempt to recover from parse errors and continue parsing.
 If successful, a parse tree with error and skipped productions is returned (see the definition of `Production` above).
-A number of functions is provided to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
-Note that the resulting parse forest can contain a lot of error nodes. `disambiguateErrors` can be used to prune the forest
-and leave a tree with a single (or even zero) errors based on simple heuristics.
-When `allowAmbiguity` is set to false, `allowRecovery` is set to true, and `filters` is empty, this disambiguation is done
-automatically so you should end up with a tree with no error ambiguities. Regular ambiguities can still occur
-and will result in an error.
+The `util::ErrorRecovery` module contains a number of functions to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
+Note that the resulting parse forest can contain a lot of ambiguities. Any code that processes error trees must be aware of this,
+for instance a simple traversal of all subtrees will be too expensive in most cases. `disambiguateErrors` can be used to 
+efficiently prune the forest and leave a tree with a single (or even zero) errors based on simple heuristics, but these heuristics
+are somewhat arbitrary so the usability of this function is limited.
 
 The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
 the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
@@ -434,7 +433,9 @@ The parse function behaves differently depending of the given keyword parameters
                          the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
                          if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
      * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
-                         special `error` and `skipped` nodes are included in the resulting parse tree. More documentation will be added here when this feature matures.
+                         special `error` and `skipped` productions are included in the resulting parse tree. More documentation will be added here when this feature matures.
+                         Note that if `allowRecovery` is set to true, the resulting tree can still contain ambiguity nodes related to recovered parse errors, even if `allowAmbiguity`
+                         is set to false. When a 'regular` (non-error) ambiguity is found an exception is still thrown in this case.
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
