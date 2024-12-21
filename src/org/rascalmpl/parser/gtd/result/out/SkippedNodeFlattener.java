@@ -27,10 +27,10 @@ public class SkippedNodeFlattener<T, P>{
 
 		// Add source location
 		if (node.getInputUri() != null) {
-		int startOffset = node.getOffset();
-		int endOffset = startOffset + node.getLength();
+			int startOffset = node.getOffset();
+			int endOffset = startOffset + node.getLength();
 			P sourceLocation = nodeConstructorFactory.createPositionInformation(node.getInputUri(), startOffset, endOffset, positionStore);
-		result = nodeConstructorFactory.addPositionInformation(result, sourceLocation);
+			result = nodeConstructorFactory.addPositionInformation(result, sourceLocation);
 		}
 
 		return result;
