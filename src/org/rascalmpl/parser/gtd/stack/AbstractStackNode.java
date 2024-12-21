@@ -35,7 +35,7 @@ public abstract class AbstractStackNode<P>{
 	protected AbstractStackNode<P>[][] alternateProductions;
 
 	// Our edges
-	protected IntegerObjectList<EdgesSet<P>> edgesMap; // <PO>: key=startLocation, value=EdgesSet at that location
+	protected IntegerObjectList<EdgesSet<P>> edgesMap; // key=startLocation, value=EdgesSet at that location
 	// Edges of our children
 	protected ArrayList<Link>[] prefixesMap;
 	
