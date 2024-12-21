@@ -232,6 +232,7 @@ public class ShellExec {
 		        runningProcess.destroy();    
 		    }
 		}
+
 		Thread waitForCleared = new Thread("zombie process clean up") {
 		    public void run() {
 				while (true) {
