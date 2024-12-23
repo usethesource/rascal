@@ -788,7 +788,18 @@ public class PathConfig {
      */
     public void printInterpreterConfigurationStatus(PrintWriter out) {
         out.println("Module paths:");
-        getSrcs().forEach((f) -> out.println(" ".repeat(4) + f));
+        getSrcs().forEach(f -> {
+            var l = (ISourceLocation) f;
+            var s = " ".repeat(4) + l;
+            if (l.getScheme().equals("std")) {
+                try {
+                    s += " at " + URIResolverRegistry.getInstance().logicalToPhysical(l);
+                } catch (IOException e) {
+                    s += " at unknown physical location";
+                }
+            }
+            out.println(s);
+        });
         out.println("JVM library classpath:");
         getLibsAndTarget().forEach((l) -> out.println(" ".repeat(4) + l));
         out.flush();
