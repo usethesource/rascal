@@ -572,12 +572,6 @@
                                                 <Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
                                             </manifestEntries>
                                         </transformer>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                            <resource>org/rascalmpl/uri/resolvers.config</resource>
-                                        </transformer>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                            <resource>io/usethesource/vallang/type/types.config</resource>
-                                        </transformer>
                                     </transformers>
                                     <relocations>
                                         <relocation>
