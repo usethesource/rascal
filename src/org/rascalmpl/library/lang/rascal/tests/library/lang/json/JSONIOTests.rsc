@@ -21,7 +21,7 @@ bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(va
     }
 
     json = asJSON(dt);
-    readBack = parseJSON(returnType, json);
+    readBack = normalizer(parseJSON(returnType, json));
     if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
         println("What is read back, a <type(typeOf(readBack),())>:");
         iprintln(readBack);
@@ -97,7 +97,7 @@ value toDefaultRec(value readBack) =  visit(readBack) {
 // as the writer is top-down and this rewrite is bottom-up 
 // we end up with different lists sometimes (if the elements have been rewritten).
 value toDefaultValue(set[value] x) = [*x]; 
-
+value toDefaultValue(list[value] x) = [*{*x}]; // re-order to default set order for comparison purposes 
 value toDefaultValue(map[void,void] _) =   "object"();
 value toDefaultValue(<>) =   [];
 value toDefaultValue(<value x>) =   [x];
@@ -124,7 +124,7 @@ value toDefaultValue(loc l) {
     }
 }
 
-value toDefaultValue(rat r) = [numerator(r), denominator(r)];
+value toDefaultValue(rat r) = [*{*[numerator(r), denominator(r)]}];
 value toDefaultValue(datetime t) = printDateTime(t, "yyyy-MM-dd\'T\'HH:mm:ssZ");
 value toDefaultValue(real r) =   round(r) when r - round(r) == 0;
 default value toDefaultValue(value x) = x;

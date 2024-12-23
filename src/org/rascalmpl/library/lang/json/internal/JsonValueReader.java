@@ -346,31 +346,12 @@ public class JsonValueReader {
       }
       
       switch (in.peek()) {
-        case BEGIN_OBJECT:
-          in.beginObject();
-          IInteger nomO = null, denomO = null;
-          while (in.hasNext()) {
-            switch (nextName()) {
-              case "nominator":
-                nomO = (IInteger) read(in, TF.integerType());
-              case "denominator":
-                denomO = (IInteger) read(in, TF.integerType());
-            }
-          }
-
-          in.endObject();
-
-          if (nomO == null || denomO == null) {
-            throw parseErrorHere("Did not find all fields of expected rational at " + in.getPath());
-          }
-
-          return vf.rational(nomO, denomO);
         case BEGIN_ARRAY:
           in.beginArray();
-          IInteger nomA = (IInteger) read(in, TF.integerType());
+          IInteger numA = (IInteger) read(in, TF.integerType());
           IInteger denomA = (IInteger) read(in, TF.integerType());
           in.endArray();
-          return vf.rational(nomA, denomA);
+          return vf.rational(numA, denomA);
         case STRING:
           return vf.rational(nextString());
         default:
