@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -716,6 +717,25 @@ public class JsonValueReader {
       return read(in, type.getAbstractDataType());
     }
 
+    private boolean isJavaIdentifier(String s) {
+      if (s.isEmpty()) {
+        return false;
+      }
+      else {
+        if (!Character.isJavaIdentifierStart(s.charAt(0))) {
+          return false;
+        }
+
+        for (int i = 1; i < s.length(); i++) {
+          if (!Character.isJavaIdentifierPart(i)) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    }
+
     @Override
     public IValue visitNode(Type type) throws IOException {
       if (isNull()) {
@@ -729,10 +749,13 @@ public class JsonValueReader {
      
       Map<String,IValue> kws = new HashMap<>();
       Map<String,IValue> args = new HashMap<>();
+      boolean allIdentifiers = true;
       String name = "object";
 
       while (in.hasNext()) {
         String kwName = nextName();
+
+        allIdentifiers &= isJavaIdentifier(kwName);
 
         if (kwName.equals("_name")) {
           name = ((IString) read(in, TF.stringType())).getValue();
@@ -771,7 +794,19 @@ public class JsonValueReader {
         .map(e -> e.getValue())
         .toArray(IValue[]::new);
 
-      return vf.node(name, argArray, kws);
+      if (allIdentifiers) {
+        return vf.node(name, argArray, kws);
+      }
+      else {
+        assert args.isEmpty();
+        IMapWriter newMap = vf.mapWriter();
+
+        for (Entry<String,IValue> e : kws.entrySet()) {
+          newMap.put(vf.string(e.getKey()), e.getValue());
+        }
+
+        return newMap.done();
+      }
     }
 
     @Override
