@@ -126,8 +126,8 @@ public class JsonValueWriter {
       @Override
       public Void visitRational(IRational o) throws IOException {
           out.beginArray();
-          out.value(o.numerator().getStringRepresentation());
-          out.value(o.denominator().getStringRepresentation());
+          out.value(o.numerator().longValue());
+          out.value(o.denominator().longValue());
           out.endArray();
 
           return null;
