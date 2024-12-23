@@ -90,10 +90,17 @@ value toDefaultRec(value readBack) = visit(readBack) {
 
 value toDefaultValue(set[value] x) =  [*x];
 value toDefaultValue(map[void,void] _) =   "object"();
+value toDefaultValue(rat r) = [numerator(r), denominator(r)];
 value toDefaultValue(<>) =   [];
 value toDefaultValue(<x>) =   [x];
 value toDefaultValue(<x,y>) =   [x,y];
 value toDefaultValue(<x,y,z>) =   [x,y,z];
+value toDefaultValue(<x,y,z,a>) =   [x,y,z,a];
+value toDefaultValue(<x,y,z,a,b>) =   [x,y,z,a,b];
+value toDefaultValue(<x,y,z,a,b,c>) =   [x,y,z,a,b,c];
+value toDefaultValue(<x,y,z,a,b,c,d>) =   [x,y,z,a,b,c,d];
+value toDefaultValue(<x,y,z,a,b,c,d,e>) =   [x,y,z,a,b,c,d,e];
+value toDefaultValue(<x,y,z,a,b,c,d,e,f>) =   [x,y,z,a,b,c,d,e,f];
 value toDefaultValue(loc l) {
     // this simulates the simplications the writer applies
     if (!(l.offset?)) {
