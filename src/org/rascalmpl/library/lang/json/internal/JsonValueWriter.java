@@ -376,7 +376,6 @@ public class JsonValueWriter {
 
       @Override
       public Void visitExternal(IExternalValue externalValue) throws IOException {
-        // TODO
         throw new IOException("External values are not supported by JSon serialisation yet");
       }
 

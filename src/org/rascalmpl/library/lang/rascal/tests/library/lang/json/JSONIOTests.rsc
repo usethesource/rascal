@@ -7,6 +7,7 @@ import util::Maybe;
 import IO;
 import util::Math;
 import Type;
+import DateTime;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
@@ -42,7 +43,7 @@ test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
 test bool jsonWithInt1(int dt) = writeRead(#int, dt);
 test bool jsonWithReal1(real dt) = writeRead(#real, dt);
 test bool jsonWithRat1(rat dt) = writeRead(#rat, dt);
-test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=toDefaultValue);
+test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=toDefaultRec);
 
 test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
 test bool jsonWithStr1(str dt) = writeRead(#str, dt);
@@ -50,7 +51,7 @@ test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
-test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultValue);
+test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultRec);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
@@ -60,7 +61,7 @@ test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
 However sets are always read back in as lists if we don't have 
 a specific abstract data-type that can enforce sets.
 }
-test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=toDefaultValue);
+test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=toDefaultRec);
 
 test bool json1() = writeRead(#DATA1, data1(123));
 test bool json2() = writeRead(#DATA2, data2("123"));
@@ -83,17 +84,34 @@ test bool originTracking() {
 }
 
 @synopsis{Normalizer used to replace unrecoverable types with their default representatives}
-value toDefaultValue(value readBack) = visit(readBack) {
-    case value _:set[value] x=>  [*x]
-    case value _:map[void,void] _ =>  "object"()
-    case value _:<> =>  []
-    case value _:<x> =>  [x]
-    case value _:<x,y> =>  [x,y]
-    case value _:<x,y,z>=>  [x,y,z]
-    case value _:loc l =>  "<l>"
-    case value _:datetime t => "<t>"
-    case value _:real r =>  round(r) when r - round(r) == 0
+value toDefaultRec(value readBack) = visit(readBack) {
+    case value x => toDefaultValue(x)
 };
+
+value toDefaultValue(set[value] x) =  [*x];
+value toDefaultValue(map[void,void] _) =   "object"();
+value toDefaultValue(<>) =   [];
+value toDefaultValue(<x>) =   [x];
+value toDefaultValue(<x,y>) =   [x,y];
+value toDefaultValue(<x,y,z>) =   [x,y,z];
+value toDefaultValue(loc l) {
+    // this simulates the simplications the writer applies
+    if (!(l.offset?)) {
+        if (l.scheme == "file") {
+            return l.path;
+        }
+        else {
+            return "<l>"[1..-1];
+        }
+    }
+    else {
+        return "<l>";
+    }
+}
+
+value toDefaultValue(datetime t) = printDateTime(t, "yyyy-MM-dd\'T\'HH:mm:ssZ");
+value toDefaultValue(real r) =   round(r) when r - round(r) == 0;
+default value toDefaultValue(value x) = x;
 
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
@@ -109,7 +127,7 @@ test bool accurateParseErrors() {
         // accurate locations have to be provided also when trackOrigins=false
        ex2 = parseJSON(#node, broken, trackOrigins=false);   
    }
-   catch ParseError(loc l): // , cause=/^Unterminated object.*/, path="$.glossary.GlossDiv.GlossList.GlossEntry.GlossTerm") : 
+   catch ParseError(loc l): 
         return l.begin.line == 14;
 
    return true;
