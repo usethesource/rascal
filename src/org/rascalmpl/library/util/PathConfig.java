@@ -16,8 +16,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiPredicate;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -26,6 +28,7 @@ import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -635,8 +638,34 @@ public class PathConfig {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
 
+        // The `rascal` project has two special source folders (`.../library`
+        // and `.../typepal`). The versions of these two folders in the
+        // "current" `rascal` (as per `resolveCurrentRascalRuntimeJar()`) are
+        // always included in the module path. All remaining source folders of
+        // the `rascal` project are always excluded, except when the current
+        // project happens to be `rascal` itself (in which case they are
+        // normally included).
 
+        ISourceLocation currentRascal = URIUtil.unknownLocation();
+        try {
+            currentRascal = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+        } catch (IOException e) {
+            messages.append(Messages.error(e.getMessage(), manifestRoot));
+        }
+
+        var rascalSpecialSrcs = new LinkedHashMap<ISourceLocation, String>(); // Keep insertion order for predictable output
+        rascalSpecialSrcs.put(URIUtil.rootLocation("std"),"src/org/rascalmpl/library");
+        rascalSpecialSrcs.put(URIUtil.getChildLocation(currentRascal, "org/rascalmpl/typepal"), "src/org/rascalmpl/typepal");
+        
+        BiPredicate<String, String> isRascalSpecialSrc = (project, src) ->
+            "rascal".equals(project) && rascalSpecialSrcs.values().contains(src);
+
+        srcsWriter.appendAll(rascalSpecialSrcs.keySet());
         for (String srcName : manifest.getSourceRoots(manifestRoot)) {
+            if (isRascalSpecialSrc.test(projectName, srcName)) {
+                continue; // Don't append special source folders again
+            }
+
             var srcFolder = URIUtil.getChildLocation(manifestRoot, srcName);
             
             if (!reg.exists(srcFolder) || !reg.isDirectory(srcFolder)) {
