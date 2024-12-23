@@ -43,7 +43,7 @@ test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
 test bool jsonWithInt1(int dt) = writeRead(#int, dt);
 test bool jsonWithReal1(real dt) = writeRead(#real, dt);
 test bool jsonWithRat1(rat dt) = writeRead(#rat, dt);
-test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=toDefaultRec);
+test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=numNormalizer);
 
 test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
 test bool jsonWithStr1(str dt) = writeRead(#str, dt);
@@ -83,14 +83,18 @@ test bool originTracking() {
    return true;
 }
 
+value numNormalizer(real r) =   round(r) when r - round(r) == 0;
+default value numNormalizer(value x) = x;
+
+
 @synopsis{Normalizer used to replace unrecoverable types with their default representatives}
 value toDefaultRec(value readBack) = visit(readBack) {
     case value x => toDefaultValue(x)
 };
 
+value toDefaultValue(rat r) = ["<numerator(r)>", "<denominator(r)>"];
 value toDefaultValue(set[value] x) =  [*x];
 value toDefaultValue(map[void,void] _) =   "object"();
-value toDefaultValue(rat r) = [numerator(r), denominator(r)];
 value toDefaultValue(<>) =   [];
 value toDefaultValue(<x>) =   [x];
 value toDefaultValue(<x,y>) =   [x,y];

@@ -722,7 +722,7 @@ public class JsonValueReader {
         return false;
       }
       else {
-        if (!Character.isJavaIdentifierStart(s.charAt(0))) {
+        if (s.charAt(0) != '_' && !Character.isJavaIdentifierStart(s.charAt(0))) {
           return false;
         }
 
