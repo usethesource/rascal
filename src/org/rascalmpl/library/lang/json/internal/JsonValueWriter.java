@@ -13,15 +13,17 @@
 package org.rascalmpl.library.lang.json.internal;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.maybe.UtilMaybe;
 
 import com.google.gson.stream.JsonWriter;
+import com.ibm.icu.text.SimpleDateFormat;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -123,7 +125,11 @@ public class JsonValueWriter {
 
       @Override
       public Void visitRational(IRational o) throws IOException {
-          out.value(o.getStringRepresentation());
+          out.beginArray();
+          out.value(o.numerator().longValue());
+          out.value(o.denominator().longValue());
+          out.endArray();
+
           return null;
       }
 
@@ -224,6 +230,9 @@ public class JsonValueWriter {
       @Override
       public Void visitNode(INode o) throws IOException {
         out.beginObject();
+        out.name("_name");
+        out.value(o.getName());
+
         int i = 0;
         for (IValue arg : o) {
           out.name("arg" + i++); 
@@ -367,7 +376,6 @@ public class JsonValueWriter {
 
       @Override
       public Void visitExternal(IExternalValue externalValue) throws IOException {
-        // TODO
         throw new IOException("External values are not supported by JSon serialisation yet");
       }
 
@@ -375,11 +383,18 @@ public class JsonValueWriter {
       public Void visitDateTime(IDateTime o) throws IOException {
         if (datesAsInts) {
           out.value(o.getInstant());
-          return null;
         }
         else {
-          throw new IOException("Dates as strings not yet implemented: " + format.get().toPattern());
+          try {
+            com.ibm.icu.text.SimpleDateFormat sd = format.get(); 
+            com.ibm.icu.util.Calendar cal = Prelude.getCalendarForDateTime(o);
+            sd.setCalendar(cal);
+            out.value(sd.format(cal.getTime()));
+          } catch (IllegalArgumentException iae) {
+            throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + o + " using format string: " + format.get());
+          }
         }
+        return null;
       }
     });
     }

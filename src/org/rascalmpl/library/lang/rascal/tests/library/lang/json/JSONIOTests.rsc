@@ -6,10 +6,14 @@ import util::UUID;
 import util::Maybe;
 import IO;
 import util::Math;
+import Type;
+import DateTime;
+import List;
+import Node;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
-bool writeRead(type[&T] returnType, &T dt) {
+bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }) {
     dt = visit (dt) {
         // reals must fit in double
         case real r => fitDouble(r)
@@ -17,8 +21,17 @@ bool writeRead(type[&T] returnType, &T dt) {
         case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
 
-    json = toJSON(dt);
-    return fromJSON(returnType, json) == dt;
+    json = asJSON(dt);
+    readBack = normalizer(parseJSON(returnType, json));
+    if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
+        println("What is read back, a <type(typeOf(readBack),())>:");
+        iprintln(readBack);
+        println("Is different from the original, a <type(typeOf(normalizer(dt)),())>:");
+        iprintln(normalizer(dt));
+        return false;
+    }
+
+    return true;
 }
 	
 // only single constructors supported for now
@@ -32,7 +45,7 @@ test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
 test bool jsonWithInt1(int dt) = writeRead(#int, dt);
 test bool jsonWithReal1(real dt) = writeRead(#real, dt);
 test bool jsonWithRat1(rat dt) = writeRead(#rat, dt);
-test bool jsonWithNum1(num dt) = writeRead(#num, dt);
+test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=numNormalizer);
 
 test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
 test bool jsonWithStr1(str dt) = writeRead(#str, dt);
@@ -40,12 +53,17 @@ test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
-test bool jsonWithNode1(node  dt) = writeRead(#node, dt);
+test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultRec);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
 
-test bool jsonRandom1(value dt) = writeRead(#value, dt);
+@synopsis{all values can be written and read again}
+@description{
+However sets are always read back in as lists if we don't have 
+a specific abstract data-type that can enforce sets.
+}
+test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=toDefaultRec);
 
 test bool json1() = writeRead(#DATA1, data1(123));
 test bool json2() = writeRead(#DATA2, data2("123"));
@@ -67,6 +85,57 @@ test bool originTracking() {
    return true;
 }
 
+value numNormalizer(real r) =   round(r) when r - round(r) == 0;
+default value numNormalizer(value x) = x;
+
+
+@synopsis{Normalizer used to replace unrecoverable types with their default representatives}
+value toDefaultRec(value readBack) =  visit(readBack) {
+    case value x => toDefaultValue(x)
+};
+
+// The list order depends on the hashcodes of the children
+// as the writer is top-down and this rewrite is bottom-up 
+// we end up with different lists sometimes (if the elements have been rewritten).
+// therefore we normalize all lists to sets, as they can be tested for equality
+// regardless of order and hashcode collisions
+
+value toDefaultValue(set[value] x) = x; 
+value toDefaultValue(list[value] x) = {*x}; // re-order to default set order for comparison purposes 
+value toDefaultValue(map[void,void] _) =   {};
+value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m}
+                             + {*[{"arg<i>", c[i]}  | c := getChildren(x), i <- index(c)]};
+value toDefaultValue(map[value,value] m) = {{k,m[k]} | k <- m};
+value toDefaultValue(<>) =   {};
+value toDefaultValue(<value x>) =   {x};
+value toDefaultValue(<value x,value y>) =   {x,y};
+value toDefaultValue(<value x,value y,value z>) =   {x,y,z};
+value toDefaultValue(<value x,value y,value z,value a>) =   {x,y,z,a};
+value toDefaultValue(<value x,value y,value z,value a,value b>) =   {x,y,z,a,b};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c>) =   {x,y,z,a,b,c};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d>) =   {x,y,z,a,b,c,d};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e>) =   {x,y,z,a,b,c,d,e};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e,value f>) =   {x,y,z,a,b,c,d,e,f};
+value toDefaultValue(loc l) {
+    // this simulates the simplications the writer applies
+    if (!(l.offset?)) {
+        if (l.scheme == "file") {
+            return l.path;
+        }
+        else {
+            return "<l>"[1..-1];
+        }
+    }
+    else {
+        return "<l>";
+    }
+}
+
+value toDefaultValue(rat r) = {numerator(r), denominator(r)};
+value toDefaultValue(datetime t) = printDateTime(t, "yyyy-MM-dd\'T\'HH:mm:ssZ");
+value toDefaultValue(real r) =   round(r) when r - round(r) == 0;
+default value toDefaultValue(value x) = x;
+
 test bool accurateParseErrors() {
    ex = readFile(|std:///lang/rascal/tests/library/lang/json/glossary.json|);
    broken = ex[..size(ex)/2] + ex[size(ex)/2+10..];
@@ -81,7 +150,7 @@ test bool accurateParseErrors() {
         // accurate locations have to be provided also when trackOrigins=false
        ex2 = parseJSON(#node, broken, trackOrigins=false);   
    }
-   catch ParseError(loc l): // , cause=/^Unterminated object.*/, path="$.glossary.GlossDiv.GlossList.GlossEntry.GlossTerm") : 
+   catch ParseError(loc l): 
         return l.begin.line == 14;
 
    return true;
