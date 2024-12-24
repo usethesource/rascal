@@ -9,6 +9,7 @@ import util::Math;
 import Type;
 import DateTime;
 import List;
+import Node;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
@@ -93,22 +94,27 @@ value toDefaultRec(value readBack) =  visit(readBack) {
     case value x => toDefaultValue(x)
 };
 
-// this list order depends on the hashcodes of the children
+// The list order depends on the hashcodes of the children
 // as the writer is top-down and this rewrite is bottom-up 
 // we end up with different lists sometimes (if the elements have been rewritten).
-value toDefaultValue(set[value] x) = [*x]; 
-value toDefaultValue(list[value] x) = [*{*x}]; // re-order to default set order for comparison purposes 
-value toDefaultValue(map[void,void] _) =   "object"();
-value toDefaultValue(<>) =   [];
-value toDefaultValue(<value x>) =   [x];
-value toDefaultValue(<value x,value y>) =   [x,y];
-value toDefaultValue(<value x,value y,value z>) =   [x,y,z];
-value toDefaultValue(<value x,value y,value z,value a>) =   [x,y,z,a];
-value toDefaultValue(<value x,value y,value z,value a,value b>) =   [x,y,z,a,b];
-value toDefaultValue(<value x,value y,value z,value a,value b,value c>) =   [x,y,z,a,b,c];
-value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d>) =   [x,y,z,a,b,c,d];
-value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e>) =   [x,y,z,a,b,c,d,e];
-value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e,value f>) =   [x,y,z,a,b,c,d,e,f];
+// therefore we normalize all lists to sets, as they can be tested for equality
+// regardless of order and hashcode collisions
+
+value toDefaultValue(set[value] x) = x; 
+value toDefaultValue(list[value] x) = {*x}; // re-order to default set order for comparison purposes 
+value toDefaultValue(map[void,void] _) =   {};
+value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m};
+value toDefaultValue(map[value,value] m) = {{k,m[k]} | k <- m};
+value toDefaultValue(<>) =   {};
+value toDefaultValue(<value x>) =   {x};
+value toDefaultValue(<value x,value y>) =   {x,y};
+value toDefaultValue(<value x,value y,value z>) =   {x,y,z};
+value toDefaultValue(<value x,value y,value z,value a>) =   {x,y,z,a};
+value toDefaultValue(<value x,value y,value z,value a,value b>) =   {x,y,z,a,b};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c>) =   {x,y,z,a,b,c};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d>) =   {x,y,z,a,b,c,d};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e>) =   {x,y,z,a,b,c,d,e};
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e,value f>) =   {x,y,z,a,b,c,d,e,f};
 value toDefaultValue(loc l) {
     // this simulates the simplications the writer applies
     if (!(l.offset?)) {
@@ -124,7 +130,7 @@ value toDefaultValue(loc l) {
     }
 }
 
-value toDefaultValue(rat r) = [*{*[numerator(r), denominator(r)]}];
+value toDefaultValue(rat r) = {numerator(r), denominator(r)};
 value toDefaultValue(datetime t) = printDateTime(t, "yyyy-MM-dd\'T\'HH:mm:ssZ");
 value toDefaultValue(real r) =   round(r) when r - round(r) == 0;
 default value toDefaultValue(value x) = x;

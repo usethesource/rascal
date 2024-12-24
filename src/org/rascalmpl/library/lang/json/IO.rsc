@@ -11,7 +11,32 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 @contributor{Davy Landman - landman@cwi.nl (CWI)}
+@description{
+The pairs ((asJSON)):((parseJSON)) and ((writeJSON)):((readJSON)) are both bi-directional
+transformations between serializable Rascal values (all except function instances) and JSON strings.
+The ((asJSON)) and ((parseJSON)) work on `str` representations, while ((writeJSON)) and ((readJSON)) 
+stream to/from files directly.
 
+The basic principle of the bi-directional mapping is that constructors of algebraic data-types
+map one-to-one to JSON object notation, and vice versa. The other builtin Rascal data-structures
+are judiciously mapped to objects and arrays, and strings, etc. The goal is that their representation
+is natural on the receiving end (e.g. TypeScript, Javascript and Python code), without sacrificing
+on the naturalness of the Rascal representation.
+}
+@pitfalls{
+* ((asJSON)) and ((writeJSON)) are not isomorphisms. They are homomorphisms that choose
+JSON arrays or JSON objects for multiple different kinds of Rascal values. For example 
+maps and nodes and ADT's are all mapped to JSON object notation (homonyms). 
+}
+@benefits{
+* Using the `expected`` type arguments of ((parseJSON)) and ((readJSON)) the homonyms created by ((asJSON)) and ((writeJSON)) can be converted back to their
+original Rascal structures. If the expected type contains only _concrete types_, and no _abstract types_ then
+then pairs ((asJSON))/((parseJSON)) and ((writeJSON))/((readJSON)) are isomorphic.
+   * The _abstract types_ are `value`, `node`, `num` or any composite type that contains it.
+   * The _concrete types_ are all types which are not _abstract types_.
+* If you provide `value` or `node` as an expected type, you will always get a useful representation
+on the Rascal side. It is not guaranteed to be the same representation as before.
+}
 module lang::json::IO
 
 import util::Maybe;
