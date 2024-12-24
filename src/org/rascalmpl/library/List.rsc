@@ -440,9 +440,10 @@ permutations([1,2,3]);
 set[list[&T]] permutations(list[&T] lst) =
 	permutationsBag(distribution(lst));
 
-private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
-	isEmpty(b) ? {[]} : 
-	{ [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
+private set[list[&T]] permutationsBag(map[&T element, int occurs] b) 
+  = isEmpty(b) 
+    ? {[]} 
+    : { [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
 
 
 @synopsis{Pop top element from list, return a tuple.}
@@ -508,16 +509,17 @@ reducer([10, 20, 30, 40], add, 0);
 * a reducer expression can be a lot faster 
 * reducer expressions are more versatile (allowing multiple generators and filters)
 }
-&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit) = (unit | fn(it, elm) | elm <- lst);
+&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit) 
+  = (unit | fn(it, elm) | elm <- lst);
 
-list[&T] remove(list[&T] lst, int indexToDelete) =
-	[ lst[i] | i <- index(lst), i != indexToDelete ];
+list[&T] remove(list[&T] lst, int indexToDelete)
+  = [ lst[i] | i <- index(lst), i != indexToDelete ];
 
-private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) =
-	removeFromBag(b,el,1);
+private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) 
+  = removeFromBag(b,el,1);
 
-private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) =
-	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
+private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) 
+  = !(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
 
 
 @synopsis{Reverse a list.}
