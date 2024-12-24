@@ -103,7 +103,8 @@ value toDefaultRec(value readBack) =  visit(readBack) {
 value toDefaultValue(set[value] x) = x; 
 value toDefaultValue(list[value] x) = {*x}; // re-order to default set order for comparison purposes 
 value toDefaultValue(map[void,void] _) =   {};
-value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m};
+value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m}
+                             + {*[{"arg<i>", c[i]}  | c := getChildren(x), i <- index(c)]};
 value toDefaultValue(map[value,value] m) = {{k,m[k]} | k <- m};
 value toDefaultValue(<>) =   {};
 value toDefaultValue(<value x>) =   {x};
