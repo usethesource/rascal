@@ -730,13 +730,11 @@ public class JsonValueReader {
      
       Map<String,IValue> kws = new HashMap<>();
       Map<String,IValue> args = new HashMap<>();
-      boolean allIdentifiers = true;
+      
       String name = "object";
 
       while (in.hasNext()) {
         String kwName = nextName();
-
-        allIdentifiers &= isJavaIdentifier(kwName);
 
         if (kwName.equals("_name")) {
           name = ((IString) read(in, TF.stringType())).getValue();
@@ -774,20 +772,8 @@ public class JsonValueReader {
         .sorted((e, f) -> e.getKey().compareTo(f.getKey()))
         .map(e -> e.getValue())
         .toArray(IValue[]::new);
-
-      if (allIdentifiers) {
-        return vf.node(name, argArray, kws);
-      }
-      else {
-        assert args.isEmpty();
-        IMapWriter newMap = vf.mapWriter();
-
-        for (Entry<String,IValue> e : kws.entrySet()) {
-          newMap.put(vf.string(e.getKey()), e.getValue());
-        }
-
-        return newMap.done();
-      }
+      
+      return vf.node(name, argArray, kws);  
     }
 
     @Override
