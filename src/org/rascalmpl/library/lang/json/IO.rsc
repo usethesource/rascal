@@ -32,8 +32,9 @@ maps and nodes and ADT's are all mapped to JSON object notation (homonyms).
 * Using the `expected`` type arguments of ((parseJSON)) and ((readJSON)) the homonyms created by ((asJSON)) and ((writeJSON)) can be converted back to their
 original Rascal structures. If the expected type contains only _concrete types_, and no _abstract types_ then
 then pairs ((asJSON))/((parseJSON)) and ((writeJSON))/((readJSON)) are isomorphic.
-   * The _abstract types_ are `value`, `node`, `num` or any composite type that contains it.
-   * The _concrete types_ are all types which are not _abstract types_.
+   * The _abstract types_ are `value`, `node`, `num` or any composite type that contains it. `Maybe[value]` is an example of an abstract type.
+   * The _concrete types_ are all types which are not _abstract types_. `Maybe[int]` is an example of a concrete type.
+   * Run-time values always have concrete types, while variables in code often have abstract types.
 * If you provide `value` or `node` as an expected type, you will always get a useful representation
 on the Rascal side. It is not guaranteed to be the same representation as before.
 }
