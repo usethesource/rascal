@@ -27,7 +27,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -696,25 +695,6 @@ public class JsonValueReader {
     @Override
     public IValue visitConstructor(Type type) throws IOException {
       return read(in, type.getAbstractDataType());
-    }
-
-    private boolean isJavaIdentifier(String s) {
-      if (s.isEmpty()) {
-        return false;
-      }
-      else {
-        if (s.charAt(0) != '_' && !Character.isJavaIdentifierStart(s.charAt(0))) {
-          return false;
-        }
-
-        for (int i = 1; i < s.length(); i++) {
-          if (!Character.isJavaIdentifierPart(i)) {
-            return false;
-          }
-        }
-      }
-
-      return true;
     }
 
     @Override
