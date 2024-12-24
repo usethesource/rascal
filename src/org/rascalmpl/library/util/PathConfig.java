@@ -16,10 +16,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -638,41 +637,22 @@ public class PathConfig {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
 
-        // The `rascal` project has two special source folders (`.../library`
-        // and `.../typepal`). The versions of these two folders in the
-        // "current" `rascal` (as per `resolveCurrentRascalRuntimeJar()`) are
-        // always included in the module path. All remaining source folders of
-        // the `rascal` project are always excluded, except when the current
-        // project happens to be `rascal` itself (in which case they are
-        // normally included).
-
-        ISourceLocation currentRascal = URIUtil.unknownLocation();
         try {
-            currentRascal = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+            addRascalToSourcePath(srcsWriter);
         } catch (IOException e) {
-            messages.append(Messages.error(e.getMessage(), manifestRoot));
+            messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
 
-        var rascalSpecialSrcs = new LinkedHashMap<ISourceLocation, String>(); // Keep insertion order for predictable output
-        rascalSpecialSrcs.put(URIUtil.rootLocation("std"),"src/org/rascalmpl/library");
-        rascalSpecialSrcs.put(URIUtil.getChildLocation(currentRascal, "org/rascalmpl/typepal"), "src/org/rascalmpl/typepal");
-        
-        BiPredicate<String, String> isRascalSpecialSrc = (project, src) ->
-            "rascal".equals(project) && rascalSpecialSrcs.values().contains(src);
+        if (!projectName.equals("rascal")) { // Don't add `rascal` again
+            for (String srcName : manifest.getSourceRoots(manifestRoot)) {
+                var srcFolder = URIUtil.getChildLocation(manifestRoot, srcName);
+                
+                if (!reg.exists(srcFolder) || !reg.isDirectory(srcFolder)) {
+                    messages.append(Messages.error("Source folder " + srcFolder + " does not exist.", getRascalMfLocation(rascalProject)));
+                }
 
-        srcsWriter.appendAll(rascalSpecialSrcs.keySet());
-        for (String srcName : manifest.getSourceRoots(manifestRoot)) {
-            if (isRascalSpecialSrc.test(projectName, srcName)) {
-                continue; // Don't append special source folders again
+                srcsWriter.append(srcFolder);
             }
-
-            var srcFolder = URIUtil.getChildLocation(manifestRoot, srcName);
-            
-            if (!reg.exists(srcFolder) || !reg.isDirectory(srcFolder)) {
-                messages.append(Messages.error("Source folder " + srcFolder + " does not exist.", getRascalMfLocation(rascalProject)));
-            }
-
-            srcsWriter.append(srcFolder);
         }
         
         return new PathConfig(
@@ -682,6 +662,65 @@ public class PathConfig {
                 vf.list(),
                 generatedSources, 
                 messages.done());
+    }
+
+    /**
+     * Adds the source folders of the `rascal` project to `srcsWriter`.
+     *
+     * For each source folder, there are at most two version to choose from:
+     *   - The version in the "current" `rascal` (as per
+     *     `resolveCurrentRascalRuntimeJar()`). Alway available.
+     *   - The version in the "other" `rascal` (as per the
+     *     `URIResolverRegistry`). Available when `rascal` itself is the main
+     *     project, or when `rascal` is open in the workspace.
+     * 
+     * The version of each source folder of the `rascal` project to add, is
+     * chosen based on the kind of that source folder:
+     *   - Kind #1 (e.g., `.../library`, i.e., `|std:///|`): Add the version of
+     *     the source folder in the current `rascal`
+     *   - Kind #2 (e.g., `.../typepal`): Add the version of the source folder
+     *     in the other `rascal` (if available) or the current `rascal` (else)
+     *   - Kind #3 (e.g., `test/...`): Add the version of the source folder in
+     *     the other `rascal` (if available)
+     *
+     * Thus, source folders of kinds #1 and #2 are added always, while source
+     * folders of kind #3 are added only when the `rascal` project itself is
+     * being developed.
+     *
+     * @throws IOException When the current `rascal` can't be resolved
+     */
+    private static void addRascalToSourcePath(IListWriter srcsWriter) throws IOException {
+        var currentRascalTargetClasses = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+
+        // Assumption: If `rascal` itself is the main project, or if `rascal` is
+        // open in the workspace, then its root folder has already been
+        // registered as `|project://rascal/|` in the resolver registry (so
+        // checking the project name isn't needed after checking the registry).
+        var otherRascal = URIUtil.correctLocation("project", "rascal", "");
+        var otherRascalExists = URIResolverRegistry.getInstance().exists(otherRascal);
+
+        // Include source folders of kind #1
+        srcsWriter.append(URIUtil.rootLocation("std"));
+
+        // Include source folders of kind #2
+        if (otherRascalExists) {
+            srcsWriter.append(URIUtil.getChildLocation(otherRascal, "src/org/rascalmpl/typepal"));
+        } else {
+            srcsWriter.append(URIUtil.getChildLocation(currentRascalTargetClasses, "org/rascalmpl/typepal"));
+        }
+
+        // Include source folders of kind #3
+        if (otherRascalExists) {
+            Predicate<String> isKind3 = s ->
+                !s.equals("src/org/rascalmpl/library") &&
+                !s.equals("src/org/rascalmpl/typepal");
+
+            new RascalManifest()
+                .getSourceRoots(otherRascal)
+                .stream()
+                .filter(isKind3)
+                .forEach(src -> srcsWriter.append(URIUtil.getChildLocation(otherRascal, src)));
+        }
     }
 
     private static void addLibraryToSourcePath(URIResolverRegistry reg, IListWriter srcsWriter, IListWriter messages, ISourceLocation jar) {
@@ -820,7 +859,7 @@ public class PathConfig {
         getSrcs().forEach(f -> {
             var l = (ISourceLocation) f;
             var s = " ".repeat(4) + l;
-            if (l.getScheme().equals("std")) {
+            if (l.getScheme().equals("std") || l.getScheme().equals("project")) {
                 try {
                     s += " at " + URIResolverRegistry.getInstance().logicalToPhysical(l);
                 } catch (IOException e) {
