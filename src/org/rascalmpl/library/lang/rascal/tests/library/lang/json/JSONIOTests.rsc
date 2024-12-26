@@ -13,7 +13,7 @@ import Node;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
-bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false) {
+bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false, bool unpackedLocations=false, bool explicitConstructorNames=false, bool explicitDataTypes=false) {
     dt = visit (dt) {
         // reals must fit in double
         case real r => fitDouble(r)
@@ -21,8 +21,8 @@ bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(va
         case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
 
-    json = asJSON(dt, dateTimeAsInt=dateTimeAsInt);
-    readBack = normalizer(parseJSON(returnType, json));
+    json = asJSON(dt, dateTimeAsInt=dateTimeAsInt, unpackedLocations=unpackedLocations, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes);
+    readBack = normalizer(parseJSON(returnType, json, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes));
     if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
         println("What is read back, a <type(typeOf(readBack),())>:");
         iprintln(readBack);
@@ -48,6 +48,7 @@ test bool jsonWithRat1(rat dt) = writeRead(#rat, dt);
 test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=numNormalizer);
 
 test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
+test bool jsonWithLoc2(loc dt) = writeRead(#loc, dt, unpackedLocations=true);
 test bool jsonWithStr1(str dt) = writeRead(#str, dt);
 test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
 test bool jsonWithDatetime2(datetime dt) = writeRead(#datetime, dt, dateTimeAsInt=true);
@@ -58,6 +59,10 @@ test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultR
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
 test bool jsonWithDATA21(DATA2 dt) = writeRead(#DATA2, dt);
+test bool jsonWithDATA12(DATA1 dt) = writeRead(#DATA1, dt, explicitDataTypes=true);
+test bool jsonWithDATA22(DATA2 dt) = writeRead(#DATA2, dt, explicitDataTypes=true);
+test bool jsonWithDATA13(DATA1 dt) = writeRead(#DATA1, dt, explicitConstructorNames=true);
+test bool jsonWithDATA23(DATA2 dt) = writeRead(#DATA2, dt, explicitConstructorNames=true);
 
 @synopsis{all values can be written and read again}
 @description{
