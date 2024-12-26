@@ -767,7 +767,7 @@ public class JsonValueReader {
         if (numberString.contains("r")) {
           return vf.rational(numberString);
         }
-        if (numberString.matches("[\\.eE]")) {
+        if (numberString.matches(".*[\\.eE].*")) {
           return vf.real(numberString);
         }
         else {
