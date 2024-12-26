@@ -13,7 +13,7 @@ import Node;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 
-bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }) {
+bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false) {
     dt = visit (dt) {
         // reals must fit in double
         case real r => fitDouble(r)
@@ -21,7 +21,7 @@ bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(va
         case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
     }
 
-    json = asJSON(dt);
+    json = asJSON(dt, dateTimeAsInt=dateTimeAsInt);
     readBack = normalizer(parseJSON(returnType, json));
     if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
         println("What is read back, a <type(typeOf(readBack),())>:");
@@ -50,6 +50,7 @@ test bool jsonWithNum1(num dt) = writeRead(#num, dt, normalizer=numNormalizer);
 test bool jsonWithLoc1(loc dt) = writeRead(#loc, dt);
 test bool jsonWithStr1(str dt) = writeRead(#str, dt);
 test bool jsonWithDatetime1(datetime dt) = writeRead(#datetime, dt);
+test bool jsonWithDatetime2(datetime dt) = writeRead(#datetime, dt, dateTimeAsInt=true);
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
