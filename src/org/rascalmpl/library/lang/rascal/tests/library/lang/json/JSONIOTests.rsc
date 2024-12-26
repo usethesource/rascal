@@ -12,13 +12,14 @@ import List;
 import Node;
 
 loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
+public int maxLong = floor(pow(2,63));
 
 bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false, bool unpackedLocations=false, bool explicitConstructorNames=false, bool explicitDataTypes=false) {
     dt = visit (dt) {
         // reals must fit in double
         case real r => fitDouble(r)
         // integers must not overflow 
-        case int i  => i % floor(pow(2, 10)) when abs(i) > pow(2, 10)
+        case int i  => i % maxLong when abs(i) > maxLong
     }
 
     json = asJSON(dt, dateTimeAsInt=dateTimeAsInt, unpackedLocations=unpackedLocations, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes);
@@ -40,6 +41,21 @@ data DATA2 = data2(str n);
 data DATA3 = data3(int n, str kw = "abc");
 data Enum = x() | y() | z();
 data DATA4 = data4(Enum e = x());
+
+test bool writeReadIsTheSameAsAsJSONparseJSON(value example) {
+    jsonFile = |memory://jsontests/example.json|;
+    writeJSON(jsonFile, example);
+    written = readFile(jsonFile);
+
+    // asJON == writeJSON 
+    assert asJSON(example) == written;
+
+    // parseJSON == readJSON
+    assert toDefaultRec(parseJSON(#value, written)) 
+        == toDefaultRec(readJSON(#value, jsonFile));
+
+    return true;
+}
 
 test bool jsonWithBool1(bool dt) = writeRead(#bool, dt);
 test bool jsonWithInt1(int dt) = writeRead(#int, dt);
@@ -91,7 +107,10 @@ test bool originTracking() {
    return true;
 }
 
-value numNormalizer(real r) =   round(r) when r - round(r) == 0;
+value numNormalizer(int i) = i % maxLong when abs(i) > maxLong;
+value numNormalizer(real r) = r - round(r) == 0
+    ? round(r)
+    : fitDouble(r);
 default value numNormalizer(value x) = x;
 
 
@@ -137,9 +156,12 @@ value toDefaultValue(loc l) {
     }
 }
 
+value toDefaultValue(int i) = i % maxLong when abs(i) > maxLong;
 value toDefaultValue(rat r) = {numerator(r), denominator(r)};
 value toDefaultValue(datetime t) = printDateTime(t, "yyyy-MM-dd\'T\'HH:mm:ssZ");
-value toDefaultValue(real r) =   round(r) when r - round(r) == 0;
+value toDefaultValue(real r) = r - round(r) == 0
+    ? round(r) 
+    : fitDouble(r);
 default value toDefaultValue(value x) = x;
 
 test bool accurateParseErrors() {
