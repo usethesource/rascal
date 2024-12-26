@@ -43,6 +43,13 @@ data Enum = x() | y() | z();
 data DATA4 = data4(Enum e = x());
 
 test bool writeReadIsTheSameAsAsJSONparseJSON(value example) {
+    example = visit (example) {
+        // reals must fit in double
+        case real r => fitDouble(r)
+        // integers must not overflow 
+        case int i  => i % maxLong when abs(i) > maxLong
+    }
+
     jsonFile = |memory://jsontests/example.json|;
     writeJSON(jsonFile, example);
     written = readFile(jsonFile);
