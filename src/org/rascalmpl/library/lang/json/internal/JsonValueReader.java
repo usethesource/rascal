@@ -758,21 +758,21 @@ public class JsonValueReader {
 
     @Override
     public IValue visitNumber(Type type) throws IOException {
-        if (in.peek() == JsonToken.NUMBER) {
-          double d = in.nextDouble();
-
-          if (DoubleMath.isMathematicalInteger(d)) {
-            return vf.integer(DoubleMath.roundToLong(d, RoundingMode.FLOOR));
-          }
-          else {
-            return vf.real(d);
-          }
-        }
-        else if (in.peek() == JsonToken.BEGIN_ARRAY) {
+        if (in.peek() == JsonToken.BEGIN_ARRAY) {
           return visitRational(type);
         }
+        
+        String numberString = in.nextString();
 
-        throw parseErrorHere("unexpected kind of number");
+        if (numberString.contains("r")) {
+          return vf.rational(numberString);
+        }
+        if (numberString.matches("[\\.eE]")) {
+          return vf.real(numberString);
+        }
+        else {
+          return vf.integer(numberString);
+        }
     }
 
     @Override
