@@ -1,23 +1,15 @@
 package org.rascalmpl.repl.completers;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.NavigableMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import org.jline.reader.Candidate;
 import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
-import org.rascalmpl.interpreter.utils.StringUtils;
-import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
 public class RascalCommandCompletion implements Completer {
     private static final NavigableMap<String,String> COMMAND_KEYWORDS;
     static {

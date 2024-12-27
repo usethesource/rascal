@@ -154,14 +154,6 @@ public class TermREPL {
         }
 
         @Override
-        public void stackTraceRequested() {
-            var stack = stacktrace.call(new Type[0], new IValue[0], null);
-            if (stack != null && stack.getDynamicType() == tf.stringType()) {
-                stderr.println(((IString)stack.getValue()).getValue());
-            }
-        }
-
-        @Override
         public String getPrompt() {
             return currentPrompt;
         }

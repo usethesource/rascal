@@ -75,12 +75,5 @@ public interface ILanguageProtocol {
      * Interrupt the handleInput code as soon as possible, but leave stuff in a valid state.
      */
     void cancelRunningCommandRequested();
-
-    /**
-     * This method gets called from another thread, indicates a user pressed CTRL+\ during a call to handleInput.
-     * 
-     * If possible, print the current stack trace.
-     */
-    void stackTraceRequested();
     
 }
