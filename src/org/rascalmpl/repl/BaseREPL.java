@@ -67,7 +67,6 @@ public class BaseREPL {
 
 
         // todo:
-        // - ctrl + / support (might not be possible)
         // - highlighting in the prompt? (future work, as it also hurts other parts)
         // - measure time
         // - possible to tee output (future work)
