@@ -80,7 +80,12 @@ public interface IREPLService {
      * Connect the REPL to the Terminal, most likely want to take a copy of at least the {@link Terminal#writer()}.
      * @param term
      */
-    void connect(Terminal term);
+    void connect(Terminal term, boolean ansiColorSupported, boolean unicodeSupported );
+
+    /**
+     * The REPL is getting terminated/disconnected
+     */
+    void disconnect();
 
     /**
      * if a REPL service has wrapped the writer for error output, return that instance
@@ -99,5 +104,4 @@ public interface IREPLService {
     void flush();
 
     String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
-
 }

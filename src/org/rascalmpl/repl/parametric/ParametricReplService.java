@@ -30,11 +30,19 @@ public class ParametricReplService implements IREPLService {
         this.historyFile = historyFile;
     }
 
+
     @Override
-    public void connect(Terminal term) {
+    public void connect(Terminal term, boolean ansiColorSupported, boolean unicodeSupported) {
         out = term.writer();
         err = StreamUtil.generateErrorStream(term, term.writer());
         lang.initialize(term.reader(), out, err, ide);
+    }
+
+    @Override
+    public void disconnect() {
+        if (err != null) {
+            err.close();
+        }
     }
 
     @Override

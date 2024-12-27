@@ -77,7 +77,7 @@ public class BaseREPL {
 
     public void run() throws IOException {
         try {
-            replService.connect(term);
+            replService.connect(term, ansiColorsSupported, unicodeSupported);
             var running = setupInterruptHandler();
 
             while (keepRunning) {
@@ -128,6 +128,9 @@ public class BaseREPL {
         finally {
             try {
                 replService.flush();
+            } catch (Throwable _t) { /* ignore */ }
+            try {
+                replService.disconnect();
             } catch (Throwable _t) { /* ignore */ }
             term.flush();
             if (this.history != null) {
