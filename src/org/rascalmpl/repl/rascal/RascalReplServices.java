@@ -1,5 +1,6 @@
 package org.rascalmpl.repl.rascal;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
+import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
@@ -25,6 +27,9 @@ public class RascalReplServices implements IREPLService {
     private final IRascalLanguageProtocol lang;
     private final @Nullable Path historyFile;
 
+    private boolean unicodeSupported = false;
+    private boolean ansiSupported = false;
+    private RascalSpecificSignalsReader in;
     private PrintWriter out;
     private PrintWriter err;
     
@@ -34,15 +39,42 @@ public class RascalReplServices implements IREPLService {
         this.historyFile = historyFile;
     }
 
+
     @Override
-    public void connect(Terminal term) {
+    public void connect(Terminal term, boolean ansiColorsSupported, boolean unicodeSupported) {
         if (out != null) {
             throw new IllegalStateException("Repl Service is already initialized");
         }
+        this.unicodeSupported = unicodeSupported;
+        this.ansiSupported = ansiColorsSupported;
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
         err = StreamUtil.generateErrorStream(term, monitor);
-        lang.initialize(term.reader(), out, err, monitor, term);
+        in = new RascalSpecificSignalsReader(term, lang, this::printOutput);
+        lang.initialize(in, out, err, monitor, term);
+    }
+
+    private void printOutput(ICommandOutput cmd) {
+        if (cmd instanceof IAnsiCommandOutput && ansiSupported) {
+            ((IAnsiCommandOutput)cmd).asAnsi().write(err, unicodeSupported);
+        }
+        cmd.asPlain().write(err, unicodeSupported);
+    } 
+
+    public void disconnect() {
+        if (in != null) {
+            try {
+                in.close();
+            }
+            catch (IOException e) {
+            }
+        }
+        if (err != null) {
+            err.close();
+        }
+        if (out != null) {
+            out.close();
+        }
     }
 
     @Override
@@ -52,8 +84,16 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException {
-        return lang.handleInput(input);
+        try {
+            in.startStreamMonitoring();
+            return lang.handleInput(input);
+        }
+        finally {
+            in.pauseStreamMonitoring();
+        }
     }
+
+
 
 
     @Override
