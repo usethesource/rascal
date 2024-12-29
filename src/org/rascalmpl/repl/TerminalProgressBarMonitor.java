@@ -24,7 +24,7 @@ import io.usethesource.vallang.ISourceLocation;
  * This gives the console the ability to show progress almost as clearly as an IDE can with a
  * UI experience. 
  * 
- * This class only works correctly if the actual _raw_ output stream of the terminal is wrapped
+ * This class only works correctly if the actual writer of the terminal is wrapped
  * with an object of this class.
  */
 public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMonitor  {
@@ -55,7 +55,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     /**x    
      * Will make everything slow, but easier to spot mistakes
      */
-    private static final boolean debug = false;
+    private static final boolean DEBUG = false;
 
     /**
      * Used to get updates to the width of the terminal
@@ -72,7 +72,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
     @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(Terminal tm) {
-        super(debug ? new AlwaysFlushAlwaysShowCursor(tm.writer()) : tm.writer());
+        super(DEBUG ? new AlwaysFlushAlwaysShowCursor(tm.writer()) : tm.writer());
        
         this.tm = tm;
         
@@ -157,9 +157,12 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                 store(n, offset, len);
             }
             else {
+                eraseBars(); // since we have some output to write, we now hide the bars
                 flush();
-                rawWrite(n, offset, lastNL + 1);
-                rawFlush();
+                directWrite(n, offset, lastNL + 1);
+                directFlush();
+                printBars(); // and print the bars back again
+                
                 store(n, lastNL + 1, len - (lastNL + 1));
             }
         }
@@ -174,7 +177,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
          */
         private void flush() {
             if (curEnd != 0) {
-                rawWrite(buffer, 0, curEnd);
+                directWrite(buffer, 0, curEnd);
                 curEnd = 0;
             }
         }
@@ -186,7 +189,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         public void flushLastLine() {
             if (curEnd != 0) {
                 flush();
-                rawWrite('\n');
+                directWrite('\n');
             }
         }
     
@@ -201,26 +204,26 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         }
     }
 
-    private void rawPrintln(String s) {
-        rawWrite(s + System.lineSeparator());
+    private void directPrintln(String s) {
+        directWrite(s + System.lineSeparator());
     }
-    private void rawWrite(String s) {
-        rawWrite(s, 0, s.length());
+    private void directWrite(String s) {
+        directWrite(s, 0, s.length());
     }
 
-    private void rawWrite(int c) {
+    private void directWrite(int c) {
         super.write(c);
     }
 
-    private void rawWrite(char[] buf, int offset, int length) {
+    private void directWrite(char[] buf, int offset, int length) {
         super.write(buf, offset, length);
     }
 
-    private void rawWrite(String buf, int offset, int length) {
+    private void directWrite(String buf, int offset, int length) {
         super.write(buf, offset, length);
     }
 
-    private void rawFlush() {
+    private void directFlush() {
         super.flush();
     }
 
@@ -338,7 +341,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                 return; // robustness against very small screens. At least don't throw bounds exceptions
             }
             else if (barWidth <= 3) { // we can print the clock for good measure 
-                rawPrintln(clock);
+                directPrintln(clock);
                 return;
             }
 
@@ -355,7 +358,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                 + " "
                 ;
 
-            rawPrintln(line); // note this puts us one line down
+            directPrintln(line); // note this puts us one line down
         }
 
         @Override
@@ -385,10 +388,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     private void eraseBars() {
         if (!bars.isEmpty()) {
-            rawWrite(ANSI.moveUp(bars.size())); 
-            rawWrite(ANSI.clearToEndOfScreen()); 
+            directWrite(ANSI.moveUp(bars.size())); 
+            directWrite(ANSI.clearToEndOfScreen()); 
         }
-        rawFlush();
+        directFlush();
     }
 
     /**
@@ -449,7 +452,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             pb.write();
         }
         
-        rawFlush();
+        directFlush();
         
     }
 
@@ -477,7 +480,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     
     @Override
     public synchronized void jobStart(String name, int workShare, int totalWork) {
-        if (bars.size() == 0) {
+        if (bars.isEmpty()) {
             // first new job, we take time to react to window resizing
             lineWidth = tm.getWidth();
         }
@@ -490,7 +493,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
         var pb = findBarByName(name);
         
-        rawWrite(ANSI.hideCursor());
+        directWrite(ANSI.hideCursor());
 
         if (pb == null) {    
             eraseBars(); // to make room for the new bars
@@ -504,8 +507,8 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             pb.update();
         }
 
-        rawWrite(ANSI.showCursor());
-        rawFlush();
+        directWrite(ANSI.showCursor());
+        directFlush();
     }
 
     @Override
@@ -525,7 +528,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
 
-        rawWrite(ANSI.hideCursor());
+        directWrite(ANSI.hideCursor());
 
         if (pb != null && --pb.nesting == -1) {
             eraseBars();
@@ -542,7 +545,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             pb.update();
         }
 
-        rawWrite(ANSI.showCursor());
+        directWrite(ANSI.showCursor());
 
         return -1;
     }
@@ -569,7 +572,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             eraseBars();
         }
 
-        rawPrintln(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
+        directPrintln(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
 
         if (!bars.isEmpty()) {
             printBars();
@@ -649,8 +652,8 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         }
 
         try {
-            rawWrite(ANSI.showCursor());
-            rawFlush();
+            directWrite(ANSI.showCursor());
+            directFlush();
             out.flush();
         }
         catch (IOException e) {
