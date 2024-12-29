@@ -281,15 +281,17 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         void update() {
             // to avoid flicker we only print if there is a new bar character to draw
             if (newWidth() != previousWidth) {
+                directWrite(ANSI.hideCursor());
                 stepper++;
-                rawWrite(ANSI.moveUp(bars.size() - bars.indexOf(this)));
+                directWrite(ANSI.moveUp(bars.size() - bars.indexOf(this)));
                 write(); // this moves the cursor already one line down due to `println`
                 int distance = bars.size() - bars.indexOf(this) - 1;
                 if (distance > 0) {
                     // ANSI will move 1 line even if the parameter is 0
-                    rawWrite(ANSI.moveDown(distance));
+                    directWrite(ANSI.moveDown(distance));
                 }
-                rawFlush();
+                directWrite(ANSI.showCursor());
+                directFlush();
             }
         }
 
@@ -516,11 +518,8 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         ProgressBar pb = findBarByName(name);
         
         if (pb != null) {
-            rawWrite(ANSI.hideCursor());
             pb.worked(workShare, message);
             pb.update();
-            rawWrite(ANSI.showCursor());
-            rawFlush();
         }
     }
 
@@ -591,14 +590,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     @Override
     public void write(String s, int off, int len) {
         if (!bars.isEmpty()) {
-            eraseBars();
-        
             findUnfinishedLine().write(s, off, len);
-            
-            printBars();
         }
         else {
-            rawWrite(s, off, len);
+            directWrite(s, off, len);
         }
     }
     /**
@@ -609,14 +604,12 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     @Override
     public synchronized void write(char[] buf, int off, int len)  {
         if (!bars.isEmpty()) {
-            eraseBars();
             findUnfinishedLine().write(buf, off, len);
-            printBars();
         }
         else {
             // this must be the raw output stream
             // otherwise rascal prompts (which do not end in newlines) will be buffered
-            rawWrite(buf, off, len);
+            directWrite(buf, off, len);
         }
     }
 
@@ -628,12 +621,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     @Override
     public synchronized void write(int c) {
         if (!bars.isEmpty()) {
-            eraseBars();
             findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
-            printBars();
         }
         else {
-            rawWrite(c);
+            directWrite(c);
         }
     }
 
