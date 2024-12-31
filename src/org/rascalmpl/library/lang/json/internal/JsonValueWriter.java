@@ -13,15 +13,17 @@
 package org.rascalmpl.library.lang.json.internal;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.maybe.UtilMaybe;
 
 import com.google.gson.stream.JsonWriter;
+import com.ibm.icu.text.SimpleDateFormat;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -31,6 +33,7 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
+import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
@@ -51,6 +54,40 @@ public class JsonValueWriter {
   private IFunction formatters;
   private boolean explicitConstructorNames = false;
   private boolean explicitDataTypes;
+
+  /** helper class for number serialization without quotes */
+  private static class RascalNumber extends Number {
+    private static final long serialVersionUID = -2204435793489295963L;
+    public INumber wrapped;
+
+    @Override
+    public int intValue() {
+      return wrapped.toInteger().intValue();
+    }
+
+    @Override
+    public long longValue() {
+      return wrapped.toInteger().longValue();
+    }
+
+    @Override
+    public float floatValue() {
+      // TODO parameterize precision
+      return wrapped.toReal(20).floatValue();
+    }
+
+    @Override
+    public double doubleValue() {
+      return wrapped.toReal(20).doubleValue();
+    }
+
+    @Override
+    public String toString() {
+       return wrapped.toString();
+    }
+  }
+
+  private RascalNumber wrapper = new RascalNumber();
   
   public JsonValueWriter() {
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -116,14 +153,18 @@ public class JsonValueWriter {
 
       @Override
       public Void visitReal(IReal o) throws IOException {
-        // TODO: warning might loose precision here?!
-        out.value(o.doubleValue());
+        wrapper.wrapped = o;
+        out.value(wrapper);
         return null;
       }
 
       @Override
       public Void visitRational(IRational o) throws IOException {
-          out.value(o.getStringRepresentation());
+          out.beginArray();
+          o.numerator().accept(this);
+          o.denominator().accept(this);
+          out.endArray();
+
           return null;
       }
 
@@ -224,6 +265,9 @@ public class JsonValueWriter {
       @Override
       public Void visitNode(INode o) throws IOException {
         out.beginObject();
+        out.name("_name");
+        out.value(o.getName());
+
         int i = 0;
         for (IValue arg : o) {
           out.name("arg" + i++); 
@@ -305,8 +349,8 @@ public class JsonValueWriter {
 
       @Override
       public Void visitInteger(IInteger o) throws IOException {
-        // TODO: may loose precision
-        out.value(o.longValue());
+        wrapper.wrapped = o;
+        out.value(wrapper);
         return null;
       }
 
@@ -367,7 +411,6 @@ public class JsonValueWriter {
 
       @Override
       public Void visitExternal(IExternalValue externalValue) throws IOException {
-        // TODO
         throw new IOException("External values are not supported by JSon serialisation yet");
       }
 
@@ -375,11 +418,18 @@ public class JsonValueWriter {
       public Void visitDateTime(IDateTime o) throws IOException {
         if (datesAsInts) {
           out.value(o.getInstant());
-          return null;
         }
         else {
-          throw new IOException("Dates as strings not yet implemented: " + format.get().toPattern());
+          try {
+            com.ibm.icu.text.SimpleDateFormat sd = format.get(); 
+            com.ibm.icu.util.Calendar cal = Prelude.getCalendarForDateTime(o);
+            sd.setCalendar(cal);
+            out.value(sd.format(cal.getTime()));
+          } catch (IllegalArgumentException iae) {
+            throw RuntimeExceptionFactory.dateTimePrintingError("Cannot print datetime " + o + " using format string: " + format.get());
+          }
         }
+        return null;
       }
     });
     }
