@@ -15,13 +15,6 @@ loc targetFile = |memory://test-tmp/test-<"<uuidi()>">.json|;
 public int maxLong = floor(pow(2,63));
 
 bool writeRead(type[&T] returnType, &T dt, value (value x) normalizer = value(value x) { return x; }, bool dateTimeAsInt=false, bool unpackedLocations=false, bool explicitConstructorNames=false, bool explicitDataTypes=false) {
-    dt = visit (dt) {
-        // reals must fit in double
-        case real r => fitDouble(r)
-        // integers must not overflow 
-        case int i  => i % maxLong when abs(i) > maxLong
-    }
-
     json = asJSON(dt, dateTimeAsInt=dateTimeAsInt, unpackedLocations=unpackedLocations, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes);
     readBack = normalizer(parseJSON(returnType, json, explicitConstructorNames=explicitConstructorNames, explicitDataTypes=explicitDataTypes));
     if (readBack !:= normalizer(dt) /* ignores additional src fields */) {
@@ -43,13 +36,6 @@ data Enum = x() | y() | z();
 data DATA4 = data4(Enum e = x());
 
 test bool writeReadIsTheSameAsAsJSONparseJSON(value example) {
-    example = visit (example) {
-        // reals must fit in double
-        case real r => fitDouble(r)
-        // integers must not overflow 
-        case int i  => i % maxLong when abs(i) > maxLong
-    }
-
     jsonFile = |memory://jsontests/example.json|;
     writeJSON(jsonFile, example);
     written = readFile(jsonFile);

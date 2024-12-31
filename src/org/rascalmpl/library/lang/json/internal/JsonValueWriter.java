@@ -33,6 +33,7 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
+import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
@@ -53,6 +54,40 @@ public class JsonValueWriter {
   private IFunction formatters;
   private boolean explicitConstructorNames = false;
   private boolean explicitDataTypes;
+
+  /** helper class for number serialization without quotes */
+  private static class RascalNumber extends Number {
+    private static final long serialVersionUID = -2204435793489295963L;
+    public INumber wrapped;
+
+    @Override
+    public int intValue() {
+      return wrapped.toInteger().intValue();
+    }
+
+    @Override
+    public long longValue() {
+      return wrapped.toInteger().longValue();
+    }
+
+    @Override
+    public float floatValue() {
+      // TODO parameterize precision
+      return wrapped.toReal(20).floatValue();
+    }
+
+    @Override
+    public double doubleValue() {
+      return wrapped.toReal(20).doubleValue();
+    }
+
+    @Override
+    public String toString() {
+       return wrapped.toString();
+    }
+  }
+
+  private RascalNumber wrapper = new RascalNumber();
   
   public JsonValueWriter() {
     setCalendarFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -118,16 +153,16 @@ public class JsonValueWriter {
 
       @Override
       public Void visitReal(IReal o) throws IOException {
-        // TODO: warning might loose precision here?!
-        out.value(o.doubleValue());
+        wrapper.wrapped = o;
+        out.value(wrapper);
         return null;
       }
 
       @Override
       public Void visitRational(IRational o) throws IOException {
           out.beginArray();
-          out.value(o.numerator().longValue());
-          out.value(o.denominator().longValue());
+          o.numerator().accept(this);
+          o.denominator().accept(this);
           out.endArray();
 
           return null;
@@ -314,8 +349,8 @@ public class JsonValueWriter {
 
       @Override
       public Void visitInteger(IInteger o) throws IOException {
-        // TODO: may loose precision
-        out.value(o.longValue());
+        wrapper.wrapped = o;
+        out.value(wrapper);
         return null;
       }
 
