@@ -27,6 +27,10 @@ on the naturalness of the Rascal representation.
 * ((asJSON)) and ((writeJSON)) are not isomorphisms. They are homomorphisms that choose
 JSON arrays or JSON objects for multiple different kinds of Rascal values. For example 
 maps and nodes and ADT's are all mapped to JSON object notation (homonyms). 
+* JSON is a serialization format that does not deal with programming language numerical
+encodings such as `double`, `float`` or `long`. ((writeJSON)) and ((asJSON)) might write numbers
+beyond the limits and beyond the accuracy of what the other programming language can deal with.
+You can expect errors at the time when the other language (Javascript, Python, TypeScript) reads these numbers from JSON.
 }
 @benefits{
 * Using the `expected`` type arguments of ((parseJSON)) and ((readJSON)) the homonyms created by ((asJSON)) and ((writeJSON)) can be converted back to their
@@ -37,6 +41,28 @@ then pairs ((asJSON))/((parseJSON)) and ((writeJSON))/((readJSON)) are isomorphi
    * Run-time values always have concrete types, while variables in code often have abstract types.
 * If you provide `value` or `node` as an expected type, you will always get a useful representation
 on the Rascal side. It is not guaranteed to be the same representation as before.
+* ((readJSON)) and ((parseJSON)) can read numbers beyond the bounds of normal `int`, `long` and `doubles`. As
+long as the number is syntactically correct, they will bind to the right Rascal number representation.
+}
+@examples{
+This example demonstrates serializing:
+* constructors without parameters as "enums"
+* constructors with both positional fields and keyword fields
+* datetime serialization
+* integer serialization
+```rascal-shell
+import lang::json::IO;
+data Size = xxs() | xs() | s() | m() | l() | xl() | xxl();
+data Person
+  = person(str firstName, str lastName, datetime birth, int height=0, Size size = m());
+example = person("Santa", "Class", height=175, size=xxl());
+asJSON(example, dateTimeFormat="YYYY-MM-DD");
+```
+
+On the way back we can also track origins for constructors:
+```rascal-shell,continue
+parseJSON(#Person, example, trackOrigins=true)
+```
 }
 module lang::json::IO
 

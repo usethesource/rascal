@@ -98,7 +98,7 @@ public class JsonValueReader {
       try {
         switch (in.peek()) {
           case NUMBER:
-            return vf.integer(in.nextLong());
+            // fallthrough
           case STRING:
             return vf.integer(nextString());
           case NULL:
@@ -118,7 +118,7 @@ public class JsonValueReader {
       try {
         switch (in.peek()) {
           case NUMBER:
-            return vf.real(in.nextDouble());
+            // fallthrough
           case STRING:
             return vf.real(nextString());
           case NULL:
@@ -294,11 +294,7 @@ public class JsonValueReader {
     public IValue visitValue(Type type) throws IOException {
       switch (in.peek()) {
         case NUMBER:
-          try {
-            return vf.integer(in.nextLong());
-          } catch (NumberFormatException e) {
-              return vf.real(in.nextDouble());
-          }
+          return visitNumber(TF.numberType());
         case STRING:
           return visitString(TF.stringType());
         case BEGIN_ARRAY:
