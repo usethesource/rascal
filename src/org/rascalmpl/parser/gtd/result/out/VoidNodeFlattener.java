@@ -33,7 +33,7 @@ public class VoidNodeFlattener implements INodeFlattener<AbstractNode, Object>{
 		return parseTree;
 	}
 	
-	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
+	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
 		return parseTree;
 	}
 	
