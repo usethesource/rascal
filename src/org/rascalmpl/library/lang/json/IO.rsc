@@ -5,13 +5,65 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-@synopsis{(De)serialization of JSON values.}
+@synopsis{Serialization of Rascal values to JSON format and deserialization back from JSON format to Rascal values.}
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Tijs van der Storm - storm@cwi.nl (CWI)}
 @contributor{Davy Landman - landman@cwi.nl (CWI)}
+@description{
+The pairs ((asJSON)):((parseJSON)) and ((writeJSON)):((readJSON)) are both bi-directional
+transformations between serializable Rascal values (all except function instances) and JSON strings.
+The ((asJSON)) and ((parseJSON)) work on `str` representations, while ((writeJSON)) and ((readJSON)) 
+stream to/from files directly.
 
+The basic principle of the bi-directional mapping is that constructors of algebraic data-types
+map one-to-one to JSON object notation, and vice versa. The other builtin Rascal data-structures
+are judiciously mapped to objects and arrays, and strings, etc. The goal is that their representation
+is natural on the receiving end (e.g. TypeScript, Javascript and Python code), without sacrificing
+on the naturalness of the Rascal representation.
+}
+@pitfalls{
+* ((asJSON)) and ((writeJSON)) are not isomorphisms. They are homomorphisms that choose
+JSON arrays or JSON objects for multiple different kinds of Rascal values. For example 
+maps and nodes and ADT's are all mapped to JSON object notation (homonyms). 
+* JSON is a serialization format that does not deal with programming language numerical
+encodings such as `double`, `float`` or `long`. ((writeJSON)) and ((asJSON)) might write numbers
+beyond the limits and beyond the accuracy of what the other programming language can deal with.
+You can expect errors at the time when the other language (Javascript, Python, TypeScript) reads these numbers from JSON.
+}
+@benefits{
+* Using the `expected`` type arguments of ((parseJSON)) and ((readJSON)) the homonyms created by ((asJSON)) and ((writeJSON)) can be converted back to their
+original Rascal structures. If the expected type contains only _concrete types_, and no _abstract types_ then
+then pairs ((asJSON))/((parseJSON)) and ((writeJSON))/((readJSON)) are isomorphic.
+   * The _abstract types_ are `value`, `node`, `num` or any composite type that contains it. `Maybe[value]` is an example of an abstract type.
+   * The _concrete types_ are all types which are not _abstract types_. `Maybe[int]` is an example of a concrete type.
+   * Run-time values always have concrete types, while variables in code often have abstract types.
+* If you provide `value` or `node` as an expected type, you will always get a useful representation
+on the Rascal side. It is not guaranteed to be the same representation as before.
+* ((readJSON)) and ((parseJSON)) can read numbers beyond the bounds of normal `int`, `long` and `doubles`. As
+long as the number is syntactically correct, they will bind to the right Rascal number representation.
+}
+@examples{
+This example demonstrates serializing:
+* constructors without parameters as "enums"
+* constructors with both positional fields and keyword fields
+* datetime serialization
+* integer serialization
+```rascal-shell
+import lang::json::IO;
+data Size = xxs() | xs() | s() | m() | l() | xl() | xxl();
+data Person
+  = person(str firstName, str lastName, datetime birth, int height=0, Size size = m());
+example = person("Santa", "Class", height=175, size=xxl());
+asJSON(example, dateTimeFormat="YYYY-MM-DD");
+```
+
+On the way back we can also track origins for constructors:
+```rascal-shell,continue
+parseJSON(#Person, example, trackOrigins=true)
+```
+}
 module lang::json::IO
 
 import util::Maybe;
@@ -25,20 +77,7 @@ import Exception;
 }
 data RuntimeException(str cause="", str path="");
 
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{Maps any Rascal value to a JSON string}
-@deprecated{use ((writeJSON))}
-public java str toJSON(value v);
-
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@synopsis{Maps any Rascal value to a JSON string, optionally in compact form.}
-@deprecated{use ((asJSON))}
-public java str toJSON(value v, bool compact);
-
-@javaClass{org.rascalmpl.library.lang.json.IO}
-@deprecated{use ((readJSON))}
-@synopsis{Parses a JSON string and maps it to the requested type of Rascal value.}
-public java &T fromJSON(type[&T] typ, str src);
+private str DEFAULT_DATETIME_FORMAT = "yyyy-MM-dd\'T\'HH:mm:ssZ";
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @synopsis{reads JSON values from a stream}
@@ -60,7 +99,7 @@ First the expected type is used as a literal lookup, and then each value is test
 java &T readJSON(
   type[&T] expected, 
   loc src, 
-  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
   bool lenient=false, 
   bool trackOrigins=false,
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
@@ -89,7 +128,7 @@ In general the translation behaves as the same as for ((readJSON)).}
 java &T parseJSON(
   type[&T] expected, 
   str src, 
-  str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  str dateTimeFormat = DEFAULT_DATETIME_FORMAT, 
   bool lenient=false, 
   bool trackOrigins=false, 
   JSONParser[value] parser = (type[value] _, str _) { throw ""; },
@@ -121,7 +160,7 @@ For `real` numbers that are larger than JVM's double you get "negative infinity"
 }
 java void writeJSON(loc target, value val, 
   bool unpackedLocations=false, 
-  str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", 
+  str dateTimeFormat=DEFAULT_DATETIME_FORMAT, 
   bool dateTimeAsInt=false, 
   int indent=0, 
   bool dropOrigins=true, 
@@ -136,7 +175,7 @@ java void writeJSON(loc target, value val,
 @description{
 This function uses `writeJSON` and stores the result in a string.
 }
-java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ssZZZZZ", bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
+java str asJSON(value val, bool unpackedLocations=false, str dateTimeFormat=DEFAULT_DATETIME_FORMAT, bool dateTimeAsInt=false, int indent = 0, bool dropOrigins=true, JSONFormatter[value] formatter = str (value _) { fail; }, bool explicitConstructorNames=false, bool explicitDataTypes=false);
 
 @synopsis{((writeJSON)) and ((asJSON)) uses `Formatter` functions to flatten structured data to strings, on-demand}
 @description{
