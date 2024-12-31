@@ -119,21 +119,36 @@ value toDefaultRec(value readBack) =  visit(readBack) {
 // regardless of order and hashcode collisions
 
 value toDefaultValue(set[value] x) = x; 
-value toDefaultValue(list[value] x) = {*x}; // re-order to default set order for comparison purposes 
+value toDefaultValue(list[value] x) {
+    // duplicates have to be made unique in order to allow for 
+    // isomorphic behavior. For example when a list `[1,1]`` is a key,
+    // then we should not map it simply to `{1}` because `[1]` 
+    // will also be mapped to `{1}`. This would have the effect of 
+    // loosing the other value in a map[list[int]:str] where both keys are
+    // present
+    map[value,int] count = ();
+    result  = {};
+    for (value e <- x) {
+        count[e]?0 += 1;
+        result += (count[e] == 1) ? e : "<e><count[e]>";
+    }
+
+    return result;
+} 
 value toDefaultValue(map[void,void] _) =   {};
 value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m}
                              + {*[{"arg<i>", c[i]}  | c := getChildren(x), i <- index(c)]};
 value toDefaultValue(map[value,value] m) = {{k,m[k]} | k <- m};
 value toDefaultValue(<>) =   {};
 value toDefaultValue(<value x>) =   {x};
-value toDefaultValue(<value x,value y>) =   {x,y};
-value toDefaultValue(<value x,value y,value z>) =   {x,y,z};
-value toDefaultValue(<value x,value y,value z,value a>) =   {x,y,z,a};
-value toDefaultValue(<value x,value y,value z,value a,value b>) =   {x,y,z,a,b};
-value toDefaultValue(<value x,value y,value z,value a,value b,value c>) =   {x,y,z,a,b,c};
-value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d>) =   {x,y,z,a,b,c,d};
-value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e>) =   {x,y,z,a,b,c,d,e};
-value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e,value f>) =   {x,y,z,a,b,c,d,e,f};
+value toDefaultValue(<value x,value y>) =  toDefaultValue([x,y]);
+value toDefaultValue(<value x,value y,value z>) = toDefaultValue([x,y,z]);
+value toDefaultValue(<value x,value y,value z,value a>) = toDefaultValue([x,y,z,a]);
+value toDefaultValue(<value x,value y,value z,value a,value b>) = toDefaultValue([x,y,z,a,b]);
+value toDefaultValue(<value x,value y,value z,value a,value b,value c>) = toDefaultValue([x,y,z,a,b,c]);
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d>) = toDefaultValue([x,y,z,a,b,c,d]);
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e>) = toDefaultValue([x,y,z,a,b,c,d,e]);
+value toDefaultValue(<value x,value y,value z,value a,value b,value c,value d,value e,value f>) = toDefaultValue([x,y,z,a,b,c,d,e,f]);
 value toDefaultValue(loc l) {
     // this simulates the simplications the writer applies
     if (!(l.offset?)) {

@@ -294,7 +294,7 @@ public class JsonValueReader {
     public IValue visitValue(Type type) throws IOException {
       switch (in.peek()) {
         case NUMBER:
-          return visitNumber(TF.numberType());
+          return visitNumber(TF.numberType())
         case STRING:
           return visitString(TF.stringType());
         case BEGIN_ARRAY:
