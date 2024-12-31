@@ -108,9 +108,20 @@ default value numNormalizer(value x) = x;
 
 
 @synopsis{Normalizer used to replace unrecoverable types with their default representatives}
-value toDefaultRec(value readBack) =  visit(readBack) {
-    case value x => toDefaultValue(x)
-};
+value toDefaultRec(value readBack) {
+    value mapToSet(value _:map[value, value] m) = {{k,m[k]} | value k <- m};
+    default value mapToSet(value x) = x;
+
+    // first we remove maps cleanly to avoid key collisions caused by normalization
+    noMaps = visit(readBack) {
+        case value v => mapToSet(v)
+    };
+
+    // then we normalize the rest, which could cause key collisions if maps were still there
+    return visit(noMaps) {
+        case value x => toDefaultValue(x)
+    };
+}
 
 // The list order depends on the hashcodes of the children
 // as the writer is top-down and this rewrite is bottom-up 
@@ -119,22 +130,7 @@ value toDefaultRec(value readBack) =  visit(readBack) {
 // regardless of order and hashcode collisions
 
 value toDefaultValue(set[value] x) = x; 
-value toDefaultValue(list[value] x) {
-    // duplicates have to be made unique in order to allow for 
-    // isomorphic behavior. For example when a list `[1,1]`` is a key,
-    // then we should not map it simply to `{1}` because `[1]` 
-    // will also be mapped to `{1}`. This would have the effect of 
-    // loosing the other value in a map[list[int]:str] where both keys are
-    // present
-    map[value,int] count = ();
-    result  = {};
-    for (value e <- x) {
-        count[e]?0 += 1;
-        result += (count[e] == 1) ? e : "<e><count[e]>";
-    }
-
-    return result;
-} 
+value toDefaultValue(list[value] x) = {*x};
 value toDefaultValue(map[void,void] _) =   {};
 value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m}
                              + {*[{"arg<i>", c[i]}  | c := getChildren(x), i <- index(c)]};
@@ -191,6 +187,8 @@ test bool accurateParseErrors() {
 
    return true;
 }
+
+test bool regression1() = jsonRandom1(("a":12,[]:{}));
 
 data Cons = cons(str bla = "null");
 
