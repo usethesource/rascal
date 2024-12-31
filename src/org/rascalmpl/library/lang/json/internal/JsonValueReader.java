@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
-import java.math.RoundingMode;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,7 +51,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-import com.google.common.math.DoubleMath;
 import com.google.gson.JsonParseException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -125,11 +123,11 @@ public class JsonValueReader {
             in.nextNull();
             return inferNullValue(nulls, type);
           default:
-            throw parseErrorHere("Expected integer but got " + in.peek());
+            throw parseErrorHere("Expected real but got " + in.peek());
         }
       }
       catch (NumberFormatException e) {
-        throw parseErrorHere("Expected integer but got " + e.getMessage());
+        throw parseErrorHere("Expected real but got " + e.getMessage());
       }
     }
   
@@ -294,7 +292,7 @@ public class JsonValueReader {
     public IValue visitValue(Type type) throws IOException {
       switch (in.peek()) {
         case NUMBER:
-          return visitNumber(TF.numberType())
+          return visitNumber(TF.numberType());
         case STRING:
           return visitString(TF.stringType());
         case BEGIN_ARRAY:
