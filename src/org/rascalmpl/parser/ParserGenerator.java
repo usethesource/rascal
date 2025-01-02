@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -52,10 +54,10 @@ public class ParserGenerator {
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 
-	public ParserGenerator(IRascalMonitor monitor, OutputStream out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
+	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
-		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, out, out, scope, heap, monitor);
+		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), out, out, scope, heap, monitor);
 		this.evaluator.getConfiguration().setRascalJavaClassPathProperty(config.getRascalJavaClassPathProperty());
 		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		
@@ -200,7 +202,7 @@ public class ParserGenerator {
 		finally {
 			if (profiler != null) {
 				profiler.pleaseStop();
-				evaluator.getOutPrinter().println("PROFILE:");
+				evaluator.getStdOut().println("PROFILE:");
 				profiler.report();
 				profiler = null;
 			}

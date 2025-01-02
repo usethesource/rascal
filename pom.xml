@@ -34,6 +34,7 @@
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
+        <jline.version>3.27.0</jline.version>
     </properties>
 
     <licenses>
@@ -339,10 +340,6 @@
                                         <exclude>org.fusesource.jansi.internal.*</exclude>
                                     </excludes>
                                 </relocation>
-                                <relocation>
-                                    <pattern>jline</pattern>
-                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                </relocation>
                             </relocations>
                             <filters>
                                 <filter>
@@ -471,10 +468,35 @@
             <artifactId>gson</artifactId>
             <version>2.11.0</version>
         </dependency>
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.14.6</version>
+        <dependency> <!-- line reader/completion/history support -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- terminal API -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- interaction with native APIs for console features, after jdk22 we can switch to FFM -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-terminal-jni</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- styling api -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-style</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- command registyr and extra features -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-console</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>  <!-- raw ansi commands -->
+            <groupId>org.jline</groupId>
+            <artifactId>jansi-core</artifactId>
+            <version>${jline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>

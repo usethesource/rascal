@@ -38,7 +38,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "cwd" : "${workspaceFolder}/../rascal-tutor",
+            "cwd": "${workspaceFolder}/../rascal-tutor",
             "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {
@@ -47,7 +47,7 @@
             "request": "attach",
             "projectName": "rascal",
             "hostName": "localhost",
-            "port": 9001
+            "port": 9213
         },
         {
             "type": "java",

@@ -1,8 +1,8 @@
 package org.rascalmpl.shell;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
@@ -15,7 +15,7 @@ public class ModuleRunner implements ShellRunner {
 
   private final Evaluator eval;
 
-  public ModuleRunner(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
+  public ModuleRunner(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
       eval = ShellEvaluatorFactory.getDefaultEvaluator(input, stdout, stderr, monitor);
   }
 
@@ -34,8 +34,8 @@ public class ModuleRunner implements ShellRunner {
     IValue v = eval.main(eval.getMonitor(), module, "main", realArgs);
 
     if (v != null && !(v instanceof IInteger)) {
-      new StandardTextWriter(true).write(v, eval.getOutPrinter());
-      eval.getOutPrinter().flush();
+      new StandardTextWriter(true).write(v, eval.getStdOut());
+      eval.getStdOut().flush();
     }
 
     System.exit(v instanceof IInteger ? ((IInteger) v).intValue() : 0);

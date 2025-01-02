@@ -1,10 +1,11 @@
-package org.rascalmpl.repl;
+package org.rascalmpl.repl.streams;
 
 import java.io.Writer;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Attribute;
+import org.jline.jansi.Ansi.Color;
+
 
 public class RedErrorWriter extends WrappedFilterWriter {
     public RedErrorWriter(Writer out) {
