@@ -96,10 +96,17 @@ dup([3, 1, 5, 3, 1, 7, 1, 2]);
 list[&T] dup(list[&T] lst) 
   = ([] | (ix in it) ? it : it + [ix] | &T ix <- lst);
 
-@deprecated{
-use the indexing instead
-}
 @javaClass{org.rascalmpl.library.Prelude}
+@synopsis{A function that implements `lst[index]`}
+@description{
+The expression `lst[index]` has the same semantics as calling `elementAt(index)`.
+}
+@benefits{
+* ((elementAt)) can be passed a function argument.
+}
+@pitfalls{
+* `lst[index]` is significantly faster than `elementAt(index)`
+}
 java &T elementAt(list[&T] lst, int index); 
 
 
@@ -420,7 +427,7 @@ list[&T] mix(list[&T] l, list[&T] r){
 	sizeL = size(l);
 	sizeR = size(r);
 	minSize = sizeL < sizeR ? sizeL : sizeR;
-	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
+	return [l[i],r[i] | i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
 }
 
 @synopsis{Compute all permutations of a list.}
@@ -433,9 +440,10 @@ permutations([1,2,3]);
 set[list[&T]] permutations(list[&T] lst) =
 	permutationsBag(distribution(lst));
 
-private set[list[&T]] permutationsBag(map[&T element, int occurs] b) =
-	isEmpty(b) ? {[]} : 
-	{ [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
+private set[list[&T]] permutationsBag(map[&T element, int occurs] b) 
+  = isEmpty(b) 
+    ? {[]} 
+    : { [e] + rest | e <- b, rest <- permutationsBag(removeFromBag(b,e))};
 
 
 @synopsis{Pop top element from list, return a tuple.}
@@ -481,9 +489,11 @@ push("eagle", ["zebra", "elephant", "snake", "owl"]);
 list[&T] push(&T elem, list[&T] lst) = [elem] + lst;
 
 
-@synopsis{Apply a function to successive elements of list and combine the results (__deprecated__).}
+@synopsis{Apply a function to successive elements of list and combine the results.}
 @description{
 Apply the function `fn` to successive elements of list `lst` starting with `unit`.
+The function application `reducer(lst, add, 0)` has the same semantics
+as the expression `(0 | add(it, e) | e <- lst)`.
 }
 @examples{
 ```rascal-shell
@@ -493,30 +503,23 @@ reducer([10, 20, 30, 40], add, 0);
 ```
 }
 @benefits{
-
+* reducer can be passed as a function argument
 }
 @pitfalls{
-:::warning
-This function is *deprecated*, use a reducer expression instead. E.g. `(init | f(it, e) | e <- lst)`.
-:::
+* a reducer expression can be a lot faster 
+* reducer expressions are more versatile (allowing multiple generators and filters)
 }
-&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
-{
-  &T result = unit;
-  for(&T elm <- lst){
-     result = fn(result, elm);
-  }
-  return result;
-}
+&T reducer(list[&T] lst, &T (&T, &T) fn, &T unit) 
+  = (unit | fn(it, elm) | elm <- lst);
 
-list[&T] remove(list[&T] lst, int indexToDelete) =
-	[ lst[i] | i <- index(lst), i != indexToDelete ];
+list[&T] remove(list[&T] lst, int indexToDelete)
+  = [ lst[i] | i <- index(lst), i != indexToDelete ];
 
-private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) =
-	removeFromBag(b,el,1);
+private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el) 
+  = removeFromBag(b,el,1);
 
-private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) =
-	!(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
+private map[&T element, int occurs] removeFromBag(map[&T element, int occurs] b, &T el, int nr) 
+  = !(b[el] ?) ? b : (b[el] <= nr ? b - (el : b[el]) : b + (el : b[el] - nr)); 
 
 
 @synopsis{Reverse a list.}
@@ -845,9 +848,7 @@ l = [10,20,30,40];
 s = {*l};
 ```
 }
-@deprecated{
-Please use {*myList} instead.
-}
+
 @javaClass{org.rascalmpl.library.Prelude}
 java set[&T] toSet(list[&T] lst);
 
