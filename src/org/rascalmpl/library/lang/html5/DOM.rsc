@@ -3,7 +3,6 @@
 module lang::html5::DOM
 
 import List;
-import Content;
 
 @synopsis{Generic representation for all HTML tag types.}
 @description{
@@ -460,6 +459,3 @@ str toString(HTML5Node x) {
   kids = [ k | value k <- x.kids, !(HTML5Attr _ := k) ];
   return nodeToString(x.name, attrs, kids); 
 }
-
-@synopsis{convenience function to render the HTML5Node dom tree in the browser}
-public Content serve(HTML5Node x) = html(toString(x));

@@ -46,6 +46,7 @@ import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -440,7 +441,7 @@ public class JavaBridge {
 								args[i] = (IDEServices) monitor;
 							}
 							else {
-								throw new IllegalArgumentException("no IDE services are available in this environment");
+								args[i] = new BasicIDEServices(err, monitor, null);
 							}
 						}
 						else if (formals[i].isAssignableFrom(IResourceLocationProvider.class)) {
