@@ -119,7 +119,8 @@ public map[type[value] forType, value nullValue] defaultJSONNULLValues = (
   #list[value]      : [], 
   #set[value]       : {}, 
   #map[value,value] : (),
-  #loc              : |unknown:///|
+  #loc              : |unknown:///|,
+  #bool             : false
 );
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
