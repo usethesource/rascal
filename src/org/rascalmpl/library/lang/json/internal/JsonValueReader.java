@@ -304,7 +304,7 @@ public class JsonValueReader {
         case BEGIN_OBJECT:
           return visitNode(TF.nodeType());
         case BOOLEAN:
-          return visitBool(TF.nodeType());
+          return visitBool(TF.boolType());
         case NAME:
           // this would be weird though
           return vf.string(nextName());
@@ -976,7 +976,11 @@ public class JsonValueReader {
     var dispatch = new ExpectedTypeDispatcher(in);
 
     try {
-      return expected.accept(dispatch);
+      var result = expected.accept(dispatch);
+      if (result == null) {
+        throw new JsonParseException("The top-level value is a 'null' without a known value representation.");
+      }
+      return result;
     }
     catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException | NullPointerException e) {
       throw dispatch.parseErrorHere(e.getMessage());
