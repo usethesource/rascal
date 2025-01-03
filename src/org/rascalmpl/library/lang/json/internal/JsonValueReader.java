@@ -193,6 +193,10 @@ public class JsonValueReader {
 
     @Override
     public IValue visitSourceLocation(Type type) throws IOException {
+      if (isNull()) {
+        return inferNullValue(nulls, type);
+      }
+          
       switch (in.peek()) {
         case STRING:
           return sourceLocationString();
