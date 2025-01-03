@@ -178,6 +178,10 @@ public class JsonValueReader {
       }
 
       in.endArray();
+
+      // filter all the null values
+      l.removeIf(p -> p == null);
+
       return vf.tuple(l.toArray(new IValue[l.size()]));
     }
 
@@ -371,7 +375,10 @@ public class JsonValueReader {
           }
           
           while (in.hasNext()) {
-            w.put(vf.string(nextName()), read(in, type.getValueType()));
+            IValue value = read(in, type.getValueType());
+            if (value != null) {
+                w.put(vf.string(nextName()), value);
+            }
           }
           in.endObject();
           return w.done();
@@ -381,7 +388,9 @@ public class JsonValueReader {
             in.beginArray();
             IValue key = read(in, type.getKeyType());
             IValue value = read(in, type.getValueType());
-            w.put(key,value);
+            if (key != null && value != null) {
+                w.put(key,value);
+            }
             in.endArray();
           }
           in.endArray();
@@ -748,6 +757,7 @@ public class JsonValueReader {
       
       IValue[] argArray = args.entrySet().stream()
         .sorted((e, f) -> e.getKey().compareTo(f.getKey()))
+        .filter(e -> e.getValue() != null)
         .map(e -> e.getValue())
         .toArray(IValue[]::new);
       
@@ -806,7 +816,10 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        w.append(read(in, type.getElementType()));
+        IValue elem = read(in, type.getElementType());
+        if (elem != null) {
+            w.append(elem);
+        }
       }
 
       in.endArray();
@@ -822,7 +835,10 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        w.insert(read(in, type.getElementType()));
+        IValue elem = read(in, type.getElementType());
+        if (elem != null) {
+            w.insert(elem);
+        }
       }
 
       in.endArray();
