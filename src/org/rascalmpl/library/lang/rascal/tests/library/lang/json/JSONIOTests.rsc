@@ -208,6 +208,12 @@ test bool dealWithNull() {
     // the builtin Maybe interpreter with non-null
     assert parseJSON(#map[str,Maybe[str]], "{\"bla\": \"foo\"}") == ("bla":just("foo"));
 
+    // test different specific nulls for different expected types:
+    for (t <- [#Maybe[value], #node, #int, #real, #rat, #value, #str,
+               #list[value], #set[value], #map[value,value], #loc, #bool]) {
+        assert parseJSON(t, "null") == defaultJSONNULLValues[t];
+    }
+
     // keyword parameters and null
     assert cons(bla="foo") := parseJSON(#Cons, "{\"bla\": \"foo\"}");
     assert cons() := parseJSON(#Cons, "{\"bla\": null}");
