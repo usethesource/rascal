@@ -211,7 +211,7 @@ test bool dealWithNull() {
     // test different specific nulls for different expected types:
     for (t <- [#Maybe[value], #node, #int, #real, #rat, #value, #str,
                #list[value], #set[value], #map[value,value], #loc, #bool]) {
-        assert parseJSON(t, "null") == defaultJSONNULLValues[t];
+        assert parseJSON(t, "null") == (defaultJSONNULLValues[t]?"default-not-found");
     }
 
     // keyword parameters and null
