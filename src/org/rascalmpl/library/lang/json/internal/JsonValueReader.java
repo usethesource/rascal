@@ -178,6 +178,10 @@ public class JsonValueReader {
       }
 
       in.endArray();
+
+      // filter all the null values
+      l.removeIf(p -> p == null);
+
       return vf.tuple(l.toArray(new IValue[l.size()]));
     }
 
@@ -193,6 +197,10 @@ public class JsonValueReader {
 
     @Override
     public IValue visitSourceLocation(Type type) throws IOException {
+      if (isNull()) {
+        return inferNullValue(nulls, type);
+      }
+          
       switch (in.peek()) {
         case STRING:
           return sourceLocationString();
@@ -300,7 +308,7 @@ public class JsonValueReader {
         case BEGIN_OBJECT:
           return visitNode(TF.nodeType());
         case BOOLEAN:
-          return visitBool(TF.nodeType());
+          return visitBool(TF.boolType());
         case NAME:
           // this would be weird though
           return vf.string(nextName());
@@ -367,7 +375,10 @@ public class JsonValueReader {
           }
           
           while (in.hasNext()) {
-            w.put(vf.string(nextName()), read(in, type.getValueType()));
+            IValue value = read(in, type.getValueType());
+            if (value != null) {
+                w.put(vf.string(nextName()), value);
+            }
           }
           in.endObject();
           return w.done();
@@ -377,7 +388,9 @@ public class JsonValueReader {
             in.beginArray();
             IValue key = read(in, type.getKeyType());
             IValue value = read(in, type.getValueType());
-            w.put(key,value);
+            if (key != null && value != null) {
+                w.put(key,value);
+            }
             in.endArray();
           }
           in.endArray();
@@ -744,6 +757,7 @@ public class JsonValueReader {
       
       IValue[] argArray = args.entrySet().stream()
         .sorted((e, f) -> e.getKey().compareTo(f.getKey()))
+        .filter(e -> e.getValue() != null)
         .map(e -> e.getValue())
         .toArray(IValue[]::new);
       
@@ -802,7 +816,10 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        w.append(read(in, type.getElementType()));
+        IValue elem = read(in, type.getElementType());
+        if (elem != null) {
+            w.append(elem);
+        }
       }
 
       in.endArray();
@@ -818,7 +835,10 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        w.insert(read(in, type.getElementType()));
+        IValue elem = read(in, type.getElementType());
+        if (elem != null) {
+            w.insert(elem);
+        }
       }
 
       in.endArray();
@@ -972,7 +992,11 @@ public class JsonValueReader {
     var dispatch = new ExpectedTypeDispatcher(in);
 
     try {
-      return expected.accept(dispatch);
+      var result = expected.accept(dispatch);
+      if (result == null) {
+        throw new JsonParseException("The top-level value is a 'null' without a known value representation.");
+      }
+      return result;
     }
     catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException | NullPointerException e) {
       throw dispatch.parseErrorHere(e.getMessage());
