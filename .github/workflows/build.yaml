@@ -93,17 +93,32 @@ jobs:
             tests (buildjet-4vcpu-ubuntu-2204-arm)
           ttl: 15
 
-      - name: Deploy shaded jar
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: usethesource/releases-maven-action@v1
+      - name: Prepare Draft Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          maven-username: ${{ secrets.RELEASE_MAVEN_USERNAME }}
-          maven-password: ${{ secrets.RELEASE_MAVEN_PASSWORD }}
-          maven-local-port: ${{ secrets.RELEASE_MAVEN_LOCAL_PORT }}
-          ssh-hostname: ${{ secrets.RELEASE_SSH_SERVER }}
-          ssh-known-host: ${{ secrets.RELEASE_SSH_KNOWN_HOSTS }}
-          ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
-          ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
+          draft: true
+          files: ${{ steps.build-artifact.outputs.artifact-root-dir}}/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-unshaded:
+    if: ${{ startsWith(github.ref, 'refs/tags/') && !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
+    needs: [builds]
+    runs-on: buildjet-4vcpu-ubuntu-2204
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: prepare-unshaded
+        run: sed -i '' 's/<artifactId>rascal</artifactId>/<artifactId>rascal-unshaded</artifactId>/' pom.xml
+
+      - name: build
+        run: mvn clean package -B -Drascal.compile.skip -Drascal.tutor.skip -DskipTests -Punshaded
 
       - name: Deploy unshaded jar
         if: startsWith(github.ref, 'refs/tags/v')
@@ -116,16 +131,12 @@ jobs:
           ssh-known-host: ${{ secrets.RELEASE_SSH_KNOWN_HOSTS }}
           ssh-username: ${{ secrets.RELEASE_SSH_USERNAME }}
           ssh-private-key: ${{ secrets.RELEASE_SSH_PRIVATE_KEY }}
-          maven-options: -Punshaded
+          maven-options: |
+            -Punshaded
+            -Drascal.compile.skip
+            -Drascal.tutor.skip
+            -DskipTests
 
-      - name: Prepare Draft Release
-        uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          draft: true
-          files: ${{ steps.build-artifact.outputs.artifact-root-dir}}/**/*
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
   tests:

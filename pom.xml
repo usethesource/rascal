@@ -601,8 +601,6 @@
                                             <include>jline:*</include>
                                         </includes>
                                     </artifactSet>
-                                    <shadedClassifierName>unshaded</shadedClassifierName>
-				    <shadedArtifactAttached>true</shadedArtifactAttached>
                                 </configuration>
                             </execution>
                         </executions>
