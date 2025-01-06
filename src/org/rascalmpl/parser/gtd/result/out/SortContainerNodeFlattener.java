@@ -123,7 +123,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		Object rhs = nodeConstructorFactory.getRhs(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
 
-		if(DefaultNodeFlattener.regularMemoization && depth <= cycleMark.depth) { // Only check for sharing if we are not currently inside a cycle.
+		if(DefaultNodeFlattener.nodeMemoization && depth <= cycleMark.depth) { // Only check for sharing if we are not currently inside a cycle.
 			if(!hasSideEffects){ // If this sort node and its direct and indirect children do not rely on side-effects from semantic actions, check the cache for existing results.
 				ObjectIntegerKeyedHashMap<Object, T> levelCache = preCache.get(offset);
 				if(levelCache != null){
@@ -195,7 +195,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
 		
-		if(DefaultNodeFlattener.regularMemoization && result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
+		if(DefaultNodeFlattener.nodeMemoization && result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
 			if(!hasSideEffects){ // Cache side-effect free tree.
 				ObjectIntegerKeyedHashMap<Object, T> levelCache = preCache.get(offset);
 				if(levelCache != null){
