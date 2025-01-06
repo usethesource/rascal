@@ -27,3 +27,5 @@ syntax C = "©";
 
 test bool nonAsciiOk() = checkRecovery(#S, "ªßß©", []);
 
+test bool nonAsciiError() = checkRecovery(#S, "ªßxß©", ["xß"]);
+
