@@ -115,7 +115,7 @@ jobs:
           cache: 'maven'
 
       - name: prepare-unshaded
-        run: sed -i 's/<artifactId>rascal</artifactId>/<artifactId>rascal-unshaded</artifactId>/' pom.xml
+        run: sed -i 's#<artifactId>rascal</artifactId>#<artifactId>rascal-unshaded</artifactId>#' pom.xml
 
       - name: build
         run: mvn clean package -B -Drascal.compile.skip -Drascal.tutor.skip -DskipTests -Punshaded
