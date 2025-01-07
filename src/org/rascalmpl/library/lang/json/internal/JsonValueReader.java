@@ -160,11 +160,11 @@ public class JsonValueReader {
       return vf.string(nextString());
     }
 
-      @Override
-      public IValue visitTuple(Type type) throws IOException {
-        if (isNull()) {
-          return null;
-        }
+    @Override
+    public IValue visitTuple(Type type) throws IOException {
+      if (isNull()) {
+        return null;
+      }
 
       List<IValue> l = new ArrayList<>();
       in.beginArray();
@@ -183,7 +183,13 @@ public class JsonValueReader {
       in.endArray();
 
       // filter all the null values
-      l.removeIf(p -> p == null);
+      l.forEach(e -> {
+        if (e == null) {
+            throw parseErrorHere("Tuples can not have null elements.");
+        }
+      });
+
+      assert type.getArity() == l.size();
 
       return vf.tuple(l.toArray(new IValue[l.size()]));
     }

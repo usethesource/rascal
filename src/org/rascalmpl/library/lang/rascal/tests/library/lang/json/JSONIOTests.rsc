@@ -210,7 +210,6 @@ test bool dealWithNull() {
 
     // test different specific nulls for different expected types:
     for (t <- defaultJSONNULLValues<0>) {
-        println(t);
         assert parseJSON(t, "null") == (defaultJSONNULLValues[t]?"default-not-found");
     }
 
