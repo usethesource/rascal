@@ -448,14 +448,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
             return "\u001B[" + n + "F";
         }
 
-        static String overlined() {
-            return "\u001B[53m";
-        }
-
-        static String underlined() {
-            return "\u001B[4m";
-        }
-
         public static String printCursorPosition() {
             return "\u001B[6n";
         }
@@ -466,10 +458,6 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         public static String normal() {
             return "\u001B[0m";
-        }
-
-        public static String lightBackground() {
-            return "\u001B[48;5;250m";
         }
 
         static String moveDown(int n) {
@@ -577,9 +565,7 @@ public class TerminalProgressBarMonitor extends FilterOutputStream implements IR
 
         if (pb != null && --pb.nesting == -1) {
             eraseBars();
-            // write it one last time into the scrollback buffer (on top)
             pb.done();
-            pb.write();
             bars.remove(pb);
             // print the left over bars under this one.
             printBars();
