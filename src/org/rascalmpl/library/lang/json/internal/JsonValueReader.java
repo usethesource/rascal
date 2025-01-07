@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -132,9 +134,10 @@ public class JsonValueReader {
     }
   
     private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
-        return nulls.keySet().stream()
-          .sorted((x,y) -> x.compareTo(y))                         // smaller types are matched first 
-          .filter(superType -> expected.isSubtypeOf(superType))    // remove any type that does not fit
+        return nulls.entrySet().stream()
+          .map(Entry::getKey)
+          .sorted(Type::compareTo)
+          .filter(superType -> expected.isSubtypeOf(superType))
           .findFirst()                                             // give the most specific match
           .map(t -> nulls.get(t))                                  // lookup the corresponding null value
           .filter(r -> r.getType().isSubtypeOf(expected))          // the value in the table still has to fit the currently expected type
@@ -157,27 +160,37 @@ public class JsonValueReader {
       return vf.string(nextString());
     }
 
-      @Override
-      public IValue visitTuple(Type type) throws IOException {
-        if (isNull()) {
-          return null;
-        }
+    @Override
+    public IValue visitTuple(Type type) throws IOException {
+      if (isNull()) {
+        return null;
+      }
 
       List<IValue> l = new ArrayList<>();
       in.beginArray();
       
       if (type.hasFieldNames()) {
         for (int i = 0; i < type.getArity(); i++) {
-          l.add(read(in, type.getFieldType(i)));
+          l.add(type.getFieldType(i).accept(this));
         }
       }
       else {
         for (int i = 0; i < type.getArity(); i++) {
-          l.add(read(in, type.getFieldType(i)));
+          l.add(type.getFieldType(i).accept(this));
         }
       }
 
       in.endArray();
+
+      // filter all the null values
+      l.forEach(e -> {
+        if (e == null) {
+            throw parseErrorHere("Tuples can not have null elements.");
+        }
+      });
+
+      assert type.getArity() == l.size();
+
       return vf.tuple(l.toArray(new IValue[l.size()]));
     }
 
@@ -193,6 +206,10 @@ public class JsonValueReader {
 
     @Override
     public IValue visitSourceLocation(Type type) throws IOException {
+      if (isNull()) {
+        return inferNullValue(nulls, type);
+      }
+          
       switch (in.peek()) {
         case STRING:
           return sourceLocationString();
@@ -300,7 +317,7 @@ public class JsonValueReader {
         case BEGIN_OBJECT:
           return visitNode(TF.nodeType());
         case BOOLEAN:
-          return visitBool(TF.nodeType());
+          return visitBool(TF.boolType());
         case NAME:
           // this would be weird though
           return vf.string(nextName());
@@ -341,8 +358,8 @@ public class JsonValueReader {
       switch (in.peek()) {
         case BEGIN_ARRAY:
           in.beginArray();
-          IInteger numA = (IInteger) read(in, TF.integerType());
-          IInteger denomA = (IInteger) read(in, TF.integerType());
+          IInteger numA = (IInteger) TF.integerType().accept(this);
+          IInteger denomA = (IInteger) TF.integerType().accept(this);
           in.endArray();
           return vf.rational(numA, denomA);
         case STRING:
@@ -367,7 +384,11 @@ public class JsonValueReader {
           }
           
           while (in.hasNext()) {
-            w.put(vf.string(nextName()), read(in, type.getValueType()));
+            IString label = vf.string(nextName());
+            IValue value = type.getValueType().accept(this);
+            if (value != null) {
+                w.put(label, value);
+            }
           }
           in.endObject();
           return w.done();
@@ -375,9 +396,11 @@ public class JsonValueReader {
           in.beginArray();
           while (in.hasNext()) {
             in.beginArray();
-            IValue key = read(in, type.getKeyType());
-            IValue value = read(in, type.getValueType());
-            w.put(key,value);
+            IValue key = type.getKeyType().accept(this);
+            IValue value = type.getValueType().accept(this);
+            if (key != null && value != null) {
+                w.put(key,value);
+            }
             in.endArray();
           }
           in.endArray();
@@ -534,7 +557,7 @@ public class JsonValueReader {
       if (explicitConstructorNames || explicitDataTypes) {
         String consName = null;
         String typeName = null; // this one is optional, and the order with cons is not defined.
-        String consLabel = in.nextName();
+        String consLabel = nextName();
 
         // first we read either a cons name or a type name
         if (explicitConstructorNames && "_constructor".equals(consLabel)) {
@@ -547,14 +570,14 @@ public class JsonValueReader {
         // optionally read the second field
         if (explicitDataTypes && typeName == null) {
           // we've read a constructor name, but we still need a type name
-          consLabel = in.nextName();
+          consLabel = nextName();
           if (explicitDataTypes && "_type".equals(consLabel)) {
             typeName = in.nextString();
           }
         }
         else if (explicitDataTypes && consName == null) {
           // we've read type name, but we still need a constructor name
-          consLabel = in.nextName();
+          consLabel = nextName();
           if (explicitDataTypes && "_constructor".equals(consLabel)) {
             consName = in.nextString();
           }
@@ -599,9 +622,9 @@ public class JsonValueReader {
       }
     
       while (in.hasNext()) {
-        String label = in.nextName();
+        String label = nextName();
         if (cons.hasField(label)) {
-          IValue val = read(in, cons.getFieldType(label));
+          IValue val = cons.getFieldType(label).accept(this);
           if (val != null) {
             args[cons.getFieldIndex(label)] = val;
           }
@@ -611,7 +634,7 @@ public class JsonValueReader {
         }
         else if (cons.hasKeywordField(label, store)) {
           if (!isNull()) { // lookahead for null to give default parameters the preference.
-            IValue val = read(in, store.getKeywordParameterType(cons, label));
+            IValue val = store.getKeywordParameterType(cons, label).accept(this);
             // null can still happen if the nulls map doesn't have a default
             if (val != null) {
                 // if the value is null we'd use the default value of the defined field in the constructor
@@ -688,7 +711,7 @@ public class JsonValueReader {
 
     @Override
     public IValue visitConstructor(Type type) throws IOException {
-      return read(in, type.getAbstractDataType());
+      return type.getAbstractDataType().accept(this);
     }
 
     @Override
@@ -711,14 +734,14 @@ public class JsonValueReader {
         String kwName = nextName();
 
         if (kwName.equals("_name")) {
-          name = ((IString) read(in, TF.stringType())).getValue();
+          name = ((IString) TF.stringType().accept(this)).getValue();
           continue;
         }
 
         boolean positioned = kwName.startsWith("arg");
 
         if (!isNull()) { // lookahead for null to give default parameters the preference.
-          IValue val = read(in, TF.valueType());
+          IValue val = TF.valueType().accept(this);
           
           if (val != null) {
               // if the value is null we'd use the default value of the defined field in the constructor
@@ -744,6 +767,7 @@ public class JsonValueReader {
       
       IValue[] argArray = args.entrySet().stream()
         .sorted((e, f) -> e.getKey().compareTo(f.getKey()))
+        .filter(e -> e.getValue() != null)
         .map(e -> e.getValue())
         .toArray(IValue[]::new);
       
@@ -752,6 +776,10 @@ public class JsonValueReader {
 
     @Override
     public IValue visitNumber(Type type) throws IOException {
+        if (isNull()) {
+            return inferNullValue(nulls, type);
+        }
+
         if (in.peek() == JsonToken.BEGIN_ARRAY) {
           return visitRational(type);
         }
@@ -802,7 +830,13 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        w.append(read(in, type.getElementType()));
+        IValue elem = isNull() 
+            ? inferNullValue(nulls, type.getElementType()) 
+            : type.getElementType().accept(this);
+
+        if (elem != null) {
+            w.append(elem);
+        }
       }
 
       in.endArray();
@@ -818,7 +852,13 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        w.insert(read(in, type.getElementType()));
+        IValue elem = isNull() 
+        ? inferNullValue(nulls, type.getElementType()) 
+        : type.getElementType().accept(this);
+
+        if (elem != null) {
+            w.insert(elem);
+        }
       }
 
       in.endArray();
@@ -972,7 +1012,11 @@ public class JsonValueReader {
     var dispatch = new ExpectedTypeDispatcher(in);
 
     try {
-      return expected.accept(dispatch);
+      var result = expected.accept(dispatch);
+      if (result == null) {
+        throw new JsonParseException("null occurred outside an optionality context and without a registered representation.");
+      }
+      return result;
     }
     catch (EOFException | JsonParseException | NumberFormatException | MalformedJsonException | IllegalStateException | NullPointerException e) {
       throw dispatch.parseErrorHere(e.getMessage());
