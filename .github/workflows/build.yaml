@@ -12,11 +12,15 @@ on:
 env:
   MAVEN_OPTS: "-Xmx4G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 
+permissions:
+  pull-requests: write
+
 jobs:
   test-linux:
     if: ${{ !(github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[maven-release-plugin]')) }}
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps: 
+      - uses: catchpoint/workflow-telemetry-action@v2
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
@@ -48,6 +52,7 @@ jobs:
       contents: write
     runs-on: buildjet-4vcpu-ubuntu-2204
     steps:
+      - uses: catchpoint/workflow-telemetry-action@v2
       - uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: 1047731 # v107
@@ -141,6 +146,7 @@ jobs:
     env:
       MAVEN_OPTS: "-Xmx1G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
+      - uses: catchpoint/workflow-telemetry-action@v2
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
