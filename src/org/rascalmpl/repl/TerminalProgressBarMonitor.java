@@ -626,6 +626,16 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         }
     }
 
+    @Override
+    public synchronized void println() {
+        if (!bars.isEmpty()) {
+            write(System.lineSeparator());
+        }
+        else {
+            super.println();
+        }
+    }
+
     
 
     @Override
