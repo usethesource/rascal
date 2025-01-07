@@ -26,6 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -132,9 +134,10 @@ public class JsonValueReader {
     }
   
     private IValue inferNullValue(Map<Type, IValue> nulls, Type expected) {
-        return nulls.keySet().stream()
-          .sorted((x,y) -> x.compareTo(y))                         // smaller types are matched first 
-          .filter(superType -> expected.isSubtypeOf(superType))    // remove any type that does not fit
+        return nulls.entrySet().stream()
+          .map(Entry::getKey)
+          .sorted(Type::compareTo)
+          .filter(superType -> expected.isSubtypeOf(superType))
           .findFirst()                                             // give the most specific match
           .map(t -> nulls.get(t))                                  // lookup the corresponding null value
           .filter(r -> r.getType().isSubtypeOf(expected))          // the value in the table still has to fit the currently expected type
@@ -168,12 +171,12 @@ public class JsonValueReader {
       
       if (type.hasFieldNames()) {
         for (int i = 0; i < type.getArity(); i++) {
-          l.add(read(in, type.getFieldType(i)));
+          l.add(type.getFieldType(i).accept(this));
         }
       }
       else {
         for (int i = 0; i < type.getArity(); i++) {
-          l.add(read(in, type.getFieldType(i)));
+          l.add(type.getFieldType(i).accept(this));
         }
       }
 
@@ -349,8 +352,8 @@ public class JsonValueReader {
       switch (in.peek()) {
         case BEGIN_ARRAY:
           in.beginArray();
-          IInteger numA = (IInteger) read(in, TF.integerType());
-          IInteger denomA = (IInteger) read(in, TF.integerType());
+          IInteger numA = (IInteger) TF.integerType().accept(this);
+          IInteger denomA = (IInteger) TF.integerType().accept(this);
           in.endArray();
           return vf.rational(numA, denomA);
         case STRING:
@@ -375,7 +378,7 @@ public class JsonValueReader {
           }
           
           while (in.hasNext()) {
-            IValue value = read(in, type.getValueType());
+            IValue value = type.getValueType().accept(this);
             if (value != null) {
                 w.put(vf.string(nextName()), value);
             }
@@ -386,8 +389,8 @@ public class JsonValueReader {
           in.beginArray();
           while (in.hasNext()) {
             in.beginArray();
-            IValue key = read(in, type.getKeyType());
-            IValue value = read(in, type.getValueType());
+            IValue key = type.getKeyType().accept(this);
+            IValue value = type.getValueType().accept(this);
             if (key != null && value != null) {
                 w.put(key,value);
             }
@@ -614,7 +617,7 @@ public class JsonValueReader {
       while (in.hasNext()) {
         String label = in.nextName();
         if (cons.hasField(label)) {
-          IValue val = read(in, cons.getFieldType(label));
+          IValue val = cons.getFieldType(label).accept(this);
           if (val != null) {
             args[cons.getFieldIndex(label)] = val;
           }
@@ -624,7 +627,7 @@ public class JsonValueReader {
         }
         else if (cons.hasKeywordField(label, store)) {
           if (!isNull()) { // lookahead for null to give default parameters the preference.
-            IValue val = read(in, store.getKeywordParameterType(cons, label));
+            IValue val = store.getKeywordParameterType(cons, label).accept(this);
             // null can still happen if the nulls map doesn't have a default
             if (val != null) {
                 // if the value is null we'd use the default value of the defined field in the constructor
@@ -701,7 +704,7 @@ public class JsonValueReader {
 
     @Override
     public IValue visitConstructor(Type type) throws IOException {
-      return read(in, type.getAbstractDataType());
+      return type.getAbstractDataType().accept(this);
     }
 
     @Override
@@ -724,14 +727,14 @@ public class JsonValueReader {
         String kwName = nextName();
 
         if (kwName.equals("_name")) {
-          name = ((IString) read(in, TF.stringType())).getValue();
+          name = ((IString) TF.stringType().accept(this)).getValue();
           continue;
         }
 
         boolean positioned = kwName.startsWith("arg");
 
         if (!isNull()) { // lookahead for null to give default parameters the preference.
-          IValue val = read(in, TF.valueType());
+          IValue val = TF.valueType().accept(this);
           
           if (val != null) {
               // if the value is null we'd use the default value of the defined field in the constructor
@@ -816,7 +819,10 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        IValue elem = read(in, type.getElementType());
+        IValue elem = isNull() 
+            ? inferNullValue(nulls, type.getElementType()) 
+            : type.getElementType().accept(this);
+
         if (elem != null) {
             w.append(elem);
         }
@@ -835,7 +841,10 @@ public class JsonValueReader {
       in.beginArray();
       while (in.hasNext()) {
         // here we pass label from the higher context
-        IValue elem = read(in, type.getElementType());
+        IValue elem = isNull() 
+        ? inferNullValue(nulls, type.getElementType()) 
+        : type.getElementType().accept(this);
+
         if (elem != null) {
             w.insert(elem);
         }
@@ -994,7 +1003,7 @@ public class JsonValueReader {
     try {
       var result = expected.accept(dispatch);
       if (result == null) {
-        throw new JsonParseException("The top-level value is a 'null' without a known value representation.");
+        throw new JsonParseException("null occurred outside an optionality context and without a registered representation.");
       }
       return result;
     }

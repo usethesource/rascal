@@ -209,10 +209,20 @@ test bool dealWithNull() {
     assert parseJSON(#map[str,Maybe[str]], "{\"bla\": \"foo\"}") == ("bla":just("foo"));
 
     // test different specific nulls for different expected types:
-    for (t <- [#Maybe[value], #node, #int, #real, #rat, #value, #str,
-               #list[value], #set[value], #map[value,value], #loc, #bool]) {
+    for (t <- defaultJSONNULLValues<0>) {
         assert parseJSON(t, "null") == (defaultJSONNULLValues[t]?"default-not-found");
     }
+
+    assert parseJSON(#list[int], "[1,null,2]", nulls=()) == [1, 2];
+    assert parseJSON(#list[int], "[1,null,2]") == [1, defaultJSONNULLValues[#int], 2];
+    assert parseJSON(#set[int], "[1,null,2]", nulls=()) == {1, 2};
+    assert parseJSON(#set[int], "[1,null,2]") == {1, defaultJSONNULLValues[#int], 2};
+
+    try {
+        assert parseJSON(#tuple[int,int], "[null,null]") == [];
+    }
+    catch ParseError(_):
+        assert true;
 
     // test undefined top-level null
     try {
