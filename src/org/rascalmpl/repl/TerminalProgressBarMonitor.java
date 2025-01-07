@@ -587,11 +587,13 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     @Override
     public void write(String s, int off, int len) {
-        if (!bars.isEmpty()) {
-            findUnfinishedLine().write(s, off, len);
-        }
-        else {
-            directWrite(s, off, len);
+        synchronized(lock) {
+            if (!bars.isEmpty()) {
+                findUnfinishedLine().write(s, off, len);
+            }
+            else {
+                directWrite(s, off, len);
+            }
         }
     }
     /**
@@ -600,14 +602,16 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public synchronized void write(char[] buf, int off, int len)  {
-        if (!bars.isEmpty()) {
-            findUnfinishedLine().write(buf, off, len);
-        }
-        else {
-            // this must be the raw output stream
-            // otherwise rascal prompts (which do not end in newlines) will be buffered
-            directWrite(buf, off, len);
+    public void write(char[] buf, int off, int len)  {
+        synchronized(lock) {
+            if (!bars.isEmpty()) {
+                findUnfinishedLine().write(buf, off, len);
+            }
+            else {
+                // this must be the raw output stream
+                // otherwise rascal prompts (which do not end in newlines) will be buffered
+                directWrite(buf, off, len);
+            }
         }
     }
 
@@ -617,22 +621,26 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public synchronized void write(int c) {
-        if (!bars.isEmpty()) {
-            findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
-        }
-        else {
-            directWrite(c);
+    public void write(int c) {
+        synchronized(lock) {
+            if (!bars.isEmpty()) {
+                findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
+            }
+            else {
+                directWrite(c);
+            }
         }
     }
 
     @Override
-    public synchronized void println() {
-        if (!bars.isEmpty()) {
-            write(System.lineSeparator());
-        }
-        else {
-            super.println();
+    public void println() {
+        synchronized(lock) {
+            if (!bars.isEmpty()) {
+                write(System.lineSeparator());
+            }
+            else {
+                super.println();
+            }
         }
     }
 
