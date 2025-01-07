@@ -378,9 +378,10 @@ public class JsonValueReader {
           }
           
           while (in.hasNext()) {
+            IString label = vf.string(nextName());
             IValue value = type.getValueType().accept(this);
             if (value != null) {
-                w.put(vf.string(nextName()), value);
+                w.put(label, value);
             }
           }
           in.endObject();
@@ -550,7 +551,7 @@ public class JsonValueReader {
       if (explicitConstructorNames || explicitDataTypes) {
         String consName = null;
         String typeName = null; // this one is optional, and the order with cons is not defined.
-        String consLabel = in.nextName();
+        String consLabel = nextName();
 
         // first we read either a cons name or a type name
         if (explicitConstructorNames && "_constructor".equals(consLabel)) {
@@ -563,14 +564,14 @@ public class JsonValueReader {
         // optionally read the second field
         if (explicitDataTypes && typeName == null) {
           // we've read a constructor name, but we still need a type name
-          consLabel = in.nextName();
+          consLabel = nextName();
           if (explicitDataTypes && "_type".equals(consLabel)) {
             typeName = in.nextString();
           }
         }
         else if (explicitDataTypes && consName == null) {
           // we've read type name, but we still need a constructor name
-          consLabel = in.nextName();
+          consLabel = nextName();
           if (explicitDataTypes && "_constructor".equals(consLabel)) {
             consName = in.nextString();
           }
@@ -615,7 +616,7 @@ public class JsonValueReader {
       }
     
       while (in.hasNext()) {
-        String label = in.nextName();
+        String label = nextName();
         if (cons.hasField(label)) {
           IValue val = cons.getFieldType(label).accept(this);
           if (val != null) {
@@ -769,6 +770,10 @@ public class JsonValueReader {
 
     @Override
     public IValue visitNumber(Type type) throws IOException {
+        if (isNull()) {
+            return inferNullValue(nulls, type);
+        }
+
         if (in.peek() == JsonToken.BEGIN_ARRAY) {
           return visitRational(type);
         }
