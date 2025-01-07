@@ -1,10 +1,8 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -14,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -62,8 +61,6 @@ public class PathConfig {
 	private static List<ISourceLocation> defaultClassloaders;
 	private static ISourceLocation defaultBin;
     
-    private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
-
 	public static enum RascalConfigMode {
         INTERPETER,
         COMPILER
@@ -638,95 +635,31 @@ public class PathConfig {
      */
 	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
         try {
-            ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
-            pomxml = URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
-            manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
+            String mavenDependencyPlugin = "org.apache.maven.plugins:maven-dependency-plugin:3.8.0";
+            // First, make sure that maven-dependency-plugin is downloaded when not available
+            Maven.runCommand(List.of(mavenDependencyPlugin + ":do-nothing"), manifestRoot);
 
-            if (!"file".equals(manifestRoot.getScheme())) {
-                return vf.list();
-            }
+            // Now, actually let maven build the classpath. Note that this is in offline mode as to not download any dependencies
+            var tempFile = Maven.getTempFile("classpath");
+            var mavenOutput = Maven.runCommand(List.of("-o", mavenDependencyPlugin + ":build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
 
-            if (!URIResolverRegistry.getInstance().exists(pomxml)) {
-                return vf.list();
-            }
-
-            String mvnCommand = computeMavenCommandName();
-
-            installNecessaryMavenPlugins(mvnCommand);
-
-            // Note how we try to do this "offline" using the "-o" flag
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, 
-                "--batch-mode", 
-                "-o", 
-                "dependency:build-classpath",
-                "-DincludeScope=compile",
-                trustStoreFix()
-            );
-
-            processBuilder.directory(new File(manifestRoot.getPath()));
-            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
-
-            Process process = processBuilder.start();
-
-            try (BufferedReader processOutputReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                return processOutputReader.lines()
-                    .filter(line -> !line.startsWith("["))
-                    .filter(line -> !line.contains("-----"))
-                    .flatMap(line -> Arrays.stream(line.split(File.pathSeparator)))
-                    .filter(fileName -> new File(fileName).exists())
-                    .map(elem -> {
-                        try {
-                            return URIUtil.createFileLocation(elem);
-                        }
-                        catch (URISyntaxException e) {
-                            return null;
-                        }
-                    })
-                    .filter(e -> e != null)
-                    .collect(vf.listWriter());
-            }
+            // The classpath will be written to the temp file on a single line
+            return Arrays.stream(mavenOutput.get(0).split(File.pathSeparator))
+                .filter(fileName -> new File(fileName).exists())
+                .map(elem -> {
+                    try {
+                        return URIUtil.createFileLocation(elem);
+                    }
+                    catch (URISyntaxException e) {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .collect(vf.listWriter());
         }
-        catch (IOException e) {
+        catch (IOException | RuntimeException e) {
             return vf.list();
         }
-    }
-
-    private static boolean isWindows() {
-        return System.getProperty("os.name").toLowerCase().contains("win");
-    }
-
-    private static String computeMavenCommandName() {
-        if (System.getProperty("os.name", "generic").startsWith("Windows")) {
-            return "mvn.cmd";
-        }
-        else {
-            return "mvn";
-        }
-    }
-
-    private static void installNecessaryMavenPlugins(String mvnCommand) {
-        try {
-            ProcessBuilder processBuilder = new ProcessBuilder(mvnCommand, 
-                "-q", 
-                "dependency:get", 
-                "-DgroupId=org.apache.maven.plugins",
-                "-DartifactId=maven-dependency-plugin", 
-                "-Dversion=2.8",
-                trustStoreFix());
-            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
-
-            Process process = processBuilder.start();
-            if (process.waitFor() != 0) {
-                throw new IOException("mvn dependency:get returned non-zero");
-            } 
-        }
-        catch (IOException | InterruptedException e) {
-            System.err.println("[WARNING] Could not install exec-maven-plugin; classpath resolution may be incomplete hereafter: " + e.getMessage());
-        }
-    }
-
-    private static String trustStoreFix() {
-        return isWindows() ? WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION : "-Dnothing_to_see_here";
     }
 
     public ISourceLocation getBin() {

@@ -11,8 +11,8 @@
 @description{
 The input to Box2Text is a hierarchy of "Boxes" represented by the Box algebraic data-type.
 These boxes put hard and soft relative positioning constraints on the embedded text fragments, and
-there is the global soft constraints of the width of the screen (or the paper). Box2Text can also
-add markup for syntax highlighting in either ANSI plaintext encoding, HTML font tags or LaTex macros.
+there is the global soft constraints of the width of the screen (or the paper). 
+
 
 This implementation is a port from ASF+SDF to Rascal. The ASF+SDF implementation was published as 
 "From Box to Tex:An algebraic approach to the construction of documentation tools" by Mark van den Brand 
@@ -61,6 +61,9 @@ format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("doSomething")])
 format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HOV([L("W<i>") | i <- [0..30]])]))
 format(H([L("if"), H([L("("), L("true"), L(")")], hs=0), HV([L("W<i>") | i <- [0..30]])]))
 ```
+}
+@pitfalls{
+* Box2text does not have highlighting features anymore; you can use ((util::Highlight)) for this instead.
 }
 module lang::box::util::Box2Text
 
