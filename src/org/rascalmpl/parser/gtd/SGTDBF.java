@@ -1511,9 +1511,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return result;
 	}
 
-	private void checkMemoization(URI inputURI) {
-		DefaultNodeFlattener.nodeMemoization = false;
-		DefaultNodeFlattener.linkMemoization = true;
+	private void checkMemoization(URI inputURI, AbstractNode result) {
+		DefaultNodeFlattener.nodeMemoization = true;
+		DefaultNodeFlattener.linkMemoization = false;
 		if (inputURI != null) {
 			String query = inputURI.getQuery();
 			if (query != null) {
@@ -1529,6 +1529,10 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 				} else if (query.contains("parse-memoization")) {
 					throw new IllegalArgumentException("Unsupported memoization directive: " + query);
 				}
+
+				if (query.contains("visualize-parse-result")) {
+					new ParseStateVisualizer("ParseResult").visualizeNode(result);
+				}
 			}
 		}
 	}
@@ -1541,7 +1545,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		checkMemoization(inputURI);
+		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}
 	
@@ -1577,7 +1581,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		checkMemoization(inputURI);
+		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
@@ -1607,7 +1611,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
-		checkMemoization(inputURI);
+		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
