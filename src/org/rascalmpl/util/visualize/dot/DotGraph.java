@@ -45,21 +45,32 @@ public class DotGraph {
         statements.add(statement);
     }
 
-    public void addNode(DotNode node) {
-        if (!nodes.containsKey(node.getId())) {
-            addStatement(node);
-            nodes.put(node.getId(), node);
+    public boolean containsNode(NodeId id) {
+        return nodes.containsKey(id);
+    }
+
+    public boolean addNode(DotNode node) {
+        if (nodes.containsKey(node.getId())) {
+            return false;
         }
+
+        addStatement(node);
+        nodes.put(node.getId(), node);
+        return true;
     }
 
-    public void addNode(String id, String label) {
-        addNode(new NodeId(id), label);
+    public boolean addNode(String id, String label) {
+        return addNode(new NodeId(id), label);
     }
 
-    public void addNode(NodeId id, String label) {
+    public boolean addNode(NodeId id, String label) {
+        if (nodes.containsKey(id)) {
+            return false;
+        }
+
         DotNode node = new DotNode(id);
         node.addAttribute(DotAttribute.ATTR_LABEL, label);
-        addNode(node);
+        return addNode(node);
     }
 
     public void addArrayNode(NodeId id, int size) {
@@ -108,6 +119,7 @@ public class DotGraph {
             writer.write(id);
         }
         writer.println(" {");
+        writer.println("ordering = out;");
         for (DotStatement statement : statements) {
             statement.writeSource(writer);
             writer.println(";");
