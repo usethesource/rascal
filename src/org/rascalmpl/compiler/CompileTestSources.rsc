@@ -15,21 +15,35 @@ import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|,
-                                        generatedSources = |project://rascal-core/target/generated-test-sources|,
-                                        resources = |project://rascal-core/target/test-classes| //|project://rascal-core/target/generated-test-resources|
+loc REPO = |file:///Users/paulklint/git/|;
+
+PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/test-classes",
+                                        generatedSources = REPO + "generated-sources/target/generated-test-sources",
+                                        resources = REPO + "generated-sources/target/test-classes" //|project://rascal-core/target/generated-test-resources|
                                        );
+// PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|,
+//                                         generatedSources = |project://rascal-core/target/generated-test-sources|,
+//                                         resources = |project://rascal-core/target/test-classes| //|project://rascal-core/target/generated-test-resources|
+//                                        );
 
 void main() = compileTestSources(manualTestConfig);
 
 void compileTestSources(PathConfig pcfg) {
      testConfig = pathConfig(
         bin=pcfg.bin,
-        generatedSources=|project://rascal-core/target/generated-test-sources|,
+        generatedSources= REPO + "generated-sources/target/generated-test-sources",
         resources = pcfg.bin, //|project://rascal-core/target/generated-test-resources2|,
-        srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
+        srcs=[ REPO + "rascal/src/org/rascalmpl/library", |std:///|, 
+               REPO + "rascal-core/src/org/rascalmpl/core/library"],
         libs = [ ]
      );
+    //  testConfig = pathConfig(
+    //     bin=pcfg.bin,
+    //     generatedSources=|project://rascal-core/target/generated-test-sources|,
+    //     resources = pcfg.bin, //|project://rascal-core/target/generated-test-resources2|,
+    //     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
+    //     libs = [ ]
+    //  );
      
    println("PathConfig for compiling test sources:\n");
    iprintln(testConfig);
@@ -122,6 +136,7 @@ void compileTestSources(PathConfig pcfg) {
      <e, d> = safeCompile(m, testCompilerConfig);
      total += d;
    }
+   return;
    
    //for (m <- checkerTestModules) {
    //  <e, d> = safeCompile(m, testConfig, testCompilerConfig);
@@ -136,7 +151,8 @@ void compileTestSources(PathConfig pcfg) {
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   testModules -= ignored;    
+   testModules -= ignored;
+   println(testModules);   
    
    list[str] exceptions = [];
    int n = size(testModules);
