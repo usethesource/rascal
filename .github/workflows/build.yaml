@@ -144,7 +144,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, buildjet-4vcpu-ubuntu-2204-arm]
     env:
-      MAVEN_OPTS: "-Xmx1G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+      MAVEN_OPTS: "-Xmx512m -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
       - uses: catchpoint/workflow-telemetry-action@v2
       - uses: actions/checkout@v4
