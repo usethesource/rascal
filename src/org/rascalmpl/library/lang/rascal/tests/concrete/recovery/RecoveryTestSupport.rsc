@@ -60,7 +60,7 @@ public data TestStats = testStats(
 
 // When this is turned on, memoization is checked for correctness. This makes the tests take much longer.
 // Note that this test requires the posibility to disable memoization.
-// In the current test version this can be done by including a "disable-memoization" query parameter.
+// In the current test version this can be done by including a "parse-memoization=none" query parameter.
 // We expect this feature to be removed eventually and then the `verifyMemoizationCorrectness` flag becomes useless.
 bool verifyMemoizationCorrectness = false;
 
