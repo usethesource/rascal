@@ -750,7 +750,7 @@ public class JsonValueReader {
                     continue;
                 }
 
-                boolean positioned = kwName.startsWith("arg");
+                boolean positioned = kwName.startsWith("__arg");
 
                 if (!isNull()) { // lookahead for null to give default parameters the preference.
                     IValue val = TF.valueType().accept(this);
