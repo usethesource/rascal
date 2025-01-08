@@ -362,9 +362,9 @@ public class ATypeFactory {
 	// ---- AProduction -------------------------------------------------------
 
 	// choice
-	public final Type AProduction_choice = $TF.constructor($TS,  AProduction, "choice", AType, "def", $TF.setType(AProduction), "alternatives");
+	public final Type AProduction_achoice = $TF.constructor($TS,  AProduction, "achoice", AType, "def", $TF.setType(AProduction), "alternatives");
 
-	public IConstructor $choice(IConstructor def, ISet alternatives) { return $VF.constructor(AProduction_choice, def, alternatives); }
+	public IConstructor $achoice(IConstructor def, ISet alternatives) { return $VF.constructor(AProduction_achoice, def, alternatives); }
 
 	// prod
 	public final Type AProduction_prod = $TF.constructor($TS,  AProduction, "prod", AType, "def", $TF.listType(AType), "atypes");

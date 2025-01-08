@@ -36,7 +36,7 @@ public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
         if (name notin names) {
         	names += {name};
         //	println("cond = <cond>");
-        	todo += {cond[atype=s] | choice(_, set[AProduction] alts) := g.rules[unset(cond.atype, "id")], prod(_,[s]) <- alts};
+        	todo += {cond[atype=s] | achoice(_, set[AProduction] alts) := g.rules[unset(cond.atype, "id")], prod(_,[s]) <- alts};
       	}  
       } else {
         done += cond;

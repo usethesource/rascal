@@ -176,7 +176,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
                 adtType = adtType2;
             }
             productions = allProductions[adtType];
-            syntaxDefinitions[adtType] = choice(adtType, productions);
+            syntaxDefinitions[adtType] = achoice(adtType, productions);
 
             if(adtType.syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){
@@ -206,7 +206,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
 
         definedLayout = aadt("$default$", [], layoutSyntax());
         if(isEmpty(allLayouts)){
-            syntaxDefinitions += (AType::layouts("$default$"): choice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
+            syntaxDefinitions += (AType::layouts("$default$"): achoice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
         } else
         if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
@@ -215,7 +215,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         // Add start symbols
 
         for(AType adtType <- allStarts){
-            syntaxDefinitions[\start(adtType)] = choice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
+            syntaxDefinitions[\start(adtType)] = achoice(\start(adtType), { prod(\start(adtType), [definedLayout, adtType[alabel="top"], definedLayout]) });
         }
 
         // Add auxiliary rules for instantiated syntactic ADTs outside the grammar rules
@@ -266,7 +266,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
                 iparams = getADTTypeParameters(adt);
                 uadt = uninstantiate(adt);
                 auxNT = aadt("$<adt.adtName><for(p <- iparams){>_<p.adtName><}>", [], adt.syntaxRole);
-                rule = choice(auxNT, {prod(auxNT, [adt]) });
+                rule = achoice(auxNT, {prod(auxNT, [adt]) });
                 syntaxDefinitions += (auxNT : rule);
             }
         }
@@ -277,7 +277,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         g = layouts(g, definedLayout, allManualLayouts);
         //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         //g = expandKeywords(g);
-        g.rules += (AType::aempty():choice(AType::aempty(), {prod(AType::aempty(),[])}));
+        g.rules += (AType::aempty():achoice(AType::aempty(), {prod(AType::aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);
         tm.store[key_grammar] = [g];
         return <tm, ms>;
