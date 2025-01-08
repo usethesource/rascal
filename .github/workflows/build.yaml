@@ -156,10 +156,8 @@ jobs:
 
       - name: Run Tests
         # single quotes to help windows deal with argument splitting
-        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=3' test
-        env:
-          MAVEN_OPTS: "-Xmx256m -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
-
+        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=2' test
+        
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
