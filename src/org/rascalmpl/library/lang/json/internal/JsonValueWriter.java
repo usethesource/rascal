@@ -42,6 +42,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.visitors.IValueVisitor;
+import jline.internal.Nullable;
 
 /**
  * This class streams am IValue stream directly to an JSon stream. Useful to communicate IValues to browsers.
@@ -96,14 +97,17 @@ public class JsonValueWriter {
   /**
    * Builder method to set the format to use for all date-time values encoded as strings
    */
-  public JsonValueWriter setCalendarFormat(String format) {
-    // SimpleDateFormat is not thread safe, so here we make sure
-    // we can use objects of this reader in different threads at the same time
-    this.format = new ThreadLocal<SimpleDateFormat>() {
-      protected SimpleDateFormat initialValue() {
-        return new SimpleDateFormat(format);
-      }
-    };
+  public JsonValueWriter setCalendarFormat(@Nullable String format) {
+    if (format != null) {
+      // SimpleDateFormat is not thread safe, so here we make sure
+      // we can use objects of this reader in different threads at the same time
+      this.format = new ThreadLocal<SimpleDateFormat>() {
+        protected SimpleDateFormat initialValue() {
+          return new SimpleDateFormat(format);
+        }
+      };
+    }
+    
     return this;
   }
    
@@ -122,8 +126,8 @@ public class JsonValueWriter {
     return this;
   }
 
-  public JsonValueWriter setFormatters(IFunction formatters) {
-    if (formatters.getType().getFieldType(0).isTop()) {
+  public JsonValueWriter setFormatters(@Nullable IFunction formatters) {
+    if (formatters != null && formatters.getType().getFieldType(0).isTop()) {
 			// ignore default function
 			formatters = null;
 		}
