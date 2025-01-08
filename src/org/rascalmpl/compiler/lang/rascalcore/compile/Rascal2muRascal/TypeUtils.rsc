@@ -764,7 +764,7 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         my_definitions += ( adt : {aprod(my_grammar_rules[adt])} | adt <- allADTs, my_grammar_rules[adt]? );
 
         if(is_start){
-            my_definitions += (\start(base_t) : { aprod(choice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
+            my_definitions += (\start(base_t) : { aprod(achoice(\start(base_t), { prod(\start(base_t), [ definedLayouts, base_t[alabel="top"], definedLayouts]) })) });
         }
         if(!isEmpty(parameterized_uninstantiated_ADTs)){ // add generic parameter type Tree
             my_definitions += (treeType : {});
@@ -1009,7 +1009,7 @@ set [AProduction] addAlts(AProduction alts){
     set [AProduction] descend_into = {};
     for(/AProduction p := alts){
         switch(p){
-           case choice(_, choices): descend_into += choices;
+           case achoice(_, choices): descend_into += choices;
            case associativity(_, _, set[AProduction] choices): descend_into += choices;
            case priority(_, list[AProduction] choices): descend_into += toSet(choices);
            default: {

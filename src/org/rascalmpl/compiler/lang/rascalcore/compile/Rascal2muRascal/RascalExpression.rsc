@@ -887,7 +887,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
    }
    str fname = unescape("<expression>");
-   if(!isOverloadedAType(ftype) || fname in { "choice", "priority", "associativity"}){
+   if(!isOverloadedAType(ftype) || fname in { "achoice", "priority", "associativity"}){
         // Try to reduce non-overloaded function call (and three selected overloaded ones) to a constant
    		try {
    			return translateConstantCall(fname, args); //TODO: kwargs?
