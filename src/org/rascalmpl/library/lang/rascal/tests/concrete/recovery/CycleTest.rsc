@@ -6,19 +6,19 @@ import IO;
 import util::ErrorRecovery;
 import Node;
 
-syntax S = T | U;
+lexical S = T | U;
 
-syntax T = X T? | "$";
+lexical T = X T? | "$";
 
-syntax U = X T? | "$";
+lexical U = X T? | "$";
 
-syntax X = "b"? | "c";
+lexical X = "b"? | "c";
 
 void testCycles() {
     str input = "bc$";
     //str input = "bcbcbcccbb$";
     Tree t1 = parse(#S, input, |unknown:///|, allowAmbiguity=true);
-    Tree t2 = parse(#S, input, |unknown:///?disable-memoization=true|, allowAmbiguity=true);
+    Tree t2 = parse(#S, input, |unknown:///?parse-memoization=none&visualize-parse-result|, allowAmbiguity=true);
     println(prettyTree(t1));
     println(prettyTree(t2));
 
