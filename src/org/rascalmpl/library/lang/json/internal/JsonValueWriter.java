@@ -285,7 +285,7 @@ public class JsonValueWriter {
 
                 int i = 0;
                 for (IValue arg : o) {
-                    out.name("arg" + i++);
+                    out.name("__arg" + i++);
                     arg.accept(this);
                 }
 
