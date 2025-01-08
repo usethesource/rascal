@@ -65,7 +65,9 @@ public class IO {
         try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
             in.setLenient(lenient.getValue());
             return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
-                .setCalendarFormat(dateTimeFormat.getValue()).setParsers(parsers).setNulls(unreify(nulls))
+                .setCalendarFormat(dateTimeFormat.getValue())
+                .setParsers(parsers)
+                .setNulls(unreify(nulls))
                 .setExplicitConstructorNames(explicitConstructorNames.getValue())
                 .setExplicitDataTypes(explicitDataTypes.getValue()).read(in, start);
         }
@@ -92,7 +94,9 @@ public class IO {
             in.setLenient(lenient.getValue());
             return new JsonValueReader(values, store, monitor,
                 trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
-                    .setCalendarFormat(dateTimeFormat.getValue()).setParsers(parsers).setNulls(unreify(nulls))
+                    .setCalendarFormat(dateTimeFormat.getValue())
+                    .setParsers(parsers)
+                    .setNulls(unreify(nulls))
                     .setExplicitConstructorNames(explicitConstructorNames.getValue())
                     .setExplicitDataTypes(explicitDataTypes.getValue()).read(in, start);
         }
@@ -114,10 +118,15 @@ public class IO {
                 out.setIndent("        ".substring(0, indent.intValue() % 9));
             }
 
-            new JsonValueWriter().setCalendarFormat(dateTimeFormat.getValue()).setDatesAsInt(dateTimeAsInt.getValue())
-                .setUnpackedLocations(unpackedLocations.getValue()).setDropOrigins(dropOrigins.getValue())
-                .setFormatters(formatter).setExplicitConstructorNames(explicitConstructorNames.getValue())
-                .setExplicitDataTypes(explicitDataTypes.getValue()).write(out, value);
+            new JsonValueWriter()
+                .setCalendarFormat(dateTimeFormat.getValue())
+                .setDatesAsInt(dateTimeAsInt.getValue())
+                .setUnpackedLocations(unpackedLocations.getValue())
+                .setDropOrigins(dropOrigins.getValue())
+                .setFormatters(formatter)
+                .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .write(out, value);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
@@ -133,10 +142,14 @@ public class IO {
             if (indent.intValue() > 0) {
                 out.setIndent("        ".substring(0, indent.intValue() % 9));
             }
-            new JsonValueWriter().setCalendarFormat(dateTimeFormat.getValue()).setDatesAsInt(dateTimeAsInt.getValue())
-                .setUnpackedLocations(unpackedLocations.getValue()).setDropOrigins(dropOrigins.getValue())
-                .setFormatters(formatter).setExplicitConstructorNames(explicitConstructorNames.getValue())
-                .setExplicitDataTypes(explicitDataTypes.getValue()).write(out, value);
+            new JsonValueWriter().setCalendarFormat(dateTimeFormat.getValue())
+                .setDatesAsInt(dateTimeAsInt.getValue())
+                .setUnpackedLocations(unpackedLocations.getValue())
+                .setDropOrigins(dropOrigins.getValue())
+                .setFormatters(formatter)
+                .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .write(out, value);
 
             return values.string(string.toString());
         }
