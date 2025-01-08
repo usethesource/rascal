@@ -265,9 +265,9 @@ Production aprod2prod(p:AProduction::prod(AType lhs, list[AType] atypes, attribu
   = Production::prod((p.alabel?) ? Symbol::label(asUnqualifiedName(p.alabel), atype2symbol(lhs)) : atype2symbol(lhs), [atype2symbol(e) | e <- atypes], { aattr2attr(a) | a <- as }
   ); 
   
-Production aprod2prod(AProduction::choice(AType def, set[AProduction] alts)) 
-  = Production::choice(atype2symbol(def), {aprod2prod(p) | p <- alts});  
-  
+Production aprod2prod(ap: AProduction::achoice(AType def, set[AProduction] alts))
+    = Production::choice(atype2symbol(def), {aprod2prod(p) | p <- alts}); 
+    
 Production aprod2prod(AProduction::\associativity(AType def, AAssociativity \assoc, set[AProduction] alternatives))
   = Production::\associativity(atype2symbol(def), AAssociativity2Associativity(\assoc), {aprod2prod(a) | a <- alternatives});
   
