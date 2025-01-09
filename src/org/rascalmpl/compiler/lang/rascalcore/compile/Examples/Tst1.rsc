@@ -1,11 +1,29 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import ValueIO;
+import lang::rascalcore::check::ATypeBase;
+import lang::rascalcore::check::ATypeUtils;
 import IO;
 
-data D(bool K = false) = d1(int n);
+map[AType, set[AType]] defs = (
+  aadt(
+    "A",
+    [],
+    contextFreeSyntax()):{aprod(achoice(
+        aadt(
+          "A",
+          [],
+          contextFreeSyntax()),
+        {prod(
+            aadt(
+              "A",
+              [],
+              contextFreeSyntax()),
+            [alit("a")])}))});
 
-void main(){
-    v = readBinaryValueFile(#D, |home:///tmp.txt|);
-    println("K = <v.K>, <v.K?>");
+
+value main() {
+    res = adefinitions2definitions(defs);
+    println("main:"); iprintln(res);
+    return res;
+    //return aprod2prod(p);
 }
