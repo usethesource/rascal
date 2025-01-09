@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC3-SNAPSHOT</version>
+    <version>0.41.0-RC8-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -431,7 +431,7 @@
         <dependency> 
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
-            <version>1.0.0-RC12</version>
+            <version>1.0.0-RC15</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
@@ -623,8 +623,6 @@
                                             <include>jline:*</include>
                                         </includes>
                                     </artifactSet>
-                                    <shadedClassifierName>unshaded</shadedClassifierName>
-				    <shadedArtifactAttached>true</shadedArtifactAttached>
                                 </configuration>
                             </execution>
                         </executions>
