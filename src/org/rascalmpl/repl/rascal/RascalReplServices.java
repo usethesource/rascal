@@ -12,6 +12,7 @@ import org.jline.jansi.Ansi;
 import org.jline.reader.Completer;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
@@ -58,7 +59,9 @@ public class RascalReplServices implements IREPLService {
         if (cmd instanceof IAnsiCommandOutput && ansiSupported) {
             ((IAnsiCommandOutput)cmd).asAnsi().write(err, unicodeSupported);
         }
-        cmd.asPlain().write(err, unicodeSupported);
+        else {
+            cmd.asPlain().write(err, unicodeSupported);
+        }
     } 
 
     public void disconnect() {
@@ -88,12 +91,13 @@ public class RascalReplServices implements IREPLService {
             in.startStreamMonitoring();
             return lang.handleInput(input);
         }
+        catch (ParseError pe) {
+            return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, out, ansiSupported, prompt(false, unicodeSupported).length() + 1);
+        }
         finally {
             in.pauseStreamMonitoring();
         }
     }
-
-
 
 
     @Override
