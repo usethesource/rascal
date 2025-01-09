@@ -31,7 +31,7 @@ public class RascalLineParser implements Parser {
             case UNSPECIFIED: // TODO: check if this is correct
             case ACCEPT_LINE:
                 // we have to verify the input is correct rascal statement
-                return parseFullRascalCommand(line, cursor);
+                return parseFullRascalCommand(line, cursor, true);
             case COMPLETE:
                 // for completion purposes, we want a specific kind of grouping
                 // so we'll use a heuristic for this. 
@@ -40,7 +40,7 @@ public class RascalLineParser implements Parser {
                 // parse tree, such as `:` and the `set`
                 try {
                     // lets see, maybe it parses as a rascal expression
-                    return parseFullRascalCommand(line, cursor);
+                    return parseFullRascalCommand(line, cursor, false);
                 }
                 catch (EOFError e) {
                     // otherwise fallback to regex party
@@ -194,7 +194,7 @@ public class RascalLineParser implements Parser {
 
     // strings with rudementary interpolation support
     private static final Pattern RASCAL_STRING 
-        = Pattern.compile("^[\">]([^\"<\\\\]|([\\\\].))*[\"<]");
+        = Pattern.compile("^[\">]([^\"<\\\\]|([\\\\].))*([\"<]|$)");
     // locations with rudementary interpolation support
     private static final Pattern RASCAL_LOCATION 
         = Pattern.compile("^[\\|\\>][^\\|\\<\\t-\\n\\r ]*[\\|\\<]?");
@@ -210,12 +210,15 @@ public class RascalLineParser implements Parser {
         return parseEndedAfter(buffer, position, RASCAL_WHITE_SPACE);
     }
 
-    private ParsedLine parseFullRascalCommand(String line, int cursor)  throws SyntaxError {
+    private ParsedLine parseFullRascalCommand(String line, int cursor, boolean completeStatementMode)  throws SyntaxError {
         // TODO: to support inline highlighting, we have to remove the ansi escapes before parsing
         try {
             return translateTree(commandParser.apply(line), line, cursor);
         } 
         catch (ParseError pe) {
+            if (!completeStatementMode || lastLineIsBlank(line)) {
+                return splitWordsOnly(line, cursor);
+            }
             throw new EOFError(pe.getBeginLine(), pe.getBeginColumn(), "Parse error");
         } 
         catch (Throwable e) {
@@ -223,6 +226,9 @@ public class RascalLineParser implements Parser {
         }
     }
 
+    private boolean lastLineIsBlank(String line) {
+        return line.endsWith("\n");
+    }
 
     private ParsedLine translateTree(ITree command, String line, int cursor) {
         // todo: return CompletingParsedLine so that we can also help with quoting completion
