@@ -259,8 +259,12 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
     println("span after trim: <span>, size originals <size(originals)>");
     <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
     edits += specialEdits;
+    println("special edits:");
+    iprintln(edits);
         
-    equalSubList = largestEqualSubList(span, originals, replacements);
+    equalSubList = largestEqualSubList(originals, replacements);
+    println("equal sublist:");
+    println(yield(equalSubList));
 
     // by using the (or "a") largest common sublist as a pivot to divide-and-conquer
     // to the left and right of it, we minimize the number of necessary 
@@ -272,8 +276,8 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
         // we align the prefixes and the postfixes and
         // continue recursively.
         return edits 
-            + listDiff(cover(preO), seps, preO, preR)   
-            + listDiff(cover(postO), seps, postO, postR)
+            + listDiff(beginCover(span, preO), seps, preO, preR)   
+            + listDiff(endCover(span, postO), seps, postO, postR)
         ;
     }
     else if (originals := replacements) {
@@ -298,20 +302,10 @@ uses particular properties of the relation between the original and the replacem
 * Candidate equal sublists always have consecutive source locations from the origin.
 * etc.
 }
-list[Tree] largestEqualSubList(loc span, list[Tree] originals, list[Tree] replacements) {
-    // assert <originals, replacements> := trimEqualElements(originals, replacements) : "both lists begin and end with unique elements";
-    
-    bool largerList(list[Tree] a, list[Tree] b) = size(a) > size(b);
-
-    bool fromOriginalFile(loc span, Tree last) = span.top == (last@\loc?|unknown:///|).top;
-    
-    if ([*_,  pre, *Tree eq, post, *_]  := replacements,
-        [*_, !pre, *eq, !post, *_] := originals) {
-        return eq;
-    }
-
-    return [];
-}
+list[Tree] largestEqualSubList([*Tree sub], [*_, *sub, *_]) = sub;
+list[Tree] largestEqualSubList([*_, *sub, *_], [*Tree sub]) = sub;
+list[Tree] largestEqualSubList([*_, *sub, *_], [*_, *Tree sub, *_]) = sub;
+default list[Tree] largestEqualSubList(list[Tree] _orig, list[Tree] _repl) = [];
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
 tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, [Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
