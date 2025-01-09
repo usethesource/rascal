@@ -317,7 +317,7 @@ list[Tree] largestEqualSubList(loc span, list[Tree] originals, list[Tree] replac
 tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, [Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
     = trimEqualElements(endCover(span, aPostfix), aPostfix, bPostfix);
 
-tuple[loc, list[Tree], list[Tree]] trimEqualElements([*Tree aPrefix, Tree a], [*Tree bPrefix, a])
+tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, [*Tree aPrefix, Tree a], [*Tree bPrefix, a])
     = trimEqualElements(beginCover(span, aPrefix), aPrefix, bPrefix);
 
 default tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, list[Tree] a, list[Tree] b)
