@@ -94,6 +94,17 @@ start[Program] addDeclarationToStart(start[Program] p) = visit(p) {
                      'end`
 };
 
+start[Program] addDeclarationToStartAndEnd(start[Program] p) = visit(p) {
+    case (Program) `begin declare <{IdType ","}* decls>; <{Statement  ";"}* body> end`
+        => (Program) `begin
+                     '  declare
+                     '    x : natural,
+                     '    <{IdType ","}* decls>,
+                     '    y : natural;
+                     '  <{Statement  ";"}* body>
+                     'end`
+};
+
 test bool nulTestWithId() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity);
 
@@ -106,3 +117,6 @@ test bool addDeclarationToEndTest()
 
 test bool addDeclarationToStartTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart);
+
+test bool addDeclarationToStartAndEndTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStartAndEnd);
