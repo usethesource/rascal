@@ -29,9 +29,18 @@ bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree
     orig        = parse(grammar, example);
     transformed = transform(orig);
     edits       = treeDiff(orig, transformed);
+    println("derived edits:");
+    iprintln(edits);
     edited      = executeTextEdits(example, edits);
 
-    return transformed := parse(grammar, edited);
+    try {
+        return transformed := parse(grammar, edited);
+    }
+    catch ParseError(loc l): {
+        println("Parse error <l> in:");
+        println(edited);
+        return false;
+    }
 }
 
 @synopsis{Extract the leading spaces of each line of code}
@@ -65,9 +74,35 @@ start[Program] swapAB(start[Program] p) = visit(p) {
     case (Id) `b` => (Id) `a`
 };
 
+start[Program] addDeclarationToEnd(start[Program] p) = visit(p) {
+    case (Program) `begin declare <{IdType ","}* decls>; <{Statement  ";"}* body> end`
+        => (Program) `begin
+                     '  declare
+                     '    <{IdType ","}* decls>,
+                     '    c : natural;
+                     '  <{Statement  ";"}* body>
+                     'end`
+};
+
+start[Program] addDeclarationToStart(start[Program] p) = visit(p) {
+    case (Program) `begin declare <{IdType ","}* decls>; <{Statement  ";"}* body> end`
+        => (Program) `begin
+                     '  declare
+                     '    c : natural,
+                     '    <{IdType ","}* decls>;
+                     '  <{Statement  ";"}* body>
+                     'end`
+};
+
 test bool nulTestWithId() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity);
 
 test bool simpleSwapper() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, swapAB)
     && editsMaintainIndentationLevels(#start[Program], simpleExample, swapAB);
+
+test bool addDeclarationToEndTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd);
+
+test bool addDeclarationToStartTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart);

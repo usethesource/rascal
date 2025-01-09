@@ -230,11 +230,11 @@ default list[TextEdit] treeDiff(
 list[TextEdit] treeDiff(
     Tree t:appl(Production p:regular(Symbol reg), list[Tree] aElems), 
     appl(p, list[Tree] bElems))
-    = listDiff(t@\loc, seps(reg), aElems, bElems);
+    = listDiff(t@\loc, seps(reg), aElems, bElems) when bprintln("diving into <p>");
 
 // When the productions are equal, but the children may be different, we dig deeper for differences
 default list[TextEdit] treeDiff(appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
-    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)];
+    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("diving into <p>");
 
 @synopsis{decide how many separators we have}
 int seps(\iter-seps(_,list[Symbol] s))      = size(s);
@@ -254,9 +254,9 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
     // the edits are minimized. Note that we float on source location parameters
     // not only for the edit locations but also for sub-tree identity.
     
-    <originals, replacements> = trimEqualElements(originals, replacements);
-    span = cover([orig@\loc | orig <- originals, orig@\loc?]);
-
+    println("span before trim: <span>, size originals <size(originals)>");
+    <span, originals, replacements> = trimEqualElements(span, originals, replacements);
+    println("span after trim: <span>, size originals <size(originals)>");
     <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
     edits += specialEdits;
         
@@ -314,14 +314,14 @@ list[Tree] largestEqualSubList(loc span, list[Tree] originals, list[Tree] replac
 }
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
-tuple[list[Tree], list[Tree]] trimEqualElements([Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
-    = trimEqualElements(aPostfix, bPostfix);
+tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, [Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
+    = trimEqualElements(endCover(span, aPostfix), aPostfix, bPostfix);
 
-tuple[list[Tree], list[Tree]] trimEqualElements([*Tree aPrefix, Tree a], [*Tree bPrefix, a])
-    = trimEqualElements(aPrefix, bPrefix);
+tuple[loc, list[Tree], list[Tree]] trimEqualElements([*Tree aPrefix, Tree a], [*Tree bPrefix, a])
+    = trimEqualElements(beginCover(span, aPrefix), aPrefix, bPrefix);
 
-default tuple[list[Tree], list[Tree]] trimEqualElements(list[Tree] a, list[Tree] b)
-    = <a, b>;
+default tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, list[Tree] a, list[Tree] b)
+    = <span, a, b>;
 
 // only one element removed in front, then we are done
 tuple[list[TextEdit], list[Tree], list[Tree]] commonSpecialCases(loc span, 0, [Tree a, *Tree tail], [*tail])
@@ -360,7 +360,15 @@ up to `until`.
 private loc fromUntil(loc from, loc until) = from.top(from.offset, until.offset - from.offset);
 private int end(loc src) = src.offset + src.length;
 
-private loc cover(list[Tree] elems) = cover([e@\loc | e <- elems, e@\loc?]);
+private loc endCover(loc span, []) = span(span.offset + span.length, 0);
+private loc endCover(loc span, [Tree x]) = x@\loc;
+private default loc endCover(loc span, list[Tree] l) = cover(l);
+
+private loc beginCover(loc span, []) = span(span.offset, 0);
+private loc beginCover(loc span, [Tree x]) = x@\loc;
+private default loc beginCover(loc span, list[Tree] l) = cover(l);
+
+private loc cover(list[Tree] elems:[_, *_]) = cover([e@\loc | Tree e <- elems, e@\loc?]);
 
 @synopsis{yield a consecutive list of trees}
 private str yield(list[Tree] elems) = "<for (e <- elems) {><e><}>";
