@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.library.Prelude;
@@ -52,7 +53,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import jline.internal.Nullable;
 
 /**
  * This class streams an IValue directly to an JSON stream. Useful to communicate IValues to

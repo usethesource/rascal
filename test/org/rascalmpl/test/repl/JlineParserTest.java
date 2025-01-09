@@ -36,6 +36,8 @@ public class JlineParserTest {
         assertEquals("\"long string with multiple spaces\"", completeParser("\"long string with multiple spaces\"",11).word());
         assertEquals("\"long string with multiple spaces\"", completeParser("\"long string with multiple spaces\"").word());
         assertEquals(2, completeParser("x = \"long string with multiple spaces\";").words().size());
+        assertEquals(1, completeParser("\"never terminated").words().size());
+        assertEquals(1, completeParser("\"long string \nthat is never ended\nbut has newlines").words().size());
     }
 
     @Test

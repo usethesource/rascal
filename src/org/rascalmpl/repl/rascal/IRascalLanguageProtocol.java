@@ -30,8 +30,11 @@ import java.util.Map;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.values.parsetrees.ITree;
+
+import io.usethesource.vallang.ISourceLocation;
 
 
 
@@ -57,8 +60,9 @@ public interface IRascalLanguageProtocol {
      * After a command has succesfully parsed, this function is called to execute the command
      * @param command command entered.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
+     * @throws ParseError handle parse error of the input command
      */
-    ICommandOutput handleInput(String command) throws InterruptedException;
+    ICommandOutput handleInput(String command) throws InterruptedException, ParseError;
 
     /**
      * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
@@ -97,4 +101,6 @@ public interface IRascalLanguageProtocol {
      * @return map from command line option to description of it
      */
     Map<String, String> availableCommandLineOptions();
+
+    ISourceLocation promptRootLocation();
 }

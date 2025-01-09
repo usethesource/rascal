@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.jline.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -32,7 +33,10 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -76,6 +80,11 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         };
     }
 
+    @Override
+    public ISourceLocation promptRootLocation() {
+        return PROMPT_LOCATION;
+    }
+
     /**
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
      * @param err
@@ -117,7 +126,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
 
     @Override
-    public ICommandOutput handleInput(String command) throws InterruptedException {
+    public ICommandOutput handleInput(String command) throws InterruptedException, ParseError {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
@@ -140,11 +149,6 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                     ex.getRascalStackTrace().prettyPrintedString(w, sw);
                 });
             }
-            catch (ParseError pe) {
-                return printer.outputError((w, sw, _u) -> {
-                    parseErrorMessage(w, command, "prompt", pe, sw);
-                });
-            }
             catch (StaticError e) {
                 return printer.outputError((w, sw, _u) -> {
                     staticErrorMessage(w, e, sw);
@@ -159,6 +163,9 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 throw new EndOfFileException("Quiting REPL");
             }
             catch (Throwable e) {
+                if (e instanceof ParseError) {
+                    throw e;
+                }
                 return printer.outputError((w, sw, _u) -> {
                     throwableMessage(w, e, eval.getStackTrace(), sw);
                 });
