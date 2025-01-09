@@ -392,11 +392,8 @@ private str learnIndentation(loc span, str replacement, str original) {
         minIndent = sort(origIndents[1..])[0]? "";
     }
 
-    println("min: [<minIndent>]");
     stripped = [ /^<minIndent><rest:.*>$/ := line ? rest : line | line <- replLines];
     
-    println("stripped:");
-    iprintln(stripped);
     return indent(minIndent, "<for (l <- stripped) {><l>
                              '<}>"[..-1]);
 }
