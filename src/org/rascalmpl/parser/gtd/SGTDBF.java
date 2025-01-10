@@ -1514,18 +1514,26 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private void checkMemoization(URI inputURI, AbstractNode result) {
 		DefaultNodeFlattener.nodeMemoization = true;
 		DefaultNodeFlattener.linkMemoization = false;
+		DefaultNodeFlattener.safeNodeMemoization = false;
 		if (inputURI != null) {
 			String query = inputURI.getQuery();
 			if (query != null) {
 				if (query.contains("parse-memoization=none")) {
 					DefaultNodeFlattener.nodeMemoization = false;
 					DefaultNodeFlattener.linkMemoization = false;
+					DefaultNodeFlattener.safeNodeMemoization = false;
 				} else if (query.contains("parse-memoization=link")) {
 					DefaultNodeFlattener.nodeMemoization = false;
 					DefaultNodeFlattener.linkMemoization = true;
+					DefaultNodeFlattener.safeNodeMemoization = false;
 				} else if (query.contains("parse-memoization=node")) {
 					DefaultNodeFlattener.nodeMemoization = true;
 					DefaultNodeFlattener.linkMemoization = false;
+					DefaultNodeFlattener.safeNodeMemoization = false;
+				} else if (query.contains("parse-memoization=safe-node")) {
+					DefaultNodeFlattener.nodeMemoization = false;
+					DefaultNodeFlattener.linkMemoization = false;
+					DefaultNodeFlattener.safeNodeMemoization = true;
 				} else if (query.contains("parse-memoization")) {
 					throw new IllegalArgumentException("Unsupported memoization directive: " + query);
 				}

@@ -12,9 +12,17 @@
 package org.rascalmpl.parser.gtd.result.out;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.parser.gtd.result.CharNode;
+import org.rascalmpl.parser.gtd.result.EpsilonNode;
+import org.rascalmpl.parser.gtd.result.LiteralNode;
+import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener.CycleMark;
@@ -36,11 +44,67 @@ public class SortContainerNodeFlattener<P, T, S>{
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<Object, T>> preCache;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
 
+	private final Map<AbstractNode, T> nodeCache;
+
+	public static boolean isCacheable(Link link) {
+		AbstractNode node = link.getNode();
+		System.out.println("isCacheable: " + link.getNode());
+		int type = node.getTypeIdentifier();
+		if (type == CharNode.ID || type == LiteralNode.ID || type == SkippedNode.ID || type == EpsilonNode.ID) {
+			return true;
+		}
+
+		if (!link.getNode().isEmpty()) {
+			return !isPrefixZeroLength(link);
+		}
+
+		return false;
+	}
+
+	public static boolean isPrefixZeroLength(Link link) {
+		return isPrefixZeroLength(link, new HashSet<>());
+	}
+
+	public static boolean isPrefixZeroLength(Link link, Set<Link> processedLinks) {
+		if (processedLinks.contains(link)) {
+			return true;
+		}
+		processedLinks.add(link);
+
+		ArrayList<Link> prefixes = link.getPrefixes();
+
+		if (prefixes == null || prefixes.size() == 0) {
+			return true;
+		}
+
+		boolean anyNonZeroLength = false;
+		for (int i=prefixes.size()-1; i>=0; --i) {
+			Link prefix = prefixes.get(i);
+			if (prefix == null) {
+				continue;
+			}
+
+			if (!prefix.getNode().isEmpty()) {
+				anyNonZeroLength = true;
+				continue;
+			}
+
+			if (isPrefixZeroLength(prefix, processedLinks)) {
+				return true;
+			}
+		}
+
+		return !anyNonZeroLength;
+	}
+
+
 	public SortContainerNodeFlattener(){
 		super();
 		
 		preCache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<Object, T>>();
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
+
+		nodeCache = new HashMap<>();
 	}
 	
 	/**
@@ -50,7 +114,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		AbstractNode resultNode = child.getNode();
 		
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, resultNode), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, resultNode, false), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, NO_NODES, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
@@ -68,7 +132,8 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		for(int i = prefixes.size() - 1; i >= 0; --i){ // Traverse all the prefixes (can be more then one in case of ambiguity).
 			Link prefix = prefixes.get(i);
-			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(postFix, prefix.getNode()), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
+			boolean cacheable = isCacheable(prefix);
+			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(postFix, prefix.getNode(), cacheable), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
 	}
 	
@@ -84,14 +149,28 @@ public class SortContainerNodeFlattener<P, T, S>{
 		for(int i = 0; i < postFixLength; ++i){
 			AbstractNode node = postFix.element;
 			postFix = postFix.next;
-			
+
+
 			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
-			
-			T constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+
+			T constructedNode = null;
+			if (DefaultNodeFlattener.safeNodeMemoization && postFix.cacheable) {
+				constructedNode = nodeCache.get(node);
+			}
+
+			if (constructedNode == null) {
+				constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+			} else {
+				System.out.println("reusing cached!");
+			}
+
 			if(constructedNode == null){
 				actionExecutor.exitedProduction(production, true, newEnvironment); // Filtered.
 				return;
+			} else if (DefaultNodeFlattener.safeNodeMemoization) {
+				nodeCache.put(node, constructedNode);
 			}
+
 			children.add(constructedNode);
 		}
 		

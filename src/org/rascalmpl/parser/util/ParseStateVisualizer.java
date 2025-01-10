@@ -44,6 +44,7 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.parser.gtd.result.out.SortContainerNodeFlattener;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
@@ -457,7 +458,12 @@ public class ParseStateVisualizer {
         }
 
         NodeId nodeId = addParserNodes(graph, link.getNode());
-        graph.addEdge(linkId, nodeId, "node");
+
+        if (!SortContainerNodeFlattener.isPrefixZeroLength(link)) {
+            graph.highlight(getNodeId(link));
+        }
+
+        graph.addEdge(linkId, nodeId, "node", SortContainerNodeFlattener.isCacheable(link) ? "green" : null);
 
         return linkId;
     }
@@ -471,7 +477,7 @@ public class ParseStateVisualizer {
     @SuppressWarnings("unchecked")
     private void addParserNode(DotGraph graph, AbstractNode parserNode, NodeId id) {
         DotNode dotNode = new DotNode(id);
-        dotNode.addAttribute(DotAttribute.ATTR_NODE_SHAPE, "octagon");
+        dotNode.addAttribute(DotAttribute.ATTR_NODE_SHAPE, parserNode.isEmpty() ? "octagon" : "doubleoctagon");
 
         String nodeName = parserNode.getClass().getSimpleName();
         if (nodeName.endsWith("Node")) {
@@ -479,6 +485,7 @@ public class ParseStateVisualizer {
         }
 
         dotNode.addAttribute(DotAttribute.ATTR_LABEL, nodeName);
+
 
         switch (parserNode.getTypeIdentifier()) {
             case EpsilonNode.ID:
