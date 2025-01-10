@@ -1,6 +1,5 @@
 package org.rascalmpl.repl.rascal;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
-import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
@@ -30,7 +28,6 @@ public class RascalReplServices implements IREPLService {
 
     private boolean unicodeSupported = false;
     private boolean ansiSupported = false;
-    private RascalSpecificSignalsReader in;
     private PrintWriter out;
     private PrintWriter err;
     
@@ -51,27 +48,10 @@ public class RascalReplServices implements IREPLService {
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
         err = StreamUtil.generateErrorStream(term, monitor);
-        in = new RascalSpecificSignalsReader(term, lang, this::printOutput);
-        lang.initialize(in, out, err, monitor, term);
+        lang.initialize(term.reader(), out, err, monitor, term);
     }
 
-    private void printOutput(ICommandOutput cmd) {
-        if (cmd instanceof IAnsiCommandOutput && ansiSupported) {
-            ((IAnsiCommandOutput)cmd).asAnsi().write(err, unicodeSupported);
-        }
-        else {
-            cmd.asPlain().write(err, unicodeSupported);
-        }
-    } 
-
     public void disconnect() {
-        if (in != null) {
-            try {
-                in.close();
-            }
-            catch (IOException e) {
-            }
-        }
         if (err != null) {
             err.close();
         }
@@ -88,14 +68,10 @@ public class RascalReplServices implements IREPLService {
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException {
         try {
-            in.startStreamMonitoring();
             return lang.handleInput(input);
         }
         catch (ParseError pe) {
             return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, out, ansiSupported, prompt(false, unicodeSupported).length() + 1);
-        }
-        finally {
-            in.pauseStreamMonitoring();
         }
     }
 
@@ -107,20 +83,49 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public String prompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+        String prompt = "rascal>";
 
         if (ansiColorsSupported) {
-            return Ansi.ansi().reset().bold() + "rascal>" + Ansi.ansi().reset();
+            return Ansi.ansi()
+                .reset()
+                .bold()
+                .a(prompt)
+                .reset()
+                .toString();
         }
-        return "rascal>";
+        return prompt;
     }
 
     @Override
     public String parseErrorPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
         String errorPrompt = (unicodeSupported ? "│" : "|") + "%N %P>";
         if (ansiColorsSupported) {
-            return Ansi.ansi().reset().bold() + errorPrompt + Ansi.ansi().reset();
+            return Ansi.ansi()
+                .reset()
+                .bold()
+                .a(errorPrompt)
+                .reset()
+                .toString();
         }
         return errorPrompt;
+    }
+
+    @Override
+    public String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+        String prompt = ">>>>>>> Interrupted";
+        if (unicodeSupported) {
+            prompt = prompt.replace(">", "»");
+        }
+        if (ansiColorsSupported) {
+            return Ansi.ansi()
+                .reset()
+                .fgRed()
+                .bold()
+                .a(prompt)
+                .reset()
+                .toString();
+        }
+        return prompt;
     }
 
     @Override
@@ -163,17 +168,6 @@ public class RascalReplServices implements IREPLService {
         return result;
     }
 
-    @Override
-    public String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
-        String prompt = ">>>>>>> Interrupted";
-        if (unicodeSupported) {
-            prompt = prompt.replace(">", "»");
-        }
-        if (ansiColorsSupported) {
-            prompt = Ansi.ansi().reset().fgRed().bold() + prompt + Ansi.ansi().reset();
-        }
-        return prompt;
-    }
 
     @Override
     public boolean storeHistory() {

@@ -66,12 +66,11 @@ public class BaseREPL {
         this.reader = reader.build();
 
 
-        // todo:
+        // FUTURE features:
+        // - CTRL+\ to print the stacktrace while running
         // - highlighting in the prompt? (future work, as it also hurts other parts)
         // - measure time
-        // - possible to tee output (future work)
-        // - check if the REPL close properly closes the right streams
-        // - fix progress bar speed & proper recovering from intermediate prints
+        // - possible to tee output
     }
 
     public void run() throws IOException {

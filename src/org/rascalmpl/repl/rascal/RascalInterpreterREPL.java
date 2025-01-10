@@ -1,7 +1,6 @@
 package org.rascalmpl.repl.rascal;
 
 
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
@@ -14,7 +13,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.jline.jansi.Ansi;
 import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -33,10 +31,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.output.IErrorCommandOutput;
-import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
