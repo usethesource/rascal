@@ -12,49 +12,49 @@ private AProduction pr(AType rhs, list[AType] lhs) {
 }
 
 public AGrammar G0 = grammar({sort("S")}, (
-    sort("S"): choice(sort("S"), { pr(sort("S"), [ alit("0") ]) }),
-    alit("0"): choice(alit("0"), { pr(alit("0"),[\achar-class([arange(48,48)])]) })
+    sort("S"): achoice(sort("S"), { pr(sort("S"), [ alit("0") ]) }),
+    alit("0"): achoice(alit("0"), { pr(alit("0"),[\achar-class([arange(48,48)])]) })
 ));
 
 public map[AType sort, AProduction def] Lit1 = (
-  alit("*"): choice(alit("*"), { pr(alit("*"),[\achar-class([arange(42,42)])]) }),
-  alit("+"): choice(alit("+"), { pr(alit("+"),[\achar-class([arange(43,43)])]) }),
-  alit("0"): choice(alit("0"), { pr(alit("0"),[\achar-class([arange(48,48)])]) }),
-  alit("1"): choice(alit("1"), { pr(alit("1"),[\achar-class([arange(49,49)])]) })
+  alit("*"): achoice(alit("*"), { pr(alit("*"),[\achar-class([arange(42,42)])]) }),
+  alit("+"): achoice(alit("+"), { pr(alit("+"),[\achar-class([arange(43,43)])]) }),
+  alit("0"): achoice(alit("0"), { pr(alit("0"),[\achar-class([arange(48,48)])]) }),
+  alit("1"): achoice(alit("1"), { pr(alit("1"),[\achar-class([arange(49,49)])]) })
 );
 
 public AGrammar GEXP = grammar({sort("E")}, (
-    sort("E"): choice(sort("E"), { pr(sort("E"), [sort("E"), alit("*"), sort("B")]),
+    sort("E"): achoice(sort("E"), { pr(sort("E"), [sort("E"), alit("*"), sort("B")]),
                                    pr(sort("E"), [sort("E"), alit("+"), sort("B")]),
                                    pr(sort("E"), [sort("B")])
                                  }),
-    sort("B"): choice(sort("B"), { pr(sort("B"), [alit("0")]),
+    sort("B"): achoice(sort("B"), { pr(sort("B"), [alit("0")]),
                                   pr(sort("B"), [alit("1")])
                                  })
 ) + Lit1);
 
 public AGrammar GEXPPRIO = grammar( {sort("E")},
 (
-    sort("E"):  choice(sort("E"), { pr(sort("E"),  [sort("T"), sort("E1")])}),
-    sort("E1"): choice(sort("E1"),{ pr(sort("E1"), [alit("+"), sort("T"), sort("E1")]),
+    sort("E"):  achoice(sort("E"), { pr(sort("E"),  [sort("T"), sort("E1")])}),
+    sort("E1"): achoice(sort("E1"),{ pr(sort("E1"), [alit("+"), sort("T"), sort("E1")]),
                                     pr(sort("E1"), [])
                                   }),
     
     
-    sort("T"):  choice(sort("T"), { pr(sort("T"),  [sort("F"), sort("T1")]) }),
+    sort("T"):  achoice(sort("T"), { pr(sort("T"),  [sort("F"), sort("T1")]) }),
    
-    sort("T1"): choice(sort("T1"),{ pr(sort("F"), [alit("*"), sort("F"), sort("T1")]),
+    sort("T1"): achoice(sort("T1"),{ pr(sort("F"), [alit("*"), sort("F"), sort("T1")]),
                                    pr(sort("T1"), []) }),
                                     
-    sort("F"): choice(sort("F"),  { pr(sort("F"),  [alit("("), sort("E"), alit(")")]),
+    sort("F"): achoice(sort("F"),  { pr(sort("F"),  [alit("("), sort("E"), alit(")")]),
                                     pr(sort("F"),  [alit("id")])
                                   }),
     
-    alit("+"): choice(alit("+"), { pr(alit("+"),[\achar-class([arange(43,43)])]) }),
-    alit("*"): choice(alit("*"), { pr(alit("*"),[\achar-class([arange(42,42)])]) }),
+    alit("+"): achoice(alit("+"), { pr(alit("+"),[\achar-class([arange(43,43)])]) }),
+    alit("*"): achoice(alit("*"), { pr(alit("*"),[\achar-class([arange(42,42)])]) }),
     
-    alit("("): choice(alit("("), { pr(alit("("), [\achar-class([arange(40,40)])]) }),
-    alit(")"): choice(alit(")"), { pr(alit(")"), [\achar-class([arange(41,41)])]) }),
+    alit("("): achoice(alit("("), { pr(alit("("), [\achar-class([arange(40,40)])]) }),
+    alit(")"): achoice(alit(")"), { pr(alit(")"), [\achar-class([arange(41,41)])]) }),
     
-    alit("id"): choice(alit("id"), { pr(alit("id"), [\achar-class([arange(105,105)]),\achar-class([arange(100,100)])]) })
+    alit("id"): achoice(alit("id"), { pr(alit("id"), [\achar-class([arange(105,105)]),\achar-class([arange(100,100)])]) })
 ));
