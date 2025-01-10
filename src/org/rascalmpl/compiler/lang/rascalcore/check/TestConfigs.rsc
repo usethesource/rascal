@@ -16,7 +16,9 @@ data PathConfig(
 
 loc REPO =        |file:///Users/paulklint/git/|;
 loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.17/rascal-0.40.17.jar!/|;
-loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.8-SNAPSHOT/typepal-0.14.8-SNAPSHOT.jar!/|;
+loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.8/typepal-0.14.8.jar!/|;
+loc OUTDATED_TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.1/typepal-0.14.1.jar!/|;
+
 // ---- PathConfigs for testing purposes --------------------------------------
 
 private int npc = 0;
@@ -116,7 +118,6 @@ public RascalCompilerConfig getRascalCompilerConfig(){
 public PathConfig getRascalCorePathConfig() {
    return pathConfig(
         srcs = [ REPO + "rascal-core/src/org/rascalmpl/core/library" ],
-        bin = |project://rascal-core/target/test-classes|,
         bin = REPO + "generated-sources/target/rascal-core/classes",
         generatedSources = REPO + "generated-sources/target/rascal-core/generated-sources/src/main/java/",
         generatedTestSources = REPO + "generated-sources/target/rascal-core/generated-sources/src/main/java/",
@@ -306,4 +307,27 @@ public RascalCompilerConfig getVSCodeCompilerConfig(PathConfig pcfg){
 
 public RascalCompilerConfig getVSCodeCompilerConfig(){
     return rascalCompilerConfig(getVSCodePathConfig());
+}
+
+// ---- Outdated TypePal Usage -----------------------------------------------------------------
+
+public PathConfig getOutdatedTPLPathConfig() {
+    return pathConfig(
+        srcs=[REPO + "rascal-core/src/org/rascalmpl/core/library"],
+        bin=REPO + "generated-sources/target/outdated-typepal/classes",
+        generatedSources = REPO + "generated-sources/target/outdated-typepal/generated-sources/src/main/java/",
+        generatedTestSources = REPO + "generated-sources/target/outdated-typepal/generated-sources/src/main/java/",
+        resources = REPO + "generated-sources/target/outdated-typepal/generated-resources/src/main/java/",
+        libs=[
+            RASCAL_JAR,
+            OUTDATED_TYPEPAL_JAR ]
+    );
+}
+
+public RascalCompilerConfig getOutdatedTPLCompilerConfig(PathConfig pcfg){
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
+}
+
+public RascalCompilerConfig getOutdatedTPLCompilerConfig(){
+    return rascalCompilerConfig(getOutdatedTPLPathConfig());
 }
