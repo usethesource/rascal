@@ -30,7 +30,8 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g -ea"
+            "vmArgs": "-Xss80m -Xmx2g -ea",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",
@@ -47,7 +48,7 @@
             "request": "attach",
             "projectName": "rascal",
             "hostName": "localhost",
-            "port": 9213
+            "port": 9001
         },
         {
             "type": "java",
