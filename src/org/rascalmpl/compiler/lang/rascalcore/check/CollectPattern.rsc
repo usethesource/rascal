@@ -247,9 +247,9 @@ void collect(current: (Pattern) `+<Pattern argument>`, Collector c){
 
 // ---- tuple pattern ---------------------------------------------------------
 
-void collect(current: (Pattern) `\< <{Pattern ","}* elements0> \>`, Collector c){
+void collect(current: (Pattern) `\< <{Pattern ","}+ elements1> \>`, Collector c){
     c.push(patternContainer, "tuple");
-    collect(elements0, c);
+    collect(elements1, c);
     c.pop(patternContainer);
 }
 
