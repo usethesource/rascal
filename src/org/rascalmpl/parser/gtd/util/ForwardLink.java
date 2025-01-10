@@ -19,6 +19,7 @@ public class ForwardLink<E>{
 	public final int length;
 	
 	public final E element;
+	public boolean cacheable;
 	
 	private ForwardLink(){
 		super();
@@ -29,12 +30,14 @@ public class ForwardLink<E>{
 		this.element = null;
 	}
 	
-	public ForwardLink(ForwardLink next, E element){
+	public ForwardLink(ForwardLink next, E element, boolean cacheable){
 		super();
 		
 		this.next = next;
 		this.length = next.length + 1;
 		
 		this.element = element;
+
+		this.cacheable = cacheable;
 	}
 }

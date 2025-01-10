@@ -244,16 +244,16 @@ public class ListContainerNodeFlattener<P, T, S>{
 				CycleNode cycle = gatherCycle(child, new AbstractNode[]{childNode}, blackList);
 				if(cycle != null){ // Encountered a cycle.
 					if(cycle.cycle.length == 1){
-						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, cycle, false), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 					}else{
-						ForwardLink<AbstractNode> cycleLink = new ForwardLink<AbstractNode>(NO_NODES, cycle);
-						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(cycleLink, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						ForwardLink<AbstractNode> cycleLink = new ForwardLink<AbstractNode>(NO_NODES, cycle, false);
+						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(cycleLink, childNode, false), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 					}
 					return;
 				}
 			}
 			// Encountered non-cyclic child.
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, childNode, false), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, noChildren, NO_NODES, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
@@ -290,7 +290,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 				}
 				
 				child = prefix;
-				postFix = new ForwardLink<AbstractNode>(postFix, prefixNode);
+				postFix = new ForwardLink<AbstractNode>(postFix, prefixNode, false);
 				continue; // Reuse the stack frame for the next iteration (part of the conditional tail-recursion optimization; this is required to prevent stack-overflows when flattening long lists).
 			}
 			
@@ -338,12 +338,12 @@ public class ListContainerNodeFlattener<P, T, S>{
 				if(prefixNode.isEmpty() && !prefixNode.isNonterminalSeparator()){ // Possibly a cycle (separators can't start or end cycles, only elements can).
 					CycleNode cycle = gatherCycle(prefix, new AbstractNode[]{prefixNode}, blackList);
 					if(cycle != null){ // Encountered a cycle.
-						gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(NO_NODES, cycle, false), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 						continue;
 					}
 				}
 				
-				gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(NO_NODES, prefixNode), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+				gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(NO_NODES, prefixNode, false), gatheredPrefixes, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 			}
 		}
 		
