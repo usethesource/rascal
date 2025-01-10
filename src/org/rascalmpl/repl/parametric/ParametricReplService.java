@@ -42,6 +42,9 @@ import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
+/**
+ * Setup a REPL for any DSL.
+ */
 public class ParametricReplService implements IREPLService {
 
     private final ILanguageProtocol lang;
@@ -54,6 +57,11 @@ public class ParametricReplService implements IREPLService {
         this.lang = lang;
         this.ide = ide;
         this.historyFile = historyFile;
+    }
+
+    @Override
+    public String name() {
+        return "Parametric REPL";
     }
 
 
@@ -134,7 +142,7 @@ public class ParametricReplService implements IREPLService {
     
     @Override
     public Parser inputParser() {
-        // TODO: allow for a user to provide regexes for the 
+        // In the future we could allow for a user to provide regexes for the 
         // input parser, to get better completor support and options for multiline
         return new DefaultParser();
     }

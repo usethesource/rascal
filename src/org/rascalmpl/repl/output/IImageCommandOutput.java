@@ -27,6 +27,9 @@
 package org.rascalmpl.repl.output;
 
 
+/**
+ * The output contains an image that can be served/displayed (the mime type should correspond to what kind of image)
+ */
 public interface IImageCommandOutput extends ICommandOutput {
     IBinaryOutputPrinter asImage();
 }

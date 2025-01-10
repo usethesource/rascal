@@ -31,13 +31,16 @@ import java.util.Map;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.values.parsetrees.ITree;
 
 import io.usethesource.vallang.ISourceLocation;
 
 
-
+/**
+ * Features that a Rascal REPL needs to behave like a rascal repl, this is extracted out so that these can be reused in a Notebook, but also so that we can have an compiler version of the REPL.
+ */
 public interface IRascalLanguageProtocol {
 
     /**
@@ -59,10 +62,11 @@ public interface IRascalLanguageProtocol {
     /**
      * After a command has succesfully parsed, this function is called to execute the command
      * @param command command entered.
-     * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
+     * @throws InterruptedException the thread is getting interrupted
      * @throws ParseError handle parse error of the input command
+     * @throws StopREPLException stop the REPL
      */
-    ICommandOutput handleInput(String command) throws InterruptedException, ParseError;
+    ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException;
 
     /**
      * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
@@ -78,7 +82,9 @@ public interface IRascalLanguageProtocol {
      */
     ICommandOutput stackTraceRequested();
 
-
+    /**
+     * Flush all buffered contents to the output streams
+     */
     void flush();
 
     /**

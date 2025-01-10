@@ -26,6 +26,9 @@
  */
 package org.rascalmpl.repl.output;
 
+/**
+ * A handy set of mime types, a user is not limited to this, but these tend to be well supported in backends.
+ */
 public class MimeTypes {
     public static final String PLAIN_TEXT = "text/plain";
     public static final String ANSI = "text/x-ansi";

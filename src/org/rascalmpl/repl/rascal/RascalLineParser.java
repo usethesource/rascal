@@ -43,6 +43,11 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 
 
+/**
+ * Implement a simple lexer for input that a user is typing. 
+ * jline3 requires this for both auto completion and for multi-line editing.
+ * Note: JLine only supports completion for the current word, so sometimes things are lexed differently than in the rascal grammar.
+ */
 public class RascalLineParser implements Parser {
 
     private final Function<String, ITree> commandParser;
@@ -88,6 +93,9 @@ public class RascalLineParser implements Parser {
         return new ParsedLineLexedWords(words, cursor, line);
     }
 
+    /**
+     * Recognize words in a way we get reasonable auto completion boundaries
+     */
     private void parseWords(String buffer, int position, List<LexedWord> words) {
         /** are we interpolating inside of a string */
         boolean inString = false;
