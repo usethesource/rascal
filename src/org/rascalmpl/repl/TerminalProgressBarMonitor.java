@@ -118,7 +118,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
 
     public TerminalProgressBarMonitor(Terminal tm) {
-        super(DEBUG ? new AlwaysFlushAlwaysShowCursor(tm.writer()) : tm.writer());
+        super(DEBUG ? new AlwaysFlushAlwaysShowCursor(tm.writer(), tm) : tm.writer());
        
         this.tm = tm;
         
@@ -139,10 +139,12 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     /**
      * Use this for debugging terminal cursor movements, step by step.
      */
-    private class AlwaysFlushAlwaysShowCursor extends PrintWriter {
+    private static class AlwaysFlushAlwaysShowCursor extends PrintWriter {
+        private final String showCursor;
 
-        public AlwaysFlushAlwaysShowCursor(PrintWriter out) {
+        public AlwaysFlushAlwaysShowCursor(PrintWriter out, Terminal tm) {
             super(out);
+            this.showCursor = interpretCapability(tm.getStringCapability(Capability.cursor_visible));
         }
 
         @Override
