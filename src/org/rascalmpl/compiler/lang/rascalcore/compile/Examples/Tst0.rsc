@@ -1,5 +1,7 @@
 module lang::rascalcore::compile::Examples::Tst0
 
-syntax A = "a"; 
+import analysis::typepal::AType;
 
-value X = #A;
+value main() = tvar(|file:///Users/paulklint/git/rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/compile/Examples/Tst0.rsc|(57,26,<3,7>,<3,33>));
+
+        

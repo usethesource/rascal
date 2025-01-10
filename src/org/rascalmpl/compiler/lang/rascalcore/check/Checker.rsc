@@ -352,7 +352,7 @@ ModuleStatus rascalTModelForLocs(
         }
     } catch rascalBinaryNeedsRecompilation(str txt): {
         for(str mname <- topModuleNames){
-            ms.messages[mname] = { error("Binary module `<txt>` needs recompilation", |unknown:///|) };
+            ms.messages[mname] = { error(txt, |unknown:///|) };
         }
     }
 

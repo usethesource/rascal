@@ -137,8 +137,8 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
             throw "No bill-of-materials found for <qualifiedModuleName>";
         }
         if(!allImportsAndExtendsValid){ // Check that the source code of qualifiedModuleName is available
+            mloc = |unknown:///|(0,0,<0,0>,<0,0>);
             try {
-                 mloc = |unknown:///|(0,0,<0,0>,<0,0>);
                 try {
                     mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 } catch e: {
@@ -151,12 +151,13 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                 }
                 if(mloc.extension != "rsc" || isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
-                <compatible, ms> = isCompatibleBinaryLibrary(tm, domain(localImportsAndExtends), ms);
-                if(!compatible){
-                    msg = error("Binary module `qualifiedModuleName` needs recompilation", |unknown:///|);
+                <incompatible, ms> = isCompatibleBinaryLibrary(tm, domain(localImportsAndExtends), ms);
+                if(!isEmpty(incompatible)){
+                    txt = "Recompilation or reconfiguration needed: binary module `<qualifiedModuleName>` uses incompatible modules <intercalateAnd(incompatible)>";
+                    msg = error(txt, mloc);
                     tm.messages += [msg];
                     ms.messages[qualifiedModuleName] ? {} += { msg };
-                    throw rascalBinaryNeedsRecompilation(qualifiedModuleName);
+                    throw rascalBinaryNeedsRecompilation(txt);
                 } else {
                     allImportsAndExtendsValid = true;
                     if(ms.compilerConfig.verbose){
@@ -219,7 +220,7 @@ str getModuleFromLogical(loc l){
 }
 
 // Is what library module lib provides compatible with all uses in the modules libUsers?
-tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
+tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
 
     libName = lib.modelName;
     set[loc] libProvides = domain(lib.logical2physical);
@@ -235,10 +236,12 @@ tuple[bool, ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUser
 
     if(usersRequireFromLib <= libProvides){
         //println("isCompatibleBinaryLibrary <libName>: satisfied");
-        return <true, ms>;
+        return <[], ms>;
     } else {
         //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
-        return <false, ms>;
+        unsatisfied = usersRequireFromLib - libProvides;
+        incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
+        return <toList(incompatibleModules), ms>;
     }
 }
 
