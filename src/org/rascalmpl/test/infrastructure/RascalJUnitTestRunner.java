@@ -12,6 +12,7 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
@@ -22,10 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.jline.terminal.Terminal;
-import org.jline.terminal.TerminalBuilder;
 import org.jline.terminal.impl.DumbTerminal;
-import org.jline.terminal.impl.DumbTerminalProvider;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -57,19 +55,14 @@ public class RascalJUnitTestRunner extends Runner {
     private static class InstanceHolder {
 		final static IRascalMonitor monitor;
         static {
-            Terminal tm;
             try {
-                tm = TerminalBuilder.terminal();
+                // jline is to smart, it intersects with junit runners that also interact with the stream
+                // so instead of that we direct all the messages to stderr, and disable any smart stuff
+                monitor = IRascalMonitor.buildConsoleMonitor(new DumbTerminal(InputStream.nullInputStream(), System.out));
             }
-            catch (IOException e) {
-                try {
-                    tm = new DumbTerminal(System.in, System.err);
-                }
-                catch (IOException e1) {
-                    throw new IllegalStateException("Could not create a terminal representation");
-                }
+            catch (IOException e1) {
+                throw new IllegalStateException("Could not create a terminal representation");
             }
-            monitor = IRascalMonitor.buildConsoleMonitor(tm);
         }
     }
    
