@@ -136,7 +136,6 @@ void compileTestSources(PathConfig pcfg) {
      <e, d> = safeCompile(m, testCompilerConfig);
      total += d;
    }
-   return;
    
    //for (m <- checkerTestModules) {
    //  <e, d> = safeCompile(m, testConfig, testCompilerConfig);
