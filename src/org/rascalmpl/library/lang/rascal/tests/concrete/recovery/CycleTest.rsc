@@ -17,7 +17,7 @@ lexical X = "b"? | "c";
 void testCycles() {
     str input = "bc$";
     //str input = "bcbcbcccbb$";
-    Tree t1 = parse(#S, input, |unknown:///|, allowAmbiguity=true);
+    Tree t1 = parse(#S, input, |unknown:///?parse-memoization=safe-node|, allowAmbiguity=true);
     Tree t2 = parse(#S, input, |unknown:///?parse-memoization=none&visualize-parse-result|, allowAmbiguity=true);
     println(prettyTree(t1));
     println(prettyTree(t2));
