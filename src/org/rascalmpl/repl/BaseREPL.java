@@ -86,6 +86,7 @@ public class BaseREPL {
         }
         reader.option(Option.HISTORY_IGNORE_DUPS, replService.historyIgnoreDuplicates());
         reader.option(Option.DISABLE_EVENT_EXPANSION, true); // stop jline expending escaped characters in the input
+        reader.variable(LineReader.LINE_OFFSET, 1);
 
 
         if (replService.supportsCompletion()) {
