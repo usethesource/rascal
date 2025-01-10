@@ -141,8 +141,8 @@ public class ParseErrorPrinter {
                                 target.write(unicodeSupported ? "❌ " : "! ");
                                 target.write("There was a parse error in the input, see the ");
                                 writeUnderLine(target, -1, "highlighted");
-                                target.print(" section (line: ");
-                                target.print(pe.getBeginLine() - 1);
+                                target.print(" text (line: ");
+                                target.print(pe.getBeginLine());
                                 target.print(" column: ");
                                 target.print(pe.getBeginColumn());
                                 target.println(")");
