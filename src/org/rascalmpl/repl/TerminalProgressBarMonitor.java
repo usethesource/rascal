@@ -91,7 +91,6 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     }
 
 
-    @SuppressWarnings("resource")
     public TerminalProgressBarMonitor(Terminal tm) {
         super(DEBUG ? new AlwaysFlushAlwaysShowCursor(tm.writer()) : tm.writer());
        
@@ -102,8 +101,6 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
         this.hideCursor = interpretCapability(tm.getStringCapability(Capability.cursor_invisible));
         this.showCursor = interpretCapability(tm.getStringCapability(Capability.cursor_visible));
-
-        assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
     }
 
     private static String interpretCapability(@Nullable String arg) {
