@@ -33,6 +33,9 @@ import java.io.StringReader;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.MimeTypes;
 
+/**
+ * Simple output printer for a string
+ */
 public class AsciiStringOutputPrinter implements IOutputPrinter {
     private final String body;
 

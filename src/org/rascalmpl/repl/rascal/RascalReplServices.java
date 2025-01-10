@@ -39,6 +39,7 @@ import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
+import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.repl.completers.RascalCommandCompletion;
 import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
@@ -48,14 +49,23 @@ import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
+/**
+ * Defines the features of a Rascal REPL, and forwards details like execution to {@link IRascalLanguageProtocol}.
+ */
 public class RascalReplServices implements IREPLService {
     private final IRascalLanguageProtocol lang;
     private final @Nullable Path historyFile;
 
     private boolean unicodeSupported = false;
     private boolean ansiSupported = false;
+    private Terminal term;
     private PrintWriter out;
     private PrintWriter err;
+
+    @Override
+    public String name() {
+        return "Rascal REPL";
+    }
     
 
     public RascalReplServices(IRascalLanguageProtocol lang, @Nullable Path historyFile) {
@@ -69,6 +79,7 @@ public class RascalReplServices implements IREPLService {
         if (out != null) {
             throw new IllegalStateException("Repl Service is already initialized");
         }
+        this.term = term;
         this.unicodeSupported = unicodeSupported;
         this.ansiSupported = ansiColorsSupported;
         var monitor = new TerminalProgressBarMonitor(term);
@@ -92,12 +103,12 @@ public class RascalReplServices implements IREPLService {
     }
 
     @Override
-    public ICommandOutput handleInput(String input) throws InterruptedException {
+    public ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException {
         try {
             return lang.handleInput(input);
         }
         catch (ParseError pe) {
-            return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, out, ansiSupported, prompt(false, unicodeSupported).length() + 1);
+            return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, term, prompt(false, unicodeSupported).length() + 1);
         }
     }
 

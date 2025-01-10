@@ -32,11 +32,15 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jline.reader.Completer;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.repl.output.ICommandOutput;
 
+/**
+ * This interface implements the behavior of a REPL, without caring about jline or terminals
+ */
 public interface IREPLService {
     /**
      * Does this language support completion
@@ -81,10 +85,17 @@ public interface IREPLService {
     /**
      * Name of the REPL, no ansi allowed
      */
-    default String name() { return "Rascal REPL"; }
+    String name();
 
 
-    ICommandOutput handleInput(String input) throws InterruptedException;
+    /**
+     * Givin a succesfull command (the {@see #inputParser()} returned no errors) execute the input
+     * @param input full string of the input terminiated by \n
+     * @return a result that can be printed/displayed, depending on the context
+     * @throws InterruptedException the thread got getting interrupted, exit, don't print anything
+     * @throws StopREPLException the user requested to stop the REPL, clean exit the REPL, no new commands should be send
+     */
+    ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException;
 
     /**
      * Will be called from a different thread then the one that called `handleInput`
@@ -98,9 +109,14 @@ public interface IREPLService {
     String prompt(boolean ansiColorsSupported, boolean unicodeSupported);
 
     /**
-     * Continuation prompt
+     * Continuation prompt in case of an error
      */
     String parseErrorPrompt(boolean ansiColorSupported, boolean unicodeSupported);
+
+    /**
+     * What to print when a command was interrupted (for example by CTRL+C)
+     */
+    String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
 
     /**
      * Connect the REPL to the Terminal, most likely want to take a copy of at least the {@link Terminal#writer()}.
@@ -129,5 +145,5 @@ public interface IREPLService {
      */
     void flush();
 
-    String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
+
 }

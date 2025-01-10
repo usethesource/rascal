@@ -33,6 +33,8 @@ import java.util.ArrayList;
 
 import org.jline.jansi.Ansi;
 import org.jline.jansi.Ansi.Attribute;
+import org.jline.terminal.Terminal;
+import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.output.IAnsiCommandOutput;
@@ -45,12 +47,25 @@ import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.io.StandardTextWriter;
 
+/**
+ * This class wraps a parse error message. 
+ * With a special case for when the ParseError was in the prompt of the REPL, in that case we try to highligh the parse error.
+ */
 public class ParseErrorPrinter {
 
-    public static IErrorCommandOutput parseErrorMaybePrompt(ParseError pe, ISourceLocation promptRoot, String input, PrintWriter stdOut, boolean ansiSupported, int promptOffset) {
-        if (pe.getLocation().top().equals(promptRoot) && ansiSupported) {
+    /**
+     * Generate an error output for a parse error, and if a prompt, highlight the error in the input
+     * @param pe the parse error
+     * @param promptRoot the location that the prompt would be parsed under
+     * @param input original input text
+     * @param term the terminal where we want to print the error location, if supported
+     * @param promptOffset position on the line where the prompt ends
+     * @return
+     */
+    public static IErrorCommandOutput parseErrorMaybePrompt(ParseError pe, ISourceLocation promptRoot, String input, Terminal term, int promptOffset) {
+        if (pe.getLocation().top().equals(promptRoot) && ansiSupported(term)) {
             // it's an prompt root
-            return buildPromptError(pe, input, stdOut, promptOffset);
+            return buildPromptError(pe, input, term.writer(), promptOffset);
         }
         return new IErrorCommandOutput() {
             @Override
@@ -68,6 +83,13 @@ public class ParseErrorPrinter {
             }
             
         };
+    }
+
+    private static boolean ansiSupported(Terminal term) {
+        return term.getStringCapability(Capability.cursor_down) != null
+            && term.getStringCapability(Capability.save_cursor) != null
+            && term.getStringCapability(Capability.restore_cursor) != null
+            ;
     }
 
     private static IOutputPrinter defaultPrinter(ParseError pe, ISourceLocation promptRoot, String input) {
@@ -155,10 +177,12 @@ public class ParseErrorPrinter {
         try {
             var lines = properSplit(input);
             int currentLine = lines.size();
+            // first we go up untill the end of the error
             while (currentLine > pe.getEndLine()) {
                 stdOut.write(Ansi.ansi().cursorUpLine().toString());
                 currentLine--;
             }
+            // then we highlight the error parts of the lines
             while (currentLine >= pe.getBeginLine()) {
                 String thisLine = lines.get(currentLine - 1);
                 int offset = 0;
@@ -171,6 +195,12 @@ public class ParseErrorPrinter {
                     // last line
                     endOffset = pe.getEndColumn();
                 }
+                if (thisLine.isEmpty()&& endOffset == 0) {
+                    // if the error is at the end of the input
+                    // put a space there and make the error higlight that space
+                    thisLine = " ";
+                    endOffset = 1;
+                }
                 writeUnderLine(stdOut, promptOffset + offset, thisLine, offset, endOffset - offset);
                 stdOut.write(Ansi.ansi().cursorUpLine().toString());
                 currentLine--;
@@ -181,6 +211,9 @@ public class ParseErrorPrinter {
         }
     }
 
+    /**
+     * Work around string.split not generating empty lines
+     */
     private static List<String> properSplit(String line) {
         List<String> lines = new ArrayList<>();
         int start = 0;

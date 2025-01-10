@@ -26,6 +26,16 @@
  */
 package org.rascalmpl.repl.output;
 
+/**
+ * <p>
+ * Root interface of a command output. We use multiple inheritance to allow the producer of the command output
+ * to provide different kinds of output, and let the consumer check (via instanceof) which output they can print.
+ * </p>
+ * 
+ * <p>
+ *  {@link #asPlain()} should always be implemented as a fallback, although it is fine to print a message refering to the more content-rich output. For example: {@link IWebContentOutput} might print the url where the hosted content can be found.
+ * </p>
+ */
 public interface ICommandOutput {
     IOutputPrinter asPlain();
 }

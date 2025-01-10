@@ -30,7 +30,9 @@ import java.util.Map;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.output.ICommandOutput;
 
-
+/**
+ * Features that a DSL REPL needs to behave like a DSL repl, this is extracted out so that these can be reused in a Notebook, but also so that we can have an compiler version of the REPL.
+ */
 public interface ILanguageProtocol {
 
     /**
