@@ -1,6 +1,6 @@
 /**
- * Copyright (c) 2017, Jurgen J. Vinju, Mauricio Verano, Centrum Wiskunde & Informatica (CWI) All
- * rights reserved.
+ * Copyright (c) 2017-2025, NWO-I CWI and Swat.engineering
+ * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted
  * provided that the following conditions are met:
@@ -102,5 +102,9 @@ public interface IRascalLanguageProtocol {
      */
     Map<String, String> availableCommandLineOptions();
 
+    /**
+     * which location will the rascal prompt be parsed under. This is used to detect parse errors in the input.
+     * @return
+     */
     ISourceLocation promptRootLocation();
 }
