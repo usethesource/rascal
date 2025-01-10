@@ -121,7 +121,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     localImportsAndExtends += <m, pathRole>;
                }
                lm = getLastModified(m, ms.moduleLastModified, pcfg);
-               if(lm == startOfEpoch || lm > timestampInBom) {
+               if(lm == startOfEpoch || lm != timestampInBom) {
                     allImportsAndExtendsValid = false;
                     ms.status[m] += rsc_changed();
                     ms.status[m] -= {tpl_uptodate(), checked()};
