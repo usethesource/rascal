@@ -33,7 +33,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 
 /**
- * The output of a REPL command is represented by this class, depending on the consumer (terminal/notebook/webserver) a different function might be called.
+ * Represent a lazy container for output. Depending on the consumer, it will ask to write to a writer, or to generate a reader.
+ * There is also a {@link IBinaryOutputPrinter} overload that would indicate there is a file that should instead be served, if possible in the context.
  */
 public interface IOutputPrinter {
     

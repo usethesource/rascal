@@ -26,6 +26,9 @@
  */
 package org.rascalmpl.repl.output;
 
+/**
+ * Ansi encoded output, will only be requested if it's legal to print ANSI escapes in the output, the {@link #asPlain()} should print the same output, but without any ansi escape.
+ */
 public interface IAnsiCommandOutput extends ICommandOutput {
     IOutputPrinter asAnsi();
 }

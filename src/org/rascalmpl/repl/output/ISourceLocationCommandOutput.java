@@ -28,6 +28,9 @@ package org.rascalmpl.repl.output;
 
 import io.usethesource.vallang.ISourceLocation;
 
+/**
+ * A binary output that can be read for a location direclty (instead of returning an {@link IBinaryOutputPrinter})
+ */
 public interface ISourceLocationCommandOutput extends ICommandOutput {
     ISourceLocation asLocation();
     String locationMimeType();

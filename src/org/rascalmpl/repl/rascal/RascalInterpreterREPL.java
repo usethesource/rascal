@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
-import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.StackTrace;
@@ -57,6 +56,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.uri.URIUtil;
@@ -69,7 +69,8 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 /**
- * In most cases you might want to override the {@link #buildIDEService(PrintWriter, IRascalMonitor, Terminal)} and the {@link #buildEvaluator(Reader, PrintWriter, PrintWriter, IDEServices)} functions.
+ * Implementation of a interpreter based Rascal REPL Service. 
+ * In most cases you might want to override/extend the {@link #buildIDEService(PrintWriter, IRascalMonitor, Terminal)} and the {@link #buildEvaluator(Reader, PrintWriter, PrintWriter, IDEServices)} functions.
  */
 public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     protected IDEServices services;
@@ -118,7 +119,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     /**
-     * You might want to override this function for different cases of where we're building a REPL (possible only extend on the result of it)
+     * You might want to override/extend this function for different cases of where we're building a REPL (possible only extend on the result of it, by adding extra search path entries)
      * @param input
      * @param stdout
      * @param stderr
@@ -147,7 +148,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
 
     @Override
-    public ICommandOutput handleInput(String command) throws InterruptedException, ParseError {
+    public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
@@ -163,10 +164,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
             }
             catch (InterruptException ex) {
                 return printer.outputError((w, sw, u) -> {
-                    if (u) {
-                        w.print("»» ");
-                    }
-                    w.println("Interrupted");
+                    w.println((u ? "»» " : ">> ") + "Interrupted");
                     ex.getRascalStackTrace().prettyPrintedString(w, sw);
                 });
             }
@@ -181,7 +179,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
                 });
             }
             catch (QuitException q) {
-                throw new EndOfFileException("Quiting REPL");
+                throw new StopREPLException();
             }
             catch (Throwable e) {
                 if (e instanceof ParseError) {

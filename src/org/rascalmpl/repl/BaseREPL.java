@@ -48,7 +48,13 @@ import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IErrorCommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.parametric.ParametricReplService;
+import org.rascalmpl.repl.rascal.RascalReplServices;
 
+/**
+ * This class wraps a jline3 terminal, and turns it into a REPL, what kind of repl depends on the {@link IREPLService} implementation.
+ * The two common ones are: {@link RascalReplServices} for rascal and {@link ParametricReplService} for DSLs that define a repl.
+ */
 public class BaseREPL {
     
     private final IREPLService replService;
@@ -99,6 +105,9 @@ public class BaseREPL {
         // - possible to tee output
     }
 
+    /**
+     * Start the REPL, this function will block until the REPL is terminated by the user
+     */
     public void run() throws IOException {
         try {
             replService.connect(term, ansiColorsSupported, unicodeSupported);
@@ -129,7 +138,7 @@ public class BaseREPL {
         catch (InterruptedException _e) {
             // closing the runner
         }
-        catch (EndOfFileException e) {
+        catch (EndOfFileException|StopREPLException _e) {
             // user pressed ctrl+d or the terminal :quit command was given
             // so exit cleanly
             replService.errorWriter().println("Quiting REPL");
@@ -166,7 +175,7 @@ public class BaseREPL {
 
     /**
      * Queue a command (separated by newlines) to be "entered"
-     * No support for multi-line input
+     * No support for multi-line input, newlines in the input are turned into separate commands
      */
     public void queueCommand(String command) {
         reader.addCommandsInBuffer(Arrays.asList(command.split("[\\n\\r]")));
@@ -196,7 +205,7 @@ public class BaseREPL {
     }
 
 
-    private void handleInput(String line) throws InterruptedException {
+    private void handleInput(String line) throws InterruptedException, StopREPLException {
         writeResult(replService.handleInput(line));
     }
 

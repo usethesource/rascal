@@ -26,6 +26,9 @@
  */
 package org.rascalmpl.repl.output;
 
+/**
+ * Result is suitable to print in a notebook
+ */
 public interface INotebookOutput extends IHtmlCommandOutput {
     IOutputPrinter asNotebook();
 }

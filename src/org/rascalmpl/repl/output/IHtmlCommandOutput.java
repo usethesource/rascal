@@ -26,6 +26,9 @@
  */
 package org.rascalmpl.repl.output;
 
+/**
+ * The output contains html that can be rendered directly.
+ */
 public interface IHtmlCommandOutput extends ICommandOutput {
     IOutputPrinter asHtml();
 }

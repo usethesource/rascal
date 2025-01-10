@@ -33,6 +33,9 @@ import org.jline.reader.Completer;
 import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 
+/**
+ * Forward the auto completer to the language protocol
+ */
 public class ParametricCompleter implements Completer {
     private final ILanguageProtocol lang;
     
