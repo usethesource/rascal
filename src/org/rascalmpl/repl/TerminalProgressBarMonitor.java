@@ -9,6 +9,10 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Color;
+import org.jline.jansi.Ansi.Erase;
 import org.jline.terminal.Terminal;
 import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -62,11 +66,28 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     private final Terminal tm;
 
+    /**
+     * ANSI command for this terminal to hide the cursor
+     */
+    private final String hideCursor;
+    /**
+     * ANSI command for this terminal to show the cursor
+     */
+    private final String showCursor;
+
     public static boolean shouldWorkIn(Terminal tm) {
+        Integer cols = tm.getNumericCapability(Capability.max_colors);
+        if (cols == null || cols < 8) {
+            return false;
+        }
+
         return "\r".equals(tm.getStringCapability(Capability.carriage_return))
             && tm.getNumericCapability(Capability.columns) != null
             && tm.getNumericCapability(Capability.lines) != null
-            && ANSI.supportsCapabilities(tm);
+            && tm.getStringCapability(Capability.clear_screen) != null 
+            && tm.getStringCapability(Capability.cursor_up) != null
+            && tm.getStringCapability(Capability.cursor_down) != null
+            ;
     }
 
 
@@ -79,13 +100,23 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         this.lineWidth = tm.getWidth();
         this.unicodeEnabled = tm.encoding().newEncoder().canEncode(new ProgressBar("", 1).clocks[0]);
 
+        this.hideCursor = interpretCapability(tm.getStringCapability(Capability.cursor_invisible));
+        this.showCursor = interpretCapability(tm.getStringCapability(Capability.cursor_visible));
+
         assert out.getClass() != TerminalProgressBarMonitor.class : "accidentally wrapping the wrapper.";
+    }
+
+    private static String interpretCapability(@Nullable String arg) {
+        if (arg == null) {
+            return "";
+        }
+        return arg.replace("\\E", "" + ((char)27)); // escape char
     }
 
     /**
      * Use this for debugging terminal cursor movements, step by step.
      */
-    private static class AlwaysFlushAlwaysShowCursor extends PrintWriter {
+    private class AlwaysFlushAlwaysShowCursor extends PrintWriter {
 
         public AlwaysFlushAlwaysShowCursor(PrintWriter out) {
             super(out);
@@ -94,21 +125,21 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         @Override
         public void write(int c) {
             super.write(c);
-            super.write(ANSI.showCursor());
+            super.write(showCursor);
             super.flush();
         }
 
         @Override
         public void write(char[] cbuf, int off, int len) {
             super.write(cbuf, off, len);
-            super.write(ANSI.showCursor());
+            super.write(showCursor);
             super.flush();
         }
 
         @Override
         public void write(String str, int off, int len) {
             super.write(str, off, len);
-            super.write(ANSI.showCursor());
+            super.write(showCursor);
             super.flush();
         }  
     }
@@ -281,16 +312,24 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         void update() {
             // to avoid flicker we only print if there is a new bar character to draw
             if (newWidth() != previousWidth) {
-                directWrite(ANSI.hideCursor());
                 stepper++;
-                directWrite(ANSI.moveUp(bars.size() - bars.indexOf(this)));
+                directWrite(
+                    Ansi.ansi()
+                        .a(hideCursor)
+                        .cursorUpLine(bars.size() - bars.indexOf(this))
+                        .toString()
+                );
                 write(); // this moves the cursor already one line down due to `println`
                 int distance = bars.size() - bars.indexOf(this) - 1;
+                Ansi ansi = Ansi.ansi();
                 if (distance > 0) {
                     // ANSI will move 1 line even if the parameter is 0
-                    directWrite(ANSI.moveDown(distance));
+                    ansi = ansi.cursorDownLine(distance);
                 }
-                directWrite(ANSI.showCursor());
+                directWrite(ansi
+                        .a(showCursor)
+                        .toString()
+                );
                 directFlush();
             }
         }
@@ -305,6 +344,8 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                 return barWidth % stepper;
             }
         }
+
+        private static final int BAR_COLOR_BG = 240; // 232-255:  grayscale from dark to light in 24 steps
 
         /**
          * Print the current state of the progress bar
@@ -347,20 +388,18 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                 return;
             }
 
-            var line 
-                = done 
-                + ANSI.grey8Background()
-                + ANSI.brightWhiteForeground()
-                + frontPart
-                + ANSI.noBackground()
-                + ANSI.normal()
-                + backPart
-                + " " + clock + " "
-                + String.format("%d:%02d:%02d.%03d", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
-                + " "
-                ;
-
-            directPrintln(line); // note this puts us one line down
+            directWrite(
+                Ansi.ansi()
+                    .a(done)
+                    .bg(BAR_COLOR_BG).fgBright(Color.WHITE)
+                    .a(frontPart)
+                    .reset()
+                    .a(backPart)
+                    .a(" " + clock)
+                    .format(" %d:%02d:%02d.%03d ", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
+                    .a(System.lineSeparator())
+                    .toString()
+            );
         }
 
         @Override
@@ -390,60 +429,13 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     private void eraseBars() {
         if (!bars.isEmpty()) {
-            directWrite(ANSI.moveUp(bars.size())); 
-            directWrite(ANSI.clearToEndOfScreen()); 
+            directWrite(Ansi.ansi()
+                .cursorUpLine(bars.size())
+                .eraseScreen(Erase.FORWARD)
+                .toString()
+            );
         }
         directFlush();
-    }
-
-    /**
-     * ANSI escape codes convenience functions
-     */
-    private static class ANSI {
-
-        private static boolean supportsCapabilities(Terminal tm) {
-            Integer cols = tm.getNumericCapability(Capability.max_colors);
-            if (cols == null || cols < 8) {
-                return false;
-            }
-            return tm.getStringCapability(Capability.clear_screen) != null;
-        }
-
-        public static String grey8Background() {
-            return "\u001B[48;5;240m"; 
-        }
-
-        public static String brightWhiteForeground() {
-            return "\u001B[97m";
-        }
-
-        static String moveUp(int n) {
-            return "\u001B[" + n + "F";
-        }
-
-        public static String noBackground() {
-            return "\u001B[49m";
-        }
-
-        public static String normal() {
-            return "\u001B[0m";
-        }
-
-        static String moveDown(int n) {
-            return "\u001B[" + n + "E";
-        }
-
-        static String clearToEndOfScreen() {
-            return "\u001B[0J";
-        }
-
-        static String hideCursor() {
-            return "\u001B[?25l";
-        }
-
-        static String showCursor() {
-            return "\u001B[?25h";
-        }
     }
 
     /**
@@ -495,7 +487,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
         var pb = findBarByName(name);
         
-        directWrite(ANSI.hideCursor());
+        directWrite(hideCursor);
 
         if (pb == null) {    
             eraseBars(); // to make room for the new bars
@@ -509,7 +501,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             pb.update();
         }
 
-        directWrite(ANSI.showCursor());
+        directWrite(showCursor);
         directFlush();
     }
 
@@ -527,7 +519,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     public synchronized int jobEnd(String name, boolean succeeded) {
         var pb = findBarByName(name);
 
-        directWrite(ANSI.hideCursor());
+        directWrite(hideCursor);
 
         if (pb != null && --pb.nesting == -1) {
             eraseBars();
@@ -542,7 +534,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             pb.update();
         }
 
-        directWrite(ANSI.showCursor());
+        directWrite(showCursor);
 
         return -1;
     }
@@ -659,7 +651,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         }
 
         try {
-            directWrite(ANSI.showCursor());
+            directWrite(showCursor);
             directFlush();
             out.flush();
         }
