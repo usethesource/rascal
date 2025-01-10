@@ -283,8 +283,15 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
     else if (originals := replacements) {
         return edits;
     }
-    else {
-        return edits + [replace(span, learnIndentation(span, yield(replacements), yield(originals)))];
+    else if (size(originals) == size(replacements)) {
+        return edits 
+            + [*treeDiff(a, b) | <a, b> <- zip2(originals, replacements)];
+        ;
+    } else { 
+        // TODO: make cases for shortering or lenghtening a list but 
+        // mixing the common prefix with `treeDiff` to find more nested sharing
+        return edits
+        + [replace(span, learnIndentation(span, yield(replacements), yield(originals)))];
     }
 }
 
@@ -304,17 +311,20 @@ uses particular properties of the relation between the original and the replacem
 }
 list[Tree] largestEqualSubList([*Tree sub], [*_, *sub, *_]) = sub;
 list[Tree] largestEqualSubList([*_, *sub, *_], [*Tree sub]) = sub;
-list[Tree] largestEqualSubList([*_, *sub, *_], [*_, *Tree sub, *_]) = sub;
+list[Tree] largestEqualSubList([*_, p, *sub, q, *_], [*_, !p, *Tree sub, !q, *_]) = sub;
 default list[Tree] largestEqualSubList(list[Tree] _orig, list[Tree] _repl) = [];
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
-tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, [Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
+tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, 
+    [Tree a, *Tree aPostfix], [ a, *Tree bPostfix])
     = trimEqualElements(endCover(span, aPostfix), aPostfix, bPostfix);
 
-tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, [*Tree aPrefix, Tree a], [*Tree bPrefix, a])
+tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, 
+    [*Tree aPrefix, Tree a], [*Tree bPrefix, a])
     = trimEqualElements(beginCover(span, aPrefix), aPrefix, bPrefix);
 
-default tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, list[Tree] a, list[Tree] b)
+default tuple[loc, list[Tree], list[Tree]] trimEqualElements(loc span, 
+    list[Tree] a, list[Tree] b)
     = <span, a, b>;
 
 // only one element removed in front, then we are done
