@@ -449,7 +449,7 @@ The start symbols of g1 will be the start symbols of the resulting grammar.
 public AGrammar compose(AGrammar g1, AGrammar g2) {
   for (s <- g2.rules)
     if (g1.rules[s]?)
-      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
+      g1.rules[s] = achoice(s, {g1.rules[s], g2.rules[s]});
     else
       g1.rules[s] = g2.rules[s];
   g1.starts += g2.starts;
