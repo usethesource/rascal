@@ -224,7 +224,7 @@ list[TextEdit] treeDiff(
 default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
+    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))] when bprintln(t);
 
 // If list production are the same, then the element lists can still be of different length
 // and we switch to listDiff which has different heuristics than normal trees.
@@ -235,7 +235,7 @@ list[TextEdit] treeDiff(
 
 // When the productions are equal, but the children may be different, we dig deeper for differences
 default list[TextEdit] treeDiff(appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
-    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)];
+    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("into <p> on both sides");
 
 @synopsis{decide how many separators we have}
 int seps(\iter-seps(_,list[Symbol] s))      = size(s);

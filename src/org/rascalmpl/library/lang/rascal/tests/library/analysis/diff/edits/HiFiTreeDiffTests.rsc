@@ -72,6 +72,10 @@ start[Program] swapAB(start[Program] p) = visit(p) {
     case (Id) `b` => (Id) `a`
 };
 
+start[Program] naturalToString(start[Program] p) = visit(p) {
+    case (Type) `natural` => (Type) `string`
+};
+
 start[Program] addDeclarationToEnd(start[Program] p) = visit(p) {
     case (Program) `begin declare <{IdType ","}* decls>; <{Statement  ";"}* body> end`
         => (Program) `begin
@@ -116,3 +120,6 @@ test bool addDeclarationToStartAndSwapABTest()
 
 test bool addDeclarationToStartAndEndAndSwapABTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd o swapAB);
+
+test bool naturalToStringTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString);
