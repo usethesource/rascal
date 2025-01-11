@@ -280,18 +280,21 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
             + listDiff(endCover(span, postO), seps, postO, postR)
         ;
     }
-    else if (originals := replacements) {
+    else if (originals == [], replacements == []) {
         return edits;
     }
-    else if (size(originals) == size(replacements)) {
+    else { 
+        // here we know there are no common elements anymore, only a common amount of different elements
+        common = min(size(originals), size(replacements));
+
         return edits 
-            + [*treeDiff(a, b) | <a, b> <- zip2(originals, replacements)];
+            // first the minimal length pairwise replacements, essential for finding accidental commonalities
+            + [*treeDiff(a, b) | <a, b> <- zip2(originals[..common], replacements[..common])];
+            // then we either remove the tail that became shorter:
+            + [replace(cover(end(last), cover(originals[cover+1..])), "") | size(originals) > size(replacements), [*_, last] := originals[..common]]
+            // or we add new elements to the end, while inheriting indentation from the originals:
+            + [replace(end(last), learnIndentation(span, yield(replacements[common+1..]), yield(originals))) | size(originals) < size(replacements)]
         ;
-    } else { 
-        // TODO: make cases for shortering or lenghtening a list but 
-        // mixing the common prefix with `treeDiff` to find more nested sharing
-        return edits
-        + [replace(span, learnIndentation(span, yield(replacements), yield(originals)))];
     }
 }
 
