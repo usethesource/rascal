@@ -88,6 +88,7 @@ import List;
 import String;
 import Location;
 import IO;
+import util::Math;
 
 @synopsis{Detects minimal differences between parse trees and makes them explicit as ((TextEdit)) instructions.}
 @description{
@@ -230,11 +231,11 @@ default list[TextEdit] treeDiff(
 list[TextEdit] treeDiff(
     Tree t:appl(Production p:regular(Symbol reg), list[Tree] aElems), 
     appl(p, list[Tree] bElems))
-    = listDiff(t@\loc, seps(reg), aElems, bElems) when bprintln("diving into <p>");
+    = listDiff(t@\loc, seps(reg), aElems, bElems);
 
 // When the productions are equal, but the children may be different, we dig deeper for differences
 default list[TextEdit] treeDiff(appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
-    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("diving into <p>");
+    = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)];
 
 @synopsis{decide how many separators we have}
 int seps(\iter-seps(_,list[Symbol] s))      = size(s);
@@ -243,9 +244,6 @@ default int seps(Symbol _) = 0;
 
 @synsopis{List diff is like text diff on lines; complex and easy to make slow}
 list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] replacements) {
-    // println("<span> listDiff: 
-    //         '   <yield(originals)>
-    //         '   <yield(replacements)>");
     edits = [];
 
     // this algorithm isolates commonalities between the two lists
@@ -254,18 +252,13 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
     // the edits are minimized. Note that we float on source location parameters
     // not only for the edit locations but also for sub-tree identity.
     
-    println("span before trim: <span>, size originals <size(originals)>");
     <span, originals, replacements> = trimEqualElements(span, originals, replacements);
-    println("span after trim: <span>, size originals <size(originals)>");
+    
     <specialEdits, originals, replacements> = commonSpecialCases(span, seps, originals, replacements);
     edits += specialEdits;
-    println("special edits:");
-    iprintln(edits);
         
     equalSubList = largestEqualSubList(originals, replacements);
-    println("equal sublist:");
-    println(yield(equalSubList));
-
+    
     // by using the (or "a") largest common sublist as a pivot to divide-and-conquer
     // to the left and right of it, we minimize the number of necessary 
     // edit actions for the entire list.
@@ -275,6 +268,7 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
         // TODO: what about the separators?
         // we align the prefixes and the postfixes and
         // continue recursively.
+        
         return edits 
             + listDiff(beginCover(span, preO), seps, preO, preR)   
             + listDiff(endCover(span, postO), seps, postO, postR)
@@ -285,15 +279,15 @@ list[TextEdit] listDiff(loc span, int seps, list[Tree] originals, list[Tree] rep
     }
     else { 
         // here we know there are no common elements anymore, only a common amount of different elements
-        common = min(size(originals), size(replacements));
-
+        common = min([size(originals), size(replacements)]);
+        
         return edits 
             // first the minimal length pairwise replacements, essential for finding accidental commonalities
-            + [*treeDiff(a, b) | <a, b> <- zip2(originals[..common], replacements[..common])];
+            + [*treeDiff(a, b) | <a, b> <- zip2(originals[..common], replacements[..common])]
             // then we either remove the tail that became shorter:
-            + [replace(cover(end(last), cover(originals[cover+1..])), "") | size(originals) > size(replacements), [*_, last] := originals[..common]]
+            + [replace(cover([after(last@\loc), cover(originals[common+1..])]), "") | size(originals) > size(replacements), [*_, last] := originals[..common]]
             // or we add new elements to the end, while inheriting indentation from the originals:
-            + [replace(end(last), learnIndentation(span, yield(replacements[common+1..]), yield(originals))) | size(originals) < size(replacements)]
+            + [replace(after(span), learnIndentation(span, yield(replacements[common..]), yield(originals))) | size(originals) < size(replacements)]
         ;
     }
 }
@@ -313,8 +307,8 @@ uses particular properties of the relation between the original and the replacem
 * etc.
 }
 list[Tree] largestEqualSubList([*Tree sub], [*_, *sub, *_]) = sub;
-list[Tree] largestEqualSubList([*_, *sub, *_], [*Tree sub]) = sub;
-list[Tree] largestEqualSubList([*_, p, *sub, q, *_], [*_, !p, *Tree sub, !q, *_]) = sub;
+list[Tree] largestEqualSubList([*_, *Tree sub, *_], [*sub]) = sub;
+list[Tree] largestEqualSubList([*_, p, *Tree sub, q, *_], [*_, !p, *sub, !q, *_]) = sub;
 default list[Tree] largestEqualSubList(list[Tree] _orig, list[Tree] _repl) = [];
 
 @synopsis{trips equal elements from the front and the back of both lists, if any.}
@@ -366,6 +360,8 @@ up to `until`.
 }
 private loc fromUntil(loc from, loc until) = from.top(from.offset, until.offset - from.offset);
 private int end(loc src) = src.offset + src.length;
+
+private loc after(loc src) = src(end(src), 0);
 
 private loc endCover(loc span, []) = span(span.offset + span.length, 0);
 private loc endCover(loc span, [Tree x]) = x@\loc;
