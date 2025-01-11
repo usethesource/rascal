@@ -29,15 +29,13 @@ bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree
     orig        = parse(grammar, example);
     transformed = transform(orig);
     edits       = treeDiff(orig, transformed);
-    println("derived edits:");
-    iprintln(edits);
     edited      = executeTextEdits(example, edits);
 
     try {
         return transformed := parse(grammar, edited);
     }
     catch ParseError(loc l): {
-        println("Parse error <l> in:");
+        println("<transform> caused a parse error <l> in:");
         println(edited);
         return false;
     }
@@ -94,17 +92,6 @@ start[Program] addDeclarationToStart(start[Program] p) = visit(p) {
                      'end`
 };
 
-start[Program] addDeclarationToStartAndEnd(start[Program] p) = visit(p) {
-    case (Program) `begin declare <{IdType ","}* decls>; <{Statement  ";"}* body> end`
-        => (Program) `begin
-                     '  declare
-                     '    x : natural,
-                     '    <{IdType ","}* decls>,
-                     '    y : natural;
-                     '  <{Statement  ";"}* body>
-                     'end`
-};
-
 test bool nulTestWithId() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, identity);
 
@@ -119,4 +106,13 @@ test bool addDeclarationToStartTest()
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart);
 
 test bool addDeclarationToStartAndEndTest() 
-    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStartAndEnd);
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd);
+
+test bool addDeclarationToEndAndSwapABTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToEnd o swapAB);
+
+test bool addDeclarationToStartAndSwapABTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o swapAB);
+
+test bool addDeclarationToStartAndEndAndSwapABTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, addDeclarationToStart o addDeclarationToEnd o swapAB);
