@@ -18,12 +18,6 @@ module lang::rascalcore::check::Checker
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 
-/*
- * TODO:
- * Potential additions/improvements
- * - Reduce rechecking by comparing old and new tpl file
- */
-
 import lang::rascal::\syntax::Rascal;
 
 extend lang::rascalcore::check::ADTandGrammar;
