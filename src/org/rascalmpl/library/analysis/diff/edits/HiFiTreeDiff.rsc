@@ -185,14 +185,14 @@ list[TextEdit] treeDiff(Tree a, a) = [];
 
 // skip production labels of original rules when diffing
 list[TextEdit] treeDiff(
-    appl(prod(label(_, Symbol s), syms, attrs), list[Tree] args), 
+    appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args), 
     Tree u)
     = treeDiff(appl(prod(s, syms, attrs), args), u);
 
 // skip production labels of replacement rules when diffing
 list[TextEdit] treeDiff(
     Tree t,
-    appl(prod(label(_, Symbol s), syms, attrs), list[Tree] args))
+    appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args))
     = treeDiff(t, appl(prod(s, syms, attrs), args));
 
 // matched layout trees generate empty diffs such that the original is maintained
@@ -224,7 +224,10 @@ list[TextEdit] treeDiff(
 default list[TextEdit] treeDiff(
     t:appl(Production p:prod(_,_,_), list[Tree] _), 
     r:appl(Production q:!p         , list[Tree] _))
-    = [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))] when bprintln(t);
+    {
+        rprintln(t);
+    return [replace(t@\loc, learnIndentation(t@\loc, "<r>", "<t>"))];
+    }
 
 // If list production are the same, then the element lists can still be of different length
 // and we switch to listDiff which has different heuristics than normal trees.
@@ -234,7 +237,7 @@ list[TextEdit] treeDiff(
     = listDiff(t@\loc, seps(reg), aElems, bElems);
 
 // When the productions are equal, but the children may be different, we dig deeper for differences
-default list[TextEdit] treeDiff(appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
+default list[TextEdit] treeDiff(t:appl(Production p, list[Tree] argsA), appl(p, list[Tree] argsB))
     = [*treeDiff(a, b) | <a,b> <- zip2(argsA, argsB)] when bprintln("into <p> on both sides");
 
 @synopsis{decide how many separators we have}

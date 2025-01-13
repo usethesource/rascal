@@ -30,9 +30,19 @@ bool editsAreSyntacticallyCorrect(type[&T<:Tree] grammar, str example, (&T<:Tree
     transformed = transform(orig);
     edits       = treeDiff(orig, transformed);
     edited      = executeTextEdits(example, edits);
+    println("<transform> leads to:");
+    iprintln(edits);
 
     try {
-        return transformed := parse(grammar, edited);
+        if (transformed := parse(grammar, edited)) {
+            return true;
+        }
+        else {
+            println("The edited result is not the same:");
+            println(edited);
+            println("As the transformed:");
+            println(transformed);
+        }
     }
     catch ParseError(loc l): {
         println("<transform> caused a parse error <l> in:");
