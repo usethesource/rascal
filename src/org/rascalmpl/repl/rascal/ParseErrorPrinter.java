@@ -64,7 +64,7 @@ public class ParseErrorPrinter {
      */
     public static IErrorCommandOutput parseErrorMaybePrompt(ParseError pe, ISourceLocation promptRoot, String input, Terminal term, int promptOffset) {
         if (pe.getLocation().top().equals(promptRoot) && ansiSupported(term)) {
-            // it's an prompt root
+            // it's a prompt root
             return buildPromptError(pe, input, term.writer(), promptOffset);
         }
         return new IErrorCommandOutput() {
@@ -143,7 +143,7 @@ public class ParseErrorPrinter {
                                 writeUnderLine(target, -1, "highlighted");
                                 target.print(" text (line: ");
                                 target.print(pe.getBeginLine());
-                                target.print(" column: ");
+                                target.print(", column: ");
                                 target.print(pe.getBeginColumn());
                                 target.println(")");
 
@@ -177,7 +177,7 @@ public class ParseErrorPrinter {
         try {
             var lines = properSplit(input);
             int currentLine = lines.size();
-            // first we go up untill the end of the error
+            // first we go up until the end of the error
             while (currentLine > pe.getEndLine()) {
                 stdOut.write(Ansi.ansi().cursorUpLine().toString());
                 currentLine--;

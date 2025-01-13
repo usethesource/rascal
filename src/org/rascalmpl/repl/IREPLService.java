@@ -59,7 +59,7 @@ public interface IREPLService {
     }
 
     /**
-     * This parser is respossible for multi-line support, as well as word splitting for completion.
+     * This parser is responsible for multi-line support, as well as word splitting for completion.
      */
     default Parser inputParser() {
         return new DefaultParser();
@@ -89,16 +89,16 @@ public interface IREPLService {
 
 
     /**
-     * Givin a succesfull command (the {@see #inputParser()} returned no errors) execute the input
-     * @param input full string of the input terminiated by \n
+     * Given a successful command (the {@see #inputParser()} returned no errors) execute the input
+     * @param input full string of the input terminated by \n
      * @return a result that can be printed/displayed, depending on the context
-     * @throws InterruptedException the thread got getting interrupted, exit, don't print anything
-     * @throws StopREPLException the user requested to stop the REPL, clean exit the REPL, no new commands should be send
+     * @throws InterruptedException the thread got interrupted, exit, don't print anything
+     * @throws StopREPLException the user requested to stop the REPL, clean exit the REPL, no new commands should be sent
      */
     ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException;
 
     /**
-     * Will be called from a different thread then the one that called `handleInput`
+     * Will be called from a different thread than the one that called `handleInput`
      * Should try to stop the running command 
      */
     void handleInterrupt() throws InterruptedException;

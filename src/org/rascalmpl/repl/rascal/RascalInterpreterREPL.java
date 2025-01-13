@@ -69,7 +69,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 /**
- * Implementation of a interpreter based Rascal REPL Service. 
+ * Implementation of an interpreter based Rascal REPL Service. 
  * In most cases you might want to override/extend the {@link #buildIDEService(PrintWriter, IRascalMonitor, Terminal)} and the {@link #buildEvaluator(Reader, PrintWriter, PrintWriter, IDEServices)} functions.
  */
 public class RascalInterpreterREPL implements IRascalLanguageProtocol {
@@ -109,10 +109,6 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     /**
      * Build an IDE service, in most places you want to override this function to construct a specific one for the setting you are in.
-     * @param err
-     * @param monitor
-     * @param term
-     * @return
      */
     protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
         return new BasicIDEServices(err, monitor, term);
@@ -120,12 +116,6 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     /**
      * You might want to override/extend this function for different cases of where we're building a REPL (possible only extend on the result of it, by adding extra search path entries)
-     * @param input
-     * @param stdout
-     * @param stderr
-     * @param monitor
-     * @param services
-     * @return
      */
     protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
         GlobalEnvironment heap = new GlobalEnvironment();

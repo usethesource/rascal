@@ -256,7 +256,7 @@ public class RascalLineParser implements Parser {
             throw new EOFError(pe.getBeginLine(), pe.getBeginColumn(), "Parse error");
         } 
         catch (Throwable e) {
-            throw new EOFError(-1, -1, "Unexpected failure during pasing of the command: " + e.getMessage());
+            throw new EOFError(-1, -1, "Unexpected failure during parsing of the command: " + e.getMessage());
         }
     }
 
@@ -310,11 +310,8 @@ public class RascalLineParser implements Parser {
         var length = loc == null ? TreeAdapter.yield(t).length() : loc.getLength();
         if (isWord) {
             words.add(new LexedWord(line, offset, offset + length));
-            return offset + length;
         }
-        else {
-            return offset + length;
-        }
+        return offset + length;
 
     }
 }
