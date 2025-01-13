@@ -133,3 +133,6 @@ test bool addDeclarationToStartAndEndAndSwapABTest()
 
 test bool naturalToStringTest() 
     = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString);
+
+test bool naturalToStringAndAtoBTest() 
+    = editsAreSyntacticallyCorrect(#start[Program], simpleExample, naturalToString o swapAB);
