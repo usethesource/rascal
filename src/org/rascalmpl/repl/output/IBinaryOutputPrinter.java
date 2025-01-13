@@ -35,10 +35,10 @@ import java.io.ByteArrayInputStream;
 
 /**
  * Sometimes, an output produced a binary (such as an image or a executable file)
- * In that case, you can return a return an overload of this type, which a renderer can add support for
+ * In that case, you can return an overload of this type, which a renderer can add support for
  * 
  * <p>
- * For example an output under the <code>image/png</code> would most likely have regular {@link IOutputPrinter#write(java.io.PrintWriter)} that prints a message saying it's a image that can't be printed as text, while the render (if it supports it) can cast it to this interface and get the actual bytes
+ * For example an output under the <code>image/png</code> would most likely have regular {@link IOutputPrinter#write(java.io.PrintWriter)} that prints a message saying it's an image that can't be printed as text, while the render (if it supports it) can cast it to this interface and get the actual bytes
  * </p>
  */
 public interface IBinaryOutputPrinter extends IOutputPrinter {
@@ -54,7 +54,7 @@ public interface IBinaryOutputPrinter extends IOutputPrinter {
 
     /**
      * Produce bytes that represent the output of a stream, in a streaming/pull style. Will only be called if {@linkplain #isBinary()} is true, the renderer supports it, and the renderer prefers an inputstream to copy from.
-     * @return an streaming representation of the bytes that makeup the output of the command
+     * @return a streaming representation of the bytes that makeup the output of the command
      */
     default InputStream asInputStream() {
         try (var result = new ByteArrayOutputStream()) {
@@ -62,7 +62,7 @@ public interface IBinaryOutputPrinter extends IOutputPrinter {
             return new ByteArrayInputStream(result.toByteArray());
         }
         catch (IOException ex) {
-            throw new IllegalStateException("Write or Close should not have throw an exception", ex);
+            throw new IllegalStateException("Write or Close should not have thrown an exception", ex);
         }
     }
     

@@ -27,7 +27,7 @@
 package org.rascalmpl.repl.output;
 
 /**
- * An error output, to denote that the actual responds should be printed/displayed in an error stream/box.
+ * An error output, to denote that the actual response should be printed/displayed in an error stream/box.
  */
 public interface IErrorCommandOutput extends ICommandOutput {
     ICommandOutput getError();

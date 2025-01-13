@@ -39,7 +39,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 
 /**
- * Features that a Rascal REPL needs to behave like a rascal repl, this is extracted out so that these can be reused in a Notebook, but also so that we can have an compiler version of the REPL.
+ * Features that a Rascal REPL needs to behave like a rascal repl, this is extracted out so that these can be reused in a Notebook, but also so that we can have a compiler version of the REPL.
  */
 public interface IRascalLanguageProtocol {
 
@@ -54,8 +54,6 @@ public interface IRascalLanguageProtocol {
 
     /**
      * Try and parse a command, it's used for the REPL to decide if the command is complete
-     * @param command
-     * @return
      */
     ITree parseCommand(String command);
 
@@ -110,7 +108,6 @@ public interface IRascalLanguageProtocol {
 
     /**
      * which location will the rascal prompt be parsed under. This is used to detect parse errors in the input.
-     * @return
      */
     ISourceLocation promptRootLocation();
 }

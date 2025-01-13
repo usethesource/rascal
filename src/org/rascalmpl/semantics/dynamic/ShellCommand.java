@@ -76,7 +76,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 					term.puts(Capability.clear_screen);
 				}
 				else {
-					__eval.getStdErr().println("There is not terminal available to clear");
+					__eval.getStdErr().println("There is no terminal available to clear");
 				}
 			}
 			else {
