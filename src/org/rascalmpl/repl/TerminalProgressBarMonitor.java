@@ -40,6 +40,7 @@ import org.jline.jansi.Ansi;
 import org.jline.jansi.Ansi.Color;
 import org.jline.jansi.Ansi.Erase;
 import org.jline.terminal.Terminal;
+import org.jline.utils.Curses;
 import org.jline.utils.InfoCmp.Capability;
 import org.rascalmpl.debug.IRascalMonitor;
 
@@ -107,7 +108,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             return false;
         }
 
-        return "\r".equals(tm.getStringCapability(Capability.carriage_return))
+        return "\r".equals(interpretCapability(tm.getStringCapability(Capability.carriage_return)))
             && tm.getNumericCapability(Capability.columns) != null
             && tm.getNumericCapability(Capability.lines) != null
             && tm.getStringCapability(Capability.clear_screen) != null 
@@ -133,7 +134,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         if (arg == null) {
             return "";
         }
-        return arg.replace("\\E", "" + ((char)27)); // escape char
+        return Curses.tputs(arg);
     }
 
     /**
