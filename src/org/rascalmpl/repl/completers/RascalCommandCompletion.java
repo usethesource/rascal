@@ -41,7 +41,7 @@ public class RascalCommandCompletion implements Completer {
     private static final NavigableMap<String,String> COMMAND_KEYWORDS;
     static {
         COMMAND_KEYWORDS = new TreeMap<>();
-        COMMAND_KEYWORDS.put("set", "change a evaluator setting");
+        COMMAND_KEYWORDS.put("set", "change an evaluator setting");
         COMMAND_KEYWORDS.put("undeclare", "undeclare a local variable of the REPL");
         COMMAND_KEYWORDS.put("help", "print help message");
         COMMAND_KEYWORDS.put("edit", "open a rascal module in the editor");
@@ -49,9 +49,9 @@ public class RascalCommandCompletion implements Completer {
         COMMAND_KEYWORDS.put("declarations", "show declarations"); // TODO figure out what it does
         COMMAND_KEYWORDS.put("quit", "cleanly exit the REPL");
         COMMAND_KEYWORDS.put("history", "history"); // TODO: figure out what it does
-        COMMAND_KEYWORDS.put("test", "run rest modules");
+        COMMAND_KEYWORDS.put("test", "run test modules");
         COMMAND_KEYWORDS.put("modules", "show imported modules");// TODO: figure out what it does 
-        COMMAND_KEYWORDS.put("clear", "clear repl screen");
+        COMMAND_KEYWORDS.put("clear", "clear REPL screen");
     }
 
     private final NavigableMap<String, String> setOptions;
