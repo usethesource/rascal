@@ -185,15 +185,15 @@ list[TextEdit] treeDiff(Tree a, a) = [];
 
 // skip production labels of original rules when diffing
 list[TextEdit] treeDiff(
-    appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args), 
+    Tree t:appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args), 
     Tree u)
-    = treeDiff(appl(prod(s, syms, attrs), args), u);
+    = treeDiff(appl(prod(s, syms, attrs), args)[@\loc=t@\loc?|bla:///|], u);
 
 // skip production labels of replacement rules when diffing
 list[TextEdit] treeDiff(
     Tree t,
-    appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args))
-    = treeDiff(t, appl(prod(s, syms, attrs), args));
+    Tree u:appl(prod(label(_, Symbol s), list[Symbol] syms, set[Attr] attrs), list[Tree] args))
+    = treeDiff(t, appl(prod(s, syms, attrs), args)[@\loc=u@\loc?|bla:///|]);
 
 // matched layout trees generate empty diffs such that the original is maintained
 list[TextEdit] treeDiff(
