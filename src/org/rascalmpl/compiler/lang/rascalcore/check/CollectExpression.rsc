@@ -680,7 +680,7 @@ void reportCallError(Expression current, Expression callee, list[Expression] act
 
         someOverloadsPositionalOk
             = overloadedAType(rel[loc l, IdRole idRole, AType ftype] overloads) := calleeType
-              && any(ovl <- overloads, asubtypeList(argumentsTypes, getFunctionArgumentTypes(ovl.ftype)));
+              && any(ovl <- overloads, asubtypeList(argumentsTypes, getFunctionOrConstructorArgumentTypes(ovl.ftype)));
         if(someOverloadsPositionalOk){
             s.report(error(current, "Cannot call %q with %v %v, given definitions %t",
                                 "<callee>", kwargumentsText, kws, callee));
