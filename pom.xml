@@ -333,15 +333,6 @@
                                     <addHeader>false</addHeader>
                                 </transformer>
                             </transformers>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.fusesource.jansi</pattern>
-                                    <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
-                                    <excludes>
-                                        <exclude>org.fusesource.jansi.internal.*</exclude>
-                                    </excludes>
-                                </relocation>
-                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -586,44 +577,7 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
-                                    <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <manifestEntries>
-                                                <Name>rascal</Name>
-                                                <Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
-                                                <Specification-Version>${project.version}</Specification-Version>
-                                                <Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
-                                            </manifestEntries>
-                                        </transformer>
-                                    </transformers>
-                                    <relocations>
-                                        <relocation>
-                                            <pattern>org.fusesource.jansi</pattern>
-                                            <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
-                                            <excludes>
-                                                <exclude>org.fusesource.jansi.internal.*</exclude>
-                                            </excludes>
-                                        </relocation>
-                                        <relocation>
-                                            <pattern>jline</pattern>
-                                            <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                        </relocation>
-                                    </relocations>
-                                    <filters>
-                                        <filter>
-                                            <artifact>*:*</artifact>
-                                            <excludes>
-                                                <exclude>META-INF/*.SF</exclude>
-                                                <exclude>META-INF/*.DSA</exclude>
-                                                <exclude>META-INF/*.RSA</exclude>
-                                            </excludes>
-                                        </filter>
-                                    </filters>
-                                    <artifactSet>
-                                        <includes>
-                                            <include>jline:*</include>
-                                        </includes>
-                                    </artifactSet>
+                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>
