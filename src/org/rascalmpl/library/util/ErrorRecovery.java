@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
@@ -380,6 +381,129 @@ public class ErrorRecovery {
         }
 
         return loc1.getOffset() == loc2.getOffset() && loc1.getLength() == loc2.getLength();
+    }
+
+    public IInteger countUniqueTreeNodes(IConstructor tree) {
+        return rascalValues.integer(countNodes((ITree) tree, true, new IdentityHashMap<IConstructor, Integer>()));
+    }
+
+    public IInteger countTreeNodes(IConstructor tree) {
+        return rascalValues.integer(countNodes((ITree) tree, false, new IdentityHashMap<IConstructor, Integer>()));
+    }
+
+    private int countNodes(ITree tree, boolean unique, Map<IConstructor, Integer> processedNodes) {
+        Type type = tree.getConstructorType();
+        if (type == RascalValueFactory.Tree_Appl || type == RascalValueFactory.Tree_Amb) {
+            Integer result = processedNodes.get(tree);
+            if (result != null) {
+                return unique ? 0 : result;
+            }
+
+            if (type == RascalValueFactory.Tree_Appl) {
+                result = countApplNodes(tree, unique, processedNodes);
+            } else { // Must be amb
+                result = countAmbNodes(tree, unique, processedNodes);
+            }
+
+            processedNodes.put(tree, result);
+
+            return result;
+        } else {
+            return 1;
+        }
+    }
+
+    private int countApplNodes(ITree appl, boolean unique, Map<IConstructor, Integer> processedNodes) {
+        int count = 1;
+        IList args = TreeAdapter.getArgs(appl);
+        for (int i=args.size()-1; i>=0; i--) {
+            count += countNodes((ITree) args.get(i), unique, processedNodes);
+        }
+        return count;
+    }
+
+    private int countAmbNodes(ITree amb, boolean unique, Map<IConstructor, Integer> processedNodes) {
+        int count = 1;
+        ISet originalAlts = (ISet) amb.get(0);
+        for (IValue alt : originalAlts) {
+            count += countNodes((ITree) alt, unique, processedNodes);
+        }
+        return count;
+    }
+
+    public IConstructor maximallyShareTree(IConstructor tree) {
+        return maximallyShareTree((ITree) tree, new HashMap<>());
+    }
+
+    private ITree maximallyShareTree(ITree tree, Map<ITree, ITree> processedNodes) {
+        ITree result = processedNodes.get(tree);
+        if (result != null) {
+            return result;
+        }
+
+        Type type = tree.getConstructorType();
+        if (type == RascalValueFactory.Tree_Appl) {
+            result = maximallyShareAppl(tree, processedNodes);
+        } else if (type == RascalValueFactory.Tree_Amb) {
+            result = maximallyShareAmb(tree, processedNodes);
+        } else {
+            result = tree;
+        }
+
+        processedNodes.put(tree, result);
+
+        return result;
+    }
+
+    private ITree maximallyShareAppl(ITree appl, Map<ITree, ITree> processedNodes) {
+        IList args = TreeAdapter.getArgs(appl);
+        IListWriter newArgs = null;
+        int argCount = args.size();
+        for (int i=0; i<argCount; i++) {
+            ITree arg = (ITree) args.get(i);
+            ITree newArg = maximallyShareTree(arg, processedNodes);
+            if (arg != newArg && newArgs == null) {
+                newArgs = rascalValues.listWriter();
+                for (int j=0; j<i; j++) {
+                    newArgs.append(args.get(j));
+                }
+            }
+
+            if (newArgs != null) {
+                newArgs.append(newArg);
+            }
+        }
+
+        if (newArgs == null) {
+            return appl;
+        }
+
+        return TreeAdapter.setArgs(appl, newArgs.done());
+    }
+
+    private ITree maximallyShareAmb(ITree amb, Map<ITree, ITree> processedNodes) {
+        ISet alts = TreeAdapter.getAlternatives(amb);
+        ISetWriter newAlts = rascalValues.setWriter();
+
+        boolean anyChanges = false;
+        for (IValue alt : alts) {
+            ITree newAlt = maximallyShareTree((ITree) alt, processedNodes);
+            if (newAlt != alt) {
+                anyChanges = true;
+            }
+            newAlts.append(newAlt);
+        }
+
+        if (anyChanges) {
+			ITree newAmb = rascalValues.amb(newAlts.done());
+            if (amb.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
+                IValue loc = amb.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
+                newAmb.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
+                return newAmb;
+            }
+		}
+
+        return amb;
     }
 
     public void parseTree2Dot(IConstructor tree, ISourceLocation dotFile) {

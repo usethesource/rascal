@@ -39,7 +39,8 @@ void runRascalBatchTest(int maxFiles=1000, int minFileSize=0, int maxFileSize=40
     int startTime = realTime();
     
     map[str,str] env = getSystemEnvironment();
-    loc statFile = "STATFILE" in env ? readTextValueString(#loc, env["STATFILE"]) : |unknown:///|;
+    //loc statFile = "STATFILE" in env ? readTextValueString(#loc, env["STATFILE"]) : |unknown:///|;
+    loc statFile = "STATFILE" in env ? readTextValueString(#loc, env["STATFILE"]) : |tmp:///error-recovery-test.stats|;
 
     println("Writing stats to <statFile>");
 

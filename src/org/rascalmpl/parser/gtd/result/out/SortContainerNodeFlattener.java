@@ -46,57 +46,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 
 	private final Map<AbstractNode, T> nodeCache;
 
-	public static boolean isCacheable(Link link) {
-		AbstractNode node = link.getNode();
-		System.out.println("isCacheable: " + link.getNode());
-		int type = node.getTypeIdentifier();
-		if (type == CharNode.ID || type == LiteralNode.ID || type == SkippedNode.ID || type == EpsilonNode.ID) {
-			return true;
-		}
-
-		if (!link.getNode().isEmpty()) {
-			return !isPrefixZeroLength(link);
-		}
-
-		return false;
-	}
-
-	public static boolean isPrefixZeroLength(Link link) {
-		return isPrefixZeroLength(link, new HashSet<>());
-	}
-
-	public static boolean isPrefixZeroLength(Link link, Set<Link> processedLinks) {
-		if (processedLinks.contains(link)) {
-			return true;
-		}
-		processedLinks.add(link);
-
-		ArrayList<Link> prefixes = link.getPrefixes();
-
-		if (prefixes == null || prefixes.size() == 0) {
-			return true;
-		}
-
-		boolean anyNonZeroLength = false;
-		for (int i=prefixes.size()-1; i>=0; --i) {
-			Link prefix = prefixes.get(i);
-			if (prefix == null) {
-				continue;
-			}
-
-			if (!prefix.getNode().isEmpty()) {
-				anyNonZeroLength = true;
-				continue;
-			}
-
-			if (isPrefixZeroLength(prefix, processedLinks)) {
-				return true;
-			}
-		}
-
-		return !anyNonZeroLength;
-	}
-
+	private final Map<Link, Boolean> cacheableCache;
 
 	public SortContainerNodeFlattener(){
 		super();
@@ -105,25 +55,26 @@ public class SortContainerNodeFlattener<P, T, S>{
 		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
 
 		nodeCache = new HashMap<>();
+		cacheableCache = new HashMap<>();
 	}
-	
+
 	/**
 	 * Gather all the alternatives ending with the given child.
 	 */
-	private void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	private void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, boolean hasSideEffects){
 		AbstractNode resultNode = child.getNode();
-		
+
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, resultNode, false), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<>(NO_NODES, resultNode, true), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, false);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, NO_NODES, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
 	}
-	
+
 	/**
 	 * Gathers all alternatives for the given production related to the given child and postfix.
 	 */
-	private void gatherProduction(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ForwardLink<AbstractNode> postFix, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	private void gatherProduction(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ForwardLink<AbstractNode> postFix, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, S sourceLocation, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, boolean parentCacheable){
 		ArrayList<Link> prefixes = child.getPrefixes();
 		if(prefixes == null){ // Reached the start of the production.
 			buildAlternative(converter, nodeConstructorFactory, postFix, gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
@@ -132,8 +83,8 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		for(int i = prefixes.size() - 1; i >= 0; --i){ // Traverse all the prefixes (can be more then one in case of ambiguity).
 			Link prefix = prefixes.get(i);
-			boolean cacheable = isCacheable(prefix);
-			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<AbstractNode>(postFix, prefix.getNode(), cacheable), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
+			boolean cacheable = DefaultNodeFlattener.safeNodeMemoization && (parentCacheable || prefix.isCacheable());
+			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheable), gatheredAlternatives, production, stack, depth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable);
 		}
 	}
 	
@@ -160,8 +111,6 @@ public class SortContainerNodeFlattener<P, T, S>{
 
 			if (constructedNode == null) {
 				constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
-			} else {
-				System.out.println("reusing cached!");
 			}
 
 			if(constructedNode == null){
@@ -244,12 +193,12 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		// Gather the alternatives.
 		ArrayList<T> gatheredAlternatives = new ArrayList<T>();
-		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
+		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
 		ArrayList<P> productions = node.getAdditionalProductions();
 		if(alternatives != null){
 			for(int i = alternatives.size() - 1; i >= 0; --i){
-				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
+				gatherAlternatives(converter, nodeConstructorFactory, alternatives.get(i), gatheredAlternatives, productions.get(i), stack, childDepth, cycleMark, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
 			}
 		}
 		

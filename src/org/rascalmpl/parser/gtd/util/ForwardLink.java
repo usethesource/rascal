@@ -29,7 +29,11 @@ public class ForwardLink<E>{
 		
 		this.element = null;
 	}
-	
+
+	public ForwardLink(ForwardLink next, E element) {
+		this(next, element, false);
+	}
+
 	public ForwardLink(ForwardLink next, E element, boolean cacheable){
 		super();
 		
