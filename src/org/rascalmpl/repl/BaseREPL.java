@@ -44,10 +44,12 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.Terminal.SignalHandler;
 import org.jline.utils.ShutdownHooks;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
 import org.rascalmpl.repl.output.IErrorCommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.repl.parametric.ParametricReplService;
 import org.rascalmpl.repl.rascal.RascalReplServices;
 
@@ -65,6 +67,7 @@ public class BaseREPL {
     private final String normalPrompt;
     private final boolean ansiColorsSupported;
     private final boolean unicodeSupported;
+    private IDEServices ideServices;
 
     public BaseREPL(IREPLService replService, Terminal term) {
         this.replService = replService;
@@ -111,7 +114,7 @@ public class BaseREPL {
      */
     public void run() throws IOException {
         try {
-            replService.connect(term, ansiColorsSupported, unicodeSupported);
+            ideServices = replService.connect(term, ansiColorsSupported, unicodeSupported);
             var running = setupInterruptHandler();
 
             while (keepRunning) {
@@ -215,6 +218,12 @@ public class BaseREPL {
         if (result instanceof IErrorCommandOutput) {
             target = replService.errorWriter();
             result = ((IErrorCommandOutput)result).getError();
+        }
+        if (result instanceof IWebContentOutput) {
+            try {
+                var webContent = (IWebContentOutput)result;
+                ideServices.browse(webContent.webUri(), webContent.webTitle(), webContent.webviewColumn());
+            } catch (UnsupportedOperationException _ignored) { }
         }
 
         IOutputPrinter writer;

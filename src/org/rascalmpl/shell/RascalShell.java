@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
+import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.OSUtils;
 import org.rascalmpl.debug.IRascalMonitor;
@@ -31,40 +32,20 @@ public class RascalShell  {
         System.err.println("Version: " + RascalManifest.getRascalVersionNumber());
     }
 
-    public static void setupJavaProcessForREPL() {
-        // configure jline3 to avoid reflective access warnings printed by jdk
-        System.setProperty("org.jline.terminal.exec.redirectPipeCreationMode", "native");
-        // avoid getting a separate icon in OSX
-        System.setProperty("apple.awt.UIElement", "true");
-    }
-
     public static void main(String[] args) throws IOException {
-        setupJavaProcessForREPL();
         checkOutdatedEclipseContext();
         printVersionNumber();
+        checkIfHelp(args);
 
-        var termBuilder = TerminalBuilder.builder();
-        if (OSUtils.IS_WINDOWS) {
-            termBuilder.encoding(StandardCharsets.UTF_8);
-        }
-        termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
-        var term = termBuilder.build();
+        var term = connectToTerminal();
 
         ShellRunner runner; 
         if (args.length > 0) {
-            if (args[0].equals("--help")) {
-                System.err.println("Usage: java -jar rascal-version.jar [Module]");
-                System.err.println("\ttry also the --help options of the respective commands.");
-                System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
-                return;
-            }
-            else {
-                var monitor = IRascalMonitor.buildConsoleMonitor(term);
-                var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
-                var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
+            var monitor = IRascalMonitor.buildConsoleMonitor(term);
+            var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);
+            var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
 
-                runner = new ModuleRunner(term.reader(), out, err, monitor);
-            }
+            runner = new ModuleRunner(term.reader(), out, err, monitor);
         } 
         else {
             runner = new REPLRunner(term);
@@ -72,10 +53,37 @@ public class RascalShell  {
         runner.run(args);
     }
 
+    private static Terminal connectToTerminal() throws IOException {
+        setupJavaProcessForREPL();
+        var termBuilder = TerminalBuilder.builder();
+        if (OSUtils.IS_WINDOWS) {
+            termBuilder.encoding(StandardCharsets.UTF_8);
+        }
+        termBuilder.dumb(true); // fallback to dumb terminal if detected terminal is not supported
+        var term = termBuilder.build();
+        return term;
+    }
+
+    private static void checkIfHelp(String[] args) {
+        if (args.length > 0 && "--help".equals(args[0])) {
+            System.err.println("Usage: java -jar rascal-version.jar [Module]");
+            System.err.println("\ttry also the --help options of the respective commands.");
+            System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
+            System.exit(0);
+        }
+    }
+
     private static void checkOutdatedEclipseContext() {
         if (System.getProperty("__ECLIPSE_CONNECTION") != null) {
             System.err.println("*** Warning, this REPL has limited functionality in the deprecated Rascal Eclipse extension");
         }
+    }
+
+    public static void setupJavaProcessForREPL() {
+        // configure jline3 to avoid reflective access warnings printed by jdk
+        System.setProperty("org.jline.terminal.exec.redirectPipeCreationMode", "native");
+        // avoid getting a separate icon in OSX
+        System.setProperty("apple.awt.UIElement", "true");
     }
 
 }

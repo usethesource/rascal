@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
@@ -47,9 +48,11 @@ public interface IRascalLanguageProtocol {
      * Once a REPL is ready and setup, we ask to make sure the rascal runtime (compiler/evaluator) gets initialized.
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
-     * @param IDEServes which ide services to use
+     * @param monitor which monitor to use in the evaluator/compiler to report progress
+     * @param term the raw terminal, that can sometimes be usefull to interact with (but should be avoided where possible)
+     * @return the ide services to use when the REPL wants to do things
      */
-    void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, Terminal term);
+    IDEServices initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor, Terminal term);
 
 
     /**

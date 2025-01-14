@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.After;
-import org.rascalmpl.ast.Char;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
