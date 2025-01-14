@@ -39,7 +39,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 	private final T[] noChildren = (T[]) NO_CHILDREN;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<Object, T>> preCache;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
-	
+
 	public ListContainerNodeFlattener(){
 		super();
 
@@ -237,27 +237,28 @@ public class ListContainerNodeFlattener<P, T, S>{
 	 */
 	protected void gatherAlternatives(INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, Link child, ArrayList<T> gatheredAlternatives, Object production, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, HashMap<ArrayList<Link>, SharedPrefix<T>> sharedPrefixCache, PositionStore positionStore, int offset, int endOffset, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		AbstractNode childNode = child.getNode();
-		
+
 		if(!(childNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
 			ArrayList<AbstractNode> blackList = new ArrayList<AbstractNode>();
 			if(childNode.isEmpty()){ // Child starts a cycle.
 				CycleNode cycle = gatherCycle(child, new AbstractNode[]{childNode}, blackList);
 				if(cycle != null){ // Encountered a cycle.
 					if(cycle.cycle.length == 1){
-						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, cycle, false), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, cycle), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 					}else{
-						ForwardLink<AbstractNode> cycleLink = new ForwardLink<AbstractNode>(NO_NODES, cycle, false);
-						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(cycleLink, childNode, false), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+						ForwardLink<AbstractNode> cycleLink = new ForwardLink<AbstractNode>(NO_NODES, cycle);
+						gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(cycleLink, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 					}
 					return;
 				}
 			}
 			// Encountered non-cyclic child.
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, childNode, false), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<AbstractNode>(NO_NODES, childNode), gatheredAlternatives, production, stack, depth, cycleMark, sharedPrefixCache, positionStore, blackList, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, noChildren, NO_NODES, production, gatheredAlternatives, stack, depth, cycleMark, positionStore, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
 	}
+
 	
 	/**
 	 * Gathers all alternatives for the given production related to the given child and postfix.

@@ -27,7 +27,6 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  */
 public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	public static boolean nodeMemoization = true;
-	public static boolean linkMemoization = false;
 	public static boolean safeNodeMemoization = false;
 	
 	private final CharNodeFlattener<T, S> charNodeConverter;
