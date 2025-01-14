@@ -139,13 +139,9 @@ public class ParseErrorPrinter {
                             @Override
                             public void write(PrintWriter target, boolean unicodeSupported) {
                                 target.write(unicodeSupported ? "❌ " : "! ");
-                                target.write("There was a parse error in the input, see the ");
-                                writeUnderLine(target, -1, "highlighted");
-                                target.print(" text (line: ");
-                                target.print(pe.getBeginLine());
-                                target.print(", column: ");
-                                target.print(pe.getBeginColumn());
-                                target.println(")");
+                                target.write("Rascal could not recognize this command");
+                                writeUnderLine(target, -1, "beyond line " + pe.getBeginLine() + " and column " + pe.getBeginColumn());
+                                target.println();
 
                             }
                             @Override
@@ -169,17 +165,22 @@ public class ParseErrorPrinter {
         };
     }
 
+    private static void lineUp(PrintWriter out) {
+        out.write(Ansi.ansi().cursorUpLine().toString());
+    }
+
     /**
      * Overwrite the existing prompt input, and overwrite the sections with highlighted errors
      */
     private static void highlightErrorInInput(ParseError pe, String input, PrintWriter stdOut, int promptOffset) {
-        stdOut.write(Ansi.ansi().saveCursorPosition().cursorUpLine().toString());
+        stdOut.write(Ansi.ansi().saveCursorPosition().toString());
+        lineUp(stdOut);
         try {
-            var lines = properSplit(input);
+            var lines = splitLines(input);
             int currentLine = lines.size();
             // first we go up until the end of the error
             while (currentLine > pe.getEndLine()) {
-                stdOut.write(Ansi.ansi().cursorUpLine().toString());
+                lineUp(stdOut);
                 currentLine--;
             }
             // then we highlight the error parts of the lines
@@ -202,7 +203,7 @@ public class ParseErrorPrinter {
                     endOffset = 1;
                 }
                 writeUnderLine(stdOut, promptOffset + offset, thisLine, offset, endOffset - offset);
-                stdOut.write(Ansi.ansi().cursorUpLine().toString());
+                lineUp(stdOut);
                 currentLine--;
             }
         }
@@ -214,25 +215,13 @@ public class ParseErrorPrinter {
     /**
      * Work around string.split not generating empty lines
      */
-    private static List<String> properSplit(String line) {
+    private static List<String> splitLines(String input) {
         List<String> lines = new ArrayList<>();
-        int start = 0;
         int end = 0;
-        while (end < line.length()) {
-            int nextLine = line.indexOf('\n', end);
-            if (nextLine == -1) {
-                lines.add(line.substring(start));
-                break;
-            }
-            else {
-                start = end;
-                end = nextLine + 1;
-                lines.add(line.substring(start, end - 1));
-            }
-        }
-        if (end == line.length()) {
-            // newline at end means ended with an empty line, which would be tru in most cases
-            lines.add("");
+        for (int start = 0; start <= input.length(); start = end + 1) {
+            end = input.indexOf('\n', start);
+            end = end == -1 ? input.length() : end;
+            lines.add(input.substring(start, end));
         }
         return lines;
     } 

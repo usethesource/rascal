@@ -39,7 +39,6 @@ import org.jline.terminal.Terminal;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 /**
@@ -48,15 +47,15 @@ import org.rascalmpl.repl.streams.StreamUtil;
 public class ParametricReplService implements IREPLService {
 
     private final ILanguageProtocol lang;
-    private final IDEServices ide;
     private final @Nullable Path historyFile;
+    private final IDEServices ide;
     private PrintWriter out;
     private PrintWriter err;
 
     public ParametricReplService(ILanguageProtocol lang, IDEServices ide, @Nullable Path historyFile) {
         this.lang = lang;
-        this.ide = ide;
         this.historyFile = historyFile;
+        this.ide = ide;
     }
 
     @Override
@@ -66,10 +65,11 @@ public class ParametricReplService implements IREPLService {
 
 
     @Override
-    public void connect(Terminal term, boolean ansiColorSupported, boolean unicodeSupported) {
+    public IDEServices connect(Terminal term, boolean ansiColorSupported, boolean unicodeSupported) {
         out = term.writer();
         err = StreamUtil.generateErrorStream(term, term.writer());
         lang.initialize(term.reader(), out, err, ide);
+        return ide;
     }
 
     @Override
@@ -86,14 +86,7 @@ public class ParametricReplService implements IREPLService {
 
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException {
-        var result = lang.handleInput(input);
-        if (result instanceof IWebContentOutput) {
-            try {
-                var webResult = (IWebContentOutput)result;
-                ide.browse(webResult.webUri(), webResult.webTitle(), webResult.webviewColumn());
-            } catch (Throwable _ignored) {}
-        }
-        return result;
+        return lang.handleInput(input);
     }
 
     @Override

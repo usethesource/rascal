@@ -28,7 +28,7 @@ public class BatchProgressMonitor implements IRascalMonitor {
 	}
 
 	public BatchProgressMonitor(PrintStream out) {
-		this(new PrintWriter(out));
+		this(new PrintWriter(out, true));
 	}
 
 	public BatchProgressMonitor(PrintWriter out) {

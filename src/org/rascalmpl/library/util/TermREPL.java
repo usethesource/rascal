@@ -224,15 +224,15 @@ public class TermREPL {
                         @Override
                         public void write(PrintWriter target, boolean unicodeSupported) {
                             target.println("<script>");
-                            target.println(" var "+ id +" = new Salix('"+ id + "', '" + URL + "');");
-                            target.println(" google.charts.load('current', {'packages':['corechart']});");
-                            target.println(" google.charts.setOnLoadCallback(function () { ");
+                            target.println("  var "+ id +" = new Salix('"+ id + "', '" + URL + "');");
+                            target.println("  google.charts.load('current', {'packages':['corechart']});");
+                            target.println("  google.charts.setOnLoadCallback(function () { ");
                             target.println("    registerCharts("+ id +");");
 
                             target.println("    registerDagre(" + id + ");");
                             target.println("    registerTreeView("+ id +");");
                             target.println("    " + id + ".start();");
-                            target.println("});");
+                            target.println("  });");
                             target.println("<script>");
                             target.println("<div id = \"" + id + "\"> </div>");
                         }

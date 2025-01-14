@@ -1716,7 +1716,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
                 
                 if (module.startsWith(qualifier)) {
-                    addIt(result, "function", p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+                    addCandidate(result, "function", p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
                 }
             }
         }
@@ -1726,38 +1726,38 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 if (skipPrivate && env.isNamePrivate(entry.getKey())) {
                     continue;
                 }
-                addIt(result, "variable", entry.getKey(), qualifier, partialIdentifier);
+                addCandidate(result, "variable", entry.getKey(), qualifier, partialIdentifier);
             }
             
             for (Type t: env.getAbstractDatatypes()) {
                 if (inQualifiedModule) {
-                    addIt(result, "ADT", t.getName(), qualifier, partialIdentifier);
+                    addCandidate(result, "ADT", t.getName(), qualifier, partialIdentifier);
                 }
             }
             
             for (Type t: env.getAliases()) {
-                addIt(result, "alias", t.getName(), qualifier, partialIdentifier);
+                addCandidate(result, "alias", t.getName(), qualifier, partialIdentifier);
             }
         }
         if (qualifier.isEmpty()) {
             Map<Type, Map<String, Type>> annos = env.getAnnotations();
             for (Type t: annos.keySet()) {
                 for (String k: annos.get(t).keySet()) {
-                    addIt(result, "annotation", k, "", partialIdentifier);
+                    addCandidate(result, "annotation", k, "", partialIdentifier);
                 }
             }
         }
     }
 
-    private static void addIt(SortedMap<String, String> result, String category, String v, String qualifier, String originalTerm) {
-        if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
-            if (v.contains("-")) {
-                v = "\\" + v;
+    private static void addCandidate(SortedMap<String, String> result, String category, String name, String qualifier, String originalTerm) {
+        if (name.startsWith(originalTerm) && !name.equals(originalTerm)) {
+            if (name.contains("-")) {
+                name = "\\" + name;
             }
-            if (!qualifier.isEmpty() && !v.startsWith(qualifier)) {
-                v = qualifier + "::" + v;
+            if (!qualifier.isEmpty() && !name.startsWith(qualifier)) {
+                name = qualifier + "::" + name;
             }
-            result.put(v, category);
+            result.put(name, category);
         }
     }
 

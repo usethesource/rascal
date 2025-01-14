@@ -53,12 +53,10 @@ import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.StopREPLException;
 import org.rascalmpl.repl.output.ICommandOutput;
-import org.rascalmpl.repl.output.IWebContentOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.functions.IFunction;
@@ -127,13 +125,14 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     }
 
     @Override
-    public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor,
+    public IDEServices initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor,
         Terminal term) {
         services = buildIDEService(stderr, monitor, term);
         if (eval != null) {
             throw new IllegalStateException("Already initialized");
         }
         eval = buildEvaluator(input, stdout, stderr, services);
+        return services;
     }
 
 
@@ -142,15 +141,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         Objects.requireNonNull(eval, "Not initialized yet");
         synchronized(eval) {
             try {
-                Result<IValue> value = eval.eval(eval.getMonitor(), command, PROMPT_LOCATION);
-                var result = printer.outputResult(value);
-                if (result instanceof IWebContentOutput) {
-                    try {
-                        var webResult = (IWebContentOutput)result;
-                        services.browse(webResult.webUri(), webResult.webTitle(), webResult.webviewColumn());
-                    } catch (Throwable _ignore) {}
-                }
-                return result;
+                return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
             }
             catch (InterruptException ex) {
                 return printer.outputError((w, sw, u) -> {
@@ -191,6 +182,7 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     @Override
     public ICommandOutput stackTraceRequested() {
+        Objects.requireNonNull(eval, "Not initialized yet");
         StackTrace trace = eval.getStackTrace();
         return printer.prettyPrinted((w, sw, u) -> {
             w.println("Current stack trace:");
