@@ -69,6 +69,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -140,6 +141,7 @@ public class ParseStateVisualizer {
     private int frame;
     private int nextParseNodeId;
 
+    private SortContainerNodeFlattener<IConstructor, ITree, ISourceLocation> sortContainerNodeFlattener;
 
     public ParseStateVisualizer(String name) {
         // In the future we might want to offer some way to control the path from within Rascal.
@@ -161,6 +163,8 @@ public class ParseStateVisualizer {
             }
         }
         frameDir.mkdirs();
+
+        sortContainerNodeFlattener = new SortContainerNodeFlattener<>();
     }
 
     public void visualize(AbstractStackNode<IConstructor> node) {
@@ -459,11 +463,11 @@ public class ParseStateVisualizer {
 
         NodeId nodeId = addParserNodes(graph, link.getNode());
 
-        if (!SortContainerNodeFlattener.isPrefixZeroLength(link)) {
+        if (!link.canPrefixBeEmpty()) {
             graph.highlight(getNodeId(link));
         }
 
-        graph.addEdge(linkId, nodeId, "node", SortContainerNodeFlattener.isCacheable(link) ? "green" : null);
+        graph.addEdge(linkId, nodeId, "node", link.isCacheable() ? "green" : null);
 
         return linkId;
     }
@@ -547,6 +551,10 @@ public class ParseStateVisualizer {
 
     public static <P> NodeId getNodeId(AbstractStackNode<P> stackNode) {
         return new NodeId(String.valueOf(stackNode.getId()));
+    }
+
+    public NodeId getNodeId(Link link) {
+        return new NodeId("Link-" + System.identityHashCode(link) + link.isCacheable());
     }
 
     private static NodeId getNodeId(Object node) {

@@ -58,25 +58,17 @@ equality check that takes advantage of the sharing present in those trees.
 Note that this equality check only takes into account the offset and length fields of source locations. All other fields are ignored.}
 java bool treeEquality(Tree t1, Tree t2);
 
-int nodeCount(appl(_, args)) {
-    int count = 1;
-    for (Tree arg <- args) {
-        count += nodeCount(arg);
-    }
-    return count;
-}
+@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@synopsis{Count unique nodes in a tree. If a node is shared, it only counts as one node.}
+java int countUniqueTreeNodes(Tree t);
 
-int nodeCount(amb(alts)) {
-    int count = 1;
-    for (Tree alt <- alts) {
-        count += nodeCount(alt);
-    }
-    return count;
-}
+@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@synopsis{Count tree nodes. Shared nodes are counted each time they are encounterd. Note that this is done efficiently using memoization.}
+java int countTreeNodes(Tree t);
 
-int nodeCount(char(_)) = 1;
-
-int nodeCount(cycle(_,_)) = 1;
+@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@synopsis{Maximally share nodes in a tree.}
+java Tree maximallyShareTree(Tree t);
 
 @javaClass{org.rascalmpl.library.util.ErrorRecovery}
 @synopsis{Generate a dot representation of a parse forest.}

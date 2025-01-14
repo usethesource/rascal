@@ -6,28 +6,31 @@ import IO;
 import util::ErrorRecovery;
 import Node;
 
-lexical S = T | U;
+syntax S = T | U;
 
-lexical T = X T? | "$";
+syntax T = X T? | "$";
 
-lexical U = X T? | "$";
+syntax U = X T? | "$";
 
-lexical X = "b"? | "c";
+syntax X = "b"? | "c";
 
 void testCycles() {
     str input = "bc$";
-    //str input = "bcbcbcccbb$";
-    Tree t1 = parse(#S, input, |unknown:///?parse-memoization=safe-node|, allowAmbiguity=true);
-    Tree t2 = parse(#S, input, |unknown:///?parse-memoization=none&visualize-parse-result|, allowAmbiguity=true);
-    println(prettyTree(t1));
-    println(prettyTree(t2));
 
-    if (treeEquality(t1, t2)) {
-        println("equal");
+    Tree noMemoTree = parse(#S, input, |unknown:///?parse-memoization=none&visualize-parse-result|, allowAmbiguity=true);
+    Tree safeNodeMemoTree = parse(#S, input, |unknown:///?parse-memoization=safe-node|, allowAmbiguity=true);
+
+    println("Tree without memoization:");
+    println(prettyTree(noMemoTree));
+
+    print("Safe node memoization: ");
+    if (treeEquality(noMemoTree, safeNodeMemoTree)) {
+        println("correct");
     } else {
-        println("NOT EQUAL");
+        println("INCORRECT");
     }
 
+/*
     if ({appl1Level1, *_ } := getChildren(t1)[0] && {appl2Level1, *_ } := getChildren(t2)[0]) {
         println("appl1Level1:\n<prettyTree(appl1Level1)>");
         println("appl2Level1:\n<prettyTree(appl2Level1)>");
@@ -45,10 +48,5 @@ void testCycles() {
             println("yield2: <appl2Level2>");
          }
    }
-
-    //if (set[Tree] amb1Level1 := getChildren(t1)[0]) {
-    //    println("children: <typeOf(childLevel1)>");
-    //}
-
-
+   */
 }

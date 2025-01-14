@@ -62,7 +62,7 @@ public data TestStats = testStats(
 // Note that this test requires the posibility to disable memoization.
 // In the current test version this can be done by including a "parse-memoization=none" query parameter.
 // We expect this feature to be removed eventually and then the `verifyMemoizationCorrectness` flag becomes useless.
-bool verifyMemoizationCorrectness = false;
+bool verifyMemoizationCorrectness = true;
 
 // When verifying memoization we need to be able to timeout the conversin from parse graph to parse forest.
 // We can do this by using a parse filter.
@@ -91,12 +91,15 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     int errorSize=0;
     str result = "?";
     str verificationResult = "-";
+    Tree smallestCorrectTree = char(0);
+    str nodeStats = ""; // Only tracked when verifyMemoizationCorrectness is set to true
 
     TestMeasurement measurement = successfulParse();
     clearTimeout();
     try {
         startTime = realTime();
         Tree t = standardParser(input, source);
+        smallestCorrectTree = t;
         duration = realTime() - startTime;
         measurement = successfulParse(source=source, duration=duration);
         result = "success";
@@ -104,64 +107,79 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         startTime = realTime();
         try {
             Tree t = recoveryParser(input, source);
+            smallestCorrectTree = t;
             int parseEndTime = realTime();
             duration = parseEndTime - startTime;
 
             if (verifyMemoizationCorrectness) {
+                Tree noMemoTree = char(0);
                 bool noMemoTimeout = false;
-                bool linkCorrect = true;
-                bool nodeMemoTimeout = false;
-                bool nodeCorrect = true;
-                //bool nodeLinkEqual = true;
+
+                Tree safeNodeMemoTree = char(0);
+                bool safeNodeMemoCorrect = false;
+                bool safeNodeMemoTimeout = false;
+
+                Tree nodeMemoTree = t;
+                bool nodeMemoCorrect = false;
 
                 noMemoSource = source;
-                noMemoSource.query = noMemoSource.query + "&parse-memoization=none";
+                noMemoSource.query = source.query + "&parse-memoization=none";
                 setTimeout(realTime() + 2000);
-                Tree noMemoTree = char(0);
                 try {
-                    Tree noMemo = recoveryParser(input, noMemoSource);
-                    noMemoTree = noMemo;
-                    linkMemoCorrect = treeEquality(t, noMemoTree);
+                    noMemoTree = recoveryParser(input, noMemoSource);
+                    nodeMemoCorrect = treeEquality(nodeMemoTree, noMemoTree);
+                    if (!nodeMemoCorrect) {
+                        smallestCorrectTree = noMemoTree;
+                    }
                 } catch Timeout(): {
                     print("#");
                     noMemoTimeout = true;
                 }
                 clearTimeout();
 
-                nodeMemoSource = source;
-                nodeMemoSource.query = nodeMemoSource.query + "&parse-memoization=node";
+                safeNodeMemoSource = source;
+                safeNodeMemoSource.query = safeNodeMemoSource.query + "&parse-memoization=safe-node";
                 setTimeout(realTime() + 2000);
                 try {
-                    Tree nodeMemoTree = recoveryParser(input, nodeMemoSource);
-                    //nodeLinkEqual = treeEquality(t, nodeMemoTree); // Too expensive
+                    safeNodeMemoTree = recoveryParser(input, safeNodeMemoSource);
                     if (!noMemoTimeout) {
-                        nodeCorrect = treeEquality(noMemoTree, nodeMemoTree);
+                        safeNodeMemoCorrect = treeEquality(noMemoTree, safeNodeMemoTree);
+                        if (!safeNodeMemoCorrect) {
+                            throw "Safe node memo incorrect!";
+                        }
+                        if (safeNodeMemoCorrect && !nodeMemoCorrect) {
+                            smallestCorrectTree = safeNodeMemoTree;
+                        }
                     }
                 } catch Timeout(): {
                     print("@");
-                    nodeMemoTimeout = true;
+                    safeNodeMemoTimeout = true;
                 }
                 clearTimeout();
 
-                if (!linkCorrect) {
-                    if (nodeMemoTimeout) {
-                        println("\nlink memoization incorrect, node memoization timeout for <source>");
-                        verificationResult = "linkFailed:nodeTimeout";
-                    } else if (nodeCorrect) {
-                        verificationResult = "linkFailed:nodeSucceeded";
-                        println("\nonly link memoization incorrect for <source>");
+                if (noMemoTimeout) {
+                    verificationResult="noMemoTimeout";
+                } else if (!safeNodeMemoCorrect) {
+                    if (nodeMemoCorrect) {
+                        verificationResult = "safeNodeFailed:nodeSucceeded";
+                        println("\nonly safe node memoization incorrect for <source>");
                     } else {
-                        verificationResult = "linkFailed:nodeFailed";
+                        verificationResult = "safeNodeFailed:nodeFailed";
                         println("\nboth node memoization and link memoization incorrect for <source>");
                     }
-                } else if (!nodeCorrect) {
-                    verificationResult = "linkSucceeded:nodeFailed";
+                } else if (!nodeMemoCorrect) {
+                    verificationResult = "safeNodeSucceeded:nodeFailed";
                     println("\nonly node memoization incorrect for <source>");
-                } else if (noMemoTimeout) {
-                    verificationResult="noMemoTimeout";
                 } else {
-                    verificationResult = "linkSucceeded:nodeSucceeded";
+                    verificationResult = "safeNodeSucceeded:nodeSucceeded";
                 }
+
+                str allNodeCount = "<countTreeNodes(smallestCorrectTree)>";
+                str maxSharedNodeCount = "<countUniqueTreeNodes(maximallyShareTree(smallestCorrectTree))>";
+                str noMemoNodeCount = noMemoTimeout ? "-" : "<countUniqueTreeNodes(noMemoTree)>";
+                str nodeMemoNodeCount = nodeMemoCorrect ? "<countUniqueTreeNodes(nodeMemoTree)>" : "-";
+                str safeNodeMemoNodeCount = !safeNodeMemoTimeout && safeNodeMemoCorrect ? "<countUniqueTreeNodes(safeNodeMemoTree)>" : "-";
+                nodeStats = ",<allNodeCount>,<maxSharedNodeCount>,<noMemoNodeCount>,<safeNodeMemoNodeCount>,<nodeMemoNodeCount>";
             }
 
             list[Tree] errors = findBestErrors(t);
@@ -184,9 +202,10 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         }
     }
 
+
     if (statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult>\n");
+        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult><nodeStats>\n");
     }
 
     return measurement;
@@ -397,7 +416,7 @@ void printFrequencyTableHeader() {
     print(right("min", statFieldWidth));
     print(right("max", statFieldWidth));
     println(right("total", statFieldWidth));
-    }
+}
 
 void printFrequencyTableStats(str label, FrequencyTable frequencyTable, str unit = "%", bool printTotal=true, bool ignoreZero=false) {
     print(left(label + " (<unit>):", statLabelWidth));
@@ -529,7 +548,7 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
     fromFile = from;
 
     if (statFile != |unknown:///|) {
-        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification\n");
+        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification" + (verifyMemoizationCorrectness ? ",allNodes,maxSharedNodes,noMemoNodes,safeNodeMemoNodes,nodeMemoNodes\n" : ""));
     }
 
     return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());
