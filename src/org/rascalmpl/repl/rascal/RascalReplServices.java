@@ -37,6 +37,7 @@ import org.jline.jansi.Ansi;
 import org.jline.reader.Completer;
 import org.jline.reader.Parser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.IREPLService;
 import org.rascalmpl.repl.StopREPLException;
@@ -75,7 +76,7 @@ public class RascalReplServices implements IREPLService {
 
 
     @Override
-    public void connect(Terminal term, boolean ansiColorsSupported, boolean unicodeSupported) {
+    public IDEServices connect(Terminal term, boolean ansiColorsSupported, boolean unicodeSupported) {
         if (out != null) {
             throw new IllegalStateException("Repl Service is already initialized");
         }
@@ -85,7 +86,7 @@ public class RascalReplServices implements IREPLService {
         var monitor = new TerminalProgressBarMonitor(term);
         out = monitor;
         err = StreamUtil.generateErrorStream(term, monitor);
-        lang.initialize(term.reader(), out, err, monitor, term);
+        return lang.initialize(term.reader(), out, err, monitor, term);
     }
 
     public void disconnect() {

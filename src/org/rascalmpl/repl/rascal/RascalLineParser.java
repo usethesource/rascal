@@ -33,6 +33,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.jline.reader.EOFError;
 import org.jline.reader.ParsedLine;
 import org.jline.reader.Parser;
@@ -114,7 +115,7 @@ public class RascalLineParser implements Parser {
             }
             else if (c == '|' || (c == '>' && inLocation)) {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_LOCATION);
-                inLocation = wordEnd != buffer.length() && buffer.charAt(wordEnd - 1) == '<';
+                inLocation = wordEnd != buffer.length() && buffer.charAt(wordEnd - 1) != '|';
             }
             else if (Character.isJavaIdentifierPart(c) || c == '\\') {
                 wordEnd = parseEndedAfter(buffer, position, RASCAL_NAME);
@@ -143,7 +144,7 @@ public class RascalLineParser implements Parser {
         private final ArrayList<LexedWord> words;
         private final int cursor;
         private final String line;
-        private final @MonotonicNonNull LexedWord atCursor;
+        private final @Nullable LexedWord atCursor;
 
         private ParsedLineLexedWords(ArrayList<LexedWord> words, int cursor, String line) {
             this.words = words;
@@ -208,7 +209,6 @@ public class RascalLineParser implements Parser {
         }
 
         public boolean cursorInside(int cursor) {
-            // TODO: review around edges
             return begin <= cursor && cursor <= end;
         }
 
@@ -246,6 +246,7 @@ public class RascalLineParser implements Parser {
 
     private ParsedLine parseFullRascalCommand(String line, int cursor, boolean completeStatementMode)  throws SyntaxError {
         // TODO: to support inline highlighting, we have to remove the ansi escapes before parsing
+        // so for now we don't do any highlighting, but would be interesting after the error recovery is integrated
         try {
             return translateTree(commandParser.apply(line), line, cursor);
         } 

@@ -32,10 +32,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jline.reader.Completer;
-import org.jline.reader.EndOfFileException;
 import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.repl.output.ICommandOutput;
 
 /**
@@ -79,7 +79,7 @@ public interface IREPLService {
     }
 
     default Path historyFile() {
-        throw new IllegalAccessError("Not implemented if storeHistory is false");
+        throw new UnsupportedOperationException("Not implemented if storeHistory is false");
     }
 
     /**
@@ -119,10 +119,10 @@ public interface IREPLService {
     String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
 
     /**
-     * Connect the REPL to the Terminal, most likely want to take a copy of at least the {@link Terminal#writer()}.
-     * @param term
+     * Connect the REPL to the Terminal, most likely want to keep the instance of the around {@link Terminal#writer()}.
+     * @return a IDE service that the REPL can use for IDE features like opening a URL
      */
-    void connect(Terminal term, boolean ansiColorSupported, boolean unicodeSupported );
+    IDEServices connect(Terminal term, boolean ansiColorSupported, boolean unicodeSupported);
 
     /**
      * The REPL is getting terminated/disconnected

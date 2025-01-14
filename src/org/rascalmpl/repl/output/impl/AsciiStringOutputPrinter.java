@@ -38,6 +38,7 @@ import org.rascalmpl.repl.output.MimeTypes;
  */
 public class AsciiStringOutputPrinter implements IOutputPrinter {
     private final String body;
+    private final String mimeType;
 
     
     public AsciiStringOutputPrinter(String body) {
@@ -45,11 +46,12 @@ public class AsciiStringOutputPrinter implements IOutputPrinter {
     }
     public AsciiStringOutputPrinter(String body, String mimeType) {
         this.body = body;
+        this.mimeType = mimeType;
     }
 
     @Override
     public String mimeType() {
-        return mimeType();
+        return mimeType;
     }
 
     @Override

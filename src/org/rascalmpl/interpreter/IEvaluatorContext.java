@@ -74,6 +74,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public Stack<Accumulator> getAccumulators();
 	
 	
-	/** @return identifiers and their category (variable, function, etc) */
+	/** Given a (possibly empty) qualifier and a partial identifier, look in the current root environment if there are names defined that could match the partial names
+	 * @return identifiers and their category (variable, function, etc) */
 	public Map<String, String> completePartialIdentifier(String qualifier, String partialIdentifier);
 }
