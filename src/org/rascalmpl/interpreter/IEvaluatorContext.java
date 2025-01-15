@@ -41,8 +41,8 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public StackTrace getStackTrace();
 	
 	/** for standard IO */
-	public PrintWriter getStdOut();
-	public PrintWriter getStdErr();
+	public PrintWriter getOutPrinter();
+	public PrintWriter getErrorPrinter();
 
 	public Reader getInput();
 	

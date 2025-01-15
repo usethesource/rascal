@@ -293,8 +293,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 		b.append("call  >");
 		printNesting(b);
 		printHeader(b, actuals);
-		eval.getStdOut().println(b.toString());
-		eval.getStdOut().flush();
+		eval.getOutPrinter().println(b.toString());
+		eval.getOutPrinter().flush();
 		eval.incCallNesting();
 	}
 
@@ -318,8 +318,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			b.append(": ");
 			String msg = e.getMessage();
 			b.append(msg == null ? e.getClass().getSimpleName() : msg);
-			eval.getStdOut().println(b.toString());
-			eval.getStdOut().flush();
+			eval.getOutPrinter().println(b.toString());
+			eval.getOutPrinter().flush();
 		}
 	}
 	
@@ -336,8 +336,8 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 				b.append(strval(result));
 			}
 			
-			eval.getStdOut().println(b);
-			eval.getStdOut().flush();
+			eval.getOutPrinter().println(b);
+			eval.getOutPrinter().flush();
 		}
 	}
 	

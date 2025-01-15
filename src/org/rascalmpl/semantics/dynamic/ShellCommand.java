@@ -45,14 +45,14 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 				
 				ISourceLocation uri = __eval.getRascalResolver().resolveModule(name);
 	       	 	if (uri == null) {
-					__eval.getStdErr().println("module " + name + " can not be found in the search path.");
+					__eval.getErrorPrinter().println("module " + name + " can not be found in the search path.");
 	        	}
 				else {
 					services.edit(uri);
 				}
 			}
 			else {
-				__eval.getStdErr().println("The current Rascal execution environment does not know how to start an editor.");
+				__eval.getErrorPrinter().println("The current Rascal execution environment does not know how to start an editor.");
 			}
 
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
@@ -76,11 +76,11 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 					term.puts(Capability.clear_screen);
 				}
 				else {
-					__eval.getStdErr().println("There is no terminal available to clear");
+					__eval.getErrorPrinter().println("There is no terminal available to clear");
 				}
 			}
 			else {
-				__eval.getStdErr().println("The current Rascal execution environment does not know how to clear the REPL.");
+				__eval.getErrorPrinter().println("The current Rascal execution environment does not know how to clear the REPL.");
 			}
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 		}
@@ -97,7 +97,7 @@ public abstract class ShellCommand extends org.rascalmpl.ast.ShellCommand {
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
 
 			__eval.setCurrentAST(this);
-			__eval.printHelpMessage(__eval.getStdOut());
+			__eval.printHelpMessage(__eval.getOutPrinter());
 			return org.rascalmpl.interpreter.result.ResultFactory.nothing();
 
 		}
