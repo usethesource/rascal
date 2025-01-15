@@ -258,7 +258,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             synchronized(stdout) {
                                 evaluator.warning("Could not import " + module + " for testing...", null);
                                 evaluator.warning(e.getMessage(), null);
-                                e.printStackTrace(evaluator.getStdOut());
+                                e.printStackTrace(evaluator.getOutPrinter());
                             } 
                             
                             // register a failing module to make sure we report failure later on. 
@@ -302,8 +302,8 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             
             evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJUnitTestRunner.getCommonMonitor());
-            stdout = new PrintWriter(evaluator.getStdOut());
-            stderr = new PrintWriter(evaluator.getStdErr());
+            stdout = new PrintWriter(evaluator.getOutPrinter());
+            stderr = new PrintWriter(evaluator.getErrorPrinter());
 
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);

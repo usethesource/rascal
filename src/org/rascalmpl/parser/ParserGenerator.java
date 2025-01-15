@@ -202,7 +202,7 @@ public class ParserGenerator {
 		finally {
 			if (profiler != null) {
 				profiler.pleaseStop();
-				evaluator.getStdOut().println("PROFILE:");
+				evaluator.getOutPrinter().println("PROFILE:");
 				profiler.report();
 				profiler = null;
 			}

@@ -34,8 +34,8 @@ public class ModuleRunner implements ShellRunner {
     IValue v = eval.main(eval.getMonitor(), module, "main", realArgs);
 
     if (v != null && !(v instanceof IInteger)) {
-      new StandardTextWriter(true).write(v, eval.getStdOut());
-      eval.getStdOut().flush();
+      new StandardTextWriter(true).write(v, eval.getOutPrinter());
+      eval.getOutPrinter().flush();
     }
 
     System.exit(v instanceof IInteger ? ((IInteger) v).intValue() : 0);

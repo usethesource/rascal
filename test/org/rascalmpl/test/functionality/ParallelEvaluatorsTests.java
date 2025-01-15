@@ -52,7 +52,7 @@ public class ParallelEvaluatorsTests {
                 
                 if (exception != null) {
                     evaluator.warning("Got exception: " + exception, loc);
-                    exception.printStackTrace(evaluator.getStdOut());
+                    exception.printStackTrace(evaluator.getOutPrinter());
                     throw new RuntimeException(exception);
                 }
             }
