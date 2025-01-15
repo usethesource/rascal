@@ -130,8 +130,8 @@ public class TestEvaluator {
                         }
                     }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
                     
-                    eval.getStdOut().flush();
-                    eval.getStdErr().flush();
+                    eval.getOutPrinter().flush();
+                    eval.getErrorPrinter().flush();
                     
                     if (!result.succeeded()) {
                         StringWriter sw = new StringWriter();
@@ -147,8 +147,8 @@ public class TestEvaluator {
                     testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
                 }
                 
-                eval.getStdOut().flush();
-                eval.getStdErr().flush();
+                eval.getOutPrinter().flush();
+                eval.getErrorPrinter().flush();
             }
 
             testResultListener.done();

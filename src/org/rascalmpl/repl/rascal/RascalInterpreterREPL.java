@@ -215,8 +215,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
 
     @Override
     public void flush() {
-        eval.getStdErr().flush();
-        eval.getStdOut().flush();
+        eval.getErrorPrinter().flush();
+        eval.getOutPrinter().flush();
     }
 
 }

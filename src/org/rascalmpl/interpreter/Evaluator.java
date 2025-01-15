@@ -95,7 +95,6 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalFunctionValueFactory;
@@ -388,7 +387,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override
-    public PrintWriter getStdOut() {
+    public PrintWriter getOutPrinter() {
         return curOutWriter == null ? defOutWriter : curOutWriter;
     }
     
@@ -445,7 +444,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     @Override
-    public PrintWriter getStdErr() {
+    public PrintWriter getErrorPrinter() {
         return curErrWriter == null ? defErrWriter : curErrWriter;
     }
 
@@ -604,7 +603,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
         catch (MatchFailed e) {
-            getStdOut().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
+            getOutPrinter().println("Main function should either have a list[str] as a single parameter like so: \'void main(list[str] args)\', or a set of keyword parameters with defaults like so: \'void main(bool myOption=false, str input=\"\")\'");
             return null;
         }
         finally {
@@ -806,7 +805,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
             synchronized (self) {
                 if (parserGenerator == null) {
-                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (PrintWriter) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
+
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof PrintWriter) ? (PrintWriter)monitor : getErrorPrinter(), classLoaders, getValueFactory(), config);
                 }
             }
         }
@@ -1195,13 +1195,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     private void reloadModules(IRascalMonitor monitor, Set<String> names, ISourceLocation errorLocation, boolean recurseToExtending, Set<String> affectedModules) {
-        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getStdErr());
+        SaveWarningsMonitor wrapped = new SaveWarningsMonitor(monitor, getErrorPrinter());
         IRascalMonitor old = setMonitor(wrapped);
 
         try {
             Set<String> onHeap = new HashSet<>();
             Set<String> extendingModules = new HashSet<>();
-            PrintWriter errStream = getStdErr();
+            PrintWriter errStream = getErrorPrinter();
  
             for (String mod : names) {
                 if (heap.existsModule(mod)) {
@@ -1488,7 +1488,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
-            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getStdErr());
+            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getErrorPrinter());
 
             new TestEvaluator(this, new ITestResultListener() {
 
