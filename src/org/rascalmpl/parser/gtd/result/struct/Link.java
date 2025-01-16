@@ -56,7 +56,6 @@ public class Link{
 		return node;
 	}
 
-
 	public boolean isCacheable() {
 		switch (cacheable) {
 			case CACHEABLE_YES: return true;
@@ -120,7 +119,7 @@ public class Link{
 
 	private boolean checkPrefixBeEmpty() {
 		if (prefixes == null || prefixes.size() == 0) {
-			return node.isEmpty();
+			return true;
 		}
 
 		boolean anyNonZeroLength = false;
@@ -128,7 +127,7 @@ public class Link{
 		for (int i=prefixes.size()-1; i>=0; --i) {
 			Link prefix = prefixes.get(i);
 			if (prefix == null) {
-				continue;
+				continue; // No idea what this case means so just ignore it for now
 			}
 
 			if (!prefix.node.isEmpty()) {

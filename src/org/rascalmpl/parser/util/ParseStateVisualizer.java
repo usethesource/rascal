@@ -421,16 +421,16 @@ public class ParseStateVisualizer {
             Link firstAlt = container.getFirstAlternative();
             IConstructor firstProd = container.getFirstProduction();
             if (firstAlt != null) {
-                NodeId firstAltId = addLink(graph, firstAlt, "Alt: " + DebugUtil.prodToString(firstProd));
-                graph.addEdge(id, firstAltId);
+                NodeId firstAltId = addLink(graph, firstAlt, DebugUtil.prodToString(firstProd));
+                graph.addEdge(id, firstAltId, "alt");
 
                 ArrayList<Link> alternatives = container.getAdditionalAlternatives();
                 ArrayList<IConstructor> prods = container.getAdditionalProductions();
                 if (alternatives != null) {
                     for (int i=0; i<alternatives.size(); i++) {
                         IConstructor prod = prods.get(i);
-                        NodeId altId = addLink(graph, alternatives.get(i), "Alt: " + DebugUtil.prodToString(prod));
-                        graph.addEdge(id, altId);
+                        NodeId altId = addLink(graph, alternatives.get(i), DebugUtil.prodToString(prod));
+                        graph.addEdge(id, altId, "alt");
                     }
                 }
             }
@@ -455,8 +455,8 @@ public class ParseStateVisualizer {
             for (int i=0; i<prefixes.size(); i++) {
                 Link prefix = prefixes.get(i);
                 if (prefix != null) {
-                    NodeId prefixId = addLink(graph, prefix, "Prefix");
-                    graph.addEdge(linkId, prefixId);
+                    NodeId prefixId = addLink(graph, prefix, "Link");
+                    graph.addEdge(linkId, prefixId, "prefix");
                 }
             }
         }
@@ -464,7 +464,7 @@ public class ParseStateVisualizer {
         NodeId nodeId = addParserNodes(graph, link.getNode());
 
         if (!link.canPrefixBeEmpty()) {
-            graph.highlight(getNodeId(link));
+            graph.highlight(getNodeId(link), "orange");
         }
 
         graph.addEdge(linkId, nodeId, "node", link.isCacheable() ? "green" : null);
@@ -554,7 +554,7 @@ public class ParseStateVisualizer {
     }
 
     public NodeId getNodeId(Link link) {
-        return new NodeId("Link-" + System.identityHashCode(link) + link.isCacheable());
+        return new NodeId("Link-" + System.identityHashCode(link));
     }
 
     private static NodeId getNodeId(Object node) {
