@@ -384,17 +384,17 @@ public class ErrorRecovery {
     }
 
     public IInteger countUniqueTreeNodes(IConstructor tree) {
-        return rascalValues.integer(countNodes((ITree) tree, true, new IdentityHashMap<IConstructor, Integer>()));
+        return rascalValues.integer(countNodes((ITree) tree, true, new IdentityHashMap<>()));
     }
 
     public IInteger countTreeNodes(IConstructor tree) {
-        return rascalValues.integer(countNodes((ITree) tree, false, new IdentityHashMap<IConstructor, Integer>()));
+        return rascalValues.integer(countNodes((ITree) tree, false, new IdentityHashMap<>()));
     }
 
-    private int countNodes(ITree tree, boolean unique, Map<IConstructor, Integer> processedNodes) {
+    private long countNodes(ITree tree, boolean unique, Map<IConstructor, Long> processedNodes) {
         Type type = tree.getConstructorType();
         if (type == RascalValueFactory.Tree_Appl || type == RascalValueFactory.Tree_Amb) {
-            Integer result = processedNodes.get(tree);
+            Long result = processedNodes.get(tree);
             if (result != null) {
                 return unique ? 0 : result;
             }
@@ -413,8 +413,8 @@ public class ErrorRecovery {
         }
     }
 
-    private int countApplNodes(ITree appl, boolean unique, Map<IConstructor, Integer> processedNodes) {
-        int count = 1;
+    private long countApplNodes(ITree appl, boolean unique, Map<IConstructor, Long> processedNodes) {
+        long count = 1;
         IList args = TreeAdapter.getArgs(appl);
         for (int i=args.size()-1; i>=0; i--) {
             count += countNodes((ITree) args.get(i), unique, processedNodes);
@@ -422,8 +422,8 @@ public class ErrorRecovery {
         return count;
     }
 
-    private int countAmbNodes(ITree amb, boolean unique, Map<IConstructor, Integer> processedNodes) {
-        int count = 1;
+    private long countAmbNodes(ITree amb, boolean unique, Map<IConstructor, Long> processedNodes) {
+        long count = 1;
         ISet originalAlts = (ISet) amb.get(0);
         for (IValue alt : originalAlts) {
             count += countNodes((ITree) alt, unique, processedNodes);
