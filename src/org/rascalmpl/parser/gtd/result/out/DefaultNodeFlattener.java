@@ -26,7 +26,6 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  * Converter for parse trees that produces trees in UPTR format.
  */
 public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
-	public static boolean nodeMemoization = true;
 	public static boolean safeNodeMemoization = false;
 	
 	private final CharNodeFlattener<T, S> charNodeConverter;
@@ -56,18 +55,18 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	 * Convert the given node.
 	 */
 	@SuppressWarnings("unchecked")
-	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
 		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
 				return charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
 			case LiteralNode.ID:
 				return literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
 			case SortContainerNode.ID:
-				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
 			case ExpandableContainerNode.ID:
-				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
 			case RecoveredNode.ID:
-				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, positionStore, filteringTracker, actionExecutor, environment);
 			case SkippedNode.ID:
 				return skippedNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
 			default:
@@ -79,6 +78,6 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
 	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
-		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
+		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment);
 	}
 }

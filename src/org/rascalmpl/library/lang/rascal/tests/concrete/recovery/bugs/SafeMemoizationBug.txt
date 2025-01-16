@@ -1,0 +1,10 @@
+module X x t()
+try
+{
+//.
+p();
+return false;
+}
+catch a(l _,_):{
+t=p();assert /a(_)!:=t:"node.";
+return false;}}
