@@ -26,7 +26,6 @@
  */
 package org.rascalmpl.repl;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.Instant;
@@ -83,6 +82,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      */
     private final boolean unicodeEnabled;
 
+    /**
+     * Keep track if the regular writes have ended on a new line or not
+     */
+    private volatile boolean onNewLine = true;
     /**x    
      * Will make everything slow, but easier to spot mistakes
      */
@@ -116,7 +119,6 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             && tm.getStringCapability(Capability.cursor_down) != null
             ;
     }
-
 
     public TerminalProgressBarMonitor(Terminal tm) {
         super(DEBUG ? new AlwaysFlushAlwaysShowCursor(tm.writer(), tm) : tm.writer());
@@ -500,16 +502,24 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     
     @Override
     public synchronized void jobStart(String name, int workShare, int totalWork) {
-        if (bars.isEmpty()) {
-            // first new job, we take time to react to window resizing
-            lineWidth = tm.getWidth();
-        }
-
         if (totalWork == 0) {
             // makes it easy to use `size` for totalWork and not do anything
             // if there is nothing to do.
             return;
         }
+
+        if (bars.isEmpty()) {
+            // we might not be on a new line, so before we start rendering
+            // do a println, if the last output was not a newline
+            if (!onNewLine) {
+                directWrite(System.lineSeparator());
+                directFlush();
+            }
+
+            // first new job, we take time to react to window resizing
+            lineWidth = tm.getWidth();
+        }
+
 
         var pb = findBarByName(name);
         
@@ -546,21 +556,28 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         var pb = findBarByName(name);
 
         directWrite(hideCursor);
-
-        if (pb != null && --pb.nesting == -1) {
-            eraseBars();
-            pb.done();
-            bars.remove(pb);
-            // print the left over bars under this one.
-            printBars();
-            return pb.current;
+        try {
+            if (pb != null && --pb.nesting == -1) {
+                eraseBars();
+                pb.done();
+                bars.remove(pb);
+                // print the left over bars under this one.
+                printBars();
+                if (bars.isEmpty()) {
+                    // cleanup
+                    endAllJobs();
+                }
+                return pb.current;
+            }
+            else if (pb != null) {
+                pb.done();
+                pb.update();
+            }
         }
-        else if (pb != null) {
-            pb.done();
-            pb.update();
+        finally {
+            directWrite(showCursor);
         }
 
-        directWrite(showCursor);
 
         return -1;
     }
@@ -588,6 +605,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
         }
 
         directPrintln(("[WARNING] " + (src != null ? (src  + ": ") : "") + message));
+        onNewLine = true;
 
         if (!bars.isEmpty()) {
             printBars();
@@ -604,14 +622,13 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is before the first character of a line.
      */
     @Override
-    public void write(String s, int off, int len) {
-        synchronized(lock) {
-            if (!bars.isEmpty()) {
-                findUnfinishedLine().write(s, off, len);
-            }
-            else {
-                directWrite(s, off, len);
-            }
+    public synchronized void write(String s, int off, int len) {
+        if (!bars.isEmpty()) {
+            findUnfinishedLine().write(s, off, len);
+        }
+        else {
+            directWrite(s, off, len);
+            onNewLine = s.charAt(off + len - 1) == '\n';
         }
     }
     /**
@@ -620,16 +637,15 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public void write(char[] buf, int off, int len)  {
-        synchronized(lock) {
-            if (!bars.isEmpty()) {
-                findUnfinishedLine().write(buf, off, len);
-            }
-            else {
-                // this must be the raw output stream
-                // otherwise rascal prompts (which do not end in newlines) will be buffered
-                directWrite(buf, off, len);
-            }
+    public synchronized void write(char[] buf, int off, int len)  {
+        if (!bars.isEmpty()) {
+            findUnfinishedLine().write(buf, off, len);
+        }
+        else {
+            // this must be the raw output stream
+            // otherwise rascal prompts (which do not end in newlines) will be buffered
+            directWrite(buf, off, len);
+            onNewLine = buf[off + len - 1] == '\n';
         }
     }
 
@@ -639,26 +655,24 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
      * is ready, we simply add our own progress bars again.
      */
     @Override
-    public void write(int c) {
-        synchronized(lock) {
-            if (!bars.isEmpty()) {
-                findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
-            }
-            else {
-                directWrite(c);
-            }
+    public synchronized void write(int c) {
+        if (!bars.isEmpty()) {
+            findUnfinishedLine().write(new char[] { (char) c }, 0, 1);
+        }
+        else {
+            directWrite(c);
+            onNewLine = c == '\n';
         }
     }
 
     @Override
-    public void println() {
-        synchronized(lock) {
-            if (!bars.isEmpty()) {
-                write(System.lineSeparator());
-            }
-            else {
-                super.println();
-            }
+    public synchronized void println() {
+        if (!bars.isEmpty()) {
+            write(System.lineSeparator());
+        }
+        else {
+            super.println();
+            onNewLine = true;
         }
     }
 
@@ -668,7 +682,6 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
     public synchronized void endAllJobs() {
         if (!bars.isEmpty()) {
             eraseBars();
-            printBars();
             bars.clear();
         }
 
@@ -676,18 +689,12 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
             l.flushLastLine();
         }
 
-        try {
-            directWrite(showCursor);
-            directFlush();
-            out.flush();
-        }
-        catch (IOException e) {
-            // ignore
-        }
+        directWrite(showCursor);
+        directFlush();
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         try {
             endAllJobs();
         }
