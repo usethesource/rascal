@@ -38,6 +38,16 @@ public class Link{
 	private int emptyPrefix;
 	private int cacheable;
 
+	// ids are only used for debug visualization
+	private static int nextId = 0;
+	private int id = nextId++;
+	public static void resetIds() {
+		nextId = 0;
+	}
+	public int getId() {
+		return id;
+	}
+
 	public Link(ArrayList<Link> prefixes, AbstractNode node){
 		super();
 		
@@ -80,7 +90,7 @@ public class Link{
 
 		if (node.isEmpty()) {
 			if (prefixes == null || prefixes.size() == 0) {
-				return true;
+				return false;
 			}
 
 			for (int i = prefixes.size() - 1; i >= 0; --i) {
@@ -96,9 +106,11 @@ public class Link{
 
 			return true;
 		}
-		else {
-			return !canPrefixBeEmpty();
+		else if (!canPrefixBeEmpty()) {
+			return true;
 		}
+
+		return false;
 	}
 
 	public boolean canPrefixBeEmpty() {
@@ -122,7 +134,7 @@ public class Link{
 			return true;
 		}
 
-		boolean anyNonZeroLength = false;
+		boolean anyNonEmpty = false;
 
 		for (int i=prefixes.size()-1; i>=0; --i) {
 			Link prefix = prefixes.get(i);
@@ -131,16 +143,18 @@ public class Link{
 			}
 
 			if (!prefix.node.isEmpty()) {
-				anyNonZeroLength = true;
+				anyNonEmpty = true;
 				continue;
 			}
 
 			if (prefix.canPrefixBeEmpty()) {
 				return true;
+			} else {
+				anyNonEmpty = true;
 			}
 		}
 
-		return !anyNonZeroLength;
+		return !anyNonEmpty;
 	}
 
 

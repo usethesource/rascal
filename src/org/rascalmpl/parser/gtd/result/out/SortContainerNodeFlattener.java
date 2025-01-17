@@ -52,7 +52,8 @@ public class SortContainerNodeFlattener<P, T, S>{
 		AbstractNode resultNode = child.getNode();
 
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
-			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<>(NO_NODES, resultNode, false), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, false);
+			boolean cacheable = child.isCacheable();
+			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<>(NO_NODES, resultNode, cacheable), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, NO_NODES, gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
 		}
@@ -87,7 +88,6 @@ public class SortContainerNodeFlattener<P, T, S>{
 		for(int i = 0; i < postFixLength; ++i){
 			AbstractNode node = postFix.element;
 			postFix = postFix.next;
-
 
 			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 

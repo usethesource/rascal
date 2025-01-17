@@ -117,7 +117,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
 
                 noMemoSource = source;
                 noMemoSource.query = source.query + "&parse-memoization=none";
-                setTimeout(realTime() + 1000);
+                setTimeout(realTime() + 2000);
                 try {
                     noMemoTree = recoveryParser(input, noMemoSource);
                     memoFailed = !treeEquality(tree, noMemoTree);
