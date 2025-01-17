@@ -1513,6 +1513,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	private void checkMemoization(URI inputURI, AbstractNode result) {
 		DefaultNodeFlattener.safeNodeMemoization = true;
+		Link.resetIds();
 		if (inputURI != null) {
 			String query = inputURI.getQuery();
 			if (query != null) {
