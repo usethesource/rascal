@@ -104,6 +104,9 @@ public class ParseStateVisualizer {
 
     private static final NodeId RECOVERED_NODES_ID = new NodeId("recoveredNodes");
 
+    private static final String COLOR_CACHEABLE = "lightgreen";
+    private static final String COLOR_NON_EMPTY_PREFIX = "orange";
+
     public static boolean shouldVisualizeUri(URI inputUri) {
         if (!VISUALIZATION_ENABLED) {
             return false;
@@ -422,15 +425,16 @@ public class ParseStateVisualizer {
             IConstructor firstProd = container.getFirstProduction();
             if (firstAlt != null) {
                 NodeId firstAltId = addLink(graph, firstAlt, DebugUtil.prodToString(firstProd));
-                graph.addEdge(id, firstAltId, "alt");
+                graph.addEdge(id, firstAltId, "alt", firstAlt.isCacheable() ? COLOR_CACHEABLE : null);
 
                 ArrayList<Link> alternatives = container.getAdditionalAlternatives();
                 ArrayList<IConstructor> prods = container.getAdditionalProductions();
                 if (alternatives != null) {
                     for (int i=0; i<alternatives.size(); i++) {
                         IConstructor prod = prods.get(i);
-                        NodeId altId = addLink(graph, alternatives.get(i), DebugUtil.prodToString(prod));
-                        graph.addEdge(id, altId, "alt");
+                        Link alt = alternatives.get(i);
+                        NodeId altId = addLink(graph, alt, DebugUtil.prodToString(prod));
+                        graph.addEdge(id, altId, "alt", alt.isCacheable() ? COLOR_CACHEABLE : null);
                     }
                 }
             }
@@ -446,7 +450,7 @@ public class ParseStateVisualizer {
         }
 
         DotNode linkNode = new DotNode(linkId);
-        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label);
+        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label + "\n" + link.getId());
 
         graph.addNode(linkNode);
 
@@ -464,10 +468,10 @@ public class ParseStateVisualizer {
         NodeId nodeId = addParserNodes(graph, link.getNode());
 
         if (!link.canPrefixBeEmpty()) {
-            graph.highlight(getNodeId(link), "orange");
+            graph.highlight(getNodeId(link), COLOR_NON_EMPTY_PREFIX);
         }
 
-        graph.addEdge(linkId, nodeId, "node", link.isCacheable() ? "green" : null);
+        graph.addEdge(linkId, nodeId, "node", link.isCacheable() ? COLOR_CACHEABLE : null);
 
         return linkId;
     }
