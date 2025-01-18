@@ -24,7 +24,7 @@ test bool testSafeMemoizationFailure() {
         println("input difference?");
     }
 
-    modifiedInput = modifiedInput1;
+    modifiedInput = modifiedInput2;
     println("Modified input: <modifiedInput>");
 
     begin = realTime();
