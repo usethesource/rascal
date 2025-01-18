@@ -13,13 +13,16 @@ package org.rascalmpl.parser.gtd.util;
 
 @SuppressWarnings({"rawtypes","unchecked"})
 public class ForwardLink<E>{
-	public final static ForwardLink TERMINATOR = new ForwardLink();
+	public static final ForwardLink TERMINATOR = new ForwardLink();
+	public static final int CACHE_NO = 0;
+	public static final int CACHE_YES = 1;
+	public static final int CACHE_SHARING_ONLY = 2;
 	
 	public final ForwardLink<E> next;
 	public final int length;
 	
 	public final E element;
-	public boolean cacheable;
+	public int cacheMode;
 	
 	private ForwardLink(){
 		super();
@@ -31,10 +34,10 @@ public class ForwardLink<E>{
 	}
 
 	public ForwardLink(ForwardLink next, E element) {
-		this(next, element, false);
+		this(next, element, CACHE_NO);
 	}
 
-	public ForwardLink(ForwardLink next, E element, boolean cacheable){
+	public ForwardLink(ForwardLink next, E element, int cacheMode){
 		super();
 		
 		this.next = next;
@@ -42,6 +45,6 @@ public class ForwardLink<E>{
 		
 		this.element = element;
 
-		this.cacheable = cacheable;
+		this.cacheMode = cacheMode;
 	}
 }
