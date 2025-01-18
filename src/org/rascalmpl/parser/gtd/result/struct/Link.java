@@ -131,7 +131,7 @@ public class Link{
 
 	private boolean checkPrefixBeEmpty() {
 		if (prefixes == null || prefixes.size() == 0) {
-			return true;
+			return false;
 		}
 
 		boolean anyNonEmpty = false;
