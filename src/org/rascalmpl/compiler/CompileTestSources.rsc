@@ -17,33 +17,23 @@ import lang::rascalcore::compile::util::Names;
 
 loc REPO = |file:///Users/paulklint/git/|;
 
-PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/test-classes",
-                                        generatedSources = REPO + "generated-sources/target/generated-test-sources",
-                                        resources = REPO + "generated-sources/target/test-classes" //|project://rascal-core/target/generated-test-resources|
+PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/classes",
+                                        generatedSources = REPO + "generated-sources/target/generated-sources",
+                                        resources = REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
                                        );
-// PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|,
-//                                         generatedSources = |project://rascal-core/target/generated-test-sources|,
-//                                         resources = |project://rascal-core/target/test-classes| //|project://rascal-core/target/generated-test-resources|
-//                                        );
-
 void main() = compileTestSources(manualTestConfig);
 
 void compileTestSources(PathConfig pcfg) {
      testConfig = pathConfig(
-        bin=pcfg.bin,
-        generatedSources= REPO + "generated-sources/target/generated-test-sources",
-        resources = pcfg.bin, //|project://rascal-core/target/generated-test-resources2|,
+        bin = REPO + "compiled-rascal/target/classes",
+        generatedSources = REPO + "compiled-rascal/src/main/java",
+        generatedTestSources = REPO + "compiled-rascal/src/test/java/",
+        resources = REPO + "compiled-rascal/src/main/java",
+        testResources = REPO + "compiled-rascal/src/test/java",
         srcs=[ REPO + "rascal/src/org/rascalmpl/library", |std:///|, 
                REPO + "rascal-core/src/org/rascalmpl/core/library"],
         libs = [ ]
      );
-    //  testConfig = pathConfig(
-    //     bin=pcfg.bin,
-    //     generatedSources=|project://rascal-core/target/generated-test-sources|,
-    //     resources = pcfg.bin, //|project://rascal-core/target/generated-test-resources2|,
-    //     srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
-    //     libs = [ ]
-    //  );
      
    println("PathConfig for compiling test sources:\n");
    iprintln(testConfig);
@@ -132,17 +122,17 @@ void compileTestSources(PathConfig pcfg) {
   //  ];
    
 
-   for (m <- libraryModules) {
-     <e, d> = safeCompile(m, testCompilerConfig);
-     total += d;
-   }
+  //  for (m <- libraryModules) {
+  //    <e, d> = safeCompile(m, testCompilerConfig);
+  //    total += d;
+  //  }
    
    //for (m <- checkerTestModules) {
    //  <e, d> = safeCompile(m, testConfig, testCompilerConfig);
    //  total += d;
    //}
      
-   testFolder = |std:///lang/rascal/tests|;
+   testFolder = |std:///lang/rascal/|;
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
@@ -151,6 +141,7 @@ void compileTestSources(PathConfig pcfg) {
    ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
    testModules -= ignored;
+   println("Compiling test modules:");
    println(testModules);   
    
    list[str] exceptions = [];
