@@ -33,9 +33,7 @@ import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
-import org.rascalmpl.types.RascalType;
 import org.rascalmpl.types.RascalTypeFactory;
-import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -387,15 +385,15 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
 		return $isSubtypeOf(t1, t2) || $isSubtypeOf(t2, t1);
 	}
 	
-	private final boolean checkRightValueOrParam(Type left, Type right) {
-		if(right.isTop()) {
-			return true;
-		}
-		if(right.isParameter()) {
-			return $isSubtypeOf(left, right.getBound());
-		}
-		return false;
-	}
+	// private final boolean checkRightValueOrParam(Type left, Type right) {
+	// 	if(right.isTop()) {
+	// 		return true;
+	// 	}
+	// 	if(right.isParameter()) {
+	// 		return $isSubtypeOf(left, right.getBound());
+	// 	}
+	// 	return false;
+	// }
 	
 	//TODO: consider caching this method
 	
