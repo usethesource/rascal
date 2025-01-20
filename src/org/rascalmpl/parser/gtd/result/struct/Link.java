@@ -11,12 +11,16 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result.struct;
 
+import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
 
 /**
  * A structure that links a result node to a set of prefixes.
@@ -90,7 +94,7 @@ public class Link{
 
 		if (node.isEmpty()) {
 			if (prefixes == null || prefixes.size() == 0) {
-				return false;
+				return allAltsCacheable(node);
 			}
 
 			for (int i = prefixes.size() - 1; i >= 0; --i) {
@@ -110,7 +114,35 @@ public class Link{
 			return true;
 		}
 
+		if (prefixes == null || prefixes.size() == 0) {
+			return allAltsCacheable(node);
+		}
+
 		return false;
+	}
+
+	private boolean allAltsCacheable(AbstractNode node) {
+		if (!(node instanceof AbstractContainerNode)) {
+			return true;
+		}
+
+		AbstractContainerNode<IConstructor> containerNode = (AbstractContainerNode<IConstructor>) node;
+		if(containerNode.getFirstAlternative() != null && !containerNode.getFirstAlternative().isCacheable()) {
+			return false;
+		}
+
+		ArrayList<Link> alts = containerNode.getAdditionalAlternatives();
+		if (alts == null) {
+			return true;
+		}
+
+		for (int i=alts.size()-1; i>=0; i--) {
+			if (!alts.get(i).isCacheable()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public boolean canPrefixBeEmpty() {
@@ -131,7 +163,7 @@ public class Link{
 
 	private boolean checkPrefixBeEmpty() {
 		if (prefixes == null || prefixes.size() == 0) {
-			return false;
+			return true;
 		}
 
 		boolean anyNonEmpty = false;
@@ -156,7 +188,6 @@ public class Link{
 
 		return !anyNonEmpty;
 	}
-
 
 	public String toString() {
 		return "Link[node=" + node + ", prefixes=" + (prefixes == null ? 0 : prefixes.size()) + "]";
