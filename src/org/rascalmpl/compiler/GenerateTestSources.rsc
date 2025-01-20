@@ -19,117 +19,69 @@ void main(list[str] cmdLineArgs) = generateTestSources(cmdLineArgs);
 
 void main() = main([]);
 
+loc REPO = |file:///Users/paulklint/git/|;
+
+list[str] getRascalModules(loc rootFolder)
+  = [ replaceAll(file[extension=""].path[1..], "/", "::") 
+    | loc file <- find(rootFolder, "rsc") 
+    ];        
+
 void generateTestSources(list[str] cmdLineArgs) {
    if ("rascal.generateSources.skip" in getSystemProperties()) {
      println("Skipping the generation of test sources.");
      return;
    }
 
-   testConfig = pathConfig(
-     bin=|project://generated-sources/classes/|,
-     generatedSources=|project://generated-sources/target/generated-sources/src/main/java/|,
-     generatedTestSources = |project://generated-sources/target/generated-sources/src/main/java/|,
-     //generatedSources=|project://rascal-core/target/generated-test-sources|,
-     resources = |project://generated-sources/target/generated-resources/src/main/java/|, //|project://rascal-core/target/generated-test-resources|,
-     srcs=[ |project://rascal/src/org/rascalmpl/library|,
-            |project://rascal-core/src/org/rascalmpl/core/library| ],
-     libs = [ ]
+   genConfig = pathConfig(
+        bin = REPO + "compiled-rascal/target/classes",
+        generatedSources = REPO + "compiled-rascal/src/main/java",
+        generatedTestSources = REPO + "compiled-rascal/src/test/java/",
+        resources = REPO + "compiled-rascal/src/main/java",
+        testResources = REPO + "compiled-rascal/src/test/java",
+        srcs=[ REPO + "rascal/src/org/rascalmpl/library", |std:///|, 
+               REPO + "rascal-core/src/org/rascalmpl/core/library"],
+        libs = [ ]
      );
      
-   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false];
+   genCompilerConfig = getRascalCoreCompilerConfig(genConfig)[logPathConfig=false];
    
    map[str,int] durations = ();
      
-   println("PathConfig for generating test sources:\n");
-   iprintln(testConfig);
+   println("PathConfig for compiling Rascal modules to Java:\n");
+   iprintln(genConfig);
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 
-   testModules = [];
+   modulesToCompile = [];
   
    if("all" in cmdLineArgs){
-        rootFolder = |std:///|;
-   
-        testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
-                      | loc file <- find(rootFolder, "rsc") 
-                      ];           
-   } else {         
-   
-       libraryModules = ["Boolean", 
-                         "DateTime", 
-                         "Exception", 
-                         "Grammar", 
-                         "IO", 
-                         "List", 
-                         "ListRelation", 
-                         "Location", 
-                         "Map", 
-                         "Message", 
-                         "Node", 
-                         "ParseTree", 
-                         "Prelude", 
-                         "Relation", 
-                         "Set", "String", 
-                         /*"Traversal",*/
-                         "Type", 
-                         "ValueIO",
-                         "analysis::graphs::Graph", 
-                         "analysis::statistics::Correlation",
-                         "analysis::statistics::Descriptive",
-                         "analysis::statistics::Frequency",
-                         "analysis::statistics::Inference",
-                         "analysis::statistics::SimpleRegression",
-                         "lang::csv::IO",
-                         "lang::json::IO",
-                         "lang::manifest::IO",
-                         "lang::rascal::syntax::Rascal",
-                         "lang::xml::DOM",
-                         "lang::xml::IO",
-                         "util::FileSystem", 
-                         "util::Math",
-                         "util::Maybe",
-                         "util::Memo",
-                         "util::PriorityQueue",
-                         "util::Reflective",
-                         "util::SemVer",
-                         "util::UUID",
-                         
-                         //"demo::lang::Pico::Syntax",
-                        
-                         "analysis::m3::AST", 
-                         "analysis::m3::Core", 
-                         "analysis::m3::FlowGraph", 
-                         "analysis::m3::Registry",
-                         "analysis::m3::TypeSymbol"];  
-                     
-       for (m <- libraryModules) {
-         safeCompile(m, testCompilerConfig, (int d) { durations[m] = d; });
-       }
-   
-     
-       testFolders = [|std:///lang/rascal/tests| ];
-       
-       testModules = [ *[ replaceAll(file[extension=""].path[1..], "/", "::") | loc file <- find(testFolder, "rsc") ]
-                     | testFolder <- testFolders
+      modulesToCompile = getRascalModules(|std:///|);     
+   } else {              
+       testFolders = [ |std:///lang/rascal/tests|,
+                       REPO + "/rascal-core/lang/rascalcore/check::tests"
                      ];
+       
+       modulesToCompile = [ *getRascalModules(testFolder)
+                          | testFolder <- testFolders
+                          ];
    }  
 
    ignored = ["lang::rascal::tests::concrete::Patterns3",
               "lang::rascal::syntax::tests::ExpressionGrammars"
              ];           
-   testModules -= ignored;    
+   modulesToCompile -= ignored;    
    
    list[str] exceptions = [];
-   int n = size(testModules);
-   for (i <- index(testModules)) {
-      m = testModules[i];
-      println("Compiling test module <m> [<i>/<n>]");
-      e = safeCompile(m, testCompilerConfig, (int d) { durations[m] = d; });
+   int n = size(modulesToCompile);
+   for (i <- index(modulesToCompile)) {
+      m = modulesToCompile[i];
+      println("Compiling module <m> [<i>/<n>]");
+      e = safeCompile(m, genCompilerConfig, (int d) { durations[m] = d; });
       if(!isEmpty(e)){
         exceptions += e;
       }
    }
-   println("Compiled <n> test modules");
+   println("Compiled <n> modules");
    println("<size(exceptions)> failed to compile: <exceptions>");
    if(!isEmpty(ignored)) { println("Ignored: <ignored>"); }
    secs = isEmpty(durations) ? 0 : sum(range(durations))/1000000000;
