@@ -3,8 +3,6 @@ module lang::rascalcore::check::tests::AccumulatingTCTests
  
 import lang::rascalcore::check::tests::StaticTestingUtils;
 
-test bool IWILLFAIL() = checkModuleOK("module IWILLFAIL int x = y;");
-
 test bool testappendWithoutFor() = illegalUse("append 3;");
 
 test bool AppendHasLexicalScopingFunction() 
