@@ -126,7 +126,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                     ms.status[m] -= {tpl_uptodate(), checked()};
                     ms.status[qualifiedModuleName] -= tpl_saved();
                     if(ms.compilerConfig.verbose){
-                        println("--- using <lm> (most recent) version of <m>,
+                        println("--- using <getLastModified(m,ms.moduleLastModified,pcfg)> (most recent) version of <m>,
                                 '    older <timestampInBom> version was used in previous check of <qualifiedModuleName>");
                     }
                }
