@@ -31,24 +31,10 @@ void generateTestSources(list[str] cmdLineArgs) {
      println("Skipping the generation of test sources.");
      return;
    }
-
-   genConfig = pathConfig(
-        bin = REPO + "compiled-rascal/target/classes",
-        generatedSources = REPO + "compiled-rascal/src/main/java",
-        generatedTestSources = REPO + "compiled-rascal/src/test/java/",
-        resources = REPO + "compiled-rascal/src/main/java",
-        testResources = REPO + "compiled-rascal/src/test/java",
-        srcs=[ REPO + "rascal/src/org/rascalmpl/library", |std:///|, 
-               REPO + "rascal-core/src/org/rascalmpl/core/library"],
-        libs = [ ]
-     );
      
-   genCompilerConfig = getRascalCoreCompilerConfig(genConfig)[logPathConfig=false];
+   genCompilerConfig = getRascalCoreCompilerConfig()[logPathConfig=false];
    
    map[str,int] durations = ();
-     
-   println("PathConfig for compiling Rascal modules to Java:\n");
-   iprintln(genConfig);
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
 

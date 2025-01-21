@@ -2,8 +2,6 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
 import java.util.Map;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.InternalCompilerError;
-
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
