@@ -31,8 +31,8 @@ void generateTestSources(list[str] cmdLineArgs) {
      println("Skipping the generation of test sources.");
      return;
    }
-     
-   genCompilerConfig = getRascalCoreCompilerConfig()[logPathConfig=false];
+   
+   genCompilerConfig = getAllSrcCompilerConfig()[logPathConfig=false];
    
    map[str,int] durations = ();
 
