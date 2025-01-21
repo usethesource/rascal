@@ -496,6 +496,7 @@ value main(){
     assert checkModuleOK(Top);
     return true;
 }
+
 test bool onlyChangedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
     remove(pcfg.resources, recursive=true);
