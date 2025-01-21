@@ -12,6 +12,9 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import org.jline.terminal.impl.DumbTerminal;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -36,7 +40,6 @@ import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
-import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -50,7 +53,17 @@ import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
     private static class InstanceHolder {
-		final static IRascalMonitor monitor = IRascalMonitor.buildConsoleMonitor(System.in, System.out);
+		final static IRascalMonitor monitor;
+        static {
+            try {
+                // jline is to smart, it intersects with junit runners that also interact with the stream
+                // so instead of that we direct all the messages to stderr, and disable any smart stuff
+                monitor = IRascalMonitor.buildConsoleMonitor(new DumbTerminal(InputStream.nullInputStream(), System.out));
+            }
+            catch (IOException e1) {
+                throw new IllegalStateException("Could not create a terminal representation");
+            }
+        }
     }
    
    	public static IRascalMonitor getCommonMonitor() {
@@ -68,12 +81,9 @@ public class RascalJUnitTestRunner extends Runner {
 
     static {
         try {
-            RascalShell.setupWindowsCodepage();
-            RascalShell.enableWindowsAnsiEscapesIfPossible();
-
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, getCommonMonitor());
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, getCommonMonitor());
         
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);

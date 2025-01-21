@@ -1,9 +1,10 @@
-package org.rascalmpl.repl;
+package org.rascalmpl.repl.streams;
 
 import java.io.Writer;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Attribute;
+
 
 public class ItalicErrorWriter extends WrappedFilterWriter {
     public ItalicErrorWriter(Writer out) {

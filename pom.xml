@@ -34,6 +34,7 @@
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
         <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
+        <jline.version>3.27.0</jline.version>
     </properties>
 
     <licenses>
@@ -235,6 +236,7 @@
                         <include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
                         <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
+                        <include>**/org/rascalmpl/test/repl/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
@@ -331,19 +333,6 @@
                                     <addHeader>false</addHeader>
                                 </transformer>
                             </transformers>
-                            <relocations>
-                                <relocation>
-                                    <pattern>org.fusesource.jansi</pattern>
-                                    <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
-                                    <excludes>
-                                        <exclude>org.fusesource.jansi.internal.*</exclude>
-                                    </excludes>
-                                </relocation>
-                                <relocation>
-                                    <pattern>jline</pattern>
-                                    <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                </relocation>
-                            </relocations>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -471,10 +460,35 @@
             <artifactId>gson</artifactId>
             <version>2.11.0</version>
         </dependency>
-        <dependency>
-            <groupId>jline</groupId>
-            <artifactId>jline</artifactId>
-            <version>2.14.6</version>
+        <dependency> <!-- line reader/completion/history support -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- terminal API -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- interaction with native APIs for console features, after jdk22 we can switch to FFM -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-terminal-jni</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- styling api -->
+            <groupId>org.jline</groupId> 
+            <artifactId>jline-style</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency> <!-- command registyr and extra features -->
+            <groupId>org.jline</groupId>
+            <artifactId>jline-console</artifactId>
+            <version>${jline.version}</version>
+        </dependency>
+        <dependency>  <!-- raw ansi commands -->
+            <groupId>org.jline</groupId>
+            <artifactId>jansi-core</artifactId>
+            <version>${jline.version}</version>
         </dependency>
         <dependency>
             <groupId>org.yaml</groupId>
@@ -563,44 +577,7 @@
                                     <goal>shade</goal>
                                 </goals>
                                 <configuration>
-                                    <transformers>
-                                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                            <manifestEntries>
-                                                <Name>rascal</Name>
-                                                <Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
-                                                <Specification-Version>${project.version}</Specification-Version>
-                                                <Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
-                                            </manifestEntries>
-                                        </transformer>
-                                    </transformers>
-                                    <relocations>
-                                        <relocation>
-                                            <pattern>org.fusesource.jansi</pattern>
-                                            <shadedPattern>org.rascalmpl.fusesource.jansi</shadedPattern>
-                                            <excludes>
-                                                <exclude>org.fusesource.jansi.internal.*</exclude>
-                                            </excludes>
-                                        </relocation>
-                                        <relocation>
-                                            <pattern>jline</pattern>
-                                            <shadedPattern>org.rascalmpl.jline</shadedPattern>
-                                        </relocation>
-                                    </relocations>
-                                    <filters>
-                                        <filter>
-                                            <artifact>*:*</artifact>
-                                            <excludes>
-                                                <exclude>META-INF/*.SF</exclude>
-                                                <exclude>META-INF/*.DSA</exclude>
-                                                <exclude>META-INF/*.RSA</exclude>
-                                            </excludes>
-                                        </filter>
-                                    </filters>
-                                    <artifactSet>
-                                        <includes>
-                                            <include>jline:*</include>
-                                        </includes>
-                                    </artifactSet>
+                                    <skip>true</skip>
                                 </configuration>
                             </execution>
                         </executions>
