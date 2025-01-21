@@ -115,18 +115,25 @@ datetime startOfEpoch = $2000-01-01T00:00:00.000+00:00$;
 datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     try {
-        res = moduleLastModified[qualifiedModuleName];
-        //println("getLastModified <qualifiedModuleName> from map: <res>");
-        return res;
+        return moduleLastModified[qualifiedModuleName];
    } catch NoSuchKey(_): {
         try {
             mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
-            res = lastModified(mloc);
-            //println("getLastModified <mloc> via lastModified: <res>");
-            return res;
+            return lastModified(mloc);
         } catch value _: {
             return startOfEpoch;
         }
+    }
+}
+
+// Check that a module is still up-to-date compared to a given timestamp
+bool isUpToDateModule(str qualifiedModuleName, datetime timestamp, PathConfig pcfg){
+    qualifiedModuleName = unescape(qualifiedModuleName);
+    try {
+        mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
+        return lastModified(mloc) == timestamp;
+    } catch value _: {
+        return false;
     }
 }
 
