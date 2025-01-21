@@ -13,6 +13,7 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -300,9 +301,9 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), System.in, System.err, System.out, root, heap, RascalJUnitTestRunner.getCommonMonitor());
-            stdout = new PrintWriter(evaluator.getStdOut());
-            stderr = new PrintWriter(evaluator.getStdErr());
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJUnitTestRunner.getCommonMonitor());
+            stdout = new PrintWriter(evaluator.getOutPrinter());
+            stderr = new PrintWriter(evaluator.getErrorPrinter());
 
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
