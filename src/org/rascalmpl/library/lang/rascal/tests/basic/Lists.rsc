@@ -285,9 +285,9 @@ test bool assignStep13() { L = [0,1,2,3,4,5,6,7,8,9]; L[-1,-3..] = [10,20,30,40,
 
 // TODO: add tests for /= and &= 
 
-@ignoreInterpreter{} test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
-@ignoreInterpreter{} test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
-@ignoreInterpreter{} test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
+test bool AssignFromEnd1(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-1] = 90; return L ==  [0,1,2,3,4,5,6,7,8,90]; }
+test bool AssignFromEnd2(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-2] = 80; return L ==  [0,1,2,3,4,5,6,7,80,9]; }
+test bool AssignFromEnd3(){ L = [0,1,2,3,4,5,6,7,8,9]; L[-10] = 10; return L == [10,1,2,3,4,5,6,7,8,9]; }
 
 // Library functions
 
