@@ -30,6 +30,11 @@ void testCycles() {
         println("INCORRECT");
     }
 
+
+    println("Node counts, no memo: <countTreeNodes(noMemoTree)>, with memo: <countTreeNodes(safeNodeMemoTree)>");
+    parseTree2Dot(noMemoTree, |tmp:///no-memo.dot|);
+    parseTree2Dot(safeNodeMemoTree, |tmp:///with-memo.dot|);
+
 /*
     if ({appl1Level1, *_ } := getChildren(t1)[0] && {appl2Level1, *_ } := getChildren(t2)[0]) {
         println("appl1Level1:\n<prettyTree(appl1Level1)>");
