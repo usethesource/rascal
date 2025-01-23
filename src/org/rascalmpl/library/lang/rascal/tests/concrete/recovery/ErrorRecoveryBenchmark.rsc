@@ -5,9 +5,7 @@ import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import IO;
 import ValueIO;
 import util::Benchmark;
-import util::SystemAPI;
 import String;
-import List;
 
 void runTestC() { testRecoveryC(); }
 void runTestDiff() { testRecoveryDiff(); }
@@ -25,6 +23,8 @@ FileStats testRecoveryJson() = testErrorRecovery(|std:///lang/json/syntax/JSON.r
 FileStats testRecoveryPico() = testErrorRecovery(|std:///lang/pico/syntax/Main.rsc|, "Program", |std:///lang/pico/examples/fac.pico|);
 FileStats testRecoveryRascal() = testErrorRecovery(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///lang/rascal/vis/ImportGraph.rsc|);
 
+FileStats testMemoBug() = testErrorRecovery(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///lang/rascal/tests/concrete/PostParseFilter.rsc|);
+
 void runLanguageTests() {
     testRecoveryC();
     testRecoveryDiff();
@@ -35,16 +35,10 @@ void runLanguageTests() {
     testRecoveryRascal();
 }
 
-void runRascalBatchTest(int maxFiles=1000, int minFileSize=0, int maxFileSize=4000, int fromFile=0) {
+void runRascalBatchTest(RecoveryTestConfig config) {
     int startTime = realTime();
     
-    map[str,str] env = getSystemEnvironment();
-    //loc statFile = "STATFILE" in env ? readTextValueString(#loc, env["STATFILE"]) : |unknown:///|;
-    loc statFile = "STATFILE" in env ? readTextValueString(#loc, env["STATFILE"]) : |tmp:///error-recovery-test.stats|;
-
-    println("Writing stats to <statFile>");
-
-    TestStats stats = batchRecoveryTest(|std:///lang/rascal/syntax/Rascal.rsc|, "Module", |std:///|, ".rsc", maxFiles, minFileSize, maxFileSize, fromFile, statFile);
+    TestStats stats = batchRecoveryTest(config);
     int duration = realTime() - startTime;
     println();
     println("================================================================");
@@ -52,26 +46,49 @@ void runRascalBatchTest(int maxFiles=1000, int minFileSize=0, int maxFileSize=40
     printStats(stats);
 }
 
-// Usage: ErrorRecoveryBenchmark [\<max-files\> [\<min-file-size\> [\<max-file-size\> [\<from-file\>]]]]
+// Usage: ErrorRecoveryBenchmark <base-loc> [<max-files> [<min-file-size> [<max-file-size> [<from-file>]]]]
 int main(list[str] args) {
+    loc baseLoc  = readTextValueString(#loc, args[0]);
     int maxFiles = 1000;
     int maxFileSize = 1000000;
     int minFileSize = 0;
     int fromFile = 0;
-    if (size(args) > 0) {
-        maxFiles = toInt(args[0]);
-    }
-    if (size(args) > 1) {
-        minFileSize = toInt(args[1]);
-    }
-    if (size(args) > 2) {
-        maxFileSize = toInt(args[2]);
-    }
-    if (size(args) > 3) {
-        fromFile = toInt(args[3]);
+    loc statFile = |tmp:///error-recovery-test.stats|; // |unknown:///| to disable stat writing
+    int memoVerificationTimeout = 0;
+    bool abortOnNoMemoTimeout = false;
+
+    for (str arg <- args) {
+        if (/<name:[^=]*>=<val:.*>/ := arg) {
+            switch (toLowerCase(name)) {
+                case "max-files": maxFiles = toInt(val);
+                case "max-file-size": maxFileSize = toInt(val);
+                case "min-file-size": minFileSize = toInt(val);
+                case "from-file": fromFile = toInt(val);
+                case "stat-file": statFile = readTextValueString(#loc, val);
+                case "memo-verification-timeout": memoVerificationTimeout = toInt(val);
+            }
+            println("arg: <arg>");
+        } else switch (toLowerCase(arg)) {
+            case "abort-on-no-memo-timeout": abortOnNoMemoTimeout = true;
+        }
     }
 
-    runRascalBatchTest(maxFiles=maxFiles, minFileSize=minFileSize, maxFileSize=maxFileSize, fromFile=fromFile);
+    RecoveryTestConfig config = recoveryTestConfig(
+        syntaxFile=|std:///lang/rascal/syntax/Rascal.rsc|,
+        topSort="Module",
+        dir=baseLoc,
+        ext=".rsc",
+        maxFiles=maxFiles,
+        minFileSize=minFileSize,
+        maxFileSize=maxFileSize,
+        fromFile=fromFile,
+        statFile=statFile,
+        memoVerificationTimeout=memoVerificationTimeout,
+        abortOnNoMemoTimeout=abortOnNoMemoTimeout
+    );
+    runRascalBatchTest(config);
 
     return 0;
 }
+
+int rascalSmokeTest() = main(["|std:///|", "max-files=3", "max-file-size=500"]);

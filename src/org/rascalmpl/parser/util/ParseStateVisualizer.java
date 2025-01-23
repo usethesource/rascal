@@ -269,7 +269,7 @@ public class ParseStateVisualizer {
 
     public DotGraph createGraph(ITree parseTree) {
         reset();
-        graph = new DotGraph(name, false);
+        graph = new DotGraph(name, true);
         addParseTree(graph, parseTree, new HashMap<>());
         return graph;
     }

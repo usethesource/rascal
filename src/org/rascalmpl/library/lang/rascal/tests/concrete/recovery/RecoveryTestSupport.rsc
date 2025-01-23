@@ -30,9 +30,41 @@ import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
+public data RecoveryTestConfig = recoveryTestConfig(
+    loc syntaxFile = |unknown:///|,
+    str topSort = "",
+    loc dir = |unknown:///|,
+    str ext = "",
+    int maxFiles = 1000000,
+    int minFileSize = 0,
+    int maxFileSize = 1000000000,
+    int fromFile = 0,
+    loc statFile = |unknown:///|,
+    int memoVerificationTimeout = 0,
+    bool abortOnNoMemoTimeout = false
+);
+
+// When memoVerificationTimeout is non-zero, memoization is checked for correctness. 
+// In particular, the parse result with memoization is compared to the parse result without memoization.
+// This makes the tests take much longer.
+// Note that this test requires the posibility to disable memoization.
+// In the current test version this can be done by including a "parse-memoization=none" query parameter.
+// We expect this feature to be removed eventually and then the `memoizationVerificationTimeout` variable and associated code will become useless.
+// The timeout value signales how long before the reference parse without memoization is allowed to take.
+// If it takes longer, the parse (actually the memoization phase of the parse) is interrupted.
+// It this happens, memoization verification in that particular test will be skipped.
+// If `abortOnNoMemoTimeout` is set to true, parsing with memoization enabled is not attempted when
+// a memoization timeout occurs.
+
 alias FrequencyTable = map[int val, int count];
 
-public data TestMeasurement(loc source=|unknown:///|, int duration=0) = successfulParse() | recovered(int errorCount=0, int errorSize=0) | parseError() | successfulDisambiguation();
+public data TestMeasurement(loc source=|unknown:///|, int duration=0)
+    = successfulParse()
+    | recovered(int errorCount=0, int errorSize=0)
+    | parseError()
+    | successfulDisambiguation()
+    | skipped();
+
 public data FileStats = fileStats(
     int totalParses = 0,
     int successfulParses=0,
@@ -58,11 +90,8 @@ public data TestStats = testStats(
     FrequencyTable errorCounts=(),
     FrequencyTable errorSizes=());
 
-// When this is turned on, memoization is checked for correctness. This makes the tests take much longer.
-// Note that this test requires the posibility to disable memoization.
-// In the current test version this can be done by including a "parse-memoization=none" query parameter.
-// We expect this feature to be removed eventually and then the `verifyMemoizationCorrectness` flag becomes useless.
-bool verifyMemoizationCorrectness = true;
+
+private bool memoVerificationEnabled(RecoveryTestConfig config) = config.memoVerificationTimeout > 0;
 
 // When verifying memoization we need to be able to timeout the conversin from parse graph to parse forest.
 // We can do this by using a parse filter.
@@ -83,7 +112,7 @@ Tree timeoutFilter(Tree tree) {
     return tree;
 }
 
-private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile, int referenceParseTime) {
+private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
     int disambDuration = -1;
@@ -105,30 +134,39 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     } catch ParseError(_): {
         startTime = realTime();
         try {
-            Tree tree = recoveryParser(input, source);
-            int parseEndTime = realTime();
-            duration = parseEndTime - startTime;
+            Tree tree = char(0);
+            int parseEndTime = startTime;
 
-            if (verifyMemoizationCorrectness) {
+            if (memoVerificationEnabled(config)) {
                 Tree noMemoTree = char(0);
                 bool noMemoTimeout = false;
-
                 bool memoFailed = false;
 
                 noMemoSource = source;
                 noMemoSource.query = source.query + "&parse-memoization=none";
-                setTimeout(realTime() + 2000);
+                setTimeout(realTime() + config.memoVerificationTimeout);
                 try {
-                    noMemoTree = recoveryParser(input, noMemoSource);
-                    memoFailed = !treeEquality(tree, noMemoTree);
-                    if (memoFailed) {
-                        tree = noMemoTree;
-                    }
+                    Tree t = recoveryParser(input, noMemoSource);
+                    noMemoTree = t;
                 } catch Timeout(): {
                     print("#");
                     noMemoTimeout = true;
                 }
                 clearTimeout();
+
+                if (!noMemoTimeout || !config.abortOnNoMemoTimeout) {
+                    tree = recoveryParser(input, source);
+                    parseEndTime = realTime();
+                    duration = parseEndTime - startTime;
+                    if (!noMemoTimeout) {
+                        memoFailed = !treeEquality(tree, noMemoTree);
+                        if (memoFailed) {
+                            tree = noMemoTree;
+                        }
+                    }
+                } else {
+                    print("s");
+                }
 
                 if (!memoFailed) {
                     if (noMemoTimeout) {
@@ -137,11 +175,16 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
                         verificationResult = "memoSucceeded";
                     }
 
-                    str allNodeCount = "<countTreeNodes(tree)>";
-                    str maxSharedNodeCount = "<countUniqueTreeNodes(maximallyShareTree(tree))>";
-                    str noMemoNodeCount = noMemoTimeout ? "-" : "<countUniqueTreeNodes(noMemoTree)>";
-                    str memoNodeCount = "<countUniqueTreeNodes(tree)>";
-                    nodeStats = ",<allNodeCount>,<maxSharedNodeCount>,<noMemoNodeCount>,<memoNodeCount>";
+                    if (!noMemoTimeout || !config.abortOnNoMemoTimeout) {
+                        str allNodeCount = "<countTreeNodes(tree)>";
+                        str maxSharedNodeCount = "<countUniqueTreeNodes(maximallyShareTree(tree))>";
+                        str noMemoNodeCount = noMemoTimeout ? "-" : "<countUniqueTreeNodes(noMemoTree)>";
+                        str memoNodeCount = "<countUniqueTreeNodes(tree)>";
+                        nodeStats = ",<allNodeCount>,<maxSharedNodeCount>,<noMemoNodeCount>,<memoNodeCount>";
+                    } else {
+                        verificationResult = "noMemoTimeoutSkipped";
+                        nodeStats = ",-,-,-,-";
+                    }
                 } else {
                     verificationResult = "memoFailed";
                     println("\nMemoization created a tree that is different from the non-memo tree for <source>");
@@ -152,22 +195,31 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
                     nodeStats = ",<allNodeCount>,<maxSharedNodeCount>,<noMemoNodeCount>,-";
                 }
             } else {
+                tree = recoveryParser(input, source);
+                parseEndTime = realTime();
+                duration = parseEndTime - startTime;
+
                 nodeStats = ",<countTreeNodes(tree)>,<countUniqueTreeNodes(maximallyShareTree(tree))>,-,<countUniqueTreeNodes(tree)>";
             }
 
-            list[Tree] errors = findBestErrors(tree);
-            errorCount = size(errors);
-            disambDuration = realTime() - parseEndTime;
-            if ("<tree>" != input) {
-                throw "Yield of recovered tree does not match the original input";
-            }
-            if (errors == []) {
-                measurement = successfulDisambiguation(source=source, duration=duration);
+            if (tree == char(0)) {
+                result = "skipped";
+                measurement = skipped(source=source);
             } else {
-                errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
-                measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
+                list[Tree] errors = findBestErrors(tree);
+                errorCount = size(errors);
+                disambDuration = realTime() - parseEndTime;
+                if ("<tree>" != input) {
+                    throw "Yield of recovered tree does not match the original input";
+                }
+                if (errors == []) {
+                    measurement = successfulDisambiguation(source=source, duration=duration);
+                } else {
+                    errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
+                    measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
+                }
+                result = "recovery";
             }
-            result = "recovery";
         } catch ParseError(_): {
             result = "error"; 
             duration = realTime() - startTime;
@@ -175,9 +227,9 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
         }
     }
 
-    if (statFile != |unknown:///|) {
+    if (config.statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult><nodeStats>\n");
+        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult><nodeStats>\n");
     }
 
     return measurement;
@@ -298,7 +350,11 @@ TestStats mergeStats(TestStats stats, TestStats stats2) {
     return stats; 
 }
 
-FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) {
+// Backwards compatible version
+FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|)
+    = testSingleCharDeletions(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, recoverySuccessLimit, begin=begin, end=end);
+
+FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int len = size(input);
     int i = begin;
@@ -306,7 +362,7 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
     while (i < len && (end == -1 || i<=end)) {
         str modifiedInput = substring(input, 0, i) + substring(input, i+1);
         source.query = "deletedChar=<i>";
-        TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile, referenceParseTime);
+        TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime);
         stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         if (i < len && substring(input, i, i+1) == "\n") {
             println();
@@ -317,7 +373,11 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
     return stats;
 }
 
-FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) {
+// Backwards compatible version
+FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) 
+    = testDeleteUntilEol(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, recoverySuccessLimit, begin=begin, end=end);
+
+FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
@@ -339,7 +399,7 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
             }
             modifiedInput = substring(input, 0, pos) + substring(input, lineEnd);
             source.query = "deletedUntilEol=<line>:<pos>:<lineEnd>";
-            TestMeasurement measurement = testRecovery(standardParser, recoveryParser, modifiedInput, source, statFile, referenceParseTime);
+            TestMeasurement measurement = testRecovery(config, standardParser, recoveryParser, modifiedInput, source, referenceParseTime);
             stats = updateStats(stats, measurement, referenceParseTime, recoverySuccessLimit);
         }
         lineStart = lineEnd+1;
@@ -466,17 +526,21 @@ loc zippedFile(str zip, str path) {
     return zipFile + path;
 }
 
-FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) = testErrorRecovery(syntaxFile, topSort, testInput, readFile(testInput));
+FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) = 
+    testErrorRecovery(recoveryTestConfig(syntaxFile=syntaxFile, topSort=topSort), testInput);
 
-FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str input, loc statFile=|unknown:///|) {
-    Module \module = parse(#start[Module], syntaxFile).top;
-    str modName = syntaxLocToModuleName(syntaxFile);
+FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput) = testErrorRecovery(config, testInput, readFile(testInput));
+
+FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input, loc statFile=|unknown:///|) {
+    Module \module = parse(#start[Module], config.syntaxFile).top;
+    str modName = syntaxLocToModuleName(config.syntaxFile);
     Grammar gram = modules2grammar(modName, {\module});
 
+    str topSort = config.topSort;
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        set[Tree(Tree)] filters = verifyMemoizationCorrectness ? {timeoutFilter} : {};
+        set[Tree(Tree)] filters = memoVerificationEnabled(config) ? {timeoutFilter} : {};
         recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true, filters=filters);
 
         // Initialization run
@@ -489,16 +553,16 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
 
         recoverySuccessLimit = size(input)/4;
 
-        println("Error recovery of <syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
+        println("Error recovery of <config.syntaxFile> (<topSort>) on <testInput>, reference parse time: <referenceParseTime> ms.");
 
         println();
         println("Single char deletions:");
-        FileStats singleCharDeletionStats = testSingleCharDeletions(standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit, statFile=statFile);
+        FileStats singleCharDeletionStats = testSingleCharDeletions(config, standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit);
         printFileStats(singleCharDeletionStats);
 
         println();
         println("Deletes until end-of-line:");
-        FileStats deleteUntilEolStats = testDeleteUntilEol(standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit, statFile=statFile);
+        FileStats deleteUntilEolStats = testDeleteUntilEol(config, standardParser, recoveryParser, testInput, input, referenceParseTime, recoverySuccessLimit);
         printFileStats(deleteUntilEolStats);
 
         FileStats stats = mergeFileStats(singleCharDeletionStats, deleteUntilEolStats);
@@ -513,21 +577,20 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
 }
 
 private int fileNr = 0;
-private int fromFile = 0;
 
-TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, int from, loc statFile) {
+
+TestStats batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
-    fromFile = from;
 
-    if (statFile != |unknown:///|) {
-        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification" + (verifyMemoizationCorrectness ? ",allNodes,maxSharedNodes,noMemoNodes,memoNodes\n" : ""));
+    if (config.statFile != |unknown:///|) {
+        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification" + (memoVerificationEnabled(config) ? ",allNodes,maxSharedNodes,noMemoNodes,memoNodes\n" : ""));
     }
 
-    return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());
+    return runBatchRecoveryTest(config, testStats());
 }
 
-TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, loc statFile, TestStats cumulativeStats) {
-    println("Batch testing in directory <dir> (maxFiles=<maxFiles>, maxFileSize=<maxFileSize>, fromFile=<fromFile>)");
+list[loc] gatherFiles(loc dir, str ext, int maxFiles, int minFileSize, int maxFileSize, int fromFile) {
+    list[loc] files = [];
     for (entry <- listEntries(dir)) {
         loc file = dir + entry;
         if (isFile(file)) {
@@ -540,23 +603,39 @@ TestStats runBatchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, in
                         println("Skipping file #<fileNr>: <file>, (\< <fromFile>)");
                         continue;
                     }
-                    println("========================================================================");
-                    println("Testing file #<fileNr> <file> (<maxFiles-cumulativeStats.filesTested> of <maxFiles> left)");
-                    FileStats fileStats = testErrorRecovery(syntaxFile, topSort, file, content, statFile=statFile);
-                    cumulativeStats = consolidateStats(cumulativeStats, fileStats);
-                    println();
-                    println("------------------------------------------------------------------------");
-                    println("Cumulative stats after testing <file>:");
-                    printStats(cumulativeStats);
+                    files += file;
                 }
             }
         } else if (isDirectory(file)) {
-            cumulativeStats = runBatchRecoveryTest(syntaxFile, topSort, file, ext, maxFiles, minFileSize, maxFileSize, statFile, cumulativeStats);
+            files += gatherFiles(file, ext, maxFiles-size(files), minFileSize, maxFileSize, fromFile);
         }
 
-        if (cumulativeStats.filesTested >= maxFiles) {
+        if (size(files) >= maxFiles) {
             break;
         }
+    }
+
+    return files;
+}
+
+TestStats runBatchRecoveryTest(RecoveryTestConfig config, TestStats cumulativeStats) {
+    list[loc] files = gatherFiles(config.dir, config.ext, config.maxFiles, config.minFileSize, config.maxFileSize, config.fromFile);
+    int fileCount = size(files);
+    println("Batch testing <fileCount> files");
+    println("Config: <config>");
+
+    int index = 0;
+    for (file <- files) {
+        str content = readFile(file);
+        index += 1;
+        println("========================================================================");
+        println("Testing file #<index> <file> (<fileCount-cumulativeStats.filesTested> of <fileCount> left)");
+        FileStats fileStats = testErrorRecovery(config, file, content);
+        cumulativeStats = consolidateStats(cumulativeStats, fileStats);
+        println();
+        println("------------------------------------------------------------------------");
+        println("Cumulative stats after testing <file>:");
+        printStats(cumulativeStats);
     }
 
     return cumulativeStats;
