@@ -45,16 +45,6 @@ public class SortContainerNodeFlattener<P, T, S>{
 		nodeCache = new IdentityHashMap<>();
 	}
 
-	private static int getCacheMode(boolean cacheable, boolean hasSideEffects) {
-		if (!cacheable) {
-			return ForwardLink.CACHE_NO;
-		}
-		else if (DefaultNodeFlattener.safeNodeMemoization && !hasSideEffects) {
-			return ForwardLink.CACHE_YES;
-
-		}
-		return ForwardLink.CACHE_SHARING_ONLY;
-	}
 	/**
 	 * Gather all the alternatives ending with the given child.
 	 */
@@ -63,7 +53,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 
 		if(!(resultNode.isEpsilon() && child.getPrefixes() == null)){ // Has non-epsilon results.
 			boolean cacheable = child.isCacheable();
-			int cacheMode = getCacheMode(cacheable, hasSideEffects);
+			INodeFlattener.CacheMode cacheMode = INodeFlattener.getCacheMode(cacheable, hasSideEffects);
 			gatherProduction(converter, nodeConstructorFactory, child, new ForwardLink<>(NO_NODES, resultNode, cacheMode), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
 		}else{ // Has a single epsilon result.
 			buildAlternative(converter, nodeConstructorFactory, NO_NODES, gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment);
@@ -83,7 +73,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		for(int i = prefixes.size() - 1; i >= 0; --i){ // Traverse all the prefixes (can be more then one in case of ambiguity).
 			Link prefix = prefixes.get(i);
 			boolean cacheable = parentCacheable || prefix.isCacheable();
-			int cacheMode = getCacheMode(cacheable, hasSideEffects);
+			INodeFlattener.CacheMode cacheMode = INodeFlattener.getCacheMode(cacheable, hasSideEffects);
 			gatherProduction(converter, nodeConstructorFactory, prefix, new ForwardLink<>(postFix, prefix.getNode(), cacheMode), gatheredAlternatives, production, stack, depth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, cacheable, hasSideEffects);
 		}
 	}
@@ -103,34 +93,11 @@ public class SortContainerNodeFlattener<P, T, S>{
 
 			newEnvironment = actionExecutor.enteringNode(production, i, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 
-			T constructedNode = null;
-			if (postFix.cacheMode == ForwardLink.CACHE_YES) {
-				constructedNode = nodeCache.get(node);
-			}
-
-			if (constructedNode == null) {
-				constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
-			}
+			T constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, positionStore, filteringTracker, actionExecutor, environment, postFix.cacheMode);
 
 			if(constructedNode == null){
 				actionExecutor.exitedProduction(production, true, newEnvironment); // Filtered.
 				return;
-			} else if (postFix.cacheMode == ForwardLink.CACHE_YES) {
-				nodeCache.put(node, constructedNode);
-			} else if (postFix.cacheMode == ForwardLink.CACHE_SHARING_ONLY) {
-				ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
-				if (levelCache != null) {
-					T cachedResult = levelCache.getEquivalent(constructedNode, endOffset);
-					if (cachedResult != null) {
-						constructedNode = cachedResult;
-					} else {
-						levelCache.putUnsafe(constructedNode, endOffset);
-					}
-				} else {
-					levelCache = new ObjectIntegerKeyedHashSet<>();
-					levelCache.putUnsafe(constructedNode, endOffset);
-					cache.putUnsafe(offset, levelCache);
-				}
 			}
 
 			children.add(constructedNode);
@@ -219,6 +186,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
 		
+		/*
 		if (hasSideEffects) {
 			ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
 			if (levelCache != null) {
@@ -235,7 +203,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 			levelCache.putUnsafe(result, endOffset);
 			cache.putUnsafe(offset, levelCache);
 		}
-		
+		*/
 		return result;
 	}
 

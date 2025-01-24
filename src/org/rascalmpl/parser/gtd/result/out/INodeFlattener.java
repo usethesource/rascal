@@ -21,10 +21,22 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  * trees to some other representation.
  */
 public interface INodeFlattener<T, P>{
+	public enum CacheMode { CACHE_MODE_NONE, CACHE_MODE_SHARING_ONLY, CACHE_MODE_FULL };
+
+	public static INodeFlattener.CacheMode getCacheMode(boolean cacheable, boolean hasSideEffects) {
+		if (!DefaultNodeFlattener.safeNodeMemoization) {
+			return CacheMode.CACHE_MODE_NONE;
+		 } else if (hasSideEffects) {
+			return CacheMode.CACHE_MODE_SHARING_ONLY;
+		} else {
+			return cacheable ? CacheMode.CACHE_MODE_FULL : CacheMode.CACHE_MODE_SHARING_ONLY;
+		}
+	}
+
 	/**
 	 * Convert the given parse result.
 	 */
 	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
 	
-	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);	
+	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment, CacheMode cacheMode);	
 }

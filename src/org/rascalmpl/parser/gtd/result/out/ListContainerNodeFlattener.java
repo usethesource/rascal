@@ -22,9 +22,6 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.ForwardLink;
 import org.rascalmpl.parser.gtd.util.HashMap;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 
 /**
  * A converter for 'expandable' container result nodes.
@@ -32,16 +29,16 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
  */
 @SuppressWarnings("unchecked")
 public class ListContainerNodeFlattener<P, T, S>{
-	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
-	private final static Object[] NO_CHILDREN = new Object[]{};
+	private static final ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
+	private static final Object[] NO_CHILDREN = new Object[]{};
 	
 	private final T[] noChildren = (T[]) NO_CHILDREN;
-	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
+	//private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
 
 	public ListContainerNodeFlattener(){
 		super();
 
-		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
+		//cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
 	}
 	
 	/**
@@ -115,7 +112,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 			newEnvironment = actionExecutor.enteringListNode(production, index++, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
 			
 			if(!(node instanceof CycleNode)){ // Not a cycle.
-				T constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment);
+				T constructedNode = converter.convert(nodeConstructorFactory, node, stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment, INodeFlattener.CacheMode.CACHE_MODE_NONE);
 				if(constructedNode == null){
 					actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 					return null;
@@ -170,7 +167,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 			convertedCycle = (T[]) new Object[1];
 			
 			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
-			T element = converter.convert(nodeConstructorFactory, cycleElements[0], stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment);
+			T element = converter.convert(nodeConstructorFactory, cycleElements[0], stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment, INodeFlattener.CacheMode.CACHE_MODE_NONE);
 			if(element == null){
 				actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 				return null;
@@ -182,10 +179,10 @@ public class ListContainerNodeFlattener<P, T, S>{
 			convertedCycle = (T[]) new Object[nrOfCycleElements + 1];
 			
 			newEnvironment = actionExecutor.enteringListNode(production, 0, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
-			convertedCycle[0] = converter.convert(nodeConstructorFactory, cycleElements[nrOfCycleElements - 1], stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment);
+			convertedCycle[0] = converter.convert(nodeConstructorFactory, cycleElements[nrOfCycleElements - 1], stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment, INodeFlattener.CacheMode.CACHE_MODE_NONE);
 			for(int i = 0; i < nrOfCycleElements; ++i){
 				newEnvironment = actionExecutor.enteringListNode(production, i + 1, newEnvironment); // Fire a 'entering node' event when converting a child to enable environment handling.
-				T element = converter.convert(nodeConstructorFactory, cycleElements[i], stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment);
+				T element = converter.convert(nodeConstructorFactory, cycleElements[i], stack, depth, positionStore, filteringTracker, actionExecutor, newEnvironment, INodeFlattener.CacheMode.CACHE_MODE_NONE);
 				if(element == null) {
 					actionExecutor.exitedListProduction(production, true, newEnvironment); // Filtered.
 					return null;
@@ -519,6 +516,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
 
+		/*
 		if (hasSideEffects) {
 			ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
 			if (levelCache != null) {
@@ -535,6 +533,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 			levelCache.putUnsafe(result, endOffset);
 			cache.putUnsafe(offset, levelCache);
 		}
+		*/
 
 		return result;
 	}

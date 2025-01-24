@@ -48,8 +48,7 @@ public class DebugUtil {
                 IConstructor conSymbol = (IConstructor) symbol;
                 switch (conSymbol.getName()) {
                     default:
-                        IConstructor symbol = (IConstructor) conChild.get(0);
-                        builder.append(quotedStringToPlain(String.valueOf(symbol));   // Sort or label
+                        builder.append(quotedStringToPlain(String.valueOf(conSymbol.get(0))));   // Sort or label
                         break;
                 }
             }

@@ -11,6 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result.out;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
@@ -33,6 +37,9 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	private final SortContainerNodeFlattener<P, T, S> sortContainerNodeConverter;
 	private final ListContainerNodeFlattener<P, T, S> listContainerNodeConverter;
 	private final SkippedNodeFlattener<T, S> skippedNodeConverter;
+
+	private final Map<AbstractNode, T> nodeCache;
+	private final Map<T, T> treeCache;
 	
 	public DefaultNodeFlattener(){
 		super();
@@ -42,6 +49,9 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 		sortContainerNodeConverter = new SortContainerNodeFlattener<P, T, S>();
 		listContainerNodeConverter = new ListContainerNodeFlattener<P, T, S>();
 		skippedNodeConverter = new SkippedNodeFlattener<T, S>();
+
+		nodeCache = new IdentityHashMap<>();
+		treeCache = new HashMap<>();
 	}
 	
 	/**
@@ -55,29 +65,54 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	 * Convert the given node.
 	 */
 	@SuppressWarnings("unchecked")
-	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, CacheMode cacheMode){
+		T result = cacheMode == CacheMode.CACHE_MODE_FULL ? nodeCache.get(node) : null;
+
+		if (result != null) {
+			return result;
+		}
+
 		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
-				return charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
+				result = charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
+				break;
 			case LiteralNode.ID:
-				return literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
+				result = literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
+				break;
 			case SortContainerNode.ID:
-				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				result = sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				break;
 			case ExpandableContainerNode.ID:
-				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				result = listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				break;
 			case RecoveredNode.ID:
-				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				result = convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, positionStore, filteringTracker, actionExecutor, environment, cacheMode);
+				break;
 			case SkippedNode.ID:
-				return skippedNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
+				result = skippedNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
+				break;
 			default:
 				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
+
+		if (cacheMode == CacheMode.CACHE_MODE_FULL) {
+			nodeCache.put(node, result);
+		} else if (cacheMode == CacheMode.CACHE_MODE_SHARING_ONLY) {
+			T existing = treeCache.get(result);
+			if (existing == null) {
+				treeCache.put(result, result);
+			} else {
+				result = existing;
+			}
+		}
+
+		return result;
 	}
 	
 	/**
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
 	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
-		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment);
+		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE);
 	}
 }
