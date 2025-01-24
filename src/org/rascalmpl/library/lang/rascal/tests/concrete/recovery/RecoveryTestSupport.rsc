@@ -400,7 +400,7 @@ str getDeleteUntilEolInput(str input, int begin, int end) {
         lineStart = lineEnd+1;
     }
 
-    return stats;
+    throw "Line not found";
 }
 
 FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
