@@ -498,9 +498,9 @@ public class ErrorRecovery {
 			ITree newAmb = rascalValues.amb(newAlts.done());
             if (amb.asWithKeywordParameters().hasParameter(RascalValueFactory.Location)) {
                 IValue loc = amb.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
-                newAmb.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
-                return newAmb;
+                newAmb = (ITree) newAmb.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
             }
+            return newAmb;
 		}
 
         return amb;

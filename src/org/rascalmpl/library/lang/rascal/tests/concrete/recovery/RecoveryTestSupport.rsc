@@ -377,6 +377,32 @@ FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, lo
 FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) 
     = testDeleteUntilEol(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, recoverySuccessLimit, begin=begin, end=end);
 
+str getDeleteUntilEolInput(str input, int begin, int end) {
+    int lineStart = 0;
+    list[int] lineEndings = findAll(input, "\n");
+
+    int line = 0;
+    for (int lineEnd <- lineEndings) {
+        line = line+1;
+        if (lineEnd < begin) {
+            continue;
+        }
+        lineLength = lineEnd - lineStart;
+        for (int pos <- [lineStart..lineEnd]) {
+            if (pos < begin) {
+                continue;
+            }
+            if (pos > begin) {
+                throw "Position not found";
+            }
+            return substring(input, 0, pos) + substring(input, lineEnd);
+        }
+        lineStart = lineEnd+1;
+    }
+
+    return stats;
+}
+
 FileStats testDeleteUntilEol(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1) {
     FileStats stats = fileStats();
     int lineStart = 0;
@@ -676,4 +702,20 @@ bool checkErrors(Tree t, list[str] expectedErrors) {
     }
 
     return true;
+}
+
+str getTestInput(loc testUri) {
+    str query = testUri.query;
+    loc file = testUri[query = ""];
+
+    str input = readFile(file);
+    if (/deletedUntilEol=<line:[0-9]*>:<begin:[0-9]*>:<end:[0-9]*>/ := query) {
+        println("deleteUntilEol: begin=<begin>, end=<end>");
+        return getDeleteUntilEolInput(input, toInt(begin), toInt(end));
+    } else if (/deletedChar=<index:[0-9]*>/ := query) {
+        int at = toInt(index);
+        return substring(input, 0, at) + substring(input, at+1);
+    }
+
+    throw "Unsupported test location: <testUri>";
 }
