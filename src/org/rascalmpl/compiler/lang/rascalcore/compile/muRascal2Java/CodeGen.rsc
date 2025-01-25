@@ -273,7 +273,7 @@ default str newValueRef(str name, AType atype, MuExp exp, JGenie jg)
     = "new ValueRef\<<atype2javatype(atype)>\>(\"<asJavaName(name)>\", <transWithCast(atype,exp,jg)>)";
     
 set[MuExp] filteredExternalRefs(MuFunction fun)
-    = { ev | ev <- fun.externalRefs, ev.fuid != fun.uniqueName } - toSet(fun.extendedFormalVars);
+    = { ev | ev <- fun.externalRefs, !isVarDeclaredInFun(ev, fun) } - toSet(fun.extendedFormalVars);
     
 MuFunction addTransitiveRefs(MuFunction fun){
     usedFunDefs = {};
@@ -290,6 +290,7 @@ MuFunction addTransitiveRefs(MuFunction fun){
    
     if(!(isEmpty(deltaExternalRefs))){
         fun.externalRefs += deltaExternalRefs;
+        //fun.externalRefs = filteredExternalRefs(fun);
         loc2muFunction[fun.src] = fun;
     }
     if(!(isEmpty(deltaLocalRefs))){
@@ -388,7 +389,12 @@ tuple[str argTypes, str constantKwpDefaults, str constantKwpDefaultsInit, str no
             kwpActuals = "java.util.Map\<java.lang.String,IValue\> $kwpActuals";
     }
     if(!isEmpty(fun.externalRefs) && !isEmpty(fun.scopeIn)){
-        externalActuals = intercalate(", ", [ "ValueRef\<<atype2javatype(var.atype)>\> <varName(var, jg)>" | var <- sort(fun.externalRefs), var.pos >= 0, var notin fun.extendedFormalVars]);
+        externalActuals = intercalate(", ", [ "ValueRef\<<atype2javatype(var.atype)>\> <varName(var, jg)>" 
+                                            | var <- sort(fun.externalRefs)
+                                            , var.pos >= 0
+                                            , var notin fun.extendedFormalVars
+                                            , !isVarDeclaredInFun(var, fun)
+                                            ]);
     }
     if(!isEmpty(kwpActuals)){
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
@@ -959,7 +965,7 @@ JCode trans(muOCall(MuExp fun, AType ftype, list[MuExp] largs, lrel[str kwpName,
     if(muFun(loc uid, _) := fun){
         <actuals, kwactuals> = getPositionalAndKeywordActuals(ftype, largs, kwargs, jg);
         externalRefs = jg.getExternalRefs(uid);
-        externals = [ varName(var, jg) | var <- sort(externalRefs)/*, var notin fun.formals*/];
+        externals = [ varName(var, jg) | var <- sort(externalRefs), !isVarDeclaredInFun(var, jg.getFunction())/*, var notin fun.formals*/];
     
         if(isContainedIn(uid, jg.getModuleLoc())){
             fn = loc2muFunction[uid];

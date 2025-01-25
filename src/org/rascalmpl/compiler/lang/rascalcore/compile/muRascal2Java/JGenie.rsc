@@ -340,7 +340,7 @@ JGenie makeJGenie(MuModule m,
         if(fun2externals[src]?){
             fun = muFunctionsByLoc[src];
             evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
-            return sort([var | var <- evars, var.pos >= 0, var notin fun.formals ]);
+            return sort([var | var <- evars, var.pos >= 0, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
         }
         return [];
     }
