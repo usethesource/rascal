@@ -126,12 +126,12 @@ datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastM
     }
 }
 
-// Check that a module is still up-to-date compared to a given timestamp
-bool isUpToDateModule(str qualifiedModuleName, datetime timestamp, PathConfig pcfg){
+// Check if a module is modified compared to a given timestamp
+bool isModuleModified(str qualifiedModuleName, datetime timestamp, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     try {
         mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
-        return lastModified(mloc) == timestamp;
+        return lastModified(mloc) != timestamp;
     } catch value _: {
         return false;
     }
