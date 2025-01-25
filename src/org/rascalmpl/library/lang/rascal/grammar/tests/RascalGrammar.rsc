@@ -161,6 +161,9 @@ void generateAndWriteRascalParser(){
 int generateAndTimeRascalParser() { 
     println("GenerateAndTimeRascalParser");
 	t = cpuTime();
+	for(int _ <- [1 .. 50]){
+		generateRascalParser();
+	}
 	generateRascalParser();
 	return (cpuTime() - t)/1000000;
 }	
