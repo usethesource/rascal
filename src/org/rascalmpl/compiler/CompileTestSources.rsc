@@ -24,21 +24,7 @@ PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/cl
 void main() = compileTestSources(manualTestConfig);
 
 void compileTestSources(PathConfig pcfg) {
-     testConfig = pathConfig(
-        bin = REPO + "compiled-rascal/target/classes",
-        generatedSources = REPO + "compiled-rascal/src/main/java",
-        generatedTestSources = REPO + "compiled-rascal/src/test/java/",
-        resources = REPO + "compiled-rascal/src/main/java",
-        testResources = REPO + "compiled-rascal/src/test/java",
-        srcs=[ REPO + "rascal/src/org/rascalmpl/library", |std:///|, 
-               REPO + "rascal-core/src/org/rascalmpl/core/library"],
-        libs = [ ]
-     );
-     
-   println("PathConfig for compiling test sources:\n");
-   iprintln(testConfig);
-   
-   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false];
+   testCompilerConfig = getAllSrcCompilerConfig()[logPathConfig=false];
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
