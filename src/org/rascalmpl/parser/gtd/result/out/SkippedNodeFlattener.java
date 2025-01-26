@@ -34,7 +34,7 @@ public class SkippedNodeFlattener<T, P>{
 		@Override
 		public boolean equals(Object peer) {
 			MemoKey peerKey = (MemoKey) peer;
-			return offset == peerKey.offset && length == peerKey.length;
+			return peerKey != null && offset == peerKey.offset && length == peerKey.length;
 		}
 
 		@Override
