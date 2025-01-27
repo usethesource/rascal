@@ -72,7 +72,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base32;
-import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaCompilation;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
@@ -264,7 +263,7 @@ public class Prelude {
 		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
-	private String getTZString(int hourOffset, int minuteOffset) {
+	public static String getTZString(int hourOffset, int minuteOffset) {
 		String tzString = "GMT" + 
 			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
 			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
@@ -630,7 +629,7 @@ public class Prelude {
 		}
 	}
 
-	private Calendar getCalendarForDateTime(IDateTime inputDateTime) {
+	public static Calendar getCalendarForDateTime(IDateTime inputDateTime) {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);
@@ -1749,7 +1748,7 @@ public class Prelude {
 	}
 
 	public IValue last(IList lst)
-	// @doc{head -- get the last element of a list}
+	// @doc{last -- get the last element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(lst.length() - 1);
@@ -3071,9 +3070,31 @@ public class Prelude {
 	}
 	
 	public IString squeeze(IString src, IString charSet) {
-		//@{http://commons.apache.org/lang/api-2.6/index.html?org/apache/commons/lang/text/package-summary.html}
-		String s = CharSetUtils.squeeze(src.getValue(), charSet.getValue());
-		return values.string(s);
+		if (charSet.getValue().isEmpty()) {
+			return src;
+		}
+		final Pattern isCharset = Pattern.compile("[" + charSet.getValue() + "]", Pattern.UNICODE_CHARACTER_CLASS);
+		StringBuilder result = new StringBuilder(src.length());
+		var chars = src.iterator();
+		int previousMatch = -1;
+		while (chars.hasNext()) {
+			int cp = chars.nextInt();
+			if (cp == previousMatch) {
+				// swallow
+				continue;
+			}
+
+			String c = Character.toString(cp);
+			if (isCharset.matcher(c).matches()) {
+				previousMatch = cp;
+				// swallow the next
+			}
+			else {
+				previousMatch = -1;
+			}
+			result.append(c);
+		}
+		return values.string(result.toString());
 	}
 	
 	public IString capitalize(IString src) {
@@ -4089,9 +4110,9 @@ public class Prelude {
 		if (first.hasOffsetLength()) {
 			if (second.hasOffsetLength()) {
 				int firstStart = first.getOffset();
-				int firstEnd = firstStart + first.getLength();
+				int firstEnd = firstStart + first.getLength() - 1; // Inclusive
 				int secondStart = second.getOffset();
-				int secondEnd = secondStart + second.getLength();
+				int secondEnd = secondStart + second.getLength() - 1; // Inclusive
 
 				return values.bool(
 					   (firstStart <= secondStart && secondStart <= firstEnd)
