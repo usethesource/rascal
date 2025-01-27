@@ -638,7 +638,7 @@ public class PathConfig {
         }
 
         try {
-            addRascalToSourcePath(srcsWriter);
+            addRascalToSourcePath(projectName, srcsWriter);
         } catch (IOException e) {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
@@ -665,61 +665,55 @@ public class PathConfig {
     }
 
     /**
-     * Adds the source folders of the `rascal` project to `srcsWriter`.
+     * Adds the standard library to `srcsWriter`. If the path config's project
+     * is `rascal` or `rascal-lsp` (as indicated by `projectName`), then adds
+     * the Rascal compiler and Typepal as well.
      *
-     * For each source folder, there are at most two version to choose from:
-     *   - The version in the "current" `rascal` (as per
-     *     `resolveCurrentRascalRuntimeJar()`). Alway available.
-     *   - The version in the "other" `rascal` (as per the
-     *     `URIResolverRegistry`). Available when `rascal` itself is the main
-     *     project, or when `rascal` is open in the workspace.
-     * 
-     * The version of each source folder of the `rascal` project to add, is
-     * chosen based on the kind of that source folder:
-     *   - Kind #1 (e.g., `.../library`, i.e., `|std:///|`): Add the version of
-     *     the source folder in the current `rascal`
-     *   - Kind #2 (e.g., `.../typepal`): Add the version of the source folder
-     *     in the other `rascal` (if available) or the current `rascal` (else)
-     *   - Kind #3 (e.g., `test/...`): Add the version of the source folder in
-     *     the other `rascal` (if available)
-     *
-     * Thus, source folders of kinds #1 and #2 are added always, while source
-     * folders of kind #3 are added only when the `rascal` project itself is
-     * being developed.
+     * More precisely, the following rules are applied:
+     *   - Always load `|std:///|` from the "current" `rascal` (as per
+     *     `resolveCurrentRascalRuntimeJar()`)
+     *   - If the path config's project is `rascal`, then:
+     *       - If `|project://rascal/|` and `|project://typepal/|` exists, do
+     *         load the compiler and Typepal from the corresponding open folders
+     *         in the workspace.
+     *       - Else, don't load the compiler and Typepal.
+     *   - If the path config's project is `rascal-lsp`:
+     *       - If `|project://rascal/|` and `|project://typepal/|` exists, do
+     *         load the compiler and Typepal from the corresponding open folders
+     *         in the workspace.
+     *       - Else, do load the compiler and Typepal from the current `rascal`.
      *
      * @throws IOException When the current `rascal` can't be resolved
      */
-    private static void addRascalToSourcePath(IListWriter srcsWriter) throws IOException {
-        var currentRascalTargetClasses = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter) throws IOException {
 
-        // Assumption: If `rascal` itself is the main project, or if `rascal` is
-        // open in the workspace, then its root folder has already been
-        // registered as `|project://rascal/|` in the resolver registry (so
-        // checking the project name isn't needed after checking the registry).
-        var otherRascal = URIUtil.correctLocation("project", "rascal", "");
-        var otherRascalExists = URIResolverRegistry.getInstance().exists(otherRascal);
-
-        // Include source folders of kind #1
+        // General case
         srcsWriter.append(URIUtil.rootLocation("std"));
 
-        // Include source folders of kind #2
-        if (otherRascalExists) {
-            srcsWriter.append(URIUtil.getChildLocation(otherRascal, "src/org/rascalmpl/typepal"));
-        } else {
-            srcsWriter.append(URIUtil.getChildLocation(currentRascalTargetClasses, "org/rascalmpl/typepal"));
-        }
+        // Special cases
+        if (projectName.equals("rascal") || projectName.equals("rascal-lsp")) {
+            var currentRascalTargetClasses = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
 
-        // Include source folders of kind #3
-        if (otherRascalExists) {
-            Predicate<String> isKind3 = s ->
-                !s.equals("src/org/rascalmpl/library") &&
-                !s.equals("src/org/rascalmpl/typepal");
+            var workspaceRascal = URIUtil.correctLocation("project", "rascal", "");
+            var workspaceRascalExists = URIResolverRegistry.getInstance().exists(workspaceRascal);
+            var workspaceTypepal = URIUtil.correctLocation("project", "typepal", "");
+            var workspaceTypepalExists = URIResolverRegistry.getInstance().exists(workspaceTypepal);
 
-            new RascalManifest()
-                .getSourceRoots(otherRascal)
-                .stream()
-                .filter(isKind3)
-                .forEach(src -> srcsWriter.append(URIUtil.getChildLocation(otherRascal, src)));
+            // Special case: If the path config's project is `rascal` or
+            // `rascal-lsp`, and `rascal` and `typepal` are in the workspace,
+            // then use those open folders
+            if (workspaceRascalExists && workspaceTypepalExists) {
+                srcsWriter.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/compiler"));
+                srcsWriter.append(URIUtil.getChildLocation(workspaceTypepal, "src"));
+            }
+
+            // Special case: If the path config's project is `rascal-lsp`, and
+            // `rascal` or `typepal` isn't open in the workspce, then use the
+            // "current" `rascal`
+            else if (projectName.equals("rascal-lsp")) {
+                srcsWriter.append(URIUtil.getChildLocation(currentRascalTargetClasses, "org/rascalmpl/compiler"));
+                srcsWriter.append(URIUtil.getChildLocation(currentRascalTargetClasses, "org/rascalmpl/typepal"));
+            }
         }
     }
 
