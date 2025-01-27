@@ -94,7 +94,7 @@ public java void removeFact(Transaction tr, type[&T] key, value name);
 For producing exceptions with stack traces
 }
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public java Fact setFact(Transaction tr, type[&T] key, value name, &T val);
+public java void setFact(Transaction tr, type[&T] key, value name, &T val);
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
 public java tuple[rel[str,str,str,int],rel[str,str,str]] getDependencyGraph(Transaction tr);

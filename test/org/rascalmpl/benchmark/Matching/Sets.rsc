@@ -1,8 +1,8 @@
 module Matching::Sets
 
 import IO;
-import Math;
-import Benchmark;
+import util::Math;
+import util::Benchmark;
 
 import Grammar;import ParseTree;import IO;
 

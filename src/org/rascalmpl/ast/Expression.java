@@ -33,13 +33,6 @@ public abstract class Expression extends AbstractAST {
   public java.util.List<org.rascalmpl.ast.Expression> getArguments() {
     throw new UnsupportedOperationException();
   }
-  public boolean hasElements() {
-    return false;
-  }
-
-  public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-    throw new UnsupportedOperationException();
-  }
   public boolean hasElements0() {
     return false;
   }
@@ -6395,15 +6388,15 @@ public abstract class Expression extends AbstractAST {
   }
 
   static public class Tuple extends Expression {
-    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements")],breakable=false)
+    // Production: sig("Tuple",[arg("java.util.List\<org.rascalmpl.ast.Expression\>","elements0")],breakable=false)
   
     
-    private final java.util.List<org.rascalmpl.ast.Expression> elements;
+    private final java.util.List<org.rascalmpl.ast.Expression> elements0;
   
-    public Tuple(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements) {
+    public Tuple(ISourceLocation src, IConstructor node , java.util.List<org.rascalmpl.ast.Expression> elements0) {
       super(src, node);
       
-      this.elements = elements;
+      this.elements0 = elements0;
     }
   
     @Override
@@ -6423,7 +6416,7 @@ public abstract class Expression extends AbstractAST {
       }
       ISourceLocation $l;
       
-      for (AbstractAST $elem : elements) {
+      for (AbstractAST $elem : elements0) {
         $l = $elem.getLocation();
         if ($l.hasLineColumn() && $l.getBeginLine() <= $line && $l.getEndLine() >= $line) {
           $elem.addForLineNumber($line, $result);
@@ -6441,28 +6434,28 @@ public abstract class Expression extends AbstractAST {
         return false;
       }        
       Tuple tmp = (Tuple) o;
-      return true && tmp.elements.equals(this.elements) ; 
+      return true && tmp.elements0.equals(this.elements0) ; 
     }
    
     @Override
     public int hashCode() {
-      return 599 + 863 * elements.hashCode() ; 
+      return 599 + 863 * elements0.hashCode() ; 
     } 
   
     
     @Override
-    public java.util.List<org.rascalmpl.ast.Expression> getElements() {
-      return this.elements;
+    public java.util.List<org.rascalmpl.ast.Expression> getElements0() {
+      return this.elements0;
     }
   
     @Override
-    public boolean hasElements() {
+    public boolean hasElements0() {
       return true;
     }	
   
     @Override
     public Object clone()  {
-      return newInstance(getClass(), src, (IConstructor) null , clone(elements));
+      return newInstance(getClass(), src, (IConstructor) null , clone(elements0));
     }
             
   }
