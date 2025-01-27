@@ -100,39 +100,73 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     
   // Production declarations
 	
-  private static final IConstructor cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"*\"),[\\char-class([range(42,42)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChzb3J0KCJFIiksW3NvcnQoIlQiKSxzb3J0KCJFMSIpXSx7fSk00 = (IConstructor) _read("prod(sort(\"E\"),[sort(\"T\"),sort(\"E1\")],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoInNvcnQoXCJFMVwiKSIpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMTE1LDExNSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTExLDExMSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE0LDExNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE2LDExNildKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDAsNDApXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg2OSw2OSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDksNDkpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"sort(\\\"E1\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(69,69)]),\\char-class([range(49,49)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00 = (IConstructor) _read("prod(sort(\"T\"),[sort(\"F\"),sort(\"T1\")],{})", RascalValueFactory.Production);
   private static final IConstructor cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp = (IConstructor) _read("regular(iter(\\char-class([range(48,57)])))", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsaXQoImxpdChcIilcIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDEwOCwxMDgpXSksXGNoYXItY2xhc3MoW3JhbmdlKDEwNSwxMDUpXSksXGNoYXItY2xhc3MoW3JhbmdlKDExNiwxMTYpXSksXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"lit(\\\")\\\")\"),[\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(41,41)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoInNvcnQoXCJGXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDcwLDcwKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000 = (IConstructor) _read("prod(lit(\"sort(\\\"F\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(70,70)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoInNvcnQoXCJUXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDg0LDg0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000 = (IConstructor) _read("prod(lit(\"sort(\\\"T\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(84,84)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChzb3J0KCJGIiksW2xpdCgiKCIpLHNvcnQoIkUiKSxsaXQoIikiKV0se30p = (IConstructor) _read("prod(sort(\"F\"),[lit(\"(\"),sort(\"E\"),lit(\")\")],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\":\"),[\\char-class([range(58,58)])],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsaXQoImxpdChcIihcIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDEwOCwxMDgpXSksXGNoYXItY2xhc3MoW3JhbmdlKDEwNSwxMDUpXSksXGNoYXItY2xhc3MoW3JhbmdlKDExNiwxMTYpXSksXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDAsNDApXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"lit(\\\"(\\\")\"),[\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoImlkIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMDUsMTA1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMDAsMTAwKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"id\"),[\\char-class([range(105,105)]),\\char-class([range(100,100)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChzb3J0KCJUMSIpLFtdLHt9KQ0000 = (IConstructor) _read("prod(sort(\"T1\"),[],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixsaXQoIioiKSksW1xjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSksbGl0KCJsaXQoXCIqXCIpIiksbGl0KCI6IiksaXRlcihcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpXSkpLFxjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSldLHt0YWcoImhvbGVUeXBlIihsaXQoIioiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",lit(\"*\")),[\\char-class([range(0,0)]),lit(\"lit(\\\"*\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lit(\"*\")))})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQxLDQxKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\")\"),[\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChzb3J0KCJGIiksW2xpdCgiaWQiKV0se30p = (IConstructor) _read("prod(sort(\"F\"),[lit(\"id\")],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsaXQoImxpdChcIitcIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDEwOCwxMDgpXSksXGNoYXItY2xhc3MoW3JhbmdlKDEwNSwxMDUpXSksXGNoYXItY2xhc3MoW3JhbmdlKDExNiwxMTYpXSksXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDMsNDMpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"lit(\\\"+\\\")\"),[\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(43,43)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJGIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkZcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkYiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"F\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"F\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"F\")))})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"+\"),[\\char-class([range(43,43)])],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixsaXQoImlkIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgibGl0KFwiaWRcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKGxpdCgiaWQiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",lit(\"id\")),[\\char-class([range(0,0)]),lit(\"lit(\\\"id\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lit(\"id\")))})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChzb3J0KCJFIiksW3NvcnQoIlQiKSxzb3J0KCJFMSIpXSx7fSk00 = (IConstructor) _read("prod(sort(\"E\"),[sort(\"T\"),sort(\"E1\")],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJFMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiRTEiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"E1\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"E1\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"E1\")))})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"*\"),[\\char-class([range(42,42)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlRcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlQiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"T\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"T\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"T\")))})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChzb3J0KCJGIiksW2xpdCgiKiIpLHNvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00 = (IConstructor) _read("prod(sort(\"F\"),[lit(\"*\"),sort(\"F\"),sort(\"T1\")],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoInNvcnQoXCJUMVwiKSIpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMTE1LDExNSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTExLDExMSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE0LDExNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE2LDExNildKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDAsNDApXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg4NCw4NCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDksNDkpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"sort(\\\"T1\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(84,84)]),\\char-class([range(49,49)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChzb3J0KCJFMSIpLFtdLHt9KQ0000 = (IConstructor) _read("prod(sort(\"E1\"),[],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixsaXQoIisiKSksW1xjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSksbGl0KCJsaXQoXCIrXCIpIiksbGl0KCI6IiksaXRlcihcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpXSkpLFxjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSldLHt0YWcoImhvbGVUeXBlIihsaXQoIisiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",lit(\"+\")),[\\char-class([range(0,0)]),lit(\"lit(\\\"+\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lit(\"+\")))})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsaXQoImxpdChcIipcIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDEwOCwxMDgpXSksXGNoYXItY2xhc3MoW3JhbmdlKDEwNSwxMDUpXSksXGNoYXItY2xhc3MoW3JhbmdlKDExNiwxMTYpXSksXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDIsNDIpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"lit(\\\"*\\\")\"),[\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(42,42)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00 = (IConstructor) _read("prod(sort(\"T\"),[sort(\"F\"),sort(\"T1\")],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixsaXQoIigiKSksW1xjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSksbGl0KCJsaXQoXCIoXCIpIiksbGl0KCI6IiksaXRlcihcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpXSkpLFxjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSldLHt0YWcoImhvbGVUeXBlIihsaXQoIigiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",lit(\"(\")),[\\char-class([range(0,0)]),lit(\"lit(\\\"(\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lit(\"(\")))})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsaXQoImxpdChcImlkXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMDgsMTA4KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMDUsMTA1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDEwNSwxMDUpXSksXGNoYXItY2xhc3MoW3JhbmdlKDEwMCwxMDApXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p = (IConstructor) _read("prod(lit(\"lit(\\\"id\\\")\"),[\\char-class([range(108,108)]),\\char-class([range(105,105)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(105,105)]),\\char-class([range(100,100)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJUMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiVDEiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"T1\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"T1\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"T1\")))})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsaXQoInNvcnQoXCJFXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDY5LDY5KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000 = (IConstructor) _read("prod(lit(\"sort(\\\"E\\\")\"),[\\char-class([range(115,115)]),\\char-class([range(111,111)]),\\char-class([range(114,114)]),\\char-class([range(116,116)]),\\char-class([range(40,40)]),\\char-class([range(34,34)]),\\char-class([range(69,69)]),\\char-class([range(34,34)]),\\char-class([range(41,41)])],{})", RascalValueFactory.Production);
+  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkVcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkUiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",sort(\"E\")),[\\char-class([range(0,0)]),lit(\"sort(\\\"E\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(sort(\"E\")))})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChzb3J0KCJFMSIpLFtsaXQoIisiKSxzb3J0KCJUIiksc29ydCgiRTEiKV0se30p = (IConstructor) _read("prod(sort(\"E1\"),[lit(\"+\"),sort(\"T\"),sort(\"E1\")],{})", RascalValueFactory.Production);
   private static final IConstructor cHJvZChsaXQoIigiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pXSx7fSk00 = (IConstructor) _read("prod(lit(\"(\"),[\\char-class([range(40,40)])],{})", RascalValueFactory.Production);
-  private static final IConstructor cHJvZChsYWJlbCgiJE1ldGFIb2xlIixsaXQoIikiKSksW1xjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSksbGl0KCJsaXQoXCIpXCIpIiksbGl0KCI6IiksaXRlcihcY2hhci1jbGFzcyhbcmFuZ2UoNDgsNTcpXSkpLFxjaGFyLWNsYXNzKFtyYW5nZSgwLDApXSldLHt0YWcoImhvbGVUeXBlIihsaXQoIikiKSkpfSk00 = (IConstructor) _read("prod(label(\"$MetaHole\",lit(\")\")),[\\char-class([range(0,0)]),lit(\"lit(\\\")\\\")\"),lit(\":\"),iter(\\char-class([range(48,57)])),\\char-class([range(0,0)])],{tag(\"holeType\"(lit(\")\")))})", RascalValueFactory.Production);
     
   // Item declarations
 	
 	
+  protected static class T {
+    public final static AbstractStackNode<IConstructor>[] EXPECTS;
+    static{
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
+      init(builder);
+      EXPECTS = builder.buildExpectArray();
+    }
+    
+    protected static final void _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlRcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlQiKSkpfSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[1] = new LiteralStackNode<IConstructor>(12, 1, cHJvZChsaXQoInNvcnQoXCJUXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDg0LDg0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000, new int[] {115,111,114,116,40,34,84,34,41}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(13, 2, cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00, new int[] {58}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(16, 4, new int[][]{{0,0}}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(11, 0, new int[][]{{0,0}}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(15, 3, cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp, new CharStackNode<IConstructor>(14, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      builder.addAlternative(GEXPPRIOParser.cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlRcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlQiKSkpfSk00, tmp);
+	}
+    protected static final void _init_cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
+      
+      tmp[0] = new NonTerminalStackNode<IConstructor>(19, 0, "F", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(20, 1, "T1", null, null);
+      builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00, tmp);
+	}
+    public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIlRcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIlQiKSkpfSk00(builder);
+      
+        _init_cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00(builder);
+      
+    }
+  }
+	
   protected static class E1 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -140,16 +174,26 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_cHJvZChzb3J0KCJFMSIpLFtdLHt9KQ0000(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(69, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(45, 0);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJFMSIpLFtdLHt9KQ0000, tmp);
 	}
     protected static final void _init_cHJvZChzb3J0KCJFMSIpLFtsaXQoIisiKSxzb3J0KCJUIiksc29ydCgiRTEiKV0se30p(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(71, 0, cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00, new int[] {43}, null, null);
-      tmp[2] = new NonTerminalStackNode<IConstructor>(73, 2, "E1", null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(72, 1, "T", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(47, 0, cHJvZChsaXQoIisiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQzLDQzKV0pXSx7fSk00, new int[] {43}, null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(49, 2, "E1", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(48, 1, "T", null, null);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJFMSIpLFtsaXQoIisiKSxzb3J0KCJUIiksc29ydCgiRTEiKV0se30p, tmp);
+	}
+    protected static final void _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJFMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiRTEiKSkpfSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[0] = new CharStackNode<IConstructor>(52, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(57, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(54, 2, cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00, new int[] {58}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(56, 3, cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp, new CharStackNode<IConstructor>(55, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(53, 1, cHJvZChsaXQoInNvcnQoXCJFMVwiKSIpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMTE1LDExNSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTExLDExMSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE0LDExNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE2LDExNildKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDAsNDApXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg2OSw2OSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDksNDkpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p, new int[] {115,111,114,116,40,34,69,49,34,41}, null, null);
+      builder.addAlternative(GEXPPRIOParser.cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJFMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiRTEiKSkpfSk00, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
@@ -157,13 +201,15 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
       
         _init_cHJvZChzb3J0KCJFMSIpLFtsaXQoIisiKSxzb3J0KCJUIiksc29ydCgiRTEiKV0se30p(builder);
       
+        _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJFMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiRTEiKSkpfSk00(builder);
+      
     }
   }
 	
   protected static class E {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -171,13 +217,25 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_cHJvZChzb3J0KCJFIiksW3NvcnQoIlQiKSxzb3J0KCJFMSIpXSx7fSk00(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
       
-      tmp[1] = new NonTerminalStackNode<IConstructor>(93, 1, "E1", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(92, 0, "T", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(91, 1, "E1", null, null);
+      tmp[0] = new NonTerminalStackNode<IConstructor>(90, 0, "T", null, null);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJFIiksW3NvcnQoIlQiKSxzb3J0KCJFMSIpXSx7fSk00, tmp);
+	}
+    protected static final void _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkVcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkUiKSkpfSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new ListStackNode<IConstructor>(98, 3, cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp, new CharStackNode<IConstructor>(97, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(95, 1, cHJvZChsaXQoInNvcnQoXCJFXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDY5LDY5KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000, new int[] {115,111,114,116,40,34,69,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(94, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(99, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(96, 2, cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00, new int[] {58}, null, null);
+      builder.addAlternative(GEXPPRIOParser.cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkVcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkUiKSkpfSk00, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
         _init_cHJvZChzb3J0KCJFIiksW3NvcnQoIlQiKSxzb3J0KCJFMSIpXSx7fSk00(builder);
+      
+        _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJFIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkVcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkUiKSkpfSk00(builder);
       
     }
   }
@@ -185,7 +243,7 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
   protected static class F {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
@@ -193,24 +251,34 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
     protected static final void _init_cHJvZChzb3J0KCJGIiksW2xpdCgiKiIpLHNvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new NonTerminalStackNode<IConstructor>(116, 2, "T1", null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(114, 0, cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00, new int[] {42}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(115, 1, "F", null, null);
+      tmp[2] = new NonTerminalStackNode<IConstructor>(121, 2, "T1", null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(120, 1, "F", null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(119, 0, cHJvZChsaXQoIioiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQyLDQyKV0pXSx7fSk00, new int[] {42}, null, null);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJGIiksW2xpdCgiKiIpLHNvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00, tmp);
 	}
     protected static final void _init_cHJvZChzb3J0KCJGIiksW2xpdCgiKCIpLHNvcnQoIkUiKSxsaXQoIikiKV0se30p(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[3];
       
-      tmp[2] = new LiteralStackNode<IConstructor>(109, 2, cHJvZChsaXQoIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQxLDQxKV0pXSx7fSk00, new int[] {41}, null, null);
-      tmp[0] = new LiteralStackNode<IConstructor>(107, 0, cHJvZChsaXQoIigiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pXSx7fSk00, new int[] {40}, null, null);
-      tmp[1] = new NonTerminalStackNode<IConstructor>(108, 1, "E", null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(105, 2, cHJvZChsaXQoIikiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQxLDQxKV0pXSx7fSk00, new int[] {41}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(103, 0, cHJvZChsaXQoIigiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQwLDQwKV0pXSx7fSk00, new int[] {40}, null, null);
+      tmp[1] = new NonTerminalStackNode<IConstructor>(104, 1, "E", null, null);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJGIiksW2xpdCgiKCIpLHNvcnQoIkUiKSxsaXQoIikiKV0se30p, tmp);
 	}
     protected static final void _init_cHJvZChzb3J0KCJGIiksW2xpdCgiaWQiKV0se30p(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new LiteralStackNode<IConstructor>(111, 0, cHJvZChsaXQoImlkIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMDUsMTA1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMDAsMTAwKV0pXSx7fSk00, new int[] {105,100}, null, null);
+      tmp[0] = new LiteralStackNode<IConstructor>(107, 0, cHJvZChsaXQoImlkIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMDUsMTA1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMDAsMTAwKV0pXSx7fSk00, new int[] {105,100}, null, null);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJGIiksW2xpdCgiaWQiKV0se30p, tmp);
+	}
+    protected static final void _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJGIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkZcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkYiKSkpfSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[0] = new CharStackNode<IConstructor>(110, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(115, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(112, 2, cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00, new int[] {58}, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(111, 1, cHJvZChsaXQoInNvcnQoXCJGXCIpIiksW1xjaGFyLWNsYXNzKFtyYW5nZSgxMTUsMTE1KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTEsMTExKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTQsMTE0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgxMTYsMTE2KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MCw0MCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMzQsMzQpXSksXGNoYXItY2xhc3MoW3JhbmdlKDcwLDcwKV0pLFxjaGFyLWNsYXNzKFtyYW5nZSgzNCwzNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDEsNDEpXSldLHt9KQ0000, new int[] {115,111,114,116,40,34,70,34,41}, null, null);
+      tmp[3] = new ListStackNode<IConstructor>(114, 3, cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp, new CharStackNode<IConstructor>(113, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      builder.addAlternative(GEXPPRIOParser.cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJGIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkZcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkYiKSkpfSk00, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
       
@@ -220,54 +288,54 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
       
         _init_cHJvZChzb3J0KCJGIiksW2xpdCgiaWQiKV0se30p(builder);
       
+        _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJGIikpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pLGxpdCgic29ydChcIkZcIikiKSxsaXQoIjoiKSxpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSksXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKV0se3RhZygiaG9sZVR5cGUiKHNvcnQoIkYiKSkpfSk00(builder);
+      
     }
   }
 	
   protected static class T1 {
     public final static AbstractStackNode<IConstructor>[] EXPECTS;
     static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
+      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_dontNest, _resultStoreIdMappings);
       init(builder);
       EXPECTS = builder.buildExpectArray();
     }
     
+    protected static final void _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJUMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiVDEiKSkpfSk00(ExpectBuilder<IConstructor> builder) {
+      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[5];
+      
+      tmp[3] = new ListStackNode<IConstructor>(128, 3, cmVndWxhcihpdGVyKFxjaGFyLWNsYXNzKFtyYW5nZSg0OCw1NyldKSkp, new CharStackNode<IConstructor>(127, 0, new int[][]{{48,57}}, null, null), true, null, null);
+      tmp[1] = new LiteralStackNode<IConstructor>(125, 1, cHJvZChsaXQoInNvcnQoXCJUMVwiKSIpLFtcY2hhci1jbGFzcyhbcmFuZ2UoMTE1LDExNSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTExLDExMSldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE0LDExNCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoMTE2LDExNildKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDAsNDApXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg4NCw4NCldKSxcY2hhci1jbGFzcyhbcmFuZ2UoNDksNDkpXSksXGNoYXItY2xhc3MoW3JhbmdlKDM0LDM0KV0pLFxjaGFyLWNsYXNzKFtyYW5nZSg0MSw0MSldKV0se30p, new int[] {115,111,114,116,40,34,84,49,34,41}, null, null);
+      tmp[0] = new CharStackNode<IConstructor>(124, 0, new int[][]{{0,0}}, null, null);
+      tmp[4] = new CharStackNode<IConstructor>(129, 4, new int[][]{{0,0}}, null, null);
+      tmp[2] = new LiteralStackNode<IConstructor>(126, 2, cHJvZChsaXQoIjoiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDU4LDU4KV0pXSx7fSk00, new int[] {58}, null, null);
+      builder.addAlternative(GEXPPRIOParser.cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJUMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiVDEiKSkpfSk00, tmp);
+	}
     protected static final void _init_cHJvZChzb3J0KCJUMSIpLFtdLHt9KQ0000(ExpectBuilder<IConstructor> builder) {
       AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[1];
       
-      tmp[0] = new EpsilonStackNode<IConstructor>(117, 0);
+      tmp[0] = new EpsilonStackNode<IConstructor>(131, 0);
       builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJUMSIpLFtdLHt9KQ0000, tmp);
 	}
     public static void init(ExpectBuilder<IConstructor> builder){
+      
+        _init_cHJvZChsYWJlbCgiJE1ldGFIb2xlIixzb3J0KCJUMSIpKSxbXGNoYXItY2xhc3MoW3JhbmdlKDAsMCldKSxsaXQoInNvcnQoXCJUMVwiKSIpLGxpdCgiOiIpLGl0ZXIoXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDU3KV0pKSxcY2hhci1jbGFzcyhbcmFuZ2UoMCwwKV0pXSx7dGFnKCJob2xlVHlwZSIoc29ydCgiVDEiKSkpfSk00(builder);
       
         _init_cHJvZChzb3J0KCJUMSIpLFtdLHt9KQ0000(builder);
       
     }
   }
-	
-  protected static class T {
-    public final static AbstractStackNode<IConstructor>[] EXPECTS;
-    static{
-      ExpectBuilder<IConstructor> builder = new ExpectBuilder<IConstructor>(_resultStoreIdMappings);
-      init(builder);
-      EXPECTS = builder.buildExpectArray();
-    }
-    
-    protected static final void _init_cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00(ExpectBuilder<IConstructor> builder) {
-      AbstractStackNode<IConstructor>[] tmp = (AbstractStackNode<IConstructor>[]) new AbstractStackNode[2];
-      
-      tmp[1] = new NonTerminalStackNode<IConstructor>(147, 1, "T1", null, null);
-      tmp[0] = new NonTerminalStackNode<IConstructor>(146, 0, "F", null, null);
-      builder.addAlternative(GEXPPRIOParser.cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00, tmp);
-	}
-    public static void init(ExpectBuilder<IConstructor> builder){
-      
-        _init_cHJvZChzb3J0KCJUIiksW3NvcnQoIkYiKSxzb3J0KCJUMSIpXSx7fSk00(builder);
-      
-    }
+
+  private int nextFreeStackNodeId = 154;
+  protected int getFreeStackNodeId() {
+    return nextFreeStackNodeId++;
   }
-	
+
   // Parse methods    
   
+  public AbstractStackNode<IConstructor>[] T() {
+    return T.EXPECTS;
+  }
   public AbstractStackNode<IConstructor>[] E1() {
     return E1.EXPECTS;
   }
@@ -279,8 +347,5 @@ public class GEXPPRIOParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor
   }
   public AbstractStackNode<IConstructor>[] T1() {
     return T1.EXPECTS;
-  }
-  public AbstractStackNode<IConstructor>[] T() {
-    return T.EXPECTS;
   }
 }

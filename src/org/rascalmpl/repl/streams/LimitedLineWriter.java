@@ -1,4 +1,4 @@
-package org.rascalmpl.repl;
+package org.rascalmpl.repl.streams;
 
 import java.io.IOException;
 import java.io.Writer;
