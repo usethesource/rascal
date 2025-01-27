@@ -30,7 +30,8 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "vmArgs": "-Xss80m -Xmx2g -ea"
+            "vmArgs": "-Xss80m -Xmx2g -ea",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",
@@ -38,7 +39,7 @@
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
-            "cwd" : "${workspaceFolder}/../rascal-tutor",
+            "cwd": "${workspaceFolder}/../rascal-tutor",
             "vmArgs": "-Xss80m -Xmx2g -ea"
         },
         {
