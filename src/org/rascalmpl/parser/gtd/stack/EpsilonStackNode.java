@@ -69,10 +69,10 @@ public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
-    @Override
-    public String toShortString() {
-        return "\u03B5";
-    }
+	@Override
+	public String toShortString() {
+		return "\u03B5";
+	}
 
 	@Override
 	public String toString(){
