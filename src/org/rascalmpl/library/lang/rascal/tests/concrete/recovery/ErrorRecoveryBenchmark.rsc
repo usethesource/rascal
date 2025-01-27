@@ -92,3 +92,4 @@ int main(list[str] args) {
 }
 
 int rascalSmokeTest() = main(["|std:///|", "max-files=3", "max-file-size=500"]);
+int rascalStandardTest() = main(["|std:///|", "max-files=1000", "max-file-size=5120"]);
