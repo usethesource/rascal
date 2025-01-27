@@ -77,7 +77,7 @@ tuple[str output, int exitCode] execWithCode(loc processCommand, loc workingDir=
 
 @synopsis{Kill a running process, or a zombie process (a process which is not alive yet not killed)}
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public java int killProcess(PID processId, bool force=false);
+public java void killProcess(PID processId, bool force=false);
 
 @synopsis{Check whether a process is still alive}
 @javaClass{org.rascalmpl.library.util.ShellExec}
