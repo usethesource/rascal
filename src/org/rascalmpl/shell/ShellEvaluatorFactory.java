@@ -28,34 +28,30 @@ import io.usethesource.vallang.IValueFactory;
 public class ShellEvaluatorFactory {
 
     public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
-        GlobalEnvironment heap = new GlobalEnvironment();
-        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-
+        ISourceLocation rootFolder = null;
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
-
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
-            ISourceLocation rootFolder = inferProjectRoot(new File(System.getProperty("user.dir")));
-            if (rootFolder != null) {
-                configureProjectEvaluator(evaluator, rootFolder);
-            }
+            rootFolder = inferProjectRoot(new File(System.getProperty("user.dir")));
         }
 
-        return evaluator;
+        return createEvaluator(input, stdout, stderr, monitor, rootFolder);
     }
 
     public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
+        ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);
+        return createEvaluator(input, stdout, stderr, monitor, rootFolder);
+    }
+
+    private static Evaluator createEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor, ISourceLocation rootFolder) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
         Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
-        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
-        ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);
         if (rootFolder != null) {
             configureProjectEvaluator(evaluator, rootFolder);
+        } else {
+            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
         }
 
         return evaluator;
@@ -74,9 +70,6 @@ public class ShellEvaluatorFactory {
             evaluator.addRascalSearchPath((ISourceLocation) path); 
         }
 
-        for (IValue path : pcfg.getLibs()) {
-            evaluator.addRascalSearchPath((ISourceLocation) path);
-        }
 
         ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
         evaluator.addClassLoader(cl);  
