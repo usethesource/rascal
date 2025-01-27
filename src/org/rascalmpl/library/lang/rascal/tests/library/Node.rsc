@@ -18,52 +18,54 @@ test bool arity3() = arity(xf(1,2)) == 2;
 // delAnnotation
 
 data ANODE = leaf(int n) | a(ANODE left, ANODE right);
-anno int ANODE@pos;
-anno str ANODE@label;
+ 
+data ANODE(int pos = 0);
+ 
+data ANODE(str label = "");
 
 public ANODE A1 = leaf(3);
-public ANODE A2 = leaf(3)[@pos = 1][@label="a"];
-public ANODE A3 = a(leaf(10)[@pos = 1][@label="a"], leaf(20)[@pos=2][@label="b"])[@pos=3][@label="c"];
+public ANODE A2 = leaf(3)[pos=1][label="a"];
+public ANODE A3 = a(leaf(10)[pos=1][label="a"], leaf(20)[pos=2][label="b"])[pos=3][label="c"];
 
-test bool delAnnotation1() = !delAnnotation(A1, "pos")@pos?;
-test bool delAnnotation2() = !delAnnotation(A2, "pos")@pos?;
-test bool delAnnotation3() = delAnnotation(A2, "pos")@label == "a";
-test bool delAnnotation4() = !delAnnotation(A3, "pos")@pos?;
-test bool delAnnotation5() = delAnnotation(A3, "pos")@label == "c";
+test bool delAnnotation1() = !delAnnotation(A1, "pos").pos?;
+test bool delAnnotation2() = !delAnnotation(A2, "pos").pos?;
+test bool delAnnotation3() = delAnnotation(A2, "pos").label == "a";
+test bool delAnnotation4() = !delAnnotation(A3, "pos").pos?;
+test bool delAnnotation5() = delAnnotation(A3, "pos").label == "c";
 
 
 // delAnnotations
-test bool delAnnotations1() = !delAnnotations(A1)@pos?;
-test bool delAnnotations2() = !delAnnotations(A1)@label?;
+test bool delAnnotations1() = !unset(A1).pos?;
+test bool delAnnotations2() = !unset(A1).label?;
 
-test bool delAnnotations3() = !delAnnotations(A2)@pos?;
-test bool delAnnotations4() = !delAnnotations(A2)@label?;
+test bool delAnnotations3() = !unset(A2).pos?;
+test bool delAnnotations4() = !unset(A2).label?;
 
-test bool delAnnotations5() = !delAnnotations(A3)@pos?;
-test bool delAnnotations6() = !delAnnotations(A3)@label?;
+test bool delAnnotations5() = !unset(A3).pos?;
+test bool delAnnotations6() = !unset(A3).label?;
 
-test bool delAnnotations7() = ANODE n := delAnnotations(A3)[0] && n@pos == 1;
-test bool delAnnotations8() = ANODE n := delAnnotations(A3)[0] && n@label == "a";
+test bool delAnnotations7() = ANODE n := unset(A3)[0] && n.pos == 1;
+test bool delAnnotations8() = ANODE n := unset(A3)[0] && n.label == "a";
 
-test bool delAnnotations9() = ANODE n := delAnnotations(A3)[1] && n@pos == 2;
-test bool delAnnotations10() = ANODE n := delAnnotations(A3)[1] && n@label == "b";
+test bool delAnnotations9() = ANODE n := unset(A3)[1] && n.pos == 2;
+test bool delAnnotations10() = ANODE n := unset(A3)[1] && n.label == "b";
 
 
 // delAnnotationsRec
-test bool delAnnotationsRec1() = !delAnnotationsRec(A1)@pos?;
-test bool delAnnotationsRec2() = !delAnnotationsRec(A1)@label?;
+test bool delAnnotationsRec1() = !delAnnotationsRec(A1).pos?;
+test bool delAnnotationsRec2() = !delAnnotationsRec(A1).label?;
 
-test bool delAnnotationsRec3() = !delAnnotationsRec(A2)@pos?;
-test bool delAnnotationsRec4() = !delAnnotationsRec(A2)@label?;
+test bool delAnnotationsRec3() = !delAnnotationsRec(A2).pos?;
+test bool delAnnotationsRec4() = !delAnnotationsRec(A2).label?;
 
-test bool delAnnotationsRec5() = !delAnnotationsRec(A3)@pos?;
-test bool delAnnotationsRec6() = !delAnnotationsRec(A3)@label?;
+test bool delAnnotationsRec5() = !delAnnotationsRec(A3).pos?;
+test bool delAnnotationsRec6() = !delAnnotationsRec(A3).label?;
 
-test bool delAnnotationsRec7() = ANODE n := delAnnotationsRec(A3)[0] && !n@pos?;
-test bool delAnnotationsRec8() = ANODE n := delAnnotationsRec(A3)[0] && !n@label?;
+test bool delAnnotationsRec7() = ANODE n := delAnnotationsRec(A3)[0] && !n.pos?;
+test bool delAnnotationsRec8() = ANODE n := delAnnotationsRec(A3)[0] && !n.label?;
 
-test bool delAnnotationsRec9() = ANODE n := delAnnotationsRec(A3)[1] && !n@pos?;
-test bool delAnnotationsRec10() = ANODE n := delAnnotationsRec(A3)[1] && !n@label?;
+test bool delAnnotationsRec9() = ANODE n := delAnnotationsRec(A3)[1] && !n.pos?;
+test bool delAnnotationsRec10() = ANODE n := delAnnotationsRec(A3)[1] && !n.label?;
 
 // getAnnotations
 test bool getAnnotations1() = getAnnotations(A1) == ();
@@ -103,8 +105,8 @@ test bool makeNode4() {node n = makeNode("f", 1, 2, 3); return getName(n) == "f"
 // setAnnotations
 
 test bool setAnnotations1() = setAnnotations(leaf(3), ()) == leaf(3);
-test bool setAnnotations2() = setAnnotations(leaf(3), ("pos": 1, "label":"a"))@pos == 1;
-test bool setAnnotations3() = setAnnotations(leaf(3), ("pos": 1, "label":"a"))@label == "a";
+test bool setAnnotations2() = setAnnotations(leaf(3), ("pos": 1, "label":"a")).pos == 1;
+test bool setAnnotations3() = setAnnotations(leaf(3), ("pos": 1, "label":"a")).label == "a";
 
 // unset
 

@@ -164,7 +164,7 @@ HTMLElement toHTML(t:<value a, value bb, value c, value d>)
 HTMLElement toHTML(Tree t:appl(Production p, list[Tree] args)) 
     = div([
         text(topProd2rascal(p)),
-        *(t@\loc? ? [toHTML(t@\loc)] : []),
+        *(t.src? ? [toHTML(t.src)] : []),
         ul([
             li([toHTML(a)])
             | a <- args
