@@ -38,7 +38,6 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	private final ListContainerNodeFlattener<P, T, S> listContainerNodeConverter;
 	private final SkippedNodeFlattener<T, S> skippedNodeConverter;
 
-	private final Map<AbstractNode, T> nodeCache;
 	private final Map<T, T> treeCache;
 	
 	public DefaultNodeFlattener(){
@@ -50,7 +49,6 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 		listContainerNodeConverter = new ListContainerNodeFlattener<P, T, S>();
 		skippedNodeConverter = new SkippedNodeFlattener<T, S>();
 
-		nodeCache = new IdentityHashMap<>();
 		treeCache = new HashMap<>();
 	}
 	
@@ -66,7 +64,7 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	 */
 	@SuppressWarnings("unchecked")
 	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, CacheMode cacheMode){
-		T result = cacheMode == CacheMode.CACHE_MODE_FULL ? nodeCache.get(node) : null;
+		T result = node.getTree();
 
 		if (result != null) {
 			return result;
@@ -96,7 +94,7 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 		}
 
 		if (cacheMode == CacheMode.CACHE_MODE_FULL) {
-			nodeCache.put(node, result);
+			node.setTree(result);
 		} else if (cacheMode == CacheMode.CACHE_MODE_SHARING_ONLY) {
 			T existing = treeCache.get(result);
 			if (existing == null) {
