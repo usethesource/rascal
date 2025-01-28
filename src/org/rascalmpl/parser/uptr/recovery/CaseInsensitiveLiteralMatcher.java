@@ -15,15 +15,15 @@
 package org.rascalmpl.parser.uptr.recovery;
 
 public class CaseInsensitiveLiteralMatcher implements InputMatcher {
-	private final int[] chars;
+    private final int[] chars;
     private final int[] altChars;
 
     public CaseInsensitiveLiteralMatcher(String literal) {
         int length = literal.length();
-		chars = new int[length];
-		altChars = new int[length];
-		for(int i = 0; i<length; i++){
-			int character = literal.codePointAt(i);
+        chars = new int[length];
+        altChars = new int[length];
+        for(int i = 0; i<length; i++){
+        int character = literal.codePointAt(i);
             chars[i] = character;
             if (Character.isLowerCase(character)) {
                 altChars[i] = Character.toUpperCase(character);
@@ -32,14 +32,14 @@ public class CaseInsensitiveLiteralMatcher implements InputMatcher {
             } else {
                 altChars[i] = character;
             }
-		}
+        }
     }
 
     public CaseInsensitiveLiteralMatcher(int[][] ciLiteral) {
         int length = ciLiteral.length;
-		chars = new int[length];
-		altChars = new int[length];
-		for(int i = 0; i<length; i++){
+        chars = new int[length];
+        altChars = new int[length];
+        for(int i = 0; i<length; i++){
             chars[i] = ciLiteral[i][0];
             altChars[i] = ciLiteral[i][ciLiteral[i].length - 1];
         }
