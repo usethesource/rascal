@@ -1,16 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * Copyright (c) 2009-2013 CWI All rights reserved. This program and the accompanying materials are
+ * made available under the terms of the Eclipse Public License v1.0 which accompanies this
+ * distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
-
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
- *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
- *   * Bert Lisser    - Bert.Lisser@cwi.nl
+ * 
+ * * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI * Mark Hills - Mark.Hills@cwi.nl (CWI) * Arnold
+ * Lankamp - Arnold.Lankamp@cwi.nl * Bert Lisser - Bert.Lisser@cwi.nl
  *******************************************************************************/
 package org.rascalmpl.library.lang.json;
 
@@ -19,166 +15,149 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
-
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
-import org.rascalmpl.library.lang.json.internal.IValueAdapter;
-import org.rascalmpl.library.lang.json.internal.JSONReadingTypeVisitor;
 import org.rascalmpl.library.lang.json.internal.JsonValueReader;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
+import org.rascalmpl.types.ReifiedType;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.IRascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
-import com.google.gson.FieldNamingPolicy;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.ibm.icu.text.DateFormat;
 
 public class IO {
-	private final IValueFactory values;
-	private final IRascalMonitor monitor;
+    private final IRascalValueFactory values;
+    private final IRascalMonitor monitor;
 
-	public IO(IValueFactory values, IRascalMonitor monitor) {
-		super();
-		this.values = values;
-		this.monitor = monitor;
-	}
-	
-	public IString toJSON(IValue value) {
-		  return toJSON(value, this.values.bool(false));
-	}
+    public IO(IRascalValueFactory values, IRascalMonitor monitor) {
+        super();
+        this.values = values;
+        this.monitor = monitor;
+    }
 
-
-	public IString toJSON(IValue value, IBool compact) {
-		IValueAdapter adap = new IValueAdapter(compact.getValue());
-		Gson gson = new GsonBuilder()
-		.registerTypeAdapter(IValue.class, adap)
-		.enableComplexMapKeySerialization()
-		.setDateFormat(DateFormat.LONG)
-		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-		.setVersion(1.0)
-		.disableHtmlEscaping() 
-		.create();
-		try {
-			String json = gson.toJson(value, new TypeToken<IValue>() {}.getType());
-			return values.string(json);
-		} catch (Exception e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-	}
-	
-	public IValue fromJSON(IValue type, IString src) {
+    public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
+        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
         TypeStore store = new TypeStore();
         Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-        Gson gson = new GsonBuilder()
-        .enableComplexMapKeySerialization()
-        .setDateFormat(DateFormat.LONG)
-        .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-        .setVersion(1.0)
-        .create();
-        Object obj = gson.fromJson(src.getValue(), Object.class);
-        try {
-            return JSONReadingTypeVisitor.read(obj, values, store, start);
+
+        if (parsers.getType() instanceof ReifiedType && parsers.getType().getTypeParameters().getFieldType(0).isTop()) {
+            // ignore the default parser
+            parsers = null;
+        }
+
+        try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
+            in.setLenient(lenient.getValue());
+            return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
+                .setCalendarFormat(dateTimeFormat.getValue())
+                .setParsers(parsers)
+                .setNulls(unreify(nulls))
+                .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .read(in, start);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
+        catch (NullPointerException e) {
+            throw RuntimeExceptionFactory.io(values.string("NPE in error handling code"), null, null);
+        }
+    }
+
+    private Map<Type, IValue> unreify(IMap nulls) {
+        var tr = new TypeReifier(values);
+        return nulls.stream().map(t -> (ITuple) t)
+            .collect(Collectors.toMap(t -> tr.valueToType((IConstructor) t.get(0)), t -> t.get(1)));
+    }
+
+    public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins,
+        IFunction parsers, IMap nulls, IBool explicitConstructorNames, IBool explicitDataTypes) {
+        TypeStore store = new TypeStore();
+        Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
+
+        try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
+            in.setLenient(lenient.getValue());
+            return new JsonValueReader(values, store, monitor,
+                trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
+                    .setCalendarFormat(dateTimeFormat.getValue())
+                    .setParsers(parsers)
+                    .setNulls(unreify(nulls))
+                    .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                    .setExplicitDataTypes(explicitDataTypes.getValue())
+                    .read(in, start);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+        }
+        catch (NullPointerException e) {
+            throw RuntimeExceptionFactory.io(values.string("NPE"));
+        }
+    }
+
+    public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat,
+        IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
+        IBool explicitDataTypes) {
+        try (JsonWriter out =
+            new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false),
+                Charset.forName("UTF8")))) {
+            if (indent.intValue() > 0) {
+                out.setIndent("        ".substring(0, indent.intValue() % 9));
+            }
+
+            new JsonValueWriter()
+                .setCalendarFormat(dateTimeFormat.getValue())
+                .setDatesAsInt(dateTimeAsInt.getValue())
+                .setUnpackedLocations(unpackedLocations.getValue())
+                .setDropOrigins(dropOrigins.getValue())
+                .setFormatters(formatter)
+                .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .write(out, value);
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
         }
     }
-    
-	
-	public IValue readJSON(IValue type, ISourceLocation loc, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IBool explicitConstructorNames, IBool explicitDataTypes) {
-      TypeStore store = new TypeStore();
-      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-      
-      try (JsonReader in = new JsonReader(URIResolverRegistry.getInstance().getCharacterReader(loc))) {
-		in.setLenient(lenient.getValue());
-        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? loc : null)
-            .setCalendarFormat(dateTimeFormat.getValue())
-			.setExplicitConstructorNames(explicitConstructorNames.getValue())
-			.setExplicitDataTypes(explicitDataTypes.getValue())
-            .read(in, start);
-      }
-      catch (IOException e) {
-        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-      }
-      catch (NullPointerException e) {
-        e.printStackTrace();
-        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
-      }
+
+    public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt,
+        IInteger indent, IBool dropOrigins, IFunction formatter, IBool explicitConstructorNames,
+        IBool explicitDataTypes) {
+        StringWriter string = new StringWriter();
+
+        try (JsonWriter out = new JsonWriter(string)) {
+            if (indent.intValue() > 0) {
+                out.setIndent("        ".substring(0, indent.intValue() % 9));
+            }
+            new JsonValueWriter()
+                .setCalendarFormat(dateTimeFormat.getValue())
+                .setDatesAsInt(dateTimeAsInt.getValue())
+                .setUnpackedLocations(unpackedLocations.getValue())
+                .setDropOrigins(dropOrigins.getValue())
+                .setFormatters(formatter)
+                .setExplicitConstructorNames(explicitConstructorNames.getValue())
+                .setExplicitDataTypes(explicitDataTypes.getValue())
+                .write(out, value);
+
+            return values.string(string.toString());
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
     }
-	
-	public IValue parseJSON(IValue type, IString src, IString dateTimeFormat, IBool lenient, IBool trackOrigins, IBool explicitConstructorNames, IBool explicitDataTypes) {
-	      TypeStore store = new TypeStore();
-	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
-	      
-	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
-			in.setLenient(lenient.getValue());
-	        return new JsonValueReader(values, store, monitor, trackOrigins.getValue() ? URIUtil.rootLocation("unknown") : null)
-	            .setCalendarFormat(dateTimeFormat.getValue())
-				.setExplicitConstructorNames(explicitConstructorNames.getValue())
-				.setExplicitDataTypes(explicitDataTypes.getValue())
-	            .read(in, start);
-	      }
-	      catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
-	      }
-	      catch (NullPointerException e) {
-	        throw RuntimeExceptionFactory.io(values.string("NPE"));
-	      }
-	    }
-	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IBool explicitConstructorNames, IBool explicitDataTypes) {
-	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
-	        if (indent.intValue() > 0) {
-	            out.setIndent("        ".substring(0, indent.intValue() % 9));
-	        }
-	        
-	        new JsonValueWriter()
-	        .setCalendarFormat(dateTimeFormat.getValue())
-	        .setDatesAsInt(dateTimeAsInt.getValue())
-	        .setUnpackedLocations(unpackedLocations.getValue())
-			.setDropOrigins(dropOrigins.getValue())
-			.setExplicitConstructorNames(explicitConstructorNames.getValue())
-			.setExplicitDataTypes(explicitDataTypes.getValue())
-	        .write(out, value);
-	    } catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-	    } 
-	}
-	
-	public IString asJSON(IValue value, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent, IBool dropOrigins, IBool explicitConstructorNames, IBool explicitDataTypes) {
-	    StringWriter string = new StringWriter();
-
-	    try (JsonWriter out = new JsonWriter(string)) {
-	        if (indent.intValue() > 0) {
-	            out.setIndent("        ".substring(0, indent.intValue() % 9));
-	        }
-	        new JsonValueWriter()
-	        	.setCalendarFormat(dateTimeFormat.getValue())
-	        	.setDatesAsInt(dateTimeAsInt.getValue())
-	        	.setUnpackedLocations(unpackedLocations.getValue())
-				.setDropOrigins(dropOrigins.getValue())
-				.setExplicitConstructorNames(explicitConstructorNames.getValue())
-				.setExplicitDataTypes(explicitDataTypes.getValue())
-	        	.write(out, value);
-
-	        return values.string(string.toString());
-	    } catch (IOException e) {
-	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-	    } 
-	}
 }

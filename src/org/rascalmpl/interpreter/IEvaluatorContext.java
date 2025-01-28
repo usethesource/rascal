@@ -17,10 +17,10 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -43,11 +43,8 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	/** for standard IO */
 	public PrintWriter getOutPrinter();
 	public PrintWriter getErrorPrinter();
-	
-	public OutputStream getStdOut();
-	public OutputStream getStdErr();
 
-	public InputStream getInput();
+	public Reader getInput();
 	
 	/** for "internal use" */
 	public IEvaluator<Result<IValue>> getEvaluator();
@@ -77,5 +74,7 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	public Stack<Accumulator> getAccumulators();
 	
 	
-	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier);
+	/** Given a (possibly empty) qualifier and a partial identifier, look in the current root environment if there are names defined that could match the partial names
+	 * @return identifiers and their category (variable, function, etc) */
+	public Map<String, String> completePartialIdentifier(String qualifier, String partialIdentifier);
 }
