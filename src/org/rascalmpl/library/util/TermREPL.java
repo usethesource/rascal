@@ -1,18 +1,16 @@
 package org.rascalmpl.library.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.jline.reader.EndOfFileException;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
@@ -20,11 +18,20 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.library.lang.json.internal.JsonValueWriter;
 import org.rascalmpl.repl.BaseREPL;
-import org.rascalmpl.repl.CompletionResult;
-import org.rascalmpl.repl.ILanguageProtocol;
-import org.rascalmpl.repl.REPLContentServer;
-import org.rascalmpl.repl.REPLContentServerManager;
+import org.rascalmpl.repl.http.REPLContentServer;
+import org.rascalmpl.repl.http.REPLContentServerManager;
+import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.INotebookOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.ISourceLocationCommandOutput;
+import org.rascalmpl.repl.output.IWebContentOutput;
+import org.rascalmpl.repl.output.MimeTypes;
+import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
+import org.rascalmpl.repl.parametric.ILanguageProtocol;
+import org.rascalmpl.repl.parametric.ParametricReplService;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 
@@ -32,8 +39,7 @@ import com.google.gson.stream.JsonWriter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
@@ -42,29 +48,45 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import jline.TerminalFactory;
 
 public class TermREPL {
     private final IRascalValueFactory vf;
+    private final IDEServices service;
+    private final PrintWriter err;
     private ILanguageProtocol lang;
-    private final OutputStream out;
-    private final OutputStream err;
-    private final InputStream in;
 
 
-    public TermREPL(IRascalValueFactory vf, OutputStream out, OutputStream err, InputStream in) {
+    public TermREPL(IRascalValueFactory vf, IDEServices service, PrintWriter _ignoredOut, PrintWriter err) {
         this.vf = vf;
-        this.out = out;
+        this.service = service;
         this.err = err;
-        this.in = in;
+    }
+
+    private Path resolveHistoryFile(ISourceLocation historyFile) {
+        try {
+            ISourceLocation result = URIResolverRegistry.getInstance().logicalToPhysical(historyFile);
+            if (result == null || !result.getScheme().equals("file")) {
+                err.println("Cannot resolve history file to file on disk");
+                return null;
+            }
+            return Path.of(result.getPath());
+        }
+        catch (IOException e) {
+            return null;
+        }
     }
 
     public ITuple newREPL(IConstructor repl, IString title, IString welcome, IString prompt, IString quit,
         ISourceLocation history, IFunction handler, IFunction completor, IFunction stacktrace, IEvaluatorContext eval) {
-        lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace, in, err, out);
+        var term = service.activeTerminal();
+        if (term == null) {
+            throw RuntimeExceptionFactory.io("No terminal found in IDE service, we cannot allocate a REPL");
+        }
+        lang = new TheREPL(vf, title, welcome, prompt, quit, history, handler, completor, stacktrace);
+
         BaseREPL baseRepl;
         try {
-            baseRepl = new BaseREPL(lang, null, in, err, out, true, true, history, TerminalFactory.get(), null);
+            baseRepl = new BaseREPL(new ParametricReplService(lang, service, resolveHistoryFile(history)), term);
         }
         catch (Throwable e) {
             throw RuntimeExceptionFactory.io(e.getMessage());
@@ -94,10 +116,10 @@ public class TermREPL {
     public static class TheREPL implements ILanguageProtocol {
         private final REPLContentServerManager contentManager = new REPLContentServerManager();
         private final TypeFactory tf = TypeFactory.getInstance();
-        private OutputStream stdout;
-        private OutputStream stderr;
-        private InputStream input;
-        private String currentPrompt;
+        private PrintWriter stdout;
+        private PrintWriter stderr;
+        private Reader input;
+        private final String currentPrompt;
         private String quit;
         private final AbstractFunction handler;
         private final AbstractFunction completor;
@@ -105,12 +127,8 @@ public class TermREPL {
         private final AbstractFunction stacktrace;
 
         public TheREPL(IValueFactory vf, IString title, IString welcome, IString prompt, IString quit, ISourceLocation history,
-            IFunction handler, IFunction completor, IValue stacktrace, InputStream input, OutputStream stderr, OutputStream stdout) {
+            IFunction handler, IFunction completor, IValue stacktrace) {
             this.vf = vf;
-            this.input = input;
-            this.stderr = stderr;
-            this.stdout = stdout;
-            
             // TODO: these casts mean that TheRepl only works with functions produced by the
             // interpreter for now. The reason is that the REPL needs access to environment configuration
             // parameters of these functions such as stdout, stdin, etc.
@@ -124,31 +142,15 @@ public class TermREPL {
         }
 
         @Override
+        public void initialize(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
+            this.input = input;
+            this.stdout = stdout;
+            this.stderr = stdout;
+        }
+
+        @Override
         public void cancelRunningCommandRequested() {
             handler.getEval().interrupt();
-            handler.getEval().__setInterrupt(false);
-        }
-
-        @Override
-        public void terminateRequested() {
-            handler.getEval().interrupt();
-        }
-
-        @Override
-        public void stop() {
-            handler.getEval().interrupt();
-        }
-
-        @Override
-        public void stackTraceRequested() {
-            stacktrace.call(new Type[0], new IValue[0], null);
-        }
-
-        @Override
-        public void initialize(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
-            this.stdout = stdout;
-            this.stderr = stderr;
-            this.input = input;
         }
 
         @Override
@@ -157,67 +159,120 @@ public class TermREPL {
         }
 
         @Override
-        public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
-
+        public ICommandOutput handleInput(String line) throws InterruptedException {
             if (line.trim().equals(quit)) {
-                throw new InterruptedException(quit);
+                throw new EndOfFileException();
             }
-            else {
-                try {
-                    handler.getEval().__setInterrupt(false);
-                    IConstructor content = (IConstructor) call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+            try {
+                handler.getEval().__setInterrupt(false);
+                IConstructor content = (IConstructor) call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
 
-                    if (content.has("id")) {
-                        handleInteractiveContent(output, metadata, content);
+                if (content.has("id")) {
+                    return handleInteractiveContent(content);
+                }
+                else {
+                    IConstructor response = (IConstructor) content.get("response");
+                    switch (response.getName()) {
+                        case "response":
+                            return handlePlainTextResponse(response);
+                        case "fileResponse":
+                            return handleFileResponse(response);
+                        case "jsonResponse":
+                            return handleJSONResponse(response);
+                        default: 
+                            return errorResponse("Unexpected constructor: " + response.getName());
                     }
-                    else {
-                        IConstructor response = (IConstructor) content.get("response");
-                        switch (response.getName()) {
-                            case "response":
-                                handlePlainTextResponse(output, response);
-                                break;
-                            case "fileResponse":
-                                handleFileResponse(output, response);
-                                break;
-                            case "jsonResponse":
-                                handleJSONResponse(output, response);
-                        }
-                    }
                 }
-                catch (IOException e) {
-                    output.put("text/plain", new ByteArrayInputStream(e.getMessage().getBytes()));
-                }
-                catch (Throwable e) {
-                    output.put("text/plain",  new ByteArrayInputStream(e.getMessage() != null ? e.getMessage().getBytes() : e.getClass().getName().getBytes()));
-                }
+            }
+            catch (IOException e) {
+                return errorResponse(e.getMessage());
+            }
+            catch (Throwable e) {
+                return errorResponse(e.getMessage());
             }
         }
+
+        private ICommandOutput errorResponse(String message) {
+            return new IErrorCommandOutput() {
+                @Override
+                public ICommandOutput getError() {
+                    return () -> new AsciiStringOutputPrinter(message);
+                }
+                @Override
+                public IOutputPrinter asPlain() {
+                    return new AsciiStringOutputPrinter(message);
+                }
+            };
+        }
+
         
-        private void handleInteractiveContent(Map<String, InputStream> output, Map<String, String> metadata,
-            IConstructor content) throws IOException, UnsupportedEncodingException {
+        private ICommandOutput handleInteractiveContent(IConstructor content) throws IOException, UnsupportedEncodingException {
             String id = ((IString) content.get("id")).getValue();
             Function<IValue, IValue> callback = liftProviderFunction(content.get("callback"));
             REPLContentServer server = contentManager.addServer(id, callback);
             
-            String URL = "http://localhost:" + server.getListeningPort();
-            
-            produceHTMLResponse(id, URL, output, metadata);
+            return produceHTMLResponse(id, URIUtil.assumeCorrect("http", "localhost:" + server.getListeningPort(), ""));
         }
-        
-        private void produceHTMLResponse(String id, String URL, Map<String, InputStream> output, Map<String, String> metadata) throws UnsupportedEncodingException{
-            String html;
-            if (metadata.containsKey("origin") && metadata.get("origin").equals("notebook"))
-                html = "<script> \n var "+ id +" = new Salix('"+ id + "', '" + URL + "'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+ id +");\n registerDagre(" + id + ");\n registerTreeView("+ id +"); \n"+ id + ".start();\n});\n </script> \n <div id = \"" + id + "\"> \n </div>";
-            else
-                html = "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>";
-            
-            metadata.put("url", URL);
 
-            output.put("text/html", new ByteArrayInputStream(html.getBytes("UTF8")));
-            
-            String message = "Serving visual content at |" + URL + "|";
-            output.put("text/plain", new ByteArrayInputStream(message.getBytes("UTF8")));
-            
+        abstract class NotebookWebContentOutput implements INotebookOutput, IWebContentOutput {}
+        
+        private ICommandOutput produceHTMLResponse(String id, URI URL) throws UnsupportedEncodingException{
+            return new NotebookWebContentOutput() {
+                @Override
+                public IOutputPrinter asNotebook() {
+                    return new IOutputPrinter() {
+                        @Override
+                        public void write(PrintWriter target, boolean unicodeSupported) {
+                            target.println("<script>");
+                            target.println("  var "+ id +" = new Salix('"+ id + "', '" + URL + "');");
+                            target.println("  google.charts.load('current', {'packages':['corechart']});");
+                            target.println("  google.charts.setOnLoadCallback(function () { ");
+                            target.println("    registerCharts("+ id +");");
+
+                            target.println("    registerDagre(" + id + ");");
+                            target.println("    registerTreeView("+ id +");");
+                            target.println("    " + id + ".start();");
+                            target.println("  });");
+                            target.println("<script>");
+                            target.println("<div id = \"" + id + "\"> </div>");
+                        }
+
+                        @Override
+                        public String mimeType() {
+                            return MimeTypes.HTML;
+                        }
+                        
+                    };
+                }
+
+                @Override
+                public IOutputPrinter asHtml() {
+                    return new AsciiStringOutputPrinter( "<iframe class=\"rascal-content-frame\" src=\""+ URL +"\"></iframe>", MimeTypes.HTML);
+                }
+
+                @Override
+                public IOutputPrinter asPlain() {
+                    return new AsciiStringOutputPrinter("Serving visual content at |" + URL + "|", MimeTypes.PLAIN_TEXT);
+                }
+
+                @Override
+                public URI webUri() {
+                    return URL;
+                }
+
+                @Override
+                public String webTitle() {
+                    // TODO: extract from ADT
+                    return id;
+                }
+
+                @Override
+                public int webviewColumn() {
+                    // TODO: extract from ADT
+                    return 1;
+                }
+                
+            };
         }
 
         private Function<IValue, IValue> liftProviderFunction(IValue callback) {
@@ -232,51 +287,74 @@ public class TermREPL {
             };
         }
 
-        private void handleJSONResponse(Map<String, InputStream> output, IConstructor response) throws IOException {
+        private ICommandOutput handleJSONResponse(IConstructor response) {
             IValue data = response.get("val");
             IWithKeywordParameters<? extends IConstructor> kws = response.asWithKeywordParameters();
 
             IValue dtf = kws.getParameter("dateTimeFormat");
             IValue dai = kws.getParameter("dateTimeAsInt");
+            IValue formatters = kws.getParameter("formatter");
             IValue ecn = kws.getParameter("explicitConstructorNames");
             IValue edt = kws.getParameter("explicitDataTypes");
 
             JsonValueWriter writer = new JsonValueWriter()
                 .setCalendarFormat(dtf != null ? ((IString) dtf).getValue() : "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
+                .setFormatters((IFunction) formatters)
                 .setDatesAsInt(dai != null ? ((IBool) dai).getValue() : true)
                 .setExplicitConstructorNames(ecn != null ? ((IBool) ecn).getValue() : false)
                 .setExplicitDataTypes(edt != null ? ((IBool) edt).getValue() : false)
                 ;
 
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-            JsonWriter out = new JsonWriter(new OutputStreamWriter(baos, Charset.forName("UTF8")));
-
-            writer.write(out, data);
-            out.flush();
-            out.close();
-
-            output.put("application/json",  new ByteArrayInputStream(baos.toByteArray()));
+            return new ICommandOutput() {
+                @Override
+                public IOutputPrinter asPlain() {
+                    return new IOutputPrinter() {
+                        @Override
+                        public void write(PrintWriter target, boolean unicodeSupported) {
+                            try (var json = new JsonWriter(target)) {
+                                writer.write(json, data);
+                            }
+                            catch (IOException ex) {
+                                target.println("Unexpected IO exception: " + ex);
+                            }
+                        }
+                        @Override
+                        public String mimeType() {
+                            return "application/json";
+                        }
+                    };
+                }
+                
+            };
         }
 
-        private void handleFileResponse(Map<String, InputStream> output, IConstructor response)
+        private ICommandOutput handleFileResponse(IConstructor response)
             throws UnsupportedEncodingException {
             IString fileMimetype = (IString) response.get("mimeType");
             ISourceLocation file = (ISourceLocation) response.get("file");
-            try {
-                output.put(fileMimetype.getValue(), URIResolverRegistry.getInstance().getInputStream(file));
-            }
-            catch (IOException e) {
-                output.put("text/plain", new ByteArrayInputStream(e.getMessage().getBytes("UTF8")));
-            }
+            return new ISourceLocationCommandOutput() {
+                @Override
+                public ISourceLocation asLocation() {
+                    return file;
+                }
+                @Override
+                public String locationMimeType() {
+                    return fileMimetype.getValue();
+                }
+
+                @Override
+                public IOutputPrinter asPlain() {
+                    return new AsciiStringOutputPrinter("Direct file returned, REPL doesn't support file results", MimeTypes.PLAIN_TEXT);
+                }
+                
+            };
         }
 
-        private void handlePlainTextResponse(Map<String, InputStream> output, IConstructor response)
+        private ICommandOutput handlePlainTextResponse(IConstructor response)
             throws UnsupportedEncodingException {
-            IString content = (IString) response.get("content");
-            IString contentMimetype = (IString) response.get("mimeType");
-
-            output.put(contentMimetype.getValue(), new ByteArrayInputStream(content.getValue().getBytes("UTF8")));
+            String content = ((IString) response.get("content")).getValue();
+            String contentMimetype = ((IString) response.get("mimeType")).getValue();
+            return () -> new AsciiStringOutputPrinter(content, contentMimetype);
         }
 
         @Override
@@ -284,10 +362,6 @@ public class TermREPL {
             return true;
         }
 
-        @Override
-        public boolean printSpaceAfterFullCompletion() {
-            return false;
-        }
 
         private IValue call(IFunction f, Type[] types, IValue[] args) {
             if (f instanceof AbstractFunction) {
@@ -298,14 +372,9 @@ public class TermREPL {
                         return f.call(args);
                     }
                     finally {
-                        try {
-                            stdout.flush();
-                            stderr.flush();
-                            eval.revertToDefaultWriters();
-                        }
-                        catch (IOException e) {
-                            // ignore
-                        }
+                        stdout.flush();
+                        stderr.flush();
+                        eval.revertToDefaultWriters();
                     }
                 }
             }
@@ -315,33 +384,17 @@ public class TermREPL {
         }
 
         @Override
-        public CompletionResult completeFragment(String line, int cursor) {
-            ITuple result = (ITuple)call(completor, new Type[] { tf.stringType(), tf.integerType() },
-                new IValue[] { vf.string(line), vf.integer(cursor) }); 
+        public Map<String, String> completeFragment(String line, String word) {
+            IMap result = (IMap)call(completor, new Type[] { tf.stringType(), tf.stringType() },
+                new IValue[] { vf.string(line), vf.string(word) }); 
 
-            List<String> suggestions = new ArrayList<>();
-
-            for (IValue v: (IList)result.get(1)) {
-                suggestions.add(((IString)v).getValue());
+            var resultMap = new HashMap<String, String>();
+            var it = result.entryIterator();
+            while (it.hasNext()) {
+                var c = it.next();
+                resultMap.put(((IString)c.getKey()).getValue(), ((IString)c.getValue()).getValue());
             }
-
-            if (suggestions.isEmpty()) {
-                return null;
-            }
-
-            int offset = ((IInteger)result.get(0)).intValue();
-
-            return new CompletionResult(offset, suggestions);
-        }
-
-        @Override
-        public void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
-            handleInput("", output, metadata);
-        }
-
-        @Override
-        public boolean isStatementComplete(String command) {
-            return true;
+            return resultMap;
         }
     }
 }
