@@ -73,12 +73,12 @@ public interface InputMatcher {
             @Override
             public InputMatcher visit(LiteralStackNode<P> literal) {
                 return new LiteralMatcher(literal.getLiteral());
-        }
+            }
 
             @Override
             public InputMatcher visit(CaseInsensitiveLiteralStackNode<P> literal) {
                 return new CaseInsensitiveLiteralMatcher(literal.getLiteral());
-        }
+            }
         });
     }
 }

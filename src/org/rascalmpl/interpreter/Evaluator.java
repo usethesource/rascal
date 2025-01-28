@@ -22,16 +22,11 @@ package org.rascalmpl.interpreter;
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -41,9 +36,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.Stack;
-import java.util.TreeSet;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -99,7 +95,6 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.repl.TerminalProgressBarMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.RascalFunctionValueFactory;
@@ -195,17 +190,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private final List<ClassLoader> classLoaders; // sharable if frozen
     private final ModuleEnvironment rootScope; // sharable if frozen
 
-    private final OutputStream defStderr;
-    private final OutputStream defStdout;
     private final PrintWriter defOutWriter;
     private final PrintWriter defErrWriter;
-    private final InputStream defInput;
+    private final Reader defInput;
     
-    private OutputStream curStderr = null;
-    private OutputStream curStdout = null;
     private PrintWriter curOutWriter = null;
     private PrintWriter curErrWriter = null;
-    private InputStream curInput = null;
+    private Reader curInput = null;
 
     /**
      * Probably not sharable
@@ -232,26 +223,26 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     private static final Object dummy = new Object();	
 
     /**
-     * Promotes the monitor to the outputstream automatically if so required.
+     * Promotes the monitor to the PrintWriter automatically if so required.
      */
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
-        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, Reader input, PrintWriter stderr, PrintWriter stdout, IRascalMonitor monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+        this(f, input, stderr, monitor instanceof PrintWriter ? (PrintWriter) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
     }
 
     /**
      * If your monitor should wrap stdout (like TerminalProgressBarMonitor) then you can use this constructor.
      */
-    public <M extends OutputStream & IRascalMonitor> Evaluator(IValueFactory f, InputStream input, OutputStream stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
+    public <M extends PrintWriter & IRascalMonitor> Evaluator(IValueFactory f, Reader input, PrintWriter stderr, M monitor, ModuleEnvironment scope, GlobalEnvironment heap) {
         this(f, input, stderr, monitor, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
         setMonitor(monitor);
     }
 
-    public Evaluator(IValueFactory f, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
-        this(f, input, stderr, monitor instanceof OutputStream ? (OutputStream) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
+    public Evaluator(IValueFactory f, Reader input, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, IRascalMonitor monitor) {
+        this(f, input, stderr, monitor instanceof PrintWriter ? (PrintWriter) monitor : stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
         setMonitor(monitor);
     }
 
-    public Evaluator(IValueFactory vf, InputStream input, OutputStream stderr, OutputStream stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
+    public Evaluator(IValueFactory vf, Reader input, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap, List<ClassLoader> classLoaders, RascalSearchPath rascalPathResolver) {
         super();
 
         this.vf = new RascalFunctionValueFactory(this);
@@ -265,10 +256,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.rascalPathResolver = rascalPathResolver;
         this.resolverRegistry = rascalPathResolver.getRegistry();
         this.defInput = input;
-        this.defStderr = stderr;
-        this.defStdout = stdout;
-        this.defErrWriter = wrapWriter(stderr, true);
-        this.defOutWriter = wrapWriter(stdout, false);
+        this.defErrWriter = stderr;
+        this.defOutWriter = stdout;
         this.constructorDeclaredListeners = new HashMap<IConstructorDeclared,Object>();
         this.suspendTriggerListeners = new CopyOnWriteArrayList<IRascalSuspendTriggerListener>();
 
@@ -283,10 +272,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         // default event trigger to swallow events
         setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
-    }
-
-    private static PrintWriter wrapWriter(OutputStream out, boolean autoFlush) {
-        return new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), autoFlush);
     }
 
     private Evaluator(Evaluator source, ModuleEnvironment scope) {
@@ -307,8 +292,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         this.javaBridge = new JavaBridge(classLoaders, vf, config);
         this.rascalPathResolver = source.rascalPathResolver;
         this.resolverRegistry = source.resolverRegistry;
-        this.defStderr = source.defStderr;
-        this.defStdout = source.defStdout;
         this.defInput = source.defInput;
         this.defErrWriter = source.defErrWriter;
         this.defOutWriter = source.defOutWriter;
@@ -398,29 +381,20 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return Collections.unmodifiableList(classLoaders);
     }
 
-    @Override	
+    @Override
     public ModuleEnvironment __getRootScope() {
         return rootScope;
     }
 
-    @Override	
-    public OutputStream getStdOut() {
-        return curStdout == null ? defStdout : curStdout;
-    }
-    
     @Override
     public PrintWriter getOutPrinter() {
-        return curOutWriter == null ?  defOutWriter : curOutWriter;
+        return curOutWriter == null ? defOutWriter : curOutWriter;
     }
-
-    @Override
-    public PrintWriter getErrorPrinter() {
-        return curErrWriter == null ?  defErrWriter : curErrWriter;
-    }
+    
     
 
     @Override
-    public InputStream getInput() {
+    public Reader getInput() {
         return curInput == null ? defInput : curInput;
     }
 
@@ -469,9 +443,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return interrupt;
     }
 
-    @Override	
-    public OutputStream getStdErr() {
-        return curStderr == null ? defStderr : curStderr;
+    @Override
+    public PrintWriter getErrorPrinter() {
+        return curErrWriter == null ? defErrWriter : curErrWriter;
     }
 
     public void setTestResultListener(ITestResultListener l) {
@@ -831,7 +805,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
             synchronized (self) {
                 if (parserGenerator == null) {
-                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof TerminalProgressBarMonitor) ? (OutputStream) getMonitor() : getStdErr(), classLoaders, getValueFactory(), config);
+
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof PrintWriter) ? (PrintWriter)monitor : getErrorPrinter(), classLoaders, getValueFactory(), config);
                 }
             }
         }
@@ -1513,7 +1488,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IRascalMonitor old = setMonitor(monitor);
         try {
             final boolean[] allOk = new boolean[] { true };
-            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter());
+            final ITestResultListener l = testReporter != null ? testReporter : new DefaultTestResultListener(getOutPrinter(), getErrorPrinter());
 
             new TestEvaluator(this, new ITestResultListener() {
 
@@ -1578,17 +1553,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return new NullRascalMonitor();
     }
 
-    public void overrideDefaultWriters(InputStream newInput, OutputStream newStdOut, OutputStream newStdErr) {
-        this.curStdout = newStdOut;
-        this.curStderr = newStdErr;
+    public void overrideDefaultWriters(Reader newInput, PrintWriter newStdOut, PrintWriter newStdErr) {
         this.curInput = newInput;
-        this.curErrWriter = wrapWriter(newStdErr, true);
-        this.curOutWriter = wrapWriter(newStdOut, false);
+        this.curErrWriter = newStdErr;
+        this.curOutWriter = newStdOut;
     }
 
     public void revertToDefaultWriters() {
-        this.curStderr = null;
-        this.curStdout = null;
         this.curInput = null;
         if (curOutWriter != null) {
             curOutWriter.flush();
@@ -1707,13 +1678,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
     
     @Override
-    public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier) {
+    public Map<String, String> completePartialIdentifier(String qualifier, String partialIdentifier) {
         if (partialIdentifier.startsWith("\\")) {
             partialIdentifier = partialIdentifier.substring(1);
         }
         
         String partialModuleName = qualifier + "::" + partialIdentifier;
-        SortedSet<String> result = new TreeSet<>(new Comparator<String>() {
+        SortedMap<String, String> result = new TreeMap<>(new Comparator<String>() {
             @Override
             public int compare(String a, String b) {
                 if (a.charAt(0) == '\\') {
@@ -1735,7 +1706,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         return result;
     }
 
-    private void addCompletionsForModule(String qualifier, String partialIdentifier, String partialModuleName, SortedSet<String> result, ModuleEnvironment env, boolean skipPrivate) {
+    private void addCompletionsForModule(String qualifier, String partialIdentifier, String partialModuleName, SortedMap<String, String> result, ModuleEnvironment env, boolean skipPrivate) {
         for (Pair<String, List<AbstractFunction>> p : env.getFunctions()) {
             for (AbstractFunction f : p.getSecond()) {
                 String module = ((ModuleEnvironment)f.getEnv()).getName();
@@ -1745,7 +1716,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
                 
                 if (module.startsWith(qualifier)) {
-                    addIt(result, p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
+                    addCandidate(result, "function", p.getFirst(), qualifier.isEmpty() ? "" : module, module.startsWith(partialModuleName) ? "" : partialIdentifier);
                 }
             }
         }
@@ -1755,38 +1726,38 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 if (skipPrivate && env.isNamePrivate(entry.getKey())) {
                     continue;
                 }
-                addIt(result, entry.getKey(), qualifier, partialIdentifier);
+                addCandidate(result, "variable", entry.getKey(), qualifier, partialIdentifier);
             }
             
             for (Type t: env.getAbstractDatatypes()) {
                 if (inQualifiedModule) {
-                    addIt(result, t.getName(), qualifier, partialIdentifier);
+                    addCandidate(result, "ADT", t.getName(), qualifier, partialIdentifier);
                 }
             }
             
             for (Type t: env.getAliases()) {
-                addIt(result, t.getName(), qualifier, partialIdentifier);
+                addCandidate(result, "alias", t.getName(), qualifier, partialIdentifier);
             }
         }
         if (qualifier.isEmpty()) {
             Map<Type, Map<String, Type>> annos = env.getAnnotations();
             for (Type t: annos.keySet()) {
                 for (String k: annos.get(t).keySet()) {
-                    addIt(result, k, "", partialIdentifier);
+                    addCandidate(result, "annotation", k, "", partialIdentifier);
                 }
             }
         }
     }
 
-    private static void addIt(SortedSet<String> result, String v, String qualifier, String originalTerm) {
-        if (v.startsWith(originalTerm) && !v.equals(originalTerm)) {
-            if (v.contains("-")) {
-                v = "\\" + v;
+    private static void addCandidate(SortedMap<String, String> result, String category, String name, String qualifier, String originalTerm) {
+        if (name.startsWith(originalTerm) && !name.equals(originalTerm)) {
+            if (name.contains("-")) {
+                name = "\\" + name;
             }
-            if (!qualifier.isEmpty() && !v.startsWith(qualifier)) {
-                v = qualifier + "::" + v;
+            if (!qualifier.isEmpty() && !name.startsWith(qualifier)) {
+                name = qualifier + "::" + name;
             }
-            result.add(v);
+            result.put(name, category);
         }
     }
 
@@ -1982,5 +1953,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 return;
             }
         }
+    }
+
+
+    public void overwritePrintWriter(PrintWriter outWriter, PrintWriter errWriter) {
+        this.curOutWriter = outWriter;
+        this.curErrWriter = errWriter;
     }
 }

@@ -23,8 +23,10 @@ test bool watchDoesNotCrashOnURIRewrites() {
 }
 
 test bool createdDoesNotCrashOnURIRewrites() {
-    writeFile(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|, "123456789");
-    return created(|tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|) <= now();
+    loc l = |tmp:///createdDoesNotCrashOnURIRewrites/someFile.txt|;
+    remove(l);  // remove the file if it exists
+    writeFile(l, "123456789");
+    return created(l) <= now();
 }
 
 test bool testWriteBase32() {
