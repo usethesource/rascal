@@ -161,6 +161,9 @@ void generateAndWriteRascalParser(){
 int generateAndTimeRascalParser() { 
     println("GenerateAndTimeRascalParser");
 	t = cpuTime();
+	for(int _ <- [1 .. 50]){
+		generateRascalParser();
+	}
 	generateRascalParser();
 	return (cpuTime() - t)/1000000;
 }	
@@ -199,8 +202,8 @@ test bool cntEmptyList2()   = size([x | /x:[] := Rascal]) == 26;
 test bool cntList1()        {cnt = 0; visit(Rascal){ case [*value _]: cnt += 1; }; return cnt == 837; }
 test bool cntList2()        = size([x | /x:[*value _] := Rascal]) == 837;
 
-test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 451; }
-test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 451;
+test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 463; }
+test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 463;
 
 test bool cntSet1()         {cnt = 0; visit(Rascal){ case {*value _}: cnt += 1; }; return cnt == 766; }
 test bool cntSet2()         = size([x | /x:{*value _} := Rascal]) == 766;
