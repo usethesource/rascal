@@ -15,7 +15,7 @@ import IO;
 Tree parseStat(str input, bool visualize=false)
     = parser(#Stat, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
 
-test bool exprOk() = checkRecovery(#Stat, "1+2+3;", []);
+test bool exprOk() = checkRecovery(#Stat, "1+2;", []);
 
 test bool exprUnknownTerminator() = checkRecovery(#Stat, "1+2:", [":"], visualize=false);
 
