@@ -1,5 +1,6 @@
-module lang::rascalcore::compile::Examples::FacGauthier
+module lang::rascalcore::compile::Examples::FibGauthier
 import util::Benchmark;
+import IO;
 
 public int fibonacci (int n) {
   int p (int a, int b) {
@@ -17,6 +18,15 @@ public int fibonacci (int n) {
   return n < 2 ? n : n == 2 ? 1 : p (fibonacci (n - n / 2 - 1), fibonacci (n - n / 2));
 }
 
-int main() = work();
+void warmup(){
+  for(_ <- [0..10]){
+    fibonacci(3);
+  }
+}
+
+int main() {
+  warmup();
+  return work()/1000000;
+}
 
 int work() = cpuTimeOf( (){ fibonacci(14); });
