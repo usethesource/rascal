@@ -2763,7 +2763,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval, boolean bindTypeParameters) {
-			return new TuplePattern(eval, this, buildMatchers(this.getElements(), eval, bindTypeParameters));
+			return new TuplePattern(eval, this, buildMatchers(this.getElements0(), eval, bindTypeParameters));
 		}
 
 		@Override
@@ -2772,8 +2772,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
-			java.util.List<org.rascalmpl.ast.Expression> elements = this
-					.getElements();
+			var elements = this.getElements0();
 
 			IValue[] values = new IValue[elements.size()];
 			Type[] types = new Type[elements.size()];
@@ -2798,7 +2797,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Type typeOf(Environment env, IEvaluator<Result<IValue>> eval, boolean instantiateTypeParameters) {
-			java.util.List<org.rascalmpl.ast.Expression> fields = getElements();
+			java.util.List<org.rascalmpl.ast.Expression> fields = getElements0();
 			Type fieldTypes[] = new Type[fields.size()];
 
 			for (int i = 0; i < fields.size(); i++) {

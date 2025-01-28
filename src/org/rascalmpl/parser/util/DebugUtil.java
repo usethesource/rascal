@@ -79,7 +79,7 @@ public class DebugUtil {
         return s;
     }
 
-	public static void opportunityToBreak() {
+    public static void opportunityToBreak() {
         // Nop method that allows breakpoints to be set at the call site even if originally there is no code to break on
     }
 

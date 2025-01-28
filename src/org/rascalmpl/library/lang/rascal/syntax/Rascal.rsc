@@ -210,7 +210,7 @@ syntax Expression
 	| \list           : "[" {Expression ","}* elements0 "]"
 	| reifyType      : "#" Type type !>> "[" !selector
 	| range          : "[" Expression first ".." Expression last "]"
-	| \tuple          : "\<" {Expression ","}+ elements "\>" 
+	| \tuple          : "\<" {Expression ","}* elements0 "\>" 
 	| \map            : "(" {Mapping[Expression] ","}* mappings ")" 
 	| \it             : [A-Z a-z _] !<< "it" !>> [A-Z a-z _]
 	| qualifiedName  : QualifiedName qualifiedName 
@@ -866,7 +866,7 @@ syntax Pattern
 	| splicePlus          : "+" Pattern argument 
 	| negative            : "-" Pattern argument
 	| literal             : Literal literal 
-	| \tuple               : "\<" {Pattern ","}+ elements "\>" 
+	| \tuple               : "\<" {Pattern ","}* elements0 "\>" 
 	| typedVariable       : Type type Name name 
 	| \map                 : "(" {Mapping[Pattern] ","}* mappings ")" 
 	| reifiedType         : "type" "(" Pattern symbol "," Pattern definitions ")" 
