@@ -205,7 +205,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         }
 
         definedLayout = aadt("$default$", [], layoutSyntax());
-        if(isEmpty(allLayouts)){
+        if(isEmpty(allLayouts) || !isEmpty(allStarts)){
             syntaxDefinitions += (AType::layouts("$default$"): achoice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
         } else
         if(size(allLayouts) >= 1){
