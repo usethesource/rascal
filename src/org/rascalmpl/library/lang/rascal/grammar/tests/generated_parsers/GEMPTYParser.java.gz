@@ -103,7 +103,12 @@ public class GEMPTYParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, 
     
   // Item declarations
 	
-	
+
+  private int nextFreeStackNodeId = 2;
+  protected int getFreeStackNodeId() {
+    return nextFreeStackNodeId++;
+  }
+
   // Parse methods    
   
 }
