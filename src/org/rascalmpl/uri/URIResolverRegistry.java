@@ -402,9 +402,10 @@ public class URIResolverRegistry {
 			ILogicalSourceLocationResolver resolver = map.get(auth);
 			loc = resolveAndFixOffsets(loc, resolver, map.values());
 		}
-		var fallBack = fallbackLogicalResolver;
-		if (fallBack != null) {
-			return resolveAndFixOffsets(loc == null ? original : loc, fallBack, Collections.emptyList());
+		
+		if (fallbackLogicalResolver != null) {
+			var fallbackResult = resolveAndFixOffsets(loc == null ? original : loc, fallbackLogicalResolver, Collections.emptyList());
+			return fallbackResult == null ? loc : fallbackResult;
 		}
 		return loc;
 	}
