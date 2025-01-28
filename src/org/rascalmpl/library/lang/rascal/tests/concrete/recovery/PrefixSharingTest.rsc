@@ -17,7 +17,7 @@ Tree parseStat(str input, bool visualize=false)
 
 test bool exprOk() = checkRecovery(#Stat, "1+2;", []);
 
-test bool exprUnknownTerminator() = checkRecovery(#Stat, "1+2:", [":"], visualize=false);
+test bool exprUnknownTerminator() = checkRecovery(#Stat, "1+2:\n", [":\n"], visualize=false);
 
 test bool exprUnknownOperator() = checkRecovery(#Stat, "1*2;", ["*2"], visualize=false);
 
