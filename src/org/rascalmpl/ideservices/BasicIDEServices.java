@@ -20,6 +20,7 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.jline.terminal.Terminal;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -34,16 +35,24 @@ import io.usethesource.vallang.ISourceLocation;
 public class BasicIDEServices implements IDEServices {
   private final IRascalMonitor monitor;
   private final PrintWriter stderr;
+  private final Terminal terminal;
 
-  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor){
+  public BasicIDEServices(PrintWriter stderr, IRascalMonitor monitor, Terminal terminal){
     this.stderr = stderr;
     this.monitor = monitor;
+    this.terminal = terminal;
   }
 
   @Override
   public PrintWriter stderr() {
     return stderr;
   }
+
+  @Override
+  public Terminal activeTerminal() {
+    return terminal;
+  }
+
   
   public void browse(ISourceLocation loc, String title, int viewColumn){
       browse(loc.getURI(), title, viewColumn);

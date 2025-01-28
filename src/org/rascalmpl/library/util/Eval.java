@@ -16,8 +16,8 @@ package org.rascalmpl.library.util;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -80,12 +80,12 @@ public class Eval {
 	private final Type execConstructor;
 
 	/* the following four fields are inherited by the configuration of nested evaluators */
-	private final OutputStream stderr;
-	private final OutputStream stdout;
-	private final InputStream input;
+	private final PrintWriter stderr;
+	private final PrintWriter stdout;
+	private final Reader input;
 	private final IDEServices services;
 			
-	public Eval(IRascalValueFactory values, OutputStream out, OutputStream err, InputStream in, ClassLoader loader, IDEServices services, TypeStore ts) {
+	public Eval(IRascalValueFactory values, PrintWriter out, PrintWriter err, Reader in, ClassLoader loader, IDEServices services, TypeStore ts) {
 		super();
 		this.values = values;
 		this.tr = new TypeReifier(values);
@@ -219,7 +219,7 @@ public class Eval {
 		private final Evaluator eval;
 		private int duration = -1;
 		
-		public RascalRuntime(PathConfig pcfg, InputStream input, OutputStream stderr, OutputStream stdout, IDEServices services) throws IOException, URISyntaxException{
+		public RascalRuntime(PathConfig pcfg, Reader input, PrintWriter stderr, PrintWriter stdout, IDEServices services) throws IOException, URISyntaxException{
 			GlobalEnvironment heap = new GlobalEnvironment();
 			ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();

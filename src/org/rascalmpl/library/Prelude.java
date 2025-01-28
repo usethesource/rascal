@@ -78,7 +78,7 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
-import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.repl.streams.LimitedLineWriter;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -263,7 +263,7 @@ public class Prelude {
 		return incrementDate(dt, Calendar.DAY_OF_MONTH, "days", n);	
 	}
 
-	private String getTZString(int hourOffset, int minuteOffset) {
+	public static String getTZString(int hourOffset, int minuteOffset) {
 		String tzString = "GMT" + 
 			((hourOffset < 0 || (0 == hourOffset && minuteOffset < 0)) ? "-" : "+") + 
 			String.format("%02d",hourOffset >= 0 ? hourOffset : hourOffset * -1) +
@@ -629,7 +629,7 @@ public class Prelude {
 		}
 	}
 
-	private Calendar getCalendarForDateTime(IDateTime inputDateTime) {
+	public static Calendar getCalendarForDateTime(IDateTime inputDateTime) {
 		if (inputDateTime.isDateTime()) {
 			Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(getTZString(inputDateTime.getTimezoneOffsetHours(),inputDateTime.getTimezoneOffsetMinutes())),Locale.getDefault());
 			cal.setLenient(false);

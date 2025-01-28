@@ -160,7 +160,7 @@ public class ConstructorFunction extends NamedFunction {
 	            } 
 	            else {
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
-					IValue res = def.interpret(eval).value;
+					IValue res = def.interpret(eval).getValue();
 
 					if (!res.getType().isSubtypeOf(kwType)) {
 						throw new UnexpectedKeywordArgumentType(kwparam, kwType, res.getType(), ctx.getCurrentAST());
