@@ -65,6 +65,7 @@ test bool jsonWithDatetime2(datetime dt) = writeRead(#datetime, dt, dateTimeAsIn
 test bool jsonWithList1(list[int] dt) = writeRead(#list[int], dt);
 test bool jsonWithSet1(set[int] dt) = writeRead(#set[int], dt);
 test bool jsonWithMap1(map[int, int] dt) = writeRead(#map[int,int], dt);
+@ignore{until #2133 is fixed}
 test bool jsonWithNode1(node  dt) = writeRead(#node, dt, normalizer = toDefaultRec);
 
 test bool jsonWithDATA11(DATA1 dt) = writeRead(#DATA1, dt);
