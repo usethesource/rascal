@@ -136,7 +136,6 @@
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
                         <src>${project.basedir}/src/org/rascalmpl/compiler</src>
-                        <src>${project.basedir}/src/org/rascalmpl/typepal</src>
                     </srcs>
                     <sourceLookup>|std:///|</sourceLookup>
                     <funding>${project.basedir}/FUNDING</funding>
