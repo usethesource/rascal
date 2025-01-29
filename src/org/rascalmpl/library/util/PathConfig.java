@@ -667,23 +667,26 @@ public class PathConfig {
     /**
      * Adds the standard library to `srcsWriter`. If the path config's project
      * is `rascal` or `rascal-lsp` (as indicated by `projectName`), then adds
-     * the Rascal compiler and Typepal as well.
+     * the compiler and TypePal as well.
      *
      * More precisely, the following rules are applied:
      *   - Always load `|std:///|` from the "current" `rascal` (as per
      *     `resolveCurrentRascalRuntimeJar()`)
      *   - If the path config's project is `rascal`, then:
      *       - If `|project://rascal/|` and `|project://typepal/|` exists, do
-     *         load the compiler and Typepal from the corresponding open folders
+     *         load the compiler and TypePal from the corresponding open folders
      *         in the workspace.
-     *       - Else, don't load the compiler and Typepal.
+     *       - Else, don't load the compiler and TypePal.
      *   - If the path config's project is `rascal-lsp`:
      *       - If `|project://rascal/|` and `|project://typepal/|` exists, do
-     *         load the compiler and Typepal from the corresponding open folders
+     *         load the compiler and TypePal from the corresponding open folders
      *         in the workspace.
-     *       - Else, do load the compiler and Typepal from the current `rascal`.
+     *       - Else, do load the compiler and TypePal from the current `rascal`
+     *         and the TypePal jar on the class path.
      *
-     * @throws IOException When the current `rascal` can't be resolved
+     * @throws IOException When the path config's project is `rascal-lsp`, but
+     * one of the following is the case: (a) the current `rascal` can't be
+     * resolved; (b) the TypePal jar isn't on the class path.
      */
     private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter) throws IOException {
 
@@ -692,8 +695,6 @@ public class PathConfig {
 
         // Special cases
         if (projectName.equals("rascal") || projectName.equals("rascal-lsp")) {
-            var currentRascalTargetClasses = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
-
             var workspaceRascal = URIUtil.correctLocation("project", "rascal", "");
             var workspaceRascalExists = URIResolverRegistry.getInstance().exists(workspaceRascal);
             var workspaceTypepal = URIUtil.correctLocation("project", "typepal", "");
@@ -708,11 +709,13 @@ public class PathConfig {
             }
 
             // Special case: If the path config's project is `rascal-lsp`, and
-            // `rascal` or `typepal` isn't open in the workspce, then use the
-            // "current" `rascal`
+            // `rascal` or `typepal` isn't open in the workspace, then use the
+            // current `rascal` and the TypePal jar on the class path
             else if (projectName.equals("rascal-lsp")) {
-                srcsWriter.append(URIUtil.getChildLocation(currentRascalTargetClasses, "org/rascalmpl/compiler"));
-                srcsWriter.append(URIUtil.getChildLocation(currentRascalTargetClasses, "org/rascalmpl/typepal"));
+                var deployedRascal = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+                var deployedTypepal = JarURIResolver.jarify(PathConfig.resolveProjectOnClasspath("typepal"));
+                srcsWriter.append(URIUtil.getChildLocation(deployedRascal, "org/rascalmpl/compiler"));
+                srcsWriter.append(URIUtil.getChildLocation(deployedTypepal, "src"));
             }
         }
     }
