@@ -180,6 +180,11 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         eval.endAllJobs();
     }
 
+    public void cleanEnvironment() {
+        Objects.requireNonNull(eval, "Not initialized yet");
+        eval.getCurrentModuleEnvironment().reset();
+    }
+
     @Override
     public ICommandOutput stackTraceRequested() {
         Objects.requireNonNull(eval, "Not initialized yet");

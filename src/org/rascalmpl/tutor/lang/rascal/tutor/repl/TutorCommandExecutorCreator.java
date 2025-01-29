@@ -33,15 +33,13 @@ import io.usethesource.vallang.type.TypeStore;
  */
 public class TutorCommandExecutorCreator {
     private final IRascalValueFactory vf;
-    private final Type promptType;
     private final Type resetType;
     private final Type evalType;
     private final Type execConstructor;
 
     public TutorCommandExecutorCreator(IRascalValueFactory vf, TypeFactory tf, TypeStore ts) {
         this.vf = vf;
-        promptType = tf.functionType(tf.stringType(), tf.tupleEmpty(), tf.tupleEmpty());
-        resetType  = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
+        resetType = tf.functionType(tf.voidType(), tf.tupleEmpty(), tf.tupleEmpty());
         evalType = tf.functionType(tf.mapType(tf.stringType(), tf.stringType()), tf.tupleType(tf.stringType()), tf.tupleEmpty());
         execConstructor = ts.lookupConstructor(ts.lookupAbstractDataType("CommandExecutor"), "executor").iterator().next();
     }
@@ -52,7 +50,6 @@ public class TutorCommandExecutorCreator {
             TutorCommandExecutor repl = new TutorCommandExecutor(pcfg);
             return vf.constructor(execConstructor,
                 pathConfigCons,
-                prompt(repl),
                 reset(repl),
                 eval(repl)
             );
@@ -60,12 +57,6 @@ public class TutorCommandExecutorCreator {
         catch (IOException | URISyntaxException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()));
         }
-    }
-
-    IFunction prompt(TutorCommandExecutor exec) {
-        return vf.function(promptType, (args,kwargs) -> {
-            return vf.string(exec.getPrompt());
-        });
     }
 
     IFunction reset(TutorCommandExecutor exec) {

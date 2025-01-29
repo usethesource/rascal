@@ -1,66 +1,63 @@
 package org.rascalmpl.tutor.lang.rascal.tutor.repl;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.Prelude;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.repl.StopREPLException;
+import org.rascalmpl.repl.output.IBinaryOutputPrinter;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.IImageCommandOutput;
+import org.rascalmpl.repl.output.IWebContentOutput;
+import org.rascalmpl.repl.rascal.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class TutorCommandExecutor {
-    private final RascalInterpreterREPL repl;
-    private final ByteArrayOutputStream shellStandardOutput;
-    private final ByteArrayOutputStream shellErrorOutput;
+    private final RascalInterpreterREPL interpreter;
+    private final StringWriter outWriter = new StringWriter();
+    private final PrintWriter outPrinter = new PrintWriter(outWriter);
+    private final StringWriter errWriter = new StringWriter();
+    private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
     private final ITutorScreenshotFeature screenshot;
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
-        shellStandardOutput = new ByteArrayOutputStream();
-        shellErrorOutput = new ByteArrayOutputStream();
-        ByteArrayInputStream shellInputNotUsed = new ByteArrayInputStream("***this inputstream should not be used***".getBytes());
-        repl = new RascalInterpreterREPL(false, false, null) {
+        interpreter = new RascalInterpreterREPL() {
             @Override
-            protected Evaluator constructEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IDEServices services) {
-                GlobalEnvironment heap = new GlobalEnvironment();
-                ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
-                IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                Evaluator eval = new Evaluator(vf, input, stderr, stdout, root, heap, services);
-
-                eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-                eval.setMonitor(services);        
+            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr,
+                IDEServices services) {
+                var eval = super.buildEvaluator(input, stdout, stderr, services);
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
-                eval.setMonitor(services);
 
                 ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
                 String projectName = new RascalManifest().getProjectName(projectRoot);
@@ -81,13 +78,26 @@ public class TutorCommandExecutor {
 
                 return eval;
             }
+
+            @Override
+            protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
+                return (monitor instanceof IDEServices) ? (IDEServices)monitor : new TutorIDEServices(err);
+            }
+            
         };
 
-        TutorIDEServices services = new TutorIDEServices();
-        repl.initialize(shellInputNotUsed, shellStandardOutput, shellErrorOutput, services);
-        repl.setMeasureCommandTime(false); 
- 
-        this.screenshot = loadScreenShotter();
+        var terminal = TerminalBuilder.builder()
+            .system(false)
+            .streams(InputStream.nullInputStream(), OutputStream.nullOutputStream())
+            .dumb(true)
+            .color(false)
+            .encoding(StandardCharsets.UTF_8)
+            .build();
+
+        
+
+        interpreter.initialize(Reader.nullReader(), outPrinter, errPrinter, new TutorIDEServices(errPrinter), terminal);
+        screenshot = loadScreenShotter();
     }
 
     private ITutorScreenshotFeature loadScreenShotter() {
@@ -97,14 +107,14 @@ public class TutorCommandExecutor {
                 .loadClass("org.rascalmpl.tutor.Screenshotter")
                 .getDeclaredConstructor()
                 .newInstance();
-		}
+        }
         catch (ClassNotFoundException e) {
             // that is normal; we just don't have the feature available.
             return null;
         }
-		catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
-			throw new Error("WARNING: Could not load screenshot feature from org.rascalmpl.tutor.Screenshotter", e);
-		}
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
+            throw new Error("WARNING: Could not load screenshot feature from org.rascalmpl.tutor.Screenshotter", e);
+        }
     }
 
     private static ISourceLocation inferProjectRoot(ISourceLocation member) {
@@ -148,112 +158,83 @@ public class TutorCommandExecutor {
         return b.toString();
     }
 
-    
-    public void reset() {
-        try {
-            // make sure previously unterminated commands are cleared up
-            repl.handleInput("", new HashMap<>(), new HashMap<>());
-        }
-        catch (InterruptedException e) {
-           // nothing needed
-        }
-        repl.cleanEnvironment();
-        shellStandardOutput.reset();
-        shellErrorOutput.reset();
-    }
 
-    public String getPrompt() {
-        return repl.getPrompt();
+    public void reset() {
+        interpreter.cancelRunningCommandRequested();
+        interpreter.cleanEnvironment();
+        outPrinter.flush();
+        outWriter.getBuffer().setLength(0);
+        errPrinter.flush();
+        errWriter.getBuffer().setLength(0);
     }
     
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
-        Map<String, InputStream> output = new HashMap<>();
         Map<String, String> result = new HashMap<>();
-        Map<String, String> metadata = new HashMap<>();
-
-        repl.handleInput(line, output, metadata);
-
-        for (String mimeType : output.keySet()) {
-            InputStream content = output.get(mimeType);
-
-            if (mimeType.startsWith("text/plain")) {
-                result.put(mimeType, Prelude.consumeInputStream(new InputStreamReader(content, StandardCharsets.UTF_8)));
+        try {
+            var replResult = interpreter.handleInput(line);
+            if (replResult instanceof IErrorCommandOutput) {
+                ((IErrorCommandOutput)replResult).asPlain().write(errPrinter, true);
             }
-            else {
-                result.put(mimeType, uuencode(content));
+            else if (replResult instanceof IImageCommandOutput) {
+                var img = ((IImageCommandOutput)replResult).asImage();
+                result.put(img.mimeType(), uuencode(img));
             }
-            
-            if (metadata.get("url") != null && screenshot != null) {
+            else if (replResult instanceof IWebContentOutput) {
+                var webResult = (IWebContentOutput)replResult;
                 try {
-                    // load the page
-                    String pngImage = screenshot.takeScreenshotAsBase64PNG(metadata.get("url"));
+                    String pngImage = screenshot.takeScreenshotAsBase64PNG(webResult.webUri().toASCIIString());
 
                     if (!pngImage.isEmpty()) {
                         result.put("application/rascal+screenshot", pngImage);
                     }
-        
                 }
                 catch (Throwable e) {
-                    shellErrorOutput.write(e.getMessage().getBytes("UTF-8"));
+                    errPrinter.write(e.getMessage());
                 }
-            } 
+            }
+            // we ignore IAnsiCommandOutput, as we know that we cannot render that. 
+            // else if (replResult instanceof IAnsiCommandOutput) {}
+            else if (replResult != null) {
+                var txt = new StringWriter();
+                var txtPrinter = new PrintWriter(txt, false);
+                replResult.asPlain().write(txtPrinter, true);
+                txtPrinter.flush();
+                result.put("text/plain", txt.toString());
+            }
+            else {
+                result.put("text/plain", "ok\n");
+            }
+        } catch (ParseError pe) {
+            ReadEvalPrintDialogMessages.parseErrorMessage(errPrinter, line, interpreter.promptRootLocation().getScheme(), pe, new StandardTextWriter(true)); 
         }
-
-        result.put("application/rascal+stdout", getPrintedOutput());
-        result.put("application/rascal+stderr", getErrorOutput());
-
+        catch (StopREPLException e1) {
+            errWriter.write("Quiting REPL");
+        } finally {
+            result.put("application/rascal+stdout", getPrintedOutput());
+            result.put("application/rascal+stderr", getErrorOutput());
+        }
         return result;
     }
 
-    public String uuencode(InputStream content) throws IOException {
-        int BUFFER_SIZE = 3 * 512;
-        Base64.Encoder encoder = Base64.getEncoder();
-        
-        try  (BufferedInputStream in = new BufferedInputStream(content, BUFFER_SIZE); ) {
-            StringBuilder result = new StringBuilder();
-            byte[] chunk = new byte[BUFFER_SIZE];
-            int len = 0;
-            
-            // read multiples of 3 until not possible anymore
-            while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
-                 result.append( encoder.encodeToString(chunk) );
-            }
-            
-            // read final chunk which is not a multiple of 3
-            if ( len > 0 ) {
-                 chunk = Arrays.copyOf(chunk,len);
-                 result.append( encoder.encodeToString(chunk) );
-            }
-            
-            return result.toString();
+    private String uuencode(IBinaryOutputPrinter content)  throws IOException {
+        var result = new ByteArrayOutputStream();
+        try (var wrapped = Base64.getEncoder().wrap(result)) {
+            content.write(wrapped);
         }
+        return result.toString(StandardCharsets.ISO_8859_1); // help java recognize the compact strings can be used
     }
 
-    public boolean isStatementComplete(String line){
-        return repl.isStatementComplete(line);
-    }
-
-    private String getPrintedOutput() throws UnsupportedEncodingException{
-        try {
-            repl.getOutputWriter().flush();
-            String result = shellStandardOutput.toString(StandardCharsets.UTF_8.name());
-            shellStandardOutput.reset();
-            return result;
-        }
-        catch (UnsupportedEncodingException e) {
-            return "";
-        }
+    private String getPrintedOutput(){
+        outPrinter.flush();
+        String result = outWriter.toString();
+        outWriter.getBuffer().setLength(0);
+        return result;
     }
 
     private String getErrorOutput() {
-        try {
-            repl.getErrorWriter().flush();
-            String result = shellErrorOutput.toString(StandardCharsets.UTF_8.name());
-            shellErrorOutput.reset();
-            return result;
-        }
-        catch (UnsupportedEncodingException e) {
-            return "";
-        }
+        errPrinter.flush();
+        String result = errWriter.toString();
+        errWriter.getBuffer().setLength(0);
+        return result;
     }
 }

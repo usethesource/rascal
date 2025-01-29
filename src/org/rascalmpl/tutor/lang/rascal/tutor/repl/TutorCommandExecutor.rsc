@@ -12,7 +12,6 @@ This was created to implement documentation pages with example REPL runs.
 data CommandExecutor
   = executor(
         PathConfig pcfg,
-        str () prompt,
         void () reset,
         map[str mimeType, str content] (str command) eval
   );
@@ -42,23 +41,13 @@ java CommandExecutor createExecutor(PathConfig pcfg);
 test bool executorSmokeTest() {
   exec = createExecutor(pathConfig());
 
-  if (exec.prompt() != "rascal\>") {
-    return false;
-  }
-
   output = exec.eval("import IO;");
   
   if (output["text/plain"] != "ok\n") {
     return false;
   }
 
-  exec.eval("println(\"haai\"");
-
-  if (exec.prompt() != "\>\>\>\>\>\>\>") {
-    return false;
-  }
-
-  output = exec.eval(")");
+  exec.eval("println(\"haai\")");
 
   if (output["application/rascal+stdout"] != "haai\n") {
     return false;
