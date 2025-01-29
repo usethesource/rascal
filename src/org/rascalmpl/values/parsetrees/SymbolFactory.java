@@ -290,6 +290,7 @@ public class SymbolFactory {
 				case 't': return factory.integer('\t');
 				case 'n': return factory.integer('\n');
 				case 'r': return factory.integer('\r');
+				case 'f': return factory.integer('\f');
 				case '\"' : return factory.integer('\"');
 				case '\'' : return factory.integer('\'');
 				case '-' : return factory.integer('-');
