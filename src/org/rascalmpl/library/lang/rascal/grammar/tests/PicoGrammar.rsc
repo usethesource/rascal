@@ -40,7 +40,13 @@ void generateAndWritePicoParser(){
 	writeFile(PicoParserLoc, generatePicoParser());
 }
 
+void warmup(){
+	for(_ <- [0..10]){
+		generatePicoParser();
+	}
+}
 int generateAndTimePicoParser() { 
+	warmup();
 	t = cpuTime(); 
 	generatePicoParser();
 	return (cpuTime() - t)/1000000;
