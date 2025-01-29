@@ -101,6 +101,8 @@ str deescape(str s)  {
         case /^\\<c: [\" \' \< \> \\]>/ => c
         case /^\\t/ => "\t"
         case /^\\n/ => "\n"
+        case /^\\f/ => "\f"
+        case /^\\b/ => "\b"
         case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
         case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
         case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
