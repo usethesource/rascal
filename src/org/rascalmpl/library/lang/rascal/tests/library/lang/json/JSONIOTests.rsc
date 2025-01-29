@@ -135,7 +135,8 @@ value toDefaultValue(map[void,void] _) =   {};
 value toDefaultValue(node x) = { {k, m[k]} | m := getKeywordParameters(x), k <- m}
                              + {*[{"arg<i>", c[i]}  | c := getChildren(x), i <- index(c)]};
 value toDefaultValue(map[value,value] m) = {{k,m[k]} | k <- m};
-value toDefaultValue(<>) =   {};
+// commented until issue #2133 can be fixed
+// value toDefaultValue(<>) =   {};
 value toDefaultValue(<value x>) =   {x};
 value toDefaultValue(<value x,value y>) =  toDefaultValue([x,y]);
 value toDefaultValue(<value x,value y,value z>) = toDefaultValue([x,y,z]);
