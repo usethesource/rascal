@@ -9,6 +9,12 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class TutorIDEServices implements IDEServices {
 
+    private final PrintWriter errorWriter;
+    
+    public TutorIDEServices(PrintWriter errorWriter) {
+        this.errorWriter = errorWriter;
+    }
+
     @Override
     public void jobStart(String name, int workShare, int totalWork) {
         
@@ -41,7 +47,7 @@ public class TutorIDEServices implements IDEServices {
 
     @Override
     public PrintWriter stderr() {
-        return new PrintWriter(System.err);
+        return errorWriter;
     }
 
     @Override
