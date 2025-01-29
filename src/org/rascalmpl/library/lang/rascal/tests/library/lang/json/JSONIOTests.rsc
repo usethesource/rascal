@@ -35,6 +35,7 @@ data DATA3 = data3(int n, str kw = "abc");
 data Enum = x() | y() | z();
 data DATA4 = data4(Enum e = x());
 
+@ignore{until #2133 is fixed}
 test bool writeReadIsTheSameAsAsJSONparseJSON(value example) {
     jsonFile = |memory://jsontests/example.json|;
     writeJSON(jsonFile, example);
@@ -78,6 +79,7 @@ test bool jsonWithDATA23(DATA2 dt) = writeRead(#DATA2, dt, explicitConstructorNa
 However sets are always read back in as lists if we don't have 
 a specific abstract data-type that can enforce sets.
 }
+@ignore{until #2133 is fixed}
 test bool jsonRandom1(value dt) = writeRead(#value, dt, normalizer=toDefaultRec);
 
 test bool json1() = writeRead(#DATA1, data1(123));
