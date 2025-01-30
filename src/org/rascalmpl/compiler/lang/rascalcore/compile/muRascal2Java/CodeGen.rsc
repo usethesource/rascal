@@ -226,7 +226,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.exceptions.Throw; 
-                        'import org.rascalmpl.interpreter.control_exceptions;
+                        'import org.rascalmpl.interpreter.control_exceptions.Filtered;
                         'import org.rascalmpl.types.NonTerminalType;
                         'import org.rascalmpl.types.RascalTypeFactory;
                         'import org.rascalmpl.util.ExpiringFunctionResultCache;
@@ -1198,9 +1198,6 @@ JCode trans(muReturn0FromVisit(), JGenie jg)
     = "$traversalState.setLeavingVisit(true);
       'return;\n";
 
-JCode trans(muFilterReturn(), JGenie jg)
-    = "throw new Filtered()";
-
 str semi(str code){
     if(/\)$/ := code) return "<code>;" ;
     if(/[;}][\ \t]*(\/\/.*$)?[\ \t \n]*/ := code) return code;
@@ -1293,7 +1290,8 @@ JCode trans(muReturn1FromVisit(AType result, MuExp exp), JGenie jg)
     = "$traversalState.setLeavingVisit(true);
       'return <transWithCast(result, exp, jg)>;\n";
 
-//          | muFilterReturn()                                    // Return for filter statement
+JCode trans(muFilterReturn(), JGenie jg)    // Return for filter statement
+    = "throw new Filtered()";             
 
 // ---- muKwpActuals ----------------------------------------------------------
 
