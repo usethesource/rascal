@@ -779,8 +779,8 @@ map[AType,set[AType]] collectNeededDefs(AType t){
             | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := my_definitions,
               adt1 := uninstantiate(unsetRec(adt)),
               syntax_type ? syntaxRole != dataSyntax() : true,
-              !my_definitions[adt1]?,
-              !my_grammar_rules[adt1]?
+              my_definitions[adt1]?,
+              my_grammar_rules[adt1]?
             );
     }
 
