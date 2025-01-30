@@ -25,6 +25,8 @@ import analysis::statistics::Descriptive;
 import util::Math;
 import Set;
 import List;
+import Exception;
+import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
@@ -56,6 +58,31 @@ public data TestStats = testStats(
     FrequencyTable errorCounts=(),
     FrequencyTable errorSizes=());
 
+// When this is turned on, memoization is checked for correctness. This makes the tests take much longer.
+// Note that this test requires the posibility to disable memoization.
+// In the current test version this can be done by including a "parse-memoization=none" query parameter.
+// We expect this feature to be removed eventually and then the `verifyMemoizationCorrectness` flag becomes useless.
+bool verifyMemoizationCorrectness = false;
+
+// When verifying memoization we need to be able to timeout the conversin from parse graph to parse forest.
+// We can do this by using a parse filter.
+int timeoutLimit = 0;
+
+void setTimeout(int limit) {
+    timeoutLimit = limit;
+}
+
+void clearTimeout() {
+    timeoutLimit = 0;
+}
+
+Tree timeoutFilter(Tree tree) {
+    if (timeoutLimit != 0 && realTime() > timeoutLimit) {
+        throw Timeout();
+    }
+    return tree;
+}
+
 private TestMeasurement testRecovery(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, loc statFile, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
@@ -63,7 +90,10 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
     int errorCount = 0;
     int errorSize=0;
     str result = "?";
+    str verificationResult = "-";
+
     TestMeasurement measurement = successfulParse();
+    clearTimeout();
     try {
         startTime = realTime();
         Tree t = standardParser(input, source);
@@ -76,18 +106,79 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
             Tree t = recoveryParser(input, source);
             int parseEndTime = realTime();
             duration = parseEndTime - startTime;
+
+            if (verifyMemoizationCorrectness) {
+                bool noMemoTimeout = false;
+                bool linkCorrect = true;
+                bool nodeMemoTimeout = false;
+                bool nodeCorrect = true;
+                //bool nodeLinkEqual = true;
+
+                noMemoSource = source;
+                noMemoSource.query = noMemoSource.query + "&parse-memoization=none";
+                setTimeout(realTime() + 2000);
+                Tree noMemoTree = char(0);
+                try {
+                    Tree noMemo = recoveryParser(input, noMemoSource);
+                    noMemoTree = noMemo;
+                    linkMemoCorrect = treeEquality(t, noMemoTree);
+                } catch Timeout(): {
+                    print("#");
+                    noMemoTimeout = true;
+                }
+                clearTimeout();
+
+                nodeMemoSource = source;
+                nodeMemoSource.query = nodeMemoSource.query + "&parse-memoization=node";
+                setTimeout(realTime() + 2000);
+                try {
+                    Tree nodeMemoTree = recoveryParser(input, nodeMemoSource);
+                    //nodeLinkEqual = treeEquality(t, nodeMemoTree); // Too expensive
+                    if (!noMemoTimeout) {
+                        nodeCorrect = treeEquality(noMemoTree, nodeMemoTree);
+                    }
+                } catch Timeout(): {
+                    print("@");
+                    nodeMemoTimeout = true;
+                }
+                clearTimeout();
+
+                if (!linkCorrect) {
+                    if (nodeMemoTimeout) {
+                        println("\nlink memoization incorrect, node memoization timeout for <source>");
+                        verificationResult = "linkFailed:nodeTimeout";
+                    } else if (nodeCorrect) {
+                        verificationResult = "linkFailed:nodeSucceeded";
+                        println("\nonly link memoization incorrect for <source>");
+                    } else {
+                        verificationResult = "linkFailed:nodeFailed";
+                        println("\nboth node memoization and link memoization incorrect for <source>");
+                    }
+                } else if (!nodeCorrect) {
+                    verificationResult = "linkSucceeded:nodeFailed";
+                    println("\nonly node memoization incorrect for <source>");
+                } else if (noMemoTimeout) {
+                    verificationResult="noMemoTimeout";
+                } else {
+                    verificationResult = "linkSucceeded:nodeSucceeded";
+                }
+            }
+
             list[Tree] errors = findBestErrors(t);
             errorCount = size(errors);
             disambDuration = realTime() - parseEndTime;
-            result = "recovery";
+            if ("<t>" != input) {
+                throw "Yield of recovered tree does not match the original input";
+            }
             if (errors == []) {
                 measurement = successfulDisambiguation(source=source, duration=duration);
             } else {
                 errorSize = (0 | it + size(getErrorText(err)) | err <- errors);
                 measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
             }
-        } catch ParseError(_): { 
-            result = "error";
+            result = "recovery";
+        } catch ParseError(_): {
+            result = "error"; 
             duration = realTime() - startTime;
             measurement = parseError(source=source, duration=duration);
         }
@@ -95,7 +186,7 @@ private TestMeasurement testRecovery(&T (value input, loc origin) standardParser
 
     if (statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>\n");
+        appendToFile(statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult>\n");
     }
 
     return measurement;
@@ -237,11 +328,15 @@ FileStats testSingleCharDeletions(&T (value input, loc origin) standardParser, &
 
 FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) {
     FileStats stats = fileStats();
-    int lineStart = begin;
+    int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
 
-    int line = 1;
+    int line = 0;
     for (int lineEnd <- lineEndings) {
+        line = line+1;
+        if (lineEnd < begin) {
+            continue;
+        }
         lineLength = lineEnd - lineStart;
         for (int pos <- [lineStart..lineEnd]) {
             // Check boundaries (only used for quick bug testing)
@@ -258,7 +353,6 @@ FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (va
         }
         lineStart = lineEnd+1;
         println();
-        line = line+1;
     }
 
     return stats;
@@ -391,7 +485,8 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput, str inpu
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
+        set[Tree(Tree)] filters = verifyMemoizationCorrectness ? {timeoutFilter} : {};
+        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true, filters=filters);
 
         // Initialization run
         standardParser(input, testInput);
@@ -434,7 +529,7 @@ TestStats batchRecoveryTest(loc syntaxFile, str topSort, loc dir, str ext, int m
     fromFile = from;
 
     if (statFile != |unknown:///|) {
-        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
+        writeFile(statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification\n");
     }
 
     return runBatchRecoveryTest(syntaxFile, topSort, dir, ext, maxFiles, minFileSize, maxFileSize, statFile, testStats());

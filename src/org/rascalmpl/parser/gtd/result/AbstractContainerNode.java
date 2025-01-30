@@ -166,17 +166,13 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 			builder.append(",layout");
 		}
 		if (firstAlternative != null) {
-			builder.append(",alternatives=[");
-			builder.append(firstAlternative);
-			builder.append(":");
+			builder.append(",");
 			builder.append(DebugUtil.prodToString((IConstructor) firstProduction));
 
-			if (alternatives != null) {
-				for (int i=0; i<alternatives.size(); i++) {
+			if (productions != null) {
+				for (int i=0; i<productions.size(); i++) {
 					builder.append(",");
-					builder.append(alternatives.get(i));
-					builder.append(":");
-					builder.append(DebugUtil.prodToString((IConstructor) productions.get(i)));
+					builder.append(DebugUtil.prodToString((IConstructor)productions.get(i)));
 				}
 			}
 			builder.append("]");

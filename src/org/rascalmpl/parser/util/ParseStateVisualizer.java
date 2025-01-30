@@ -39,6 +39,7 @@ import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
 import org.rascalmpl.parser.gtd.result.EpsilonNode;
+import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
@@ -59,8 +60,16 @@ import org.rascalmpl.util.visualize.dot.DotGraph;
 import org.rascalmpl.util.visualize.dot.DotNode;
 import org.rascalmpl.util.visualize.dot.DotRecord;
 import org.rascalmpl.util.visualize.dot.NodeId;
+import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.parsetrees.ITree;
+import org.rascalmpl.values.parsetrees.ProductionAdapter;
+import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 /**
  * The parser uses quite complex datastructures.
@@ -128,6 +137,7 @@ public class ParseStateVisualizer {
     private final Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
+    private int nextParseNodeId;
 
 
     public ParseStateVisualizer(String name) {
@@ -193,6 +203,10 @@ public class ParseStateVisualizer {
         }
     }
 
+    public void visualizeParseTree(ITree parseTree) {
+        writeGraph(createGraph(parseTree));
+    }
+
     private synchronized DotGraph createGraph(AbstractStackNode<IConstructor> stackNode) {
         reset();
         graph = new DotGraph(name, true);
@@ -242,6 +256,13 @@ public class ParseStateVisualizer {
         for (AbstractStackNode<IConstructor> stackNode : stackNodes) {
             addProductionNodes(graph, stackNode);
         }
+        return graph;
+    }
+
+    public DotGraph createGraph(ITree parseTree) {
+        reset();
+        graph = new DotGraph(name, false);
+        addParseTree(graph, parseTree, new HashMap<>());
         return graph;
     }
 
@@ -382,28 +403,30 @@ public class ParseStateVisualizer {
     }
 
     private NodeId addParserNodes(DotGraph graph, AbstractNode parserNode) {
-        NodeId id = addParserNode(graph, parserNode);
+        NodeId id = getNodeId(parserNode);
+        if (graph.containsNode(id)) {
+            return id;
+        }
+
+        addParserNode(graph, parserNode, id);
+
         if (parserNode instanceof AbstractContainerNode) {
             @SuppressWarnings("unchecked")
             AbstractContainerNode<IConstructor> container = (AbstractContainerNode<IConstructor>) parserNode;
-            Link link = container.getFirstAlternative();
-            if (link != null) {
-                NodeId firstPrefix = addPrefixes(graph, link);
-                graph.addEdge(id, firstPrefix);
-            }
-        }
-        return id;
-    }
+            Link firstAlt = container.getFirstAlternative();
+            IConstructor firstProd = container.getFirstProduction();
+            if (firstAlt != null) {
+                NodeId firstAltId = addLink(graph, firstAlt, "Alt: " + DebugUtil.prodToString(firstProd));
+                graph.addEdge(id, firstAltId);
 
-    private NodeId addPrefixes(DotGraph graph, Link link) {
-        NodeId id = addParserNodes(graph, link.getNode());
-        ArrayList<Link> prefixes = link.getPrefixes();
-        if (prefixes != null) {
-            for (int i=0; i<prefixes.size(); i++) {
-                Link prefix = prefixes.get(i);
-                if (prefix != null) {
-                    NodeId parentId = addPrefixes(graph, prefix);
-                    graph.addEdge(id, parentId);
+                ArrayList<Link> alternatives = container.getAdditionalAlternatives();
+                ArrayList<IConstructor> prods = container.getAdditionalProductions();
+                if (alternatives != null) {
+                    for (int i=0; i<alternatives.size(); i++) {
+                        IConstructor prod = prods.get(i);
+                        NodeId altId = addLink(graph, alternatives.get(i), "Alt: " + DebugUtil.prodToString(prod));
+                        graph.addEdge(id, altId);
+                    }
                 }
             }
         }
@@ -411,10 +434,42 @@ public class ParseStateVisualizer {
         return id;
     }
 
+    private NodeId addLink(DotGraph graph, Link link, String label) {
+        NodeId linkId = getNodeId(link);
+        if (graph.containsNode(linkId)) {
+            return linkId;
+        }
 
-    @SuppressWarnings("unchecked")
+        DotNode linkNode = new DotNode(linkId);
+        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label);
+
+        graph.addNode(linkNode);
+
+        ArrayList<Link> prefixes = link.getPrefixes();
+        if (prefixes != null) {
+            for (int i=0; i<prefixes.size(); i++) {
+                Link prefix = prefixes.get(i);
+                if (prefix != null) {
+                    NodeId prefixId = addLink(graph, prefix, "Prefix");
+                    graph.addEdge(linkId, prefixId);
+                }
+            }
+        }
+
+        NodeId nodeId = addParserNodes(graph, link.getNode());
+        graph.addEdge(linkId, nodeId, "node");
+
+        return linkId;
+    }
+
     private NodeId addParserNode(DotGraph graph, AbstractNode parserNode) {
         NodeId id = getNodeId(parserNode);
+        addParserNode(graph, parserNode, id);
+        return id;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addParserNode(DotGraph graph, AbstractNode parserNode, NodeId id) {
         DotNode dotNode = new DotNode(id);
         dotNode.addAttribute(DotAttribute.ATTR_NODE_SHAPE, "octagon");
 
@@ -436,7 +491,8 @@ public class ParseStateVisualizer {
                 break;
             case SortContainerNode.ID:
             case RecoveredNode.ID:
-                enrichSortContainerNode(dotNode, (SortContainerNode<IConstructor>) parserNode);
+            case ExpandableContainerNode.ID:
+                enrichContainerNode(dotNode, (AbstractContainerNode<IConstructor>) parserNode);
                 break;
             case SkippedNode.ID:
                 enrichSkippedNode(dotNode, (SkippedNode) parserNode);
@@ -447,8 +503,6 @@ public class ParseStateVisualizer {
         }
 
         graph.addNode(dotNode);
-
-        return id;
     }
 
     private void enrichCharNode(DotNode dotNode, CharNode charNode) {
@@ -471,10 +525,10 @@ public class ParseStateVisualizer {
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
-    private void enrichSortContainerNode(DotNode dotNode, SortContainerNode<IConstructor> sortNode) {
+    private void enrichContainerNode(DotNode dotNode, AbstractContainerNode<IConstructor> node) {
         String label = dotNode.getAttributeValue(DotAttribute.ATTR_LABEL);
-        label += " " + sortNode.getOffset() + "-" + sortNode.getEndOffset();
-        label += "\n" + DebugUtil.prodToString(sortNode.getFirstProduction());
+        label += " " + node.getOffset() + "-" + node.getEndOffset();
+        label += "\n" + ProductionAdapter.getSortName(node.getFirstProduction());
         dotNode.setAttribute(DotAttribute.ATTR_LABEL, label);
     }
 
@@ -706,4 +760,74 @@ public class ParseStateVisualizer {
             throw new RuntimeException(e);
         }
     }
+
+    private NodeId addParseTree(DotGraph graph, ITree tree, Map<ITree, NodeId> addedTrees) {
+        NodeId id = addedTrees.get(tree);
+        if (id == null) {
+            Type type = tree.getConstructorType();
+            if (type == RascalValueFactory.Tree_Char) {
+                id = addChar(graph, tree);
+            } else if (type == RascalValueFactory.Tree_Cycle) {
+                id = addCycle(graph, tree);
+            } else if (type == RascalValueFactory.Tree_Appl) {
+                id = addAppl(graph, tree, addedTrees);
+            } else if (type == RascalValueFactory.Tree_Amb) {
+                id = addAmb(graph, tree, addedTrees);
+            } else {
+                throw new IllegalStateException("Unsupported type: " + type);
+            }
+
+            addedTrees.put(tree, id);
+        }
+
+        return id;
+    }
+
+    private NodeId addChar(DotGraph graph, ITree charNode) {
+        NodeId id = new NodeId("char-" + nextParseNodeId++);
+        int value = ((IInteger) charNode.get(0)).intValue();
+        graph.addNode(id, "Char: " + (char) value + " (" + value + ")");
+        return id;
+    }
+
+    private NodeId addCycle(DotGraph graph, ITree cycle) {
+        NodeId id = new NodeId("cycle-" + nextParseNodeId++);
+
+        String sym = String.valueOf(cycle.get(0));
+        int depth = ((IInteger) cycle.get(1)).intValue();
+
+        graph.addNode(id, "Cycle: " + sym + ", depth=" + depth);
+
+        return id;
+    }
+
+    private NodeId addAppl(DotGraph graph, ITree appl, Map<ITree, NodeId> addedTrees) {
+        NodeId id = new NodeId("appl-" + nextParseNodeId++);
+
+        IConstructor type = ProductionAdapter.getType(appl);
+
+        graph.addNode(id, DebugUtil.prodToString(type));
+
+        for (IValue arg : TreeAdapter.getArgs(appl)) {
+            NodeId argId = addParseTree(graph, (ITree) arg, addedTrees);
+            graph.addEdge(id, argId);
+        }
+
+        return id;
+    }
+
+    private NodeId addAmb(DotGraph graph, ITree amb, Map<ITree, NodeId> addedTrees) {
+        NodeId id = new NodeId("amb-" + nextParseNodeId++);
+
+        ISet alts = TreeAdapter.getAlternatives(amb);
+        graph.addNode(id, "Amb, size=" + alts.size());
+
+        for (IValue alt : alts) {
+            NodeId argId = addParseTree(graph, (ITree) alt, addedTrees);
+            graph.addEdge(id, argId);
+        }
+
+        return id;
+    }
+
 }
