@@ -32,10 +32,10 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 public class SortContainerNodeFlattener<P, T, S>{
 	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
-	
+
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashMap<Object, T>> preCache;
 	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
-	
+
 	public SortContainerNodeFlattener(){
 		super();
 		
@@ -122,8 +122,8 @@ public class SortContainerNodeFlattener<P, T, S>{
 		Object firstProduction = node.getFirstProduction();
 		Object rhs = nodeConstructorFactory.getRhs(node.getFirstProduction());
 		boolean hasSideEffects = actionExecutor.isImpure(rhs);
-		
-		if(depth <= cycleMark.depth){ // Only check for sharing if we are not currently inside a cycle.
+
+		if(DefaultNodeFlattener.nodeMemoization && depth <= cycleMark.depth) { // Only check for sharing if we are not currently inside a cycle.
 			if(!hasSideEffects){ // If this sort node and its direct and indirect children do not rely on side-effects from semantic actions, check the cache for existing results.
 				ObjectIntegerKeyedHashMap<Object, T> levelCache = preCache.get(offset);
 				if(levelCache != null){
@@ -133,10 +133,12 @@ public class SortContainerNodeFlattener<P, T, S>{
 					}
 				}
 			}
-			
+		}
+
+		if (depth <= cycleMark.depth) {
 			cycleMark.reset();
 		}
-		
+
 		S sourceLocation = null;
 		URI input = node.getInput();
 		if(!(node.isLayout() || input == null)){ // Construct a source location annotation if this sort container does not represent a layout non-terminal and if it's available.
@@ -193,7 +195,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
 		
-		if(result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
+		if(DefaultNodeFlattener.nodeMemoization && result != null && depth < cycleMark.depth){ // Only share the constructed tree if we are not in a cycle.
 			if(!hasSideEffects){ // Cache side-effect free tree.
 				ObjectIntegerKeyedHashMap<Object, T> levelCache = preCache.get(offset);
 				if(levelCache != null){
@@ -229,4 +231,5 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		return result;
 	}
+
 }

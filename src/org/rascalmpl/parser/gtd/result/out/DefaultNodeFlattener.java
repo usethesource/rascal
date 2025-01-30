@@ -26,6 +26,9 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  * Converter for parse trees that produces trees in UPTR format.
  */
 public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
+	public static boolean nodeMemoization = false;
+	public static boolean linkMemoization = true;
+	
 	private final CharNodeFlattener<T, S> charNodeConverter;
 	private final LiteralNodeFlattener<T, S> literalNodeConverter;
 	private final SortContainerNodeFlattener<P, T, S> sortContainerNodeConverter;

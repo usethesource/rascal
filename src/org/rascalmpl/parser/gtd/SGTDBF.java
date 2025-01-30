@@ -24,6 +24,7 @@ import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
@@ -63,6 +64,7 @@ import io.usethesource.vallang.type.Type;
  */
 public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
+	private static final String PARAM_ENABLE_CACHE = "enable-cache";
 	
 	private URI inputURI;
 	private int[] input;
@@ -1509,6 +1511,32 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return result;
 	}
 
+	private void checkMemoization(URI inputURI, AbstractNode result) {
+		DefaultNodeFlattener.nodeMemoization = true;
+		DefaultNodeFlattener.linkMemoization = false;
+		if (inputURI != null) {
+			String query = inputURI.getQuery();
+			if (query != null) {
+				if (query.contains("parse-memoization=none")) {
+					DefaultNodeFlattener.nodeMemoization = false;
+					DefaultNodeFlattener.linkMemoization = false;
+				} else if (query.contains("parse-memoization=link")) {
+					DefaultNodeFlattener.nodeMemoization = false;
+					DefaultNodeFlattener.linkMemoization = true;
+				} else if (query.contains("parse-memoization=node")) {
+					DefaultNodeFlattener.nodeMemoization = true;
+					DefaultNodeFlattener.linkMemoization = false;
+				} else if (query.contains("parse-memoization")) {
+					throw new IllegalArgumentException("Unsupported memoization directive: " + query);
+				}
+
+				if (query.contains("visualize-parse-result")) {
+					new ParseStateVisualizer("ParseResult").visualizeNode(result);
+				}
+			}
+		}
+	}
+
 	/**
 	 * Parses with post parse filtering.
 	 */
@@ -1517,6 +1545,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
+		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}
 	
@@ -1552,6 +1581,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
+		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
@@ -1581,7 +1611,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
-		
+		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
@@ -1597,15 +1627,15 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    Object rootEnvironment = actionExecutor != null ? actionExecutor.createRootEnvironment() : null;
 	    T parseResult = null;
 	    try {
-				parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker,
+			parseResult = converter.convert(nodeConstructorFactory, result, positionStore, filteringTracker,
 					actionExecutor, rootEnvironment);
-	    }
-	    finally {
-	      actionExecutor.completed(rootEnvironment, (parseResult == null));
+		}
+		finally {
+		      actionExecutor.completed(rootEnvironment, (parseResult == null));
 	    }
 	    if(parseResult != null) {
-				if (recoverer != null && parseErrorRecovered) {
-					parseResult = introduceErrorNodes(parseResult, nodeConstructorFactory);
+			if (recoverer != null && parseErrorRecovered) {
+				parseResult = introduceErrorNodes(parseResult, nodeConstructorFactory);
 			}
 			return parseResult; // Success.
 	    }
@@ -1617,8 +1647,8 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	    int beginColumn = positionStore.getColumn(offset, beginLine);
 	    int endLine = positionStore.findLine(endOffset);
 	    int endColumn = positionStore.getColumn(endOffset, endLine);
-			throw new ParseError("All results were filtered", inputURI, offset, length, beginLine + 1, endLine + 1,
-				beginColumn, endColumn);
+		throw new ParseError("All results were filtered", inputURI, offset, length,
+			beginLine + 1, endLine + 1,	beginColumn, endColumn);
 	  }
 	  finally {
 	    checkTime("Unbinarizing, post-parse filtering, and mapping to UPTR");
