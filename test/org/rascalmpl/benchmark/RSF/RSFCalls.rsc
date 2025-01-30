@@ -35,8 +35,9 @@ public int measure(){
   return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"]);
 }
 
-public int measureOne(){
-   return measure(["JHotDraw52.rsf"]);
+public bool measureOne(){
+   measure(["JHotDraw52.rsf"]);
+   return true;
 }
 
 public int measure(list[str] names){
