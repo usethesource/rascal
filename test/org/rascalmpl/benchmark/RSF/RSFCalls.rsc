@@ -40,7 +40,11 @@ public int measureOne(){
 }
 
 public int measure(list[str] names){
-	p = |file:///Users/paulklint/git/rascal//test/org/rascalmpl/benchmark/RSF/|;
+	loc p = |not-found:///|;
+	if({loc x} := findResources("RSF")){
+		p = x;
+	}
+	//p = |file:///Users/paulklint/git/rascal//test/org/rascalmpl/benchmark/RSF/|;
 	begin = cpuTime();
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(p + name);
