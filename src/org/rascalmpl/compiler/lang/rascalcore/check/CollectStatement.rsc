@@ -943,7 +943,7 @@ private void checkAssignment(Statement current, asg: (Assignable) `<Assignable r
       AType(Solver s){
            res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, s),  field, operator, s.getType(rhs), scope, s);
            //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
-           s.fact(asg, s.getType(rhs));
+           s.fact(asg, res /*s.getType(rhs)*/);
            return res;
          });
    //collect(receiver, c);
@@ -971,6 +971,7 @@ private void requireAssignmentSubType(Tree current, AType a, AType b, FailMessag
 }
 
 private AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
+    //println("computeFieldAssignableType: <current>");
     fieldName = unescape("<field>");
     if(isNonTerminalAType(receiverType) && fieldName == "top"){
         return isStartNonTerminalType(receiverType) ? getStartNonTerminalType(receiverType) : receiverType;
@@ -981,6 +982,7 @@ private AType computeFieldAssignableType(Statement current, AType receiverType, 
 
     //s.requireSubType(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
     //return updatedFieldType;
+    //println("computeFieldAssignableType: <fieldType>");
     return fieldType;
 }
 
