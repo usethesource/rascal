@@ -36,7 +36,7 @@ private int fingerprint1(p:(Pattern) `<Concrete concrete>`, AType atype, bool us
     //return res;
 }
 
-private int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType atype, bool useConcreteFingerprint) { 
+private int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}+ arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType atype, bool useConcreteFingerprint) { 
     args = [a | a <- arguments];    // TODO: work around!
     res = fingerprintDefault;
     if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){  
@@ -60,7 +60,7 @@ private int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arg
     return res;
 }
 private int fingerprint1(p:(Pattern) `{<{Pattern ","}* pats>}`, AType atype, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
-private int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType atype, bool useConcreteFingerprint) = getFingerprint("tuple", size([pat | pat <- pats]), useConcreteFingerprint);
+private int fingerprint1(p:(Pattern) `\<<{Pattern ","}+ pats>\>`, AType atype, bool useConcreteFingerprint) = getFingerprint("tuple", size([pat | pat <- pats]), useConcreteFingerprint);
 private int fingerprint1(p:(Pattern) `[<{Pattern ","}* pats>]`, AType atype, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
 private int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
 private int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType atype, bool useConcreteFingerprint) = fingerprint1(argument, atype, useConcreteFingerprint);

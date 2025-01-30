@@ -9,6 +9,7 @@ import lang::rascalcore::check::Checker;
 import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::check::RascalConfig;
 
 
 void main() = checkTestSources([]);
@@ -17,95 +18,46 @@ void main() = checkTestSources([]);
 // otherwise only standard library and test files (~200 files) 
 void main(list[str] cmdLineArgs) = checkTestSources(cmdLineArgs);
 
+loc REPO = |file:///Users/paulklint/git/|;
+
+list[str] getRascalModules(loc rootFolder, PathConfig pcfg)
+  = [ getModuleName(file, pcfg) 
+    | loc file <- find(rootFolder, "rsc") 
+    ];  
+
 void checkTestSources(list[str] cmdLineArgs) {
    testConfig = getRascalPathConfig();
      
    println("PathConfig for type checking test sources:\n");
    iprintln(testConfig);
    
-   testCompilerConfig = rascalCompilerConfig(testConfig)[logPathConfig=false];
+   genCompilerConfig = getAllSrcCompilerConfig()[logPathConfig=false];
    total = 0;
-
-   println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
    
-   testModules = [];
+   modulesToCheck = [];
    
    if("all" in cmdLineArgs){
-        rootFolder = |std:///|;
-   
-        testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
-                      | loc file <- find(rootFolder, "rsc") 
-                      ];           
+      modulesToCheck = getRascalModules(|std:///|);               
    } else {         
-
-       libraryModules = ["Boolean", 
-                         "DateTime", 
-                         "Exception", 
-                         "Grammar", 
-                         "IO", 
-                         "List", 
-                         "ListRelation", 
-                         "Location", 
-                         "Map", 
-                         "Message", 
-                         "Node", 
-                         "ParseTree", 
-                         "Prelude", 
-                         "Relation", 
-                         "Set", "String", 
-                         /*"Traversal",*/
-                         "Type", 
-                         "ValueIO",
-                         "analysis::graphs::Graph", 
-                         "analysis::statistics::Correlation",
-                         "analysis::statistics::Descriptive",
-                         "analysis::statistics::Frequency",
-                         "analysis::statistics::Inference",
-                         "analysis::statistics::SimpleRegression",
-                         "lang::csv::IO",
-                         "lang::json::IO",
-                         "lang::manifest::IO",
-                         "lang::rascal::syntax::Rascal",
-                         "lang::xml::DOM",
-                         "lang::xml::IO",
-                         "util::FileSystem", 
-                         "util::Math",
-                         "util::Maybe",
-                         "util::Memo",
-                         "util::PriorityQueue",
-                         "util::Reflective",
-                         "util::SemVer",
-                         "util::UUID",
-                        
-                         "analysis::m3::AST", 
-                         "analysis::m3::Core", 
-                         "analysis::m3::FlowGraph", 
-                         "analysis::m3::Registry",
-                         "analysis::m3::TypeSymbol"];  
-    
-       for (m <- libraryModules) {
-         <e,d> = safeCheck(m, testCompilerConfig);
-         total += d;
-       }
-         
-       testFolder = |std:///|;
-       //testFolder = |std:///lang/rascal/tests|;
-       
-       testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
-                     | loc file <- find(testFolder, "rsc")     // all Rascal source files
-                     ];
-   }
+      testFolders = [ //|std:///lang/rascal/tests|,
+                       //REPO + "/rascal-core/lang/rascalcore/check::tests",
+                       REPO + "/typepal/src/"
+                    ];
+      modulesToCheck = [ *getRascalModules(testFolder, genCompilerConfig.typepalPathConfig)
+                       | testFolder <- testFolders
+                      ];
+    }
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   testModules -= ignored; 
+   modulesToCheck -= ignored; 
    
    list[str] exceptions = [];
-   int n = size(testModules);
-   for (i <- index(testModules)) {
-      m = testModules[i];
+   int n = size(modulesToCheck);
+   for (i <- index(modulesToCheck)) {
+      m = modulesToCheck[i];
       println("Checking test module <m> [<i>/<n>]");
-      <e, d> = safeCheck(m, testCompilerConfig);
+      <e, d> = safeCheck(m, genCompilerConfig);
       total += d;
       if(!isEmpty(e)){
         exceptions += e;

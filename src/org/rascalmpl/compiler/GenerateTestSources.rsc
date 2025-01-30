@@ -36,15 +36,14 @@ void generateTestSources(list[str] cmdLineArgs) {
    
    map[str,int] durations = ();
 
-   println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
-
    modulesToCompile = [];
   
    if("all" in cmdLineArgs){
       modulesToCompile = getRascalModules(|std:///|);     
    } else {              
        testFolders = [ |std:///lang/rascal/tests|,
-                       REPO + "/rascal-core/lang/rascalcore/check::tests"
+                       //REPO + "/rascal-core/lang/rascalcore/check::tests"
+                       REPO + "/typepal/src/"
                      ];
        
        modulesToCompile = [ *getRascalModules(testFolder)
