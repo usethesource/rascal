@@ -195,7 +195,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
             // first ensure capacity of the array
             if (curEnd + len >= curCapacity) {
-                curCapacity *= 2; 
+                do {
+                    curCapacity *= 2; 
+                    // increase size until it fits
+                } while (curEnd + len >= curCapacity);
                 buffer = Arrays.copyOf(buffer, curCapacity);
             }
 
