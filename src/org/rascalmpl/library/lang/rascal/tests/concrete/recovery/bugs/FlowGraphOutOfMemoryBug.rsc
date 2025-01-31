@@ -12,13 +12,9 @@ int timeoutLimit = 0;
 
 void testFlowGraphBug() {
     standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
-    recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true, filters={timeoutFilter});
+    recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
     loc source = |std:///analysis/m3/FlowGraph.rsc|;
     input = readFile(source);
-    setTimeout(realTime() + 1000);
-    loc statLoc = |memory://test-tmp/test.stats|;
-    writeFile(statLoc, "");
-    testSingleCharDeletions(standardParser, recoveryParser, source, input, 200, 150, begin=387, end=387, statFile=statLoc);
-
-    println(readFile(statLoc));
+    // Resulted in extremely long runtime and eventually an out-of-memory exception
+    testSingleCharDeletions(standardParser, recoveryParser, source, input, 200, 150, begin=387, end=387);
 }
