@@ -39,22 +39,8 @@ public data RecoveryTestConfig = recoveryTestConfig(
     int minFileSize = 0,
     int maxFileSize = 1000000000,
     int fromFile = 0,
-    loc statFile = |unknown:///|,
-    int memoVerificationTimeout = 0,
-    bool abortOnNoMemoTimeout = false
+    loc statFile = |unknown:///|
 );
-
-// When memoVerificationTimeout is non-zero, memoization is checked for correctness. 
-// In particular, the parse result with memoization is compared to the parse result without memoization.
-// This makes the tests take much longer.
-// Note that this test requires the posibility to disable memoization.
-// In the current test version this can be done by including a "parse-memoization=none" query parameter.
-// We expect this feature to be removed eventually and then the `memoizationVerificationTimeout` variable and associated code will become useless.
-// The timeout value signales how long before the reference parse without memoization is allowed to take.
-// If it takes longer, the parse (actually the memoization phase of the parse) is interrupted.
-// It this happens, memoization verification in that particular test will be skipped.
-// If `abortOnNoMemoTimeout` is set to true, parsing with memoization enabled is not attempted when
-// a memoization timeout occurs.
 
 alias FrequencyTable = map[int val, int count];
 
@@ -91,27 +77,6 @@ public data TestStats = testStats(
     FrequencyTable errorSizes=());
 
 
-private bool memoVerificationEnabled(RecoveryTestConfig config) = config.memoVerificationTimeout > 0;
-
-// When verifying memoization we need to be able to timeout the conversin from parse graph to parse forest.
-// We can do this by using a parse filter.
-int timeoutLimit = 0;
-
-void setTimeout(int limit) {
-    timeoutLimit = limit;
-}
-
-void clearTimeout() {
-    timeoutLimit = 0;
-}
-
-Tree timeoutFilter(Tree tree) {
-    if (timeoutLimit != 0 && realTime() > timeoutLimit) {
-        throw Timeout();
-    }
-    return tree;
-}
-
 private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
@@ -119,88 +84,23 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int errorCount = 0;
     int errorSize=0;
     str result = "?";
-    str verificationResult = "-";
-    str nodeStats = ""; // Only tracked when verifyMemoizationCorrectness is set to true
 
     TestMeasurement measurement = successfulParse();
-    clearTimeout();
     try {
         startTime = realTime();
         Tree tree = standardParser(input, source);
         duration = realTime() - startTime;
         measurement = successfulParse(source=source, duration=duration);
         result = "success";
-        nodeStats = ",<countTreeNodes(tree)>,<countUniqueTreeNodes(maximallyShareTree(tree))>,-,<countUniqueTreeNodes(tree)>";
     } catch ParseError(_): {
         startTime = realTime();
         try {
             Tree tree = char(0);
             int parseEndTime = startTime;
 
-            if (memoVerificationEnabled(config)) {
-                Tree noMemoTree = char(0);
-                bool noMemoTimeout = false;
-                bool memoFailed = false;
-
-                noMemoSource = source;
-                noMemoSource.query = source.query + "&parse-memoization=none";
-                setTimeout(realTime() + config.memoVerificationTimeout);
-                try {
-                    Tree t = recoveryParser(input, noMemoSource);
-                    noMemoTree = t;
-                } catch Timeout(): {
-                    print("#");
-                    noMemoTimeout = true;
-                }
-                clearTimeout();
-
-                if (!noMemoTimeout || !config.abortOnNoMemoTimeout) {
-                    tree = recoveryParser(input, source);
-                    parseEndTime = realTime();
-                    duration = parseEndTime - startTime;
-                    if (!noMemoTimeout) {
-                        memoFailed = !treeEquality(tree, noMemoTree);
-                        if (memoFailed) {
-                            tree = noMemoTree;
-                        }
-                    }
-                } else {
-                    print("s");
-                }
-
-                if (!memoFailed) {
-                    if (noMemoTimeout) {
-                        verificationResult="noMemoTimeout";
-                    } else {
-                        verificationResult = "memoSucceeded";
-                    }
-
-                    if (!noMemoTimeout || !config.abortOnNoMemoTimeout) {
-                        str allNodeCount = "<countTreeNodes(tree)>";
-                        str maxSharedNodeCount = "<countUniqueTreeNodes(maximallyShareTree(tree))>";
-                        str noMemoNodeCount = noMemoTimeout ? "-" : "<countUniqueTreeNodes(noMemoTree)>";
-                        str memoNodeCount = "<countUniqueTreeNodes(tree)>";
-                        nodeStats = ",<allNodeCount>,<maxSharedNodeCount>,<noMemoNodeCount>,<memoNodeCount>";
-                    } else {
-                        verificationResult = "noMemoTimeoutSkipped";
-                        nodeStats = ",-,-,-,-";
-                    }
-                } else {
-                    verificationResult = "memoFailed";
-                    println("\nMemoization created a tree that is different from the non-memo tree for <source>");
-
-                    str allNodeCount = "<countTreeNodes(noMemoTree)>";
-                    str maxSharedNodeCount = "<countUniqueTreeNodes(maximallyShareTree(noMemoTree))>";
-                    str noMemoNodeCount ="<countUniqueTreeNodes(noMemoTree)>";
-                    nodeStats = ",<allNodeCount>,<maxSharedNodeCount>,<noMemoNodeCount>,-";
-                }
-            } else {
-                tree = recoveryParser(input, source);
-                parseEndTime = realTime();
-                duration = parseEndTime - startTime;
-
-                nodeStats = ",<countTreeNodes(tree)>,<countUniqueTreeNodes(maximallyShareTree(tree))>,-,<countUniqueTreeNodes(tree)>";
-            }
+            tree = recoveryParser(input, source);
+            parseEndTime = realTime();
+            duration = parseEndTime - startTime;
 
             if (tree == char(0)) {
                 result = "skipped";
@@ -229,7 +129,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
 
     if (config.statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<verificationResult><nodeStats>\n");
+        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>\n");
     }
 
     return measurement;
@@ -377,7 +277,7 @@ FileStats testSingleCharDeletions(RecoveryTestConfig config, &T (value input, lo
 FileStats testDeleteUntilEol(&T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, loc source, str input, int referenceParseTime, int recoverySuccessLimit, int begin=0, int end=-1, loc statFile=|unknown:///|) 
     = testDeleteUntilEol(recoveryTestConfig(statFile=statFile), standardParser, recoveryParser, source, input, referenceParseTime, recoverySuccessLimit, begin=begin, end=end);
 
-str getDeleteUntilEolInput(str input, int begin, int end) {
+str getDeleteUntilEolInput(str input, int begin) {
     int lineStart = 0;
     list[int] lineEndings = findAll(input, "\n");
 
@@ -557,7 +457,7 @@ FileStats testErrorRecovery(loc syntaxFile, str topSort, loc testInput) =
 
 FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput) = testErrorRecovery(config, testInput, readFile(testInput));
 
-FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input, loc statFile=|unknown:///|) {
+FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input) {
     Module \module = parse(#start[Module], config.syntaxFile).top;
     str modName = syntaxLocToModuleName(config.syntaxFile);
     Grammar gram = modules2grammar(modName, {\module});
@@ -566,8 +466,7 @@ FileStats testErrorRecovery(RecoveryTestConfig config, loc testInput, str input,
     if (sym:\start(\sort(topSort)) <- gram.starts) {
         type[value] begin = type(sym, gram.rules);
         standardParser = parser(begin, allowAmbiguity=true, allowRecovery=false);
-        set[Tree(Tree)] filters = memoVerificationEnabled(config) ? {timeoutFilter} : {};
-        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true, filters=filters);
+        recoveryParser = parser(begin, allowAmbiguity=true, allowRecovery=true);
 
         // Initialization run
         standardParser(input, testInput);
@@ -609,7 +508,7 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
-        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,memoVerification" + (memoVerificationEnabled(config) ? ",allNodes,maxSharedNodes,noMemoNodes,memoNodes\n" : ""));
+        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
     }
 
     return runBatchRecoveryTest(config, testStats());
@@ -711,7 +610,7 @@ str getTestInput(loc testUri) {
     str input = readFile(file);
     if (/deletedUntilEol=<line:[0-9]*>:<begin:[0-9]*>:<end:[0-9]*>/ := query) {
         println("deleteUntilEol: begin=<begin>, end=<end>");
-        return getDeleteUntilEolInput(input, toInt(begin), toInt(end));
+        return getDeleteUntilEolInput(input, toInt(begin));
     } else if (/deletedChar=<index:[0-9]*>/ := query) {
         int at = toInt(index);
         return substring(input, 0, at) + substring(input, at+1);

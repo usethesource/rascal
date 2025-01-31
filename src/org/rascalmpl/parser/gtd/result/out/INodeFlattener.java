@@ -24,9 +24,7 @@ public interface INodeFlattener<T, P>{
 	public enum CacheMode { CACHE_MODE_NONE, CACHE_MODE_SHARING_ONLY, CACHE_MODE_FULL };
 
 	public static INodeFlattener.CacheMode getCacheMode(boolean cacheable, boolean hasSideEffects) {
-		if (!DefaultNodeFlattener.safeNodeMemoization) {
-			return CacheMode.CACHE_MODE_NONE;
-		 } else if (hasSideEffects) {
+		if (hasSideEffects) {
 			return CacheMode.CACHE_MODE_SHARING_ONLY;
 		} else {
 			return cacheable ? CacheMode.CACHE_MODE_FULL : CacheMode.CACHE_MODE_SHARING_ONLY;

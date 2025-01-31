@@ -33,14 +33,7 @@ public class ListContainerNodeFlattener<P, T, S>{
 	private static final Object[] NO_CHILDREN = new Object[]{};
 	
 	private final T[] noChildren = (T[]) NO_CHILDREN;
-	//private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
 
-	public ListContainerNodeFlattener(){
-		super();
-
-		//cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
-	}
-	
 	/**
 	 * A helper structure for keeping track of cycles inside lists.
 	 * These cycles can occur due to nullable elements and separators.
@@ -453,9 +446,6 @@ public class ListContainerNodeFlattener<P, T, S>{
 		int offset = node.getOffset();
 		int endOffset = node.getEndOffset();
 		
-		Object rhs = nodeConstructorFactory.getRhs(node.getFirstProduction());
-		boolean hasSideEffects = actionExecutor.isImpure(rhs);
-		
 		S sourceLocation = null;
 		URI input = node.getInput();
 		if(!(node.isLayout() || input == null)){ // Construct a source location annotation if this sort container does not represent a layout non-terminal and if it's available.
@@ -515,25 +505,6 @@ public class ListContainerNodeFlattener<P, T, S>{
 		}
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
-
-		/*
-		if (hasSideEffects) {
-			ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
-			if (levelCache != null) {
-				T cachedResult = levelCache.getEquivalent(result, endOffset);
-				if (cachedResult != null) {
-					return cachedResult;
-				}
-
-				levelCache.putUnsafe(result, endOffset);
-				return result;
-			}
-
-			levelCache = new ObjectIntegerKeyedHashSet<T>();
-			levelCache.putUnsafe(result, endOffset);
-			cache.putUnsafe(offset, levelCache);
-		}
-		*/
 
 		return result;
 	}

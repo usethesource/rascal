@@ -12,7 +12,6 @@
 package org.rascalmpl.parser.gtd.result.out;
 
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Map;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
@@ -30,8 +29,6 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  * Converter for parse trees that produces trees in UPTR format.
  */
 public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
-	public static boolean safeNodeMemoization = false;
-	
 	private final CharNodeFlattener<T, S> charNodeConverter;
 	private final LiteralNodeFlattener<T, S> literalNodeConverter;
 	private final SortContainerNodeFlattener<P, T, S> sortContainerNodeConverter;
@@ -43,20 +40,13 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	public DefaultNodeFlattener(){
 		super();
 		
-		charNodeConverter = new CharNodeFlattener<T, S>();
-		literalNodeConverter = new LiteralNodeFlattener<T, S>();
-		sortContainerNodeConverter = new SortContainerNodeFlattener<P, T, S>();
-		listContainerNodeConverter = new ListContainerNodeFlattener<P, T, S>();
-		skippedNodeConverter = new SkippedNodeFlattener<T, S>();
+		charNodeConverter = new CharNodeFlattener<>();
+		literalNodeConverter = new LiteralNodeFlattener<>();
+		sortContainerNodeConverter = new SortContainerNodeFlattener<>();
+		listContainerNodeConverter = new ListContainerNodeFlattener<>();
+		skippedNodeConverter = new SkippedNodeFlattener<>();
 
 		treeCache = new HashMap<>();
-	}
-	
-	/**
-	 * Internal helper structure for error tracking.
-	 */
-	protected static class IsInError{
-		public boolean inError;
 	}
 	
 	/**
@@ -90,7 +80,7 @@ public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 				result = skippedNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
 				break;
 			default:
-				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
+				throw new IllegalArgumentException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
 
 		if (cacheMode == CacheMode.CACHE_MODE_FULL) {
