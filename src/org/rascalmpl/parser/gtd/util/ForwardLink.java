@@ -11,14 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.util;
 
+import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+
 @SuppressWarnings({"rawtypes","unchecked"})
 public class ForwardLink<E>{
-	public final static ForwardLink TERMINATOR = new ForwardLink();
+	public static final ForwardLink TERMINATOR = new ForwardLink();
 	
 	public final ForwardLink<E> next;
 	public final int length;
 	
 	public final E element;
+	public INodeFlattener.CacheMode cacheMode;
 	
 	private ForwardLink(){
 		super();
@@ -28,13 +31,19 @@ public class ForwardLink<E>{
 		
 		this.element = null;
 	}
-	
-	public ForwardLink(ForwardLink next, E element){
+
+	public ForwardLink(ForwardLink next, E element) {
+		this(next, element, INodeFlattener.CacheMode.CACHE_MODE_NONE);
+	}
+
+	public ForwardLink(ForwardLink next, E element, INodeFlattener.CacheMode cacheMode){
 		super();
 		
 		this.next = next;
 		this.length = next.length + 1;
 		
 		this.element = element;
+
+		this.cacheMode = cacheMode;
 	}
 }

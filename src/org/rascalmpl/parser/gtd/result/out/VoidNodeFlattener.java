@@ -29,11 +29,13 @@ public class VoidNodeFlattener implements INodeFlattener<AbstractNode, Object>{
 	/**
 	 * Returns the given tree.
 	 */
+	@Override
 	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
 		return parseTree;
 	}
 	
-	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment){
+	@Override
+	public AbstractNode convert(INodeConstructorFactory<AbstractNode, Object> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<AbstractNode> actionExecutor, Object rootEnvironment, INodeFlattener.CacheMode cacheMode){
 		return parseTree;
 	}
 	
