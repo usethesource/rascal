@@ -53,28 +53,6 @@ This method uses simple and somewhat arbitrary heuristics, so its usefulness is 
 }
 java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
 
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
-@synopsis{Check if two parse trees are equal. For "normal" parse trees `==` will suffice, but for highly ambiguous (error) trees we need an
-equality check that takes advantage of the sharing present in those trees.
-Note that this equality check only takes into account the offset and length fields of source locations. All other fields are ignored.}
-java bool treeEquality(Tree t1, Tree t2);
-
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
-@synopsis{Count unique nodes in a tree. If a node is shared, it only counts as one node.}
-java int countUniqueTreeNodes(Tree t);
-
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
-@synopsis{Count tree nodes. Shared nodes are counted each time they are encounterd. Note that this is done efficiently using memoization.}
-java int countTreeNodes(Tree t);
-
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
-@synopsis{Maximally share nodes in a tree.}
-java Tree maximallyShareTree(Tree t);
-
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
-@synopsis{Generate a dot representation of a parse forest.}
-java void parseTree2Dot(Tree tree, loc dotFile);
-
 @synopsis{Create a parse filter based on `disambiguateErrors` with or without `allowAmbiguity`.}
 Tree(Tree) createErrorFilter(bool allowAmbiguity) =
     Tree(Tree t)  { return disambiguateErrors(t, allowAmbiguity=allowAmbiguity); };

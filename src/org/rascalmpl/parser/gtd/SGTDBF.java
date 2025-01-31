@@ -1511,27 +1511,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return result;
 	}
 
-	private void checkMemoization(URI inputURI, AbstractNode result) {
-		DefaultNodeFlattener.safeNodeMemoization = true;
-		Link.resetIds();
-		if (inputURI != null) {
-			String query = inputURI.getQuery();
-			if (query != null) {
-				if (query.contains("parse-memoization=none")) {
-					DefaultNodeFlattener.safeNodeMemoization = false;
-				} else if (query.contains("parse-memoization=safe-node")) {
-					DefaultNodeFlattener.safeNodeMemoization = true;
-				} else if (query.contains("parse-memoization")) {
-					throw new IllegalArgumentException("Unsupported memoization directive: " + query);
-				}
-
-				if (query.contains("visualize-parse-result")) {
-					new ParseStateVisualizer("ParseResult").visualizeNode(result);
-				}
-			}
-		}
-	}
-
 	/**
 	 * Parses with post parse filtering.
 	 */
@@ -1540,7 +1519,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}
 	
@@ -1576,7 +1554,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
@@ -1606,7 +1583,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
-		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	

@@ -12,8 +12,6 @@
 package org.rascalmpl.parser.gtd.result.out;
 
 import java.net.URI;
-import java.util.IdentityHashMap;
-import java.util.Map;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -23,8 +21,6 @@ import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.ForwardLink;
 import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 
 /**
  * A converter for sort container result nodes.
@@ -32,18 +28,6 @@ import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
 public class SortContainerNodeFlattener<P, T, S>{
 	@SuppressWarnings("unchecked")
 	private final static ForwardLink<AbstractNode> NO_NODES = ForwardLink.TERMINATOR;
-
-	private final IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>> cache;
-
-	private final Map<AbstractNode, T> nodeCache;
-
-	public SortContainerNodeFlattener(){
-		super();
-		
-		cache = new IntegerKeyedHashMap<ObjectIntegerKeyedHashSet<T>>();
-
-		nodeCache = new IdentityHashMap<>();
-	}
 
 	/**
 	 * Gather all the alternatives ending with the given child.
@@ -155,7 +139,7 @@ public class SortContainerNodeFlattener<P, T, S>{
 		stack.push(node, depth); // Push this node on the stack.
 		
 		// Gather the alternatives.
-		ArrayList<T> gatheredAlternatives = new ArrayList<T>();
+		ArrayList<T> gatheredAlternatives = new ArrayList<>();
 		gatherAlternatives(converter, nodeConstructorFactory, node.getFirstAlternative(), gatheredAlternatives, firstProduction, stack, childDepth, positionStore, sourceLocation, offset, endOffset, filteringTracker, actionExecutor, environment, hasSideEffects);
 		ArrayList<Link> alternatives = node.getAdditionalAlternatives();
 		ArrayList<P> productions = node.getAdditionalProductions();
@@ -186,24 +170,6 @@ public class SortContainerNodeFlattener<P, T, S>{
 		
 		stack.dirtyPurge(); // Pop this node off the stack.
 		
-		/*
-		if (hasSideEffects) {
-			ObjectIntegerKeyedHashSet<T> levelCache = cache.get(offset);
-			if (levelCache != null) {
-				T cachedResult = levelCache.getEquivalent(result, endOffset);
-				if (cachedResult != null) {
-					return cachedResult;
-				}
-
-				levelCache.putUnsafe(result, endOffset);
-				return result;
-			}
-
-			levelCache = new ObjectIntegerKeyedHashSet<T>();
-			levelCache.putUnsafe(result, endOffset);
-			cache.putUnsafe(offset, levelCache);
-		}
-		*/
 		return result;
 	}
 

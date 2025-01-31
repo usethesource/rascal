@@ -528,24 +528,6 @@ public class ErrorRecovery {
         return amb;
     }
 
-    public void parseTree2Dot(IConstructor tree, ISourceLocation dotFile) {
-        ParseStateVisualizer visualizer = new ParseStateVisualizer("ParseTree");
-        DotGraph graph = visualizer.createGraph((ITree) tree);
-
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
-
-        try {
-            ISourceLocation dotLocation = reg.logicalToPhysical(dotFile);
-
-            OutputStream outStream = reg.getOutputStream(dotLocation, false);
-            try (UnicodeOutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, "UTF-8", false)) {
-                out.append(graph.toString());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void checkForRegularAmbiguities(IConstructor parseForest) {
         disambiguate(parseForest, false, false, new HashMap<>());
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import org.rascalmpl.parser.gtd.result.EpsilonNode;
 import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.parser.util.DebugUtil;
 
 import io.usethesource.vallang.IConstructor;
 
@@ -26,15 +25,15 @@ import io.usethesource.vallang.IConstructor;
  * A structure that links a result node to a set of prefixes.
  */
 public class Link{
-	public static final int PREFIX_EMPTINESS_UNKNOWN = 0;
-	public static final int PREFIX_CALCULATING = 1;
-	public static final int PREFIX_CAN_BE_EMPTY = 2;
-	public static final int PREFIX_NOT_EMPTY = 3;
+	private static final int PREFIX_EMPTINESS_UNKNOWN = 0;
+	private static final int PREFIX_CALCULATING = 1;
+	private static final int PREFIX_CAN_BE_EMPTY = 2;
+	private static final int PREFIX_NOT_EMPTY = 3;
 
-	public static final int CACHEABLE_UNKNOWN  = 0;
-	public static final int CACHEABLE_CALCULATING = 1;
-	public static final int CACHEABLE_YES = 2;
-	public static final int CACHEABLE_NO = 3;
+	private static final int CACHEABLE_UNKNOWN  = 0;
+	private static final int CACHEABLE_CALCULATING = 1;
+	private static final int CACHEABLE_YES = 2;
+	private static final int CACHEABLE_NO = 3;
 
 	private final ArrayList<Link> prefixes;
 	private final AbstractNode node;
@@ -126,6 +125,7 @@ public class Link{
 			return true;
 		}
 
+		@SuppressWarnings("unchecked")
 		AbstractContainerNode<IConstructor> containerNode = (AbstractContainerNode<IConstructor>) node;
 		if(containerNode.getFirstAlternative() != null && !containerNode.getFirstAlternative().isCacheable()) {
 			return false;
@@ -171,7 +171,7 @@ public class Link{
 		for (int i=prefixes.size()-1; i>=0; --i) {
 			Link prefix = prefixes.get(i);
 			if (prefix == null) {
-				continue; // No idea what this case means so just ignore it for now
+				continue;
 			}
 
 			if (!prefix.node.isEmpty()) {
