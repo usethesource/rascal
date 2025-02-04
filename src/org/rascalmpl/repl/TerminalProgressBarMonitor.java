@@ -427,7 +427,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                     .reset()
                     .a(backPart)
                     .a(" " + clock)
-                    .format(" %d:%02d:%02d.%03d ", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
+                    .format(" %d:%02d:%02d.%03d ", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart(), duration.toMillisPart())
                     .a(System.lineSeparator())
                     .toString()
             );
