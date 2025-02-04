@@ -14,7 +14,7 @@ extend analysis::typepal::FailMessage;
 extend lang::rascalcore::check::BasicRascalConfig;
 extend lang::rascalcore::check::ModuleLocations;
 
-import analysis::typepal::Collector;
+extend analysis::typepal::Collector;
 
 import lang::rascal::\syntax::Rascal;
 import DateTime;
