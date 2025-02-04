@@ -466,7 +466,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
         return <tm, ms>;
     } else {
-        ms.status[modelName]? {} += tpl_saved();
+        ms.status[modelName]? {} += { tpl_saved() };
         <found, tm, ms> = getTModelForModule(modelName, ms);
         return <tm, ms>;
     }
