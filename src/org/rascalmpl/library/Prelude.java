@@ -1578,7 +1578,7 @@ public class Prelude {
 			}
 			if (less.less(array[0], array[0])) {
 				throw RuntimeExceptionFactory.illegalArgument(less.less,
-					"Bad comparator: Did you use less-or-equals instead of less-than?");
+					"A reflexive comparator can not be used for sorting. At least one element is less than itself: " + less);
 			}
 			sort(0, size - 1);
 
@@ -1597,15 +1597,32 @@ public class Prelude {
 			int oldLow = low;
 			int oldHigh = high;
 
-			while (low < high) {
-				for (; less.less(array[low], pivot); low++);
-				for (; less.less(pivot, array[high]); high--);
+			try {
+				while (low < high) {
+					for (; less.less(array[low], pivot); low++);
+					for (; less.less(pivot, array[high]); high--);
 
-				if (low <= high) {
-					swap(low, high);
-					low++;
-					high--;
+					if (low <= high) {
+						swap(low, high);
+						low++;
+						high--;
+					}
 				}
+			}
+			catch (IndexOutOfBoundsException e) {
+				// now that we are crashing anyway, we can do some diagnostics.
+				// the hypothesis is that at least one element was not irreflexive, making
+				// one of the bounds pointers (low or high) shift beyond the edge of the array
+
+				for (IValue elem : array) {
+					if (less.less(elem, elem)) {
+					throw RuntimeExceptionFactory.illegalArgument(less.less,
+						"A reflexive comparator can not be used for sorting. At least one element is less than itself with the given comparator: " + elem);
+					}
+				}
+
+				// another cause for the same exception? 
+				throw e;
 			}
 
 			if (oldLow < high)
@@ -1665,9 +1682,7 @@ public class Prelude {
 		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
+		writer.append(tmpArr);
 		
 		return writer.done();
 	}
