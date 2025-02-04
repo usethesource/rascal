@@ -8,7 +8,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -137,6 +137,7 @@
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
+                        <src>${project.basedir}/src/org/rascalmpl/tutor</src>
                     </srcs>
                     <sourceLookup>|std:///|</sourceLookup>
                     <funding>${project.basedir}/FUNDING</funding>
