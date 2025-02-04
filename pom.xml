@@ -144,6 +144,7 @@
                     <citation>${project.basedir}/CITATION.md</citation>
                     <issues>|https://github.com/usethesource/rascal/issues|</issues>
                     <srcIgnores>
+                        <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
