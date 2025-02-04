@@ -9,7 +9,7 @@
 
 module lang::dot::\syntax::Dot
 
-start syntax DOT = Graph  Id "{" StatementList "}" "\n"?;
+start syntax DOT = "strict"? strict Graph graph Id id "{" StatementList stats "}" "\n"?;
 
 keyword Reserved 
   = "graph" 
@@ -17,13 +17,76 @@ keyword Reserved
   | "node" 
   | "edge" 
   | "subgraph"
+  | "strict"
   ;
 
 syntax Graph 
-  = "graph" 
-  | "digraph" 
-  | AttrTag
+  = graph: "graph"
+  | digraph: "digraph"
   ;
+
+syntax StatementList = Statement*;
+
+syntax Statement = Stat stat ";"?;
+
+syntax Stat
+  = nodeStat: NodeStatement
+  | edgeStat: EdgeStatement
+  | attrStat: AttrStatement  
+  | attr: Id name "=" Id value
+  | subgraph: Subgraph
+  ;
+
+syntax NodeStatement = NodeId nodeId AttrList? attrs;
+
+syntax NodeId = Id id Port? port;
+
+lexical Id
+  = ([A-Z a-z 0-9 _] !<< [a-z A-Z 0-9 _][a-z A-Z 0-9 _]* !>> [0-9 A-Z _ a-z]) \ Reserved 
+  | [\"] (![\"] | "\\\"")* [\"]
+  | [\-]? "." [0-9]+
+  | [\-]? [0-9]+ "." [0-9]*
+  ;
+
+syntax Port 
+  = idPort: ":" Id id PortCompass? compass
+  | compassPort: PortCompass;
+
+syntax PortCompass = ":" CompassPoint compassPoint;
+
+syntax CompassPoint
+  = north: "n"
+  | north_east: "ne"
+  | east: "e"
+  | south_east: "se"
+  | south: "s"
+  | south_west: "sw"
+  | west: "w"
+  | north_west: "nw"
+  | center: "c"
+  | unknown: "_";
+
+syntax AttrList = "[" Attribute* attrs "]";
+
+syntax Attribute = Attr [;,]?;
+
+syntax Attr = Id name "=" Id value;
+
+syntax EdgeStatement
+  = edge: NodeId nodeId EdgeRhs rhs AttrList? attrs
+  | subgraph: Subgraph sub EdgeRhs rhs AttrList? attrs;
+
+syntax EdgeRhs
+  = EdgeOp NodeId nodeId EdgeRhs? rhs
+  | EdgeOp Subgraph subgraph EdgeRhs? rhs;
+  
+syntax EdgeOp = "-\>" | "--";
+
+syntax Subgraph = SubgraphId? id "{" StatementList stats "}";
+
+syntax SubgraphId = "subgraph" Id? id;
+
+syntax AttrStatement = AttrTag tag AttrList attrs;
 
 syntax AttrTag 
   = "node" 
@@ -31,68 +94,14 @@ syntax AttrTag
   | "graph"
   ;
 
-syntax Nod 
-  = NodeId
-  | Subgraph
+lexical Comment
+  = "/*" (![*] | [*] !>> "/")* "*/"
+  | "//" ![\n]* $
   ;
 
-lexical Id 
-  = ([A-Z a-z 0-9 _] !<< [a-z A-Z 0-9 _][a-z A-Z 0-9 _]* !>> [0-9 A-Z _ a-z]) \ Reserved 
-  | [\"] (![\"] | "\\\"")* [\"]
-  | [\-]? "." [0-9]+
-  | [\-]? [0-9]+ "." [0-9]*
+layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r] !>> "//" !>> "/*";                   
+
+lexical LAYOUT
+  = Whitespace: [\ \t\n\r] 
+  | @category="Comment" Comment
   ;
-                    
-syntax StatementList = StatementOptional*;
-syntax Statement 
-  = NodeStatement
-  | EdgeStatement
-  | AttrStatement  
-  | Id "=" Id
-  ;
-  
-syntax StatementOptional = Statement ";"?;              
-                                   
-syntax NodeStatement = Nod AttrList;
-
-syntax EdgeStatement = Nod EdgeRhs AttrList ;
-
-syntax Edg =  EdgeOp Nod; 
-
-syntax EdgeOp = "-\>" | "--";
-
-syntax EdgeRhs = Edg+;
-
-syntax NodeId 
-  = Id 
-  | Id Port
-  ;
-
-syntax Port = ":" Id Id?
-//          | ":" Id
-//          | ":" CompassPt
-            ;
-
-// syntax CompassPt = "n" | "ne" | "e" | "se" | "s" | "sw" | "w"| "nw" | "c" |"_";
-
-syntax AttrList =   AttrList0*;
-
-syntax AttrList0 =  "[" DotAttr* "]";
-
-syntax DotAttr = Id "=" Id | Id "=" Id "," ;
-
-syntax AttrStatement = AttrTag AttrList;
-
-syntax Subgraph = ("subgraph" Id? )?  "{" StatementList "}";
-
-lexical Comment = "/*" (![*] | [*] !>> "/")* "*/"
-                | "//" ![\n]* $
-                ;
-
-layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r] !>> "//" !>> "/*"
-                    ;
-                   
-
-lexical LAYOUT = Whitespace: [\ \t\n\r] 
-               | @category="Comment" Comment
-               ;
