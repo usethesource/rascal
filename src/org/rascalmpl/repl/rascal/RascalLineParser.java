@@ -50,8 +50,8 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
  * Note: JLine only supports completion for the current word, so sometimes things are lexed differently than in the rascal grammar.
  */
 public class RascalLineParser implements Parser {
-
     private final Function<String, ITree> commandParser;
+    private boolean needsContinuation = false;
 
     public RascalLineParser(Function<String, ITree> commandParser) {
         this.commandParser = commandParser;
@@ -244,16 +244,22 @@ public class RascalLineParser implements Parser {
         return parseEndedAfter(buffer, position, RASCAL_WHITE_SPACE);
     }
 
+    public boolean needsContinuation() {
+        return needsContinuation;
+    }
+
     private ParsedLine parseFullRascalCommand(String line, int cursor, boolean completeStatementMode)  throws SyntaxError {
         // TODO: to support inline highlighting, we have to remove the ansi escapes before parsing
         // so for now we don't do any highlighting, but would be interesting after the error recovery is integrated
         try {
+            needsContinuation = false;
             return translateTree(commandParser.apply(line), line, cursor);
         } 
         catch (ParseError pe) {
             if (!completeStatementMode || lastLineIsBlank(line)) {
                 return splitWordsOnly(line, cursor);
             }
+            needsContinuation = true;
             throw new EOFError(pe.getBeginLine(), pe.getBeginColumn(), "Parse error");
         } 
         catch (Throwable e) {
