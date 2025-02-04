@@ -1,10 +1,20 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import lang::rascalcore::check::Checker;
-import lang::rascalcore::check::TestConfigs;
+/*
+    Perform a path analysis on the Rascal source code of a function.
+    On the fly it will report dead code.
+*/
+
+extend lang::rascalcore::check::CheckerCommon;
+ 
+import lang::rascal::\syntax::Rascal;
+
+// import String;
+
+/********************************************************************/
+/*       Return path analysis                                       */
+/********************************************************************/
 
 
-value main(){
-  return checkModules(["lang::rascalcore::compile::Examples::Tst2"], getAllSrcCompilerConfig());
-
-}
+bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
+    = true;

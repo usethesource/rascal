@@ -34,10 +34,10 @@ void checkTestSources(list[str] cmdLineArgs) {
    genCompilerConfig = getAllSrcCompilerConfig()[logPathConfig=false];
    total = 0;
    
-   modulesToCheck = [];
+   list[str] modulesToCheck = [];
    
    if("all" in cmdLineArgs){
-      modulesToCheck = getRascalModules(|std:///|);               
+      modulesToCheck = getRascalModules(|std:///|, genCompilerConfig.typepalPathConfig);               
    } else {         
       testFolders = [ //|std:///lang/rascal/tests|,
                        //REPO + "/rascal-core/lang/rascalcore/check::tests",
