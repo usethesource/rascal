@@ -13,6 +13,7 @@ import lang::rascalcore::grammar::definition::Keywords;
 
 import lang::rascal::\syntax::Rascal;
 
+import IO;
 import Node;
 import Set;
 import ListRelation;
@@ -167,6 +168,11 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         allStarts = uncloseTypeParams(allStarts);
         rel[AType,AProduction] allProductions = uncloseTypeParams(definedProductions);
 
+        allProductions = visit(allProductions){
+            case p:prod(\start(a:aadt(_,_,_)),defs) => p[def=a]
+            case \start(a:aadt(_,_,_)) => a
+        }
+
         set[AType] allLayouts = {};
         set[AType] allManualLayouts = {};
         map[AType,AProduction] syntaxDefinitions = ();
@@ -177,6 +183,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
             }
             productions = allProductions[adtType];
             syntaxDefinitions[adtType] = achoice(adtType, productions);
+            //println("syntaxDefinitions, for <adtType> add <achoice(adtType, productions)>");
 
             if(adtType.syntaxRole == layoutSyntax()){
                 if(any(p <- productions, isManualLayout(p))){
@@ -207,7 +214,8 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         definedLayout = aadt("$default$", [], layoutSyntax());
         if(isEmpty(allLayouts) || !isEmpty(allStarts)){
             syntaxDefinitions += (AType::layouts("$default$"): achoice(AType::layouts("$default$"), {prod(AType::layouts("$default$"), [])}));
-        } else
+        }
+        
         if(size(allLayouts) >= 1){
             definedLayout = getOneFrom(allLayouts);
         }
@@ -279,6 +287,7 @@ tuple[TModel, ModuleStatus] addGrammar(str qualifiedModuleName, set[str] imports
         //g = expandKeywords(g);
         g.rules += (AType::aempty():achoice(AType::aempty(), {prod(AType::aempty(),[])}));
         tm = tmlayouts(tm, definedLayout, allManualLayouts);
+        //println("ADTandGrammar:"); iprintln(g, lineLimit=10000);
         tm.store[key_grammar] = [g];
         return <tm, ms>;
     } catch TypeUnavailable(): {
