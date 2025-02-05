@@ -799,7 +799,8 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       append OUT : out("```rascal-shell");
       continue OUT;
     }
-    append out("<exec.prompt()><line>");
+    // TODO: make this work again: append out("<exec.prompt()><line>");
+    append out("rascal\><line>");
     
     output = exec.eval(line);
     str result = output["text/plain"]?"";
