@@ -637,6 +637,9 @@ public class URIResolverRegistry {
 	 * exists and overwrite was `false`.
 	 */
 	public void rename(ISourceLocation from, ISourceLocation to, boolean overwrite) throws IOException {
+		from = safeResolve(from);
+		to = safeResolve(to);
+
 		if (from.getScheme().equals(to.getScheme())) {
 			ISourceLocationOutput out = getOutputResolver(from.getScheme());
 
