@@ -57,24 +57,35 @@ public class TutorCommandExecutor {
             protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr,
                 IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
-                eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 
-                ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
-                String projectName = new RascalManifest().getProjectName(projectRoot);
-                URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-                reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+                try {
+                    eval.getConfiguration().setRascalJavaClassPathProperty(PathConfig.resolveCurrentRascalRuntimeJar().getPath());
+                }
+                catch (IOException e) {
+                    services.warning(e.getMessage(), URIUtil.rootLocation("unknown"));
+                }
 
-                for (IValue path : pcfg.getSrcs()) {
-                    eval.addRascalSearchPath((ISourceLocation) path); 
+                if (!pcfg.getSrcs().isEmpty()) {
+                    ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
+                    String projectName = new RascalManifest().getProjectName(projectRoot);
+                    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+                    reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                    reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+
+                    for (IValue path : pcfg.getSrcs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path); 
+                    }
+        
+                    for (IValue path : pcfg.getLibs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path);
+                    }
+        
+                    ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
+                    eval.addClassLoader(cl);
                 }
-    
-                for (IValue path : pcfg.getLibs()) {
-                    eval.addRascalSearchPath((ISourceLocation) path);
+                else {
+                    services.warning("No src path configured for tutor", URIUtil.rootLocation("unknown"));
                 }
-    
-                ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-                eval.addClassLoader(cl);
 
                 return eval;
             }
@@ -83,7 +94,6 @@ public class TutorCommandExecutor {
             protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
                 return (monitor instanceof IDEServices) ? (IDEServices)monitor : new TutorIDEServices(err);
             }
-            
         };
 
         var terminal = TerminalBuilder.builder()
@@ -93,8 +103,6 @@ public class TutorCommandExecutor {
             .color(false)
             .encoding(StandardCharsets.UTF_8)
             .build();
-
-        
 
         interpreter.initialize(Reader.nullReader(), outPrinter, errPrinter, new TutorIDEServices(errPrinter), terminal);
         screenshot = loadScreenShotter();

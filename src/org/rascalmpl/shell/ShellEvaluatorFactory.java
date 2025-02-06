@@ -1,7 +1,6 @@
 package org.rascalmpl.shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
@@ -36,11 +35,15 @@ public class ShellEvaluatorFactory {
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
-            rootFolder = inferProjectRoot(new File(System.getProperty("user.dir")));
+            ISourceLocation rootFolder = PathConfig.inferProjectRoot(URIUtil.rootLocation("cwd"));
+            if (rootFolder != null) {
+                configureProjectEvaluator(evaluator, rootFolder);
+            }
         }
 
-        return createEvaluator(input, stdout, stderr, monitor, rootFolder);
+        return evaluator;
     }
 
     public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
@@ -48,11 +51,16 @@ public class ShellEvaluatorFactory {
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
         Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
+        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
-        if (rootFolder != null) {
-            configureProjectEvaluator(evaluator, rootFolder);
-        } else {
-            evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+        try {
+            ISourceLocation rootFolder = PathConfig.inferProjectRoot(URIUtil.createFileLocation(fileOrFolderInProject.toString()));
+            if (rootFolder != null) {
+                configureProjectEvaluator(evaluator, rootFolder);
+            }
+        }
+        catch (URISyntaxException e) {
+            e.printStackTrace(stderr);
         }
 
         return evaluator;
@@ -71,35 +79,9 @@ public class ShellEvaluatorFactory {
             evaluator.addRascalSearchPath((ISourceLocation) path); 
         }
 
-
         ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
         evaluator.addClassLoader(cl);  
         
         Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
     }
-
-    /**
-     * Searchers for META-INF/RASCAL.MF to infer the root of a Rascal source project.
-     * If cwd has a parent which contains this META-INF/RASCAL.MF file then the
-     * location of this parent is returned. If it is not found, this function returns null.
-     * @param cwd
-     * @return
-     */
-    public static ISourceLocation inferProjectRoot(File cwd) {
-        try {
-            File current = cwd;
-            while (current != null && current.exists() && current.isDirectory()) {
-                if (new File(current, "META-INF/RASCAL.MF").exists()) {
-                    return URIUtil.createFileLocation(current.getAbsolutePath());
-                }
-                current = current.getParentFile();
-            }
-        }
-        catch (URISyntaxException e) {
-            return null;
-        }
-
-        return null;
-    }
-
 }

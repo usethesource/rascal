@@ -67,9 +67,6 @@ public class PathConfig {
     private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
     private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
     
-    /** implementation detail of communicating with the `mvn` command */
-    private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
-
     public static enum RascalConfigMode {
         INTERPRETER,
         COMPILER
@@ -379,7 +376,7 @@ public class PathConfig {
         return resolveProjectOnClasspath("rascal");
     }
 
-    private static ISourceLocation inferProjectRoot(ISourceLocation member) {
+    public static ISourceLocation inferProjectRoot(ISourceLocation member) {
         ISourceLocation current = member;
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         while (current != null && reg.exists(current) && reg.isDirectory(current)) {
@@ -805,7 +802,7 @@ public class PathConfig {
                         return null;
                     }
                 })
-                .filter(Objects::nonNull)
+                .filter(x -> x != null) // Objects.nonNull is probably from a higher java version?
                 .collect(vf.listWriter());
         }
         catch (IOException | RuntimeException e) {
