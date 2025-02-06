@@ -28,7 +28,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lucence-version>7.5.0</lucence-version>
         <maven-version>3.9.9</maven-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
@@ -575,8 +574,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
         </profile>
     </profiles>
 </project>
