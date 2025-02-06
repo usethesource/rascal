@@ -101,7 +101,7 @@ R1 = readCSV(|lib://rascal/org/rascalmpl/library/lang/csv/examples/ex1.csv|, sep
 public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @deprecated{
-use the readCSV with keyword parameters
+Use readCSV with keyword parameters
 }
 public value readCSV(loc location, map[str,str] options) {
 	return readCSV(location, header = ((options["header"]?"true") == "true"), separator = options["separator"]?",");

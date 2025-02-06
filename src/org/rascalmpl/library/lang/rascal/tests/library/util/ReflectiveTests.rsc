@@ -1,12 +1,13 @@
 module lang::rascal::tests::library::util::ReflectiveTests
 
-import util::Reflective;
-
-import util::FileSystem;
 import IO;
-import String;
 import List;
+import String;
+import util::FileSystem;
+import util::Reflective;
+import util::UUID;
     
+private loc testLibraryLoc = |memory://myTestLibrary-<uuid().authority>/|;
 
 test bool commonSuffixCommutative(list[str] a, list[str] b) = commonSuffix(a, b) == commonSuffix(b, a);
 test bool cs1() = commonSuffix([], ["c"]) == 0;
@@ -33,35 +34,35 @@ test bool moduleReflectiveWithSrc() {
 }
 
 test bool moduleExceptionOnlyTpl() {
-      writeFile(|memory://myTestLibrary/resources/rascal/$Exception.tpl|,
+      writeFile(testLibraryLoc + "/resources/rascal/$Exception.tpl",
         "$Exception.tpl (only file matters, content irrelevant)
         ");
-    pcfg = pathConfig(libs=[|memory://myTestLibrary/resources/|]
+    pcfg = pathConfig(libs=[testLibraryLoc + "/resources/"]
                      );
     return getModuleName(|project://rascal/src/org/rascalmpl/library/Exception.rsc|, pcfg) 
         == "Exception";
 }
 
 test bool moduleReflectiveOnlyTpl() {
-      writeFile(|memory://myTestLibrary/resources/rascal/util/Reflective.tpl|,
+      writeFile(testLibraryLoc + "/resources/rascal/util/Reflective.tpl",
         "util::$Reflective.tpl (only file matters, content irrelevant)
         ");
     pcfg = pathConfig(srcs = [],
-                    libs=[|memory://myTestLibrary/resources/|]
+                    libs=[testLibraryLoc + "/resources/"]
                      );
     return getModuleName(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg) 
             == "util::Reflective";
 }
 
 test bool longestModuleReflectiveOnlyTpl() {
-      writeFile(|memory://myTestLibrary1/resources/rascal/$Reflective.tpl|,
+      writeFile(testLibraryLoc + "/1/resources/rascal/$Reflective.tpl",
         "$Reflective.tpl at top level (only file matters, content irrelevant)
         ");
-      writeFile(|memory://myTestLibrary2/resources/rascal/util/Reflective.tpl|,
+      writeFile(testLibraryLoc + "/2/resources/rascal/util/Reflective.tpl",
         "util::$Reflective.tpl in subdir util (only file matters, content irrelevant)
         ");
     pcfg = pathConfig(srcs= [], 
-                      libs=[|memory://myTestLibrary1/resources/|, |memory://myTestLibrary2/resources/|]
+                      libs=[testLibraryLoc + "1/resources/", testLibraryLoc + "/2/resources/"]
                      );
     return getModuleName(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg) 
             == "util::Reflective";

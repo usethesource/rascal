@@ -339,7 +339,7 @@ anno loc Tree@\loc;
 *  Parse a string and return a parse tree, `origin` defines the original location of the input.
 *  Parse the contents of resource input and return a parse tree.
 
-The parse either throws ParseError exceptions or returns parse trees of type `Tree`. See [[ParseTree]].
+The parse either throws ParseError exceptions or returns parse trees of type ((Tree)).
 
 The `allowAmbiguity` flag dictates the behavior of the parser in the case of ambiguity. When `allowAmbiguity=true` 
 the parser will construct ambiguity clusters (local sets of parse trees where the input string is ambiguous). If it is `false`

@@ -12,11 +12,11 @@ import util::FileSystem;
 
 int singleChar(str s) = charAt(s,0);
 
-list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+list[int] makeValidSchemeChars() = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")]
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
-	
-list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")] 
+
+list[int] validSchemeChars = [singleChar("a")..singleChar("z")] + [singleChar("A")..singleChar("Z")]
 	+ [singleChar("0")..singleChar("9")] + [singleChar("+"), singleChar("-"), singleChar(".")]
 	;
 
@@ -66,10 +66,10 @@ test bool validURIFragment(loc l, str s) = l[fragment = s].uri != "";
 
 str fixPathAddition(str s) = replaceAll(s, "/", "");
 
-test bool pathAdditions1(list[str] ss) 
-  =  (|tmp:///ba| | it + t  | s <- ss, t := fixPathAddition(s), t != "" ).path 
+test bool pathAdditions1(list[str] ss)
+  =  (|tmp:///ba| | it + t  | s <- ss, t := fixPathAddition(s), t != "" ).path
   == ("/ba" | it + "/" + t  | s <- ss, t := fixPathAddition(s), t != "" );
-  
+
 test bool pathAdditions2(loc l, str s) = s == "" || (l + fixPathAddition(s)).path == ((endsWith(l.path, "/") ? l.path : l.path + "/") + fixPathAddition(s)) ;
 
 test bool testParent(loc l, str s) = s == "" || ((l + replaceAll(s, "/","_")).parent + "/") == (l[path=l.path] + "/");
@@ -113,21 +113,21 @@ test bool enclosingTest8() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src
 test bool enclosingTest9() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src|(4,10,<0,0>,<0,0>));
 
 test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLength)
-  = (abs(aOffset) < toInt(pow(2,31)) 
+  = (abs(aOffset) < toInt(pow(2,31))
   && abs(aOffset) + abs(aLength) < toInt(pow(2,31))
-  && abs(bOffset) < toInt(pow(2,31)) 
+  && abs(bOffset) < toInt(pow(2,31))
   && abs(bOffset) + abs(bLength) < toInt(pow(2,31))
-  && abs(aOffset) >= abs(bOffset) 
-  && abs(aOffset) <= abs(bOffset) + abs(bLength) 
+  && abs(aOffset) >= abs(bOffset)
+  && abs(aOffset) <= abs(bOffset) + abs(bLength)
   && abs(aOffset) + abs(aLength) <= abs(bOffset) + abs(bLength))
   ==>
   |tmp:///x.rsc|(abs(aOffset), abs(aLength),<0,0>,<0,0>) <= |tmp:///x.rsc|(abs(bOffset), abs(bLength),<0,0>,<0,0>);
-  
+
 
 // Simulate a list of 1000 lines each of length < 1000;
-public list[int] lineSizes = [ arbInt(1000) | int _ <- [1 .. 1000] ];   
+public list[int] lineSizes = [ arbInt(1000) | int _ <- [1 .. 1000] ];
 
-public int maxIndex = (0 | it + lineSizes[i] | int i <- index(lineSizes));        
+public int maxIndex = (0 | it + lineSizes[i] | int i <- index(lineSizes));
 
 // Turn an index in the above list into a line/column pair
 tuple[int line, int column] getLineAndColumn(int idx){
@@ -225,7 +225,7 @@ test bool equal1(int f, int t){
 test bool equal2(int f, int t){
     f = restrict(f); t = restrict(t);
     l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
-    return !(l1 == l2); 
+    return !(l1 == l2);
 }
 
 // Create a list of n different locations
@@ -270,20 +270,20 @@ tuple[loc, loc] makeLocsWithGap(int gap){
     sign = gap > 0 ? 1 : -1;
     absgap =  min(abs(gap), maxIndex/2);
     m1 = 1 + arbInt(maxIndex - absgap - 2); // 1 <= m1 <= maxIndex - 2
-    m2 = m1 + sign * absgap;            
-    
+    m2 = m1 + sign * absgap;
+
     llen = arbInt(m1);
     l = getLoc(m1 - llen, m1);
-    
+
     rlen = m2 == maxIndex ? 0 : arbInt(maxIndex - m2);
     r = getLoc(m2, m2 + rlen);
-    
+
     if (l.offset == r.offset && r.length == 0) {
       return <r, l>;
     }
     else if (l.offset >= r.offset) {
       return <r, l>;
-    } 
+    }
     else {
       return <l, r>;
     }
@@ -371,7 +371,7 @@ test bool isStrictlyContainedIn2(int f, int len) {
 
 test bool isStrictlyContainedIn3(int f, int len) {
     f1 = restrict(f); t1 = restrict(f1 + len);
-    l1 = getLoc(f1, t1); 
+    l1 = getLoc(f1, t1);
     return report(l1, l1, !isStrictlyContainedIn(l1, l1));
 }
 
@@ -446,6 +446,16 @@ test bool isOverlapping2(int _){
     return !isOverlapping(l1, l2);
 }
 
+test bool isOverlapping3() = isOverlapping(|unknown:///|(0, 2), |unknown:///|(0, 2));
+test bool isOverlapping4() = isOverlapping(|unknown:///|(0, 2), |unknown:///|(1, 2));
+test bool isOverlapping5() = !isOverlapping(|unknown:///|(0, 2), |unknown:///|(2, 2));
+test bool isOverlapping6() = isOverlapping(|unknown:///|(1, 2), |unknown:///|(0, 2));
+test bool isOverlapping7() = isOverlapping(|unknown:///|(1, 2), |unknown:///|(1, 2));
+test bool isOverlapping8() = isOverlapping(|unknown:///|(1, 2), |unknown:///|(2, 2));
+test bool isOverlapping9() = !isOverlapping(|unknown:///|(2, 2), |unknown:///|(0, 2));
+test bool isOverlapping10() = isOverlapping(|unknown:///|(2, 2), |unknown:///|(1, 2));
+test bool isOverlapping11() = isOverlapping(|unknown:///|(2, 2), |unknown:///|(2, 2));
+
 // cover
 
 test bool isCover1(int _){
@@ -486,7 +496,7 @@ test bool trailingSlashFile2() {
         ;
 }
 
-test bool testRelativize() 
+test bool testRelativize()
     = relativize(|file:///a/b|, |file:///a/b/c.txt|)
         == |relative:///c.txt|;
 
@@ -494,11 +504,11 @@ test bool testFailedRelativize()
     = relativize(|file:///b/b|, |file:///a/b/c.txt|)
         == |file:///a/b/c.txt|;
 
-test bool trailingSlashRelativize1() 
+test bool trailingSlashRelativize1()
     = relativize(|file:///library/|, |file:///library|)
         == relativize(|file:///library/|, |file:///library/|);
 
-test bool trailingSlashRelativize2() 
+test bool trailingSlashRelativize2()
     = relativize(|file:///library|, |file:///library/|)
         == relativize(|file:///library|, |file:///library|);
 
@@ -514,7 +524,7 @@ test bool extensionSetWithSlash()
 test bool extensionSetWithSlashAndMoreDots()
     = |file:///a.txt/b.noot/|[extension="aap"] == |file:///a.txt/b.aap/|;
 
-test bool extensionGetWithMoreDot1() 
+test bool extensionGetWithMoreDot1()
     = |file:///a.txt/b|.extension == "";
 
 test bool extensionGetWithMoreDots2()

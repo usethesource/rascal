@@ -44,7 +44,7 @@ public void bootstrapAst(loc rascalHome) {
 
 public void bootParser(Grammar gr, loc rascalHome) {
   source = newGenerate(package, rootName, gr);
-  writeFile(rascalHome + "lang/rascal/syntax/<rootName>.java", source);
+  writeFile(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/<rootName>.java", source);
 }
 
 public void bootAST(Grammar g, loc rascalHome) {
