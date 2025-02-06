@@ -132,9 +132,17 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
-    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
+@deprecated{Function will be moved to Rascal compiler}
+str makeFileName(str qualifiedModuleName, str extension = "rsc") {
+    str qnameSlashes = replaceAll(qualifiedModuleName, "::", "/");
+    int n = findLast(qnameSlashes, "/");
+    str prefix = extension == "rsc" ? "" : "$";
+    str package = extension == "rsc" ? "" : "rascal/";
+    qnameSlashes = n < 0 ? "<prefix>" + qnameSlashes : qnameSlashes[0..n] + "/<prefix>" + qnameSlashes[n+1..];
+    return "<package><qnameSlashes><isEmpty(extension) ? "" : ".<extension>">";
+}
 
+@deprecated{Function will be moved to Rascal compiler}
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
         fileLoc = dir + filePath;
@@ -146,6 +154,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found"; 
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Get the location of a named module, search for `src` in srcs and `tpl` in libs}
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="rsc");
@@ -158,6 +167,7 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     fileName = makeFileName(qualifiedModuleName, extension="tpl");
     for(loc dir <- pcfg.libs){
         fileLoc = dir + fileName;
+        
         if(exists(fileLoc)){
             return fileLoc;
         }
@@ -165,16 +175,19 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     throw "Module `<qualifiedModuleName>` not found;\n<pcfg>";
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 tuple[str,str] splitFileExtension(str path){
     int n = findLast(path, ".");
     if(n < 0) return <path, "">;
     return <path[0 .. n], path[n+1 .. ]>;
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Determine length of common suffix of list of strings}
 int commonSuffix(list[str] dir, list[str] m)
     = commonPrefix(reverse(dir), reverse(m));
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Determine length of common prefix of list of strings}
 int commonPrefix(list[str] rdir, list[str] rm){
     for(int i <- index(rm)){
@@ -189,56 +202,93 @@ int commonPrefix(list[str] rdir, list[str] rm){
     return size(rm);
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Find the module name corresponding to a given module location via its (src or tpl) location}
 str getModuleName(loc moduleLoc,  PathConfig pcfg){
     modulePath = moduleLoc.path;
-    
-    if(!endsWith(modulePath, "rsc")){
-        throw "Not a Rascal source file: <moduleLoc>";
-    }
-    <modulePathNoExt, ext> = splitFileExtension(modulePath);
-    if(modulePathNoExt[0] == "/"){
-        modulePathNoExt = modulePathNoExt[1..];
-    }
-    modulePathAsList = split("/", modulePathNoExt);
-    modulePathAsListReversed = reverse(modulePathAsList);
 
-    for(loc dir <- pcfg.srcs){
-        if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
-           moduleName = replaceFirst(modulePath, dir.path, "");
-           <moduleName, ext> = splitFileExtension(moduleName);
-           if(moduleName[0] == "/"){
-              moduleName = moduleName[1..];
-           }
-           moduleName = replaceAll(moduleName, "/", "::");
-           return moduleName;
+    rscFile = endsWith(modulePath, "rsc");
+    tplFile = endsWith(modulePath, "tpl");
+    
+    if(!( rscFile || tplFile )){
+        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
+    }
+    
+    // Find matching .rsc file in source directories
+    if(rscFile){
+        for(loc dir <- pcfg.srcs){
+            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
+                moduleName = replaceFirst(modulePath, dir.path, "");
+                <moduleName, ext> = splitFileExtension(moduleName);
+                if(moduleName[0] == "/"){
+                    moduleName = moduleName[1..];
+                }
+                moduleName = replaceAll(moduleName, "/", "::");
+                return moduleName;
+            }
         }
     }
-
+    
+    // Find longest matching .tpl file in library directories
+  
+    <modulePathNoExt, ext> = splitFileExtension(modulePath);
+    while(modulePathNoExt[0] == "/"){
+        modulePathNoExt = modulePathNoExt[1..];
+    }
+    
+    modulePathAsList = split("/", modulePathNoExt);
+    if(tplFile){
+        lastName = modulePathAsList[-1];
+        if(lastName[0] == "$"){
+            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
+        }
+    }
+    if(modulePathAsList[0] == "rascal"){
+         modulePathAsList = modulePathAsList[1..];
+    }
+    modulePathReversed = reverse(modulePathAsList);
+    
     int longestSuffix = 0;
     for(loc dir <- pcfg.libs){
         dir = dir + "rascal";
+        dpath = dir.path;
+       
+        while(dpath[0] == "/"){
+            dpath = dpath[1..];
+        }
+       
         for(loc file <- find(dir, "tpl")){
-            candidate = replaceFirst(file.path, dir.path, "");
-            candidate = replaceLast(candidate, "$", "");
-            if(candidate[0] == "/"){
+            candidate = replaceFirst(file.path, dpath, "");    
+            <candidate, ext> = splitFileExtension(candidate);
+            while(candidate[0] == "/"){
                 candidate = candidate[1..];
             }
-            <candidate, ext> = splitFileExtension(candidate);
+            
             candidateAsList = split("/", candidate);
-            n = commonPrefix(reverse(candidateAsList), modulePathAsListReversed);
-            //println("<candidateAsList>, <modulePathAsList> =\> <n>");
+            lastName = candidateAsList[-1];
+            if(lastName[0] == "$"){
+                candidateAsList = [*candidateAsList[..-1],lastName[1..]];
+            }
+            // println("cand: <candidateAsList>, modpath: <modulePathAsList>");
+            n = commonPrefix(reverse(candidateAsList), modulePathReversed);
+                        
             if(n > longestSuffix){
                 longestSuffix = n;
             }
         }
     }
+    
     if(longestSuffix > 0){
+        lastName = modulePathAsList[-1];
+        if(lastName[0] == "$"){
+            modulePathAsList = [*modulePathAsList[..-1],lastName[1..]];
+        }
         return intercalate("::", modulePathAsList[size(modulePathAsList) - longestSuffix .. ]);
     }
     throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Derive a location from a given module name for reading}
 @description{
 Given a module name, a file name extension, and a PathConfig,
@@ -288,7 +338,7 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
     return <false, |error:///|>;
 }
 
-
+@deprecated{Function will be moved to Rascal compiler}
 @synopsis{Derive a location from a given module name for writing}
 @description{
 Given a module name, a file name extension, and a PathConfig,

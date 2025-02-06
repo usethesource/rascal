@@ -1,8 +1,8 @@
 module Visiting::visiting
 
 import IO;
-import Math;
-import Benchmark;
+import util::Math;
+import util::Benchmark;
 
 data ColoredTree =
      leaf(int n)
@@ -20,7 +20,7 @@ public ColoredTree genTree(int leafChance, int minDepth,int maxDepth){
    switch(arbInt(3)){
      case 0: return red(left,right);
      case 1: return black(left,right);
-     case 2: return green(left,right);
+     default: return green(left,right);
    }
 }
 
@@ -51,29 +51,48 @@ public ColoredTree swapAll(ColoredTree t){
    };
 }
 
-public void m(){
+int work(){
+   T = genTree(15, 10, 14);
+   //println("countAll for tree T = <countAll(T)>");
+   
    N = 10;
    T = genTree(15, 10, 14);
-   println("countAll for tree T = <countAll(T)>");
-   begin1 = realTime();
-   for(int j <- [1 .. N]){
-       countAll(T);
+   //println("countAll for tree T = <countAll(T)>");
+   begin1 = cpuTime();
+   for(int _ <- [1 .. N]){
+      countAll(T);
    }
-   used1 = (realTime() - begin1);
-   println("countAll: <used1> millisec.");
+   used1 = (cpuTime() - begin1);
+   //println("countAll: <used1> millisec.");
    
-   begin2 = realTime();
-   for(int j <- [1 .. N]){
-       allBlack(T);
+   begin2 = cpuTime();
+   for(int _ <- [1 .. N]){
+      allBlack(T);
    }
-   used2 = (realTime() - begin2);
-   println("allBlack: <used2> millisec.");
+   used2 = (cpuTime() - begin2);
+   //println("allBlack: <used2> millisec.");
    
-   
-   begin3 = realTime();
-   for(int j <- [1 .. N]){
-       swapAll(T);
+   begin3 = cpuTime();
+   for(int _ <- [1 .. N]){
+      swapAll(T);
    }
-   used3 = (realTime() - begin3);
-   println("swapAll: <used3> millisec.");
+   used3 = (cpuTime() - begin3);
+   //println("swapAll: <used3> millisec.");
+   return used1 + used2 + used3;
+}
+
+void warmup(){
+   for(_ <- [0..10]){
+      work();
+   }
+}
+
+void main(){
+   warmup();
+   used = 0;
+   for(_ <- [0..100]){
+      used += work();
+   }
+
+   println("Total time: <used/1000000> millisec.");
 }

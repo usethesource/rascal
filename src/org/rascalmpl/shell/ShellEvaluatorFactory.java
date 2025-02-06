@@ -1,8 +1,9 @@
 package org.rascalmpl.shell;
 
 import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -27,8 +28,13 @@ import io.usethesource.vallang.IValueFactory;
 
 public class ShellEvaluatorFactory {
 
-    public static Evaluator getDefaultEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
-        ISourceLocation rootFolder = null;
+    public static Evaluator getDefaultEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
+        GlobalEnvironment heap = new GlobalEnvironment();
+        ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
+        IValueFactory vf = ValueFactoryFactory.getValueFactory();
+        Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
+        evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
             rootFolder = inferProjectRoot(new File(System.getProperty("user.dir")));
@@ -37,12 +43,7 @@ public class ShellEvaluatorFactory {
         return createEvaluator(input, stdout, stderr, monitor, rootFolder);
     }
 
-    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor) {
-        ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);
-        return createEvaluator(input, stdout, stderr, monitor, rootFolder);
-    }
-
-    private static Evaluator createEvaluator(InputStream input, OutputStream stdout, OutputStream stderr, IRascalMonitor monitor, ISourceLocation rootFolder) {
+    public static Evaluator getDefaultEvaluatorForLocation(File fileOrFolderInProject, Reader input, PrintWriter stdout, PrintWriter stderr, IRascalMonitor monitor) {
         GlobalEnvironment heap = new GlobalEnvironment();
         ModuleEnvironment root = heap.addModule(new ModuleEnvironment(ModuleEnvironment.SHELL_MODULE, heap));
         IValueFactory vf = ValueFactoryFactory.getValueFactory();

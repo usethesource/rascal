@@ -19,9 +19,10 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Attribute;
-import org.fusesource.jansi.Ansi.Color;
+
+import org.jline.jansi.Ansi;
+import org.jline.jansi.Ansi.Attribute;
+import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.values.RascalValueFactory;
@@ -941,9 +942,9 @@ public class TreeAdapter {
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 		if (isAppl(tree)) {
 			String s = ProductionAdapter.getCategory(getProduction(tree));
-			if (s == category)
+			if (s.equals(category)) {
 				writer.append(tree);
-			else {
+			} else {
 				IList z = getArgs(tree);
 				for (IValue q : z) {
 					if (!(q instanceof IConstructor))

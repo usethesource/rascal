@@ -32,6 +32,7 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.ast.Parameters;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.exceptions.ImplementationError;
+import org.rascalmpl.exceptions.RascalStackOverflowError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.interpreter.IEvaluator;
@@ -542,12 +543,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				catch (Failure | MatchFailed e) {
 				    throw RuntimeExceptionFactory.callFailed(eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
 				}
+				catch (StackOverflowError e) {
+					// this should not use so much stack as to trigger another StackOverflowError
+					throw new RascalStackOverflowError(this, eval.getCurrentEnvt());
+				}
 				return res;
 			}
-			catch (StackOverflowError e) {
-				e.printStackTrace();
-				throw RuntimeExceptionFactory.stackOverflow(this, eval.getStackTrace());
-			}
+			finally {}
+			
 		}
 
 		@Override
@@ -1833,10 +1836,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				}				
 				return new TypedMultiVariablePattern(eval, this, type, arg.getName(), bindTypeParameters);
 			}
+
 			if(arg.hasQualifiedName()){
 				return new MultiVariablePattern(eval, this, arg.getQualifiedName());
 			}
-			throw new ImplementationError(null);
+
+			throw new UnsupportedOperation("splice operator outside of list or set", this);
 		}
 
 		@Override
@@ -1872,7 +1877,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if(arg.hasQualifiedName()){
 				return arg.getQualifiedName().typeOf(env, eval, instantiateTypeParameters);
 			}
-			throw new ImplementationError(null);
+
+			return arg.typeOf(env, eval, instantiateTypeParameters);
 		}
 
 	}
@@ -2766,8 +2772,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.setCurrentAST(this);
 			__eval.notifyAboutSuspension(this);			
 
-			java.util.List<org.rascalmpl.ast.Expression> elements = this
-					.getElements();
+			var elements = this.getElements();
 
 			IValue[] values = new IValue[elements.size()];
 			Type[] types = new Type[elements.size()];
