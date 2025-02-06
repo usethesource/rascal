@@ -54,8 +54,7 @@ public class TutorCommandExecutor {
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         interpreter = new RascalInterpreterREPL() {
             @Override
-            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr,
-                IDEServices services) {
+            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
 
                 try {
