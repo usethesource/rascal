@@ -23,7 +23,7 @@ private map[int, int] distance =();
 private map[int, int] pred = ();
 private set[int] settled = {};
 //private set[int] Q = {};
-private PriorityQueue Q = priorityQueue();
+private PriorityQueue Q = priorityQueue([], -1);
 private int MAXDISTANCE = 10000;
 
 @doc{Shortest path between pair of nodes}
@@ -37,7 +37,7 @@ public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
     pred = ();
     settled = {};
     // Q = {From};
-    Q = priorityQueue(0, From);
+    Q = priorityQueue([], From);
     
  //   while (Q != {}){
     while(!isEmpty(Q)){
@@ -75,7 +75,6 @@ private int extractMinimum()
            min = q;
         }
      }
-     Q = Q - min;
      return min;
 }
   
@@ -105,35 +104,37 @@ public rel[int,int] Graph1 = {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7
                
 public rel[int,int] randomGraph(int N, list[int] interval)
 {
-	return {<getOneFrom(interval), getOneFrom(interval)> | int n <- [1 .. N]};
+	return {<getOneFrom(interval), getOneFrom(interval)> | int _ <- [1 .. N]};
 }
 
 public void measure1(rel[int,int] Graph1){
 
     G = Graph1;
 	/* warm up for JVM */
-	for(int i <- [1 .. 50])
+	for(int _ <- [1 .. 50])
 		shortestPathPair(G, 1, 0);
 
     jtime = 0.0; jmin = 10000.0; jmax = 0.0;
     rtime = 0.0; rmin = 10000.0; rmax = 0.0;
-    for(int i <- [1 .. 20]){
- 		time1 = currentTimeMillis(); P1 = shortestPathPair(G, 1, 0); time2 = currentTimeMillis();
-                                     P2 = shortestPathPair1(G, 1, 0); time3 = currentTimeMillis();
+    for(int _ <- [1 .. 100]){
+ 		time1 = getMilliTime(); P1 = shortestPathPair(G, 1, 0); time2 = getMilliTime();
+                              P2 = shortestPathPair1(G, 1, 0); time3 = getMilliTime();
                               
  		d1 = time2 - time1; jtime = jtime + d1; jmin = min(d1, jmin); jmax = max(d1, jmax);
  		d2 = time3 - time2; rtime = rtime + d2; rmin = min(d2, rmin); rmax = max(d2, rmax);
  		println("Java version:   <P1> in <d1> millis");
- 		println("Rascal version: <P1> in <d2> millis");
+ 		println("Rascal version: <P2> in <d2> millis");
  	}
- 	println("Java average: ", jtime/20, " [<jmin> .. <jmax>]");
- 	println("Rascal average: ", rtime/20, " [<rmin> .. <rmax>]");
- 	
+ 	println("Java average: <jtime/20> [<jmin> .. <jmax>]");
+ 	println("Rascal average: <rtime/20> [<rmin> .. <rmax>]");
+ 	println("Rascal/java ratio: <rtime/jtime>");
+   println("Total Java time: <jtime>");
+   println("Total Rascal time: <rtime>");   
 }
 
 public void measure2(rel[int,int] Graph2)
 {
-   for(int i <- [1 .. 2000])
+   for(int _ <- [1 .. 2000])
      shortestPathPair1(Graph2, 1, 0);
 }
 
@@ -142,3 +143,5 @@ public void measure(){
 	Graph2 = randomGraph(10000, [0 .. 50]);
 	println("Graph2 -------"); measure1(Graph2);
 }
+
+void main() = measure();

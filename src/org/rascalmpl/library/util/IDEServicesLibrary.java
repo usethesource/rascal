@@ -16,8 +16,8 @@ import java.util.function.Function;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
-import org.rascalmpl.repl.REPLContentServer;
-import org.rascalmpl.repl.REPLContentServerManager;
+import org.rascalmpl.repl.http.REPLContentServer;
+import org.rascalmpl.repl.http.REPLContentServerManager;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.functions.IFunction;

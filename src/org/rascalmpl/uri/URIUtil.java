@@ -157,6 +157,16 @@ public class URIUtil {
             throw y;
         }
     }
+	/**
+     * Non throwing variant of <a>createFromURI</a>, in case of scenarios where input can be trusted.
+     */
+	public static ISourceLocation assumeCorrectLocation(String uri) {
+		try {
+			return createFromURI(uri);
+		} catch (URISyntaxException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
 	
 	public static ISourceLocation correctLocation(String scheme, String authority, String path) {
 		try {

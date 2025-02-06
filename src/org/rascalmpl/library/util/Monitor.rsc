@@ -226,3 +226,14 @@ test bool unfinishedLinesAtTheEndTest() {
   jobEnd("job");
   return true;
 }
+
+// repo of issue #2138
+test bool printLongUnfinishedLine() {
+  jobStart("job", totalWork=1);
+  singleString = iprintToString(("" | it + "ab" | i <- [0..1000000])); // avoid concat tree printing in chunks
+  println(singleString);
+  jobStep("job", "prog", work=1);
+  println("Done");
+  jobEnd("job");
+  return true;
+}

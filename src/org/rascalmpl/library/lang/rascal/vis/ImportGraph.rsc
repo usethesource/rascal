@@ -26,6 +26,7 @@ import util::FileSystem;
 import util::IDEServices;
 import IO;
 import analysis::graphs::Graph;
+import Set;
 
 @synopsis{If `projectName` is an open project in the current IDE, the visualize its import/extend graph.}
 void importGraph(str projectName, bool hideExternals=true) {
@@ -44,11 +45,52 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
     m = getProjectModel(pcfg.srcs);
     
     // let's start with a simple graph and elaborate on details in later versions
-    g = { <from, "I", to> | <from, to> <- m.imports, hideExternals ==> to notin m.external}
-      + { <from, "E", to> | <from, to> <- m.extends, hideExternals ==> to notin m.external}
-      + { <"_", "_", to>  |  to <- top(m.imports + m.extends) } // pull up the top modules
-      + { <from, "x", "x">  | from <- bottom(m.imports + m.extends), hideExternals ==> from notin m.external} // pull the bottom modules down.
+    g = { <from, to> | <from, to> <- sort(m.imports), hideExternals ==> to notin m.external}
+      + { <from, to> | <from, to> <- sort(m.extends), hideExternals ==> to notin m.external}
+      + { <"_" , to> |  to <- top(m.imports + m.extends) } // pull up the top modules
       ;
+
+    list[str] nodeClass(str n) = [
+        *["external" | n in    m.external],
+        *["project"  | n notin m.external]
+    ];
+    
+    gClosed = g+;
+
+    list[str] edgeClass(str from, str to) = [
+        *["extend"     | <from, to> in m.extends],
+        *["import"     | <from, to> in m.imports],
+        *["transitive" | <from, to> in g o gClosed, <from, from> notin gClosed, <to,to> notin gClosed],
+        *["cyclic"     | <from, from> in gClosed]
+    ];
+
+    styles = [
+        cytoStyleOf( 
+            selector=\edge(equal("source", "_")),
+            style=defaultEdgeStyle()[visibility="hidden"]
+        ),
+
+        cytoStyleOf( 
+            selector=\node(id("_")),
+            style=defaultNodeStyle()[visibility="hidden"]
+        ),
+
+        cytoStyleOf(
+            selector=\edge(className("extend")),
+            style=defaultEdgeStyle()[\line-style="dashed"] 
+        ),
+
+        cytoStyleOf(
+            selector=\edge(className("transitive")),               
+            style=defaultEdgeStyle()[opacity=".25"][\line-opacity="0.25"]  
+        )
+        ,
+
+        cytoStyleOf(
+            selector=\edge(className("cyclic")),               
+            style=defaultEdgeStyle()[opacity="1"][\line-opacity="1"][\width=10]  
+        )
+    ];
 
     loc modLinker(str name) {
         if (loc x <- m.files[name])
@@ -59,7 +101,17 @@ void importGraph(PathConfig pcfg, bool hideExternals=true) {
 
     default loc modLinker(value _) = |nothing:///|;
 
-    showInteractiveContent(graph(g, \layout=defaultDagreLayout(), nodeLinker=modLinker), title="Rascal Import/Extend Graph");
+    cfg = cytoGraphConfig(
+        \layout=defaultDagreLayout()[ranker=\network-simplex()],
+        styles=styles,
+        title="Rascal Import/Extend Graph",
+        nodeClassifier=nodeClass,
+        edgeClassifier=edgeClass,
+        nodeLinker=modLinker,
+        edgeStyle=defaultEdgeStyle()[\curve-style=taxi()]
+    );
+
+    showInteractiveContent(graph(g, cfg=cfg), title=cfg.title);
 }
 
 @synopsis{Container for everything we need to know about the modules in a project to visualize it.}
