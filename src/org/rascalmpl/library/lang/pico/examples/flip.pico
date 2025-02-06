@@ -1,0 +1,21 @@
+begin
+  declare
+    a : natural,
+    b : natural;
+    a := 0;
+    b := 1;
+    if a then
+      % comment 1 %
+      b := a;
+      z := z
+    else 
+      % comment 2 %
+      a := b;
+      if b then
+         z := a
+      else
+         z := b
+      fi;
+      z := z
+    fi
+end
