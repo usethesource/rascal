@@ -1,9 +1,11 @@
 package org.rascalmpl.library.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -16,7 +18,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -43,33 +44,34 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class PathConfig {
-	
-	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private final TypeFactory tf = TypeFactory.getInstance();
-	private final TypeStore store = new TypeStore();
-	
-	// WARNING: these definitions must reflect the definitions in util::Reflective.rsc
-	private final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
-	private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
-	
-	private final List<ISourceLocation> srcs;		// List of locations to search for source files
-	private final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
-	private final List<ISourceLocation> ignores; 	// List of (library) locations to ignore while compiling
-	private final List<ISourceLocation> javaCompilerPath;     // List of (library) locations to use for the compiler path of generated parsers
-	private final List<ISourceLocation> classloaders;     // List of (library) locations to use to bootstrap classloaders from
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private final TypeFactory tf = TypeFactory.getInstance();
+    private final TypeStore store = new TypeStore();
     
-	private final ISourceLocation bin;  // Global location for derived files outside projects or libraries
+    // WARNING: these definitions must reflect the definitions in `util::Reflective`
+    private final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
+    private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
+    
+    private final List<ISourceLocation> srcs;		
+    private final List<ISourceLocation> libs;     
+    private final ISourceLocation bin;  
+    private final List<ISourceLocation> ignores; 	
+    private final ISourceLocation generatedSources;     
+    private final List<IConstructor> messages;     
+    
 
-	private static ISourceLocation defaultStd;
-	private static List<ISourceLocation> defaultIgnores;
-	private static List<ISourceLocation> defaultJavaCompilerPath;
-	private static List<ISourceLocation> defaultClassloaders;
-	private static ISourceLocation defaultBin;
+    // defaults are shared here because they occur in different use places.
+    private static final List<ISourceLocation> defaultIgnores = Collections.emptyList();
+    private static final ISourceLocation defaultGeneratedSources = URIUtil.unknownLocation();
+    private static final List<IConstructor> defaultMessages = Collections.emptyList();
+    private static final ISourceLocation defaultBin = URIUtil.unknownLocation();
+    private static final List<ISourceLocation> defaultLibs = Collections.emptyList();
     
+    /** implementation detail of communicating with the `mvn` command */
     private static final String WINDOWS_ROOT_TRUSTSTORE_TYPE_DEFINITION = "-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT";
 
-	public static enum RascalConfigMode {
-        INTERPETER,
+    public static enum RascalConfigMode {
+        INTERPRETER,
         COMPILER
     }
     
@@ -361,9 +363,8 @@ public class PathConfig {
                         loc = vf.sourceLocation(URIUtil.fromURL(url));
                         loc = URIUtil.getParentLocation(URIUtil.getParentLocation(loc));
                     }
-
-                    
-                    return loc;
+     
+                    return MavenRepositoryURIResolver.mavenize(loc);
                 }
             }
             catch (IOException | URISyntaxException e) {
@@ -477,7 +478,7 @@ public class PathConfig {
                 libsWriter.append(resolveCurrentRascalRuntimeJar());
             }
             catch (IOException e) {
-                messages.append(Messages.error(e.getMessage(), manifestRoot));
+                messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
             }
         }
 
@@ -490,7 +491,7 @@ public class PathConfig {
         ISourceLocation rascalProject = null;
 
         try {
-            IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot, messages);
+            IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
         
             // This processes Rascal libraries we can find in maven dependencies,
             // adding them to libs or srcs depending on which mode we are in; interpreted or compiled.
@@ -636,7 +637,8 @@ public class PathConfig {
 
         try {
             addRascalToSourcePath(projectName, srcsWriter);
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
         }
 
@@ -781,9 +783,8 @@ public class PathConfig {
      * if there is such a file.
      * @param manifestRoot
      * @return
-     * @throws IOException 
      */
-	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot, IListWriter messages) {
+	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
         try {
             String mavenDependencyPlugin = "org.apache.maven.plugins:maven-dependency-plugin:3.8.0";
             // First, make sure that maven-dependency-plugin is downloaded when not available
@@ -801,7 +802,6 @@ public class PathConfig {
                         return MavenRepositoryURIResolver.mavenize(URIUtil.createFileLocation(elem));
                     }
                     catch (URISyntaxException e) {
-                        messages.append(Messages.warning(e.getMessage(), getPomXmlLocation(manifestRoot));
                         return null;
                     }
                 })
@@ -809,7 +809,6 @@ public class PathConfig {
                 .collect(vf.listWriter());
         }
         catch (IOException | RuntimeException e) {
-            messages.append(Messages.warning(e.getMessage(), getPomXmlLocation(manifestRoot)));
             return vf.list();
         }
     }
