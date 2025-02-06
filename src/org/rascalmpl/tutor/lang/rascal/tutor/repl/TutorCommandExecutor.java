@@ -165,7 +165,6 @@ public class TutorCommandExecutor {
         return b.toString();
     }
 
-
     public void reset() {
         interpreter.cancelRunningCommandRequested();
         interpreter.cleanEnvironment();
@@ -186,7 +185,7 @@ public class TutorCommandExecutor {
                 var img = ((IImageCommandOutput)replResult).asImage();
                 result.put(img.mimeType(), uuencode(img));
             }
-            else if (replResult instanceof IWebContentOutput) {
+            else if (replResult instanceof IWebContentOutput && screenshot != null) {
                 var webResult = (IWebContentOutput)replResult;
                 try {
                     String pngImage = screenshot.takeScreenshotAsBase64PNG(webResult.webUri().toASCIIString());
