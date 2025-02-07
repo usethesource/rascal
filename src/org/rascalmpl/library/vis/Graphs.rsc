@@ -353,8 +353,10 @@ data CytoCurveStyle
     | \unbundled-bezier()
     | straight()
     | segments()
+    | \round-segments()
     | \straight-triangle()
     | taxi()
+    | \round-taxi()
     | haystack()
     ;
 
@@ -378,6 +380,7 @@ CytoStyle defaultNodeStyle()
         visibility        = "visible", /* hidden, collapse */
         opacity           = "1",
         width             = "label",
+        height            = "label",
         padding           = "10pt",
         \background-color = "blue",
         color             = "white",
@@ -400,7 +403,7 @@ CytoStyle defaultEdgeStyle()
         opacity             = "1",
         \line-opacity       = "1",
         width               = 3,
-        \line-style          = "solid", /* dotted, dashed */
+        \line-style         = "solid", /* dotted, dashed */
         \color              = "red",
         \line-color         = "black",
         \target-arrow-color = "black",
@@ -423,6 +426,7 @@ data CytoStyle
         str visibility          = "visible", /* hidden, collapse */
         str opacity             = "1",
         str width               = "label",
+        str height              = "label",
         str padding             = "10pt",
         str color               = "white",
         str \text-opacity       = "1",
@@ -531,6 +535,7 @@ data CytoLayoutName
     | breadthfirst()
     | cose()
     | dagre()
+    | klay()
     ;
 
 @synopsis{An alias for dagre layout for documentation purposes.}
@@ -567,7 +572,11 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
     | dagreLayout(
         CytoLayoutName name = dagre(),
         num spacingFactor = .1,
+        num nodeSep = 1000,
         DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
+    )
+    | klayLayout (
+        CytoLayoutName name = klay()
     )
     ;
 
@@ -622,6 +631,10 @@ CytoLayout defaultDagreLayout(num spacingFactor=1)
         ranker=\network-simplex()
     );
 
+CytoLayout defaultKlayLayout()
+    = klayLayout(
+        name=CytoLayoutName::klay()
+    );
 
 @synopsis{this is the main server generator for any graph value}
 @description{
@@ -666,6 +679,8 @@ private HTMLElement plotHTML()
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.28.1/cytoscape.umd.js"),
             script([], src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"),
             script([], src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/klayjs@0.4.1/klay.min.js"),
+            script([], src="https://cdn.jsdelivr.net/npm/cytoscape-klay@3.1.4/cytoscape-klay.min.js"),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
