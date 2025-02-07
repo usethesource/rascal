@@ -359,7 +359,7 @@ public class PathConfig {
                         System.err.println("Found target location for: " + projectName);
                     }
      
-                    return MavenRepositoryURIResolver.mavenize(loc);
+                    return /*MavenRepositoryURIResolver.mavenize(*/loc;
                 }
             }
             catch (IOException | URISyntaxException e) {
