@@ -1,7 +1,6 @@
 package org.rascalmpl.tutor.lang.rascal.tutor.repl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,7 +10,6 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -38,7 +36,6 @@ import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -141,28 +138,6 @@ public class TutorCommandExecutor {
         }
 
         return current;
-    }
-
-    private String javaCompilerPathAsString(IList javaCompilerPath) {
-        StringBuilder b = new StringBuilder();
-
-        for (IValue elem : javaCompilerPath) {
-            ISourceLocation loc = (ISourceLocation) elem;
-
-            if (b.length() != 0) {
-                b.append(File.pathSeparatorChar);
-            }
-
-            // this is the precondition
-            assert loc.getScheme().equals("file");
-
-            // this is robustness in case of experimentation in pom.xml
-            if ("file".equals(loc.getScheme())) {
-                b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
-            }
-        }
-
-        return b.toString();
     }
 
     public void reset() {

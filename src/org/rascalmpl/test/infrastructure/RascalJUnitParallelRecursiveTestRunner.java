@@ -174,7 +174,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             assert results.isEmpty();
         }
         finally {
-            RascalJUnitTestRunner.getCommonMonitor().endAllJobs();
+            RascalJunitConsoleMonitor.getInstance().endAllJobs();
         }
     }
 
@@ -301,7 +301,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
             
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJUnitTestRunner.getCommonMonitor());
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJunitConsoleMonitor.getInstance());
             stdout = new PrintWriter(evaluator.getOutPrinter());
             stderr = new PrintWriter(evaluator.getErrorPrinter());
 

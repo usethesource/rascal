@@ -1,12 +1,9 @@
 package org.rascalmpl.library.util;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -359,6 +356,7 @@ public class PathConfig {
                         // this is typically a target folder
                         loc = vf.sourceLocation(URIUtil.fromURL(url));
                         loc = URIUtil.getParentLocation(URIUtil.getParentLocation(loc));
+                        System.err.println("Found target location for: " + projectName);
                     }
      
                     return MavenRepositoryURIResolver.mavenize(loc);
