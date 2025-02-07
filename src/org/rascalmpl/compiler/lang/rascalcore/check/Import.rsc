@@ -227,10 +227,10 @@ tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
     }
     unsatisfied = libDependsOn - dependentsProvide;
     if(isEmpty(unsatisfied)){
-        println("isCompatibleBinaryLibrary <libName>: satisfied");
+        //println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <[], ms>;
     } else {
-        println("isCompatibleBinaryLibrary, <libName> unsatisfied: <unsatisfied>");
+        //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <unsatisfied>");
         incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
         return <toList(incompatibleModules), ms>;
     }
@@ -246,31 +246,6 @@ str getModuleFromLogical(loc l){
     return res;
 }
 
-// // Is what library module lib provides compatible with all uses in the modules libUsers?
-// tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
-
-//     libName = lib.modelName;
-//     set[loc] libProvides = domain(lib.logical2physical);
-//     set[str] libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
-//     set[loc] usersRequire = {};
-//     for(m <- libUsers){
-//        <found, tm, ms> = getTModelForModule(m, ms);
-//        if(found){
-//            usersRequire += domain(tm.logical2physical);
-//        }
-//     }
-//     usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
-
-//     if(usersRequireFromLib <= libProvides){
-//         //println("isCompatibleBinaryLibrary <libName>: satisfied");
-//         return <[], ms>;
-//     } else {
-//         println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
-//         unsatisfied = usersRequireFromLib - libProvides;
-//         incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
-//         return <toList(incompatibleModules), ms>;
-//     }
-// }
 
 tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[str] importsAndExtends, ModuleStatus ms){
     moduleName = tm.modelName;
