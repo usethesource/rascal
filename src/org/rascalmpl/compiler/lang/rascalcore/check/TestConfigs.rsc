@@ -213,16 +213,31 @@ public RascalCompilerConfig getPHPCompilerConfig(){
 // ---- VSCode-----------------------------------------------------------------
 
 public PathConfig getVSCodePathConfig() {
+    VS_RASCAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.41.0-RC10/rascal-0.41.0-RC10.jar!/|;
+    VS_TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.15.1-SNAPSHOT/typepal-0.15.1-SNAPSHOT.jar!/|;
+    VS_RASCAL_CORE_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal-core/0.12.14-SNAPSHOT/rascal-core-0.12.14-SNAPSHOT.jar!/|;
     return 
-        pathConfig(
-        ignores=[],
-        javaCompilerPath=[],
-        bin=|target://rascal-core|,
-        classloaders=[],
-        libs=[
-            |lib://rascal|,
-            |target://typepal|   ],
-        srcs=[|file:///Users/paulklint/git/rascal-core/src/org/rascalmpl/core/library|]);
+    pathConfig(
+  ignores=[],
+  resources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
+  javaCompilerPath=[],
+  bin=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
+  classloaders=[],
+  generatedSources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/generated-sources|,
+  libs=[
+    |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.41.0-RC10/rascal-0.41.0-RC10.jar!/|,
+    |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal-core/0.12.13/rascal-core-0.12.13.jar!/|,
+    |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.15.0/typepal-0.15.0.jar!/|
+  ],
+  srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal/|]);
+        // pathConfig(
+        // bin = REPO + "compiled-rascal/target/classes",
+        // generatedSources = REPO + "compiled-rascal/src/main/java",
+        // generatedTestSources = REPO + "compiled-rascal/src/test/java/",
+        // resources = REPO + "compiled-rascal/src/main/java",
+        // testResources = REPO + "compiled-rascal/src/test/java",
+        // libs=[VS_RASCAL_JAR, VS_TYPEPAL_JAR, VS_RASCAL_CORE_JAR],
+        // srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal|]);
 }
 
 public RascalCompilerConfig getVSCodeCompilerConfig(){
