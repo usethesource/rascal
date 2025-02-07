@@ -344,10 +344,8 @@ ModuleStatus rascalTModelForLocs(
         for(str mname <- topModuleNames){
             ms.messages[mname] = { error("During type checking: <msg>", msg.at) };
         }
-    } catch rascalBinaryNeedsRecompilation(str txt): {
-        for(str mname <- topModuleNames){
-            ms.messages[mname] = { error(txt, |unknown:///|) };
-        }
+    } catch rascalBinaryNeedsRecompilation(str moduleName, Message msg): {
+        ms.messages[moduleName] = { msg };
     }
 
     jobEnd(jobName);
