@@ -12,7 +12,6 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
@@ -23,13 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.jline.terminal.impl.DumbTerminal;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TestEvaluator;
@@ -53,24 +50,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
-    private static class InstanceHolder {
-		final static IRascalMonitor monitor;
-        static {
-            try {
-                // jline is to smart, it intersects with junit runners that also interact with the stream
-                // so instead of that we direct all the messages to stderr, and disable any smart stuff
-                monitor = IRascalMonitor.buildConsoleMonitor(new DumbTerminal(InputStream.nullInputStream(), System.out));
-            }
-            catch (IOException e1) {
-                throw new IllegalStateException("Could not create a terminal representation");
-            }
-        }
-    }
-   
-   	public static IRascalMonitor getCommonMonitor() {
-	    return InstanceHolder.monitor;
-   	}
-
     private static Evaluator evaluator;
     private static GlobalEnvironment heap;
     private static ModuleEnvironment root;
@@ -84,7 +63,7 @@ public class RascalJUnitTestRunner extends Runner {
         try {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, getCommonMonitor());
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJunitConsoleMonitor.getInstance());
         
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
