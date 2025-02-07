@@ -137,6 +137,7 @@ public class URIResolverRegistry {
 	}
 
 	private Object constructService(String name) throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, SecurityException {
+		System.err.println("Constructing " + name);
 		Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
 
 		try {

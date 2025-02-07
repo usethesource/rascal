@@ -247,9 +247,12 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             boolean isFileInRepo = loc.getScheme().equals("file") && relative.getScheme().equals("relative");  
 
             if (isFileInRepo) { 
-                String groupId    = URIUtil.getParentLocation(URIUtil.getParentLocation(URIUtil.getParentLocation(relative))).getPath().substring(1).replaceAll("/", ".");
-                String artifactId = URIUtil.getLocationName(URIUtil.getParentLocation(URIUtil.getParentLocation(relative)));
-                String version    = URIUtil.getLocationName(URIUtil.getParentLocation(relative));
+                relative = URIUtil.getParentLocation(relative);
+                String version    = URIUtil.getLocationName(relative);
+                relative = URIUtil.getParentLocation(relative);
+                String artifactId = URIUtil.getLocationName(relative);
+                relative = URIUtil.getParentLocation(relative);
+                String groupId    = relative.getPath().substring(1).replaceAll("/", ".");
             
                 return make(groupId, artifactId, version, "");
             }
