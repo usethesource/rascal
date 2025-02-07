@@ -150,13 +150,13 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
                 }
                 if(mloc.extension != "rsc" || isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)) throw "No src or library module 1"; //There is only a tpl file available
             } catch value _:{
-                <incompatible, ms> = isCompatibleBinaryLibrary(tm, domain(localImportsAndExtends), ms);
+                <incompatible, ms> = isCompatibleBinaryLibrary(tm, ms);
                 if(!isEmpty(incompatible)){
-                    txt = "Recompilation or reconfiguration needed: binary module `<qualifiedModuleName>` uses incompatible modules <intercalateAnd(incompatible)>";
+                    txt = "Recompilation or reconfiguration needed: binary module `<qualifiedModuleName>` uses incompatible module(s) <intercalateAnd(incompatible)>";
                     msg = error(txt, mloc);
                     tm.messages += [msg];
                     ms.messages[qualifiedModuleName] ? {} += { msg };
-                    throw rascalBinaryNeedsRecompilation(txt);
+                    throw rascalBinaryNeedsRecompilation(qualifiedModuleName, msg);
                 } else {
                     allImportsAndExtendsValid = true;
                     if(ms.compilerConfig.verbose){
@@ -211,38 +211,66 @@ ModuleStatus getInlineImportAndExtendGraph(Tree pt, RascalCompilerConfig ccfg){
     return completeModuleStatus(ms);
 }
 
-// Example: |rascal+function:///util/Math/round$d80e373d64c01979| ==> util::Math
-str getModuleFromLogical(loc l){
-    i = findLast(l.path[1..], "/");
-    res = i >= 0 ? l.path[1..i+1] : l.path[1..];
-    return replaceAll(res, "/", "::");
-}
-
-// Is what library module lib provides compatible with all uses in the modules libUsers?
-tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
-
+// Is binary library module compatible with its dependencies (originating from imports and extends)?
+tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatus ms){
     libName = lib.modelName;
-    set[loc] libProvides = domain(lib.logical2physical);
-    set[str] libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
-    set[loc] usersRequire = {};
-    for(m <- libUsers){
+    set[loc] libLogical = domain(lib.logical2physical);
+    set[loc] libDefines = { l | l <- libLogical, getModuleFromLogical(l) == libName };
+    set[loc] libDependsOn = libLogical - libDefines;
+    set[str] libDependsOnModules = { getModuleFromLogical(l) | l <- libDependsOn };
+    set[loc] dependentsProvide = {};
+    for(m <- libDependsOnModules){
        <found, tm, ms> = getTModelForModule(m, ms);
        if(found){
-           usersRequire += domain(tm.logical2physical);
+           dependentsProvide += domain(tm.logical2physical);
        }
     }
-    usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
-
-    if(usersRequireFromLib <= libProvides){
-        //println("isCompatibleBinaryLibrary <libName>: satisfied");
+    unsatisfied = libDependsOn - dependentsProvide;
+    if(isEmpty(unsatisfied)){
+        println("isCompatibleBinaryLibrary <libName>: satisfied");
         return <[], ms>;
     } else {
-        //println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
-        unsatisfied = usersRequireFromLib - libProvides;
+        println("isCompatibleBinaryLibrary, <libName> unsatisfied: <unsatisfied>");
         incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
         return <toList(incompatibleModules), ms>;
     }
 }
+
+// Example: |rascal+function:///util/Math/round$d80e373d64c01979| ==> util::Math
+// Example: |rascal+module:///lang/rascal/syntax/Rascal| -> lang::rascal::syntax::Rascal
+str getModuleFromLogical(loc l){
+    i = findLast(l.path[1..], "/");
+    res = (l.scheme == "rascal+module" || i < 0) ? l.path[1..] : l.path[1..i+1];
+    res = replaceAll(res, "/", "::");
+    //println("getModuleFromLogical: <l> -\> <res>");
+    return res;
+}
+
+// // Is what library module lib provides compatible with all uses in the modules libUsers?
+// tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, set[str] libUsers, ModuleStatus ms){
+
+//     libName = lib.modelName;
+//     set[loc] libProvides = domain(lib.logical2physical);
+//     set[str] libProvidesModules = { getModuleFromLogical(l) | l <- libProvides };
+//     set[loc] usersRequire = {};
+//     for(m <- libUsers){
+//        <found, tm, ms> = getTModelForModule(m, ms);
+//        if(found){
+//            usersRequire += domain(tm.logical2physical);
+//        }
+//     }
+//     usersRequireFromLib = { l | l <- usersRequire, getModuleFromLogical(l) in libProvidesModules };
+
+//     if(usersRequireFromLib <= libProvides){
+//         //println("isCompatibleBinaryLibrary <libName>: satisfied");
+//         return <[], ms>;
+//     } else {
+//         println("isCompatibleBinaryLibrary, <libName> unsatisfied: <usersRequireFromLib - libProvides>");
+//         unsatisfied = usersRequireFromLib - libProvides;
+//         incompatibleModules = { split("/", u.path)[1] | u <- unsatisfied };
+//         return <toList(incompatibleModules), ms>;
+//     }
+// }
 
 tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[str] importsAndExtends, ModuleStatus ms){
     moduleName = tm.modelName;
