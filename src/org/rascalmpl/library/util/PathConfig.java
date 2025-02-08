@@ -356,10 +356,10 @@ public class PathConfig {
                         // this is typically a target folder
                         loc = vf.sourceLocation(URIUtil.fromURL(url));
                         loc = URIUtil.getParentLocation(URIUtil.getParentLocation(loc));
-                        System.err.println("Found target location for: " + projectName);
                     }
      
-                    return /*MavenRepositoryURIResolver.mavenize(*/loc;
+                    // can not mavenize here, that would cause a circular static initializer race.
+                    return loc;
                 }
             }
             catch (IOException | URISyntaxException e) {
