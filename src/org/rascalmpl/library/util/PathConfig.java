@@ -466,6 +466,14 @@ public class PathConfig {
         IListWriter srcsWriter = vf.listWriter();
         IListWriter messages = vf.listWriter();
         
+        try {
+            // try to resolve cwd:/// and home:// and such to be able to find the folder name later.
+            manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
+        }
+        catch (IOException e) {
+            messages.append(Messages.error(e.getMessage(), manifestRoot));
+        }
+
         if (!projectName.equals("rascal")) {
             // always add the standard library but not for the project named "rascal"
             // which contains the source of the standard library
@@ -631,7 +639,7 @@ public class PathConfig {
         }
 
         try {
-            addRascalToSourcePath(projectName, srcsWriter);
+            addRascalToSourcePath(projectName, srcsWriter, messages);
         } 
         catch (IOException e) {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
@@ -682,7 +690,7 @@ public class PathConfig {
      * one of the following is the case: (a) the current `rascal` can't be
      * resolved; (b) the TypePal jar isn't on the class path.
      */
-    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter) throws IOException {
+    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter, IListWriter messages) throws IOException {
 
         // General case
         srcsWriter.append(URIUtil.rootLocation("std"));
@@ -700,6 +708,9 @@ public class PathConfig {
             if (workspaceRascalExists && workspaceTypepalExists) {
                 srcsWriter.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/compiler"));
                 srcsWriter.append(URIUtil.getChildLocation(workspaceTypepal, "src"));
+            }
+            else if (workspaceRascalExists && !workspaceTypepalExists) {
+                messages.append(Messages.warning("project://typepal/ was not found, but it is required for maintaining the compiler.", workspaceRascal));
             }
 
             // Special case: If the path config's project is `rascal-lsp`, and

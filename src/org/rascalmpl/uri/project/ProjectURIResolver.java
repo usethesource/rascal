@@ -15,6 +15,7 @@ package org.rascalmpl.uri.project;
 import java.io.IOException;
 
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -23,23 +24,33 @@ import io.usethesource.vallang.ISourceLocation;
  * This class implements the project:// scheme for in situations outside of an IDE.
  * In IDE based situations the IDE bridge must offer the implementation of the project
  * scheme. 
+ * 
+ * We take the root of the *active* project:
+ *   * its parent is the "workspace"
+ *   * all folders in the workspace are "projects"
  */
 public class ProjectURIResolver implements ILogicalSourceLocationResolver {
-    private ISourceLocation root;
-    private String name;
+    private ISourceLocation workspaceFolder;
 
-    public ProjectURIResolver(ISourceLocation root, String name) {
-        this.root = root;
-        this.name = name;
+    /**
+     * @param projectRoot  the root of a project, containing /META-INF/RASCAL.MF and /pom.xml
+     * @throws IOException if the parent of the root of a project does not exist
+     */
+    public ProjectURIResolver(ISourceLocation projectRoot) throws IOException {
+        var physical = URIResolverRegistry.getInstance().logicalToPhysical(projectRoot);
+        this.workspaceFolder = URIUtil.getParentLocation(physical);
     }
     
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        if (!input.getAuthority().equals(name)) {
-            return null;
-        }
+        assert input.getScheme().equals(scheme());
+        assert !input.getAuthority().isEmpty();
         
-        return URIUtil.getChildLocation(root, input.getPath());
+        // the authority becomes the folder name
+        var projectRoot = URIUtil.getChildLocation(workspaceFolder, input.getAuthority());
+
+        // the path becomes a child of the project's root
+        return URIUtil.getChildLocation(projectRoot, input.getPath());
     }
 
     @Override
@@ -49,6 +60,6 @@ public class ProjectURIResolver implements ILogicalSourceLocationResolver {
 
     @Override
     public String authority() {
-        return name;
+        return "";
     }
 }
