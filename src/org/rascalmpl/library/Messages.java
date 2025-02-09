@@ -115,15 +115,17 @@ public class Messages {
                 col = loc.getBeginColumn();
                 line = loc.getBeginLine();
             }
+            boolean emptyPath = loc.getPath().isEmpty() || "/".equals(loc.getPath());
 
             String output 
-                = loc.getPath()
-                + ":"
+                = emptyPath 
+                ? (((IString) msg.get("msg")).getValue())
+                : (loc.getPath() + ":"
                 + String.format("%0" + lineWidth + "d", line)
                 + ":"
                 + String.format("%0" + colWidth + "d", col)
                 + ": "
-                + ((IString) msg.get("msg")).getValue()
+                + ((IString) msg.get("msg")).getValue())
             ;
 
             if (isError) {
