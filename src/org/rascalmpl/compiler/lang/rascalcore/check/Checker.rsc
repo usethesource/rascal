@@ -138,8 +138,10 @@ ModuleStatus rascalTModelForLocs(
             }
         };
 
-    if(!otherModulesWithOutdatedTpls(mlocs, pcfg)){
-        if(uptodateTPls(mlocs, mnames, pcfg)){
+    if(allModulesHaveValidTpls(mlocs, pcfg)){
+        <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
+
+        if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
             for (i <- index(mlocs)) {
                 <found, tm, ms> = getTModelForModule(mnames[i], ms);
                 if(!found){
@@ -503,21 +505,35 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
     return true;
 }
 
-bool otherModulesWithOutdatedTpls(list[loc] candidates, PathConfig pcfg){
+bool allModulesHaveValidTpls(list[loc] candidates, PathConfig pcfg){
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
             try {
                 mname = getRascalModuleName(mloc, pcfg);
                 <found, tpl> = getTPLReadLoc(mname, pcfg);
                 if(found && (mloc notin candidates) && (lastModified(mloc) > lastModified(tpl))){
-                    return true;
+                    return false;
                 }
             } catch e:{
-                return true;
+                return false;
             }
         }
     }
-    return false;
+    return true;
+}
+
+tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates, ModuleStatus ms){
+    pcfg = ms.pathConfig;
+    for(candidate <- candidates){
+        mname = getRascalModuleName(candidate, pcfg);
+        <found, tm, ms> = getTModelForModule(mname, ms);
+        imports_and_extends = ms.strPaths<0,2>[mname];
+        <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
+        if(!compatible){
+            return <false, ms>;
+        }
+    }
+    return <true, ms>;
 }
 
 // ---- checker functions for IDE
