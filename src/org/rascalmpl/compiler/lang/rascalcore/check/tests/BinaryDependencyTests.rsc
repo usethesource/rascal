@@ -369,7 +369,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
 
     // Recompile Check and discover the error
-    return checkExpectErrors("Check", ["Binary module `TP` needs recompilation"], core.pcfg, remove = [rascal, typepal, core]);
+    return checkExpectErrors("Check", ["Recompilation or reconfiguration needed: binary module `TP` uses incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
 }
 
 // ---- Binary compatibility of two TModels -----------------------------------
