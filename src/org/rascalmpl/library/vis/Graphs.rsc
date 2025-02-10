@@ -573,6 +573,7 @@ data CytoLayout(CytoLayoutName name = dagre(), bool animate=false)
         CytoLayoutName name = dagre(),
         num spacingFactor = .1,
         num nodeSep = 1000,
+        str rankDir = "LR",
         DagreRanker ranker = \network-simplex() // network-simples tight-tree, or longest-path
     )
     | klayLayout (
