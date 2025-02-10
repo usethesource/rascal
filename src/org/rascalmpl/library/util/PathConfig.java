@@ -485,7 +485,7 @@ public class PathConfig {
             }
         }
 
-        ISourceLocation target = URIUtil.correctLocation("project", projectName, "target/classes");
+        ISourceLocation target = URIUtil.correctLocation("target", projectName, "");
         ISourceLocation generatedSources = URIUtil.correctLocation("project", projectName, "target/generatedSources");
 
         // This later holds a location of the boot project rascal, in case we depend on that directly in the pom.xml 
@@ -534,11 +534,10 @@ public class PathConfig {
                     catch (FileNotFoundException e) {
                         // this is ok. there is not a duplicate presence of rascal-lsp.
                     }
-
                 }
 
                 if (libProjectName != null) {
-                    if (reg.exists(projectLoc) && dep != rascalProject) {
+                    if (reg.exists(projectLoc) && !libProjectName.isEmpty() && dep != rascalProject) {
                         // The project we depend on is available in the current workspace. 
                         // so we configure for using the current state of that project.
                         PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode);
