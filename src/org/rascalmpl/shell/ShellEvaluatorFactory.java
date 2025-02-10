@@ -1,7 +1,6 @@
 package org.rascalmpl.shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
@@ -11,6 +10,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
@@ -21,7 +21,6 @@ import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -68,16 +67,11 @@ public class ShellEvaluatorFactory {
     }
 
     public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
-        IListWriter messages = evaluator.getValueFactory().listWriter();
-        
-        try {
-            URIResolverRegistry reg = URIResolverRegistry.getInstance();
-            reg.registerLogical(new ProjectURIResolver(projectRoot));
-            reg.registerLogical(new TargetURIResolver(projectRoot));
-        }
-        catch (IOException e) {
-            messages.append(Messages.error(e.getMessage(), projectRoot));
-        }
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+
+        String projectName = new RascalManifest().getProjectName(projectRoot);
+        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 
         PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER);
 
@@ -88,7 +82,6 @@ public class ShellEvaluatorFactory {
         ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
         evaluator.addClassLoader(cl);  
         
-        Messages.write(messages.done(), evaluator.getOutPrinter());
         Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
     }
 }
