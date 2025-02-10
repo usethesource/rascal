@@ -93,11 +93,11 @@ public class RascalJUnitTestRunner extends Runner {
     
     public static void configureProjectEvaluator(Evaluator evaluator, ISourceLocation projectRoot) {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        String projectName = new RascalManifest().getProjectName(projectRoot);
+        reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+        reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
-            reg.registerLogical(new ProjectURIResolver(projectRoot));
-            reg.registerLogical(new TargetURIResolver(projectRoot));
-
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER);
             
             for (IValue path : pcfg.getSrcs()) {
@@ -109,9 +109,6 @@ public class RascalJUnitTestRunner extends Runner {
 
             Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
             
-        }
-        catch (IOException e) {
-            Messages.write(evaluator.getValueFactory().list(Messages.error(e.getMessage(), projectRoot)), evaluator.getOutPrinter());
         }
         catch (AssertionError e) {
             e.printStackTrace();

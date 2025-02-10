@@ -13,8 +13,8 @@
 package org.rascalmpl.uri.project;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -25,11 +25,13 @@ import io.usethesource.vallang.ISourceLocation;
  * In IDE based situations the IDE bridge must offer the implementation of the project
  * scheme. 
  */
-public class TargetURIResolver extends ProjectURIResolver {
-    
+public class TargetURIResolver implements ILogicalSourceLocationResolver {
+    private ISourceLocation root;
+    private String name;
 
-    public TargetURIResolver(ISourceLocation root) throws IOException {
-        super(root);
+    public TargetURIResolver(ISourceLocation root, String name) {
+        this.root = guessTarget(root);
+        this.name = name;
     }
     
     private ISourceLocation guessTarget(ISourceLocation root) {
@@ -57,14 +59,11 @@ public class TargetURIResolver extends ProjectURIResolver {
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
-        try {
-            var root = super.resolve(URIUtil.changePath(input, ""));
-            var target = guessTarget(root);
-            return URIUtil.getChildLocation(target, input.getPath());
+        if (!input.getAuthority().equals(name)) {
+            return null;
         }
-        catch (URISyntaxException e) {
-            throw new IOException(e);
-        }
+        
+        return URIUtil.getChildLocation(root, input.getPath());
     }
 
     @Override
@@ -74,6 +73,6 @@ public class TargetURIResolver extends ProjectURIResolver {
 
     @Override
     public String authority() {
-        return "";
+        return name;
     }
 }
