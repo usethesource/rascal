@@ -229,9 +229,10 @@ public class Eval {
 
 			if (!pcfg.getSrcs().isEmpty()) {
 				ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
+				String projectName = new RascalManifest().getProjectName(projectRoot);
 				URIResolverRegistry reg = URIResolverRegistry.getInstance();
-				reg.registerLogical(new ProjectURIResolver(projectRoot));
-				reg.registerLogical(new TargetURIResolver(projectRoot));
+				reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+				reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 			}
 
 			for (IValue path : pcfg.getSrcs()) {

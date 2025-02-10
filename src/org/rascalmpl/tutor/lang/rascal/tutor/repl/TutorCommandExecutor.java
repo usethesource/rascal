@@ -19,6 +19,7 @@ import org.jline.terminal.TerminalBuilder;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -55,30 +56,31 @@ public class TutorCommandExecutor {
 
                 try {
                     eval.getConfiguration().setRascalJavaClassPathProperty(PathConfig.resolveCurrentRascalRuntimeJar().getPath());
-                
-                    if (!pcfg.getSrcs().isEmpty()) {
-                        ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
-                        URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                        reg.registerLogical(new ProjectURIResolver(projectRoot));
-                        reg.registerLogical(new TargetURIResolver(projectRoot));
-
-                        for (IValue path : pcfg.getSrcs()) {
-                            eval.addRascalSearchPath((ISourceLocation) path); 
-                        }
-            
-                        for (IValue path : pcfg.getLibs()) {
-                            eval.addRascalSearchPath((ISourceLocation) path);
-                        }
-            
-                        ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
-                        eval.addClassLoader(cl);
-                    }
-                    else {
-                        services.warning("No src path configured for tutor", URIUtil.rootLocation("unknown"));
-                    }
                 }
                 catch (IOException e) {
                     services.warning(e.getMessage(), URIUtil.rootLocation("unknown"));
+                }
+
+                if (!pcfg.getSrcs().isEmpty()) {
+                    ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
+                    String projectName = new RascalManifest().getProjectName(projectRoot);
+                    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+                    reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                    reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+
+                    for (IValue path : pcfg.getSrcs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path); 
+                    }
+        
+                    for (IValue path : pcfg.getLibs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path);
+                    }
+        
+                    ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
+                    eval.addClassLoader(cl);
+                }
+                else {
+                    services.warning("No src path configured for tutor", URIUtil.rootLocation("unknown"));
                 }
 
                 return eval;
