@@ -16,54 +16,51 @@ import lang::html::IO;
 import lang::html::AST;
 import util::IDEServices;
 
+public Attrs DEFAULT_GRAPH_ATTRS = [<"ranksep","0.3">, <"bgcolor","0.482 0.1 1.0">];
+public Attrs DEFAULT_NODE_ATTRS = [<"height","0.1">,<"style","filled">, <"fillcolor","white">];
+public Attrs DEFAULT_EDGE_ATTRS = [];
+
 data DotConfig = dotConfig(
     list[value](value n) childGetter = defaultGetChildren,
+    bool allowRecursion = false,
     bool(value n) valueFilter = success,
     value(value n) valueTransformer = identity,
-    Statement(value n, int id, str tooltip) nodeGenerator = defaultNodeGenerator,
-    Statement(value n, int id, value child, int childId) edgeGenerator = defaultEdgeGenerator,
-    str(value v, int id) tooltipGenerator = defaultTooltipGenerator
+    Attrs graphAttrs = DEFAULT_GRAPH_ATTRS,
+    Attrs nodeAttrs = DEFAULT_NODE_ATTRS,
+    Attrs edgeAttrs = DEFAULT_EDGE_ATTRS,
+    Statement(value n, int id) nodeGenerator = defaultNodeGenerator,
+    Statement(value n, int id, value child, int childId) edgeGenerator = defaultEdgeGenerator
 );
 
 private value identity(value val) = val;
 private bool success(_) = true;
 
-// A EdgeValue is used to bundle extra edge information with a value
-private data EdgeValue = edge(value val, str edgeLabel="", Attrs edgeAttributes=[]);
+// Compress the graph a little to be able to handle larger data structures
 
-alias Attrs = list[tuple[str,str]];
+DOT valueToDot(Tree t, str name="Unknown", DotConfig config=createParseTreeConfig()) = value2Dot(t, name, config);
+default DOT valueToDot(value v, str name="Unknown", DotConfig config=dotConfig()) = value2Dot(v, name, config);
 
-private list[value] defaultGetChildren(node n) = getNodeChildren(n);
-private list[value] defaultGetChildren(list[value] l) = l;
-private list[value] defaultGetChildren(set[value] s) = toList(s);
-private list[value] defaultGetChildren(map[value, value] m) = getMapChildren(m);
-private list[value] defaultGetChildren(<v1>) = [v1];
-private list[value] defaultGetChildren(<v1,v2>) = [v1,v2];
-private list[value] defaultGetChildren(<v1,v2,v3>) = [v1,v2,v3];
-private list[value] defaultGetChildren(<v1,v2,v3,v4>) = [v1,v2,v3,v4];
-private list[value] defaultGetChildren(<v1,v2,v3,v4,v5>) = [v1,v2,v3,v4,v5];
-private default list[value] defaultGetChildren(v) = [];
+private DOT value2Dot(value v, str name, DotConfig config) {
+    Id graphName = [Id] toAttrValue(name);
+    nextId = 1;
 
-private list[value] getMapChildren(map[value, value] m) = [edge(val, edgeLabel="<key>") | <key,val> <- toList(m)];
+    AttrList graphAttrList = generateAttrList(config.graphAttrs);
+    AttrList nodeAttrList = generateAttrList(config.nodeAttrs);
+    AttrList edgeAttrList = generateAttrList(config.edgeAttrs);
 
-private list[value] getNodeChildren(Tree t) = getParseTreeChildren(t);
-private default list[value] getNodeChildren(node n) {
-    map[str,value] kwParams = getKeywordParameters(n);
-    list[value] kwEdges = [edge(kwParams[key], edgeLabel="<key>", edgeAttributes=[<"fontcolor","darkblue">]) | key <- kwParams];
-    return getChildren(n) + kwEdges;
+    StatementList initialStats = (StatementList)`graph <AttrList graphAttrList>
+    '  node <AttrList nodeAttrList> 
+    '  edge <AttrList edgeAttrList>`;
+
+    StatementList stats = config.valueFilter(v) ? generateStatements(config, v, 0, (v:0)) : (StatementList)``;
+    stats = mergeStatements(initialStats, stats);
+
+    return (DOT) `digraph <Id graphName> {
+    '  <StatementList stats>
+    '}`;
 }
 
-// Label edges if the corresponding symbol in the production has a label
-private list[value] getParseTreeChildren(appl(prod, args)) = getApplChildren(prod, args);
-private list[value] getApplChildren(prod(_,formals,_), actuals) {
-    list[tuple[Symbol,Tree]] args = zip2(formals, actuals);
-    return [ label(name, _) := formal ? edge(actual, edgeLabel=name, edgeAttributes=[<"fontcolor","darkblue">]) : actual | <formal, actual> <- args];
-}
-private default list[value] getApplChildren(_, list[value] args) = args;
-
-private list[value] getParseTreeChildren(amb(set[Tree] alts)) = toList(alts);
-private default list[value] getParseTreeChildren(t) = [];
-
+// Some attribute constants
 str SHAPE = "shape";
 tuple[str,str] SHAPE_RECT = <SHAPE, "rect">;
 tuple[str,str] SHAPE_DOUBLE_OCTAGON = <SHAPE, "doubleoctagon">;
@@ -73,7 +70,7 @@ tuple[str,str]  SHAPE_ELLIPSE = <SHAPE, "ellipse">;
 tuple[str,str]  SHAPE_CIRCLE = <SHAPE, "circle">;
 
 str STYLE = "style";
-tuple[str,str] STYLE_ROUNDED = <STYLE, "rounded">;
+tuple[str,str] STYLE_ROUNDED = <STYLE, "filled,rounded">;
 
 tuple[str,str] COLLECTION_SHAPE = SHAPE_DOUBLE_OCTAGON;
 tuple[str,str] TUPLE_SHAPE = SHAPE_HEXACON;
@@ -83,46 +80,68 @@ tuple[str,str] BOOL_SHAPE = SHAPE_CIRCLE;
 
 str COLOR = "color";
 tuple[str,str] COLOR_ORANGE = <COLOR, "orange">;
+tuple[str,str] COLOR_DARK_BLUE = <COLOR, "darkblue">;
 
 str TOOLTIP = "tooltip";
 str LABEL = "label";
 str URL = "URL";
+str WIDTH = "width";
 
-Statement defaultNodeGenerator(edge(val), int id, str tooltip) = defaultNodeGenerator(val, id, tooltip);
-Statement defaultNodeGenerator(node n, int id, str tooltip) = nodeNodeGenerator(n, id, tooltip);
-Statement defaultNodeGenerator(list[value] l:[], int id, str tooltip) = nodeStatement("list[]", id, tooltip, attrs=[COLLECTION_SHAPE]);
-Statement defaultNodeGenerator(list[value] l:[_,*_], int id, str tooltip) = nodeStatement("<typeLabel(l)>", id, tooltip, attrs=[COLLECTION_SHAPE]);
-Statement defaultNodeGenerator(set[value] s, int id, str tooltip) = nodeStatement("<typeLabel(s)>", id, tooltip, attrs=[COLLECTION_SHAPE]);
-Statement defaultNodeGenerator(map[value,value] m, int id, str tooltip) = nodeStatement("<typeLabel(m)>", id, tooltip, attrs=[COLLECTION_SHAPE]);
-Statement defaultNodeGenerator(t:<_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_,_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_,_,_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_,_,_,_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_,_,_,_,_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(t:<_,_,_,_,_,_,_,_>, int id, str tooltip) = nodeStatement("<typeLabel(t)>", id, tooltip, attrs=[TUPLE_SHAPE]);
-Statement defaultNodeGenerator(loc l, int id, str tooltip) = nodeStatement(l.length == 1 ? "<l.begin.line>,<l.begin.column>" : "<l.begin.line>,<l.begin.column>-<l.end.line>,<l.end.column>", id, tooltip, attrs=[LOCATION_SHAPE]);
-Statement defaultNodeGenerator(num n, int id, str tooltip) = nodeStatement("<n>", id, tooltip, attrs=[ATOM_SHAPE]);
-Statement defaultNodeGenerator(str s, int id, str tooltip) = nodeStatement("\"<s>\"", id, tooltip, attrs=[ATOM_SHAPE]);
-Statement defaultNodeGenerator(bool b, int id, str tooltip) = nodeStatement(b ? "T" : "F", id, tooltip, attrs=[BOOL_SHAPE,<"fontcolor",b ? "green" : "red">]);
-default Statement defaultNodeGenerator(value v, int id, str tooltip) = nodeStatement("<v>", id, tooltip);
 
-private Statement nodeNodeGenerator(Tree tree, int id, str tooltip) = parseTreeNodeGenerator(tree, id, tooltip);
-private default Statement nodeNodeGenerator(node n, int id, str tooltip) = nodeStatement(getName(n), id, tooltip);
+// A EdgeValue is used to bundle extra edge information with a value
+private data EdgeValue = edge(value val, str label="", Attrs attrs=[]);
+private data SubgraphValue = subGraph(value val, str label="", Attrs attrs=[]);
 
-Statement defaultEdgeGenerator(value _, int id, edge(val, edgeLabel=edgeLabel, edgeAttributes=attrs), int childId)
-    = edgeStatement(id, childId, label="<edgeLabel>", attrs=attrs);
+alias Attrs = list[tuple[str,str]];
+
+list[value] defaultGetChildren(node n) = getNodeChildren(n);
+list[value] defaultGetChildren(list[value] l) = l;
+list[value] defaultGetChildren(set[value] s) = toList(s);
+list[value] defaultGetChildren(map[value, value] m) = getMapChildren(m);
+list[value] defaultGetChildren(<v1>) = [v1];
+list[value] defaultGetChildren(<v1,v2>) = [v1,v2];
+list[value] defaultGetChildren(<v1,v2,v3>) = [v1,v2,v3];
+list[value] defaultGetChildren(<v1,v2,v3,v4>) = [v1,v2,v3,v4];
+list[value] defaultGetChildren(<v1,v2,v3,v4,v5>) = [v1,v2,v3,v4,v5];
+default list[value] defaultGetChildren(v) = [];
+
+private list[value] getMapChildren(map[value, value] m) = [edge(val, label="<key>") | <key,val> <- toList(m)];
+
+private default list[value] getNodeChildren(node n) {
+    map[str,value] kwParams = getKeywordParameters(n);
+    list[value] kwEdges = [edge(kwParams[key], label="<key>", attrs=[COLOR_DARK_BLUE]) | key <- kwParams];
+    return getChildren(n) + kwEdges;
+}
+
+Statement defaultNodeGenerator(edge(val), int id) = defaultNodeGenerator(val, id);
+Statement defaultNodeGenerator(node n, int id) = nodeNodeGenerator(n, id);
+Statement defaultNodeGenerator(list[value] l:[], int id) = nodeStatement("list[]", id, attrs=[COLLECTION_SHAPE]);
+Statement defaultNodeGenerator(list[value] l:[_,*_], int id) = nodeStatement("<typeLabel(l)>", id, attrs=[COLLECTION_SHAPE]);
+Statement defaultNodeGenerator(set[value] s, int id) = nodeStatement("<typeLabel(s)>", id, attrs=[COLLECTION_SHAPE]);
+Statement defaultNodeGenerator(map[value,value] m, int id) = nodeStatement("<typeLabel(m)>", id, attrs=[COLLECTION_SHAPE]);
+Statement defaultNodeGenerator(t:<_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_,_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_,_,_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_,_,_,_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_,_,_,_,_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(t:<_,_,_,_,_,_,_,_>, int id) = nodeStatement("<typeLabel(t)>", id, attrs=[TUPLE_SHAPE]);
+Statement defaultNodeGenerator(loc l, int id) = nodeStatement(l.length == 1 ? "<l.begin.line>,<l.begin.column>" : "<l.begin.line>,<l.begin.column>-<l.end.line>,<l.end.column>", id, attrs=[LOCATION_SHAPE]);
+Statement defaultNodeGenerator(num n, int id) = nodeStatement("<n>", id, attrs=[ATOM_SHAPE]);
+Statement defaultNodeGenerator(str s, int id) = nodeStatement("\"<s>\"", id, attrs=[ATOM_SHAPE]);
+Statement defaultNodeGenerator(bool b, int id) = nodeStatement(b ? "T" : "F", id, attrs=[BOOL_SHAPE,<"fontcolor",b ? "green" : "red">]);
+default Statement defaultNodeGenerator(value v, int id) = nodeStatement("<v>", id);
+
+private Statement nodeNodeGenerator(Tree tree, int id) = parseTreeNodeGenerator(tree, id);
+private default Statement nodeNodeGenerator(node n, int id) = nodeStatement(getName(n), id);
+
+Statement defaultEdgeGenerator(value _, int id, edge(val, label=label, attrs=attrs), int childId)
+    = edgeStatement(id, childId, label="<label>", attrs=attrs);
 default Statement defaultEdgeGenerator(value _, int id, value e, int childId) = edgeStatement(id, childId);
 
-private Statement nodeStatement(str label, int id, str tooltip, Attrs attrs=[], str uri="") {
+Statement nodeStatement(str label, int id, Attrs attrs=[]) {
     Id nodeId = [Id] "<id>";
-    if (uri != "") {
-        attrs = attrs + <URL, uri>;
-    }
-    if (tooltip != "") {
-        attrs = attrs + <TOOLTIP, tooltip>;
-    }
     AttrList attrList = generateAttrList(attrs + <LABEL, toLabelString(label)>);
     return (Statement) `<Id nodeId> <AttrList attrList>;`;
 }
@@ -143,20 +162,11 @@ Statement edgeStatement(int parentId, int childId, str label="", Attrs attrs=[])
     return (Statement) `<Id fromId> -\> <Id toId> <AttrList attrList>;`;
 }
 
-str defaultTooltipGenerator(value v, int id) {
-    str yield = "<v>";
-    if (size(yield) > 100) {
-        yield = substring(yield, 0, 100) + "...";
-    }
+private str toAttrValue(str s) = "\"" + escape(s, ("\\": "\\\\", "\"": "\\\"")) + "\"";
+private str toLabelString(str s) = escape(s, ("\r": "\\r", "\n": "\\n"));
 
-    return yield;
-}
-
-private str toAttrValue(str s) = "\"" + escape(s, ("\"": "\\\"")) + "\"";
-private str toLabelString(str s) = escape(s, ("\r": "\\\\r", "\n": "\\\\n"));
-
-bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptionals) {
-    bool valueFilter(appl(production, args)) {
+bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptionals, bool filterEmptyYield) {
+    bool valueFilter(t:appl(production, args)) {
         Symbol getSymbol(prod(label(_, sym), _, _)) = sym;
         Symbol getSymbol(regular(def)) = def;
         // TODO: error productions
@@ -174,6 +184,10 @@ bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptional
             }
         }
 
+        if (filterEmptyYield && "<t>" == "") {
+            return false;
+        }
+
         return true;
     }
     default bool valueFilter(_) = true;
@@ -181,10 +195,12 @@ bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptional
     return valueFilter;
 }
 
+private data Token = token(str token, Attrs attrs);
+
 value(value v) parseTreeValueTransformer(bool collapseTokens) {
-    value valueTransformer(t: appl(_,_)) {
+    value valueTransformer(t: appl(prod,_)) {
         if (collapseTokens && isToken(t)) {
-            return "<t>";
+            return token("<t>", treeAttrs(t, [], tooltip=prodToString(prod)));
         }
 
         return t;
@@ -194,35 +210,27 @@ value(value v) parseTreeValueTransformer(bool collapseTokens) {
     return valueTransformer;
 }
 
-DotConfig createParseTreeConfig(bool collapseTokens=false, bool filterLayout=false, bool filterMissingOptionals=false) {
+DotConfig createYieldParseTreeConfig(bool collapseTokens=true, bool filterLayout=true, bool filterMissingOptionals=true, bool filterEmptyYield=true) {
     return dotConfig(
-        valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals),
-        valueTransformer = parseTreeValueTransformer(collapseTokens)
+        childGetter = getParseTreeChildren,
+        valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals, filterEmptyYield),
+        valueTransformer = parseTreeValueTransformer(collapseTokens),
+        nodeGenerator = yieldParseTreeNodeGenerator,
+        nodeAttrs = DEFAULT_NODE_ATTRS + <WIDTH, "0.5">
     );
 }
 
-DotConfig createCompactParseTreeConfig() = createParseTreeConfig(collapseTokens=true, filterLayout=true, filterMissingOptionals=true);
-
-int nextId = 1;
-
-DOT valueToDot(Tree t, str name="Unknown", DotConfig config=createCompactParseTreeConfig()) = value2Dot(t, name=name, config=config);
-
-default DOT valueToDot(value v, str name="Unknown", DotConfig config=dotConfig()) = value2Dot(v, name=name, config=config);
-
-DOT value2Dot(value v, str name="Unknown", DotConfig config = dotConfig()) {
-    Id graphName = [Id] toAttrValue(name);
-    nextId = 1;
-
-    // Compress the graph a little to be able to handle larger parse trees
-    StatementList initialStats = (StatementList)`graph [ranksep="0.3"]; node [height="0.1"]`;
-
-    StatementList stats = config.valueFilter(v) ? generateStatements(config, v, 0) : (StatementList)``;
-    stats = mergeStatements(initialStats, stats);
-
-    return (DOT) `digraph <Id graphName> {
-    '  <StatementList stats>
-    '}`;
+DotConfig createParseTreeConfig(bool collapseTokens=true, bool filterLayout=true, bool filterMissingOptionals=true, bool filterEmptyYield=true) {
+    return dotConfig(
+        childGetter = getParseTreeChildren,
+        valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals, filterEmptyYield),
+        valueTransformer = parseTreeValueTransformer(collapseTokens),
+        nodeGenerator = parseTreeNodeGenerator
+    );
 }
+
+DotConfig createParseTreeConfigFull(bool collapseTokens=false, bool filterLayout=false, bool filterMissingOptionals=false, bool filterEmptyYield=false)
+    = createParseTreeConfig(collapseTokens=collapseTokens, filterLayout=filterLayout, filterMissingOptionals=filterMissingOptionals, filterEmptyYield=filterEmptyYield);
 
 private StatementList addStatement((StatementList) `<Statement* stats1>`, Statement stat) {
     return (StatementList) `<Statement* stats1>
@@ -247,26 +255,55 @@ private AttrList addAttribute((AttrList) `[<Attribute* attrs1>]`, str name, str 
     return (AttrList) `[<Attribute* attrs1> <Id nameId> = <Id valId>]`;
 }
 
-private StatementList generateStatements(DotConfig config, value v, int id) {
+int nextId = 1;
+private StatementList generateStatements(DotConfig config, value v, int id, map[value,int] processed) {
+    if (subGraph(val, label=label, attrs=attrs) := v) {
+        Id clusterId = [Id] "cluster_<nextId>";
+        nextId = nextId + 1;
+
+        StatementList stats = generateStatements(config, val, id, processed);
+
+        if (label != "") {
+            attrs = attrs + <LABEL, label>;
+        }
+
+        for (<attrName,attrVal> <- attrs) {
+            Id nameId = [Id] toAttrValue(attrName);
+            Id valId =  [Id] toAttrValue(attrVal);
+            stats = addStatement(stats, (Statement)`<Id nameId>=<Id valId>`);
+        }
+
+        AttrList attrList = generateAttrList(attrs);
+        return (StatementList)`subgraph <Id clusterId> { <StatementList stats> }`;
+    }
+
     v = config.valueTransformer(v);
 
-    Statement stat = config.nodeGenerator(v, id, config.tooltipGenerator(v, id));
+    Statement stat = config.nodeGenerator(v, id);
 
     StatementList stats = (StatementList) `<Statement stat>`;
 
     for (value edgeChild <- config.childGetter(v)) {
         value child = edge(val) := edgeChild ? val : edgeChild;
-        
+
         if (!config.valueFilter(child)) {
             continue;
         }
 
-        int childId = nextId;
-        nextId += 1;
-        
-        StatementList childStats = generateStatements(config, child, childId);
-        stats = mergeStatements(stats, childStats);
+        int childId = 0;
+        if (config.allowRecursion && child in processed) {
+            childId = processed[child];
+        } else {
+            childId = nextId;
+            nextId += 1;
+            if (config.allowRecursion) {
+                processed[child] = childId;
+            }
 
+            StatementList childStats = generateStatements(config, child, childId, processed);
+            stats = mergeStatements(stats, childStats);
+        }
+        
         Statement edgeStat = config.edgeGenerator(v, id, edgeChild, childId);
         stats = addStatement(stats, edgeStat);
     }
@@ -274,27 +311,60 @@ private StatementList generateStatements(DotConfig config, value v, int id) {
     return stats;
 }
 
-Statement parseTreeNodeGenerator(t:appl(prod, args), int id, str tooltip) {
-    str label = prodToString(prod);
-    str uri = "";
-
-    map[str,value] kwParams = getKeywordParameters(t);
-    if ("src" in kwParams) {
-        loc editorLoc = |https://editor|;
-        editorLoc.query = "src=<kwParams["src"]>";
-        uri = substring(editorLoc.uri, 8); // Remove https://
+str yield(Tree t, int maxLength) {
+    str yield = "<t>";
+    if (size(yield) > maxLength) {
+        yield = substring(yield, 0, maxLength) + "...";
     }
-
-    return nodeStatement(label, id, tooltip, attrs=[SHAPE_PARSE_NODE, STYLE_ROUNDED], uri=uri);
+    return yield;
 }
 
+Attrs treeAttrs(Tree t, Attrs baseAttrs, str tooltip="") {
+    Attrs attrs = [];
+    if (tooltip != "") {
+        attrs = attrs + [<TOOLTIP, tooltip>] + baseAttrs;
+    }
 
-tuple[str,str] SHAPE_PARSE_NODE = SHAPE_RECT;
+    if (t@\loc?) {
+        loc editorLoc = |https://editor|;
+        editorLoc.query = "src=<t@\loc>";
+        str link = substring(editorLoc.uri, 8); // Remove https://
+        attrs = attrs + [<URL, link>];
+    }
 
-Statement parseTreeNodeGenerator(t:amb(alts), int id, str tooltip) = nodeStatement("amb", id, tooltip, attrs=[SHAPE_ELLIPSE, COLOR_ORANGE]);
-Statement parseTreeNodeGenerator(t:char(ch), int id, str tooltip) = nodeStatement("<stringChar(ch)>", id, tooltip, attrs=[SHAPE_CIRCLE]);
-Statement parseTreeNodeGenerator(t:cycle(sym, length), int id, str tooltip) = nodeStatement("cycle(<sym>,<length>)", id, tooltip, attrs=[SHAPE_CIRCLE]);
-default Statement parseTreeNodeGenerator(n, id, str tooltip) = nodeStatement("<n>", id, tooltip);
+    return attrs;
+}
+
+private list[value] getParseTreeChildren(amb(set[Tree] alts)) = toList(alts);
+// Label edges if the corresponding symbol in the production has a label
+private list[value] getParseTreeChildren(appl(prod, args)) = getApplChildren(prod, args);
+private default list[value] getParseTreeChildren(t) = [];
+
+private list[value] getApplChildren(prod(_,formals,_), actuals) {
+    list[tuple[Symbol,Tree]] args = zip2(formals, actuals);
+    return [ label(name, _) := formal ? edge(actual, label=name) : actual | <formal, actual> <- args];
+}
+private default list[value] getApplChildren(_, list[value] args) = args;
+
+Statement yieldParseTreeNodeGenerator(t:appl(prod,args), int id) {
+    str label = yield(t, 30);
+    if (label == "") {
+        label = " ";
+    }
+    return nodeStatement(label, id, attrs=treeAttrs(t, [SHAPE_RECT, STYLE_ROUNDED], tooltip=prodToString(prod)));
+}
+default Statement yieldParseTreeNodeGenerator(value v, int id) = parseTreeNodeGenerator(v, id);
+
+Statement parseTreeNodeGenerator(t:appl(prod, args), int id) {
+    Attrs attrs = treeAttrs(t, [SHAPE_RECT, STYLE_ROUNDED], tooltip=yield(t, 256));
+    return nodeStatement(prodToString(prod), id, attrs=attrs);
+}
+
+Statement parseTreeNodeGenerator(t:amb(alts), int id) = nodeStatement("amb", id, attrs=treeAttrs(t, [SHAPE_ELLIPSE, COLOR_ORANGE]));
+Statement parseTreeNodeGenerator(t:char(ch), int id) = nodeStatement("<stringChar(ch)>", id, attrs=treeAttrs(t, [SHAPE_CIRCLE]));
+Statement parseTreeNodeGenerator(t:cycle(sym, length), int id) = nodeStatement("cycle(<sym>,<length>)", id, attrs=treeAttrs(t, [SHAPE_CIRCLE]));
+Statement parseTreeNodeGenerator(token(str tok, Attrs attrs), int id) = nodeStatement(tok, id, attrs=attrs);
+default Statement parseTreeNodeGenerator(value v, id) = defaultNodeGenerator(v, id);
 
 private str prodToString(prod(def, symbols, attrs)) = "<symbolToString(def)> = <symbolsToString(symbols)>";
 private str prodToString(regular(def)) = symbolToString(def);
@@ -307,14 +377,15 @@ private str symbolToString(lit(string)) = "\"<string>\"";
 private str symbolToString(cilit(string)) = "\"<string>\"";
 private str symbolToString(\char-class(ranges)) = rangesToString(ranges);
 private str symbolToString(layouts(name)) = "_";
-private str symbolToString(opt(sym)) = "<symbolToString(sym)>?";
-private str symbolToString(\iter(sym)) = "<symbolToString(sym)>+";
+private str symbolToString(opt(sym)) = "<parenthesizeSymbol(sym)>?";
+private str symbolToString(\iter(sym)) = "<parenthesizeSymbol(sym)>+";
 private str symbolToString(\iter-seps(sym, seps)) = "{ <symbolToString(sym)> <symbolsToString(seps)>}+";
-private str symbolToString(\iter-star(sym)) = "<symbolToString(sym)>*";
+private str symbolToString(\iter-star(sym)) = "<parenthesizeSymbol(sym)>*";
 private str symbolToString(\iter-star-seps(sym, seps)) = "{ <symbolToString(sym)> <symbolsToString(seps)>}*";
 private str symbolToString(\label(name,sym)) = symbolToString(sym);
 private str symbolToString(\conditional(sym, _)) = symbolToString(sym);
 private str symbolToString(\seq(symbols)) = symbolsToString(symbols);
+private str symbolToString(\alt(alts)) = substring(("" | "<it> | <symbolToString(alt)>" | alt <- alts), 3);
 
 default str symbolToString(sym) {
     return "<sym>";
@@ -335,16 +406,44 @@ private str symbolsToString(list[Symbol] symbols) {
     return result;
 }
 
-private str rangesToString(list[CharRange] ranges) {
+private str parenthesizeSymbol(Symbol sym) = isSimpleSymbol(sym) ? symbolToString(sym) : "(<symbolToString(sym)>)";
+private bool isSimpleSymbol(\sort(_)) = true;
+private bool isSimpleSymbol(\lex(_)) = true;
+private bool isSimpleSymbol(\lit(_)) = true;
+private bool isSimpleSymbol(\cilit(_)) = true;
+private bool isSimpleSymbol(\layouts(_)) = true;
+private bool isSimpleSymbol(\label(_, sym)) = isSimpleSymbol(sym);
+private bool isSimpleSymbol(\conditional(sym, _)) = isSimpleSymbol(sym);
+private bool isSimpleSymbol(\start(sym)) = isSimpleSymbol(sym);
+private default bool isSimpleSymbol(Symbol _) = false;
+
+private default str rangesToString(list[CharRange] ranges) {
+    if ([range(1, end1), range(begin2, 1114111)] := ranges && end1 < begin2) {
+        return "[^<rangeToString(range(end1+1,begin2-1))>]";
+    }
+
     str result = "[";
-    for (range(begin, end) <- ranges) {
-        result = result + stringChar(begin);
-        if (begin != end) {
-            result = result + "-" + stringChar(end);
-        }
+    for (CharRange range <- ranges) {
+        result += rangeToString(range);
     }
     return result + "]";
 }
+
+private str rangeToString(range(begin, end)) {
+    if (begin == end) {
+        return charToString(begin);
+    }
+
+    if (begin+1 == end) {
+        return charToString(begin) + charToString(end);
+    }
+
+    return charToString(begin) + "-" + charToString(end);
+}
+
+private str charToString(9) = "\\t";
+private str charToString(32) = "\\ ";
+private default str charToString(c) = stringChar(c);
 
 private str typeLabel(value v) = typeToLabel(typeOf(v));
 
@@ -384,7 +483,12 @@ Response (Request) dotServer(DOT dot) {
 
     // returns the main page that also contains the callbacks for retrieving data and configuration
     default Response reply(get(_)) {
-        return response(writeHTMLString(plotHTML()));
+        str title = "<dot.id>";
+
+        // Remove double quotes around graph id
+        title = substring(title, 1, size(title)-1);
+
+        return response(writeHTMLString(plotHTML(title)));
     }
 
     return reply;
@@ -400,9 +504,10 @@ This client features:
 
 This client mirrors the server defined by ((graphServer)).
 }
-private HTMLElement plotHTML()
+private HTMLElement plotHTML(str pageTitle)
     = html([
         head([ 
+            title([\data(pageTitle)]),
             style([\data("#visualization {
                          '  width: 100%;
                          '  height: 100%;
