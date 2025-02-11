@@ -561,7 +561,7 @@ public class CommandOptions {
         ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
         
         if (!project.equals(getDefaultProjectLocation())) {
-	        return PathConfig.fromSourceProjectRascalManifest(project, mode);
+	        return PathConfig.fromSourceProjectRascalManifest(project, mode, true);
 	    }
         else {
             return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
