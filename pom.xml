@@ -416,6 +416,13 @@
             <artifactId>rascal-p2-dependencies-repackaged</artifactId>
             <version>0.6.0</version>
         </dependency>
+        <!-- Bootstrap dependency on typepal -->
+        <dependency>
+            <groupId>org.rascalmpl</groupId>
+            <artifactId>typepal</artifactId>
+            <version>0.14.7-BOOT1</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Regular POM Dependencies -->
         <dependency>

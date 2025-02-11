@@ -313,7 +313,7 @@ public class PathConfig {
         if (!URIResolverRegistry.getInstance().isDirectory(projectMember)) {
             projectMember = URIUtil.getParentLocation(projectMember);
         }
-        return fromSourceProjectRascalManifest(inferProjectRoot(projectMember), mode);
+        return fromSourceProjectRascalManifest(inferProjectRoot(projectMember), mode, true);
     }
 
     /*
@@ -457,7 +457,7 @@ public class PathConfig {
      * @return a PathConfig instance, fully informed to start initializing a Rascal compiler or interpreter, and including a list of revelant info, warning and error messages.
      * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
      */
-    public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode)  {
+    public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode, boolean isRoot)  {
         RascalManifest manifest = new RascalManifest();
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
@@ -466,6 +466,10 @@ public class PathConfig {
         IListWriter srcsWriter = vf.listWriter();
         IListWriter messages = vf.listWriter();
         
+        if (isRoot) {
+            messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
+        }
+
         if (!projectName.equals("rascal")) {
             // always add the standard library but not for the project named "rascal"
             // which contains the source of the standard library
@@ -518,7 +522,7 @@ public class PathConfig {
                             var version = new Manifest(in).getMainAttributes().getValue("Specification-Version");
                             var otherVersion = new Manifest(in2).getMainAttributes().getValue("Specification-Version");
 
-                            if (version.equals(otherVersion)) {
+                            if (!version.equals(otherVersion)) {
                                 messages.append(Messages.warning("Pom.xml dependency on rascal-lsp has version " + otherVersion + " while the effective version in the VScode extension is " + version + ". This can have funny effects in the IDE while debugging or code browsing.", getPomXmlLocation(manifestRoot)));
                             }
                         }
@@ -528,11 +532,11 @@ public class PathConfig {
                     }
                 }
 
-                if (libProjectName != null) {
+                if (libProjectName != null && !libProjectName.isEmpty()) {
                     if (reg.exists(projectLoc) && !libProjectName.isEmpty() && dep != rascalProject) {
                         // The project we depend on is available in the current workspace. 
                         // so we configure for using the current state of that project.
-                        PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode);
+                        PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode, false);
 
                         switch (mode) {
                             case INTERPRETER:
@@ -614,6 +618,9 @@ public class PathConfig {
 
             ISourceLocation projectLoc = URIUtil.correctLocation("project", projectName, "");
 
+            // we need this to get access to the parent folder, in case of `home:///` or `cwd:///`, etc.
+            manifestRoot = reg.logicalToPhysical(manifestRoot);
+            
             if (!projectLoc.equals(manifestRoot) && !projectName.equals(URIUtil.getLocationName(manifestRoot))) {
                 messages.append(Messages.error("Project-Name in RASCAL.MF (" + projectName + ") should be equal to folder name (" + URIUtil.getLocationName(manifestRoot) + ")", getRascalMfLocation(manifestRoot)));
             }
