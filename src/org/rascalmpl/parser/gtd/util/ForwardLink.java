@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011-2013 CWI
+ * Copyright (c) 2011-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ public class ForwardLink<E>{
 	public final int length;
 	
 	public final E element;
-	public INodeFlattener.CacheMode cacheMode;
+	public final INodeFlattener.CacheMode cacheMode;
 	
 	private ForwardLink(){
 		super();
@@ -30,6 +30,8 @@ public class ForwardLink<E>{
 		this.length = 0;
 		
 		this.element = null;
+
+		cacheMode = INodeFlattener.CacheMode.CACHE_MODE_NONE;
 	}
 
 	public ForwardLink(ForwardLink next, E element) {
