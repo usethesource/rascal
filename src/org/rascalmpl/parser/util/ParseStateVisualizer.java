@@ -44,7 +44,6 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.out.SortContainerNodeFlattener;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
@@ -61,17 +60,9 @@ import org.rascalmpl.util.visualize.dot.DotGraph;
 import org.rascalmpl.util.visualize.dot.DotNode;
 import org.rascalmpl.util.visualize.dot.DotRecord;
 import org.rascalmpl.util.visualize.dot.NodeId;
-import org.rascalmpl.values.RascalValueFactory;
-import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
-import org.rascalmpl.values.parsetrees.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
 
 /**
  * The parser uses quite complex datastructures.
@@ -106,6 +97,9 @@ public class ParseStateVisualizer {
 
     private static final String COLOR_CACHEABLE = "lightgreen";
     private static final String COLOR_NON_EMPTY_PREFIX = "orange";
+
+    private static final String LAYOUT_PREFIX = "layouts_";
+    private static final String LABEL_STACK = "Stack";
 
     public static boolean shouldVisualizeUri(URI inputUri) {
         if (!VISUALIZATION_ENABLED) {
@@ -142,15 +136,12 @@ public class ParseStateVisualizer {
     private final Map<Integer, DotNode> stackNodeNodes;
     private DotGraph graph;
     private int frame;
-    private int nextParseNodeId;
-
-    private SortContainerNodeFlattener<IConstructor, ITree, ISourceLocation> sortContainerNodeFlattener;
 
     public ParseStateVisualizer(String name) {
         // In the future we might want to offer some way to control the path from within Rascal.
         String path = System.getenv(PARSER_VISUALIZATION_PATH_ENV);
         if (path == null) {
-            throw new RuntimeException("The environment variable '" + PARSER_VISUALIZATION_PATH_ENV + "' is not set.");
+            throw new RuntimeException("The environment variable '" + PARSER_VISUALIZATION_PATH_ENV + "' is not set."); // NOSONAR (RuntimeException)
         }
         basePath = new File(System.getenv(PARSER_VISUALIZATION_PATH_ENV));
 
@@ -162,12 +153,10 @@ public class ParseStateVisualizer {
             try {
                 FileUtils.deleteDirectory(frameDir);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException(e); // NOSONAR (RuntimeException)
             }
         }
         frameDir.mkdirs();
-
-        sortContainerNodeFlattener = new SortContainerNodeFlattener<>();
     }
 
     public void visualize(AbstractStackNode<IConstructor> node) {
@@ -334,7 +323,7 @@ public class ParseStateVisualizer {
         return node;
     }
 
-    private <P> DotNode createDotNode(AbstractStackNode<P> stackNode) {
+    private <P> DotNode createDotNode(AbstractStackNode<P> stackNode) { // NOSONAR
         String type = stackNode.getClass().getSimpleName();
         if (type.endsWith("StackNode")) {
             type = type.substring(0, type.length() - "StackNode".length());
@@ -348,8 +337,8 @@ public class ParseStateVisualizer {
             nodeName = "";
         }
 
-        if (nodeName.startsWith("layouts_")) {
-            nodeName = nodeName.substring("layouts_".length());
+        if (nodeName.startsWith(LAYOUT_PREFIX)) {
+            nodeName = nodeName.substring(LAYOUT_PREFIX.length());
         }
 
         int dot = stackNode.getDot();
@@ -372,34 +361,39 @@ public class ParseStateVisualizer {
         }
 
         DotNode node = new DotNode(getNodeId(stackNode));
-        String label = String.format("%s: %s\n.%d@%d %s",
-            type, nodeName, dot, stackNode.getStartLocation(), extraInfo);
+        String label = String.format("%s: %s\n.%d@%d %s", type, nodeName, dot, stackNode.getStartLocation(), extraInfo); // NOSONAR (\n)
+
+        StringBuilder labelBuf = new StringBuilder(label);
 
         String shortString = stackNode.toShortString();
         if (shortString != null) {
-            label += "\n" + shortString;
+            labelBuf.append(label);
+            labelBuf.append("\n");
+            labelBuf.append(shortString);
         }
 
         P parentProduction = stackNode.getParentProduction();
         if (parentProduction instanceof IConstructor) {
-            label += "\nin: " + DebugUtil.prodToString((IConstructor) parentProduction);
+            labelBuf.append("\nin: ");
+            labelBuf.append(DebugUtil.prodToString((IConstructor) parentProduction));
         } else {
             if (stackNode.getProduction() != null) {
-                label += "\nin:";
+                labelBuf.append("\nin:");
                 for (AbstractStackNode<P> n : stackNode.getProduction()) {
                     String s = n.toShortString();
-                    if (!s.startsWith("layouts_")) {
-                        label += " " + n.toShortString();
+                    if (!s.startsWith(LAYOUT_PREFIX)) {
+                        labelBuf.append(" ");
+                        labelBuf.append(n.toShortString());
                     }
                 }
             }
         }
-        node.addAttribute(DotAttribute.ATTR_LABEL, label);
+        node.addAttribute(DotAttribute.ATTR_LABEL, labelBuf.toString());
 
         return node;
     }
 
-    private NodeId addParserNodes(DotGraph graph, AbstractNode parserNode) {
+    private NodeId addParserNodes(DotGraph graph, AbstractNode parserNode) { // NOSONAR (complexity)
         NodeId id = getNodeId(parserNode);
         if (graph.containsNode(id)) {
             return id;
@@ -580,7 +574,7 @@ public class ParseStateVisualizer {
             lookahead = '$';
         }
 
-        String label = String.format("Parser\nInput: \"%s\"\nLocation: %d ('%c')\nStep %d: %s",
+        String label = String.format("Parser\nInput: \"%s\"\nLocation: %d ('%c')\nStep %d: %s", // NOSONAR (\n)
             input, location, lookahead, frame, step);
         parserNode.setAttribute(DotAttribute.ATTR_LABEL, label);
         graph.addNode(parserNode);
@@ -693,7 +687,7 @@ public class ParseStateVisualizer {
         for (int j=0; j<doubleStack.getSize(); j++) {
             AbstractStackNode<P> stack = doubleStack.getFirst(j);
             DotNode stackDotNode = addStack(graph, stack);
-            graph.addEdge(new NodeId(nodeId, String.valueOf(j), CompassPoint.SW), stackDotNode.getId(), "Stack");
+            graph.addEdge(new NodeId(nodeId, String.valueOf(j), CompassPoint.SW), stackDotNode.getId(), LABEL_STACK);
 
             AbstractNode node = doubleStack.getSecond(j);
             addParserNode(graph, node);
@@ -708,13 +702,13 @@ public class ParseStateVisualizer {
         for (int i=0; i<doubleList.size(); i++) {
             NodeId entryId = new NodeId(nodeId.getId() + "-entry" + i);
             DotRecord entryRecord = new DotRecord();
-            entryRecord.addEntry(new DotField("Stack", "stack"));
+            entryRecord.addEntry(new DotField(LABEL_STACK, "stack"));
             entryRecord.addEntry(new DotField("Node", "node"));
             graph.addRecordNode(entryId, entryRecord);
 
             AbstractStackNode<P> stack = doubleList.getFirst(i);
             DotNode stackDotNode = addStack(graph, stack);
-            graph.addEdge(new NodeId(entryId, "stack", CompassPoint.SW), stackDotNode.getId(), "Stack");
+            graph.addEdge(new NodeId(entryId, "stack", CompassPoint.SW), stackDotNode.getId(), LABEL_STACK);
 
             AbstractNode node = doubleList.getSecond(i);
             addParserNode(graph, node);
@@ -746,7 +740,6 @@ public class ParseStateVisualizer {
         try {
             File dotFile =  new File(basePath, name + ".dot");
             File svgFile = new File(basePath, name + ".svg");
-            //File frameDir = new File(basePath, BASE_DIR + "/frames/" + name + "/";
             File frameSvgFile = new File(frameDir, String.format("%04d", frame) + ".svg");
             File frameDotFile = new File(frameDir, String.format("%04d", frame) + ".dot");
             FileWriter writer = new FileWriter(dotFile);
@@ -755,7 +748,7 @@ public class ParseStateVisualizer {
 
             String cmd = String.format("dot -Tsvg %s -o %s", dotFile, svgFile);
             Process process = Runtime.getRuntime().exec(cmd);
-            StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
+            StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println); // NOSONAR (use logger)
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             Future<?> future = executorService.submit(streamGobbler);
 
@@ -764,8 +757,8 @@ public class ParseStateVisualizer {
 
             Files.copy(svgFile.toPath(), frameSvgFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             Files.copy(dotFile.toPath(), frameDotFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-        } catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | InterruptedException | ExecutionException | TimeoutException e) { // NOSONAR (rethrow interrupted)
+            throw new RuntimeException(e); // NOSONAR (RuntimeException)
         }
     }
 
