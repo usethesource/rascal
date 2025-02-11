@@ -1,6 +1,7 @@
 module lang::rascal::tutor::repl::TutorCommandExecutor
 
 import util::Reflective;
+import IO;
 
 @synopsis{A closure-based object wrapper for Rascal REPL}
 @description{
@@ -42,17 +43,17 @@ java CommandExecutor createExecutor(PathConfig pcfg);
 test bool executorSmokeTest() {
   exec = createExecutor(pathConfig());
 
-  output = exec.eval("import IO;");
-  
-  if (output["text/plain"] != "ok\n") {
-    return false;
-  }
+  assert exec.prompt() == "rascal\>" : "prompt should rascal"; 
 
-  exec.eval("println(\"haai\")");
+  assert /ok[\r\n]+/ := exec.eval("import IO;")["text/plain"] : "result of import should be ok";
 
-  if (output["application/rascal+stdout"] != "haai\n") {
-    return false;
-  }
+  exec.eval("println(\"haai\"");
+
+  assert exec.prompt() == "|1 \>\>\>\>" : "prompt should contuation prompt, but was <exec.prompt()>"; 
+
+  output = exec.eval(")");
+
+  assert /haai[\r\n]+/ := exec.eval(")")["application/rascal+stdout"] : "result of println should be printed";
 
   return true;
 }
