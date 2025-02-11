@@ -61,11 +61,13 @@ public class TutorCommandExecutor {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
                 eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 
-                ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
-                String projectName = new RascalManifest().getProjectName(projectRoot);
-                URIResolverRegistry reg = URIResolverRegistry.getInstance();
-                reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
-                reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+                if (!pcfg.getSrcs().isEmpty()) {
+                    ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
+                    String projectName = new RascalManifest().getProjectName(projectRoot);
+                    URIResolverRegistry reg = URIResolverRegistry.getInstance();
+                    reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
+                    reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
+                }
 
                 for (IValue path : pcfg.getSrcs()) {
                     eval.addRascalSearchPath((ISourceLocation) path); 
@@ -174,9 +176,7 @@ public class TutorCommandExecutor {
     }
 
 
-    private String simulatePrompt(String line) {
-        outPrinter.print(prompt());
-        outPrinter.println(line);
+    private String collectFullCommand(String line) {
         if (!this.currentInput.isEmpty()) {
             this.currentInput += "\n" + line;
         }
@@ -200,12 +200,12 @@ public class TutorCommandExecutor {
         }
         long lines = this.currentInput.codePoints()
             .filter(ch -> ch == '\n')
-            .count();
-        return String.format("%d >>>", lines + 1);
+            .count() + 1;
+        return String.format("|%d %s", lines, ">".repeat(lines > 10 ? 3 : 4));
     }
     
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
-        var input = simulatePrompt(line);
+        var input = collectFullCommand(line);
         if (!isValidCommand(input) && !line.isBlank()) {
             // continuation
             return Collections.emptyMap();
