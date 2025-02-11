@@ -71,7 +71,7 @@ public class TutorCommandExecutorCreator {
 
     IFunction prompt(TutorCommandExecutor exec) {
         return vf.function(promptType, (args, kwargs) -> {
-            return vf.string("rascal>"); // TODO: calculate if we're in a continuation prompt or not
+            return vf.string(exec.prompt());
         });
     }
 
