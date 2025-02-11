@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * Copyright (c) 2024-2025, NWO-I Centrum Wiskunde & Informatica (CWI)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -13,8 +13,6 @@
  **/
 package org.rascalmpl.library.util;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,10 +22,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.parser.util.ParseStateVisualizer;
-import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.util.visualize.dot.DotGraph;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.parsetrees.ITree;
