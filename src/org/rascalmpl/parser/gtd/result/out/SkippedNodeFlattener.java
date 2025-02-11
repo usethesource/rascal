@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2024 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,8 +20,11 @@ import org.rascalmpl.parser.gtd.result.SkippedNode;
 
 /**
  * A converter for result nodes that contain skipped characters for error recovery
+ * SkippedNode flattening is cached seperately because skipped nodes are special:
+ * nodes for the same piece of text can be created by different error recovery attempts.
+ * By caching them here, the nodes are reused and shared instead of created anew each time.
  */
-public class SkippedNodeFlattener<T, P>{
+public class SkippedNodeFlattener<T, P> {
 	private static class MemoKey {
 		private int offset;
 		private int length;
@@ -33,8 +36,11 @@ public class SkippedNodeFlattener<T, P>{
 
 		@Override
 		public boolean equals(Object peer) {
+			if (!(peer instanceof MemoKey)) {
+				return false;
+			}
 			MemoKey peerKey = (MemoKey) peer;
-			return peerKey != null && offset == peerKey.offset && length == peerKey.length;
+			return offset == peerKey.offset && length == peerKey.length;
 		}
 
 		@Override
