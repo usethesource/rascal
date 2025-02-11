@@ -144,7 +144,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	
 	// Error recovery
 	private IRecoverer<P> recoverer;
-	private Map<IConstructor,IConstructor> processedTrees = new java.util.HashMap<>(); // Used to preserve sharing during error node introduction
+	private Map<IConstructor,IConstructor> processedTrees = new java.util.IdentityHashMap<>(); // Used to preserve sharing during error node introduction
 	
 	// Debugging
 	private IDebugListener<P> debugListener;
@@ -1511,32 +1511,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return result;
 	}
 
-	private void checkMemoization(URI inputURI, AbstractNode result) {
-		DefaultNodeFlattener.nodeMemoization = true;
-		DefaultNodeFlattener.linkMemoization = false;
-		if (inputURI != null) {
-			String query = inputURI.getQuery();
-			if (query != null) {
-				if (query.contains("parse-memoization=none")) {
-					DefaultNodeFlattener.nodeMemoization = false;
-					DefaultNodeFlattener.linkMemoization = false;
-				} else if (query.contains("parse-memoization=link")) {
-					DefaultNodeFlattener.nodeMemoization = false;
-					DefaultNodeFlattener.linkMemoization = true;
-				} else if (query.contains("parse-memoization=node")) {
-					DefaultNodeFlattener.nodeMemoization = true;
-					DefaultNodeFlattener.linkMemoization = false;
-				} else if (query.contains("parse-memoization")) {
-					throw new IllegalArgumentException("Unsupported memoization directive: " + query);
-				}
-
-				if (query.contains("visualize-parse-result")) {
-					new ParseStateVisualizer("ParseResult").visualizeNode(result);
-				}
-			}
-		}
-	}
-
 	/**
 	 * Parses with post parse filtering.
 	 */
@@ -1545,7 +1519,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}
 	
@@ -1581,7 +1554,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		IDebugListener<P> debugListener) {
 		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal),
 			inputURI, input, recoverer, debugListener);
-		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
@@ -1611,7 +1583,6 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		INodeConstructorFactory<T, S> nodeConstructorFactory) {
 	  
 		AbstractNode result = parse(startNode, inputURI, charsToInts(input), null, null);
-		checkMemoization(inputURI, result);
 		return buildResult(result, converter, nodeConstructorFactory, new VoidActionExecutor<T>());
 	}
 	
