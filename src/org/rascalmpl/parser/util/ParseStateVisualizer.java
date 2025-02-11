@@ -44,6 +44,7 @@ import org.rascalmpl.parser.gtd.result.LiteralNode;
 import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.parser.gtd.result.out.SortContainerNodeFlattener;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
@@ -68,6 +69,7 @@ import org.rascalmpl.values.parsetrees.TreeAdapter;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -101,6 +103,9 @@ public class ParseStateVisualizer {
     public static final NodeId FILTERED_NODES_ID = new NodeId("filteredNodes");
 
     private static final NodeId RECOVERED_NODES_ID = new NodeId("recoveredNodes");
+
+    private static final String COLOR_CACHEABLE = "lightgreen";
+    private static final String COLOR_NON_EMPTY_PREFIX = "orange";
 
     public static boolean shouldVisualizeUri(URI inputUri) {
         if (!VISUALIZATION_ENABLED) {
@@ -139,6 +144,7 @@ public class ParseStateVisualizer {
     private int frame;
     private int nextParseNodeId;
 
+    private SortContainerNodeFlattener<IConstructor, ITree, ISourceLocation> sortContainerNodeFlattener;
 
     public ParseStateVisualizer(String name) {
         // In the future we might want to offer some way to control the path from within Rascal.
@@ -160,6 +166,8 @@ public class ParseStateVisualizer {
             }
         }
         frameDir.mkdirs();
+
+        sortContainerNodeFlattener = new SortContainerNodeFlattener<>();
     }
 
     public void visualize(AbstractStackNode<IConstructor> node) {
@@ -261,7 +269,7 @@ public class ParseStateVisualizer {
 
     public DotGraph createGraph(ITree parseTree) {
         reset();
-        graph = new DotGraph(name, false);
+        graph = new DotGraph(name, true);
         addParseTree(graph, parseTree, new HashMap<>());
         return graph;
     }
@@ -416,16 +424,17 @@ public class ParseStateVisualizer {
             Link firstAlt = container.getFirstAlternative();
             IConstructor firstProd = container.getFirstProduction();
             if (firstAlt != null) {
-                NodeId firstAltId = addLink(graph, firstAlt, "Alt: " + DebugUtil.prodToString(firstProd));
-                graph.addEdge(id, firstAltId);
+                NodeId firstAltId = addLink(graph, firstAlt, DebugUtil.prodToString(firstProd));
+                graph.addEdge(id, firstAltId, "alt", firstAlt.isCacheable() ? COLOR_CACHEABLE : null);
 
                 ArrayList<Link> alternatives = container.getAdditionalAlternatives();
                 ArrayList<IConstructor> prods = container.getAdditionalProductions();
                 if (alternatives != null) {
                     for (int i=0; i<alternatives.size(); i++) {
                         IConstructor prod = prods.get(i);
-                        NodeId altId = addLink(graph, alternatives.get(i), "Alt: " + DebugUtil.prodToString(prod));
-                        graph.addEdge(id, altId);
+                        Link alt = alternatives.get(i);
+                        NodeId altId = addLink(graph, alt, DebugUtil.prodToString(prod));
+                        graph.addEdge(id, altId, "alt", alt.isCacheable() ? COLOR_CACHEABLE : null);
                     }
                 }
             }
@@ -441,7 +450,7 @@ public class ParseStateVisualizer {
         }
 
         DotNode linkNode = new DotNode(linkId);
-        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label);
+        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label + "\n" + link.getId());
 
         graph.addNode(linkNode);
 
@@ -450,14 +459,19 @@ public class ParseStateVisualizer {
             for (int i=0; i<prefixes.size(); i++) {
                 Link prefix = prefixes.get(i);
                 if (prefix != null) {
-                    NodeId prefixId = addLink(graph, prefix, "Prefix");
-                    graph.addEdge(linkId, prefixId);
+                    NodeId prefixId = addLink(graph, prefix, "Link");
+                    graph.addEdge(linkId, prefixId, "prefix");
                 }
             }
         }
 
         NodeId nodeId = addParserNodes(graph, link.getNode());
-        graph.addEdge(linkId, nodeId, "node");
+
+        if (!link.canPrefixBeEmpty()) {
+            graph.highlight(getNodeId(link), COLOR_NON_EMPTY_PREFIX);
+        }
+
+        graph.addEdge(linkId, nodeId, "node", link.isCacheable() ? COLOR_CACHEABLE : null);
 
         return linkId;
     }
@@ -471,7 +485,7 @@ public class ParseStateVisualizer {
     @SuppressWarnings("unchecked")
     private void addParserNode(DotGraph graph, AbstractNode parserNode, NodeId id) {
         DotNode dotNode = new DotNode(id);
-        dotNode.addAttribute(DotAttribute.ATTR_NODE_SHAPE, "octagon");
+        dotNode.addAttribute(DotAttribute.ATTR_NODE_SHAPE, parserNode.isEmpty() ? "octagon" : "doubleoctagon");
 
         String nodeName = parserNode.getClass().getSimpleName();
         if (nodeName.endsWith("Node")) {
@@ -479,6 +493,7 @@ public class ParseStateVisualizer {
         }
 
         dotNode.addAttribute(DotAttribute.ATTR_LABEL, nodeName);
+
 
         switch (parserNode.getTypeIdentifier()) {
             case EpsilonNode.ID:
@@ -540,6 +555,10 @@ public class ParseStateVisualizer {
 
     public static <P> NodeId getNodeId(AbstractStackNode<P> stackNode) {
         return new NodeId(String.valueOf(stackNode.getId()));
+    }
+
+    public NodeId getNodeId(Link link) {
+        return new NodeId("Link-" + System.identityHashCode(link));
     }
 
     private static NodeId getNodeId(Object node) {

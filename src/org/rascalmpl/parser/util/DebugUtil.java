@@ -31,21 +31,31 @@ public class DebugUtil {
     public static String prodToString(IConstructor prod) {
         StringBuilder builder = new StringBuilder("'");
 
-        builder.append(quotedStringToPlain(ProductionAdapter.getSortName(prod)));
+        String sortName = ProductionAdapter.getSortName(prod);
+        if (sortName.equals("LAYOUT")) {
+            return sortName + " -> ...";
+        }
+
+        builder.append(quotedStringToPlain(sortName));
 
         builder.append(" ->");
 
         if (prod.getName().equals("prod")) {
             ProductionAdapter.getConstructorName(prod);
-            IList children = (IList) prod.get(1);
-            for (IValue child : children) {
+            IList symbols = (IList) prod.get(1);
+            for (IValue symbol : symbols) {
                 builder.append(" ");
-                IConstructor conChild = (IConstructor) child;
-                builder.append(quotedStringToPlain(String.valueOf((conChild).get(0))));
+                IConstructor conSymbol = (IConstructor) symbol;
+                switch (conSymbol.getName()) {
+                    default:
+                        builder.append(quotedStringToPlain(String.valueOf(conSymbol.get(0))));   // Sort or label
+                        break;
+                }
             }
+        } else if (prod.getName().equals("error")) {
+            builder.append("err." + prod.get(2) + ":" + prodToString((IConstructor) prod.get(1)));
         } else {
-            builder.append(" ");
-            builder.append(prod.toString());
+            builder.append(prod.getName() + "...");
         }
 
         builder.append("'");
@@ -56,6 +66,10 @@ public class DebugUtil {
     private static String quotedStringToPlain(String s) {
         if (s.isEmpty()) {
             return s;
+        }
+
+        if (s.equals("\"LAYOUTLIST\"") || s.equals("LAYOUTLIST")) {
+            return "L*";
         }
 
         if (s.charAt(0) == '"' && s.charAt(s.length()-1) == '"') {
