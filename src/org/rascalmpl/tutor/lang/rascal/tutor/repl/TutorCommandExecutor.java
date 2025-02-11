@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,6 +51,7 @@ public class TutorCommandExecutor {
     private final StringWriter errWriter = new StringWriter();
     private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
     private final ITutorScreenshotFeature screenshot;
+    private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         interpreter = new RascalInterpreterREPL() {
@@ -136,6 +138,8 @@ public class TutorCommandExecutor {
         return current;
     }
 
+
+
     private String javaCompilerPathAsString(IList javaCompilerPath) {
         StringBuilder b = new StringBuilder();
 
@@ -166,12 +170,49 @@ public class TutorCommandExecutor {
         outWriter.getBuffer().setLength(0);
         errPrinter.flush();
         errWriter.getBuffer().setLength(0);
+        currentInput = "";
+    }
+
+
+    private String simulatePrompt(String line) {
+        outPrinter.print(prompt());
+        outPrinter.println(line);
+        if (!this.currentInput.isEmpty()) {
+            this.currentInput += "\n" + line;
+        }
+        else {
+            this.currentInput = line;
+        }
+        return this.currentInput;
+    }
+
+    private boolean isValidCommand(String cmd) {
+        try {
+            return interpreter.parseCommand(cmd) != null;
+        } catch (ParseError pe) {
+            return false;
+        }
+    }
+
+    public String prompt() {
+        if (this.currentInput.isEmpty()) {
+            return "rascal>";
+        }
+        long lines = this.currentInput.codePoints()
+            .filter(ch -> ch == '\n')
+            .count();
+        return String.format("%d >>>", lines + 1);
     }
     
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
+        var input = simulatePrompt(line);
+        if (!isValidCommand(input) && !line.isBlank()) {
+            // continuation
+            return Collections.emptyMap();
+        }
         Map<String, String> result = new HashMap<>();
         try {
-            var replResult = interpreter.handleInput(line);
+            var replResult = interpreter.handleInput(input);
             if (replResult instanceof IErrorCommandOutput) {
                 ((IErrorCommandOutput)replResult).asPlain().write(errPrinter, true);
             }
@@ -210,6 +251,7 @@ public class TutorCommandExecutor {
         catch (StopREPLException e1) {
             errWriter.write("Quiting REPL");
         } finally {
+            this.currentInput = "";
             result.put("application/rascal+stdout", getPrintedOutput());
             result.put("application/rascal+stderr", getErrorOutput());
         }
