@@ -433,7 +433,7 @@ public class ParseStateVisualizer {
         }
 
         DotNode linkNode = new DotNode(linkId);
-        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label + "\n" + link.getId());
+        linkNode.addAttribute(DotAttribute.ATTR_LABEL, label);
 
         graph.addNode(linkNode);
 
