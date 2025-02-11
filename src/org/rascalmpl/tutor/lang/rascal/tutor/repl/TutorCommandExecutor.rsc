@@ -12,6 +12,7 @@ This was created to implement documentation pages with example REPL runs.
 data CommandExecutor
   = executor(
         PathConfig pcfg,
+        str () prompt,
         void () reset,
         map[str mimeType, str content] (str command) eval
   );
