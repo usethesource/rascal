@@ -87,11 +87,19 @@ public class DotGraph {
         addNode(node);
     }
 
-    public void highlight(NodeId id) {
+    public void addAttribute(NodeId id, String name, String value) {
         DotNode node = nodes.get(id);
         if (node != null) {
-            node.addAttribute(DotAttribute.ATTR_COLOR, COLOR_HIGHLIGHT);
+            node.addAttribute(name, value);
         }
+    }
+
+    public void highlight(NodeId id, String color) {
+        addAttribute(id, DotAttribute.ATTR_COLOR, color);
+    }
+
+    public void highlight(NodeId id) {
+        highlight(id, COLOR_HIGHLIGHT);
     }
 
     public void addEdge(String from, String to) {
@@ -102,10 +110,17 @@ public class DotGraph {
         addEdge(new DotEdge(from, true, to));
     }
 
-    public void addEdge(NodeId from, NodeId to, String label) {
+    public void addEdge(NodeId from, NodeId to, String label, String color) {
         DotEdge edge = new DotEdge(from, true, to);
         edge.addAttribute(DotAttribute.ATTR_LABEL, label);
+        if (color != null) {
+            edge.addAttribute(DotAttribute.ATTR_COLOR, color);
+        }
         addEdge(edge);
+    }
+
+    public void addEdge(NodeId from, NodeId to, String label) {
+        addEdge(from, to, label, null);
     }
 
     public void addEdge(DotEdge edge) {

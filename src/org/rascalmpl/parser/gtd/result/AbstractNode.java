@@ -11,11 +11,17 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
+import io.usethesource.vallang.IConstructor;
+
 /**
  * All nodes in the resulting tree are a subtype of this class.
  */
 public abstract class AbstractNode{
-	
+	// Parse forest memoization during flattening
+	// Note that the type should technically be a type parameter, but this
+	// would entail more code changes than we are willing to make at this point.
+	private IConstructor tree;
+
 	public AbstractNode(){
 		super();
 	}
@@ -42,4 +48,13 @@ public abstract class AbstractNode{
 	 * Checks whether or not this node represents a non-terminal separator.
 	 */
 	public abstract boolean isNonterminalSeparator();
+
+	public <T> void setTree(T tree) {
+		this.tree = (IConstructor) tree;
+	}
+
+	@SuppressWarnings("unchecked")
+	public  <T> T getTree() {
+		return (T) tree;
+	}
 }
