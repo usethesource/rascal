@@ -8,8 +8,6 @@ import util::Benchmark;
 import util::ErrorRecovery;
 import String;
 
-int timeoutLimit = 0;
-
 void testFlowGraphBug() {
     standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
