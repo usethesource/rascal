@@ -211,10 +211,6 @@ public class ParseStateVisualizer {
         }
     }
 
-    public void visualizeParseTree(ITree parseTree) {
-        writeGraph(createGraph(parseTree));
-    }
-
     private synchronized DotGraph createGraph(AbstractStackNode<IConstructor> stackNode) {
         reset();
         graph = new DotGraph(name, true);
@@ -264,13 +260,6 @@ public class ParseStateVisualizer {
         for (AbstractStackNode<IConstructor> stackNode : stackNodes) {
             addProductionNodes(graph, stackNode);
         }
-        return graph;
-    }
-
-    public DotGraph createGraph(ITree parseTree) {
-        reset();
-        graph = new DotGraph(name, true);
-        addParseTree(graph, parseTree, new HashMap<>());
         return graph;
     }
 
@@ -778,75 +767,6 @@ public class ParseStateVisualizer {
         } catch (IOException | InterruptedException | ExecutionException | TimeoutException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private NodeId addParseTree(DotGraph graph, ITree tree, Map<ITree, NodeId> addedTrees) {
-        NodeId id = addedTrees.get(tree);
-        if (id == null) {
-            Type type = tree.getConstructorType();
-            if (type == RascalValueFactory.Tree_Char) {
-                id = addChar(graph, tree);
-            } else if (type == RascalValueFactory.Tree_Cycle) {
-                id = addCycle(graph, tree);
-            } else if (type == RascalValueFactory.Tree_Appl) {
-                id = addAppl(graph, tree, addedTrees);
-            } else if (type == RascalValueFactory.Tree_Amb) {
-                id = addAmb(graph, tree, addedTrees);
-            } else {
-                throw new IllegalStateException("Unsupported type: " + type);
-            }
-
-            addedTrees.put(tree, id);
-        }
-
-        return id;
-    }
-
-    private NodeId addChar(DotGraph graph, ITree charNode) {
-        NodeId id = new NodeId("char-" + nextParseNodeId++);
-        int value = ((IInteger) charNode.get(0)).intValue();
-        graph.addNode(id, "Char: " + (char) value + " (" + value + ")");
-        return id;
-    }
-
-    private NodeId addCycle(DotGraph graph, ITree cycle) {
-        NodeId id = new NodeId("cycle-" + nextParseNodeId++);
-
-        String sym = String.valueOf(cycle.get(0));
-        int depth = ((IInteger) cycle.get(1)).intValue();
-
-        graph.addNode(id, "Cycle: " + sym + ", depth=" + depth);
-
-        return id;
-    }
-
-    private NodeId addAppl(DotGraph graph, ITree appl, Map<ITree, NodeId> addedTrees) {
-        NodeId id = new NodeId("appl-" + nextParseNodeId++);
-
-        IConstructor type = ProductionAdapter.getType(appl);
-
-        graph.addNode(id, DebugUtil.prodToString(type));
-
-        for (IValue arg : TreeAdapter.getArgs(appl)) {
-            NodeId argId = addParseTree(graph, (ITree) arg, addedTrees);
-            graph.addEdge(id, argId);
-        }
-
-        return id;
-    }
-
-    private NodeId addAmb(DotGraph graph, ITree amb, Map<ITree, NodeId> addedTrees) {
-        NodeId id = new NodeId("amb-" + nextParseNodeId++);
-
-        ISet alts = TreeAdapter.getAlternatives(amb);
-        graph.addNode(id, "Amb, size=" + alts.size());
-
-        for (IValue alt : alts) {
-            NodeId argId = addParseTree(graph, (ITree) alt, addedTrees);
-            graph.addEdge(id, argId);
-        }
-
-        return id;
     }
 
 }
