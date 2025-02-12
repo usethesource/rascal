@@ -578,6 +578,10 @@ public class PathConfig {
                         }
                     }
                 }
+                else {
+                    // this is a jar without Rascal meta-data, we need it for the classpath
+                    libsWriter.append(dep);
+                }
             }
         }
         catch (IOException e) {
