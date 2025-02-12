@@ -116,8 +116,9 @@ public class Messages {
                 line = loc.getBeginLine();
             }
 
-            String output 
-                = loc.getPath()
+            String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
+                ? ((IString) msg.get("msg")).getValue()
+                : loc.getPath()
                 + ":"
                 + String.format("%0" + lineWidth + "d", line)
                 + ":"
