@@ -533,7 +533,7 @@ public class PathConfig {
                 }
 
                 if (libProjectName != null && !libProjectName.isEmpty()) {
-                    if (reg.exists(projectLoc) && !libProjectName.isEmpty() && dep != rascalProject) {
+                    if (reg.exists(projectLoc) && dep != rascalProject) {
                         // The project we depend on is available in the current workspace. 
                         // so we configure for using the current state of that project.
                         PathConfig childConfig = fromSourceProjectRascalManifest(projectLoc, mode, false);
@@ -589,11 +589,11 @@ public class PathConfig {
                 // which contains the (source of) the standard library, and if we already
                 // have a dependency on the rascal project we don't add it here either.
                 var rascalLib = resolveCurrentRascalRuntimeJar();
-                messages.append(Messages.info("Effective rascal library: " + rascalLib, getPomXmlLocation(manifestRoot)));
+                messages.append(Messages.info("Effective Rascal library: " + rascalLib, getPomXmlLocation(manifestRoot)));
                 libsWriter.append(rascalLib);
             }
             else if (projectName.equals("rascal")) {
-                messages.append(Messages.info("detected rascal self-application", getPomXmlLocation(manifestRoot)));
+                messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
             }
             else if (rascalProject != null) {
                 // The Rascal interpreter can not escape its own classpath, whether
@@ -721,7 +721,9 @@ public class PathConfig {
     }
 
     private static void addLibraryToSourcePath(URIResolverRegistry reg, IListWriter srcsWriter, IListWriter messages, ISourceLocation jar) {
-        if (!reg.exists(URIUtil.getChildLocation(jar, RascalManifest.META_INF_RASCAL_MF))) {
+        var unpacked = JarURIResolver.jarify(jar);
+
+        if (!reg.exists(URIUtil.getChildLocation(unpacked, RascalManifest.META_INF_RASCAL_MF))) {
             // skip all the non Rascal libraries
             return;
         }
@@ -738,7 +740,7 @@ public class PathConfig {
         boolean foundSrc = false;
 
         for (String src : manifest.getSourceRoots(jar)) {
-            ISourceLocation srcLib = URIUtil.getChildLocation(jar, src);
+            ISourceLocation srcLib = URIUtil.getChildLocation(unpacked, src);
             if (reg.exists(srcLib)) {
                 srcsWriter.append(srcLib);
                 foundSrc = true;
