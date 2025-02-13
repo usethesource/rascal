@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 	protected ArrayList<Link> alternatives;
 	protected ArrayList<P> productions;
 	
-	public AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
+	protected AbstractContainerNode(URI input, int offset, int endOffset, boolean isNullable, boolean isSeparator, boolean isLayout){
 		super();
 		
 		this.input = input;
@@ -65,8 +65,8 @@ public abstract class AbstractContainerNode<P> extends AbstractNode{
 			firstProduction = production;
 		}else{
 			if(alternatives == null){
-				alternatives = new ArrayList<Link>(1);
-				productions = new ArrayList<P>(1);
+				alternatives = new ArrayList<>(1);
+				productions = new ArrayList<>(1);
 			}
 			alternatives.add(children);
 			productions.add(production);

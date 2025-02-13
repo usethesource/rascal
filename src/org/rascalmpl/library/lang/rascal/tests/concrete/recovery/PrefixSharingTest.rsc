@@ -21,10 +21,10 @@ test bool exprUnknownTerminator() = checkRecovery(#Stat, "1+2:\n", [":\n"], visu
 
 test bool exprUnknownOperator() = checkRecovery(#Stat, "1*2;", ["*2"], visualize=false);
 
-test bool exprPrefixSharing() {
+// Used to manually inspect the resulting error tree
+void exprPrefixSharing() {
     Tree t = parseStat("1*2;", visualize=false);
     println(prettyTree(t));
-    return true;
 }
 
 

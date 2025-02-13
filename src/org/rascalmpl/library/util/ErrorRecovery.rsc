@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * Copyright (c) 2024-2025, NWO-I Centrum Wiskunde & Informatica (CWI)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -17,16 +17,26 @@ module util::ErrorRecovery
 import ParseTree;
 import String;
 
+@synopsis{Library functions for handling parse trees with error nodes.}
+@description{
+When parse functions are called with `errorRecovery=true`, the resulting parse trees can contain error and skipped nodes. For an in-depth description of these nodes see the `ParseTree` module.
+Functions in this module can be used to detect, isolate, and analyze these error nodes.
+Note that these are fairly low-level functions. Better high-level support for error trees will be added to Rascal and its standard library in the future.
+As such, this code should be considered experimental and used with care.
+}
+
 @synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
 bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 
 @javaClass{org.rascalmpl.library.util.ErrorRecovery}
-@synopsis{Find all error productions in a parse tree. The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.}
+@synopsis{Find all error productions in a parse tree.
+Note that children of an error tree can contain errors themselves.
+The list of errors returned by this methood is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is
+returned first.
+Often error trees are highly ambiguous and can contain a lot of error trees. This function is primarily used to analyze small examples as calling this function
+on a tree with many errors will result in long runtimes and out-of-memory errors.
+}
 java list[Tree] findAllErrors(Tree tree);
-
-@synopsis{Disambiguate the error ambiguities in a tree and return the list of remaining errors. 
-The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.}
-list[Tree] findBestErrors(Tree tree) = findAllErrors(disambiguateErrors(tree));
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
@@ -52,6 +62,13 @@ Note that regular ambiguous trees remain in the parse forest unless `allowAmbigu
 This method uses simple and somewhat arbitrary heuristics, so its usefulness is limited.
 }
 java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
+
+@synopsis{Disambiguate the error ambiguities in a tree and return the list of remaining errors. 
+The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.
+Error disambiguation is based on heuristics and are therefore unsuitable for many use-cases. We primarily use this functionality
+for testing and for presenting recovered errors in VSCode.
+}
+list[Tree] findBestErrors(Tree tree) = findAllErrors(disambiguateErrors(tree));
 
 @synopsis{Create a parse filter based on `disambiguateErrors` with or without `allowAmbiguity`.}
 Tree(Tree) createErrorFilter(bool allowAmbiguity) =
