@@ -8,6 +8,7 @@ import Set;
 AType clean(AType t){
     return visit(t){
         case tvar(loc _) => aint()
+        case aparameter(_, AType t) => t
         case lazyLub(list[AType] lst) => isEmpty(lst) ? avoid() : avalue()
         case \start(AType t) => t
         case  overloadedAType(rel[loc, IdRole, AType] overloads):
