@@ -755,16 +755,6 @@ public class PathConfig {
         }
     }
 
-    private static ISourceLocation setTargetScheme(ISourceLocation projectLoc) {
-        try {
-            return URIUtil.changeScheme(projectLoc, "target");
-        }
-        catch (URISyntaxException e) {
-            // this never happens because "target" is valid
-            return projectLoc;
-        }
-    }
-
     private static ISourceLocation getRascalMfLocation(ISourceLocation project) {
         return URIUtil.getChildLocation(project, RascalManifest.META_INF_RASCAL_MF);
     }
