@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ public abstract class AbstractNode{
 	// would entail more code changes than we are willing to make at this point.
 	private IConstructor tree;
 
-	public AbstractNode(){
+	protected AbstractNode(){
 		super();
 	}
 	

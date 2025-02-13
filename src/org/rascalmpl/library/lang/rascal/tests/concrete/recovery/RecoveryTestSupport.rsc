@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * Copyright (c) 2024-2025, NWO-I Centrum Wiskunde & Informatica (CWI)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -98,7 +98,8 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
             Tree tree = char(0);
             int parseEndTime = startTime;
 
-            tree = recoveryParser(input, source);
+            Tree t = recoveryParser(input, source);
+            tree = t;
             parseEndTime = realTime();
             duration = parseEndTime - startTime;
 
@@ -608,7 +609,7 @@ str getTestInput(loc testUri) {
     loc file = testUri[query = ""];
 
     str input = readFile(file);
-    if (/deletedUntilEol=<line:[0-9]*>:<begin:[0-9]*>:<end:[0-9]*>/ := query) {
+    if (/deletedUntilEol=[0-9]*:<begin:[0-9]*>:<end:[0-9]*>/ := query) {
         println("deleteUntilEol: begin=<begin>, end=<end>");
         return getDeleteUntilEolInput(input, toInt(begin));
     } else if (/deletedChar=<index:[0-9]*>/ := query) {

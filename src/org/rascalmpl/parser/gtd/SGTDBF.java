@@ -24,7 +24,6 @@ import org.rascalmpl.parser.gtd.result.RecoveredNode;
 import org.rascalmpl.parser.gtd.result.SortContainerNode;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
-import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
 import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
 import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
@@ -64,7 +63,6 @@ import io.usethesource.vallang.type.Type;
  */
 public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	private final static int DEFAULT_TODOLIST_CAPACITY = 16;
-	private static final String PARAM_ENABLE_CACHE = "enable-cache";
 	
 	private URI inputURI;
 	private int[] input;
@@ -149,7 +147,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	// Debugging
 	private IDebugListener<P> debugListener;
 	private ParseStateVisualizer visualizer;
-	
+
 	// Temporary instrumentation for accurate profiling
 	private long timestamp;
 	private boolean printTimes = false;
@@ -907,7 +905,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 */
 	private void reduceTerminals() {
 		// Reduce terminals
-		visualize("Reducing terminals", ParseStateVisualizer.TERMINALS_TO_REDUCE_ID);
+		if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
+			visualize("Reducing terminals", ParseStateVisualizer.TERMINALS_TO_REDUCE_ID);
+		}
 		while(!stacksWithTerminalsToReduce.isEmpty()){
 			move(stacksWithTerminalsToReduce.peekFirst(), stacksWithTerminalsToReduce.popSecond());
 		}
@@ -915,7 +915,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 
 	private void reduceNonTerminals() {
 		// Reduce non-terminals
-		visualize("Reducing non-terminals", ParseStateVisualizer.NON_TERMINALS_TO_REDUCE_ID);
+		if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
+			visualize("Reducing non-terminals", ParseStateVisualizer.NON_TERMINALS_TO_REDUCE_ID);
+		}
 		while(!stacksWithNonTerminalsToReduce.isEmpty()){
 			move(stacksWithNonTerminalsToReduce.peekFirst(), stacksWithNonTerminalsToReduce.popSecond());
 		}
@@ -947,7 +949,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * needs to be shifted.
 	 */
 	private boolean findStacksToReduce(){
-		visualize("Finding stacks to reduce", ParseStateVisualizer.TODO_LISTS_ID);
+		if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
+			visualize("Finding stacks to reduce", ParseStateVisualizer.TODO_LISTS_ID);
+		}
 		int queueDepth = todoLists.length;
 		for(int i = 1; i < queueDepth; ++i){
 			queueIndex = (queueIndex + 1) % queueDepth;
@@ -970,11 +974,14 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	private boolean attemptRecovery() {
 		if (recoverer != null) {
-				debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes,
-					unmatchableMidProductionNodes, filteredNodes);
-			visualize("Recovering", ParseStateVisualizer.ERROR_TRACKING_ID);
+			debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes,
+				unmatchableMidProductionNodes, filteredNodes);
+			if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
+				visualize("Recovering", ParseStateVisualizer.ERROR_TRACKING_ID);
+			}
 			DoubleArrayList<AbstractStackNode<P>, AbstractNode> recoveredNodes = recoverer.reviveStacks(input, location,
 				unexpandableNodes, unmatchableLeafNodes, unmatchableMidProductionNodes, filteredNodes);
 				debugListener.revived(recoveredNodes);
@@ -991,7 +998,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 					AbstractStackNode<P> recovered = recoveredNodes.getFirst(i);
 						debugListener.reviving(input, location, unexpandableNodes, unmatchableLeafNodes,
 							unmatchableMidProductionNodes, filteredNodes);
-					visualize("Queue recovery node", ParseStateVisualizer.getNodeId(recovered));
+					if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
+						visualize("Queue recovery node", ParseStateVisualizer.getNodeId(recovered));
+					}
 					queueRecoveryNode(recovered, recovered.getStartLocation(), recovered.getLength(),
 						recoveredNodes.getSecond(i));
 				}
@@ -1327,7 +1336,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Initiate stack expansion for all queued stacks.
 	 */
 	private void expand(){
-		visualize("Expanding", ParseStateVisualizer.STACKS_TO_EXPAND_ID);
+		if (ParseStateVisualizer.VISUALIZATION_ENABLED) {
+			visualize("Expanding", ParseStateVisualizer.STACKS_TO_EXPAND_ID);
+		}
 		while(!stacksToExpand.isEmpty()){
 			expandStack(stacksToExpand.pop());
 		}
@@ -1748,6 +1759,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S> {
 	 * Datastructure visualization for debugging purposes
 	 */
 
+	 @SuppressWarnings("unused")
 	 private void visualize(String step, NodeId highlight) {
 		// Only visualize when debugging
 		if (ParseStateVisualizer.VISUALIZATION_ENABLED && visualizer != null) {

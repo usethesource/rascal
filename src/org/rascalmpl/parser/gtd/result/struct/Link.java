@@ -41,16 +41,6 @@ public class Link{
 	private int emptyPrefix;
 	private int cacheable;
 
-	// ids are only used for debug visualization
-	private static int nextId = 0;
-	private int id = nextId++;
-	public static void resetIds() {
-		nextId = 0;
-	}
-	public int getId() {
-		return id;
-	}
-
 	public Link(ArrayList<Link> prefixes, AbstractNode node){
 		super();
 		
