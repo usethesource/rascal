@@ -424,9 +424,13 @@ bool touchAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
     return expectReChecks(Top, moduleNames, pathConfig=pcfg);
 }
 
+void safeRemove(loc l){
+    try remove(l, recursive=true); catch _:;
+}
+
 test bool onlyTouchedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     Top = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
@@ -440,7 +444,7 @@ test bool onlyTouchedModulesAreReChecked1(){
 @ignore{Very expensive test}
 test bool onlyTouchedModulesAreReChecked2(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     Top = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
@@ -499,7 +503,7 @@ value main(){
 
 test bool onlyChangedModulesAreReChecked1(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     TopName = "analysis::grammars::Ambiguity";
     Top = getRascalModuleLocation(TopName, pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
@@ -529,7 +533,7 @@ test bool onlyChangedModulesAreReChecked1(){
 @ignore{Very expensive test}
 test bool onlyChangedModulesAreReChecked2(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     Top = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
     assert checkModuleOK(Top, pathConfig = pcfg);
     assert validateBOMs(pcfg);
@@ -563,7 +567,7 @@ void benchmark(str title, lrel[str, void()] cases){
 
 void touchOne(){
     pcfg = getRascalPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     TopName = "ParseTree";
     Top = getRascalModuleLocation("ParseTree", pcfg);
     cases =
@@ -575,7 +579,7 @@ void touchOne(){
 
 void miniBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     TopName = "ParseTree";
     Top = getRascalModuleLocation("ParseTree", pcfg);
 
@@ -592,7 +596,7 @@ void miniBenchmarkRechecking(){
 
 void mediumBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     TopName = "analysis::grammars::Ambiguity";
     Top = getRascalModuleLocation(TopName, pcfg);
 
@@ -611,7 +615,7 @@ void mediumBenchmarkRechecking(){
 
 void largeBenchmarkRechecking(){
     pcfg = getAllSrcPathConfig();
-    remove(pcfg.resources, recursive=true);
+    safeRemove(pcfg.resources);
     TopName = "lang::rascalcore::check::Checker";
     Top = getRascalModuleLocation(TopName, pcfg);
 
