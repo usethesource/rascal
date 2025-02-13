@@ -8,11 +8,13 @@ import util::Benchmark;
 import util::ErrorRecovery;
 import String;
 
-void testFlowGraphBug() {
+test bool testFlowGraphBug() {
     standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
     loc source = |std:///analysis/m3/FlowGraph.rsc|;
     input = readFile(source);
     // Resulted in extremely long runtime and eventually an out-of-memory exception
     testSingleCharDeletions(standardParser, recoveryParser, source, input, 200, 150, begin=387, end=387);
+    // If the deletion test completes, the test succeeds
+    return true;
 }
