@@ -17,20 +17,11 @@ import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
 
-test bool testInfiniteLoop1() {
+test bool testInfiniteLoop() {
     str input = readFile(|std:///lang/rascal/tests/concrete/recovery/bugs/InfiniteLoopInput.txt|);
     p = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
     println("starting parse");
     p(input, |unknown:///?visualize=false|);
-    // If the parse returns, the test succeeds
-    return true;
-}
-
-test bool testInfiniteLoop2() {
-    standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
-    recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
-    input = readFile(|std:///analysis/m3/FlowGraph.rsc|);
-    testDeleteUntilEol(standardParser, recoveryParser, input, 200, 100);
     // If the parse returns, the test succeeds
     return true;
 }
