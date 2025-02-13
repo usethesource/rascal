@@ -40,7 +40,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
-import org.rascalmpl.library.util.ErrorRecovery;
+import org.rascalmpl.library.util.ParseErrorRecovery;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.debug.IDebugListener;
@@ -588,7 +588,7 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             if (!allowAmbiguity && allowRecovery) {
                 // Check for 'regular' (non-error) ambiguities
                 RascalValueFactory valueFactory = (RascalValueFactory) ValueFactoryFactory.getValueFactory();
-                new ErrorRecovery(valueFactory).checkForRegularAmbiguities(parseForest);
+                new ParseErrorRecovery(valueFactory).checkForRegularAmbiguities(parseForest);
             }
 
             return parseForest;

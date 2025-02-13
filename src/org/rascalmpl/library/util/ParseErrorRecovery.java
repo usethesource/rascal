@@ -39,10 +39,10 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
-public class ErrorRecovery {
+public class ParseErrorRecovery {
     private final IRascalValueFactory rascalValues;
 
-    public ErrorRecovery(IRascalValueFactory rascalValues) {
+    public ParseErrorRecovery(IRascalValueFactory rascalValues) {
         this.rascalValues = rascalValues;
     }
 
