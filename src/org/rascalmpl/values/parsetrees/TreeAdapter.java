@@ -25,6 +25,7 @@ import org.jline.jansi.Ansi.Attribute;
 import org.jline.jansi.Ansi.Color;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.visitors.TreeVisitor;
@@ -140,6 +141,9 @@ public class TreeAdapter {
 	/**
 	 * This function assumes that getLabeledField does not return null for the same parameters!
 	 */
+	// TODO @PieterOlivier I guess we could extend this the way we also extended the getLabeledField.
+	// if the field is still on the parsed side of the dot then we're fine. Otherwise we could
+	// think about shifting the dot if we put in correct trees at the right places?
 	public static ITree putLabeledField(ITree tree, String field, ITree repl) {
 		if (isAppl(tree)) {
 			IConstructor prod = TreeAdapter.getProduction(tree);
@@ -189,6 +193,28 @@ public class TreeAdapter {
 						break;
 					default:
 						return null;
+				}
+			}
+			else if (ProductionAdapter.isError(prod)) {
+				var eprod = ProductionAdapter.getErrorProd(prod);
+				int dot = ProductionAdapter.getErrorDot(prod);
+				int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(eprod), field);
+				IList args = getArgs(tree);
+
+				if (index != -1) {
+					if (index < dot) {
+						// changing the normal part of the tree
+						return setArgs(tree, args.put(index, repl));
+					}
+					else if (index == dot) {
+						// extending the accepted part of the tree by one field
+						eprod = prod.set("prod", IRascalValueFactory.getInstance().integer(dot + 1));
+						return setProduction(setArgs(tree, args.append(repl)), eprod);
+					}
+					else {
+						// otherwise we return null which indicates the field does not exist.
+						return null;
+					}
 				}
 			}
 		}
@@ -265,6 +291,27 @@ public class TreeAdapter {
 						break;
 					default:
 						return null;
+				}
+			}
+			else if (ProductionAdapter.isError(prod)) {
+				int dot = ProductionAdapter.getErrorDot(prod);
+				IConstructor eprod = ProductionAdapter.getErrorProd(prod);
+				IList syms = ProductionAdapter.getSymbols(eprod);
+				int index = SymbolAdapter.indexOfLabel(syms, field);
+
+				if (index != -1) {
+					IConstructor sym = (IConstructor) syms.get(index);
+					sym = SymbolAdapter.stripLabelsAndConditions(sym);
+
+					if (dot <= index) {
+						// we have parsed the field so we can just return it.
+						// this is a likely scenario
+						return new FieldResult(sym, (ITree) tree.getArgs().get(index));
+					}
+					else {
+						// we simply don't have that field yet. too bad.
+						return null;
+					}
 				}
 			}
 		}
