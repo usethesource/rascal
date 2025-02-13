@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2024 NWO-I Centrum Wiskunde & Informatica (CWI) All rights reserved. This
+ * Copyright (c) 2009-2025 NWO-I Centrum Wiskunde & Informatica (CWI) All rights reserved. This
  * program and the accompanying materials are made available under the terms of the Eclipse Public
  * License v1.0 which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
@@ -43,14 +43,11 @@ import org.rascalmpl.parser.gtd.util.IntegerObjectList;
 import org.rascalmpl.parser.gtd.util.ObjectKeyedIntegerMap;
 import org.rascalmpl.parser.gtd.util.Stack;
 import org.rascalmpl.parser.uptr.recovery.InputMatcher.MatchResult;
-import org.rascalmpl.parser.util.ParseStateVisualizer;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 
 import io.usethesource.vallang.IConstructor;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
-	private static final boolean VISUALIZE_RECOVERY_NODES = false;
-
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
@@ -87,11 +84,6 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 		// Sort nodes by start location
 		recoveryNodes.sort((e1, e2) -> Integer.compare(e2.getLeft().getStartLocation(), e1.getLeft().getStartLocation()));
 
-		if (VISUALIZE_RECOVERY_NODES) {
-			ParseStateVisualizer visualizer = new ParseStateVisualizer("Recovery");
-			visualizer.visualizeRecoveryNodes(recoveryNodes);
-		}
-		
 		//  Keep track of previously added nodes so we can reuse them when we encounter
 		// a node with the same constructor, start location, and skip length
 		Map<Triple<IConstructor, Integer, Integer>, SkippingStackNode<IConstructor>> addedNodes = new HashMap<>();

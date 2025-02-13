@@ -18,9 +18,13 @@ import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
 
-void testBug() {
+test bool testOvertakeNullableBug() {
     standardParser = parser(#start[Module], allowRecovery=false, allowAmbiguity=true);
     recoveryParser = parser(#start[Module], allowRecovery=true, allowAmbiguity=true);
-    input = readFile(|std:///lang/rascal/tests/library/analysis/statistics/DescriptiveTests.rsc|);
-    testDeleteUntilEol(standardParser, recoveryParser, input, 200, 100, begin=561, end=561);
+    loc source = |std:///lang/rascal/tests/library/analysis/statistics/DescriptiveTests.rsc|;
+    input = readFile(source);
+
+    testDeleteUntilEol(standardParser, recoveryParser, source, input, 200, 100, begin=561, end=561);
+    // If the deletion test succeeds without crashing, the test succeeds
+    return true;
 }

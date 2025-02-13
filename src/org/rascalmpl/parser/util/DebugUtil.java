@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2024, NWO-I Centrum Wiskunde & Informatica (CWI)
+ * Copyright (c) 2024-2025, NWO-I Centrum Wiskunde & Informatica (CWI)
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
@@ -46,11 +46,7 @@ public class DebugUtil {
             for (IValue symbol : symbols) {
                 builder.append(" ");
                 IConstructor conSymbol = (IConstructor) symbol;
-                switch (conSymbol.getName()) {
-                    default:
-                        builder.append(quotedStringToPlain(String.valueOf(conSymbol.get(0))));   // Sort or label
-                        break;
-                }
+                builder.append(quotedStringToPlain(String.valueOf(conSymbol.get(0))));   // Sort or label
             }
         } else if (prod.getName().equals("error")) {
             builder.append("err." + prod.get(2) + ":" + prodToString((IConstructor) prod.get(1)));

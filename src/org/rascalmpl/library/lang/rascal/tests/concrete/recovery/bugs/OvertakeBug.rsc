@@ -19,5 +19,6 @@ import IO;
 bool testOvertakeBug() {
     str input = readFile(|std:///lang/rascal/tests/concrete/recovery/bugs/OvertakeBugInput.txt|);
     parser(#Module, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=false|);
+    // If the parse completes without crashing, the test succeeds
     return true;
 }
