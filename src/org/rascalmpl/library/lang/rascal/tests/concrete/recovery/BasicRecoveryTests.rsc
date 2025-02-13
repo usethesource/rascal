@@ -15,7 +15,7 @@
 module lang::rascal::tests::concrete::recovery::BasicRecoveryTests
 
 import ParseTree;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 

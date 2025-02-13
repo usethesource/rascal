@@ -7,7 +7,7 @@ syntax Expr = N "+" N | N "-" N;
 syntax N = [0-9];
 
 import ParseTree;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import vis::Text;
 import IO;

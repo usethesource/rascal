@@ -12,7 +12,7 @@
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  **/
  
-module util::ErrorRecovery
+module util::ParseErrorRecovery
 
 import ParseTree;
 import String;
@@ -26,9 +26,9 @@ As such, this code should be considered experimental and used with care.
 }
 
 @synopsis{Check if a parse tree contains any error nodes, the result of error recovery.}
-bool hasErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
+bool hasParseErrors(Tree tree) = /appl(error(_, _, _), _) := tree;
 
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{Find all error productions in a parse tree.
 Note that children of an error tree can contain errors themselves.
 The list of errors returned by this methood is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is
@@ -36,7 +36,7 @@ returned first.
 Often error trees are highly ambiguous and can contain a lot of error trees. This function is primarily used to analyze small examples as calling this function
 on a tree with many errors will result in long runtimes and out-of-memory errors.
 }
-java list[Tree] findAllErrors(Tree tree);
+java list[Tree] findAllParseErrors(Tree tree);
 
 @synopsis{Get the symbol (sort) of the failing production}
 Symbol getErrorSymbol(appl(error(Symbol sym, _, _), _)) = sym;
@@ -55,21 +55,21 @@ If you want the text of the whole error tree, you can just use string interpolat
 }
 str getErrorText(appl(error(_, _, _), [*_, appl(skipped(_), chars)])) = stringChars([c | char(c) <- chars]);
 
-@javaClass{org.rascalmpl.library.util.ErrorRecovery}
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{Error recovery often produces ambiguous trees where errors can be recovered in multiple ways.
 This filter removes error trees until no ambiguities caused by error recovery are left.
 Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 This method uses simple and somewhat arbitrary heuristics, so its usefulness is limited.
 }
-java Tree disambiguateErrors(Tree t, bool allowAmbiguity=true);
+java Tree disambiguateParseErrors(Tree t, bool allowAmbiguity=true);
 
 @synopsis{Disambiguate the error ambiguities in a tree and return the list of remaining errors. 
 The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.
 Error disambiguation is based on heuristics and are therefore unsuitable for many use-cases. We primarily use this functionality
 for testing and for presenting recovered errors in VSCode.
 }
-list[Tree] findBestErrors(Tree tree) = findAllErrors(disambiguateErrors(tree));
+list[Tree] findBestParseErrors(Tree tree) = findAllParseErrors(disambiguateParseErrors(tree));
 
 @synopsis{Create a parse filter based on `disambiguateErrors` with or without `allowAmbiguity`.}
-Tree(Tree) createErrorFilter(bool allowAmbiguity) =
-    Tree(Tree t)  { return disambiguateErrors(t, allowAmbiguity=allowAmbiguity); };
+Tree(Tree) createParseErrorFilter(bool allowAmbiguity) =
+    Tree(Tree t)  { return disambiguateParseErrors(t, allowAmbiguity=allowAmbiguity); };

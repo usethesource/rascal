@@ -14,7 +14,7 @@ module lang::rascal::tests::concrete::recovery::bugs::MultiErrorBug
 
 import ParseTree;
 import IO;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 import List;
 import vis::Text;
 
@@ -44,14 +44,14 @@ bool multiErrorBug() {
 
     println(prettyTree(t));
 
-    list[Tree] errors = findAllErrors(t);
+    list[Tree] errors = findAllParseErrors(t);
     println("<size(errors)> Errors");
     for (Tree error <- errors) {
         Tree skipped = getSkipped(error);
         println("  <skipped@\loc>: <getErrorText(error)>");
     }
-    Tree disambiguated = disambiguateErrors(t);
-    list[Tree] disambiguatedErrors = findAllErrors(disambiguated);
+    Tree disambiguated = disambiguateParseErrors(t);
+    list[Tree] disambiguatedErrors = findAllParseErrors(disambiguated);
     println("After disambiguating:");
     println("<size(disambiguatedErrors)> Errors");
     for (Tree error <- disambiguatedErrors) {

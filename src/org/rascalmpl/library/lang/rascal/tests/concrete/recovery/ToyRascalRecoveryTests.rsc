@@ -17,7 +17,7 @@ module lang::rascal::tests::concrete::recovery::ToyRascalRecoveryTests
 import lang::rascal::tests::concrete::recovery::ToyRascal;
 
 import ParseTree;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 import IO;
 import util::Maybe;
 
@@ -25,14 +25,14 @@ import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 Tree parseToyRascal(str input, bool visualize=false) {
     Tree result = parser(#start[FunctionDeclaration], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
-    list[Tree] errors = findAllErrors(result);
+    list[Tree] errors = findAllParseErrors(result);
     if (errors != []) {
         println("Tree has <size(errors)> errors");
         for (error <- errors) {
             println("- <getErrorText(error)>");
         }
 
-        println("Best error: <getErrorText(findBestErrors(result)[0])>");
+        println("Best error: <getErrorText(findBestParseErrors(result)[0])>");
     }
 
     return result;
@@ -40,20 +40,20 @@ Tree parseToyRascal(str input, bool visualize=false) {
 
 test bool toyRascalOk() {
     Tree t = parseToyRascal("f(){s;}");
-    return !hasErrors(t);
+    return !hasParseErrors(t);
 }
 
 test bool toyRascalMissingOpenParen() {
     Tree t = parseToyRascal("f){}", visualize=false);
-    return hasErrors(t) && getErrorText(findBestErrors(t)[0]) == ")";
+    return hasParseErrors(t) && getErrorText(findBestParseErrors(t)[0]) == ")";
 }
 
 test bool toyRascalMissingCloseParen() {
     Tree t = parseToyRascal("f({}", visualize=false);
-    return hasErrors(t) && getErrorText(findBestErrors(t)[0]) == "(";
+    return hasParseErrors(t) && getErrorText(findBestParseErrors(t)[0]) == "(";
 }
 
 test bool toyRascalMissingIfBody() {
     Tree t = parseToyRascal("f(){if(1){}}", visualize=false);
-    return hasErrors(t) && getErrorText(findBestErrors(t)[0]) == "}";
+    return hasParseErrors(t) && getErrorText(findBestParseErrors(t)[0]) == "}";
 }

@@ -5,7 +5,7 @@ import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
 import util::Benchmark;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 import String;
 
 test bool testFlowGraphBug() {
