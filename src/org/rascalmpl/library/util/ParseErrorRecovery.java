@@ -67,7 +67,7 @@ public class ParseErrorRecovery {
     * possibly without ambiguities.
     */
 
-    public IConstructor disambiguateErrors(IConstructor arg, IBool allowAmbiguity) {
+    public IConstructor disambiguateParseErrors(IConstructor arg, IBool allowAmbiguity) {
         return disambiguate(arg, allowAmbiguity.getValue(), true, new HashMap<>()).tree;
     }
 
@@ -199,14 +199,14 @@ public class ParseErrorRecovery {
         return result;
     }
 
-    public IList findAllErrors(IConstructor tree) {
+    public IList findAllParseErrors(IConstructor tree) {
         IListWriter errors = rascalValues.listWriter();
         collectErrors((ITree) tree, errors, new HashSet<>());
         return errors.done();
     }
 
     public boolean hasErrors(IConstructor tree) {
-        return !findAllErrors(tree).isEmpty();
+        return !findAllParseErrors(tree).isEmpty();
     }
 
     private void collectErrors(ITree tree, IListWriter errors, Set<IConstructor> processedTrees) {
