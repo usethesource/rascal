@@ -15,7 +15,7 @@ syntax B = "a";
 
 private Content showGraph(value v, str name, ValueToGraphConfig config = valueToGraphConfig()) {
     //println("graph: <valueToGraph(v, config=config)>");
-    return content(name, graphServer(valueToGraph(v, config=config)));
+    return content(name, graphServer(valueToGraph(v, config=config), useDotRenderer=true));
 }
 
 Content showNode() {
