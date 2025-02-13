@@ -16,7 +16,7 @@ module lang::rascal::tests::concrete::recovery::RecoveryTestSupport
 
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 import String;
 import IO;
 import util::Benchmark;
@@ -107,7 +107,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                 result = "skipped";
                 measurement = skipped(source=source);
             } else {
-                list[Tree] errors = findBestErrors(tree);
+                list[Tree] errors = findBestParseErrors(tree);
                 errorCount = size(errors);
                 disambDuration = realTime() - parseEndTime;
                 if ("<tree>" != input) {
@@ -584,7 +584,7 @@ bool checkError(Tree t, str expectedError) = checkErrors(t, [expectedError]);
 
 // Check if a tree contains exactly the expected errors
 bool checkErrors(Tree t, list[str] expectedErrors) {
-    list[Tree] errors = findBestErrors(t);
+    list[Tree] errors = findBestParseErrors(t);
     if (size(errors) != size(expectedErrors)) {
         println("Expected <size(expectedErrors)> errors, found <size(errors)>");
         printErrors(errors);

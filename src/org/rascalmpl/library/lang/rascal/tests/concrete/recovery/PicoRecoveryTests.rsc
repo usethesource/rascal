@@ -17,7 +17,7 @@ module lang::rascal::tests::concrete::recovery::PicoRecoveryTests
 import lang::pico::\syntax::Main;
 
 import ParseTree;
-import util::ErrorRecovery;
+import util::ParseErrorRecovery;
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 
 Tree parsePico(str input, bool visualize=false) 
