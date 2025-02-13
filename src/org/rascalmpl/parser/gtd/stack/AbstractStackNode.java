@@ -11,6 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.stack;
 
+import java.util.Arrays;
+
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
@@ -20,6 +22,9 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import org.rascalmpl.parser.gtd.util.BitSet;
 import org.rascalmpl.parser.gtd.util.IntegerList;
 import org.rascalmpl.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
 
 @SuppressWarnings({"unchecked", "cast"})
 public abstract class AbstractStackNode<P>{
@@ -28,8 +33,10 @@ public abstract class AbstractStackNode<P>{
 	
 	protected AbstractStackNode<P>[] production;
 	protected AbstractStackNode<P>[][] alternateProductions;
-	
-	protected IntegerObjectList<EdgesSet<P>> edgesMap;
+
+	// Our edges
+	protected IntegerObjectList<EdgesSet<P>> edgesMap; // key=startLocation, value=EdgesSet at that location
+	// Edges of our children
 	protected ArrayList<Link>[] prefixesMap;
 	
 	protected EdgesSet<P> incomingEdges;
@@ -56,17 +63,21 @@ public abstract class AbstractStackNode<P>{
 	private IntegerList propagatedReductions;
 	
 	protected AbstractStackNode(int id, int dot){
+		this(id, dot, DEFAULT_START_LOCATION);
+	}
+
+	protected AbstractStackNode(int id, int dot, int startLocation) {
 		super();
 		
 		this.id = id;
 		this.dot = dot;
 		
-		this.startLocation = DEFAULT_START_LOCATION;
+		this.startLocation = startLocation;
 		
 		this.enterFilters = null;
 		this.completionFilters = null;
 	}
-	
+
 	protected AbstractStackNode(int id, int dot, IEnterFilter[] enterFilters, ICompletionFilter[] completionFilters){
 		super();
 		
@@ -180,7 +191,7 @@ public abstract class AbstractStackNode<P>{
 	 * Returns the name associated with the symbol in this node (optional operation).
 	 */
 	public abstract String getName();
-	
+
 	/**
 	 * Check whether of this this node is equal to the given node.
 	 */
@@ -579,7 +590,10 @@ public abstract class AbstractStackNode<P>{
 		
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
-		int possibleMaxSize = edgesMapSize + edgesMapSize;
+		// Before error recovery: int possibleMaxSize = edgesMapSize + edgesMapSize;
+		// It is unclear why error recovery can cause more edges to be added than previously accounted for,
+		// although this might just have been a bug.
+		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 		}else{
@@ -640,7 +654,9 @@ public abstract class AbstractStackNode<P>{
 		
 		// Initialize the prefixes map.
 		int edgesMapSize = edgesMap.size();
-		int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		// Before error recovery: int possibleMaxSize = edgesMapSize + potentialNewEdges;
+		// It is unclear why error recovery can cause more edges to be added than previously accounted for.
+		int possibleMaxSize = edgesMapSize + edgesMapToAdd.size();
 		if(prefixesMap == null){
 			prefixesMap = new ArrayList[possibleMaxSize];
 			
@@ -653,7 +669,7 @@ public abstract class AbstractStackNode<P>{
 			}
 			
 			if(propagatedPrefixes == null){
-				propagatedPrefixes = new BitSet(edgesMapSize);
+				propagatedPrefixes = new BitSet(possibleMaxSize);
 			}else{
 				propagatedPrefixes.enlargeTo(possibleMaxSize);
 			}
@@ -736,7 +752,64 @@ public abstract class AbstractStackNode<P>{
 		
 		return propagatedReductions;
 	}
-	
+
+	/**
+	 * Return a short string representation of this object for debugging purposes
+	 */
+	public abstract String toShortString();
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(id + "." + dot + "@" + startLocation);
+		if (production != null) {
+			builder.append(",prod=[");
+			boolean first = true;
+			for (AbstractStackNode<P> prodElem : production) {
+				if (first) {
+					first = false;
+				} else {
+					builder.append(",");
+				}
+				builder.append(prodElem.toShortString());
+			}
+			builder.append("]");
+		}
+		if (isEndNode) {
+			builder.append(",endNode");
+		}
+		if (isSeparator) {
+			builder.append(",separator");
+		}
+		if (isLayout) {
+			builder.append(",layout");
+		}
+
+		if (alternateProductions != null && alternateProductions.length != 0) {
+			builder.append(",alternateProductions=" + Arrays.toString(alternateProductions));
+		}
+		if (prefixesMap != null && prefixesMap.length != 0) {
+			builder.append(",prefixes=" + Arrays.toString(prefixesMap));
+		}
+		if (incomingEdges != null && incomingEdges.size() != 0) {
+			builder.append(",incomingEdges=" + incomingEdges);
+		}
+		if (alternativeProduction != null) {
+			builder.append(",alternativeProduction=" + DebugUtil.prodToString((IConstructor)alternativeProduction));
+		}
+		if (propagatedPrefixes != null) {
+			builder.append(",propagatedPrefixes=" + propagatedPrefixes);
+		}
+		if (propagatedReductions != null) {
+			builder.append(",propagatedReductions=" + propagatedReductions);
+		}
+
+		// Do not print filters for now.
+
+		return builder.toString();
+	}
+
+	public abstract <R> R accept(StackNodeVisitor<P, R> visitor);
+
 	// Matchables.
 	/**
 	 * Matches the symbol associated with this node to the input at the specified location.

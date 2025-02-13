@@ -11,6 +11,12 @@
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result;
 
+import java.util.Arrays;
+
+import org.rascalmpl.parser.util.DebugUtil;
+
+import io.usethesource.vallang.IConstructor;
+
 /**
  * A literal result node.
  */
@@ -57,5 +63,10 @@ public class LiteralNode extends AbstractNode{
 	 */
 	public boolean isNonterminalSeparator(){
 		return false;
+	}
+
+	@Override
+	public String toString() {
+		return "LiteralNode [production=" + DebugUtil.prodToString((IConstructor) production) + ", content=" + Arrays.toString(content) + "]";
 	}
 }

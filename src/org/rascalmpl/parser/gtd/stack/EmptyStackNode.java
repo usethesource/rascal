@@ -80,6 +80,12 @@ public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
 		return emptyChild;
 	}
 
+	@Override
+	public String toShortString() {
+		return name;
+	}
+
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append(name);
@@ -90,13 +96,26 @@ public final class EmptyStackNode<P> extends AbstractExpandableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return 1;
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
+	@Override
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof EmptyStackNode)) return false;
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }
