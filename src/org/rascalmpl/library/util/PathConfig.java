@@ -542,15 +542,14 @@ public class PathConfig {
                         switch (mode) {
                             case INTERPRETER:
                                 srcsWriter.appendAll(childConfig.getSrcs());
-                                libsWriter.append(childConfig.getBin());
                                 break;
                             case COMPILER:
-                                libsWriter.append(setTargetScheme(projectLoc));
+                                // nothing required, compiler uses binary files only
                                 break;
                         }
 
-                        // libraries are transitively collected
-                        libsWriter.appendAll(childConfig.getLibs());
+                        // libraries are transitively collected, including their target folders
+                        libsWriter.appendAll(childConfig.getLibsAndTarget());
 
                         // error messages are transitively collected
                         messages.appendAll(childConfig.getMessages());
@@ -580,7 +579,9 @@ public class PathConfig {
                 }
                 else {
                     // this is a jar without Rascal meta-data, we need it for the classpath
-                    if (dep != rascalProject) {
+                    // but not if _this_ is the rascal project (because we have everything in the shaded jar)
+                    // and not if the dependency is the rascal project (because we have everything loaded in the current JVM)
+                    if (dep != rascalProject && !projectName.equals("rascal")) {
                         libsWriter.append(dep);
                     }
                 }
