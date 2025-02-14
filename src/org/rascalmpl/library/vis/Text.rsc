@@ -41,6 +41,8 @@ str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false,
 
   str nodeLabel(appl(prod(label(str l, Symbol nt), _, _), _)) = "<type(nt,())> = <l>: ";
   str nodeLabel(appl(prod(Symbol nt, as, _), _))              = "<type(nt,())> = <for (a <- as) {><type(a,())> <}>";
+  str nodeLabel(appl(error(Symbol nt, Production p, int dot), _)) = "!error dot=<dot>: <nodeLabel(appl(p,[]))>";
+  str nodeLabel(appl(skipped(Symbol s), chars))               = "skipped";
   str nodeLabel(appl(regular(Symbol nt), _))                  = "<type(nt,())>";
   str nodeLabel(char(32))                                     = "⎵";
   str nodeLabel(char(10))                                     = "\\r";
@@ -48,6 +50,7 @@ str prettyTree(Tree t, bool src=false, bool characters=true, bool \layout=false,
   str nodeLabel(char(9))                                      = "\\t";
   str nodeLabel(amb(_) )                                      = "❖";
   str nodeLabel(loc src)                                      = "<src>";
+  str nodeLabel(cycle(Symbol nt, int len))                    = "cycle(<type(nt,())>, <len>)";
   default str nodeLabel(Tree v)                               = "<v>";
 
   lrel[str,value] edges(Tree t:appl(_,  list[Tree] args)) = [<"src", t@\loc> | src, t@\loc?] + [<"", k> | Tree k <- args, include(k)];

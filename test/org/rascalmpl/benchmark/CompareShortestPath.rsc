@@ -116,18 +116,20 @@ public void measure1(rel[int,int] Graph1){
 
     jtime = 0.0; jmin = 10000.0; jmax = 0.0;
     rtime = 0.0; rmin = 10000.0; rmax = 0.0;
-    for(int _ <- [1 .. 20]){
+    for(int _ <- [1 .. 100]){
  		time1 = getMilliTime(); P1 = shortestPathPair(G, 1, 0); time2 = getMilliTime();
-                                P2 = shortestPathPair1(G, 1, 0); time3 = getMilliTime();
+                              P2 = shortestPathPair1(G, 1, 0); time3 = getMilliTime();
                               
  		d1 = time2 - time1; jtime = jtime + d1; jmin = min(d1, jmin); jmax = max(d1, jmax);
  		d2 = time3 - time2; rtime = rtime + d2; rmin = min(d2, rmin); rmax = max(d2, rmax);
  		println("Java version:   <P1> in <d1> millis");
- 		println("Rascal version: <P1> in <d2> millis");
+ 		println("Rascal version: <P2> in <d2> millis");
  	}
  	println("Java average: <jtime/20> [<jmin> .. <jmax>]");
  	println("Rascal average: <rtime/20> [<rmin> .. <rmax>]");
- 	
+ 	println("Rascal/java ratio: <rtime/jtime>");
+   println("Total Java time: <jtime>");
+   println("Total Rascal time: <rtime>");   
 }
 
 public void measure2(rel[int,int] Graph2)
@@ -141,3 +143,5 @@ public void measure(){
 	Graph2 = randomGraph(10000, [0 .. 50]);
 	println("Graph2 -------"); measure1(Graph2);
 }
+
+void main() = measure();

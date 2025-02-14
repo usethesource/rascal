@@ -69,7 +69,13 @@ void generateAndWriteCParser(){
 	writeFile(CParserLoc, generateCParser());
 }
 
+void warmup(){
+	for(_ <- [0..10]) 
+		generateCParser();
+}
+
 int generateAndTimeCParser() { 
+	warmup();
 	println("GenerateAndTimeCParser");
 	t = cpuTime(); 
 	generateCParser();

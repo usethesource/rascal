@@ -158,7 +158,14 @@ void generateAndWriteRascalParser(){
 	writeFile(RascalParserLoc, generateRascalParser());
 }
 
+void warmup(){
+	for(int _ <- [1 .. 10]){
+		generateRascalParser();
+	}
+}
+
 int generateAndTimeRascalParser() { 
+	warmup();
     println("GenerateAndTimeRascalParser");
 	t = cpuTime();
 	for(int _ <- [1 .. 50]){

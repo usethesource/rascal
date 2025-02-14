@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,9 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
 package org.rascalmpl.parser.gtd.result.out;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import org.rascalmpl.parser.gtd.location.PositionStore;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
@@ -25,57 +28,79 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
 /**
  * Converter for parse trees that produces trees in UPTR format.
  */
-@SuppressWarnings("unchecked")
 public class DefaultNodeFlattener<P, T, S> implements INodeFlattener<T, S>{
 	private final CharNodeFlattener<T, S> charNodeConverter;
 	private final LiteralNodeFlattener<T, S> literalNodeConverter;
 	private final SortContainerNodeFlattener<P, T, S> sortContainerNodeConverter;
 	private final ListContainerNodeFlattener<P, T, S> listContainerNodeConverter;
-	private final RecoveryNodeFlattener<T, S> recoveryNodeConverter;
+	private final SkippedNodeFlattener<T, S> skippedNodeConverter;
+
+	private final Map<T, T> treeCache;
 	
 	public DefaultNodeFlattener(){
 		super();
 		
-		charNodeConverter = new CharNodeFlattener<T, S>();
-		literalNodeConverter = new LiteralNodeFlattener<T, S>();
-		sortContainerNodeConverter = new SortContainerNodeFlattener<P, T, S>();
-		listContainerNodeConverter = new ListContainerNodeFlattener<P, T, S>();
-		recoveryNodeConverter = new RecoveryNodeFlattener<T, S>();
-	}
-	
-	/**
-	 * Internal helper structure for error tracking.
-	 */
-	protected static class IsInError{
-		public boolean inError;
+		charNodeConverter = new CharNodeFlattener<>();
+		literalNodeConverter = new LiteralNodeFlattener<>();
+		sortContainerNodeConverter = new SortContainerNodeFlattener<>();
+		listContainerNodeConverter = new ListContainerNodeFlattener<>();
+		skippedNodeConverter = new SkippedNodeFlattener<>();
+
+		treeCache = new HashMap<>();
 	}
 	
 	/**
 	 * Convert the given node.
 	 */
-	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment){
+	@SuppressWarnings("unchecked")
+	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode node, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object environment, CacheMode cacheMode){
+		T result = node.getTree();
+
+		if (result != null) {
+			return result;
+		}
+
 		switch(node.getTypeIdentifier()){
 			case CharNode.ID:
-				return charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
+				result = charNodeConverter.convertToUPTR(nodeConstructorFactory, (CharNode) node);
+				break;
 			case LiteralNode.ID:
-				return literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
+				result = literalNodeConverter.convertToUPTR(nodeConstructorFactory, (LiteralNode) node);
+				break;
 			case SortContainerNode.ID:
-				return sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				result = sortContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (SortContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				break;
 			case ExpandableContainerNode.ID:
-				return listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				result = listContainerNodeConverter.convertToUPTR(this, nodeConstructorFactory, (ExpandableContainerNode<P>) node, stack, depth, positionStore, filteringTracker, actionExecutor, environment);
+				break;
 			case RecoveredNode.ID:
-				return convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, cycleMark, positionStore, filteringTracker, actionExecutor, environment);
+				result = convert(nodeConstructorFactory, ((SortContainerNode<S>) node).getFirstAlternative().getNode(), stack, depth, positionStore, filteringTracker, actionExecutor, environment, cacheMode);
+				break;
 			case SkippedNode.ID:
-				return recoveryNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node); 
+				result = skippedNodeConverter.convertToUPTR(nodeConstructorFactory, (SkippedNode) node, positionStore); 
+				break;
 			default:
-				throw new RuntimeException("Incorrect result node id: "+node.getTypeIdentifier());
+				throw new IllegalArgumentException("Incorrect result node id: "+node.getTypeIdentifier());
 		}
+
+		if (cacheMode == CacheMode.CACHE_MODE_FULL) {
+			node.setTree(result);
+		} else if (cacheMode == CacheMode.CACHE_MODE_SHARING_ONLY) {
+			T existing = treeCache.get(result);
+			if (existing == null) {
+				treeCache.put(result, result);
+			} else {
+				result = existing;
+			}
+		}
+
+		return result;
 	}
 	
 	/**
 	 * Converts the given parse tree to a tree in UPTR format.
 	 */
 	public T convert(INodeConstructorFactory<T, S> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment){
-		return convert(nodeConstructorFactory, parseTree, new IndexedStack<AbstractNode>(), 0, new CycleMark(), positionStore, filteringTracker, actionExecutor, rootEnvironment);
+		return convert(nodeConstructorFactory, parseTree, new IndexedStack<>(), 0, positionStore, filteringTracker, actionExecutor, rootEnvironment, CacheMode.CACHE_MODE_NONE);
 	}
 }

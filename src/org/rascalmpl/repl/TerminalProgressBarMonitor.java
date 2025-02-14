@@ -195,7 +195,10 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
 
             // first ensure capacity of the array
             if (curEnd + len >= curCapacity) {
-                curCapacity *= 2; 
+                do {
+                    curCapacity *= 2; 
+                    // increase size until it fits
+                } while (curEnd + len >= curCapacity);
                 buffer = Arrays.copyOf(buffer, curCapacity);
             }
 
@@ -424,7 +427,7 @@ public class TerminalProgressBarMonitor extends PrintWriter implements IRascalMo
                     .reset()
                     .a(backPart)
                     .a(" " + clock)
-                    .format(" %d:%02d:%02d.%03d ", duration.toHoursPart(), duration.toMinutes(), duration.toSecondsPart(), duration.toMillisPart())
+                    .format(" %d:%02d:%02d.%03d ", duration.toHoursPart(), duration.toMinutesPart(), duration.toSecondsPart(), duration.toMillisPart())
                     .a(System.lineSeparator())
                     .toString()
             );
