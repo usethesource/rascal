@@ -1578,7 +1578,7 @@ public class Prelude {
 			}
 			if (less.less(array[0], array[0])) {
 				throw RuntimeExceptionFactory.illegalArgument(less.less,
-					"Bad comparator: Did you use less-or-equals instead of less-than?");
+					"A reflexive comparator can not be used for sorting. At least one element is less than itself: " + less);
 			}
 			sort(0, size - 1);
 
@@ -1597,15 +1597,32 @@ public class Prelude {
 			int oldLow = low;
 			int oldHigh = high;
 
-			while (low < high) {
-				for (; less.less(array[low], pivot); low++);
-				for (; less.less(pivot, array[high]); high--);
+			try {
+				while (low < high) {
+					for (; less.less(array[low], pivot); low++);
+					for (; less.less(pivot, array[high]); high--);
 
-				if (low <= high) {
-					swap(low, high);
-					low++;
-					high--;
+					if (low <= high) {
+						swap(low, high);
+						low++;
+						high--;
+					}
 				}
+			}
+			catch (IndexOutOfBoundsException e) {
+				// now that we are crashing anyway, we can do some diagnostics.
+				// the hypothesis is that at least one element was not irreflexive, making
+				// one of the bounds pointers (low or high) shift beyond the edge of the array
+
+				for (IValue elem : array) {
+					if (less.less(elem, elem)) {
+					throw RuntimeExceptionFactory.illegalArgument(less.less,
+						"A reflexive comparator can not be used for sorting. At least one element is less than itself with the given comparator: " + elem);
+					}
+				}
+
+				// another cause for the same exception? 
+				throw e;
 			}
 
 			if (oldLow < high)
@@ -1665,9 +1682,7 @@ public class Prelude {
 		new Sorting(tmpArr, new Less(cmpv)).sort();
 		
 		IListWriter writer = values.listWriter();
-		for(IValue v : tmpArr){
-			writer.append(v);
-		}
+		writer.append(tmpArr);
 		
 		return writer.done();
 	}
@@ -2377,20 +2392,24 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 	}
 
-	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, values.bool(false), hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
     }
 
-	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+	public IFunction firstAmbiguityFinders(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
     }
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
@@ -2405,18 +2424,18 @@ public class Prelude {
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowRecovery, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());

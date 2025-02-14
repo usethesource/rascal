@@ -71,11 +71,11 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new CharStackNode<P>(this, startLocation);
+		return new CharStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P> getCleanCopyWithResult(int startLocation, AbstractNode result){
-		return new CharStackNode<P>(this, startLocation, result);
+		return new CharStackNode<>(this, startLocation, result);
 	}
 	
 	public int getLength(){
@@ -86,27 +86,52 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		return result;
 	}
 	
+	@Override
+	public String toShortString() {
+		StringBuilder sb = new StringBuilder();
+		for (int i=0; i<ranges.length; i++) {
+			if (i > 0) {
+				sb.append(',');
+			}
+
+			int[] range = ranges[i];
+			sb.append(codePointToString(range[0]));
+			if (range[0] != range[1]) {
+				sb.append('-');
+				sb.append(codePointToString(range[1]));
+			}
+		}
+
+		return sb.toString();
+	}
+
+	private String codePointToString(int codePoint) {
+		if (Character.isLetterOrDigit(codePoint)) {
+			return new String(Character.toChars(codePoint));
+		}
+
+		return String.valueOf(codePoint);
+	}
+
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append('[');
+		sb.append("CharStackNode[class=");
 		int[] range = ranges[0];
 		sb.append(range[0]);
 		sb.append('-');
 		sb.append(range[1]);
-		for(int i = ranges.length - 2; i >= 0; --i){
+		for(int i = 1; i<ranges.length; i++){
 			sb.append(',');
 			range = ranges[i];
 			sb.append(range[0]);
 			sb.append('-');
 			sb.append(range[1]);
 		}
+		sb.append(",");
+		sb.append(super.toString());
 		sb.append(']');
-		
-		sb.append(getId());
-		sb.append('(');
-		sb.append(startLocation);
-		sb.append(')');
 		
 		return sb.toString();
 	}
@@ -123,6 +148,11 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		return hash;
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof CharStackNode)) return false;
 		
@@ -143,4 +173,10 @@ public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P, R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

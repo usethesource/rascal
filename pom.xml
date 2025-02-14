@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC9-SNAPSHOT</version>
+    <version>0.41.0-RC13-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -137,12 +137,14 @@
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
+                        <src>${project.basedir}/src/org/rascalmpl/tutor</src>
                     </srcs>
                     <sourceLookup>|std:///|</sourceLookup>
                     <funding>${project.basedir}/FUNDING</funding>
                     <citation>${project.basedir}/CITATION.md</citation>
                     <issues>|https://github.com/usethesource/rascal/issues|</issues>
                     <srcIgnores>
+                        <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
                         <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
@@ -170,8 +172,8 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
-                        <!-- commented out for bootstrapping purposes; 
-                            <execution>
+		    <!--
+                    <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
                         <goals>
@@ -192,7 +194,8 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             </ignores>
                         </configuration>
-                        </execution> -->
+                        </execution>
+		    -->
                 </executions>
             </plugin>
             <plugin>
@@ -504,26 +507,6 @@
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
             <version>2.0.6.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-core</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-highlighter</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-common</artifactId>
-            <version>${lucence-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-queryparser</artifactId>
-            <version>${lucence-version}</version>
         </dependency>
         <dependency>
             <groupId>org.nanohttpd</groupId>
