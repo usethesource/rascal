@@ -5,6 +5,11 @@ import vis::Graphs;
 import Node;
 import String;
 import Content;
+import ValueIO;
+import lang::html::IO;
+import lang::html::AST;
+import util::IDEServices;
+
 
 private alias DotAttr = tuple[str,str];
 private alias DotAttrs = list[DotAttr];
