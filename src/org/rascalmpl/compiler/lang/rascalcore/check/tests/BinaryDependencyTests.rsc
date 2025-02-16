@@ -183,7 +183,7 @@ test bool importSimpleSourceModuleWithRascalAsLib(){
                         '  return 0;
                         '}"),
             createPathConfig(clientName)
-                    [libs=[rascalPCFG.resources]]
+                    [libs=[rascalPCFG.bin]]
                     [srcs=[src(clientName), src(libName)]]
                 );
     return checkExpectNoErrors("LibCall", client.pcfg, remove = [lib, client]);
@@ -388,8 +388,8 @@ AGrammar getGrammar(TModel tm){
 // The binary compatibility test for TModels
 
 bool binaryCompatible(tuple[TModel old, TModel new] tms){
-    iprintln(domain(tms.old.logical2physical));
-    iprintln(domain(tms.new.logical2physical));
+    if(verbose) iprintln(domain(tms.old.logical2physical));
+    if(verbose) iprintln(domain(tms.new.logical2physical));
     return getGrammar(tms.old) == getGrammar(tms.new)
            && domain(tms.old.logical2physical) <= domain(tms.new.logical2physical);
 }
