@@ -1,5 +1,6 @@
 module lang::rascalcore::check::TestConfigs
 
+import IO;
 import util::Reflective;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::RascalConfig;
@@ -14,10 +15,22 @@ data PathConfig(
 
 // ----  Various PathConfigs  ---------------------------------------------
 
-loc REPO =        |file:///Users/paulklint/git/|;
-loc RASCAL_JAR  = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.17/rascal-0.40.17.jar!/|;
-loc TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.8/typepal-0.14.8.jar!/|;
-loc OUTDATED_TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.14.1/typepal-0.14.1.jar!/|;
+loc RASCAL        = |mvn://org.rascalmpl!rascal!0.40.17/!|;
+loc TYPEPAL       = |mvn://org.rascalmpl!typepal!0.14.8/!|;
+loc OUTDATED_TYPEPAL 
+                  = |mvn://org.rascalmpl!typepal!0.14.1/!|;
+loc RASCAL_CORE   = |mvn://org.rascalmpl!rascal-core!0.12.14/!|;
+
+loc DRAMBIGUITY   = |mvn://org.rascalmpl!drambiguity!0.1.2/!|;
+loc FLYBYTES      = |mvn://org.rascalmpl!flybytes!0.1.5/!|;
+loc SALIX_CORE    = |mvn://org.rascalmpl!salix-core!0.2.7/!|;
+loc SALIX_CONTRIB = |mvn://org.rascalmpl!salix-contrib!0.2.7/!|;
+loc RASCAL_LSP    = |mvn://org.rascalmpl!rascal-language-server!0.12.1/!|;
+loc PHP_ANALYSIS  = |mvn://org.rascalmpl!php-analysis!0.2.5-SNAPSHOT/!|;
+
+loc REPO          =  |file:///Users/paulklint/git/|;
+loc COMPILED_RASCAL 
+                  =  REPO + "compiled-rascal";
 
 // ---- PathConfigs for testing purposes --------------------------------------
 
@@ -72,43 +85,83 @@ public PathConfig getRascalProjectTestingPathConfig() {
 
 // ---- generic template for PathConfigs --------------------------------------
 
-public PathConfig makePathConfig(list[loc] sources, list[loc] libraries) {
-    return pathConfig(
-        srcs = sources,
-        bin = REPO + "compiled-rascal/target/classes",
-        generatedSources = REPO + "compiled-rascal/src/main/java",
-        generatedTestSources = REPO + "compiled-rascal/src/test/java/",
-        resources = REPO + "compiled-rascal/src/main/java",
-        testResources = REPO + "compiled-rascal/src/test/java",
-        libs = libraries
-    );
+public PathConfig makePathConfig(loc repo, list[loc] sources, list[loc] libraries, bool compiler = false) {
+   return pathConfig(
+        srcs                 = sources,
+        bin                  = compiler ? COMPILED_RASCAL + "/target/classes" : repo,
+        generatedSources     = compiler ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
+        generatedTestSources = compiler ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
+        resources            = compiler ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
+        testResources        = compiler ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
+        libs                 = libraries
+    ); 
 }
 
 // --- all source ------------------------------------------------------------
 
-public PathConfig getAllSrcPathConfig() {
-    return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library",
-                            REPO + "rascal/test/org/rascalmpl/benchmark/",
-                            REPO + "rascal-core/src/org/rascalmpl/core/library",
-                            REPO + "typepal/src"
+public PathConfig getAllSrcPathConfig(bool compiler = true) {
+    return makePathConfig(COMPILED_RASCAL,
+                          [ RASCAL + "org/rascalmpl/library",
+                            RASCAL + "org/rascalmpl/benchmark/",
+                            RASCAL_CORE + "org/rascalmpl/core/library",
+                            TYPEPAL
                         ],
-                          [ ]);
+                        [ ], 
+                        compiler=compiler);
 }
 
-public RascalCompilerConfig getAllSrcCompilerConfig(){
-    return rascalCompilerConfig(getAllSrcPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getAllSrcCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getAllSrcPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
+}
+
+public PathConfig getAllSrcWritablePathConfig(bool compiler = true) {
+    TMP_RASCAL = |tmp:///rascal/|;
+    TMP_RASCAL_CORE = |tmp:///rascal-core/|;
+    TMP_TYPEPAL = |tmp:///typepal/|;
+    copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
+    copy(RASCAL_CORE, TMP_RASCAL_CORE, recursive=true, overwrite=true);
+    copy(TYPEPAL, TMP_TYPEPAL, recursive=true, overwrite=true);
+    return makePathConfig(COMPILED_RASCAL,
+                          [ TMP_RASCAL + "org/rascalmpl/library",
+                            TMP_RASCAL + "org/rascalmpl/benchmark/",
+                            TMP_RASCAL_CORE + "org/rascalmpl/core/library",
+                            TMP_TYPEPAL
+                        ],
+                        [ ], 
+                        compiler=compiler);
+}
+
+public RascalCompilerConfig getAllSrcWritableCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getAllSrcWritablePathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- rascal ----------------------------------------------------------------
-
-public PathConfig getRascalPathConfig() {
-    return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library", 
-                            REPO + "rascal/test/org/rascalmpl/benchmark/" ],
-                          [ ]);
+public PathConfig getRascalPathConfig(bool compiler = false) {
+    return makePathConfig(RASCAL, 
+                          [ RASCAL + "org/rascalmpl/library"
+                          //, RASCAL + "test/org/rascalmpl/benchmark/"
+                          ],
+                          [], 
+                          compiler=compiler);
 }
 
-public RascalCompilerConfig getRascalCompilerConfig(){
-    return rascalCompilerConfig(getRascalPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getRascalCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getRascalPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
+}
+
+public PathConfig getRascalWritablePathConfig(bool compiler = true) {
+    TMP_RASCAL = |tmp:///rascal/|;
+    copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
+    return makePathConfig(TMP_RASCAL, 
+                          [ TMP_RASCAL + "org/rascalmpl/library"
+                          //, RASCAL + "test/org/rascalmpl/benchmark/"
+                          ],
+                          [], 
+                          compiler=compiler);
+}
+
+public RascalCompilerConfig getRascalCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getRascalWritablePathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- rascal-core -----------------------------------------------------------
@@ -119,13 +172,15 @@ public RascalCompilerConfig getRascalCompilerConfig(){
 * binaries will be stored the target folder of the rascal-core project
 * has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
 }
-public PathConfig getRascalCorePathConfig() {
-   return makePathConfig([ REPO + "rascal-core/src/org/rascalmpl/core/library" ],
-                          [ RASCAL_JAR, TYPEPAL_JAR ]);
+public PathConfig getRascalCorePathConfig(bool compiler = false) {
+   return makePathConfig(RASCAL_CORE,
+                         [ RASCAL_CORE + "org/rascalmpl/core/library" ],
+                         [ RASCAL, TYPEPAL ], 
+                         compiler=compiler);
 }
 
-public RascalCompilerConfig getRascalCoreCompilerConfig(){
-    return rascalCompilerConfig(getRascalCorePathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getRascalCoreCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getRascalCorePathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 @synopsis{Developers version: PathConfig for type-checking modules in other (named) Rascal projects}
@@ -136,8 +191,7 @@ public RascalCompilerConfig getRascalCoreCompilerConfig(){
 * Included projects: rascal-tutor, flybytes, rascal-lsp
 }
 public PathConfig getRascalCorePathConfigDev() {
-    return makePathConfig([ REPO + "rascal-core/src" ],
-                          [ RASCAL_JAR, TYPEPAL_JAR ]);
+    return makePathConfig(RASCAL_CORE, [ RASCAL_CORE ], [ RASCAL, TYPEPAL ], compiler=compiler);
 }
 
 public RascalCompilerConfig getRascalCoreCompilerConfigDev(){
@@ -146,68 +200,77 @@ public RascalCompilerConfig getRascalCoreCompilerConfigDev(){
 
 // ---- typepal ---------------------------------------------------------------
 
-public PathConfig getTypePalProjectPathConfig() {
-   return makePathConfig([ REPO + "typepal/src" ],
-                          [ RASCAL_JAR ]);
+public PathConfig getTypePalProjectPathConfig(bool compiler = false) {
+   return makePathConfig(TYPEPAL,
+                        [ TYPEPAL  ],
+                        [ RASCAL ], 
+                        compiler=compiler);
 }
 
-public RascalCompilerConfig getTypePalCompilerConfig(){
-    return rascalCompilerConfig(getTypePalProjectPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getTypePalCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getTypePalProjectPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- flybytes --------------------------------------------------------------
 
-public PathConfig getFlyBytesProjectPathConfig() {
-    return makePathConfig([ REPO + "flybytes/src" ],
-                          [ RASCAL_JAR ]);
+public PathConfig getFlyBytesProjectPathConfig(bool compiler = false) {
+    return makePathConfig(FLYBYTES, [ FLYBYTES ], [ RASCAL ], compiler=compiler);
 }
 
-public RascalCompilerConfig getFlyBytesCompilerConfig(){
-    return rascalCompilerConfig(getFlyBytesProjectPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getFlyBytesCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getFlyBytesProjectPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- salix -----------------------------------------------------------------
 
-public PathConfig getSalixPathConfig() {
-    return makePathConfig([ REPO + "salix-core/src/main/rascal", REPO + "salix-contrib/src/main/rascal" ],
-                          [ RASCAL_JAR ]);
+public PathConfig getSalixPathConfig(bool compiler = false) {
+    return makePathConfig(SALIX_CORE,
+                          [ SALIX_CORE + "src/main/rascal", SALIX_CONTRIB + "src/main/rascal" ],
+                          [ RASCAL ], 
+                          compiler=compiler);
 }
 
-public RascalCompilerConfig getSalixCompilerConfig(){
-    return rascalCompilerConfig(getSalixPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getSalixCompilerConfig(bool compiler = true){
+    return rascalCompilerConfig(getSalixPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- drambiguity -----------------------------------------------------------
 
 public PathConfig getDrAmbiguityPathConfig() {
-    return makePathConfig([ REPO + "drambiguity/src", REPO + "salix-core/src/main/rascal" ],
-                          [ RASCAL_JAR ]);
+    return makePathConfig(DRAMBIGUITY,
+                          [ DRAMBIGUITY, SALIX_CORE + "src/main/rascal" ],
+                          [ RASCAL ],
+                          compiler=compiler);
 }
 
-public RascalCompilerConfig getDrAmbiguityCompilerConfig(){
-    return rascalCompilerConfig(getDrAmbiguityPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getDrAmbiguityCompilerConfig(bool compiler = true){
+    return rascalCompilerConfig(getDrAmbiguityPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- rascal-language-server ------------------------------------------------
 
-public PathConfig getLSPPathConfig() {
-    return makePathConfig([ REPO + "rascal-lsp/src/main/rascal", REPO + "rascal-lsp/src/test/rascal"],
-                          [ RASCAL_JAR ]);
+public PathConfig getLSPPathConfig(bool compiler = false) {
+    return makePathConfig(RASCAL_LSP,
+                          [ RASCAL_LSP + "src/main/rascal", RASCAL_LSP + "src/test/rascal"],
+                          [ RASCAL ],
+                          compiler=compiler);
 }
 
-public RascalCompilerConfig getLSPCompilerConfig(){
-    return rascalCompilerConfig(getLSPPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getLSPCompilerConfig(bool compiler = true){
+    return rascalCompilerConfig(getLSPPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- php-analysis -----------------------------------------------------------
 
-public PathConfig getPHPPathConfig() {
-    return makePathConfig([ REPO + "php-analysis/src/main/rascal", REPO + "php-analysis/src/test/rascal"],
-                          [ RASCAL_JAR ]);
+public PathConfig getPHPPathConfig(bool compiler = false) {
+    return makePathConfig(PHP_ANALYSIS,
+                        [ PHP_ANALYSIS + "src/main/rascal", PHP_ANALYSIS + "src/test/rascal"],
+                        [ RASCAL ], 
+                        compiler=compiler);
 }
 
-public RascalCompilerConfig getPHPCompilerConfig(){
-    return rascalCompilerConfig(getPHPPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getPHPCompilerConfig(bool compiler = true){
+    return rascalCompilerConfig(getPHPPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
 // ---- VSCode-----------------------------------------------------------------
@@ -247,10 +310,12 @@ public RascalCompilerConfig getVSCodeCompilerConfig(){
 // ---- Outdated TypePal Usage -----------------------------------------------------------------
 
 public PathConfig getOutdatedTPLPathConfig() {
-    return makePathConfig([REPO + "rascal-core/src/org/rascalmpl/core/library"],
-                          [ RASCAL_JAR, OUTDATED_TYPEPAL_JAR ]);
+    return makePathConfig(RASCAL_CORE,
+                          [RASCAL_CORE + "src/org/rascalmpl/core/library"],
+                          [ RASCAL, OUTDATED_TYPEPAL ],
+                          compiler=compiler);
 }
 
-public RascalCompilerConfig getOutdatedTPLCompilerConfig(){
-    return rascalCompilerConfig(getOutdatedTPLPathConfig())[verbose = true][logWrittenFiles=true];
+public RascalCompilerConfig getOutdatedTPLCompilerConfig(bool compier = true){
+    return rascalCompilerConfig(getOutdatedTPLPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }

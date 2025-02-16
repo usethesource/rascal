@@ -1,23 +1,18 @@
 module lang::rascalcore::compile::Examples::Tst0
 
-// import Exception;
-// import ParseTree;
-// import IO;
- 
-//layout Whitespace = [\ \t\n]*;
-              
-start syntax D = "d";
- 
-// void main() { iprintln(#D); }
+import IO;
+import List;
 
-value main() = [D] "d";
-//test bool parseD1() = (D)`d` := parse(#D, "d");
+loc RASCAL =      |mvn://org.rascalmpl!rascal!0.40.17/!|;
+loc RASCAL_JAR  = |jar+mvn://org.rascalmpl!rascal!0.40.17/!|; 
 
-// data D = d(map[int,set[int]] m);
-    
-// value main(){
-//     x = d(());
-//     x.m[0] ? {} += 4;
-//     return x;
+void main(){
+    println("exists(<RASCAL>): <exists(RASCAL)>");
+    println("exists(<RASCAL_JAR>): <exists(RASCAL_JAR)>");
+    path = "org/rascalmpl/library/analysis/grammars/Ambiguity.rsc";
+    println("exists(<RASCAL+path>): <exists(RASCAL+path)>");
+    println("exists(<RASCAL_JAR+path>): <exists(RASCAL_JAR+path)>");
 
-// }
+    println("<RASCAL>.ls: <head(RASCAL.ls, 3)>");
+    println("<RASCAL_JAR>.ls: <head(RASCAL_JAR.ls, 3)>");
+}
