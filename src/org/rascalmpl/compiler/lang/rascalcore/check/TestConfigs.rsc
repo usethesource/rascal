@@ -114,6 +114,22 @@ public RascalCompilerConfig getAllSrcCompilerConfig(bool compiler=true){
     return rascalCompilerConfig(getAllSrcPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
+// ----
+public PathConfig getAllSrcREPOPathConfig(bool compiler = true) {
+    return makePathConfig(COMPILED_RASCAL,
+                          [ REPO + "rascal/src/org/rascalmpl/library",
+                            REPO + "rascal/test/org/rascalmpl/benchmark/",
+                            REPO + "rascal-core/src/org/rascalmpl/core/library",
+                            REPO + "typepal/src"
+                        ],
+                        [ ], 
+                        compiler=compiler);
+}
+
+public RascalCompilerConfig getAllSrcREPOCompilerConfig(bool compiler=true){
+    return rascalCompilerConfig(getAllSrcREPOPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
+}
+// ----
 public PathConfig getAllSrcWritablePathConfig(bool compiler = true) {
     TMP_RASCAL = |tmp:///rascal/|;
     TMP_RASCAL_CORE = |tmp:///rascal-core/|;
@@ -190,11 +206,11 @@ public RascalCompilerConfig getRascalCoreCompilerConfig(bool compiler=true){
 * has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
 * Included projects: rascal-tutor, flybytes, rascal-lsp
 }
-public PathConfig getRascalCorePathConfigDev() {
+public PathConfig getRascalCorePathConfigDev(bool compiler = false) {
     return makePathConfig(RASCAL_CORE, [ RASCAL_CORE ], [ RASCAL, TYPEPAL ], compiler=compiler);
 }
 
-public RascalCompilerConfig getRascalCoreCompilerConfigDev(){
+public RascalCompilerConfig getRascalCoreCompilerConfigDev(bool compiler=true){
     return rascalCompilerConfig(getRascalCorePathConfigDev())[verbose = true][logWrittenFiles=true];
 }
 
@@ -236,7 +252,7 @@ public RascalCompilerConfig getSalixCompilerConfig(bool compiler = true){
 
 // ---- drambiguity -----------------------------------------------------------
 
-public PathConfig getDrAmbiguityPathConfig() {
+public PathConfig getDrAmbiguityPathConfig(bool compiler = false) {
     return makePathConfig(DRAMBIGUITY,
                           [ DRAMBIGUITY, SALIX_CORE + "src/main/rascal" ],
                           [ RASCAL ],

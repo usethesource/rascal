@@ -222,18 +222,26 @@ ModuleStatus rascalTModelForLocs(
             }
 
             compatible_with_all_imports = true;
-            for(m <- component){
-                m_compatible = false;
-                <found, tm, ms> = getTModelForModule(m, ms);
-                if(found && !tplOutdated(m, pcfg)){
-                    imports_extends_m = imports_and_extends[m];
-                   
-                    <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
-                    if(m_compatible){
-                        ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
-                    }
+            any_tpl_outdated = any(m <- component, tplOutdated(m, pcfg));
+            if(any_tpl_outdated){
+                for(m <- component){
+                    ms.status[m] -= {tpl_uptodate(), checked()};
+                    ms.status[m] += {rsc_changed()};
                 }
-                compatible_with_all_imports = compatible_with_all_imports && m_compatible;
+            } else {
+                for(m <- component){
+                    m_compatible = false;
+                    <found, tm, ms> = getTModelForModule(m, ms);
+                    if(found && !tplOutdated(m, pcfg)){
+                        imports_extends_m = imports_and_extends[m];
+                   
+                        <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
+                        if(m_compatible){
+                            ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
+                        }
+                    }
+                    compatible_with_all_imports = compatible_with_all_imports && m_compatible;
+                }
             }
 
             any_rsc_changed = any(m <- component, rsc_changed() in ms.status[m]);
