@@ -325,13 +325,13 @@ public RascalCompilerConfig getVSCodeCompilerConfig(){
 
 // ---- Outdated TypePal Usage -----------------------------------------------------------------
 
-public PathConfig getOutdatedTPLPathConfig(bool compier = true) {
+public PathConfig getOutdatedTPLPathConfig(bool compiler = true) {
     return makePathConfig(RASCAL_CORE,
                           [RASCAL_CORE + "src/org/rascalmpl/core/library"],
                           [ RASCAL, OUTDATED_TYPEPAL ],
                           compiler=compiler);
 }
 
-public RascalCompilerConfig getOutdatedTPLCompilerConfig(bool compier = true){
+public RascalCompilerConfig getOutdatedTPLCompilerConfig(bool compiler = true){
     return rascalCompilerConfig(getOutdatedTPLPathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
