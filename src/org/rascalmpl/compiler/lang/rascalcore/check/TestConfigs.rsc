@@ -325,7 +325,7 @@ public RascalCompilerConfig getVSCodeCompilerConfig(){
 
 // ---- Outdated TypePal Usage -----------------------------------------------------------------
 
-public PathConfig getOutdatedTPLPathConfig() {
+public PathConfig getOutdatedTPLPathConfig(bool compier = true) {
     return makePathConfig(RASCAL_CORE,
                           [RASCAL_CORE + "src/org/rascalmpl/core/library"],
                           [ RASCAL, OUTDATED_TYPEPAL ],
