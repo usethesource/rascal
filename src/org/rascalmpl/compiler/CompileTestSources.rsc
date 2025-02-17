@@ -15,26 +15,16 @@ import util::FileSystem;
 import util::Benchmark;
 import lang::rascalcore::compile::util::Names;
 
-PathConfig manualTestConfig= pathConfig(bin=|project://rascal-core/target/test-classes|,
-                                        generatedSources = |project://rascal-core/target/generated-test-sources|,
-                                        resources = |project://rascal-core/target/test-classes| //|project://rascal-core/target/generated-test-resources|
-                                       );
+loc REPO = |file:///Users/paulklint/git/|;
 
+PathConfig manualTestConfig= pathConfig(bin= REPO + "generated-sources/target/classes",
+                                        generatedSources = REPO + "generated-sources/target/generated-sources",
+                                        resources = REPO + "generated-sources/target/classes" //|project://rascal-core/target/generated-test-resources|
+                                       );
 void main() = compileTestSources(manualTestConfig);
 
 void compileTestSources(PathConfig pcfg) {
-     testConfig = pathConfig(
-        bin=pcfg.bin,
-        generatedSources=|project://rascal-core/target/generated-test-sources|,
-        resources = pcfg.bin, //|project://rascal-core/target/generated-test-resources2|,
-        srcs=[ |project://rascal/src/org/rascalmpl/library|, |std:///|, |project://rascal-core/src/org/rascalmpl/core/library|],
-        libs = [ ]
-     );
-     
-   println("PathConfig for compiling test sources:\n");
-   iprintln(testConfig);
-   
-   testCompilerConfig = getRascalCoreCompilerConfig(testConfig)[logPathConfig=false];
+   testCompilerConfig = getAllSrcCompilerConfig()[logPathConfig=false];
    total = 0;
 
    println(readFile(|lib://rascal/META-INF/MANIFEST.MF|));
@@ -118,17 +108,17 @@ void compileTestSources(PathConfig pcfg) {
   //  ];
    
 
-   for (m <- libraryModules) {
-     <e, d> = safeCompile(m, testCompilerConfig);
-     total += d;
-   }
+  //  for (m <- libraryModules) {
+  //    <e, d> = safeCompile(m, testCompilerConfig);
+  //    total += d;
+  //  }
    
    //for (m <- checkerTestModules) {
    //  <e, d> = safeCompile(m, testConfig, testCompilerConfig);
    //  total += d;
    //}
      
-   testFolder = |std:///lang/rascal/tests|;
+   testFolder = |std:///lang/rascal/|;
    
    testModules = [ replaceAll(file[extension=""].path[1..], "/", "::") 
                  | loc file <- find(testFolder, "rsc")     // all Rascal source files
@@ -136,7 +126,9 @@ void compileTestSources(PathConfig pcfg) {
                  
    ignored = ["lang::rascal::tests::concrete::Patterns3" // takes too long
              ];           
-   testModules -= ignored;    
+   testModules -= ignored;
+   println("Compiling test modules:");
+   println(testModules);   
    
    list[str] exceptions = [];
    int n = size(testModules);

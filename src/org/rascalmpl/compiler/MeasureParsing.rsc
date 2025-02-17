@@ -7,27 +7,11 @@ import IO;
 import ValueIO;
 import lang::rascalcore::check::ModuleLocations;
 
-data PathConfig(
-    loc resources = |unknown:///|,
-    loc generatedResources = |unknown:///|,
-    loc generatedSources = |unknown:///|
-);
+import  lang::rascalcore::check::TestConfigs;
 
 void main(){
-    pcfg =pathConfig(   
-        srcs = [
-                |project://rascal/src/org/rascalmpl/library|, 
-                |std:///|,
-                |project://rascal-core/src/org/rascalmpl/core/library|,
-                //|project://rascal_eclipse/src/org/rascalmpl/eclipse/library|,
-                |project://typepal/src|
-                //|project://salix/src|
-                ],
-        bin = |project://rascal-core/target/test-classes|,
-        generatedSources = |project://rascal-core/target/generated-test-sources|,
-        resources = |project://rascal-core/target/generated-test-resources|,
-        libs = []
-    );
+    pcfg = getAllSrcPathConfig();
+    start_time = cpuTime();
     parse_time = 0;
     read_time = 0;
     write_time = 0;
@@ -56,4 +40,5 @@ void main(){
     println("read_time:  <read_time>");
     
     println("parse_time / (write_time + read_time): <parse_time * 1.0 / (write_time + read_time)>");
+    println("Total time: <(cpuTime() - start_time)/1000000> ms");
 }

@@ -1,11 +1,20 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-import ValueIO;
-import IO;
+/*
+    Perform a path analysis on the Rascal source code of a function.
+    On the fly it will report dead code.
+*/
 
-data D(bool K = false) = d1(int n);
+extend lang::rascalcore::check::CheckerCommon;
+ 
+import lang::rascal::\syntax::Rascal;
 
-void main(){
-    v = readBinaryValueFile(#D, |home:///tmp.txt|);
-    println("K = <v.K>, <v.K?>");
-}
+// import String;
+
+/********************************************************************/
+/*       Return path analysis                                       */
+/********************************************************************/
+
+
+bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
+    = true;

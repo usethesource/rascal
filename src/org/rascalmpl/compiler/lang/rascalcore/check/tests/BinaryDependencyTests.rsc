@@ -183,7 +183,7 @@ test bool importSimpleSourceModuleWithRascalAsLib(){
                         '  return 0;
                         '}"),
             createPathConfig(clientName)
-                    [libs=[rascalPCFG.resources]]
+                    [libs=[rascalPCFG.bin]]
                     [srcs=[src(clientName), src(libName)]]
                 );
     return checkExpectNoErrors("LibCall", client.pcfg, remove = [lib, client]);
@@ -369,7 +369,7 @@ test bool incompatibleVersionsOfBinaryLibrary(){
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
 
     // Recompile Check and discover the error
-    return checkExpectErrors("Check", ["Binary module `TP` needs recompilation"], core.pcfg, remove = [rascal, typepal, core]);
+    return checkExpectErrors("Check", ["Recompilation or reconfiguration needed: binary module `TP` uses incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
 }
 
 // ---- Binary compatibility of two TModels -----------------------------------
@@ -388,8 +388,8 @@ AGrammar getGrammar(TModel tm){
 // The binary compatibility test for TModels
 
 bool binaryCompatible(tuple[TModel old, TModel new] tms){
-    iprintln(domain(tms.old.logical2physical));
-    iprintln(domain(tms.new.logical2physical));
+    if(verbose) iprintln(domain(tms.old.logical2physical));
+    if(verbose) iprintln(domain(tms.new.logical2physical));
     return getGrammar(tms.old) == getGrammar(tms.new)
            && domain(tms.old.logical2physical) <= domain(tms.new.logical2physical);
 }

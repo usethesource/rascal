@@ -6,5 +6,5 @@ data Exception
     = CompileTimeError(Message msg)
     | InternalCompilerError(Message msg)
     | rascalTplVersionError(str txt)
-    | rascalBinaryNeedsRecompilation(str txt)
+    | rascalBinaryNeedsRecompilation(str moduleName, Message msg)
     ;

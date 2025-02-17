@@ -115,7 +115,7 @@ JGenie makeJGenie(MuModule m,
     
     sortedImportAndExtendScopes =
         sort(importAndExtendScopes,
-            bool(loc a, loc b) { return <a, b> in extends /*|| <a, importPath(), b> in allPaths*/; });
+            bool(loc a, loc b) { return a != b && <a, b> in extends /*|| <a, importPath(), b> in allPaths*/; });
     
     JGenie thisJGenie;
    
@@ -340,7 +340,7 @@ JGenie makeJGenie(MuModule m,
         if(fun2externals[src]?){
             fun = muFunctionsByLoc[src];
             evars = isContainedIn(src, currentModuleScope) ? fun2externals[src] : {};
-            return sort([var | var <- evars, var.pos >= 0, var notin fun.formals ]);
+            return sort([var | var <- evars, var.pos >= 0, var notin fun.formals, !isVarDeclaredInFun(var, fun) ]);
         }
         return [];
     }
@@ -555,12 +555,13 @@ JGenie makeJGenie(MuModule m,
         //println("-----------------------------------------");
         
         bool simpler(AType a, AType b) {
-            if(/a := b && a != b) return true;
-            if(isAtomicAType(a) && !isAtomicAType(b)) return true;
-            return false;
+            if(a == b) return false;
+            if(/a := b) return true;
+            return isAtomicAType(a) && !isAtomicAType(b);
         }
         
         sorted_types = sort(domain(type2id), simpler);
+        //assert isSorted(sorted_types, simpler) : "Not properly sorted: <sorted_types>";
         
         //println("sorted_types:"); for(t <- sorted_types) println(t);
         

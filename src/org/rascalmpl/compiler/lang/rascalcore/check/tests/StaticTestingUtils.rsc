@@ -350,13 +350,13 @@ list[str] unexpectedDeclarationMsgs = [
 	"Non-well-formed _ type, labels must be distinct"
 ];
 
-bool unexpectedDeclarationInModule(str moduleText)
-	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs);
+bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = pathConfigForTesting())
+	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
-bool unexpectedDeclarationInModule(loc mloc)
-	= checkModuleAndFilter(mloc, unexpectedDeclarationMsgs);
+bool unexpectedDeclarationInModule(loc mloc, PathConfig pathConfig = pathConfigForTesting())
+	= checkModuleAndFilter(mloc, unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
-bool unexpectedDeclaration(str stmts) =
+bool unexpectedDeclaration(str stmts, PathConfig pathConfig = pathConfigForTesting()) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
 
 // ---- missingModule ---------------------------------------------------------

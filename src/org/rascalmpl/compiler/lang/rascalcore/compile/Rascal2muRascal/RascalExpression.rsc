@@ -664,11 +664,13 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
 	fuid = convert2fuid(uid);
 	surrounding = topFunctionScope();
 
-	enterFunctionScope(fuid);
-
     ftype = getClosureType(e@\loc);
 	nformals = size(ftype.formals);
 	bool isVarArgs = ftype.varArgs;
+
+    typeVarsInParams = getFunctionTypeParameters(ftype);
+    enterFunctionDeclaration(getLoc(e), !isEmpty(typeVarsInParams));
+	enterFunctionScope(fuid);
 
   	// Keyword parameters
      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(parameters);
@@ -676,7 +678,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     enterSignatureSection();
     // TODO: we plan to introduce keyword patterns as formal parameters
     <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat, ()) | stat <- cbody]), false, []);
-    typeVarsInParams = getFunctionTypeParameters(ftype);
+   
 
     leaveSignatureSection();
     cname = "$CLOSURE_<getNextClosure()>";
@@ -699,6 +701,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   funBody));
 
   	leaveFunctionScope();
+    leaveFunctionDeclaration();
   	return muFun(uid, ftype); // TODO!
 }
 
@@ -887,7 +890,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        }
    }
    str fname = unescape("<expression>");
-   if(!isOverloadedAType(ftype) || fname in { "choice", "priority", "associativity"}){
+   if(!isOverloadedAType(ftype) || fname in { "achoice", "priority", "associativity"}){
         // Try to reduce non-overloaded function call (and three selected overloaded ones) to a constant
    		try {
    			return translateConstantCall(fname, args); //TODO: kwargs?

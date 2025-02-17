@@ -18,12 +18,6 @@ module lang::rascalcore::check::Checker
     Note that the checker calls the code generator (given as parameter) when there are no type errors.
 */
 
-/*
- * TODO:
- * Potential additions/improvements
- * - Reduce rechecking by comparing old and new tpl file
- */
-
 import lang::rascal::\syntax::Rascal;
 
 extend lang::rascalcore::check::ADTandGrammar;
@@ -144,8 +138,10 @@ ModuleStatus rascalTModelForLocs(
             }
         };
 
-    if(!otherModulesWithOutdatedTpls(mlocs, pcfg)){
-        if(uptodateTPls(mlocs, mnames, pcfg)){
+    if(allModulesHaveValidTpls(mlocs, pcfg)){
+        <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
+
+        if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
             for (i <- index(mlocs)) {
                 <found, tm, ms> = getTModelForModule(mnames[i], ms);
                 if(!found){
@@ -226,18 +222,26 @@ ModuleStatus rascalTModelForLocs(
             }
 
             compatible_with_all_imports = true;
-            for(m <- component){
-                m_compatible = false;
-                <found, tm, ms> = getTModelForModule(m, ms);
-                if(found && !tplOutdated(m, pcfg)){
-                    imports_extends_m = imports_and_extends[m];
-                   
-                    <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
-                    if(m_compatible){
-                        ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
-                    }
+            any_tpl_outdated = any(m <- component, tplOutdated(m, pcfg));
+            if(any_tpl_outdated){
+                for(m <- component){
+                    ms.status[m] -= {tpl_uptodate(), checked()};
+                    ms.status[m] += {rsc_changed()};
                 }
-                compatible_with_all_imports = compatible_with_all_imports && m_compatible;
+            } else {
+                for(m <- component){
+                    m_compatible = false;
+                    <found, tm, ms> = getTModelForModule(m, ms);
+                    if(found && !tplOutdated(m, pcfg)){
+                        imports_extends_m = imports_and_extends[m];
+                   
+                        <m_compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_extends_m, ms);
+                        if(m_compatible){
+                            ms.status[m] += {tpl_uptodate(), checked(), bom_update_needed()};
+                        }
+                    }
+                    compatible_with_all_imports = compatible_with_all_imports && m_compatible;
+                }
             }
 
             any_rsc_changed = any(m <- component, rsc_changed() in ms.status[m]);
@@ -350,10 +354,8 @@ ModuleStatus rascalTModelForLocs(
         for(str mname <- topModuleNames){
             ms.messages[mname] = { error("During type checking: <msg>", msg.at) };
         }
-    } catch rascalBinaryNeedsRecompilation(str txt): {
-        for(str mname <- topModuleNames){
-            ms.messages[mname] = { error("Binary module `<txt>` needs recompilation", |unknown:///|) };
-        }
+    } catch rascalBinaryNeedsRecompilation(str moduleName, Message msg): {
+        ms.messages[moduleName] = { msg };
     }
 
     jobEnd(jobName);
@@ -472,7 +474,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         if(compilerConfig.verbose) { println("Checked .... <modelName> in <check_time> ms"); }
         return <tm, ms>;
     } else {
-        ms.status[modelName]? {} += tpl_saved();
+        ms.status[modelName]? {} += { tpl_saved() };
         <found, tm, ms> = getTModelForModule(modelName, ms);
         return <tm, ms>;
     }
@@ -511,21 +513,35 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
     return true;
 }
 
-bool otherModulesWithOutdatedTpls(list[loc] candidates, PathConfig pcfg){
+bool allModulesHaveValidTpls(list[loc] candidates, PathConfig pcfg){
     for(srcdir <- pcfg.srcs){
         for(loc mloc <- find(srcdir, "rsc")){
             try {
                 mname = getRascalModuleName(mloc, pcfg);
                 <found, tpl> = getTPLReadLoc(mname, pcfg);
                 if(found && (mloc notin candidates) && (lastModified(mloc) > lastModified(tpl))){
-                    return true;
+                    return false;
                 }
             } catch e:{
-                return true;
+                return false;
             }
         }
     }
-    return false;
+    return true;
+}
+
+tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates, ModuleStatus ms){
+    pcfg = ms.pathConfig;
+    for(candidate <- candidates){
+        mname = getRascalModuleName(candidate, pcfg);
+        <found, tm, ms> = getTModelForModule(mname, ms);
+        imports_and_extends = ms.strPaths<0,2>[mname];
+        <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
+        if(!compatible){
+            return <false, ms>;
+        }
+    }
+    return <true, ms>;
 }
 
 // ---- checker functions for IDE

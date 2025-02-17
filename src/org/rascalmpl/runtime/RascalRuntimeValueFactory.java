@@ -15,6 +15,10 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.Typed
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction3;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction4;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction5;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction6;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction7;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction8;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction9;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance0;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance1;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance2;
@@ -22,6 +26,9 @@ import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.Typed
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance4;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance5;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance6;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance7;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance8;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance9;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;
@@ -147,6 +154,34 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
                 @Override
                 public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4, IValue arg5) {
                     return func.apply(new IValue[] { arg, arg2, arg3, arg4, arg5 }, Collections.emptyMap());
+                }
+            }, functionType);
+        case 6:
+            return new TypedFunctionInstance6<>(new TypedFunction6<IValue,IValue,IValue,IValue,IValue,IValue,IValue>() {
+                @Override
+                public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6) {
+                    return func.apply(new IValue[] { arg, arg2, arg3, arg4, arg5, arg6 }, Collections.emptyMap());
+                }
+            }, functionType);
+        case 7:
+            return new TypedFunctionInstance7<>(new TypedFunction7<IValue,IValue,IValue,IValue,IValue,IValue,IValue,IValue>() {
+                @Override
+                public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6, IValue arg7) {
+                    return func.apply(new IValue[] { arg, arg2, arg3, arg4, arg5, arg6, arg7 }, Collections.emptyMap());
+                }
+            }, functionType);
+        case 8:
+            return new TypedFunctionInstance8<>(new TypedFunction8<IValue,IValue,IValue,IValue,IValue,IValue,IValue,IValue,IValue>() {
+                @Override
+                public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6, IValue arg7, IValue arg8) {
+                    return func.apply(new IValue[] { arg, arg2, arg3, arg4, arg5, arg6, arg7, arg8 }, Collections.emptyMap());
+                }
+            }, functionType);
+        case 9:
+            return new TypedFunctionInstance9<>(new TypedFunction9<IValue,IValue,IValue,IValue,IValue,IValue,IValue,IValue,IValue,IValue>() {
+                @Override
+                public IValue typedCall(IValue arg, IValue arg2, IValue arg3, IValue arg4, IValue arg5, IValue arg6, IValue arg7, IValue arg8, IValue arg9) {
+                    return func.apply(new IValue[] { arg, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9 }, Collections.emptyMap());
                 }
             }, functionType);
         }

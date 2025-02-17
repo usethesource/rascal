@@ -91,7 +91,7 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
 }
 
 data AProduction
-     = \choice(AType def, set[AProduction] alternatives)
+     = \achoice(AType def, set[AProduction] alternatives)
      ;
 
 @doc{
@@ -107,24 +107,24 @@ data AAttr
 Normalize the choice between alternative productions.
 
 .Description
-Nested choice is flattened.
+Nested achoice is flattened.
 }
-public AProduction choice(AType s, set[AProduction] choices){
-    if(any(choice(AType _, set[AProduction] _)  <- choices)){
+public AProduction achoice(AType s, set[AProduction] achoices){
+    if(any(achoice(AType _, set[AProduction] _)  <- achoices)){
         // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
         //return choice(s, { *(choice(Symbol t, set[AProduction] b) := ch ? b : {ch}) | ch <- choices });
         bool changed = false;
-        new_choices = {};
-        for(ch <- choices){
-            if(choice(AType _, set[AProduction] b) := ch){
+        new_achoices = {};
+        for(ch <- achoices){
+            if(achoice(AType _, set[AProduction] b) := ch){
                 changed = true;
-                new_choices += b;
+                new_achoices += b;
             } else {
-                new_choices += ch;
+                new_achoices += ch;
             }
         }
         if(changed){
-            return choice(s, new_choices);
+            return achoice(s, new_achoices);
         }
    }
    fail;
@@ -382,7 +382,7 @@ Normalization of associativity.
 * Nested (equal) associativity is flattened.
 * Priority under an associativity group defaults to choice.
 }
-AProduction associativity(AType s, AAssociativity as, {*AProduction a, choice(AType t, set[AProduction] b)})
+AProduction associativity(AType s, AAssociativity as, {*AProduction a, achoice(AType t, set[AProduction] b)})
   = associativity(s, as, a+b);
 
 AProduction associativity(AType rhs, AAssociativity a, {associativity(rhs, AAssociativity b, set[AProduction] alts), *AProduction rest})
@@ -423,7 +423,7 @@ public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
 
   for (p <- prods) {
     t = /*(p.def is label) ? p.def.symbol : */ p.def;
-    rules[t] = t in rules ? choice(t, {p, rules[t]}) : choice(t, {p});
+    rules[t] = t in rules ? achoice(t, {p, rules[t]}) : achoice(t, {p});
   }
   return grammar(starts, rules);
 }
@@ -449,7 +449,7 @@ The start symbols of g1 will be the start symbols of the resulting grammar.
 public AGrammar compose(AGrammar g1, AGrammar g2) {
   for (s <- g2.rules)
     if (g1.rules[s]?)
-      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
+      g1.rules[s] = achoice(s, {g1.rules[s], g2.rules[s]});
     else
       g1.rules[s] = g2.rules[s];
   g1.starts += g2.starts;

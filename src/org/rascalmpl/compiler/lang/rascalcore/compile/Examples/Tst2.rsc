@@ -1,17 +1,20 @@
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
 
-import IO;
-import ValueIO;
-extend lang::rascalcore::check::CheckerCommon;
+import List;
+data Shape = rect(int w, int h) | square(int n);
 
-loc EXCEPTIONTPL1
- = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.40.8-SNAPSHOT/rascal-0.40.8-SNAPSHOT.jar!rascal/$Exception.tpl|;
+int area(rect(int w, int h)) = w * h;
+int area(square(int n)) = n * n;
 
- loc VersionTPL = |file:///Users/paulklint/git/generated-sources/target/typepal/generated-resources/src/main/java/rascal/analysis/typepal/$Version.tpl|;
- void main(){
-    tm = readBinaryValueFile(#TModel, VersionTPL);
-    iprintln(tm.logical2physical);
-    println("usesPhysicalLocs: <tm.usesPhysicalLocs?>, <tm has usesPhysicalLocs>, <tm.usesPhysicalLocs>");
- //   println("convertedToPhysical: <tm.convertedToPhysical?>, <tm has convertedToPhysical>, <tm.convertedToPhysical>");
+bool less(Shape a, Shape b) {
+  return area(a) < area(b);
+}
+
+value main() {
+  s1 = square(2);
+  s2 = rect(1, 4);
+  s3 = square(3);
+  s4 = rect (3,3);
+  return sort([s1, s2, s3, s4], less);
 }
