@@ -230,7 +230,7 @@ void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
         c.calculate("alt production", current, [adt, *alts],
             AType(Solver s){
                 adtType = s.getType(adt);
-                return aprod(choice(adtType, {getProd(adtType, p, s) | p <- alts}));
+                return aprod(achoice(adtType, {getProd(adtType, p, s) | p <- alts}));
             });
         c.push(inAlternative, true);
             collect(alts, c);

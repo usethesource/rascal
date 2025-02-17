@@ -62,17 +62,17 @@ test bool intermix6() =
  grammar(
   {sort("E")},
   (
-    alit("+"):choice(
+    alit("+"):achoice(
       alit("+"),
       {prod(
           alit("+"),
           [\achar-class([arange(43,43)])])}),
-    alit("*"):choice(
+    alit("*"):achoice(
       alit("*"),
       {prod(
           alit("*"),
           [\achar-class([arange(42,42)])])}),
-    sort("B"):choice(
+    sort("B"):achoice(
       sort("B"),
       {
         prod(
@@ -82,12 +82,12 @@ test bool intermix6() =
           sort("B"),
           [alit("1")])
       }),
-    alit("0"):choice(
+    alit("0"):achoice(
       alit("0"),
       {prod(
           alit("0"),
           [\achar-class([arange(48,48)])])}),
-    sort("E"):choice(
+    sort("E"):achoice(
       sort("E"),
       {
         prod(
@@ -112,7 +112,7 @@ test bool intermix6() =
             sort("B")
           ])
       }),
-    alit("1"):choice(
+    alit("1"):achoice(
       alit("1"),
       {prod(
           alit("1"),

@@ -210,7 +210,9 @@ void leaveSignatureSection() {
 }
 
 void leaveFunctionDeclaration(){
-    functionDeclarations = tail(functionDeclarations);
+    if(!isEmpty(functionDeclarations)){
+        functionDeclarations = tail(functionDeclarations);
+    }
     state_inSignatureSection = false;
 }
 
