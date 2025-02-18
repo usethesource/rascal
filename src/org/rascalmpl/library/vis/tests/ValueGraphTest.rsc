@@ -45,6 +45,10 @@ Content showParseTree3() {
     return showGraph(parseTree, "ParseTree-3", config=createParseTreeConfig(collapseTokens=true, filterLayout=true, filterMissingOptionals=true));
 }
 
+Content showYieldParseTreeCompact() {
+    return showGraph(parseTree, "ParseTree-3", config=createYieldParseTreeConfig());
+}
+
 /*Content testParseTreeWithAmbiguities() {
     Tree t = parse(#Ambiguous, "a", allowAmbiguity=true);
     return showGraph(t, "ambParseTree", config=createParseTreeConfig(collapseTokens=true, filterLayout=true, filterMissingOptionals=true));

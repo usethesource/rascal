@@ -158,6 +158,15 @@ CytoData parseTreeNodeGenerator(t: cycle(sym, length), id) = cytoNode(id, "cycle
 CytoData parseTreeNodeGenerator(token(str tok, str tooltip, loc source), id) = cytoNode(id, tok, editor="<source>", tooltip=tooltip, classes=[CLASS_TOKEN]);
 default CytoData parseTreeNodeGenerator(n, str id) = cytoNode(id, "<n>");
 
+CytoData yieldParseTreeNodeGenerator(t:appl(prod,args), str id) {
+    str label = yield(t, 30);
+    if (label == "") {
+        label = " ";
+    }
+    return cytoNode(id, label, editor=editor(t), tooltip=prodToString(prod));
+}
+default CytoData yieldParseTreeNodeGenerator(value v, str id) = parseTreeNodeGenerator(v, id);
+
 CytoData defaultEdgeGenerator(value _, str parentId, edge(val, edgeLabel=edgeLabel, classes=classes), str childId)
     = cytoEdge(parentId, childId, label=edgeLabel, classes=classes);
 default CytoData defaultEdgeGenerator(value _, str parentId, value e, str childId) = cytoEdge(parentId, childId);
@@ -231,8 +240,8 @@ private default str typeToLabel(Symbol tp) = "<tp>";
 
 private str typesToLabel(list[Symbol] types) = substring(("" | it + ",<typeToLabel(tp)>" | tp <-types), 1);
 
-private bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptionals) {
-    bool valueFilter(appl(production, args)) {
+private bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptionals, bool filterEmptyYield) {
+    bool valueFilter(t: appl(production, args)) {
         Symbol getSymbol(prod(label(_, sym), _, _)) = sym;
         Symbol getSymbol(regular(def)) = def;
         // TODO: error productions
@@ -249,6 +258,11 @@ private bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissing
                 return false;
             }
         }
+
+        if (filterEmptyYield && "<t>" == "") {
+            return false;
+        }
+
 
         return true;
     }
@@ -286,24 +300,30 @@ private default bool isToken(Tree _) = false;
 
 private CytoStyleOf nodeStyleOf(str cls, CytoStyle style) = cytoStyleOf(selector=\node(\className(cls)), style=style);
 
-ValueToGraphConfig createParseTreeConfig(bool collapseTokens=false, bool filterLayout=false, bool filterMissingOptionals=false) {
+list[CytoStyleOf] getParseTreeStyles() {
     CytoStyle ellipseStyle = defNodeStyle()[shape=\ellipse()];
     CytoStyleOf styleOfChar = nodeStyleOf(CLASS_CHAR, ellipseStyle);
     CytoStyleOf styleOfAmb = nodeStyleOf(CLASS_AMB, ellipseStyle[\border-color="orange"]);
     CytoStyleOf styleOfCycle = nodeStyleOf(CLASS_CYCLE, ellipseStyle);
     CytoStyleOf styleOfToken = nodeStyleOf(CLASS_TOKEN, defNodeStyle()[\border-color="darkblue"]);
-    return valueToGraphConfig(
-        childGetter = getParseTreeChildren,
-        valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals),
-        valueTransformer = parseTreeValueTransformer(collapseTokens),
-        nodeGenerator = parseTreeNodeGenerator,
-        styles = [
-            cytoNodeStyleOf(defNodeStyle()),
-            cytoEdgeStyleOf(defEdgeStyle()),
-            styleOfChar, styleOfAmb, styleOfCycle, styleOfToken]
-    );
+    return [cytoNodeStyleOf(defNodeStyle()), cytoEdgeStyleOf(defEdgeStyle()),
+            styleOfChar, styleOfAmb, styleOfCycle, styleOfToken];
 }
 
+ValueToGraphConfig createParseTreeConfig(bool collapseTokens=false, bool filterLayout=false, bool filterMissingOptionals=false, bool filterEmptyYield=true) {
+    return valueToGraphConfig(
+        childGetter = getParseTreeChildren,
+        valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals, filterEmptyYield),
+        valueTransformer = parseTreeValueTransformer(collapseTokens),
+        nodeGenerator = parseTreeNodeGenerator,
+        styles = getParseTreeStyles());
+}
+
+ValueToGraphConfig createYieldParseTreeConfig(bool collapseTokens=true, bool filterLayout=true, bool filterMissingOptionals=true, bool filterEmptyYield=true) {
+    ValueToGraphConfig config = createParseTreeConfig(collapseTokens=collapseTokens, filterLayout=filterLayout, filterMissingOptionals=filterMissingOptionals);
+    config.nodeGenerator = yieldParseTreeNodeGenerator;
+    return config;
+}
 
 int nextId = 0;
 
