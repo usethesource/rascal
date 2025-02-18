@@ -1,21 +1,21 @@
 module vis::tests::ValueGraphTest
 
 import lang::dot::\syntax::Dot;
-import vis::Graphs;
 import vis::ValueGraph;
+import vis::CytoDot;
 import ParseTree;
 import IO;
 import Content;
 import lang::html::IO;
 import lang::html::AST;
 
-syntax Ambiguous = A? | B?;
-syntax A = "a";
-syntax B = "a";
+//syntax Ambiguous = A? | B?;
+//syntax A = "a";
+//syntax B = "a";
 
 private Content showGraph(value v, str name, ValueToGraphConfig config = valueToGraphConfig()) {
     //println("graph: <valueToGraph(v, config=config)>");
-    return content(name, graphServer(valueToGraph(v, config=config), useDotRenderer=true));
+    return content(name, dotServer(valueToGraph(v, config=config)));
 }
 
 Content showNode() {
@@ -45,10 +45,11 @@ Content showParseTree3() {
     return showGraph(parseTree, "ParseTree-3", config=createParseTreeConfig(collapseTokens=true, filterLayout=true, filterMissingOptionals=true));
 }
 
-Content testParseTreeWithAmbiguities() {
+/*Content testParseTreeWithAmbiguities() {
     Tree t = parse(#Ambiguous, "a", allowAmbiguity=true);
     return showGraph(t, "ambParseTree", config=createParseTreeConfig(collapseTokens=true, filterLayout=true, filterMissingOptionals=true));
 }
+*/
 
 Content testGraphviz() {
   return html(writeHTMLString(html([

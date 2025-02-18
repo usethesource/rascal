@@ -200,7 +200,7 @@ private data Token = token(str token, Attrs attrs);
 value(value v) parseTreeValueTransformer(bool collapseTokens) {
     value valueTransformer(t: appl(prod,_)) {
         if (collapseTokens && isToken(t)) {
-            return token("<t>", treeAttrs(t, [], tooltip=prodToString(prod)));
+            return token("<t>", treeAttrs(t, [], tooltip=));
         }
 
         return t;
@@ -216,7 +216,7 @@ DotConfig createYieldParseTreeConfig(bool collapseTokens=true, bool filterLayout
         valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals, filterEmptyYield),
         valueTransformer = parseTreeValueTransformer(collapseTokens),
         nodeGenerator = yieldParseTreeNodeGenerator,
-        nodeAttrs = DEFAULT_NODE_ATTRS + <WIDTH, "0.5">
+        nodeAttrs = DEFAULT_NODE_ATTRS + [<WIDTH, "0.5">]
     );
 }
 

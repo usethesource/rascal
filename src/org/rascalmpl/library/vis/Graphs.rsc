@@ -24,6 +24,7 @@ import lang::html::IO;
 import lang::html::AST;
 import util::IDEServices;
 import Content;
+import IO;
 import ValueIO;
 import Set;
 
@@ -309,7 +310,7 @@ data CytoData
   = cytodata(CytoElement \data, list[str] classes=[]);
 
 data CytoElement
-  = \node(str id, str label=id, str editor="|none:///|")
+  = \node(str id, str label=id, str editor="|none:///|", str tooltip="")
   | \edge(str source, str target, str id="<source>-<target>", str label="")
   ;
 
@@ -384,6 +385,8 @@ CytoStyle defaultNodeStyle()
         padding           = "10pt",
         \background-color = "blue",
         color             = "white",
+        \border-color     = "black",
+        \border-width     = 1,
         \font-size        = "20pt",
         \font-weight      = bold(),
         label             = "data(label)",
@@ -435,6 +438,8 @@ data CytoStyle
         str \font-style         = "",
         CytoFontWeight \font-weight = normal(),
         str \background-color   = "blue",
+        str \border-color       = "black",
+        int \border-width       = 1,
         str label               = "data(label)",
         CytoNodeShape shape     = CytoNodeShape::ellipse(),
         CytoHorizontalAlign \text-halign = CytoHorizontalAlign::center(),
