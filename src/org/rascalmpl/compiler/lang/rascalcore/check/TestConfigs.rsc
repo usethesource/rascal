@@ -31,6 +31,8 @@ loc PHP_ANALYSIS  = |mvn://org.rascalmpl!php-analysis!0.2.5-SNAPSHOT/!|;
 loc REPO          =  |file:///Users/paulklint/git/|;
 loc COMPILED_RASCAL 
                   =  REPO + "compiled-rascal";
+loc TMP_COMPILED_RASCAL 
+                  = |tmp:///compiled-rascal/|;
 
 // ---- PathConfigs for testing purposes --------------------------------------
 
@@ -86,14 +88,22 @@ public PathConfig getRascalProjectTestingPathConfig() {
 // ---- generic template for PathConfigs --------------------------------------
 
 public PathConfig makePathConfig(loc repo, list[loc] sources, list[loc] libraries, bool compiler = false) {
+   COMPILED = compiler ? COMPILED_RASCAL : TMP_COMPILED_RASCAL;
    return pathConfig(
         srcs                 = sources,
-        bin                  = compiler ? COMPILED_RASCAL + "/target/classes" : repo,
-        generatedSources     = compiler ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
-        generatedTestSources = compiler ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
-        resources            = compiler ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
-        testResources        = compiler ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
+        bin                  = COMPILED + "/target/classes",
+        generatedSources     = COMPILED + "/src/main/java",
+        generatedTestSources = COMPILED + "/src/test/java/",
+        resources            = COMPILED + "/src/main/java",
+        testResources        = COMPILED_RASCAL + "/src/test/java/",
         libs                 = libraries
+        // srcs                 = sources,
+        // bin                  = compiler ? COMPILED_RASCAL + "/target/classes" : repo,
+        // generatedSources     = compiler ? COMPILED_RASCAL + "/src/main/java" : |unknown:///|,
+        // generatedTestSources = compiler ? COMPILED_RASCAL + "/src/test/java/" : |unknown:///|,
+        // resources            = compiler ? COMPILED_RASCAL + "/src/main/java" : repo + "/rascal",
+        // testResources        = compiler ? COMPILED_RASCAL + "/src/test/java/" : repo + "/rascal",
+        // libs                 = libraries
     ); 
 }
 
@@ -176,7 +186,7 @@ public PathConfig getRascalWritablePathConfig(bool compiler = true) {
                           compiler=compiler);
 }
 
-public RascalCompilerConfig getRascalCompilerConfig(bool compiler=true){
+public RascalCompilerConfig getRascalWritableCompilerConfig(bool compiler=true){
     return rascalCompilerConfig(getRascalWritablePathConfig(compiler=compiler))[verbose = true][logWrittenFiles=true];
 }
 
