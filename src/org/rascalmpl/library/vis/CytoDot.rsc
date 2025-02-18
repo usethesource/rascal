@@ -4,6 +4,7 @@ import lang::dot::\syntax::Dot;
 import vis::Graphs;
 import Node;
 import String;
+import util::Math;
 import Content;
 import ValueIO;
 import lang::html::IO;
@@ -14,28 +15,28 @@ import util::IDEServices;
 private alias DotAttr = tuple[str,str];
 private alias DotAttrs = list[DotAttr];
 
-public DOT cytoToDot(Cytoscape cytoscape) {
-    AttrList graphAttrList = generateAttrList([]);
-    AttrList nodeAttrList = generateAttrList([]);
-    AttrList edgeAttrList = generateAttrList([]);
+str ATTR_URL = "URL";
+str ATTR_TOOLTIP = "tooltip";
+
+DotAttrs DEFAULT_GRAPH_ATTRS = [<"ranksep","0.3">, <"bgcolor","0.482 0.1 1.0">];
+
+public DOT cytoToDot(Cytoscape cytoscape, DotAttrs graphAttrs=DEFAULT_GRAPH_ATTRS) {
+    AttrList graphAttrList = generateAttrList(graphAttrs);
+
+    AttrList nodeAttrList = generateAttrList(cytoStylesToDotAttrs([style | cytoStyleOf(selector=\node(), style=style) <- cytoscape.style]));
+    AttrList edgeAttrList = generateAttrList(cytoStylesToDotAttrs([style | cytoStyleOf(selector=\edge(), style=style) <- cytoscape.style]));
 
     StatementList initialStats = (StatementList)`graph <AttrList graphAttrList>
     '  node <AttrList nodeAttrList> 
-    '  edge <AttrList edgeAttrList>
-    ' 1 -\> 2`;
+    '  edge <AttrList edgeAttrList>`;
 
 
-    StatementList stats = (StatementList)``;
+    StatementList stats = generateStatements(cytoscape);
     stats = mergeStatements(initialStats, stats);
 
     return (DOT) `digraph G {
     '  <StatementList stats>
     '}`;
-
-    /*
-    for (CytoData elem <- cytoscape.elements) {
-        list[CytoStyleOf] styles = gatherElementStyles(cytoscape, elem);
-    }*/
 }
 
 private AttrList generateAttrList(DotAttrs attrs) {
@@ -114,6 +115,7 @@ private bool anyMatches(CytoData \data, list[CytoSelector] disjuncts) {
 private str getStringField(\node(id), "id") = id;
 private str getStringField(\node(_, label=label), "label") = label;
 private str getStringField(\node(_, editor=editor), "editor") = editor;
+private str getStringField(\node(_, tooltip=tooltip), "tooltip") = tooltip;
 private str getStringField(\edge(source, _), "source") = source;
 private str getStringField(\edge(_, target), "target") = target;
 private str getStringField(\edge(_, _, id=id), "id") = id;
@@ -122,11 +124,29 @@ private default str getStringField(_) = "";
 
 private int getIntField(CytoElement elem, str field) = toInt(getStringField(elem, field));
 
-private Statement generateStatement(\node(id, label=label), list[CytoStyle] styles) {
-    DotAttrs styleAttrs = cytoStylesToDotAttrs(styles);
-    styleAttrs += <"label",label>;
+private Statement generateStatement(\node(id, label=label, editor=editLoc, tooltip=tooltip), list[CytoStyle] styles) {
+    DotAttrs attrs = cytoStylesToDotAttrs(styles);
+    attrs += <"label",label>;
+
+    if (editLoc != "|nothing:///|") {
+        if (startsWith(editLoc, "|")) {
+            // Should be a location
+            loc editorLoc = |https://editor|;
+            editorLoc.query = "src=<editLoc>";
+            str url = substring(editorLoc.uri, 8); // Remove https://
+            attrs = attrs + <ATTR_URL, url>;
+        } else {
+            // Expect a complete url
+            attrs = attrs + <ATTR_URL, editLoc>;
+        }
+    }
+
+    if (tooltip != "") {
+        attrs = attrs + <ATTR_TOOLTIP, tooltip>;
+    }
+
     Id nodeId = [Id] id;
-    AttrList attrList = generateAttrList(styleAttrs);
+    AttrList attrList = generateAttrList(attrs);
     return (Statement) `<Id nodeId> <AttrList attrList>;`;
 }
 
@@ -151,11 +171,56 @@ private StatementList mergeStatements((StatementList) `<Statement* stats1>`, (St
 
 DotAttrs cytoStylesToDotAttrs(list[CytoStyle] styles) = ([] | it + cytoStyleToDotAttrs(style) | style <- styles);
 
-private DotAttrs cytoStyleToDotAttrs(CytoStyle style) {
-    return [
-        <"color",style.color>
-    ] 
-    + dotShape(style.shape);
+real toInches(str spec) {
+    if (endsWith(spec, "pt")) {
+        spec = substring(spec, 0, size(spec)-2);
+    }
+
+    return toReal(spec)/72;
+}
+
+private DotAttrs cytoStyleToDotAttrs(style: cytoNodeStyle()) {
+    DotAttrs attrs = [];
+
+    if (style has color) {
+        attrs = attrs + <"fillcolor",style.color>;
+    }
+    if (style has \border-color) {
+        attrs = attrs + <"color",style.\border-color>;
+    }
+    if (style has \border-width && style.\border-width != 1) {
+        attrs = attrs + <"penwidth","<style.\border-width>">;
+    }
+
+    if (style has shape) {
+        attrs = attrs + dotShape(style.shape);
+    }
+
+    if (style has visibility && style.visibility != "visible") {
+        attrs = attrs + <"style", "invis">;
+    }
+
+    if (style has padding) {
+        attrs = attrs + <"margin",  "<toInches(style.padding)>">;
+    }
+
+    if (style has height && style.height != "label") {
+        attrs = attrs + <"height", "<toInches(style.height)>">;
+    }
+
+    return attrs;
+}
+
+private DotAttrs cytoStyleToDotAttrs(style: cytoEdgeStyle()) {
+    DotAttrs attrs = [];
+    if (style has \line-color) {
+        attrs = attrs + <"color",style.color>;
+    }
+    if (style has width && style.width != 1) {
+        attrs = attrs + <"penwidth","<style.\width>">;
+    }
+
+    return attrs;
 }
 
 private DotAttrs dotShape(CytoNodeShape shape) {

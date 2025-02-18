@@ -3,32 +3,34 @@ module vis::ValueGraph
 import vis::Graphs;
 import ParseTree;
 import Node;
-import analysis::text::search::Grammars;
-import ParseTree;
 import Set;
 import Map;
 import List;
 import String;
 import IO;
 import Type;
-import Content;
 
 private value identity(value val) = val;
 private bool success(_) = true;
+
+str CLASS_CHAR = "char";
+str CLASS_AMB = "amb";
+str CLASS_CYCLE = "cycle";
+str CLASS_TOKEN = "token";
 
 CytoStyle defNodeStyle() = cytoNodeStyle(
         visibility        = "visible", /* hidden, collapse */
         opacity           = "1",
         width             = "label",
         height            = "label",
-        padding           = "2pt",
+        padding           = "5pt",
         color             = "white",
         \text-opacity     = "1",
         \font-size        = "5pt",
         \font-weight      = bold(),
         \background-color = "red",
         label             = "data(label)",
-        shape             = \rectangle(),
+        shape             = \round-rectangle(),
         \text-halign      = CytoHorizontalAlign::\center(),
         \text-valign      = CytoVerticalAlign::\center(),
         \text-wrap        = CytoTextWrap::none(),
@@ -41,9 +43,8 @@ CytoStyle defEdgeStyle() = cytoEdgeStyle(
         opacity             = "1",
         \line-opacity       = "1",
         width               = 1,
-        \line-color         = "green",
         \line-style         = "solid", /* dotted, dashed */
-        \color              = "red",
+        \color              = "black",
         \target-arrow-color = "black",
         \source-arrow-color = "black",
         \target-arrow-shape = CytoArrowHeadStyle::triangle(),
@@ -65,6 +66,7 @@ data ValueToGraphConfig = valueToGraphConfig(
 
 // An EdgeValue is used to bundle extra edge information with a value
 private data EdgeValue = edge(value val, str edgeLabel="", list[str] classes=[]);
+private data Token = token(str token, str tooltip, loc source);
 
 private list[value] defaultGetChildren(node n) = getNodeChildren(n);
 private list[value] defaultGetChildren(list[value] l) = l;
@@ -79,7 +81,6 @@ private default list[value] defaultGetChildren(v) = [];
 
 private list[value] getMapChildren(map[value, value] m) = [edge(val, edgeLabel="<key>") | <key,val> <- toList(m)];
 
-private list[value] getNodeChildren(Tree t) = getParseTreeChildren(t);
 private default list[value] getNodeChildren(node n) {
     map[str,value] kwParams = getKeywordParameters(n);
     list[value] kwEdges = [edge(kwParams[key], edgeLabel="<key>", classes=[]) | key <- kwParams];
@@ -97,7 +98,7 @@ private default list[value] getApplChildren(_, list[value] args) = args;
 private list[value] getParseTreeChildren(amb(set[Tree] alts)) = toList(alts);
 private default list[value] getParseTreeChildren(t) = [];
 
-private CytoData cytoNode(str id, str label, list[str] classes=[]) = cytodata(\node(id, label=toCytoString(label)), classes=classes);
+private CytoData cytoNode(str id, str label, str editor="|nothing:///|", str tooltip="", list[str] classes=[]) = cytodata(\node(id, label=toCytoString(label), editor=editor, tooltip=tooltip), classes=classes);
 private CytoData cytoEdge(str parentId, str childId, str label="", list[str] classes=[]) = cytodata(\edge(parentId, childId, label=toCytoString(label)), classes=classes);
 
 CytoData defaultNodeGenerator(edge(val), str id) = defaultNodeGenerator(val, id);
@@ -116,7 +117,33 @@ CytoData defaultNodeGenerator(t:<_,_,_,_,_,_>, str id) = cytoNode(id, typeLabel(
 CytoData defaultNodeGenerator(t:<_,_,_,_,_,_,_>, str id) = cytoNode(id, typeLabel(t), classes=["tuple"]);
 CytoData defaultNodeGenerator(t:<_,_,_,_,_,_,_,_>, str id) = cytoNode(id, typeLabel(t), classes=["tuple"]);
 // TODO: link location
-CytoData defaultNodeGenerator(loc l, str id) = cytoNode(id, (l.length == 1 ? "<l.begin.line>,<l.begin.column>" : "<l.begin.line>,<l.begin.column>-<l.end.line>,<l.end.column>"), classes=["loc"]);
+CytoData defaultNodeGenerator(loc l, str id) {
+    str source = "<l>";
+    if (l.length?) {
+        if (l.length == 1) {
+            return cytoNode(id, "<l.begin.line>,<l.begin.column>", editor=source, tooltip=source);
+        }
+        return cytoNode(id, "<l.begin.line>,<l.begin.column>-<l.end.line>,<l.end.column>", editor=source, tooltip=source);
+    }
+
+    return cytoNode(id, "loc", editor=source, tooltip=source);
+}
+
+str yield(Tree t, int maxLength) {
+    str yield = "<t>";
+    if (size(yield) > maxLength) {
+        yield = substring(yield, 0, maxLength) + "...";
+    }
+    return yield;
+}
+
+str editor(Tree t) {
+    if (t@\loc?) {
+        return "<t@\loc>";
+    }
+
+    return "|unknown:///|";
+}
 
 CytoData defaultNodeGenerator(node n, str id) = nodeNodeGenerator(n, id);
 default CytoData defaultNodeGenerator(value v, str id) = cytoNode(id, "<v>");
@@ -124,10 +151,11 @@ default CytoData defaultNodeGenerator(value v, str id) = cytoNode(id, "<v>");
 private CytoData nodeNodeGenerator(Tree tree, str id) = parseTreeNodeGenerator(tree, id);
 private default CytoData nodeNodeGenerator(node n, str id) = cytoNode(id, getName(n));
 
-CytoData parseTreeNodeGenerator(appl(prod, args), str id) = cytoNode(id, prodToString(prod));
-CytoData parseTreeNodeGenerator(amb(alts), str id) = cytoNode(id, "amb", classes=["ambiguity"]);
-CytoData parseTreeNodeGenerator(char(ch), str id) = cytoNode(id, "\'<stringChar(ch)>\'", classes=["char"]);
-CytoData parseTreeNodeGenerator(cycle(sym, length), id) = cytoNode(id, "cycle(<sym>,<length>)", classes=["cycle"]);
+CytoData parseTreeNodeGenerator(t:appl(prod, args), str id) = cytoNode(id, prodToString(prod), editor=editor(t), tooltip=yield(t, 100));
+CytoData parseTreeNodeGenerator(t: amb(alts), str id) = cytoNode(id, "amb", classes=["ambiguity"], editor=editor(t), tooltip=yield(t, 100), classes=[CLASS_AMB]);
+CytoData parseTreeNodeGenerator(t: char(ch), str id) = cytoNode(id, "\'<stringChar(ch)>\'", editor=editor(t), tooltip="char(<ch>)", classes=[CLASS_CHAR]);
+CytoData parseTreeNodeGenerator(t: cycle(sym, length), id) = cytoNode(id, "cycle(<sym>,<length>)", editor=editor(t), tooltip="cycle", classes=[CLASS_CYCLE]);
+CytoData parseTreeNodeGenerator(token(str tok, str tooltip, loc source), id) = cytoNode(id, tok, editor="<source>", tooltip=tooltip, classes=[CLASS_TOKEN]);
 default CytoData parseTreeNodeGenerator(n, str id) = cytoNode(id, "<n>");
 
 CytoData defaultEdgeGenerator(value _, str parentId, edge(val, edgeLabel=edgeLabel, classes=classes), str childId)
@@ -156,7 +184,7 @@ private str symbolToString(\label(name,sym)) = symbolToString(sym);
 private str symbolToString(\conditional(sym, _)) = symbolToString(sym);
 private str symbolToString(\seq(symbols)) = symbolsToString(symbols);
 
-default str symbolToString(sym) {
+private default str symbolToString(sym) {
     println("default symbolToString: <sym>");
     return "<sym>";
 }
@@ -203,7 +231,7 @@ private default str typeToLabel(Symbol tp) = "<tp>";
 
 private str typesToLabel(list[Symbol] types) = substring(("" | it + ",<typeToLabel(tp)>" | tp <-types), 1);
 
-bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptionals) {
+private bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptionals) {
     bool valueFilter(appl(production, args)) {
         Symbol getSymbol(prod(label(_, sym), _, _)) = sym;
         Symbol getSymbol(regular(def)) = def;
@@ -229,10 +257,14 @@ bool(value v) parseTreeValueFilter(bool filterLayout, bool filterMissingOptional
     return valueFilter;
 }
 
-value(value v) parseTreeValueTransformer(bool collapseTokens) {
-    value valueTransformer(t: appl(_,_)) {
+private value(value v) parseTreeValueTransformer(bool collapseTokens) {
+    value valueTransformer(Tree t: appl(prod,_)) {
         if (collapseTokens && isToken(t)) {
-            return "<t>";
+            loc editorLoc = |nothing:///|;
+            if (t@\loc?) {
+                editorLoc = t@\loc;
+            }
+            return token("<t>", prodToString(prod), editorLoc);
         }
 
         return t;
@@ -242,10 +274,33 @@ value(value v) parseTreeValueTransformer(bool collapseTokens) {
     return valueTransformer;
 }
 
+private bool isTokenType(lit(_)) = true;
+private bool isTokenType(cilit(_)) = true;    
+private bool isTokenType(lex(_)) = true;  
+private bool isTokenType(layouts(_)) = true;
+private bool isTokenType(label(str _, Symbol s)) = isTokenType(s);
+private default bool isTokenType(Symbol _) = false;
+private bool isToken(appl(prod(Symbol s, _, _), _)) = true when isTokenType(s);
+private bool isToken(char(_)) = true;
+private default bool isToken(Tree _) = false;
+
+private CytoStyleOf nodeStyleOf(str cls, CytoStyle style) = cytoStyleOf(selector=\node(\className(cls)), style=style);
+
 ValueToGraphConfig createParseTreeConfig(bool collapseTokens=false, bool filterLayout=false, bool filterMissingOptionals=false) {
+    CytoStyle ellipseStyle = defNodeStyle()[shape=\ellipse()];
+    CytoStyleOf styleOfChar = nodeStyleOf(CLASS_CHAR, ellipseStyle);
+    CytoStyleOf styleOfAmb = nodeStyleOf(CLASS_AMB, ellipseStyle[\border-color="orange"]);
+    CytoStyleOf styleOfCycle = nodeStyleOf(CLASS_CYCLE, ellipseStyle);
+    CytoStyleOf styleOfToken = nodeStyleOf(CLASS_TOKEN, defNodeStyle()[\border-color="darkblue"]);
     return valueToGraphConfig(
+        childGetter = getParseTreeChildren,
         valueFilter = parseTreeValueFilter(filterLayout, filterMissingOptionals),
-        valueTransformer = parseTreeValueTransformer(collapseTokens)
+        valueTransformer = parseTreeValueTransformer(collapseTokens),
+        nodeGenerator = parseTreeNodeGenerator,
+        styles = [
+            cytoNodeStyleOf(defNodeStyle()),
+            cytoEdgeStyleOf(defEdgeStyle()),
+            styleOfChar, styleOfAmb, styleOfCycle, styleOfToken]
     );
 }
 
@@ -257,11 +312,11 @@ Cytoscape valueToGraph(value v, ValueToGraphConfig config = valueToGraphConfig()
     return cytoscape(
         elements = generateElements(v, 0, config),
         style=config.styles,
-        \layout = defaultDagreLayout(spacingFactor=0.5)
+        \layout=defaultDagreLayout(spacingFactor=0.5)
     );
 }
 
-list[CytoData] generateElements(value v, int id, ValueToGraphConfig config) {
+private list[CytoData] generateElements(value v, int id, ValueToGraphConfig config) {
     v = config.valueTransformer(v);
 
     CytoData nodeData = config.nodeGenerator(v, "<id>");
@@ -286,9 +341,4 @@ list[CytoData] generateElements(value v, int id, ValueToGraphConfig config) {
     }
 
     return elements;
-}
-
-Content testServer() {
-    println("valueToGraph: <valueToGraph("f"("g"(1)))>");
-    return content("TestGraph", graphServer(valueToGraph("f"("g"(1,2),3))));
 }
