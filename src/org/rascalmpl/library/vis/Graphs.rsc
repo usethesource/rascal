@@ -24,7 +24,6 @@ import lang::html::IO;
 import lang::html::AST;
 import util::IDEServices;
 import Content;
-import IO;
 import ValueIO;
 import Set;
 

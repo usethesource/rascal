@@ -354,8 +354,6 @@ public class ParseErrorRecovery {
 
         boolean ok = true;
 
-        IValue missingAlt = null;
-
         for (IValue alt1 : alts1) {
             int index2 = 0;
             // This relies on iteration order being stable, which is a pretty safe bet.

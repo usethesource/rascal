@@ -4,7 +4,6 @@ import lang::dot::\syntax::Dot;
 import vis::Graphs;
 import Node;
 import String;
-import util::Math;
 import Content;
 import ValueIO;
 import lang::html::IO;
