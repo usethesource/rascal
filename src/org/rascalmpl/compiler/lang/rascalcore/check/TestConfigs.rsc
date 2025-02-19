@@ -91,7 +91,7 @@ public PathConfig getRascalProjectTestingPathConfig() {
 // The keep parameter determines whether the generated sources and binaries are kept in a temporary directory or not.
 // If keep is true, the generated sources and binaries are stored in a temporary directory, otherwise they are stored in the source directory.
 
-ublic PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool keep = false) {
+public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool keep = false) {
    COMPILED = keep ? COMPILED_RASCAL : TMP_COMPILED_RASCAL;
    return pathConfig(
         srcs                 = sources,
@@ -327,7 +327,8 @@ public RascalCompilerConfig getVSCodeCompilerConfig(){
 // ---- Outdated TypePal Usage -----------------------------------------------------------------
 
 public PathConfig getOutdatedTPLPathConfig(bool keep = false) {
-    return makePathConfig([RASCAL_CORE + "src/org/rascalmpl/core/library"],
+    return makePathConfig(RASCAL_CORE,
+                          [RASCAL_CORE + "src/org/rascalmpl/core/library"],
                           [ RASCAL, OUTDATED_TYPEPAL ],
                           keep=keep);
 }
