@@ -295,7 +295,7 @@ ModuleStatus rascalTModelForLocs(
                                    if(ms.moduleLocs[iname]? && ms.moduleLocs[m]? && usesOrExtendsADT(ms.moduleLocs[m].path, ms.moduleLocs[iname].path, tm)){
                                     continue check_imports;
                                    }
-                                   if(checked() in ms.status[iname] && rsc_not_found() notin ms.status[iname]){
+                                   if((iname in component || checked() in ms.status[iname]) && rsc_not_found() notin ms.status[iname]){
                                        if(imod is \default){
                                          imsgs += warning("Unused import of `<iname>`", imod@\loc);
                                        } //else { //TODO: maybe add option to turn off info messages?
