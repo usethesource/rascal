@@ -1,3 +1,20 @@
+@license{Copyright (c) 2025, NWO-I Centrum Wiskunde & Informatica (CWI) 
+All rights reserved. 
+  
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+  
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+  
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
+  
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+}
+@synopsis{Graph visualization of any Rascal data structure, with emphasis om clean visualisation of parse trees}
+@description{
+    This module builds on the vis::Graphs module to generate a graph to visualize any Rascal data structure.
+    The graph generation is very flexible and can be configured to create custom visualization of your own data structures.
+    Special support for visualizing parse trees at different levels of abstraction is included in this module.
+}
 module vis::ValueGraph
 
 import vis::Graphs;
@@ -18,54 +35,35 @@ str CLASS_AMB = "amb";
 str CLASS_CYCLE = "cycle";
 str CLASS_TOKEN = "token";
 
-CytoStyle defNodeStyle() = cytoNodeStyle(
-        visibility        = "visible", /* hidden, collapse */
-        opacity           = "1",
-        width             = "label",
-        height            = "label",
-        padding           = "5pt",
-        color             = "white",
-        \text-opacity     = "1",
-        \font-size        = "5pt",
-        \font-weight      = bold(),
-        \background-color = "red",
-        label             = "data(label)",
-        shape             = \round-rectangle(),
-        \text-halign      = CytoHorizontalAlign::\center(),
-        \text-valign      = CytoVerticalAlign::\center(),
-        \text-wrap        = CytoTextWrap::none(),
-        \text-justification = CytoHorizontalAlign::center(),
-        \line-height      = 1
-    );
+private CytoStyle defNodeStyle() {
+    // Use the default node style from vis::Graphs but with some tweaks
+    CytoStyle style = defaultNodeStyle();
+    style.padding = "5pt";
+    style.\font-size = "5pt";
+    return style;
+}
 
-CytoStyle defEdgeStyle() = cytoEdgeStyle(
-        visibility          = "visible", /* hidden, collapse */
-        opacity             = "1",
-        \line-opacity       = "1",
-        width               = 1,
-        \line-style         = "solid", /* dotted, dashed */
-        \color              = "black",
-        \target-arrow-color = "black",
-        \source-arrow-color = "black",
-        \target-arrow-shape = CytoArrowHeadStyle::triangle(),
-        \source-arrow-shape = CytoArrowHeadStyle::none(),
-        \curve-style        = \bezier(),
-        \source-text-offset = 1,
-        \target-text-offset = 1,
-        \label              = "data(label)"
-    );
+private CytoStyle defEdgeStyle() {
+    // Use the default edge style from vis::Graphs but with some tweaks
+    CytoStyle style = defaultEdgeStyle();
+    style.width = 1;
+    style.\color = "black";
+    return style;
+}
 
 data ValueToGraphConfig = valueToGraphConfig(
     list[value](value n) childGetter = defaultGetChildren,
+    bool allowRecursion = false,
     bool(value n) valueFilter = success,
     value(value n) valueTransformer = identity,
     CytoData(value n, str id) nodeGenerator = defaultNodeGenerator,
     CytoData(value n, str id, value child, str childId) edgeGenerator = defaultEdgeGenerator,
-    list[CytoStyleOf] styles = [cytoNodeStyleOf(defNodeStyle()), cytoEdgeStyleOf(defEdgeStyle())]
+    list[CytoStyleOf] styles = [cytoNodeStyleOf(defNodeStyle()), cytoEdgeStyleOf(defEdgeStyle())],
+    CytoLayout \layout = defaultDotLayout(rankDir="TD", bgColor="0.482 0.1 1.0")
 );
 
 // An EdgeValue is used to bundle extra edge information with a value
-private data EdgeValue = edge(value val, str edgeLabel="", list[str] classes=[]);
+private data EdgeValue = edge(value val, str label="", list[str] classes=[]);
 private data Token = token(str token, str tooltip, loc source);
 
 private list[value] defaultGetChildren(node n) = getNodeChildren(n);
@@ -79,11 +77,11 @@ private list[value] defaultGetChildren(<v1,v2,v3,v4>) = [v1,v2,v3,v4];
 private list[value] defaultGetChildren(<v1,v2,v3,v4,v5>) = [v1,v2,v3,v4,v5];
 private default list[value] defaultGetChildren(v) = [];
 
-private list[value] getMapChildren(map[value, value] m) = [edge(val, edgeLabel="<key>") | <key,val> <- toList(m)];
+private list[value] getMapChildren(map[value, value] m) = [edge(val, label="<key>") | <key,val> <- toList(m)];
 
 private default list[value] getNodeChildren(node n) {
     map[str,value] kwParams = getKeywordParameters(n);
-    list[value] kwEdges = [edge(kwParams[key], edgeLabel="<key>", classes=[]) | key <- kwParams];
+    list[value] kwEdges = [edge(kwParams[key], label="<key>", classes=[]) | key <- kwParams];
     return getChildren(n) + kwEdges;
 }
 
@@ -91,15 +89,15 @@ private default list[value] getNodeChildren(node n) {
 private list[value] getParseTreeChildren(appl(prod, args)) = getApplChildren(prod, args);
 private list[value] getApplChildren(prod(_,formals,_), actuals) {
     list[tuple[Symbol,Tree]] args = zip2(formals, actuals);
-    return [ label(name, _) := formal ? edge(actual, edgeLabel=name) : actual | <formal, actual> <- args];
+    return [ label(name, _) := formal ? edge(actual, label=name) : actual | <formal, actual> <- args];
 }
 private default list[value] getApplChildren(_, list[value] args) = args;
 
 private list[value] getParseTreeChildren(amb(set[Tree] alts)) = toList(alts);
 private default list[value] getParseTreeChildren(t) = [];
 
-private CytoData cytoNode(str id, str label, str editor="|nothing:///|", str tooltip="", list[str] classes=[]) = cytodata(\node(id, label=toCytoString(label), editor=editor, tooltip=tooltip), classes=classes);
-private CytoData cytoEdge(str parentId, str childId, str label="", list[str] classes=[]) = cytodata(\edge(parentId, childId, label=toCytoString(label)), classes=classes);
+CytoData cytoNode(str id, str label, str editor="|nothing:///|", str tooltip="", list[str] classes=[]) = cytodata(\node(id, label=toCytoString(label), editor=editor, tooltip=tooltip), classes=classes);
+CytoData cytoEdge(str parentId, str childId, str label="", list[str] classes=[]) = cytodata(\edge(parentId, childId, label=toCytoString(label)), classes=classes);
 
 CytoData defaultNodeGenerator(edge(val), str id) = defaultNodeGenerator(val, id);
 CytoData defaultNodeGenerator(num n, str id) = cytoNode(id, "<n>");
@@ -167,8 +165,8 @@ CytoData yieldParseTreeNodeGenerator(t:appl(prod,args), str id) {
 }
 default CytoData yieldParseTreeNodeGenerator(value v, str id) = parseTreeNodeGenerator(v, id);
 
-CytoData defaultEdgeGenerator(value _, str parentId, edge(val, edgeLabel=edgeLabel, classes=classes), str childId)
-    = cytoEdge(parentId, childId, label=edgeLabel, classes=classes);
+CytoData defaultEdgeGenerator(value _, str parentId, edge(val, label=label, classes=classes), str childId)
+    = cytoEdge(parentId, childId, label=label, classes=classes);
 default CytoData defaultEdgeGenerator(value _, str parentId, value e, str childId) = cytoEdge(parentId, childId);
 
 private str toCytoString(str s) = escape(s, ("\n": "\\n"));
@@ -330,13 +328,13 @@ int nextId = 0;
 Cytoscape valueToGraph(value v, ValueToGraphConfig config = valueToGraphConfig()) {
     nextId = 1;
     return cytoscape(
-        elements = generateElements(v, 0, config),
+        elements = config.valueFilter(v) ? generateElements(v, 0, config, (v:0)) : [],
         style=config.styles,
-        \layout=defaultDagreLayout(spacingFactor=0.5)
+        \layout=config.\layout
     );
 }
 
-private list[CytoData] generateElements(value v, int id, ValueToGraphConfig config) {
+private list[CytoData] generateElements(value v, int id, ValueToGraphConfig config, map[value,int] processed) {
     v = config.valueTransformer(v);
 
     CytoData nodeData = config.nodeGenerator(v, "<id>");
@@ -351,10 +349,17 @@ private list[CytoData] generateElements(value v, int id, ValueToGraphConfig conf
         }
 
         int childId = nextId;
-        nextId += 1;
-        
-        list[CytoData] childElems = generateElements(child, childId, config);
-        elements = elements + childElems;
+        if (config.allowRecursion && child in processed) {
+            childId = processed[child];
+        } else {
+            nextId += 1;
+            if (config.allowRecursion) {
+                processed[child] = childId;
+            }
+
+            list[CytoData] childElems = generateElements(child, childId, config, processed);
+            elements = elements + childElems;
+        }
 
         CytoData edgeData = config.edgeGenerator(v, "<id>", edgeChild, "<childId>");
         elements = elements + edgeData;
