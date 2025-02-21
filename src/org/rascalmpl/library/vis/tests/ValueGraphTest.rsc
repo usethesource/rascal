@@ -1,8 +1,9 @@
 module vis::tests::ValueGraphTest
 
 import lang::dot::\syntax::Dot;
-import vis::ValueGraph;
 import vis::CytoDot;
+import vis::ValueGraph;
+import vis::Graphs;
 import ParseTree;
 import IO;
 import Content;
@@ -14,8 +15,7 @@ import lang::html::AST;
 //syntax B = "a";
 
 private Content showGraph(value v, str name, ValueToGraphConfig config = valueToGraphConfig()) {
-    //println("graph: <valueToGraph(v, config=config)>");
-    return content(name, dotServer(valueToGraph(v, config=config)));
+    return content(name, graphServer(valueToGraph(v, config=config), pageTitle=name));
 }
 
 Content showNode() {
@@ -49,59 +49,42 @@ Content showYieldParseTreeCompact() {
     return showGraph(parseTree, "ParseTree-3", config=createYieldParseTreeConfig());
 }
 
-/*Content testParseTreeWithAmbiguities() {
-    Tree t = parse(#Ambiguous, "a", allowAmbiguity=true);
-    return showGraph(t, "ambParseTree", config=createParseTreeConfig(collapseTokens=true, filterLayout=true, filterMissingOptionals=true));
+data ListNode = listNode(int id, int prev=0, int next=0);
+
+Content showDLL() {
+    ListNode n1 = listNode(1, next=2);
+    ListNode n2 = listNode(2, prev=1, next=3);
+    ListNode n3 = listNode(3, prev=2, next=4);
+    ListNode n4 = listNode(4, prev=3);
+
+    map[int, ListNode] nodeStore = (n1.id:n1, n2.id:n2, n3.id:n3, n4.id:n4);
+
+    list[value](value n) dllChildGetter(map[int, ListNode] store) {
+        list[value] getter(ListNode n) {
+            list[value] children = [];
+            if (n.prev != 0) {
+                children += edge(store[n.prev], label="prev");
+            }
+            if (n.next != 0) {
+                children += edge(store[n.next], label="next");
+            }
+
+            return children;
+        }
+
+        return getter;
+    }
+
+    CytoData dllNodeGenerator(ListNode n, str id) {
+        return cytoNode(id, "<n.id>");
+    }
+
+    ValueToGraphConfig config = valueToGraphConfig(
+        childGetter=dllChildGetter(nodeStore),
+        allowRecursion=true,
+        nodeGenerator=dllNodeGenerator,
+        \layout = defaultDotLayout(rankDir="LR")
+    );
+
+    return showGraph(n1, "DLL", config=config);
 }
-*/
-
-Content testGraphviz() {
-  return html(writeHTMLString(html([
-    head([            
-        style([\data("#visualization {
-                         '  width: 100%;
-                         '  height: 100%;
-                         '  position: absolute;
-                         '  top: 0px;
-                         '  left: 0px;
-                         '}")])
-    ]),
-    body([
-        div([], id="visualization"),
-        script([
-            \data("
-            'import { Graphviz } from \"https://cdn.jsdelivr.net/npm/@hpcc-js/wasm/dist/index.js\";
-            'console.log(\"starting\");
-            'if (Graphviz) {
-            '    const graphviz = await Graphviz.load();
-            '    const dot = \"digraph G { Hello -\> World }\";
-            '    const svg = graphviz.layout(dot, \"svg\", \"dot\");
-            '    document.getElementById(\"visualization\").innerHTML = svg;
-            '} 
-            '")
-        ], \type="module")
-    ])
-  ])));
-
-/*
-const graphviz = await Graphviz.load();
-
-const dot = \"digraph G { Hello -\> World }\";
-const svg = graphviz.dot(dot);
-");
-*/
-}
-
-/*
-    <div id="ESM"></div>
-    <script type="module">
-        import { Graphviz } from "https://cdn.jsdelivr.net/npm/@hpcc-js/wasm/dist/index.js";
-        // import { Graphviz } from "./packages/wasm/dist/index.js";
-        if (Graphviz) {
-            const graphviz = await Graphviz.load();
-            const svg = graphviz.layout(dot, "svg", "dot");
-            document.getElementById("ESM").innerHTML = svg;
-        } 
-    </script>
-
-*/

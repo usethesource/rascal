@@ -1,3 +1,23 @@
+@license{Copyright (c) 2025, NWO-I Centrum Wiskunde & Informatica (CWI) 
+All rights reserved. 
+  
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+  
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+  
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
+  
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+}
+@synopsis{Conversion of Cytoscape graphs to DOT graphs}
+@description{Although Cytoscape is very powerful and flexible, in some situations Graphviz is the superior solution to render graphs.
+For instance, graphviz is much better in routing edges around nodes in layered/hierarchical graphs.
+The easiest way to use this module is to use the "dotLayout()" layout in vis::Graphs when using `graphServer()` to visualize your graph.
+Graphs are then automatically converted to dot and rendered using the wasm version of graphviz.
+Note that conversion from Cytoscape styles to DOT styles is done on a "best effort" basis. Cytoscape has more
+(and different) styling options than can be found in DOT so you might encounter a few surprises in this area.
+Feel free to contribute if you improve the styling conversion in this module.
+}
 module vis::CytoDot
 
 import lang::dot::\syntax::Dot;
@@ -10,33 +30,47 @@ import lang::html::IO;
 import lang::html::AST;
 import util::IDEServices;
 
-
 private alias DotAttr = tuple[str,str];
 private alias DotAttrs = list[DotAttr];
+private alias DotAttrTable = map[str,str];
 
 str ATTR_URL = "URL";
 str ATTR_TOOLTIP = "tooltip";
 
-DotAttrs DEFAULT_GRAPH_ATTRS = [<"ranksep","0.3">, <"bgcolor","0.482 0.1 1.0">];
+@description{
+    Convert a Cytoscape graph to a DOT parse tree. The resulting tree is ready to be converted to a string and
+    fed to graphviz for rendering. `vis::Graphs::graphServer()` can do this automatically for you if you use
+    the `dotLayout()` layout.
+}
+public DOT cytoToDot(Cytoscape cytoscape, DotAttrs graphAttrs=[]) {
+    // Cytoscape.layout must be dotLayout
+    graphAttrs = graphAttrs + <"ranksep","<cytoscape.\layout.rankSep>">;
+    graphAttrs = graphAttrs + <"rankdir",cytoscape.\layout.rankDir>;
+    graphAttrs = graphAttrs + <"bgcolor", cytoscape.\layout.bgColor>;
 
-public DOT cytoToDot(Cytoscape cytoscape, DotAttrs graphAttrs=DEFAULT_GRAPH_ATTRS) {
     AttrList graphAttrList = generateAttrList(graphAttrs);
 
-    AttrList nodeAttrList = generateAttrList(cytoStylesToDotAttrs([style | cytoStyleOf(selector=\node(), style=style) <- cytoscape.style]));
-    AttrList edgeAttrList = generateAttrList(cytoStylesToDotAttrs([style | cytoStyleOf(selector=\edge(), style=style) <- cytoscape.style]));
+    DotAttrs nodeAttrs = cytoStylesToDotAttrs([style | cytoStyleOf(selector=\node(), style=style) <- cytoscape.style]);
+    DotAttrs edgeAttrs = cytoStylesToDotAttrs([style | cytoStyleOf(selector=\edge(), style=style) <- cytoscape.style]);
+    AttrList nodeAttrList = generateAttrList(nodeAttrs);
+    AttrList edgeAttrList = generateAttrList(edgeAttrs);
 
     StatementList initialStats = (StatementList)`graph <AttrList graphAttrList>
     '  node <AttrList nodeAttrList> 
     '  edge <AttrList edgeAttrList>`;
 
-
-    StatementList stats = generateStatements(cytoscape);
+    
+    StatementList stats = generateStatements(cytoscape, toAttrTable(nodeAttrs), toAttrTable(edgeAttrs));
     stats = mergeStatements(initialStats, stats);
 
     return (DOT) `digraph G {
     '  <StatementList stats>
     '}`;
 }
+
+private DotAttrTable toAttrTable(DotAttrs attrs) = (name : val | <name,val> <- attrs);
+
+private DotAttrs filterDefaultAttrs(DotAttrs attrs, DotAttrTable defaults) = [<name,val> | <name,val> <- attrs, !((name in defaults) && defaults[name] == val)];
 
 private AttrList generateAttrList(DotAttrs attrs) {
     AttrList result = (AttrList) `[]`;
@@ -54,11 +88,11 @@ private AttrList addAttribute((AttrList) `[<Attribute* attrs1>]`, str name, str 
 
 private str toAttrValue(str s) = "\"" + escape(s, ("\\": "\\\\", "\"": "\\\"")) + "\"";
 
-private StatementList generateStatements(Cytoscape cytoscape) {
+private StatementList generateStatements(Cytoscape cytoscape, DotAttrTable defaultNodeAttrs, DotAttrTable defaultEdgeAttrs) {
     StatementList stats = (StatementList)``;
     for (CytoData element <- cytoscape.elements) {
         list[CytoStyle] styles = gatherStyles(element, cytoscape.style);
-        stats = addStatement(stats, generateStatement(element.\data, styles));
+        stats = addStatement(stats, generateStatement(element.\data, styles, defaultNodeAttrs, defaultEdgeAttrs));
     }
     return stats;
 }
@@ -123,9 +157,11 @@ private default str getStringField(_) = "";
 
 private int getIntField(CytoElement elem, str field) = toInt(getStringField(elem, field));
 
-private Statement generateStatement(\node(id, label=label, editor=editLoc, tooltip=tooltip), list[CytoStyle] styles) {
-    DotAttrs attrs = cytoStylesToDotAttrs(styles);
-    attrs += <"label",label>;
+private Statement generateStatement(\node(id, label=label, editor=editLoc, tooltip=tooltip), list[CytoStyle] styles, DotAttrTable defaultNodeAttrs, DotAttrTable _) {
+    DotAttrs nodeAttrs = cytoStylesToDotAttrs(styles);
+    if (label != "") {
+        nodeAttrs += <"label",label>;
+    }
 
     if (editLoc != "|nothing:///|") {
         if (startsWith(editLoc, "|")) {
@@ -133,29 +169,45 @@ private Statement generateStatement(\node(id, label=label, editor=editLoc, toolt
             loc editorLoc = |https://editor|;
             editorLoc.query = "src=<editLoc>";
             str url = substring(editorLoc.uri, 8); // Remove https://
-            attrs = attrs + <ATTR_URL, url>;
+            nodeAttrs = nodeAttrs + <ATTR_URL, url>;
         } else {
             // Expect a complete url
-            attrs = attrs + <ATTR_URL, editLoc>;
+            nodeAttrs = nodeAttrs + <ATTR_URL, editLoc>;
         }
     }
 
     if (tooltip != "") {
-        attrs = attrs + <ATTR_TOOLTIP, tooltip>;
+        nodeAttrs = nodeAttrs + <ATTR_TOOLTIP, tooltip>;
     }
 
+    nodeAttrs = filterDefaultAttrs(nodeAttrs, defaultNodeAttrs);
+
     Id nodeId = [Id] id;
-    AttrList attrList = generateAttrList(attrs);
-    return (Statement) `<Id nodeId> <AttrList attrList>;`;
+
+    if (nodeAttrs == []) {
+        return (Statement) `<Id nodeId>;`;
+    } else {
+        AttrList attrList = generateAttrList(nodeAttrs);
+        return (Statement) `<Id nodeId> <AttrList attrList>;`;
+    }
 }
 
-private Statement generateStatement(\edge(source, target, label=label), list[CytoStyle] styles) {
-    DotAttrs styleAttrs = cytoStylesToDotAttrs(styles);
-    styleAttrs += <"label",label>;
+private Statement generateStatement(\edge(source, target, label=label), list[CytoStyle] styles, DotAttrTable _, DotAttrTable defaultEdgeAttrs) {
+    DotAttrs edgeAttrs = cytoStylesToDotAttrs(styles);
+    if (label != "") {
+        edgeAttrs += <"label",label>;
+    }
+    edgeAttrs = filterDefaultAttrs(edgeAttrs, defaultEdgeAttrs);
+
     Id sourceId = [Id] source;
     Id targetId = [Id] target;
-    AttrList attrList = generateAttrList(styleAttrs);
-    return (Statement) `<Id sourceId> -\> <Id targetId> <AttrList attrList>;`;
+
+    if (edgeAttrs == []) {
+        return (Statement) `<Id sourceId> -\> <Id targetId>;`;
+    } else {
+        AttrList attrList = generateAttrList(edgeAttrs);
+        return (Statement) `<Id sourceId> -\> <Id targetId> <AttrList attrList>;`;
+    }
 }
 
 private StatementList addStatement((StatementList) `<Statement* stats1>`, Statement stat) {
@@ -165,12 +217,12 @@ private StatementList addStatement((StatementList) `<Statement* stats1>`, Statem
 
 private StatementList mergeStatements((StatementList) `<Statement* stats1>`, (StatementList) `<Statement* stats2>`) {
     return (StatementList) `<Statement* stats1>
-    '<Statement* stats2>`;
+    '  <Statement* stats2>`;
 }
 
-DotAttrs cytoStylesToDotAttrs(list[CytoStyle] styles) = ([] | it + cytoStyleToDotAttrs(style) | style <- styles);
+private DotAttrs cytoStylesToDotAttrs(list[CytoStyle] styles) = ([] | it + cytoStyleToDotAttrs(style) | style <- styles);
 
-real toInches(str spec) {
+private real toInches(str spec) {
     if (endsWith(spec, "pt")) {
         spec = substring(spec, 0, size(spec)-2);
     }
@@ -210,12 +262,12 @@ private DotAttrs cytoStyleToDotAttrs(style: cytoNodeStyle()) {
     return attrs;
 }
 
-private DotAttrs cytoStyleToDotAttrs(style: cytoEdgeStyle()) {
+private DotAttrs cytoStyleToDotAttrs(style: cytoEdgeStyle(\line-color=lineColor, width=width)) {
     DotAttrs attrs = [];
-    if (style has \line-color) {
-        attrs = attrs + <"color",style.color>;
+    if (lineColor != "black") {
+        attrs = attrs + <"color",lineColor>;
     }
-    if (style has width && style.width != 1) {
+    if (width != 1) {
         attrs = attrs + <"penwidth","<style.\width>">;
     }
 
@@ -232,59 +284,4 @@ private DotAttrs dotShape(CytoNodeShape shape) {
     }
     return attrs + <"shape", dotShape>;
 }
-
-
-@synopsis{this is the main server generator for rendering a Cytoscape graph using Dot}
-@description{
-Given a Cytoscape graph this server generates a dot graph and serves it as text 
-to the HTML client generated by ((vis::Dot::plotDotHTML)).
-}
-Response (Request) dotServer(Cytoscape ch, str pageTitle="DOT Graph") {
-    Response reply(get(/^\/editor/, parameters=pms)) {
-        if (pms["src"]?) {
-            edit(readTextValueString(#loc, pms["src"]));
-            return response(writeHTMLString(text("done")));
-        }
-
-        return response(writeHTMLString(text("could not edit <pms>")));
-    }
-
-    Response reply(get(/^\/dot/)) {
-        return plain("<cytoToDot(ch)>");
-    }
-
-    // returns the main page that also contains the callbacks for retrieving data and configuration
-    default Response reply(get(_)) {
-        return response(writeHTMLString(plotDotHTML(pageTitle)));
-    }
-
-    return reply;
-}
-
-private HTMLElement plotDotHTML(str pageTitle)
-    = html([
-        head([ 
-            title([\data(pageTitle)]),
-            style([\data("#visualization {
-                         '  width: 100%;
-                         '  height: 100%;
-                         '  position: absolute;
-                         '  top: 0px;
-                         '  left: 0px;
-                         '}")])
-        ]),
-        body([
-            div([], id="visualization"),
-            script([
-                \data("
-                    'import { Graphviz } from \"https://cdn.jsdelivr.net/npm/@hpcc-js/wasm/dist/index.js\";
-                    'const graphviz = await Graphviz.load();
-                    'fetch(\'/dot\').then(resp =\> resp.text()).then(dotSource =\> {
-                    '   const svg = graphviz.layout(dotSource, \"svg\", \"dot\");
-                    '   document.getElementById(\'visualization\').innerHTML = svg;
-                    '});
-                    '")
-            ], \type="module")
-        ])
-    ]);
 
