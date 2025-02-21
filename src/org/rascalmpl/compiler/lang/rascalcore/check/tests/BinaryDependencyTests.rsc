@@ -183,7 +183,7 @@ test bool importSimpleSourceModuleWithRascalAsLib(){
                         '  return 0;
                         '}"),
             createPathConfig(clientName)
-                    [libs=[rascalPCFG.bin]]
+                    [libs=[rascalPCFG.resources]]
                     [srcs=[src(clientName), src(libName)]]
                 );
     return checkExpectNoErrors("LibCall", client.pcfg, remove = [lib, client]);
