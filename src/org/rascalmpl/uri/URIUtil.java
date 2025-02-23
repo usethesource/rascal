@@ -203,12 +203,16 @@ public class URIUtil {
 	/**
 	 * Create a URI with only a scheme part set
 	 * @param scheme
-	 * @return
+	 * @return `<scheme>:///`
 	 */
 	public static URI rootScheme(String scheme) {
 		return URI.create(scheme + ":///");
 	}
 	
+	/**
+	 * @param scheme
+	 * @return `|<scheme>:///|`
+	 */
 	public static ISourceLocation rootLocation(String scheme) {
 		try {
 			return vf.sourceLocation(scheme, "", URI_PATH_SEPARATOR);
