@@ -236,7 +236,8 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
      * */
     public static ISourceLocation mavenize(ISourceLocation loc) {
         try {
-            loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+            // the registry may not have been initialized yet.
+            loc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().logicalToPhysical(loc) : loc;
 
             if (!URIUtil.getExtension(loc).equals("jar")) {
                 return loc;
