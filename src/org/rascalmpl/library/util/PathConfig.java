@@ -463,8 +463,8 @@ public class PathConfig {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
         String projectName = manifest.getProjectName(manifestRoot);
-        IListWriter libsWriter = vf.listWriter();
-        IListWriter srcsWriter = vf.listWriter();
+        IListWriter libsWriter = (IListWriter) vf.listWriter().unique();
+        IListWriter srcsWriter = (IListWriter) vf.listWriter().unique();
         IListWriter messages = vf.listWriter();
         
         if (isRoot) {
