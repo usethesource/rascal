@@ -475,7 +475,7 @@ and a META-INF/RASCAL.MF file will be generated and written.
 The folder is created if it does not exist already.
 }
 void newRascalMfFile(loc folder, str name=folder.file) {
-    mkDirectory(rascalMF(name).parent);
+    mkDirectory(metafile(folder).parent);
     writeFile(metafile(folder), rascalMF(name));
 }
 
