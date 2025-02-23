@@ -705,6 +705,8 @@ public class PathConfig {
 
             srcsWriter.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/compiler"));
             srcsWriter.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/tutor"));
+            srcsWriter.append(URIUtil.getChildLocation(workspaceRascal, "test/org/rascalmpl/test/data"));
+            srcsWriter.append(URIUtil.getChildLocation(workspaceRascal, "test/org/rascalmpl/benchmark"));
         }
         // Special case for the rascal-lsp project
         // `rascal` or `typepal` isn't open in the workspace, then use the current `rascal` and the TypePal jar on the class path
