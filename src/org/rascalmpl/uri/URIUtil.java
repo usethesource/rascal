@@ -449,10 +449,10 @@ public class URIUtil {
 
 		if (path.length() > 1) {
 			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
-			int index = path.substring(slashIndex).lastIndexOf('.');
+			int index = path.lastIndexOf('.', slashIndex);
 
 			if (index != -1) {
-				return path.substring(slashIndex + index + 1);
+				return path.substring(index + 1);
 			}
 		}
 
