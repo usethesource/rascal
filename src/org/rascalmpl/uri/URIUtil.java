@@ -185,6 +185,17 @@ public class URIUtil {
 	
 	private static final ISourceLocation unknownLocation = rootLocation("unknown");
 	
+	/**
+	 * @deprecated use unknownLocation (an unknown location is not "invalid", just unknown)
+	 */
+	@Deprecated
+	public static ISourceLocation invalidLocation() {
+		return unknownLocation();
+	}
+
+	/**
+	 * @return `|unknown:///|`
+	 */
 	public static ISourceLocation unknownLocation() {
 		return unknownLocation;
 	}
