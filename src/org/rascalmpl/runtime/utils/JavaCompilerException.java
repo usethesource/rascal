@@ -26,7 +26,7 @@
  */
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
+package org.rascalmpl.runtime.utils;
 
 import java.util.Set;
 

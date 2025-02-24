@@ -28,7 +28,7 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
 *******************************************************************************/
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
+package org.rascalmpl.runtime.utils;
 
 import java.util.LinkedList;
 import java.util.List;

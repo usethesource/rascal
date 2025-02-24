@@ -24,7 +24,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
+package org.rascalmpl.runtime;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.Traverse;
+import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;

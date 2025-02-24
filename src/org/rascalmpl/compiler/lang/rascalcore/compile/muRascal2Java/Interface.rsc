@@ -47,7 +47,7 @@ import String;
 str generateInterface(str moduleName, str packageName, list[MuFunction] functions, set[str] imports, set[str] extends, map[str,TModel] tmodels, JGenie _jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import io.usethesource.vallang.*;
-           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
+           'import org.rascalmpl.runtime.function.*;
            '
            '@SuppressWarnings(\"unused\")
            'public interface <asBaseInterfaceName(moduleName)>  {
