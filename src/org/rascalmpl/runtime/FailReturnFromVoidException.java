@@ -24,7 +24,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
+package org.rascalmpl.runtime;
 
 public class FailReturnFromVoidException extends RuntimeException {
 	private static final long serialVersionUID = -2944699828347558188L;

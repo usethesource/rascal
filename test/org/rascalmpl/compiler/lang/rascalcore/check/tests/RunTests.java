@@ -24,7 +24,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.core.library.lang.rascalcore.check.tests;
+package org.rascalmpl.compiler.lang.rascalcore.check.tests;
 
 import org.junit.runner.RunWith;
 import org.rascalmpl.test.infrastructure.RascalJUnitTestPrefix;

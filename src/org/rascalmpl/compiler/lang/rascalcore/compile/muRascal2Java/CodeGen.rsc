@@ -245,11 +245,11 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         'import java.util.regex.Matcher;
                         'import io.usethesource.vallang.*;
                         'import io.usethesource.vallang.type.*;
-                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
-                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.RascalExecutionContext;
-                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
-                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
-                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
+                        'import org.rascalmpl.runtime.*;
+                        'import org.rascalmpl.runtime.RascalExecutionContext;
+                        'import org.rascalmpl.runtime.function.*;
+                        'import org.rascalmpl.runtime.traverse.*;
+                        'import org.rascalmpl.runtime.utils.*;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.exceptions.Throw; 
                         'import org.rascalmpl.interpreter.control_exceptions.Filtered;
@@ -266,7 +266,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         '@SuppressWarnings({\"unused\",\"unchecked\",\"deprecation\"})
                         'public class <baseClassName> 
                         '    extends
-                        '        org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule
+                        '        org.rascalmpl.runtime.$RascalModule
                         '    <module_implements> {
                         '
                         '    private final <baseInterfaceName> $me;

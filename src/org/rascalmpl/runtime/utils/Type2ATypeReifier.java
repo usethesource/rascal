@@ -24,10 +24,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
+package org.rascalmpl.runtime.utils;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.InternalCompilerError;
+import org.rascalmpl.runtime.ATypeFactory;
+import org.rascalmpl.runtime.InternalCompilerError;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;

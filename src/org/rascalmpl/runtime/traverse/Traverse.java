@@ -24,7 +24,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
+package org.rascalmpl.runtime.traverse;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
