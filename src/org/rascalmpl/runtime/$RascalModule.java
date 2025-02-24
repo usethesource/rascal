@@ -31,8 +31,8 @@ import static org.rascalmpl.values.RascalValueFactory.TYPE_STORE_SUPPLIER;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -50,13 +50,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.JavaMethodLink;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.library.util.ToplevelType;
+import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
 import org.rascalmpl.types.RascalTypeFactory;
@@ -112,11 +112,9 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     
     // ---- library helper methods and fields  -------------------------------------------
   
-    /*package*/  final PrintStream $OUT; 
     /*package*/  final PrintWriter $OUTWRITER;
-    /*package*/  final PrintStream $ERR;
     /*package*/  final PrintWriter $ERRWRITER;
-    /*package*/  final InputStream $IN;
+    /*package*/  final Reader $IN;
     
     /*package*/  final IRascalMonitor $MONITOR;
 
@@ -135,10 +133,8 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     
     public $RascalModule(RascalExecutionContext rex){
     	this.rex = rex;
-    	$IN = rex.getInStream();
-    	$OUT = rex.getOutStream();
+    	$IN = rex.getInReader();
     	$OUTWRITER = rex.getOutWriter();
-    	$ERR = rex.getErrStream();
     	$ERRWRITER = rex.getErrWriter();
     	$MONITOR = rex;
     	$VF = rex.getIValueFactory();
@@ -162,9 +158,6 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
     protected <T> T $initLibrary(String className) {
         PrintWriter[] outputs = new PrintWriter[] { $OUTWRITER, $ERRWRITER };
         int writers = 0;
-
-        OutputStream[] rawOutputs = new OutputStream[] { $OUT, $ERR };
-        int rawWriters = 0;
 
         try{
             Class<?> clazz = getClass().getClassLoader().loadClass(className);
@@ -200,10 +193,7 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
                 else if (formals[i].isAssignableFrom(PrintWriter.class)) {
                     args[i] = outputs[writers++ % 2];
                 }
-                else if (formals[i].isAssignableFrom(OutputStream.class)) {
-                    args[i] = rawOutputs[rawWriters++ %2];
-                }
-                else if (formals[i].isAssignableFrom(InputStream.class)) {
+                else if (formals[i].isAssignableFrom(Reader.class)) {
                     args[i] = $IN;
                 }
                 else if (formals[i].isAssignableFrom(IRascalMonitor.class)) {
