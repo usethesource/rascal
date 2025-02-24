@@ -24,10 +24,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
- *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
- *   * Paul Klint - Paul.Klint@cwi.nl - CWI
- *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
-*******************************************************************************/
 package org.rascalmpl.runtime.utils;
 
 import java.util.LinkedList;
