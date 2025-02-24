@@ -48,7 +48,7 @@ public class ParserGeneratorFactory {
 	
 	public ParserGenerator getParserGenerator(RascalValueFactory VF) {
 		if (this.generator == null) {
-			this.generator = new ParserGenerator(rex, rex.getOutStream(), Collections.singletonList(rex.getModule().getClass().getClassLoader()), VF, new Configuration());
+			this.generator = new ParserGenerator(rex, rex.getOutWriter(), Collections.singletonList(rex.getModule().getClass().getClassLoader()), VF, new Configuration());
 		}
 		return generator;
 	 }
