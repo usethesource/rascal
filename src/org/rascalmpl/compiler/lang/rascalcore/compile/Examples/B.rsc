@@ -1,5 +1,5 @@
 @license{
-Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
+Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,6 @@ module  lang::rascalcore::compile::Examples::B
 import IO;
 import lang::rascalcore::compile::Examples::A;
   
-void printB() {
-    println("B");
-}
-
-void printBA() {
-    printB();
-    printA();
+void main(){
+    X += 1;
 }

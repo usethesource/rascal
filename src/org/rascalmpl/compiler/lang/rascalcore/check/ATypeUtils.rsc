@@ -1,5 +1,5 @@
 @license{
-Copyright (c) 2018-2025, NWO-I CWI and Swat.engineering
+Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-
 @license{
   Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
