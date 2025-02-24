@@ -24,7 +24,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
+package org.rascalmpl.runtime;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -35,26 +35,26 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiFunction;
 
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction0;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction1;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction2;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction3;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction4;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction5;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction6;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction7;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction8;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunction9;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance0;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance1;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance2;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance3;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance4;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance5;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance6;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance7;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance8;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.TypedFunctionInstance9;
+import org.rascalmpl.runtime.function.TypedFunction0;
+import org.rascalmpl.runtime.function.TypedFunction1;
+import org.rascalmpl.runtime.function.TypedFunction2;
+import org.rascalmpl.runtime.function.TypedFunction3;
+import org.rascalmpl.runtime.function.TypedFunction4;
+import org.rascalmpl.runtime.function.TypedFunction5;
+import org.rascalmpl.runtime.function.TypedFunction6;
+import org.rascalmpl.runtime.function.TypedFunction7;
+import org.rascalmpl.runtime.function.TypedFunction8;
+import org.rascalmpl.runtime.function.TypedFunction9;
+import org.rascalmpl.runtime.function.TypedFunctionInstance0;
+import org.rascalmpl.runtime.function.TypedFunctionInstance1;
+import org.rascalmpl.runtime.function.TypedFunctionInstance2;
+import org.rascalmpl.runtime.function.TypedFunctionInstance3;
+import org.rascalmpl.runtime.function.TypedFunctionInstance4;
+import org.rascalmpl.runtime.function.TypedFunctionInstance5;
+import org.rascalmpl.runtime.function.TypedFunctionInstance6;
+import org.rascalmpl.runtime.function.TypedFunctionInstance7;
+import org.rascalmpl.runtime.function.TypedFunctionInstance8;
+import org.rascalmpl.runtime.function.TypedFunctionInstance9;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.exceptions.Throw;

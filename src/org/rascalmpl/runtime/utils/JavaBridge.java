@@ -30,7 +30,7 @@
  *   * Mark Hills - Mark.Hills@cwi.nl (CWI)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *******************************************************************************/
-package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
+package org.rascalmpl.runtime.utils;
 
 import java.util.Arrays;
 import java.util.List;
