@@ -15,6 +15,7 @@ package org.rascalmpl.uri.file;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.stream.Stream;
 import java.util.Arrays;
 
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
@@ -33,15 +34,20 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 		return "PATH";
 	}
 
-	@Override
-	public ISourceLocation resolve(ISourceLocation input) {
+	private Stream<ISourceLocation> pathStream() {
 		String thePath = System.getenv("PATH");
 		if (thePath == null) {
-			return input;
+			return Stream.<ISourceLocation>empty();
 		}
 
 		return Arrays.stream(thePath.split(File.pathSeparator))
 			.map(FileURIResolver::constructFileURI)
+			.filter(URIResolverRegistry.getInstance()::exists);
+	}
+
+	@Override
+	public ISourceLocation resolve(ISourceLocation input) {
+		return pathStream()
 			.map(r -> URIUtil.getChildLocation(r, input.getPath()))
 			.filter(URIResolverRegistry.getInstance()::exists)
 			.findFirst()
@@ -51,18 +57,18 @@ public class SystemPathURIResolver implements ILogicalSourceLocationResolver {
 
 	@Override
 	public String[] resolveList(ISourceLocation input) {
-		String thePath = System.getenv("PATH");
-		if (thePath == null) {
-			return new String[0];
-		}
-
-		return Arrays.stream(thePath.split(File.pathSeparator))
-			.map(FileURIResolver::constructFileURI)
+		return pathStream()
 			.map(r -> URIUtil.getChildLocation(r, input.getPath()))
 			.filter(URIResolverRegistry.getInstance()::exists)
 			.flatMap(r -> {
+				// here we concatenate the `.list()` for all folders in the path
 				try {
-					return Arrays.stream(URIResolverRegistry.getInstance().list(r));
+					if (URIResolverRegistry.getInstance().isDirectory(r)) {
+						return Arrays.stream(URIResolverRegistry.getInstance().listEntries(r));
+					}
+					else {
+						return Stream.empty();
+					}
 				}
 				catch (IOException e) {
 					return null;
