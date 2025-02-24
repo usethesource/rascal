@@ -1073,7 +1073,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			return false;
 		}
 
-    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+    	private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
 			IString str = vf.string(new String(input));
 		
@@ -1081,19 +1081,19 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				return (ITree) vf.bootstrapParsers().call(grammar, str, location);
 			}
 			else {
-        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+        		IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(allowRecovery), vf.bool(hasSideEffects), vf.bool(false), filters);
 				return (ITree) parser.call(vf.string(new String(input)), location);
 			}
     	}
 
-		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects) {
+		private ITree parseObject(IEvaluatorContext eval, IConstructor grammar, ISet filters, ISourceLocation location, boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects) {
         	RascalFunctionValueFactory vf = eval.getFunctionValueFactory();
 			
 			if (isBootstrapped(eval)) {
 				return (ITree) vf.bootstrapParsers().call(grammar, location, location);
 			}
 			else {
-				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
+				IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(allowRecovery), vf.bool(hasSideEffects), vf.bool(false), filters);
         		return (ITree) parser.call(location, location);
 			}
     	}
@@ -1129,10 +1129,10 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
             
 				if (result.getStaticType().isString()) {
 					tree = parseObject(__eval, value, VF.set(), this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true, false);
+						((IString) result.getValue()).getValue().toCharArray(), true, false, false);
 				}
 				else if (result.getStaticType().isSourceLocation()) {
-					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false);
+					tree = parseObject(__eval, value, VF.set(), (ISourceLocation) result.getValue(), true, false, false);
 				}
 				
 				assert tree != null; // because we checked earlier

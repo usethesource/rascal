@@ -12,6 +12,7 @@
 package org.rascalmpl.parser.gtd.result.error;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.CharNode;
@@ -107,5 +108,12 @@ public class ExpectedNode<N> extends AbstractNode{
 	 */
 	public boolean isNonterminalSeparator(){
 		return isSeparator;
+	}
+
+	@Override
+	public String toString() {
+		return "ExpectedNode[mismatchedChildren=" + Arrays.toString(mismatchedChildren) + ", symbol=" + symbol
+			+ ", input=" + input + ", offset=" + offset + ", endOffset=" + endOffset + ", isSeparator=" + isSeparator
+			+ ", isLayout=" + isLayout + "]";
 	}
 }
