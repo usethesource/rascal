@@ -106,7 +106,7 @@ data JavaBundleManifest
 java loc resolveProjectOnClasspath(str projectName);
 
 // @synopsis{Makes the location of the currently running rascal jar explicit.}
-loc resolvedCurrentRascalJar() = resolveDependencyFromResourcesOnCurrentClasspath("rascal");
+loc resolvedCurrentRascalJar() = resolveProjectOnClasspath("rascal");
 
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
  
