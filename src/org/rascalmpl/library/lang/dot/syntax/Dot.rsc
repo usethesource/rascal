@@ -68,7 +68,7 @@ syntax NodeId
   | Id Port
   ;
 
-syntax Port = ":" Id Id?
+syntax Port = ":" Id (":" Id)?
 //          | ":" Id
 //          | ":" CompassPt
             ;

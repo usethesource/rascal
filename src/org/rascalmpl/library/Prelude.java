@@ -2394,20 +2394,24 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 	}
 
-	public IFunction firstAmbiguityFinder(IValue start, IBool hasSideEffects, ISet filters) {
-	    return rascalValues.parser(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+	public IFunction parser(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, allowAmbiguity, values.bool(false), hasSideEffects, values.bool(false), filters);
+	}
+
+	public IFunction firstAmbiguityFinder(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+	    return rascalValues.parser(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
 	}
 	
-	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+	public IFunction parsers(IValue start,  IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
     }
 
-	public IFunction firstAmbiguityFinders(IValue start, IBool hasSideEffects, ISet filters) {
-        return rascalValues.parsers(start, values.bool(true), hasSideEffects, values.bool(true), filters);
+	public IFunction firstAmbiguityFinders(IValue start, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
+        return rascalValues.parsers(start, values.bool(true), allowRecovery, hasSideEffects, values.bool(true), filters);
     }
 
 	public void storeParsers(IValue start, ISourceLocation saveLocation) {
@@ -2422,18 +2426,18 @@ public class Prelude {
 		}
 	}
 
-	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParsers(ISourceLocation savedLocation, IBool allowAmbiguity, IBool allowRecovery, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParsers(savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParsers(savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
 		}
 	}
 
-	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
+	public IFunction loadParser(IValue grammar, ISourceLocation savedLocation, IBool allowRecovery, IBool allowAmbiguity, IBool hasSideEffects, ISet filters) {
 		try {
-			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, hasSideEffects, values.bool(false), filters);
+			return rascalValues.loadParser(grammar, savedLocation, allowAmbiguity, allowRecovery, hasSideEffects, values.bool(false), filters);
 		}
 		catch (IOException | ClassNotFoundException e) {
 			throw RuntimeExceptionFactory.io(e.getMessage());
