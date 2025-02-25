@@ -132,6 +132,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
      * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
      * get a quick enough answer most of the time.
      */
+    // TODO: use the Maven services directly for speed
     private static String getLocalRepositoryLocationFromMavenCommand() {
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(computeMavenCommandName(), 
@@ -192,23 +193,12 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                     + ".jar"
                     ;
 
-                var jarLocation = URIUtil.getChildLocation(root, jarPath);
-
-                // convenience feature: `/!` path switches to jarified version (helps with auto-completion)
-                var pathIsJarRoot = "/!".equals(path);
-
-                // compensate for additional !'s produced by the previous
-                if (!pathIsJarRoot && path.startsWith("/!")) {
-                    path = path.substring(2);
-                }
-
-                // if the path is non-empty we mean to look inside of the jar
-                    if ((!path.isEmpty() && !path.equals("/")) || pathIsJarRoot) {
-                    path = pathIsJarRoot ? "" : path;
-                    // go make a location that points _inside_ of the jar
-                    jarLocation = JarURIResolver.jarify(jarLocation);
-                    jarLocation = URIUtil.getChildLocation(jarLocation, path);
-                }
+                // find the right jar file in the .m2 folder
+                var jarLocation = URIUtil.getChildLocation(root, jarPath);  
+                // go inside using jar+...:///path/to/jar!
+                jarLocation = JarURIResolver.jarify(jarLocation);
+                // find the path _inside_ the jar file if any
+                jarLocation = URIUtil.getChildLocation(jarLocation, path);
 
                 return jarLocation;
             }
