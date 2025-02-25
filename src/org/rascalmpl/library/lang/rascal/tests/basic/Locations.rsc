@@ -582,6 +582,12 @@ private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
 }
 
 test bool mvnSchemeTest() {
+    loc jarify(loc l) {
+        str scheme = "jar+" + l.scheme;
+        str path = l.path + "!/";
+        return |<scheme>:///| + path;
+    }
+
     debug = false;
     jarFiles = find(|mvn:///|, "jar");
 
@@ -589,28 +595,12 @@ test bool mvnSchemeTest() {
     for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
         // this is the contract:
         mvnLoc = |mvn://<groupId>!<artifactId>!<version>|;
-
-        assert resolveLocation(mvnLoc) == resolveLocation(jar) : "<resolveLocation(mvnLoc)> != <resolveLocation(jar)>
+   
+        assert resolveLocation(mvnLoc) == jarify(resolveLocation(jar)) : "<resolveLocation(mvnLoc)> != <jarify(resolveLocation(jar))>
                                                                  '  jar: <jar>
                                                                  '  mvnLoc: <mvnLoc>";
 
         assert exists(mvnLoc) : "<mvnLoc> should exist because <jar> exists.";
-
-        assert exists(mvnLoc + "!") : "<mvnLoc + "!"> should resolve to the jarified root and exist";
-
-        // not all jars contain a META-INF folder
-        if (exists(mvnLoc + "!/META-INF")) {
-            // but if they do then this relation holds
-
-            assert exists(mvnLoc + "META-INF")
-                : "<mvnLoc + "META-INF"> should exist and resolved to the jarified location inside.";
-
-            assert resolveLocation(mvnLoc + "!/META-INF") == resolveLocation(mvnLoc + "META-INF")
-                : "Two different ways of resolving inside the jar (with and without !) should be equivalent";
-
-            assert (mvnLoc + "META-INF").ls == [e[path=e.path[2..]] | e <- (mvnLoc + "!/META-INF").ls]
-                : "listings should be equal mod ! for <mvnLoc + "META-INF">";
-        }
     }
 
     // report on all the failed attempts

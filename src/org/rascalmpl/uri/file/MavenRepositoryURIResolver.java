@@ -158,7 +158,6 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
         }
     }
 
-
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
         String authority = input.getAuthority();
