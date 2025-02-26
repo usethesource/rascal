@@ -110,7 +110,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         }
 
         Path m2HomeFolder = Paths.get(System.getProperty("user.home"), ".m2", "repository");
-        if (true || !Files.exists(m2HomeFolder)) {
+        if (!Files.exists(m2HomeFolder)) {
             // only then we go for the expensive option and retrieve it from maven itself
             String configuredLocation = getLocalRepositoryLocationFromMavenCommand();
 
