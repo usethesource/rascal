@@ -85,6 +85,8 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChangeType;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationType;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
+import org.rascalmpl.uri.jar.JarURIResolver;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -3690,6 +3692,14 @@ public class Prelude {
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.schemeNotSupported(loc);
 		}
+	}
+
+	public ISourceLocation mavenize(ISourceLocation jar) {
+		return MavenRepositoryURIResolver.mavenize(jar);
+	}
+
+	public ISourceLocation jarify(ISourceLocation jar) {
+		return JarURIResolver.jarify(jar);
 	}
 
 	public ISet findResources(IString fileName) {
