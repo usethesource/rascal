@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -95,6 +96,10 @@ public class URIUtil {
 	
 	public static ISourceLocation createFileLocation(String path) throws URISyntaxException {
 		return vf.sourceLocation(createFile(path));
+	}
+
+	public static ISourceLocation createFileLocation(Path path) throws URISyntaxException {
+		return vf.sourceLocation(createFile(path.toString()));
 	}
 	
 	private static String fixWindowsPath(String path) {
