@@ -3,11 +3,22 @@ package org.rascalmpl.uri.file;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.compress.utils.FileNameUtils;
+import org.checkerframework.checker.units.qual.s;
+import org.rascalmpl.uri.ISourceLocationInput;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -76,13 +87,15 @@ import io.usethesource.vallang.ISourceLocation;
  * schemes, it could be used to _write_ to `mvn` jars as well. Of course this is very much not a good 
  * idea; but there is currently no way to register read-only logical schemes.
  */
-public class MavenRepositoryURIResolver extends AliasedFileResolver {
+public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
     private final Pattern authorityRegEx 
         = Pattern.compile("^([a-zA-Z0-9-_.]+?)[!]([a-zA-Z0-9-_.]+)([!][a-zA-Z0-9\\-_.]+)$");
     //                               groupId         !  artifactId      ! optionAlComplexVersionString
+    
+    private final ISourceLocation root = inferMavenRepositoryLocation();
 
-    public MavenRepositoryURIResolver() throws IOException {
-        super("mvn", inferMavenRepositoryLocation());
+    public MavenRepositoryURIResolver() throws IOException, URISyntaxException {
+        super();
     }
 
     /**
@@ -91,11 +104,12 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
      * in an XML file in the maven installation folder. In that case we run
      * `mvn help:evaluate` (once) to retrieve the actual location. If the `mvn` command
      * is not on the OS search PATH, tough luck.
+     * @throws URISyntaxException 
      */
-    private static String inferMavenRepositoryLocation() {
+    private static ISourceLocation inferMavenRepositoryLocation() throws URISyntaxException {
         String property = System.getProperty("maven.repo.local");
         if (property != null) {
-            return property;
+            return URIUtil.createFileLocation(property);
         }
 
         String m2HomeFolder = System.getProperty("user.home") + "/.m2/repository";
@@ -104,7 +118,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             String configuredLocation = getLocalRepositoryLocationFromMavenCommand();
 
             if (configuredLocation != null) {
-                return configuredLocation;
+                return URIUtil.createFileLocation(configuredLocation);
             }
             
             // if the above fails we default to the home folder anyway.
@@ -112,7 +126,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             // to "file does not exist"
         }
         
-        return m2HomeFolder;
+        return URIUtil.createFileLocation(m2HomeFolder);
     }
 
     /**
@@ -158,52 +172,157 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
         }
     }
 
-    @Override
-    public ISourceLocation resolve(ISourceLocation input) throws IOException {
+    
+    /** 
+     * @param input   mvn://groupid!artifactId!version/path
+     * @return        a file:/// reference to the jar file that is designated by the authority.
+     * @throws IOException when the authority does not designate a jar file
+     */
+    private ISourceLocation resolveOutside(ISourceLocation input) throws IOException {
         String authority = input.getAuthority();
-        String path = input.getPath();
 
         if (authority.isEmpty()) {
-            // we simply see this as a path relative to the root of the .m2 folder
-            return URIUtil.getChildLocation(root, path);
+            throw new IOException("missing mvn://groupid!artifactId!version/ as the authority in " + input);
+        }
+
+        var m = authorityRegEx.matcher(authority);
+
+        // ./edu/appstate/cs/rascal-git/0.1.14/rascal-git-0.1.14.jar
+        // "^([a-zA-Z0-9-_./]+?)[/]([a-zA-Z0-9-_.]+)([/][a-zA-Z0-9\\-_.]+)[/]([a-zA-Z0-9-_.]+)[\\-]([/][a-zA-Z0-9\\\\-_.]+)\\.jar$")
+        if (m.matches()) {
+            String group = m.group(1);
+            String name = m.group(2);
+            String version = m.group(3);
+
+            version = version == null ? "" : version.substring(1);
+            
+            String jarPath 
+                = group.replaceAll("\\.", "/")
+                + "/"
+                + name
+                + "/"
+                + version
+                + "/"
+                + name
+                + "-"
+                + version
+                + ".jar"
+                ;
+
+            // find the right jar file in the .m2 folder
+            return URIUtil.getChildLocation(root, jarPath);  
         }
         else {
-            // the authority encodes the group, name and version of a maven dependency
-            // org.rascalmpl.rascal-34.2.0-RC2
-            var m = authorityRegEx.matcher(authority);
+            throw new IOException("Pattern mvn:///groupId!artifactId!version did not match on " + input);
+        }
+    }
 
-            if (m.matches()) {
-                String group = m.group(1);
-                String name = m.group(2);
-                String version = m.group(3);
+    private ISourceLocation resolveInside(ISourceLocation input) throws IOException {
+        var jarLocation = resolveOutside(input);
+        return URIUtil.getChildLocation(JarURIResolver.jarify(jarLocation), input.getPath());
+    }
 
-                version = version == null ? "" : version.substring(1);
-              
-                String jarPath 
-                    = group.replaceAll("\\.", "/")
-                    + "/"
-                    + name
-                    + "/"
-                    + version
-                    + "/"
-                    + name
-                    + "-"
-                    + version
-                    + ".jar"
-                    ;
+    @Override
+    public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
+        // we simply request a classloader for the entire jar file, which will produce
+        // eventually one indexed URLClassLoader for all constituents of a classpath
+        return URIResolverRegistry.getInstance().getClassLoader(resolveOutside(loc), parent);
+    }
 
-                // find the right jar file in the .m2 folder
-                var jarLocation = URIUtil.getChildLocation(root, jarPath);  
-                // go inside using jar+...:///path/to/jar!
-                jarLocation = JarURIResolver.jarify(jarLocation);
-                // find the path _inside_ the jar file if any
-                jarLocation = URIUtil.getChildLocation(jarLocation, path);
+    @Override
+    public InputStream getInputStream(ISourceLocation uri) throws IOException {
+        return URIResolverRegistry.getInstance().getInputStream(resolveInside(uri));
+    }
 
-                return jarLocation;
-            }
-            else {
-                return null; // signal resolution has failed.
-            }
-        }    
+    @Override
+    public Charset getCharset(ISourceLocation uri) throws IOException {
+        return URIResolverRegistry.getInstance().getCharset(resolveInside(uri));
+    }
+
+    @Override
+    public boolean exists(ISourceLocation uri) {
+        try {
+            return URIResolverRegistry.getInstance().exists(resolveInside(uri));
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public long lastModified(ISourceLocation uri) throws IOException {
+        return URIResolverRegistry.getInstance().lastModified(resolveInside(uri));
+    }
+
+    @Override
+    public boolean isDirectory(ISourceLocation uri) {
+        try {
+            return URIResolverRegistry.getInstance().isDirectory(resolveInside(uri));
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isFile(ISourceLocation uri) {
+        try {
+            return URIResolverRegistry.getInstance().isFile(resolveInside(uri));
+        }
+        catch (IOException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public String[] list(ISourceLocation uri) throws IOException {
+        if (uri.getAuthority().isEmpty() && (uri.getPath().isEmpty() || uri.getPath().equals("/"))) {
+            return listAllMainArtifacts();
+        }
+        else {
+            return URIResolverRegistry.getInstance().listEntries(resolveInside(uri));
+        }
+    }
+
+    /**
+     * Allows browsing through the mvn .m2 repository for "main" artifacts only
+     * @return array of all authorities encoding jar files in the .m2 repo
+     * @throws IOException if the root of the repo is gone or not permitted
+     */
+    private String[] listAllMainArtifacts() throws IOException {
+        return Files.walk(Paths.get(root.getPath()))
+            .filter(f -> FileNameUtils.getExtension(f).equals("jar"))
+            .map(f -> {
+                var fl = URIUtil.correctLocation("file", "", f.toString());
+                var parent =URIUtil.getParentLocation(fl);
+                var version = URIUtil.getLocationName(parent);
+                var grandParent = URIUtil.getParentLocation(parent);
+                var artifact = URIUtil.getLocationName(grandParent);
+                var groupId = URIUtil.relativize(root, URIUtil.getParentLocation(grandParent))
+                    .getPath()
+                    .substring(1)
+                    .replaceAll("/", ".");
+
+                if ((artifact + "-" + version + ".jar").equals(URIUtil.getLocationName(fl))) {
+                    return groupId + "!" + artifact + "!" + version;
+                }
+                else {
+                    // it was not a main artifact because the file names don't line up
+                    return null;
+                }
+            })
+            .filter(f -> f != null)  // other artifacts like sources jars and such drop off here
+            .toArray(String[]::new)
+            ;          
+    }
+
+    @Override
+    public String scheme() {
+        return "mvn";
+    }
+
+    @Override
+    public boolean supportsHost() {
+        return true;
     }
 }
