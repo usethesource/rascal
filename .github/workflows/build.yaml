@@ -176,6 +176,9 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Pull in typepal (and other provided dependencies)
+        run: mvn dependency:copy-dependencies
+
       - name: Run Tests
         run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
 
@@ -191,7 +194,7 @@ jobs:
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         uses: scacap/action-surefire-report@v1
         with:
-          check_name: "Test Report - ${{ runner.os }}"
+          check_name: "Compiler Test Report"
 
 
 
