@@ -28,7 +28,6 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <lucence-version>7.5.0</lucence-version>
         <maven-version>3.9.9</maven-version>
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
@@ -137,7 +136,10 @@
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
                         <src>${project.basedir}/src/org/rascalmpl/library</src>
+                        <!-- do not typecheck the checker or the tutor yet 
                         <src>${project.basedir}/src/org/rascalmpl/tutor</src>
+                        <src>${project.basedir}/src/org/rascalmpl/compiler</src>
+                        -->
                     </srcs>
                     <sourceLookup>|std:///|</sourceLookup>
                     <funding>${project.basedir}/FUNDING</funding>
@@ -172,7 +174,8 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
-		    <!--
+
+		    <!-- commented out while bootstrapping the tutor
                     <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
@@ -416,6 +419,13 @@
             <artifactId>rascal-p2-dependencies-repackaged</artifactId>
             <version>0.6.0</version>
         </dependency>
+        <!-- Bootstrap dependency on typepal -->
+        <dependency>
+            <groupId>org.rascalmpl</groupId>
+            <artifactId>typepal</artifactId>
+            <version>0.15.1</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Regular POM Dependencies -->
         <dependency>
@@ -574,8 +584,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
         </profile>
     </profiles>
 </project>
