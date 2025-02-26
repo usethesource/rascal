@@ -26,6 +26,7 @@
  */
 package org.rascalmpl.runtime.utils;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -45,12 +46,18 @@ public class JavaBridge {
     private String javaCompilerPath;
 
     public JavaBridge(List<ClassLoader> classLoaders, PathConfig config) {
-        StringBuilder sw = new StringBuilder();
-        for(IValue v : config.getJavaCompilerPath()) {
-            if(sw.length() > 0) sw.append(":");
-            sw.append(v.toString());
+        // TODO: @jurgenvinju this used to say `config.getJavaCompilerPath` but that is not is not available anymore (removed in #1969)? 
+        //StringBuilder sw = new StringBuilder();
+        //for(IValue v : config.getJavaCompilerPath()) {
+        //    if(sw.length() > 0) sw.append(":");
+        //    sw.append(v.toString());
+        //}
+        //javaCompilerPath = sw.toString();
+        try {
+            javaCompilerPath = config.resolveCurrentRascalRuntimeJar().getPath(); // TODO: review if this is correct, as it's now not a path anymore
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        javaCompilerPath = sw.toString();
 
         if (ToolProvider.getSystemJavaCompiler() == null) {
             throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
