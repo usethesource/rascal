@@ -709,16 +709,22 @@ public class URIResolverRegistry {
 	}
 
 	public String[] listEntries(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
-		if (isRootLogical(uri)) {
-			// if it's a location without any path and authority
-			// we want to list possible authorities if it's a logical one
-			// (logical resolvers cannot handle this call themselves)
-			Map<String, ILogicalSourceLocationResolver> candidates = logicalResolvers.get(uri.getScheme());
-			if (candidates != null) {
+		Map<String, ILogicalSourceLocationResolver> candidates = logicalResolvers.get(uri.getScheme());
+
+		if (candidates != null && !candidates.isEmpty()) {
+			// this is a logical uri. we defer to resolveList to allow for the logical resolver to concatenate from
+			// different sources. But not if the authority and the path are empty, then we list the available authorities
+			if (isRootLogical(uri) && candidates.size() > 1) {
 				return candidates.keySet().toArray(new String[0]);
 			}
+
+			String auth = uri.hasAuthority() ? uri.getAuthority() : "";
+			ILogicalSourceLocationResolver resolver = candidates.get(auth);
+
+			return resolver.resolveList(uri);
 		}
+
+		uri = safeResolve(uri); 
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
