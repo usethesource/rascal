@@ -198,7 +198,6 @@ public enum ToplevelType {
 	private static final Integer valueHashCode = "value".hashCode();
 	
 	public static int getFingerprintNode(INode nd){
-		//System.err.println("getFingerprintNode: " + nd.hashCode() + " for " + nd);
 		return nd.hashCode();
 	}
 	
