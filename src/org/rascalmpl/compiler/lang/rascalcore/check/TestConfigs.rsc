@@ -41,18 +41,18 @@ data PathConfig(
 
 // ----  Various PathConfigs  ---------------------------------------------
 
-public loc RASCAL        = |mvn://org.rascalmpl!rascal!0.40.17/!|;
-public loc TYPEPAL       = |mvn://org.rascalmpl!typepal!0.14.8/!|;
+public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.40.17/!|;
+public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/!|;
 public loc OUTDATED_TYPEPAL 
-                  = |mvn://org.rascalmpl!typepal!0.14.1/!|;
-public loc RASCAL_CORE   = |mvn://org.rascalmpl!rascal-core!0.12.14/!|;
+                  = |mvn://org.rascalmpl--typepal--0.14.1/!|;
+public loc RASCAL_CORE   = |mvn://org.rascalmpl--rascal-core--0.12.14/!|;
 
-public loc DRAMBIGUITY   = |mvn://org.rascalmpl!drambiguity!0.1.2/!|;
-public loc FLYBYTES      = |mvn://org.rascalmpl!flybytes!0.1.5/!|;
-public loc SALIX_CORE    = |mvn://org.rascalmpl!salix-core!0.2.7/!|;
-public loc SALIX_CONTRIB = |mvn://org.rascalmpl!salix-contrib!0.2.7/!|;
-public loc RASCAL_LSP    = |mvn://org.rascalmpl!rascal-language-server!0.12.1/!|;
-public loc PHP_ANALYSIS  = |mvn://org.rascalmpl!php-analysis!0.2.5-SNAPSHOT/!|;
+public loc DRAMBIGUITY   = |mvn://org.rascalmpl--drambiguity--0.1.2/!|;
+public loc FLYBYTES      = |mvn://org.rascalmpl--flybytes--0.1.5/!|;
+public loc SALIX_CORE    = |mvn://org.rascalmpl--salix-core--0.2.7/!|;
+public loc SALIX_CONTRIB = |mvn://org.rascalmpl--salix-contrib--0.2.7/!|;
+public loc RASCAL_LSP    = |mvn://org.rascalmpl--rascal-language-server--0.12.1/!|;
+public loc PHP_ANALYSIS  = |mvn://org.rascalmpl--php-analysis--0.2.5-SNAPSHOT/--|;
 
 public loc REPO          =  |file:///Users/paulklint/git/|;
 public loc COMPILED_RASCAL 
