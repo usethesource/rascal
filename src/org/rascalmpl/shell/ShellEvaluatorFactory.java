@@ -1,7 +1,6 @@
 package org.rascalmpl.shell;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
@@ -12,6 +11,7 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -37,7 +37,7 @@ public class ShellEvaluatorFactory {
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
         if (!reg.getRegisteredInputSchemes().contains("project") && !reg.getRegisteredLogicalSchemes().contains("project")) {
-            ISourceLocation rootFolder = inferProjectRoot(new File(System.getProperty("user.dir")));
+            ISourceLocation rootFolder = PathConfig.inferProjectRoot(URIUtil.rootLocation("cwd"));
             if (rootFolder != null) {
                 configureProjectEvaluator(evaluator, rootFolder);
             }
@@ -53,9 +53,14 @@ public class ShellEvaluatorFactory {
         Evaluator evaluator = new Evaluator(vf, input, stderr, stdout, root, heap, monitor);
         evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
 
-        ISourceLocation rootFolder = inferProjectRoot(fileOrFolderInProject);
-        if (rootFolder != null) {
-            configureProjectEvaluator(evaluator, rootFolder);
+        try {
+            ISourceLocation rootFolder = PathConfig.inferProjectRoot(URIUtil.createFileLocation(fileOrFolderInProject.toString()));
+            if (rootFolder != null) {
+                configureProjectEvaluator(evaluator, rootFolder);
+            }
+        }
+        catch (URISyntaxException e) {
+            e.printStackTrace(stderr);
         }
 
         return evaluator;
@@ -68,47 +73,15 @@ public class ShellEvaluatorFactory {
         reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
 
-        try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
+        PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
 
-            for (IValue path : pcfg.getSrcs()) {
-                evaluator.addRascalSearchPath((ISourceLocation) path); 
-            }
-
-            for (IValue path : pcfg.getLibs()) {
-                evaluator.addRascalSearchPath((ISourceLocation) path);
-            }
-
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-            evaluator.addClassLoader(cl);
+        for (IValue path : pcfg.getSrcs()) {
+            evaluator.addRascalSearchPath((ISourceLocation) path); 
         }
-        catch (IOException e) {
-            System.err.println(e);
-        }
+
+        ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
+        evaluator.addClassLoader(cl);  
+        
+        Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
     }
-
-    /**
-     * Searchers for META-INF/RASCAL.MF to infer the root of a Rascal source project.
-     * If cwd has a parent which contains this META-INF/RASCAL.MF file then the
-     * location of this parent is returned. If it is not found, this function returns null.
-     * @param cwd
-     * @return
-     */
-    public static ISourceLocation inferProjectRoot(File cwd) {
-        try {
-            File current = cwd;
-            while (current != null && current.exists() && current.isDirectory()) {
-                if (new File(current, "META-INF/RASCAL.MF").exists()) {
-                    return URIUtil.createFileLocation(current.getAbsolutePath());
-                }
-                current = current.getParentFile();
-            }
-        }
-        catch (URISyntaxException e) {
-            return null;
-        }
-
-        return null;
-    }
-
 }
