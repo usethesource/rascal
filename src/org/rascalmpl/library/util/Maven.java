@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.apache.maven.cli.CliRequest;
 import org.apache.maven.cli.MavenCli;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -37,17 +38,17 @@ public class Maven {
      * to a file. For instance, the output of `mvn dependency:build-classpath` can be redicted to a file
      * by providing an additional argument `-Dmdep.outputFile=/path/to/file`.
      */
-    public static List<String> runCommand(List<String> args, ISourceLocation manifestRoot, Path outputFile) {
+    public static List<String> runCommand(List<String> args, @Nullable ISourceLocation manifestRoot, Path outputFile) {
         try {
-            ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
-            pomxml = URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
-            manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
+            ISourceLocation pomxml = manifestRoot != null ? URIUtil.getChildLocation(manifestRoot, "pom.xml") : null;
+            pomxml = pomxml != null ? URIResolverRegistry.getInstance().logicalToPhysical(pomxml) : null;
+            manifestRoot = manifestRoot != null ? URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot) : null;
             
-            if (!"file".equals(manifestRoot.getScheme())) {
+            if (manifestRoot != null && !"file".equals(manifestRoot.getScheme())) {
                 throw new IllegalArgumentException("`manifestRoot` could not be resolved");
             }
 
-            if (!URIResolverRegistry.getInstance().exists(pomxml)) {
+            if (pomxml != null && !URIResolverRegistry.getInstance().exists(pomxml)) {
                 throw new IllegalArgumentException("`manifestRoot` does not contain pom.xml");
             }
 
@@ -78,15 +79,19 @@ public class Maven {
         field.set(req, value);
     }
     
-    private static CliRequest buildRequest(String[] args, ISourceLocation manifestRoot) throws ReflectiveOperationException {
+    private static CliRequest buildRequest(String[] args, @Nullable ISourceLocation manifestRoot) throws ReflectiveOperationException {
         // we need to set a field that the default class doesn't set
         // it's a work around around a bug in the MavenCli code
         var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
         cons.setAccessible(true);
         var result = cons.newInstance(args, null);
-        var manifestRootFile = new File(manifestRoot.getPath());
-        setField(result, "workingDirectory", manifestRootFile.getPath());
-        setField(result, "multiModuleProjectDirectory", manifestRootFile);
+
+        if (manifestRoot != null) {
+            var manifestRootFile = new File(manifestRoot.getPath());
+            setField(result, "workingDirectory", manifestRootFile.getPath());
+            setField(result, "multiModuleProjectDirectory", manifestRootFile);
+        }
+
         return result;
     }
 
