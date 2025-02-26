@@ -45,6 +45,14 @@ loc relativize(list[loc] haystack, loc needle) {
     }
 }
 
+@synopsis{Shortens an absolute path to a jar inside the local maven repository.}
+@javaClass{org.rascalmpl.library.Prelude}
+java loc mavenize(loc jar);
+
+@synopsis{If the location points to a jar file, then this modifies the scheme and the path to point _inside_ of the jar.}
+@javaClass{org.rascalmpl.library.Prelude}
+java loc jarify(loc jar);
+
 @synopsis{Convert Windows path syntax to a `loc` value}
 @description{
 This conversion supports generic Windows path syntax, including:

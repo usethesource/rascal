@@ -13,10 +13,8 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -81,6 +79,15 @@ public class Reflective {
 	    return values.string(RascalManifest.getRascalVersionNumber());
 	}
 	
+	public ISourceLocation resolveProjectOnClasspath(IString projectName) {
+		try {
+			return PathConfig.resolveProjectOnClasspath(projectName.getValue());
+		}
+		catch (IOException e) {
+			throw RuntimeExceptionFactory.io(e.getMessage());
+		}
+	}
+
 	public IString getLineSeparator() {
         return values.string(System.lineSeparator());
     }
@@ -88,7 +95,10 @@ public class Reflective {
 	public IConstructor getProjectPathConfig(ISourceLocation projectRoot, IConstructor mode) {
 	    try {
 	        if (URIResolverRegistry.getInstance().exists(projectRoot)) {
-	            return PathConfig.fromSourceProjectRascalManifest(projectRoot, mode.getName().equals("compiler") ? RascalConfigMode.COMPILER :  RascalConfigMode.INTERPETER).asConstructor();
+	            return PathConfig.fromSourceProjectRascalManifest(
+					projectRoot, 
+					mode.getName().equals("compiler") ? RascalConfigMode.COMPILER : RascalConfigMode.INTERPRETER,
+					true).asConstructor();
 	        }
 	        else {
 	            throw new FileNotFoundException(projectRoot.toString());
