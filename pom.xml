@@ -223,7 +223,7 @@
                 <version>3.5.2</version>
                 <executions>
                     <execution>
-                        <id>test</id>
+                        <id>default-test</id>
                         <phase>test</phase>
                         <goals>
                             <goal>test</goal>
@@ -580,6 +580,33 @@
                         <artifactId>license-maven-plugin</artifactId>
                         <configuration>
                             <skipDownloadLicenses>true</skipDownloadLicenses>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>compiler-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution><id>default-test</id><phase>none</phase></execution> <!-- disable regular test run -->
+                            <execution>
+                                <id>test-compiler-tests</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includes>
+                                <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
+                                <include>**/org/rascalmpl/compiler/**/*Test.java</include>
+                            </includes>
                         </configuration>
                     </plugin>
                 </plugins>
