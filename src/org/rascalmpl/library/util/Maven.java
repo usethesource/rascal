@@ -91,6 +91,14 @@ public class Maven {
             setField(result, "workingDirectory", manifestRootFile.getPath());
             setField(result, "multiModuleProjectDirectory", manifestRootFile);
         }
+        else {
+            try {
+                setField(result, "multiModuleProjectDirectory", File.createTempFile("dummy", ""));
+            }
+            catch (ReflectiveOperationException | IOException e) {
+                // ignore
+            }
+        }
 
         return result;
     }
