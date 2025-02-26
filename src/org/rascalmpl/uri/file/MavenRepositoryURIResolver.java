@@ -1,7 +1,7 @@
 package org.rascalmpl.uri.file;
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,11 +10,13 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.checkerframework.checker.units.qual.s;
+import org.rascalmpl.library.util.Maven;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -83,19 +85,14 @@ import io.usethesource.vallang.ISourceLocation;
  * from {@see RascalLibraryURIResolver} which left too much implicit and automated too 
  * much to obtain any transparancy in dependency resolution. 
  * 
- * Another pitfall of this scheme is that since it transparantely resolves to file:/// and jar+file:///
- * schemes, it could be used to _write_ to `mvn` jars as well. Of course this is very much not a good 
- * idea; but there is currently no way to register read-only logical schemes.
  */
 public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
-    private final Pattern authorityRegEx 
-        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[!]([a-zA-Z0-9-_.]+)([!][a-zA-Z0-9\\-_.]+)$");
-    //                               groupId         !  artifactId      ! optionAlComplexVersionString
-    
     private final ISourceLocation root = inferMavenRepositoryLocation();
-
-    public MavenRepositoryURIResolver() throws IOException, URISyntaxException {
+    private final URIResolverRegistry reg;
+    
+    public MavenRepositoryURIResolver(URIResolverRegistry reg) throws IOException, URISyntaxException {
         super();
+        this.reg = reg;
     }
 
     /**
@@ -112,8 +109,8 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             return URIUtil.createFileLocation(property);
         }
 
-        String m2HomeFolder = System.getProperty("user.home") + "/.m2/repository";
-        if (!new File(m2HomeFolder).exists()) {
+        Path m2HomeFolder = Paths.get(System.getProperty("user.home"), ".m2", "repository");
+        if (true || !Files.exists(m2HomeFolder)) {
             // only then we go for the expensive option and retrieve it from maven itself
             String configuredLocation = getLocalRepositoryLocationFromMavenCommand();
 
@@ -130,49 +127,32 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     /**
-     * Maven has a different name on Windows; this computes the right name.
-     */
-    private static String computeMavenCommandName() {
-        if (System.getProperty("os.name", "generic").startsWith("Windows")) {
-            return "mvn.cmd";
-        }
-        else {
-            return "mvn";
-        }
-    }
-
-    /**
      * This (slow) code runs only if the ~/.m2 folder does not exist and nobody -D'ed its location either.
      * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
      * get a quick enough answer most of the time.
      */
-    // TODO: use the Maven services directly for speed
     private static String getLocalRepositoryLocationFromMavenCommand() {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder(computeMavenCommandName(), 
+            var tempFile = Maven.getTempFile("classpath");
+
+            Maven.runCommand(List.of(
                 "-q", 
                 "help:evaluate",
                 "-Dexpression=settings.localRepository",
-                "-DforceStdout"
-               );
-            processBuilder.environment().put("JAVA_HOME", System.getProperty("java.home", System.getenv("JAVA_HOME")));
-
-            Process process = processBuilder.start();
-            if (process.waitFor() != 0) {
-                throw new IOException("could not run mvn to retrieve local repository location");
-            }
+                "-Doutput=" + tempFile
+               ), null /* no current pom.xml file */, tempFile);
             
-            try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+               
+            try (var reader = new BufferedReader(new FileReader(tempFile.toString()))) {
                 return reader.lines().collect(Collectors.joining()).trim(); 
             }
         }
-        catch (IOException | InterruptedException e) {
+        catch (IOException e) {
             // it's ok to fail. that just happens.
             return null;
         }
     }
-
-    
+ 
     /** 
      * @param input   mvn://groupid!artifactId!version/path
      * @return        a file:/// reference to the jar file that is designated by the authority.
@@ -185,16 +165,12 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             throw new IOException("missing mvn://groupid!artifactId!version/ as the authority in " + input);
         }
 
-        var m = authorityRegEx.matcher(authority);
+        var parts = authority.split("!");
 
-        // ./edu/appstate/cs/rascal-git/0.1.14/rascal-git-0.1.14.jar
-        // "^([a-zA-Z0-9-_./]+?)[/]([a-zA-Z0-9-_.]+)([/][a-zA-Z0-9\\-_.]+)[/]([a-zA-Z0-9-_.]+)[\\-]([/][a-zA-Z0-9\\\\-_.]+)\\.jar$")
-        if (m.matches()) {
-            String group = m.group(1);
-            String name = m.group(2);
-            String version = m.group(3);
-
-            version = version == null ? "" : version.substring(1);
+        if (parts.length == 3) {
+            String group = parts[0];
+            String name = parts[1];
+            String version = parts[2];
             
             String jarPath 
                 = group.replaceAll("\\.", "/")
@@ -226,23 +202,23 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
         // we simply request a classloader for the entire jar file, which will produce
         // eventually one indexed URLClassLoader for all constituents of a classpath
-        return URIResolverRegistry.getInstance().getClassLoader(resolveOutside(loc), parent);
+        return reg.getClassLoader(resolveOutside(loc), parent);
     }
 
     @Override
     public InputStream getInputStream(ISourceLocation uri) throws IOException {
-        return URIResolverRegistry.getInstance().getInputStream(resolveInside(uri));
+        return reg.getInputStream(resolveInside(uri));
     }
 
     @Override
     public Charset getCharset(ISourceLocation uri) throws IOException {
-        return URIResolverRegistry.getInstance().getCharset(resolveInside(uri));
+        return reg.getCharset(resolveInside(uri));
     }
 
     @Override
     public boolean exists(ISourceLocation uri) {
         try {
-            return URIResolverRegistry.getInstance().exists(resolveInside(uri));
+            return reg.exists(resolveInside(uri));
         }
         catch (IOException e) {
             return false;
@@ -251,13 +227,13 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
     @Override
     public long lastModified(ISourceLocation uri) throws IOException {
-        return URIResolverRegistry.getInstance().lastModified(resolveInside(uri));
+        return reg.lastModified(resolveInside(uri));
     }
 
     @Override
     public boolean isDirectory(ISourceLocation uri) {
         try {
-            return URIResolverRegistry.getInstance().isDirectory(resolveInside(uri));
+            return reg.isDirectory(resolveInside(uri));
         }
         catch (IOException e) {
             return false;
@@ -267,7 +243,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     @Override
     public boolean isFile(ISourceLocation uri) {
         try {
-            return URIResolverRegistry.getInstance().isFile(resolveInside(uri));
+            return reg.isFile(resolveInside(uri));
         }
         catch (IOException e) {
             return false;
@@ -280,7 +256,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             return listAllMainArtifacts();
         }
         else {
-            return URIResolverRegistry.getInstance().listEntries(resolveInside(uri));
+            return reg.listEntries(resolveInside(uri));
         }
     }
 
@@ -290,11 +266,12 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * @throws IOException if the root of the repo is gone or not permitted
      */
     private String[] listAllMainArtifacts() throws IOException {
-        return Files.walk(Paths.get(root.getPath()))
-            .filter(f -> FileNameUtils.getExtension(f).equals("jar"))
+        try (Stream<Path> files = Files.walk(Paths.get(root.getPath()))) {
+            return files.filter(f -> FileNameUtils.getExtension(f).equals("jar"))
+            // drop -sources and -javadoc
             .map(f -> {
                 var fl = URIUtil.correctLocation("file", "", f.toString());
-                var parent =URIUtil.getParentLocation(fl);
+                var parent = URIUtil.getParentLocation(fl);
                 var version = URIUtil.getLocationName(parent);
                 var grandParent = URIUtil.getParentLocation(parent);
                 var artifact = URIUtil.getLocationName(grandParent);
@@ -314,6 +291,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             .filter(f -> f != null)  // other artifacts like sources jars and such drop off here
             .toArray(String[]::new)
             ;          
+        }
     }
 
     @Override
@@ -323,6 +301,6 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
     @Override
     public boolean supportsHost() {
-        return true;
+        return false;
     }
 }
