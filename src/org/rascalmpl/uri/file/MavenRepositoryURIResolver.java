@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
@@ -16,9 +18,9 @@ import io.usethesource.vallang.ISourceLocation;
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
  * For a discussion REMOTE repositories see below.
  * 
- * We use `mvn://<groupid>!<name>!<version>/<path-inside-jar>` as the general scheme;
- * also `mvn://<groupid>!<name>!<version>/!/<path-inside-jar>` is allowed to make sure the
- * root `mvn://<groupid>!<name>!<version>/` remains a jar file unambiguously.
+ * We use `mvn://<groupid>--<name>--<version>/<path-inside-jar>` as the general scheme;
+ * also `mvn://<groupid>--<name>--<version>/!/<path-inside-jar>` is allowed to make sure the
+ * root `mvn://<groupid>--<name>--<version>/` remains a jar file unambiguously.
  * 
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file. This is analogous to other schemes for projects
@@ -28,7 +30,7 @@ import io.usethesource.vallang.ISourceLocation;
  * Here `version` is an arbitrary string with lots of numbers, dots, dashed and underscores.
  * Typically we'd expect the semantic versioning scheme here with some release tag, but
  * real maven projects frequently do not adhere to that standard. Hence we have to be "free"
- * here and allow lots of funny version strings. This is also why we use ! again to separate
+ * here and allow lots of funny version strings. This is also why we use -- to separate
  * the version from the artifactId.
  * 
  * Locations with the `mvn` scheme are typically produced by configuration code that uses 
@@ -77,9 +79,11 @@ import io.usethesource.vallang.ISourceLocation;
  * idea; but there is currently no way to register read-only logical schemes.
  */
 public class MavenRepositoryURIResolver extends AliasedFileResolver {
+    private static String localRepoLocationCache;
+
     private final Pattern authorityRegEx 
-        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[!]([a-zA-Z0-9-_.]+)([!][a-zA-Z0-9\\-_.]+)$");
-    //                               groupId         !  artifactId      ! optionAlComplexVersionString
+        = Pattern.compile("^([a-zA-Z0-9-_.]+?)[\\-][\\-]([a-zA-Z0-9-_.]+)[\\-][\\-]([a-zA-Z0-9\\-_.]+)$");
+    //                               groupId         --  artifactId      -- optionAlComplexVersionString
 
     public MavenRepositoryURIResolver() throws IOException {
         super("mvn", inferMavenRepositoryLocation());
@@ -111,7 +115,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             // note that since it does not exist this will make all downstream resolutions fail
             // to "file does not exist"
         }
-        
+
         return m2HomeFolder;
     }
 
@@ -130,9 +134,14 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
     /**
      * This (slow) code runs only if the ~/.m2 folder does not exist and nobody -D'ed its location either.
      * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
-     * get a quick enough answer most of the time.
+     * get a quick enough answer most of the time. It caches its result to make sure repeated calls
+     * to here are faster than the first.
      */
     private static String getLocalRepositoryLocationFromMavenCommand() {
+        if (localRepoLocationCache != null) {
+            return localRepoLocationCache;
+        }
+        
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(computeMavenCommandName(), 
                 "-q", 
@@ -148,7 +157,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             }
             
             try (var reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                return reader.lines().collect(Collectors.joining()).trim(); 
+                return (localRepoLocationCache = reader.lines().collect(Collectors.joining()).trim()); 
             }
         }
         catch (IOException | InterruptedException e) {
@@ -156,7 +165,6 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
             return null;
         }
     }
-
 
     @Override
     public ISourceLocation resolve(ISourceLocation input) throws IOException {
@@ -169,7 +177,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
         }
         else {
             // the authority encodes the group, name and version of a maven dependency
-            // org.rascalmpl.rascal-34.2.0-RC2
+            // org.rascalmpl--rascal--34.2.0-RC2
             var m = authorityRegEx.matcher(authority);
 
             if (m.matches()) {
@@ -177,7 +185,7 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                 String name = m.group(2);
                 String version = m.group(3);
 
-                version = version == null ? "" : version.substring(1);
+                // version = version == null ? "" : version.substring(1);
               
                 String jarPath 
                     = group.replaceAll("\\.", "/")
@@ -216,5 +224,44 @@ public class MavenRepositoryURIResolver extends AliasedFileResolver {
                 return null; // signal resolution has failed.
             }
         }    
+    }
+
+    public static ISourceLocation make(String groupId, String artifactId, String version, String path) {
+        return URIUtil.correctLocation("mvn", groupId + "--" + artifactId + "--" + version, path);
+    }
+
+    /** 
+     * Shortens a location of a jar file that points into a local maven repository, and
+     * leaves all other locations as-is.
+     * */
+    public static ISourceLocation mavenize(ISourceLocation loc) {
+        try {
+            // the registry may not have been initialized yet.
+            loc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().logicalToPhysical(loc) : loc;
+
+            if (!URIUtil.getExtension(loc).equals("jar")) {
+                return loc;
+            }
+
+            ISourceLocation repo = URIUtil.createFileLocation(inferMavenRepositoryLocation());
+            ISourceLocation relative = URIUtil.relativize(repo, loc);
+            boolean isFileInRepo = loc.getScheme().equals("file") && relative.getScheme().equals("relative");  
+
+            if (isFileInRepo) { 
+                relative = URIUtil.getParentLocation(relative);
+                String version    = URIUtil.getLocationName(relative);
+                relative = URIUtil.getParentLocation(relative);
+                String artifactId = URIUtil.getLocationName(relative);
+                relative = URIUtil.getParentLocation(relative);
+                String groupId    = relative.getPath().substring(1).replaceAll("/", ".");
+            
+                return make(groupId, artifactId, version, "");
+            }
+
+            return loc;
+        }
+        catch (IOException | URISyntaxException e) {
+            return loc;
+        }
     }
 }

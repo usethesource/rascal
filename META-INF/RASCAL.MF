@@ -1,5 +1,2 @@
 Project-Name: rascal
-Source: src/org/rascalmpl/library,src/org/rascalmpl/tutor,test/org/rascalmpl/benchmark,test/org/rascalmpl/test/data
-Courses: src/org/rascalmpl/courses
-
-
+Source: src/org/rascalmpl/library,src/org/rascalmpl/compiler,src/org/rascalmpl/library,src/org/rascalmpl/tutor,test/org/rascalmpl/benchmark,test/org/rascalmpl/test/data

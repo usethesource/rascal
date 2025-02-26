@@ -22,7 +22,8 @@ import java.io.StringReader;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.test.infrastructure.RascalJUnitTestRunner;
+import org.rascalmpl.test.infrastructure.RascalJunitConsoleMonitor;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
@@ -49,7 +50,7 @@ import junit.framework.TestCase;
 public class MatchFingerprintTest extends TestCase {
     private final GlobalEnvironment heap = new GlobalEnvironment();
     private final ModuleEnvironment root = new ModuleEnvironment("root", heap);
-    private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), root, heap, RascalJUnitTestRunner.getCommonMonitor());
+    private final Evaluator eval = new Evaluator(IRascalValueFactory.getInstance(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out), root, heap, RascalJunitConsoleMonitor.getInstance());
     private final RascalFunctionValueFactory VF = eval.getFunctionValueFactory();
     private final TypeFactory TF = TypeFactory.getInstance();
 

@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -264,10 +263,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         updateProperties();
 
         if (stderr == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stderr is null");
         }
         if (stdout == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stdout is null");
         }
 
         // default event trigger to swallow events
@@ -1149,6 +1148,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * @param string
      */
     public void doImport(IRascalMonitor monitor, String... string) {
+        assert monitor != null;
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {
