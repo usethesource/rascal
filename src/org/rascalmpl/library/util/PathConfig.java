@@ -913,7 +913,7 @@ public class PathConfig {
      */
     public String toString(){
       StringWriter w = new StringWriter();
-      w.append("Path configuration items:")
+      w.append("Path configuration items:").append("\n")
        .append("srcs:            ").append(getSrcs().toString()).append("\n")
        .append("ignores:         ").append(getIgnores().toString()).append("\n")
        .append("libs:            ").append(getLibs().toString()).append("\n")
