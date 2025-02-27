@@ -1,0 +1,7 @@
+1 + 2; ⇨ int: 3
+
+// xxxx
+
+x + 2;
+⚠ Undeclared variable: x
+⚠ Advice: |http://tutor.rascal-mpl.org/Errors/Static/UndeclaredVariable/UndeclaredVariable.html|
