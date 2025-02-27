@@ -708,8 +708,7 @@ public class URIResolverRegistry {
 			&& logicalResolvers.containsKey(uri.getScheme());
 	}
 
-	public String[] listEntries(ISourceLocation uri) throws IOException {
-		uri = safeResolve(uri);
+	public String[] listEntries(ISourceLocation uri) throws IOException {		uri = safeResolve(uri);
 		if (isRootLogical(uri)) {
 			// if it's a location without any path and authority
 			// we want to list possible authorities if it's a logical one
