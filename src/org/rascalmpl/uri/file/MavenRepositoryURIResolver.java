@@ -89,8 +89,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * This code is supposed to run very quickly in most cases, but still deal with 
      * the situation that the actual location of the local repository may be configured
      * in an XML file in the maven installation folder. In that case we run
-     * `mvn help:evaluate` (once) to retrieve the actual location. If the `mvn` command
-     * is not on the OS search PATH, tough luck.
+     * `mvn help:evaluate` (once) to retrieve the actual location. 
      * @throws URISyntaxException 
      */
     private static ISourceLocation inferMavenRepositoryLocation() throws URISyntaxException {
@@ -184,7 +183,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         }
     }
 
-    private ISourceLocation resolveInside(ISourceLocation input) throws IOException {
+    private ISourceLocation resolveInsideJar(ISourceLocation input) throws IOException {
         var jarLocation = resolveJar(input);
         return URIUtil.getChildLocation(JarURIResolver.jarify(jarLocation), input.getPath());
     }
@@ -198,18 +197,18 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
     @Override
     public InputStream getInputStream(ISourceLocation uri) throws IOException {
-        return reg.getInputStream(resolveInside(uri));
+        return reg.getInputStream(resolveInsideJar(uri));
     }
 
     @Override
     public Charset getCharset(ISourceLocation uri) throws IOException {
-        return reg.getCharset(resolveInside(uri));
+        return reg.getCharset(resolveInsideJar(uri));
     }
 
     @Override
     public boolean exists(ISourceLocation uri) {
         try {
-            return reg.exists(resolveInside(uri));
+            return reg.exists(resolveInsideJar(uri));
         }
         catch (IOException e) {
             return false;
@@ -218,13 +217,13 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
     @Override
     public long lastModified(ISourceLocation uri) throws IOException {
-        return reg.lastModified(resolveInside(uri));
+        return reg.lastModified(resolveInsideJar(uri));
     }
 
     @Override
     public boolean isDirectory(ISourceLocation uri) {
         try {
-            return reg.isDirectory(resolveInside(uri));
+            return reg.isDirectory(resolveInsideJar(uri));
         }
         catch (IOException e) {
             return false;
@@ -234,7 +233,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     @Override
     public boolean isFile(ISourceLocation uri) {
         try {
-            return reg.isFile(resolveInside(uri));
+            return reg.isFile(resolveInsideJar(uri));
         }
         catch (IOException e) {
             return false;
@@ -247,7 +246,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             return listAllMainArtifacts();
         }
         else {
-            return reg.listEntries(resolveInside(uri));
+            return reg.listEntries(resolveInsideJar(uri));
         }
     }
 
