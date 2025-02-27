@@ -779,13 +779,8 @@ public class PathConfig {
      */
 	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
         try {
-            String mavenDependencyPlugin = "org.apache.maven.plugins:maven-dependency-plugin:3.8.0";
-            // First, make sure that maven-dependency-plugin is downloaded when not available
-            Maven.runCommand(List.of(mavenDependencyPlugin + ":do-nothing"), manifestRoot);
-
-            // Now, actually let maven build the classpath. Note that this is in offline mode as to not download any dependencies
             var tempFile = Maven.getTempFile("classpath");
-            var mavenOutput = Maven.runCommand(List.of("-o", mavenDependencyPlugin + ":build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
+            var mavenOutput = Maven.runCommand(List.of("--quiet", "org.apache.maven.plugins:maven-dependency-plugin:3.8.1:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
 
             // The classpath will be written to the temp file on a single line
             return Arrays.stream(mavenOutput.get(0).split(File.pathSeparator))
