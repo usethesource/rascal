@@ -590,7 +590,6 @@ test bool mvnSchemeTest() {
     // check whether the implementation of the scheme holds the contract specified in the assert
     for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
         // this is the contract:
-        println(jar);
         loc mvnLoc = |mvn://<groupId>--<artifactId>--<version>|;
         
         if (!exists(mvnLoc)) {
