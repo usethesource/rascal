@@ -96,7 +96,7 @@ public class Maven {
                 setField(result, "multiModuleProjectDirectory", File.createTempFile("dummy", ""));
             }
             catch (ReflectiveOperationException | IOException e) {
-                // ignore
+                // ignore for robustness sake, since we don't have a manifestRoot
             }
         }
 
