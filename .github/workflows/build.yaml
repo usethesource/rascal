@@ -176,10 +176,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Pull in typepal (and other provided dependencies)
-        run: |
-          mvn dependency:copy-dependencies 
-          mvn org.apache.maven.plugins:maven-dependency-plugin:3.8.0:build-classpath -DincludeScope=compile
+      - name: Retrieve dependencies for integration tests
+        run: bash src/org/rascalmpl/compiler/lang/rascalcore/check/tests/download-test-jars.sh
 
       - name: Run Tests
         run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=7 test
