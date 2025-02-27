@@ -77,6 +77,7 @@ import io.usethesource.vallang.ISourceLocation;
  * 
  */
 public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassloaderLocationResolver {
+    private static final String GROUP_ARTIFACT_VERSION_SEPARATOR = "--";
     private final ISourceLocation root = inferMavenRepositoryLocation();
     private final URIResolverRegistry reg;
     
@@ -155,7 +156,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             throw new IOException("missing mvn://groupid!artifactId!version/ as the authority in " + input);
         }
 
-        var parts = authority.split("--");
+        var parts = authority.split(GROUP_ARTIFACT_VERSION_SEPARATOR);
 
         if (parts.length == 3) {
             String group = parts[0];
@@ -258,8 +259,8 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     private String[] listAllMainArtifacts() throws IOException {
         try (Stream<Path> files = Files.walk(Paths.get(root.getPath()))) {
             return files.filter(f -> FileNameUtils.getExtension(f).equals("jar"))
-            .filter(f -> !f.toString().endsWith("-sources"))
-            .filter(f -> !f.toString().endsWith("-javadoc"))
+            .filter(f -> !f.toString().endsWith("-sources.jar"))
+            .filter(f -> !f.toString().endsWith("-javadoc.jar"))
             .map(f -> {
                 var fl = URIUtil.correctLocation("file", "", f.toString());
                 var parent = URIUtil.getParentLocation(fl);
@@ -272,7 +273,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                     .replaceAll("/", ".");
 
                 if ((artifact + "-" + version + ".jar").equals(URIUtil.getLocationName(fl))) {
-                    return groupId + "!" + artifact + "!" + version;
+                    return make(groupId, artifact, version, "").getAuthority();
                 }
                 else {
                     // it was not a main artifact because the file names don't line up
@@ -296,7 +297,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     public static ISourceLocation make(String groupId, String artifactId, String version, String path) {
-        return URIUtil.correctLocation("mvn", groupId + "--" + artifactId + "--" + version, path);
+        return URIUtil.correctLocation("mvn", groupId + GROUP_ARTIFACT_VERSION_SEPARATOR + artifactId + GROUP_ARTIFACT_VERSION_SEPARATOR + version, path);
     }
 
     /** 
