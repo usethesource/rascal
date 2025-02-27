@@ -387,7 +387,7 @@ public class IO {
                 }
                 @Override
                 public IValue visitSourceLocation(Type type) throws RuntimeException {
-                    return values.sourceLocation(URIUtil.invalidURI());
+                    return URIUtil.unknownLocation();
                 }
                 @Override
                 public IValue visitString(Type type) throws RuntimeException {
