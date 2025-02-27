@@ -83,7 +83,6 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     private final URIResolverRegistry reg;
     
     public MavenRepositoryURIResolver(URIResolverRegistry reg) throws IOException, URISyntaxException {
-        super();
         this.reg = reg;
     }
 
@@ -132,12 +131,12 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 "help:evaluate",
                 "-Dexpression=settings.localRepository",
                 "-Doutput=" + tempFile
-               ), null /* no current pom.xml file */, tempFile);
+                ), null /* no current pom.xml file */, tempFile);
             
-               
-            try (var reader = new BufferedReader(new FileReader(tempFile.toString()))) {
-                return reader.lines().collect(Collectors.joining()).trim(); 
-            }
+                
+            try (Stream<String> lines = Files.lines(Paths.get(tempFile.toString()))) {
+                return lines.collect(Collectors.joining()).trim(); 
+            }    
         }
         catch (IOException e) {
             // it's ok to fail. that just happens.
@@ -150,7 +149,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * @return        a file:/// reference to the jar file that is designated by the authority.
      * @throws IOException when the authority does not designate a jar file
      */
-    private ISourceLocation resolveOutside(ISourceLocation input) throws IOException {
+    private ISourceLocation resolveJar(ISourceLocation input) throws IOException {
         String authority = input.getAuthority();
 
         if (authority.isEmpty()) {
@@ -186,7 +185,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     private ISourceLocation resolveInside(ISourceLocation input) throws IOException {
-        var jarLocation = resolveOutside(input);
+        var jarLocation = resolveJar(input);
         return URIUtil.getChildLocation(JarURIResolver.jarify(jarLocation), input.getPath());
     }
 
@@ -194,7 +193,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
         // we simply request a classloader for the entire jar file, which will produce
         // eventually one indexed URLClassLoader for all constituents of a classpath
-        return reg.getClassLoader(resolveOutside(loc), parent);
+        return reg.getClassLoader(resolveJar(loc), parent);
     }
 
     @Override
