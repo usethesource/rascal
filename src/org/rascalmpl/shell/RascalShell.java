@@ -22,19 +22,12 @@ import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.jline.utils.OSUtils;
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 
 public class RascalShell  {
 
-    private static void printVersionNumber(){
-        System.err.println("Version: " + RascalManifest.getRascalVersionNumber());
-    }
-
     public static void main(String[] args) throws IOException {
-        checkOutdatedEclipseContext();
-        printVersionNumber();
         checkIfHelp(args);
 
         var term = connectToTerminal();
@@ -70,12 +63,6 @@ public class RascalShell  {
             System.err.println("\ttry also the --help options of the respective commands.");
             System.err.println("\tjava -jar rascal-version.jar [Module]: runs the main function of the module using the interpreter");
             System.exit(0);
-        }
-    }
-
-    private static void checkOutdatedEclipseContext() {
-        if (System.getProperty("__ECLIPSE_CONNECTION") != null) {
-            System.err.println("*** Warning, this REPL has limited functionality in the deprecated Rascal Eclipse extension");
         }
     }
 

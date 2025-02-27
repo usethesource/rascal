@@ -19,7 +19,6 @@ package org.rascalmpl.interpreter;
 
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Stack;
 

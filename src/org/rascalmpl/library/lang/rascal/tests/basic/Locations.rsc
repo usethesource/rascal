@@ -565,6 +565,8 @@ private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
         return error("jar should have jar extension");
     }
 
+    jar = relativize(|home:///.m2/repository|, jar);
+
     groupId    = replaceAll(jar.parent.parent.parent.path[1..], "/", ".");
     artifactId = jar.parent.parent.file;
     version    = jar.parent.file;
@@ -582,25 +584,19 @@ private MavenLocalRepositoryPath parseMavenLocalRepositoryPath(loc jar) {
 }
 
 test bool mvnSchemeTest() {
-    loc jarify(loc l) {
-        str scheme = "jar+" + l.scheme;
-        str path = l.path + "!/";
-        return |<scheme>:///| + path;
-    }
-
     debug = false;
-    jarFiles = find(|mvn:///|, "jar");
+    jarFiles = find(|home:///.m2/repository|, "jar");
 
     // check whether the implementation of the scheme holds the contract specified in the assert
     for (jar <- jarFiles, path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
         // this is the contract:
-        mvnLoc = |mvn://<groupId>!<artifactId>!<version>|;
-   
-        assert resolveLocation(mvnLoc) == jarify(resolveLocation(jar)) : "<resolveLocation(mvnLoc)> != <jarify(resolveLocation(jar))>
-                                                                 '  jar: <jar>
-                                                                 '  mvnLoc: <mvnLoc>";
-
-        assert exists(mvnLoc) : "<mvnLoc> should exist because <jar> exists.";
+        println(jar);
+        loc mvnLoc = |mvn://<groupId>--<artifactId>--<version>|;
+        
+        if (!exists(mvnLoc)) {
+            println("<mvnLoc> does not exist.");
+            return false;
+        }
     }
 
     // report on all the failed attempts

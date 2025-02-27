@@ -1,7 +1,5 @@
 package org.rascalmpl.uri.file;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -27,7 +25,7 @@ import io.usethesource.vallang.ISourceLocation;
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
  * For a discussion REMOTE repositories see below.
  * 
- * We use `mvn://<groupid>!<name>!<version>/<path-inside-jar>` as the scheme;
+ * We use `mvn://<groupid>--<name>--<version>/<path-inside-jar>` as the scheme;
  * 
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file. This is analogous to other schemes for projects
@@ -37,7 +35,7 @@ import io.usethesource.vallang.ISourceLocation;
  * Here `version` is an arbitrary string with lots of numbers, dots, dashed and underscores.
  * Typically we'd expect the semantic versioning scheme here with some release tag, but
  * real maven projects frequently do not adhere to that standard. Hence we have to be "free"
- * here and allow lots of funny version strings. This is also why we use ! again to separate
+ * here and allow lots of funny version strings. This is also why we use -- to separate
  * the version from the artifactId.
  * 
  * Locations with the `mvn` scheme are typically produced by configuration code that uses 
@@ -120,7 +118,8 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     /**
      * This (slow) code runs only if the ~/.m2 folder does not exist and nobody -D'ed its location either.
      * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
-     * get a quick enough answer most of the time.
+     * get a quick enough answer most of the time. It caches its result to make sure repeated calls
+     * to here are faster than the first.
      */
     private static String getLocalRepositoryLocationFromMavenCommand() {
         try {
@@ -156,7 +155,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             throw new IOException("missing mvn://groupid!artifactId!version/ as the authority in " + input);
         }
 
-        var parts = authority.split("!");
+        var parts = authority.split("--");
 
         if (parts.length == 3) {
             String group = parts[0];
@@ -294,5 +293,44 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     @Override
     public boolean supportsHost() {
         return false;
+    }
+
+    public static ISourceLocation make(String groupId, String artifactId, String version, String path) {
+        return URIUtil.correctLocation("mvn", groupId + "--" + artifactId + "--" + version, path);
+    }
+
+    /** 
+     * Shortens a location of a jar file that points into a local maven repository, and
+     * leaves all other locations as-is.
+     * */
+    public static ISourceLocation mavenize(ISourceLocation loc) {
+        try {
+            // the registry may not have been initialized yet.
+            loc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().logicalToPhysical(loc) : loc;
+
+            if (!URIUtil.getExtension(loc).equals("jar")) {
+                return loc;
+            }
+
+            ISourceLocation repo = inferMavenRepositoryLocation();
+            ISourceLocation relative = URIUtil.relativize(repo, loc);
+            boolean isFileInRepo = loc.getScheme().equals("file") && relative.getScheme().equals("relative");  
+
+            if (isFileInRepo) { 
+                relative = URIUtil.getParentLocation(relative);
+                String version    = URIUtil.getLocationName(relative);
+                relative = URIUtil.getParentLocation(relative);
+                String artifactId = URIUtil.getLocationName(relative);
+                relative = URIUtil.getParentLocation(relative);
+                String groupId    = relative.getPath().substring(1).replaceAll("/", ".");
+            
+                return make(groupId, artifactId, version, "");
+            }
+
+            return loc;
+        }
+        catch (IOException | URISyntaxException e) {
+            return loc;
+        }
     }
 }
