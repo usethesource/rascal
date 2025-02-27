@@ -4,14 +4,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,9 +27,7 @@ import io.usethesource.vallang.ISourceLocation;
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
  * For a discussion REMOTE repositories see below.
  * 
- * We use `mvn://<groupid>!<name>!<version>/<path-inside-jar>` as the general scheme;
- * also `mvn://<groupid>!<name>!<version>/!/<path-inside-jar>` is allowed to make sure the
- * root `mvn://<groupid>!<name>!<version>/` remains a jar file unambiguously.
+ * We use `mvn://<groupid>!<name>!<version>/<path-inside-jar>` as the scheme;
  * 
  * So the authority encodes the identity of the maven project and the path encodes
  * what's inside the respective jar file. This is analogous to other schemes for projects
@@ -50,12 +46,8 @@ import io.usethesource.vallang.ISourceLocation;
  * short-hand for an absolute `file:///` location that points into the (deeply nested)
  * .m2 local repository. The prime benefits are:
  *    1. much shorter location than `file:///`
- *    2. full transparency, more so than `lib:///`
- *    3. unique identification, modulo the (configured) location of the local repository.
- * 
- * It is a logical resolver in order to allow for short names for frequently
- * occurring paths, without loss of transparancy. We always know which jar file is meant,
- * and the encoding is (almost) one-to-one. 
+ *    2. full referential transparency, more so than `lib:///`
+ *    3. unique identification, modulo the (configured) location of the local repository. 
  * 
  * This resolver does NOT find the "latest" version or any version of a package without an explicit
  * version reference in the authority pattern, by design. Any automated resolution here would
@@ -268,7 +260,8 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     private String[] listAllMainArtifacts() throws IOException {
         try (Stream<Path> files = Files.walk(Paths.get(root.getPath()))) {
             return files.filter(f -> FileNameUtils.getExtension(f).equals("jar"))
-            // drop -sources and -javadoc
+            .filter(f -> !f.toString().endsWith("-sources"))
+            .filter(f -> !f.toString().endsWith("-javadoc"))
             .map(f -> {
                 var fl = URIUtil.correctLocation("file", "", f.toString());
                 var parent = URIUtil.getParentLocation(fl);
