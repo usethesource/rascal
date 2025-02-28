@@ -211,7 +211,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     tplFile = endsWith(modulePath, "tpl");
     
     if(!( rscFile || tplFile )){
-        throw "Not a Rascal .src or .tpl file: <moduleLoc>";
+        throw "Not a Rascal .rsc or .tpl file: <moduleLoc>";
     }
     
     // Find matching .rsc file in source directories
