@@ -217,7 +217,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     // Find matching .rsc file in source directories
     if(rscFile){
         for(loc dir <- pcfg.srcs){
-            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path)) {
+            if(moduleLoc.authority == dir.authority && startsWith(modulePath, dir.path) && exists(moduleLoc)){
                 moduleName = replaceFirst(modulePath, dir.path, "");
                 <moduleName, ext> = splitFileExtension(moduleName);
                 if(moduleName[0] == "/"){
