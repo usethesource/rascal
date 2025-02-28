@@ -564,7 +564,7 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
 data ModuleMessages = program(loc src, set[Message] messages);
 
 list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
-    pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+    pcfg1 = compilerConfig.typepalPathConfig;
     compilerConfig.typepalPathConfig = pcfg1;
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
     messagesNoModule = {};
