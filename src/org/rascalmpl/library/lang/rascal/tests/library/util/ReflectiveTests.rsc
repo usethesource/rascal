@@ -21,7 +21,7 @@ test bool cs5() = commonSuffix(["a", "b", "c"], ["a", "b", "c"]) == 3;
 test bool cs6() = commonSuffix(["a", "b", "c"], ["z", "a", "b", "c"]) == 3;
 test bool cs7() = commonSuffix(["a", "b", "c"], ["a", "b", "d"]) == 0;
 
-test bool moduleExceptionWithAsSrc() {
+test bool moduleExceptionWithSrc() {
     pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|]);
     return getModuleName(|project://rascal/src/org/rascalmpl/library/Exception.rsc|, pcfg) 
             == "Exception";
@@ -66,4 +66,15 @@ test bool longestModuleReflectiveOnlyTpl() {
                      );
     return getModuleName(|project://rascal/src/org/rascalmpl/library/util/Reflective.rsc|, pcfg) 
             == "util::Reflective";
+}
+
+
+test bool moduleOnlyInSecondSrc(){
+  testLibrarySrc = testLibraryLoc + "src/org/rascalmpl/library/";
+  writeFile(testLibrarySrc + "E.rsc",
+        "module E");
+
+   pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|, testLibrarySrc]);
+   return getModuleName(testLibraryLoc + "E", pcfg) 
+            == "E";
 }
