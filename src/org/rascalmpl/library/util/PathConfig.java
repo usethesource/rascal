@@ -644,7 +644,7 @@ public class PathConfig {
         }
 
         try {
-            addRascalToSourcePath(projectName, srcsWriter);
+            addRascalToSourcePath(projectName, srcsWriter, mode);
         } 
         catch (IOException e) {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
@@ -695,9 +695,11 @@ public class PathConfig {
      * one of the following is the case: (a) the current `rascal` can't be
      * resolved; (b) the TypePal jar isn't on the class path.
      */
-    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter) throws IOException {
+    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter, RascalConfigMode mode) throws IOException {
         // General case
-        srcsWriter.append(URIUtil.rootLocation("std"));
+        if (mode == RascalConfigMode.INTERPRETER) {
+            srcsWriter.append(URIUtil.rootLocation("std"));
+        }
 
         // Special case for the rascal project
         if (projectName.equals("rascal")) {
