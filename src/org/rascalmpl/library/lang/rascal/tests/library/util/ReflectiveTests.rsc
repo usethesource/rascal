@@ -71,10 +71,11 @@ test bool longestModuleReflectiveOnlyTpl() {
 
 test bool moduleOnlyInSecondSrc(){
   testLibrarySrc = testLibraryLoc + "src/org/rascalmpl/library/";
-  writeFile(testLibrarySrc + "E.rsc",
-        "module E");
+  ESrc = testLibrarySrc + "E.rsc";
+  println("moduleOnlyInSecondSrc: <ESrc>");
+  writeFile(ESrc,  "module E");
 
    pcfg = pathConfig(srcs=[|project://rascal/src/org/rascalmpl/library/|, testLibrarySrc]);
-   return getModuleName(testLibraryLoc + "E", pcfg) 
+   return getModuleName(ESrc, pcfg) 
             == "E";
 }
