@@ -470,17 +470,6 @@ public class PathConfig {
             messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
         }
 
-        if (!projectName.equals("rascal")) {
-            // always add the standard library but not for the project named "rascal"
-            // which contains the source of the standard library
-            try {
-                libsWriter.append(resolveCurrentRascalRuntimeJar());
-            }
-            catch (IOException e) {
-                messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
-            }
-        }
-
         ISourceLocation target = URIUtil.correctLocation("target", projectName, "");
         ISourceLocation generatedSources = URIUtil.correctLocation("project", projectName, "target/generatedSources");
 
