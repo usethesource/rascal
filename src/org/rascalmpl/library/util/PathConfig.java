@@ -548,7 +548,12 @@ public class PathConfig {
                         }
 
                         // libraries are transitively collected, including their target folders
-                        libsWriter.appendAll(childConfig.getLibsAndTarget());
+                        libsWriter.appendAll(childConfig.getLibsAndTarget().stream()
+                            .map(ISourceLocation.class::cast)
+                            .map(MavenRepositoryURIResolver::mavenize)
+                            .map(JarURIResolver::jarify)
+                            .collect(vf.listWriter())
+                        );
 
                         // error messages are transitively collected
                         messages.appendAll(childConfig.getMessages());
@@ -564,7 +569,7 @@ public class PathConfig {
                         else {
                             switch (mode) {
                                 case COMPILER:
-                                    libsWriter.append(dep);
+                                    libsWriter.append(JarURIResolver.jarify(dep));
                                     break;
                                 case INTERPRETER:
                                     libsWriter.append(dep);
@@ -597,7 +602,7 @@ public class PathConfig {
                 // have a dependency on the rascal project we don't add it here either.
                 var rascalLib = resolveCurrentRascalRuntimeJar();
                 messages.append(Messages.info("Effective Rascal library: " + rascalLib, getPomXmlLocation(manifestRoot)));
-                libsWriter.append(rascalLib);
+                libsWriter.append(JarURIResolver.jarify(rascalLib));
             }
             else if (projectName.equals("rascal")) {
                 messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
