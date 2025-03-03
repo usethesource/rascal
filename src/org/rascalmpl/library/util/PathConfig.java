@@ -650,6 +650,9 @@ public class PathConfig {
 
         try {
             addRascalToSourcePath(projectName, srcsWriter, mode);
+            if (mode == RascalConfigMode.COMPILER) {
+                addRascalToLibraryPath(projectName, libsWriter);
+            }
         } 
         catch (IOException e) {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
@@ -718,12 +721,27 @@ public class PathConfig {
         // Special case for the rascal-lsp project
         // `rascal` or `typepal` isn't open in the workspace, then use the current `rascal` and the TypePal jar on the class path
         // TODO: rascal-lsp should probably have a real dependency on typepal. 
-        else if (projectName.equals("rascal-lsp")) {
+        else if (projectName.equals("rascal-lsp") && mode == RascalConfigMode.INTERPRETER) {
                 var deployedRascal = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
                 var deployedTypepal = JarURIResolver.jarify(PathConfig.resolveProjectOnClasspath("typepal"));
                 srcsWriter.append(URIUtil.getChildLocation(deployedRascal, "org/rascalmpl/compiler"));
+                // TODO figure out if this is needed, as rascal-lsp depends on typepal expliciatly in the pom.xml
                 srcsWriter.append(URIUtil.getChildLocation(deployedTypepal, "src"));
         }
+    }
+
+    /**
+     * Only called for the compiler, to add rascal library to the lib path, and special cases for rascal project and rascal-lsp project
+     * @param projectName
+     * @param libsWriter
+     * @throws IOException
+     */
+    private static void addRascalToLibraryPath(String projectName, IListWriter libsWriter) throws IOException {
+        if (!projectName.equals("rascal")) {
+            libsWriter.append(URIUtil.rootLocation("std"));
+        }
+        // TODO: once we bundle tpls for rascal compiler (maybe in a different jar than the rascal jar itself?)
+        // we add a case here for adding those tpls on the path for `rascal-lsp`
     }
 
 
