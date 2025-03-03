@@ -804,8 +804,7 @@ public class PathConfig {
      */
 	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
         try {
-            var tempFile = Maven.getTempFile("classpath");
-            var mavenOutput = Maven.runCommand(List.of("--quiet", "org.apache.maven.plugins:maven-dependency-plugin:3.8.1:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot, tempFile);
+            var mavenOutput = Maven.runCommand(tempFile -> List.of("--quiet", "org.apache.maven.plugins:maven-dependency-plugin:3.8.1:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot);
 
             // The classpath will be written to the temp file on a single line
             return Arrays.stream(mavenOutput.get(0).split(File.pathSeparator))
@@ -823,7 +822,7 @@ public class PathConfig {
                 .filter(x -> x != null) // Objects.nonNull is probably from a higher java version?
                 .collect(vf.listWriter());
         }
-        catch (IOException | RuntimeException e) {
+        catch (RuntimeException e) {
             return vf.list();
         }
     }
