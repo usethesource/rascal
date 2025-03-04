@@ -578,6 +578,52 @@ list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
     return check(toList(find(root, "rsc")), compilerConfig);
 }
 
+@synopsis{General commandline interface to the Rascal static checker}
+@benefits{
+* The keyword fields of the main function generated commandline options, like `-libs` and `-srcs`
+}
+@pitfalls{
+* This interface is a strong stable contract between the checker and the rascal-maven-plugin. If 
+we remove or rename keyword fields here, then they the client code must be adapted as well.
+}
+int main(
+    list[loc] modules    = [],  // dirty modules to check 
+    list[loc] libs       = [],  // external (binary) dependencies
+    list[loc] srcs       = [],  // source folders
+    list[loc] ignores    = [],  // source folders and source modules to skip (if possible)
+    loc bin              = |unknown:///|,   // target folder for .tpl files
+    bool logPathConfig            = false,
+    bool logImports               = false
+    bool verbose                  = false,
+    bool logWrittenFiles          = false,
+    bool warnUnused               = true,
+    bool warnUnusedFormals        = true,
+    bool warnUnusedVariables      = true,
+    bool warnUnusedPatternFormals = true,
+    bool infoModuleChecked        = false
+) {
+    pcfg = pathConfig(
+        srcs             = srcs,
+        libs             = libs,
+        bin              = bin, // not used by checker but must be set
+        resources        = bin, // where .tpl files will go
+        generatedSources = bin, // not used by checker but must be set
+    );
+
+    rascalConfig = rascalCompilerConfig(pcfg,
+        logPathConfig            = logPathConfig,
+        verbose                  = verbose,
+        logWrittenFiles          = logWrittenFiles,
+        warnUnused               = warnUnused,
+        warnUnusedFormals        = warnUnusedFormals,
+        warnUnusedVariables      = warnUnusedVariables,
+        warnUnusedPatternFormals = warnUnusedPatternFormals,
+        infoModuleChecked        = infoModuleChecked
+    );
+        
+    messages = check(modules, rascalConfig);
+}
+
 // ---- Convenience check function during development -------------------------
 
 map[str, list[Message]] checkModules(list[str] moduleNames, RascalCompilerConfig compilerConfig) {
