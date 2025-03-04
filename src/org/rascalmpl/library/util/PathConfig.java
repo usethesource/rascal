@@ -470,17 +470,6 @@ public class PathConfig {
             messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
         }
 
-        if (!projectName.equals("rascal")) {
-            // always add the standard library but not for the project named "rascal"
-            // which contains the source of the standard library
-            try {
-                libsWriter.append(resolveCurrentRascalRuntimeJar());
-            }
-            catch (IOException e) {
-                messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
-            }
-        }
-
         ISourceLocation target = URIUtil.correctLocation("target", projectName, "");
         ISourceLocation generatedSources = URIUtil.correctLocation("project", projectName, "target/generatedSources");
 
@@ -548,7 +537,12 @@ public class PathConfig {
                         }
 
                         // libraries are transitively collected, including their target folders
-                        libsWriter.appendAll(childConfig.getLibsAndTarget());
+                        libsWriter.appendAll(childConfig.getLibsAndTarget().stream()
+                            .map(ISourceLocation.class::cast)
+                            .map(MavenRepositoryURIResolver::mavenize)
+                            .map(JarURIResolver::jarify)
+                            .collect(vf.listWriter())
+                        );
 
                         // error messages are transitively collected
                         messages.appendAll(childConfig.getMessages());
@@ -564,7 +558,7 @@ public class PathConfig {
                         else {
                             switch (mode) {
                                 case COMPILER:
-                                    libsWriter.append(dep);
+                                    libsWriter.append(JarURIResolver.jarify(dep));
                                     break;
                                 case INTERPRETER:
                                     libsWriter.append(dep);
@@ -597,7 +591,7 @@ public class PathConfig {
                 // have a dependency on the rascal project we don't add it here either.
                 var rascalLib = resolveCurrentRascalRuntimeJar();
                 messages.append(Messages.info("Effective Rascal library: " + rascalLib, getPomXmlLocation(manifestRoot)));
-                libsWriter.append(rascalLib);
+                libsWriter.append(JarURIResolver.jarify(rascalLib));
             }
             else if (projectName.equals("rascal")) {
                 messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
@@ -644,7 +638,10 @@ public class PathConfig {
         }
 
         try {
-            addRascalToSourcePath(projectName, srcsWriter);
+            addRascalToSourcePath(projectName, srcsWriter, mode);
+            if (mode == RascalConfigMode.COMPILER) {
+                addRascalToLibraryPath(projectName, libsWriter);
+            }
         } 
         catch (IOException e) {
             messages.append(Messages.error(e.getMessage(), getRascalMfLocation(manifestRoot)));
@@ -695,9 +692,11 @@ public class PathConfig {
      * one of the following is the case: (a) the current `rascal` can't be
      * resolved; (b) the TypePal jar isn't on the class path.
      */
-    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter) throws IOException {
+    private static void addRascalToSourcePath(String projectName, IListWriter srcsWriter, RascalConfigMode mode) throws IOException {
         // General case
-        srcsWriter.append(URIUtil.rootLocation("std"));
+        if (mode == RascalConfigMode.INTERPRETER) {
+            srcsWriter.append(URIUtil.rootLocation("std"));
+        }
 
         // Special case for the rascal project
         if (projectName.equals("rascal")) {
@@ -711,12 +710,27 @@ public class PathConfig {
         // Special case for the rascal-lsp project
         // `rascal` or `typepal` isn't open in the workspace, then use the current `rascal` and the TypePal jar on the class path
         // TODO: rascal-lsp should probably have a real dependency on typepal. 
-        else if (projectName.equals("rascal-lsp")) {
+        else if (projectName.equals("rascal-lsp") && mode == RascalConfigMode.INTERPRETER) {
                 var deployedRascal = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
                 var deployedTypepal = JarURIResolver.jarify(PathConfig.resolveProjectOnClasspath("typepal"));
                 srcsWriter.append(URIUtil.getChildLocation(deployedRascal, "org/rascalmpl/compiler"));
+                // TODO figure out if this is needed, as rascal-lsp depends on typepal expliciatly in the pom.xml
                 srcsWriter.append(URIUtil.getChildLocation(deployedTypepal, "src"));
         }
+    }
+
+    /**
+     * Only called for the compiler, to add rascal library to the lib path, and special cases for rascal project and rascal-lsp project
+     * @param projectName
+     * @param libsWriter
+     * @throws IOException
+     */
+    private static void addRascalToLibraryPath(String projectName, IListWriter libsWriter) throws IOException {
+        if (!projectName.equals("rascal")) {
+            libsWriter.append(URIUtil.rootLocation("std"));
+        }
+        // TODO: once we bundle tpls for rascal compiler (maybe in a different jar than the rascal jar itself?)
+        // we add a case here for adding those tpls on the path for `rascal-lsp`
     }
 
 
