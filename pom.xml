@@ -61,7 +61,6 @@
                 <directory>.</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>plugin.xml</include>
                     <include>META-INF/RASCAL.MF</include>
                     <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
