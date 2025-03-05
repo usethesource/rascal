@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC14-SNAPSHOT</version>
+    <version>0.41.0-RC15-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -61,7 +61,6 @@
                 <directory>.</directory>
                 <filtering>false</filtering>
                 <includes>
-                    <include>plugin.xml</include>
                     <include>META-INF/RASCAL.MF</include>
                     <include>rascal-DEPENDENCIES.txt</include>
                 </includes>
@@ -223,7 +222,7 @@
                 <version>3.5.2</version>
                 <executions>
                     <execution>
-                        <id>test</id>
+                        <id>default-test</id>
                         <phase>test</phase>
                         <goals>
                             <goal>test</goal>
@@ -413,12 +412,6 @@
     </build>
 
     <dependencies>
-        <!-- Repackaged Eclipse Dependencies -->
-        <dependency>
-            <groupId>org.rascalmpl</groupId>
-            <artifactId>rascal-p2-dependencies-repackaged</artifactId>
-            <version>0.6.0</version>
-        </dependency>
         <!-- Bootstrap dependency on typepal -->
         <dependency>
             <groupId>org.rascalmpl</groupId>
@@ -437,16 +430,6 @@
             <groupId>io.usethesource</groupId>
             <artifactId>vallang</artifactId>
             <version>1.0.0-RC15</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>9.6</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-tree</artifactId>
-            <version>9.6</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -553,6 +536,16 @@
             <artifactId>maven-core</artifactId>
             <version>${maven-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-transport-http</artifactId>
+            <version>1.9.22</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-connector-basic</artifactId>
+            <version>1.9.22</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -580,6 +573,33 @@
                         <artifactId>license-maven-plugin</artifactId>
                         <configuration>
                             <skipDownloadLicenses>true</skipDownloadLicenses>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>compiler-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <executions>
+                            <execution><id>default-test</id><phase>none</phase></execution> <!-- disable regular test run -->
+                            <execution>
+                                <id>test-compiler-tests</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <includes>
+                                <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
+                                <include>**/org/rascalmpl/compiler/**/*Test.java</include>
+                            </includes>
                         </configuration>
                     </plugin>
                 </plugins>
