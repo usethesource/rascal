@@ -425,8 +425,7 @@ public class PathConfig {
     /**
      * Configure paths for the rascal project itself, so if someone has rascal open in their IDE for example, or is starting a REPL for rascal
      */
-    private static void buildRascalConfig(RascalConfigMode mode, IList mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) {
-        var workspaceRascal = URIUtil.correctLocation("project", "rascal", "");
+    private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, IList mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) {
         if (mode == RascalConfigMode.INTERPRETER) {
             // we do not want to build an evaluator that gets to the rascal source that a user changed
             // as we cannot guarantee that the java runtime classes will match up
@@ -652,7 +651,7 @@ public class PathConfig {
 
             if (projectName.equals("rascal")) {
                 messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
-                buildRascalConfig(mode, mavenClasspath, srcsWriter, libsWriter, messages);
+                buildRascalConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
             }
             else if (projectName.equals("rascal-lsp")) {
                 buildRascalLSPConfig(manifestRoot, mode, mavenClasspath, srcsWriter, libsWriter, messages);
