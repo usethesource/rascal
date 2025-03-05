@@ -469,20 +469,19 @@ public class PathConfig {
      * Configure paths for the rascal-lsp project when it's open in the IDE (the runtime inside rascal-lsp is not configured here)
      */
     private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, IList mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        var manifest = new RascalManifest();
-
         // for typepal we'll follow the pom.xml, but for the rest we'll (for now) follow the runtime dependencies
         // until we go pom.xml is leading path
         var typepalDependency = mavenClasspath.stream()
             .map(ISourceLocation.class::cast)
-            .filter(l -> manifest.getManifestProjectName(manifest.manifest(l)).equals("typepal"))
+            .filter(l -> new RascalManifest().getProjectName(l).equals("typepal"))
+            .map(MavenRepositoryURIResolver::mavenize)
+            .map(JarURIResolver::jarify)
             .findFirst();
 
         if (!typepalDependency.isPresent()) {
             messages.append(Messages.error("Did not find a typepal dependency", manifestRoot));
             return;
         }
-        var typepal = JarURIResolver.jarify(typepalDependency.get());
 
         var rascalCompiler = URIUtil.getChildLocation(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar()), "org/rascalmpl/compiler");
 
@@ -492,11 +491,11 @@ public class PathConfig {
             // most stuff flows from the
             srcs.append(URIUtil.rootLocation("std"));
             srcs.append(rascalCompiler);
-            srcs.append(typepal);
+            srcs.append(typepalDependency.get());
         }
         else {
             libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar()));
-            libs.append(typepal);
+            libs.append(typepalDependency.get());
             // while it's tempting to see if the rascal project is there, and we might be able to get the rascal compiler tpls from the target folder.
             // as long as we're hard wiring the rascal compler to follow the runtime
             // we have to let the type-checker for rascal-lsp re-type-check rascal compiler
