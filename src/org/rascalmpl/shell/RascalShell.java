@@ -46,7 +46,7 @@ public class RascalShell  {
         runner.run(args);
     }
 
-    private static Terminal connectToTerminal() throws IOException {
+    public static Terminal connectToTerminal() throws IOException {
         setupJavaProcessForREPL();
         var termBuilder = TerminalBuilder.builder();
         if (OSUtils.IS_WINDOWS) {
