@@ -57,6 +57,7 @@ public class RascalReplServices implements IREPLService {
     private final IRascalLanguageProtocol lang;
     private final @Nullable Path historyFile;
 
+    private final RascalLineParser lineParser;
     private boolean unicodeSupported = false;
     private boolean ansiSupported = false;
     private Terminal term;
@@ -70,7 +71,8 @@ public class RascalReplServices implements IREPLService {
     
 
     public RascalReplServices(IRascalLanguageProtocol lang, @Nullable Path historyFile) {
-        this.lang=  lang;
+        this.lang = lang;
+        this.lineParser = new RascalLineParser(lang::parseCommand);
         this.historyFile = historyFile;
     }
 
@@ -100,7 +102,7 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public Parser inputParser() {
-        return new RascalLineParser(lang::parseCommand);
+        return lineParser;
     }
 
     @Override
@@ -121,7 +123,7 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public String prompt(boolean ansiColorsSupported, boolean unicodeSupported) {
-        String prompt = "rascal>";
+        String prompt = lineParser.needsContinuation() ? ">>>>>>>" : "rascal>";
 
         if (ansiColorsSupported) {
             return Ansi.ansi()
