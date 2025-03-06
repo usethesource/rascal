@@ -587,8 +587,8 @@ list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
 we remove or rename keyword fields here, then they the client code must be adapted as well.
 }
 int main(
-    list[loc] modules    = [],  // dirty modules to check 
-    PathConfig pcfg = getProjectPathConfig(|cwd:///|),
+    list[loc] modules             = [],  // dirty modules to check 
+    PathConfig pcfg               = getProjectPathConfig(|cwd:///|),
     bool logPathConfig            = false,
     bool logImports               = false,
     bool verbose                  = false,
@@ -613,7 +613,7 @@ int main(
     );
         
     messages = check(modules, rascalConfig);
-    println(messages);
+    println(write(messages));
 
     return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
 }
