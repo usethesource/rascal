@@ -61,7 +61,7 @@ This filter removes error trees until no ambiguities caused by error recovery ar
 Note that regular ambiguous trees remain in the parse forest unless `allowAmbiguity` is set to false in which case an error is thrown.
 This method uses simple and somewhat arbitrary heuristics, so its usefulness is limited.
 }
-java Tree disambiguateParseErrors(Tree t, bool allowAmbiguity=true);
+java &T<:Tree disambiguateParseErrors(&T<:Tree t, bool allowAmbiguity=true);
 
 @synopsis{Disambiguate the error ambiguities in a tree and return the list of remaining errors. 
 The list is created by an outermost visit of the parse tree so if an error tree contains other errors the outermost tree is returned first.
