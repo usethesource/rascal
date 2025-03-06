@@ -13,6 +13,7 @@ module util::Monitor
 
 import util::Math;
 import IO;
+import Exception;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -74,7 +75,7 @@ with a parameterized workload and the same label as the job name.
 &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block((str message, int worked) { 
+    return block(void (str message, int worked) { 
       jobStep(label, message, work=worked);
     });
   }
@@ -101,7 +102,7 @@ with a parameterized workload and the same label as the job name.
 &T job(str label, &T (void (int worked) step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block((int worked) { 
+    return block(void (int worked) { 
       jobStep(label, label, work=worked);
     });
   }
@@ -111,6 +112,11 @@ with a parameterized workload and the same label as the job name.
   finally {
     jobEnd(label);
   }
+}
+
+@synopsis{Captures accidental void closures to throw a better exception than `CallFailed`}
+(&T<:void) job(str label, (&T<:void) (void (int worked) step) block, int totalWork=1) {
+  throw IllegalArgument(block, "`block` argument can not be used by job because it returns `void` and `job` must return something.");
 }
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}
@@ -128,7 +134,7 @@ with workload `1` and the same label as the job name.
 &T job(str label, &T (void () step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block(() {
+    return block(void () {
       jobStep(label, label, work=1);
     });
   }

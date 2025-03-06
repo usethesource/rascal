@@ -337,9 +337,7 @@ public PathConfig getVSCodePathConfig() {
     pathConfig(
   ignores=[],
   resources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
-  javaCompilerPath=[],
   bin=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/target/classes/|,
-  classloaders=[],
   generatedSources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/generated-sources|,
   libs=[
     |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.41.0-RC10/rascal-0.41.0-RC10.jar!/|,
