@@ -42,11 +42,19 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class PathConfig {
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-    private final TypeFactory tf = TypeFactory.getInstance();
-    private final TypeStore store = new TypeStore();
+    private static final TypeFactory tf = TypeFactory.getInstance();
+    private static final TypeStore store = new TypeStore();
     
     // WARNING: these definitions must reflect the definitions in `util::Reflective`
-    private final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
+    public static final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
+    public static final Map<String, Type> PathConfigFields = Map.of(
+        "srcs", tf.listType(tf.sourceLocationType()),
+        "ignores", tf.listType(tf.sourceLocationType()),
+        "bin", tf.sourceLocationType(),
+        "generatedSources", tf.sourceLocationType(),
+        "libs", tf.listType(tf.sourceLocationType()),
+        "messages", tf.listType(Messages.Message)
+    );
     private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
     
     private final List<ISourceLocation> srcs;		

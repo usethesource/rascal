@@ -21,12 +21,15 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -86,6 +89,8 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
@@ -114,6 +119,7 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
    
@@ -624,13 +630,26 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
 
         for (String kwp : kwTypes.getFieldNames()) {
-            expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
+            var kwtype = kwTypes.getFieldType(kwp);
+
+            if (kwtype == PathConfig.PathConfigType) {
+                // special case for PathConfig unfolds into the respective fields of PathConfig
+                for (String pcfgPar : PathConfig.PathConfigFields.keySet()) {
+                    expectedTypes.put(pcfgPar, PathConfig.PathConfigFields.get(pcfgPar));     
+                }
+    
+                // add project parameter for automatic pathconfig settings
+                expectedTypes.put("project", tf.sourceLocationType());
+            }
+            else {
+                expectedTypes.put(kwp, kwtype);
+            }
         }
 
         Map<String, IValue> params = new HashMap<>();
 
         for (int i = 0; i < commandline.length; i++) {
-            if (commandline[i].equals("-help")) {
+            if (commandline[i].equals("-help") || commandline[i].equals("--help")) {
                 throw new CommandlineError("Help", func);
             }
             else if (commandline[i].startsWith("-")) {
@@ -660,6 +679,18 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
                     throw new CommandlineError("expected option for " + label, func);
                 }
+                else if (expected.isSubtypeOf(tf.listType(tf.sourceLocationType()))) {
+                    if (!commandline[i+1].startsWith("-")) {
+                        i++;
+                        final int pos = i;
+                        String[] pathElems = commandline[++i].trim().split(File.pathSeparator);
+                        IListWriter writer = vf.listWriter();
+                        
+                        Arrays.stream(pathElems).forEach(e -> {
+                            writer.append(parseCommandlineOption(func, tf.sourceLocationType(), commandline[pos]));
+                        });
+                    }
+                }
                 else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
                     IListWriter writer = vf.listWriter();
 
@@ -684,22 +715,70 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
 
+        if (params.get("project") != null) {
+            // we have a project that can use automatic detection of PathConfig parameters.
+            var pcfg = PathConfig.fromSourceProjectRascalManifest((ISourceLocation) params.get("project"), RascalConfigMode.INTERPRETER, true);
+            var cons = pcfg.asConstructor();
+
+            for (Entry<String, Type> entry : PathConfig.PathConfigFields.entrySet()) {
+                if (params.get(entry.getKey()) != null) {
+                    if (entry.getValue() == tf.sourceLocationType()) {
+                        // normal loc fields overwrite the automatic ones (bin, generatedSources)
+                        cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), params.get(entry.getKey()));
+                    }
+                    else {
+                        // list[loc] fields get concatenated (ignores, srcs, libs)
+                        IList param1 = (IList) cons.asWithKeywordParameters().getParameter(entry.getKey());
+                        IList param2 = (IList) params.get(entry.getKey());
+                        cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), param1.concat(param2));
+                    }
+                }
+            }
+        }
+
         return params;
     }
 
     private IValue parseCommandlineOption(AbstractFunction main, Type expected, String option) {
         if (expected.isSubtypeOf(tf.stringType())) {
+            // this accepts anything as a (unquoted, unescaped) string
             return vf.string(option);
         }
-        else {
-            StringReader reader = new StringReader(option);
+        else if (expected.isSubtypeOf(tf.sourceLocationType())) {
+            // locations are for file and folder paths. in 3 different notations
             try {
-                return new StandardTextReader().read(vf, expected, reader);
-            } catch (FactTypeUseException e) {
+                if (option.contains("://")) {
+                    // encoded URI notation
+                    return URIUtil.createFromURI(option.trim());
+                }
+                else if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
+                    // vallang syntax for locs with |scheme:///|
+                    return new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
+                }
+                else {
+                    // OS specific notation for file paths
+                    return URIUtil.createFileLocation(option.trim());
+                }
+            }  
+            catch (FactTypeUseException e) {
                 throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
-            } catch (IOException e) {
+            } 
+            catch (IOException e) {
                 throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
+            }     
+            catch (URISyntaxException e) {
+                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
             }
+        }
+    
+        // otherwise we use the vallang parser:
+        StringReader reader = new StringReader(option);
+        try {
+            return new StandardTextReader().read(vf, expected, reader);
+        } catch (FactTypeUseException e) {
+            throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
+        } catch (IOException e) {
+            throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
         }
     }
 
@@ -741,14 +820,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         return func.call(getMonitor(), types, args, kwArgs).getValue();
     }
-
-    // @Override	
-    // public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
-    //     RascalFunctionValueFactory vf = new RascalFunctionValueFactory(this);
-    //     IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
-
-    //     return (ITree) parser.call(vf.string(new String(input)), location);
-    // }
 
     @Override
     public IConstructor getGrammar(Environment env) {
