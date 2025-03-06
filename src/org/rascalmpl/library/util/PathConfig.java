@@ -427,17 +427,20 @@ public class PathConfig {
      */
     private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, IList mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
         var reg = URIResolverRegistry.getInstance();
-        var typepal = URIUtil.correctLocation("project", "typepal","");
-        if (reg.exists(typepal)) {
+        var typepal = URIUtil.correctLocation("project", "typepal","src");
+        boolean typepalProjectPresent = reg.exists(typepal);
+        if (typepalProjectPresent) {
             // make sure to resolve the typepal location
             // such that in VS Code the full (local) path names are visible
             typepal = reg.logicalToPhysical(typepal);
         }
         else {
-            // we might not be in a VS Code project, but instead running inside of the maven plugin
+            // we might not be in a VS Code project, but instead running inside of the maven/junit plugin
             // so now we have to look at our class path to find typepal
             try {
                 typepal = resolveProjectOnClasspath("typepal");
+                typepal = MavenRepositoryURIResolver.mavenize(typepal);
+                typepal = JarURIResolver.jarify(typepal);
             } catch (FileNotFoundException e) {
                 messages.append(Messages.error("Could not find typepal in local project, rascal compiler will not work", workspaceRascal));
             }
@@ -448,14 +451,18 @@ public class PathConfig {
             // as we cannot guarantee that the java runtime classes will match up
             srcs.append(URIUtil.rootLocation("std"));
             // we know we have a local project with typepal, so lets add that to the source path
-            srcs.append(URIUtil.getChildLocation(typepal, "src/"));
+            srcs.append(typepal);
         }
         else {
             // we want to be able to typecheck / compiler rascal modules that a user is editing in the editor
             assert mode == RascalConfigMode.COMPILER: "should be compiler mode if not interpreter";
             srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
-            // in case you want to typecheck, we assume typepal project has correct 
-            libs.append(URIUtil.correctLocation("target", "typepal", ""));
+            if (typepalProjectPresent) {
+                libs.append(URIUtil.correctLocation("target", "typepal", ""));
+            }
+            else {
+                libs.append(typepal);
+            }
         }
         libs.append(resolveCurrentRascalRuntimeJar()); // add our own jar to the lib path to make sure rascal classes are found
 
