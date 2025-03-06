@@ -588,12 +588,9 @@ we remove or rename keyword fields here, then they the client code must be adapt
 }
 int main(
     list[loc] modules    = [],  // dirty modules to check 
-    list[loc] libs       = [],  // external (binary) dependencies
-    list[loc] srcs       = [],  // source folders
-    list[loc] ignores    = [],  // source folders and source modules to skip (if possible)
-    loc bin              = |unknown:///|,   // target folder for .tpl files
+    PathConfig pcfg = getProjectPathConfig(|cwd:///|),
     bool logPathConfig            = false,
-    bool logImports               = false
+    bool logImports               = false,
     bool verbose                  = false,
     bool logWrittenFiles          = false,
     bool warnUnused               = true,
@@ -602,13 +599,7 @@ int main(
     bool warnUnusedPatternFormals = true,
     bool infoModuleChecked        = false
 ) {
-    pcfg = pathConfig(
-        srcs             = srcs,
-        libs             = libs,
-        bin              = bin, // not used by checker but must be set
-        resources        = bin, // where .tpl files will go
-        generatedSources = bin, // not used by checker but must be set
-    );
+    pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
         logPathConfig            = logPathConfig,
@@ -622,6 +613,9 @@ int main(
     );
         
     messages = check(modules, rascalConfig);
+    println(messages);
+
+    return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
 }
 
 // ---- Convenience check function during development -------------------------
