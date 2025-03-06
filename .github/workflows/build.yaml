@@ -25,7 +25,7 @@ jobs:
           cache: 'maven'
 
       - name: Run Tests
-        run: mvn -B -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
+        run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=14 test
 
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
@@ -65,7 +65,7 @@ jobs:
           cache: 'maven'
 
       - name: Compile & Bootstrap
-        run: mvn -B compile -Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.browser=`which chrome` 
+        run: mvn -B compile -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dwebdriver.chrome.driver=/usr/local/bin/chromedriver -Dwebdriver.chrome.browser=`which chrome` 
         env:
           MAVEN_OPTS: "-Xmx14G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 
@@ -81,6 +81,7 @@ jobs:
             -Drascal.compile.skip
             -Drascal.tutor.skip
             -DskipTests
+            -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 
       - name: Making sure test have succeeded in the parallel jobs
         if: startsWith(github.ref, 'refs/tags/')
@@ -150,7 +151,7 @@ jobs:
 
       - name: Run Tests
         # single quotes to help windows deal with argument splitting
-        run: mvn -B '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=2' test
+        run: mvn -B '-Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn' '-Drascal.compile.skip' '-Drascal.tutor.skip' '-Drascal.test.memory=2' test
 
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
@@ -180,7 +181,7 @@ jobs:
         run: bash src/org/rascalmpl/compiler/lang/rascalcore/check/tests/download-test-jars.sh
 
       - name: Run Tests
-        run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=7 test
+        run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=7 test
 
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build

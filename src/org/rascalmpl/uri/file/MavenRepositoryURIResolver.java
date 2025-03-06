@@ -103,7 +103,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
             // only then we go for the expensive option and retrieve it from maven itself
             String configuredLocation = getLocalRepositoryLocationFromMavenCommand();
 
-            if (configuredLocation != null) {
+            if (configuredLocation != "") {
                 return URIUtil.createFileLocation(configuredLocation);
             }
             
@@ -122,25 +122,14 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * to here are faster than the first.
      */
     private static String getLocalRepositoryLocationFromMavenCommand() {
-        try {
-            var tempFile = Maven.getTempFile("classpath");
-
-            Maven.runCommand(List.of(
-                "-q", 
-                "help:evaluate",
-                "-Dexpression=settings.localRepository",
-                "-Doutput=" + tempFile
-                ), null /* no current pom.xml file */, tempFile);
-            
-                
-            try (Stream<String> lines = Files.lines(Paths.get(tempFile.toString()))) {
-                return lines.collect(Collectors.joining()).trim(); 
-            }    
-        }
-        catch (IOException e) {
-            // it's ok to fail. that just happens.
-            return null;
-        }
+        var mavenOutput = Maven.runCommand(tempFile -> List.of(
+            "-q", 
+            "help:evaluate",
+            "-Dexpression=settings.localRepository",
+            "-Doutput=" + tempFile.toString()
+            ), null /* no current pom.xml file */);
+        
+        return mavenOutput.stream().collect(Collectors.joining()).trim(); 
     }
  
     /** 
