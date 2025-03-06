@@ -427,7 +427,9 @@ public class PathConfig {
      */
     private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, IList mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
         // we want to help rascal devs work on rascal files without having to always open a RascalShell.
-        // note: we except that if you do changes in Java, you won't see them and might get import errors
+        // note: we accept that if you do changes in Java, you won't see them and might get import errors
+        // errors like:  ClassNotFoundException, MethodNotFoundException, ClassInitializationError
+        // If this happens: please use the RascalShell route
         srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
         // add our own jar to the lib path to make sure rascal classes are found 
         libs.append(resolveCurrentRascalRuntimeJar());
