@@ -65,13 +65,10 @@ public class RascalModuleCompletion implements Completer {
         int rootedIndex = word.lastIndexOf("::");
         String moduleRoot = rootedIndex == -1? "": word.substring(0, rootedIndex);
         String modulePrefix = moduleRoot.isEmpty() ? "" : moduleRoot + "::";
-        List<String> paths = searchPathLookup.apply(moduleRoot);
-        if (paths != null) {
-            for (var mod : paths) {
-                var fullPath = RascalQualifiedNames.escape(modulePrefix + mod);
-                var isFullModulePath = !mod.endsWith("::");
-                candidates.add(new Candidate(fullPath + (isFullModulePath & importStatement? ";" : ""), fullPath, "modules", null, null, null, false));
-            }
+        for (var mod : searchPathLookup.apply(moduleRoot)) {
+            var fullPath = RascalQualifiedNames.escape(modulePrefix + mod);
+            var isFullModulePath = !mod.endsWith("::");
+            candidates.add(new Candidate(fullPath + (isFullModulePath & importStatement? ";" : ""), fullPath, "modules", null, null, null, false));
         }
     }
 }
