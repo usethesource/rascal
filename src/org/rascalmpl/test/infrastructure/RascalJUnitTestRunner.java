@@ -100,8 +100,16 @@ public class RascalJUnitTestRunner extends Runner {
         try {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
             
+            
+            System.err.println("Source path:");
             for (IValue path : pcfg.getSrcs()) {
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
+                System.err.println("- " + path);
+            }
+
+            System.err.println("Class loader path:");
+            for (IValue p: pcfg.getLibsAndTarget()) {
+                System.err.println("- " + p);
             }
             
             ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
