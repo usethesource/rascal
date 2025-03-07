@@ -31,7 +31,7 @@ import java.nio.file.Path;
 /* package */ class Util {
     static Path mavenRepository() {
         // TODO: parse settings.xml and figure out the repo
-        return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository");
+        return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository2");
     }
     private Util() {}
 }
