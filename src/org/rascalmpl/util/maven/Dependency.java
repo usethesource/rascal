@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
@@ -121,23 +122,39 @@ public class Dependency {
         return result;
     }
 
-    private static @Nullable List<Dependency> buildDependencies(org.apache.maven.model.Dependency d, IListWriter messages,
+    private static @Nullable List<Dependency> buildDependencies(org.apache.maven.model.Dependency me, IListWriter messages,
         CurrentResolution context) {
         try {
-            var resolvedEntry = context.resolver.resolveModel(d);
-            return Project.parseRepositoryPom(resolvedEntry, context).getDependencies();
+            var resolvedEntry = context.resolver.resolveModel(me);
+            var fullDependencies = Project.parseRepositoryPom(resolvedEntry, context).getDependencies();
+            var exclusions = me.getExclusions();
+            if (exclusions.isEmpty()) {
+                return fullDependencies;
+            }
+            return fullDependencies.stream()
+                .filter(d -> !d.matches(exclusions))
+                .collect(Collectors.toUnmodifiableList());
         } catch (UnresolvableModelException e) {
             var loc = context.pom;
-            var artifactLoc = d.getLocation("artifactId");
+            var artifactLoc = me.getLocation("artifactId");
             if (artifactLoc != null) {
                 loc = IRascalValueFactory.getInstance().sourceLocation(loc , 0, 0, artifactLoc.getLineNumber(), artifactLoc.getColumnNumber(), artifactLoc.getLineNumber(), artifactLoc.getColumnNumber() + 1);
             }
-            messages.append(Messages.warning("I could not resolve dependency in maven repository: " + d.getGroupId() + ":" + d.getArtifactId() + ":" + d.getVersion(), loc));
+            messages.append(Messages.warning("I could not resolve dependency in maven repository: " + me.getGroupId() + ":" + me.getArtifactId() + ":" + me.getVersion(), loc));
             return null;
         }
     }
 
-     @Override
+    private boolean matches(List<Exclusion> exclusions) {
+        for (var ex : exclusions) {
+            if (ex.getGroupId().equals(coordinate.getGroupId()) && ex.getArtifactId().equals(coordinate.getArtifactId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public String toString() {
         return coordinate.toString() + "@" + scope;
     }
