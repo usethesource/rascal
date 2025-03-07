@@ -33,6 +33,9 @@ import org.apache.maven.model.resolution.ModelResolver;
 
 import io.usethesource.vallang.ISourceLocation;
 
+/**
+ * A class to keep track of some state & caches thats usefull to pass around
+ */
 /*package*/ class CurrentResolution {
     final ISourceLocation pom;
     final ModelBuilder builder;
