@@ -28,6 +28,8 @@ public abstract class AbstractCommandlineTool {
      */
     public static void main(String mainModule, String[] sourceFolders, String[] args) {
         try {
+            RascalShell.setupJavaProcessForREPL();
+            
             var term = RascalShell.connectToTerminal();
             var monitor = IRascalMonitor.buildConsoleMonitor(term);
             var err = (monitor instanceof Writer) ?  StreamUtil.generateErrorStream(term, (Writer)monitor) : new PrintWriter(System.err, true);

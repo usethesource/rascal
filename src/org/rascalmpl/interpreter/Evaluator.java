@@ -681,15 +681,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     throw new CommandlineError("expected option for " + label, func);
                 }
                 else if (expected.isSubtypeOf(tf.listType(tf.sourceLocationType()))) {
-                    if (!commandline[i+1].startsWith("-") && commandline[i+1].contains(File.separatorChar + "(?!//)")) {
+                    if (!commandline[i+1].startsWith("-") && commandline[i+1].matches(".*" + File.pathSeparator + "(?!//).*")) {
                         i++;
-                        final int pos = i;
+        
                         // we want to split on ; or : but not on ://
-                        String[] pathElems = commandline[++i].trim().split(File.pathSeparator + "(?!//)");
+                        String[] pathElems = commandline[i].trim().split(File.pathSeparator + "(?!//)");
                         IListWriter writer = vf.listWriter();
                         
                         Arrays.stream(pathElems).forEach(e -> {
-                            writer.append(parseCommandlineOption(func, tf.sourceLocationType(), commandline[pos]));
+                            writer.append(parseCommandlineOption(func, tf.sourceLocationType(), e));
                         });
                     }
                     else {
@@ -822,13 +822,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         else if (expected.isSubtypeOf(tf.sourceLocationType())) {
             // locations are for file and folder paths. in 3 different notations
             try {
-                if (option.contains("://")) {
-                    // encoded URI notation
-                    return URIUtil.createFromURI(option.trim());
-                }
-                else if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
+                if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
                     // vallang syntax for locs with |scheme:///|
                     return new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
+                }
+                else if (option.contains("://")) {
+                    // encoded URI notation
+                    return URIUtil.createFromURI(option.trim());
                 }
                 else {
                     // OS specific notation for file paths
