@@ -28,6 +28,7 @@ package org.rascalmpl.test.util.maven;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -94,6 +95,20 @@ public class MavenResolverTest {
         assertEquals("Vallang should be of right version", "1.0.0-RC15", vallang.getCoordinate().getVersion());
         assertTrue("Vallang should be found/downloaded in the repo", vallang.isFound());
         assertTrue("Vallang should depend on capsule", vallang.getDependencies().stream().anyMatch(d -> d.getCoordinate().getArtifactId().equals("capsule")));
+    }
+
+    @Test
+    public void nestedDependenciesWithParentPomsShouldWork() {
+        var project = parse("multi-module/example-core/pom.xml");
+        var maybeJline3Reader = project.getDependencies().stream()
+            .filter(d -> d.getCoordinate().getArtifactId().equals("jline-reader"))
+            .findFirst();
+        assertTrue("jline3 should be found as a dependency", maybeJline3Reader.isPresent());
+
+        for (var dep: maybeJline3Reader.get().getDependencies()) {
+            assertNotNull("versions should be found for jline-reader dependency: " + dep.getCoordinate().getArtifactId(), dep.getCoordinate().getVersion());
+            assertTrue("we should have been able to download dependency: " + dep.getCoordinate().getArtifactId(), dep.isFound());
+        }
     }
 
     @Test

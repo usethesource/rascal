@@ -142,7 +142,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
                 // we found the pom, now let's download the rest from the same repo
                 if (isTypeJar(local, groupId, artifactId, version)) {
                     var jarFile = local.resolveSibling(String.format("%s-%s.jar", artifactId, version));
-                    if (Files.notExists(jarFile) && !r.download(getUrl(local, groupId, artifactId, version), jarFile, force)) {
+                    if (Files.notExists(jarFile) && !r.download(getUrl(jarFile, groupId, artifactId, version), jarFile, force)) {
                         throw new UnresolvableModelException("Could not download jar from available repositories", groupId, artifactId, version);
                     }
                 }

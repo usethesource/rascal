@@ -29,6 +29,10 @@
           <artifactId>junit</artifactId>
           <scope>test</scope>
         </dependency>
+        <dependency>
+          <groupId>org.jline</groupId>
+          <artifactId>jline-reader</artifactId>
+        </dependency>
       </dependencies>
 
       <build>
