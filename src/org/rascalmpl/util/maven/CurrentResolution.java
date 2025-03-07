@@ -28,7 +28,9 @@ package org.rascalmpl.util.maven;
 
 import java.net.http.HttpClient;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.resolution.ModelResolver;
@@ -45,15 +47,22 @@ import io.usethesource.vallang.ISourceLocation;
     final ModelResolver resolver;
     final Map<ArtifactCoordinate, Dependency> dependencyCache;
     final HttpClient client;
+    final Set<ArtifactCoordinate> cycleDetection;
 
     public CurrentResolution(ModelBuilder builder,
         Map<ArtifactCoordinate, Dependency> dependencyCache, ISourceLocation rootPom, HttpClient client, Path rootRepository) {
+        this(builder, dependencyCache, rootPom, client, rootRepository, new HashSet<>());
+
+    }
+    private CurrentResolution(ModelBuilder builder,
+        Map<ArtifactCoordinate, Dependency> dependencyCache, ISourceLocation rootPom, HttpClient client, Path rootRepository, Set<ArtifactCoordinate> cycleDetection) {
         this.pom = rootPom;
         this.builder = builder;
         this.resolver = new SimpleResolver(rootRepository, builder, client);
         this.dependencyCache = dependencyCache;
         this.rootRepository = rootRepository;
         this.client = client;
+        this.cycleDetection = cycleDetection;
     }
 
     /**
@@ -61,6 +70,6 @@ import io.usethesource.vallang.ISourceLocation;
      * So we have to make a new one.
      */
     CurrentResolution newParse(ISourceLocation pom) {
-        return new CurrentResolution(builder, dependencyCache, pom, client, rootRepository);
+        return new CurrentResolution(builder, dependencyCache, pom, client, rootRepository, cycleDetection);
     }
 }
