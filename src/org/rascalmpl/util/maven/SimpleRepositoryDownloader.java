@@ -53,7 +53,8 @@ import org.apache.maven.model.Repository;
         try {
             var tempFile = Files.createTempFile("maven-download", null);
             try {
-                var req = HttpRequest.newBuilder(new URI(repo.getUrl() + url)).GET().build();
+                var uri = createUri(repo.getUrl(), url);
+                var req = HttpRequest.newBuilder(uri).GET().build();
                 var result = client.send(req, BodyHandlers.ofFile(tempFile));
                 if (result.statusCode() == 200) {
                     copyFileToTarget(target, force, tempFile);
@@ -69,6 +70,13 @@ import org.apache.maven.model.Repository;
         } catch (URISyntaxException | IOException e) {
             return false;
         }
+    }
+
+    private URI createUri(String url, String suffix) throws URISyntaxException {
+        if (url.endsWith("/") && suffix.startsWith("/")) {
+            suffix = suffix.substring(1);
+        }
+        return new URI(url + suffix);
     }
 
     private void copyFileToTarget(Path target, boolean force, Path tempFile) throws IOException {

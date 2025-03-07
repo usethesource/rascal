@@ -168,7 +168,7 @@ public class Dependency {
 
     @Override
     public String toString() {
-        return coordinate.toString() + "@" + scope;
+        return coordinate.toString() + "@" + scope + "["+found+"]";
     }
 
     @Override
