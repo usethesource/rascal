@@ -271,4 +271,8 @@ public class Project {
         // and how provided are dealt with
         throw new UnsupportedOperationException("Calculate class path not implemented yet");
     }
+
+    public static void main(String[] args) {
+        System.out.println(parseProjectPom(Path.of("pom.xml")));
+    }
 }
