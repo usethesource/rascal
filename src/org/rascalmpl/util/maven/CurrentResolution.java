@@ -26,6 +26,8 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.net.http.HttpClient;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.apache.maven.model.building.ModelBuilder;
@@ -38,23 +40,27 @@ import io.usethesource.vallang.ISourceLocation;
  */
 /*package*/ class CurrentResolution {
     final ISourceLocation pom;
+    final Path rootRepository;
     final ModelBuilder builder;
     final ModelResolver resolver;
     final Map<ArtifactCoordinate, Dependency> dependencyCache;
+    final HttpClient client;
 
-    public CurrentResolution(ModelBuilder builder, ModelResolver resolver,
-        Map<ArtifactCoordinate, Dependency> dependencyCache, ISourceLocation rootPom) {
+    public CurrentResolution(ModelBuilder builder,
+        Map<ArtifactCoordinate, Dependency> dependencyCache, ISourceLocation rootPom, HttpClient client, Path rootRepository) {
         this.pom = rootPom;
         this.builder = builder;
-        this.resolver = resolver;
+        this.resolver = new SimpleResolver(rootRepository, builder, client);
         this.dependencyCache = dependencyCache;
+        this.rootRepository = rootRepository;
+        this.client = client;
     }
 
     /**
      * The ModelResolver should not be shared between pom parses
      * So we have to make a new one.
      */
-    CurrentResolution newParse(ISourceLocation pom, ModelResolver resolver) {
-        return new CurrentResolution(builder, resolver, dependencyCache, pom);
+    CurrentResolution newParse(ISourceLocation pom) {
+        return new CurrentResolution(builder, dependencyCache, pom, client, rootRepository);
     }
 }
