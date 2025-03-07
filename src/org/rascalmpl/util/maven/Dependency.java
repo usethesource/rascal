@@ -113,19 +113,26 @@ public class Dependency {
             return new Dependency(existing.coordinate, scope, existing.found, existing.optional, existing.dependencies, existing.exclusions);
         }
 
-
-        var dependencies = buildDependencies(d, messages, context);
-        var result = new Dependency(coodinate, scope, dependencies != null, d.isOptional(), dependencies == null ? Collections.emptyList() : dependencies, exclusions);
-        if (existing != null) {
-            context.dependencyCache.put(coodinate, result);
+        if (context.cycleDetection.contains(coodinate)) {
+            // we're in a cycle, so lets break it by returning a version of ourselves without calculated dependencies (and don't put it in the cache)
+            return new Dependency(coodinate, scope, false, d.isOptional(), Collections.emptyList(), exclusions);
         }
-        return result;
+        context.cycleDetection.add(coodinate);
+        try {
+            var dependencies = buildDependencies(d, messages, context);
+            var result = new Dependency(coodinate, scope, dependencies != null, d.isOptional(), dependencies == null ? Collections.emptyList() : dependencies, exclusions);
+            if (existing != null) {
+                context.dependencyCache.put(coodinate, result);
+            }
+            return result;
+        } finally {
+            context.cycleDetection.remove(coodinate);
+        }
     }
 
     private static @Nullable List<Dependency> buildDependencies(org.apache.maven.model.Dependency me, IListWriter messages,
         CurrentResolution context) {
         try {
-            System.err.println("Resolving: " + me);
             if (me.getVersion() == null) {
                 // TODO: figure out how maven resolves a dependency that has no version number and see if we want to support this
                 throw new UnresolvableModelException("Null version not supported right now", me.getGroupId(), me.getArtifactId(), me.getVersion());
