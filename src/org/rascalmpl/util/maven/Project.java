@@ -31,7 +31,10 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Version;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -105,7 +108,7 @@ public class Project {
     }
 
     /**
-     * We have to have a file name
+     * We have to have a file name to a pom.xml in a project, it does not work for .pom files in a maven repository
      * @param pomFile
      * @return
      */
@@ -113,8 +116,12 @@ public class Project {
         var modelBuilder = new DefaultModelBuilderFactory().newInstance();
         var request = new DefaultModelBuildingRequest()
             .setPomFile(pomFile.toFile())
-            .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MINIMAL); // TODO: figure out if we need this
-        var context = new CurrentResolution(modelBuilder, new SimpleResolver(), new HashMap<ArtifactCoordinate, Dependency>(), makeLocation(pomFile));
+            .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
+        var httpClient = HttpClient.newBuilder()
+            .version(Version.HTTP_2) // upgrade where possible
+            .connectTimeout(Duration.ofSeconds(10)) // don't wait longer than 10s to connect to a repo
+            .build();
+        var context = new CurrentResolution(modelBuilder, new HashMap<>(), makeLocation(pomFile), httpClient, Util.mavenRepository());
         return build(request, context, true);
     }
 
@@ -144,7 +151,7 @@ public class Project {
                 loc = URIUtil.unknownLocation().getURI();
             }
         }
-        return build(request, context.newParse(VF.sourceLocation(loc), new SimpleResolver()), false);
+        return build(request, context.newParse(VF.sourceLocation(loc)), false);
     }
 
     private static ISourceLocation makeLocation(Path pomFile) {
@@ -213,8 +220,8 @@ public class Project {
     private static List<Dependency> translateDependencies(Model model, IListWriter messages, CurrentResolution context, boolean isRoot) {
         return model.getDependencies()
             .stream()
-            .filter(d -> !d.getScope().equals("system")) // we don't care about system deps
-            .filter(d -> isRoot || !d.getScope().equals("test")) // unless we're the root, we don't care about downstream test dependencies
+            .filter(d -> !"system".equals(d.getScope())) // we don't care about system deps
+            .filter(d -> isRoot || !"test".equals(d.getScope())) // unless we're the root, we don't care about downstream test dependencies
             .map(d -> Dependency.build(d, messages, context))
             .collect(Collectors.toUnmodifiableList())
             ;
@@ -264,7 +271,6 @@ public class Project {
 
         System.out.println("***** bird-ide: ");
         System.out.println(parseProjectPom(new File("D:\\swat.engineering\\projects\\sidn\\bird\\bird-ide\\pom.xml").toPath()));
-        
     }
 
 }
