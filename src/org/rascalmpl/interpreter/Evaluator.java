@@ -831,6 +831,19 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     return URIUtil.createFromURI(option.trim());
                 }
                 else {
+                    // basic support for current and parent directory notation
+                    if (option.trim().equals(".")) {
+                        return URIUtil.rootLocation("cwd");
+                    }
+                    else if (option.trim().equals("..")) {
+                        return URIUtil.correctLocation("cwd", "", "..");
+                    }
+                    else if (option.trim().startsWith(".." + File.separatorChar)) {
+                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + File.separatorChar + option);
+                    }
+                    else if (option.trim().startsWith("." + File.separatorChar)) {
+                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
+                    }
                     // OS specific notation for file paths
                     return URIUtil.createFileLocation(option.trim());
                 }
