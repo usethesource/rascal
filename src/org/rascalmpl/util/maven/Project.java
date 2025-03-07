@@ -106,13 +106,13 @@ public class Project {
         this.messages = messages;
         this.errors = errors;
     }
-
     /**
-     * We have to have a file name to a pom.xml in a project, it does not work for .pom files in a maven repository
-     * @param pomFile
+     * We have to have a file name to a pom.xml in a project, it does not work for .pom files in a maven repository.
+     * Sometimes you want to configure where the jars should be stored, in most cases use the other overload
+     * @param rootPath of the maven repo
      * @return
      */
-    public static Project parseProjectPom(Path pomFile) {
+    public static Project parseProjectPom(Path pomFile, Path mavenRoot) {
         var modelBuilder = new DefaultModelBuilderFactory().newInstance();
         var request = new DefaultModelBuildingRequest()
             .setPomFile(pomFile.toFile())
@@ -121,8 +121,15 @@ public class Project {
             .version(Version.HTTP_2) // upgrade where possible
             .connectTimeout(Duration.ofSeconds(10)) // don't wait longer than 10s to connect to a repo
             .build();
-        var context = new CurrentResolution(modelBuilder, new HashMap<>(), makeLocation(pomFile), httpClient, Util.mavenRepository());
+        var context = new CurrentResolution(modelBuilder, new HashMap<>(), makeLocation(pomFile), httpClient, mavenRoot);
         return build(request, context, true);
+    }
+
+    /**
+     * We have to have a file name to a pom.xml in a project, it does not work for .pom files in a maven repository.
+     */
+    public static Project parseProjectPom(Path pomFile) {
+        return parseProjectPom(pomFile, Util.mavenRepository());
     }
 
     private static Project build(ModelBuildingRequest request, CurrentResolution context, boolean isRoot) {
