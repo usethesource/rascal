@@ -43,6 +43,7 @@ import java.util.SortedMap;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
@@ -634,10 +635,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
             if (kwtype == PathConfig.PathConfigType) {
                 // special case for PathConfig unfolds into the respective fields of PathConfig
-                for (String pcfgPar : PathConfig.PathConfigFields.keySet()) {
-                    expectedTypes.put(pcfgPar, PathConfig.PathConfigFields.get(pcfgPar));     
-                }
-    
+                expectedTypes.putAll(PathConfig.PathConfigFields);    
                 // add project parameter for automatic pathconfig settings
                 expectedTypes.put("project", tf.sourceLocationType());
             }
@@ -650,7 +648,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         for (int i = 0; i < commandline.length; i++) {
             if (commandline[i].equals("-help") || commandline[i].equals("--help")) {
-                throw new CommandlineError("Help", func);
+                printMainHelpMessage(kwTypes);
+                getOutPrinter().flush();
+                getErrorPrinter().flush();
+                System.exit(0);
             }
             else if (commandline[i].startsWith("-")) {
                 String label = commandline[i].replaceFirst("^-+", "");
@@ -680,15 +681,25 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     throw new CommandlineError("expected option for " + label, func);
                 }
                 else if (expected.isSubtypeOf(tf.listType(tf.sourceLocationType()))) {
-                    if (!commandline[i+1].startsWith("-")) {
+                    if (!commandline[i+1].startsWith("-") && commandline[i+1].contains(File.separatorChar + "(?!//)")) {
                         i++;
                         final int pos = i;
-                        String[] pathElems = commandline[++i].trim().split(File.pathSeparator);
+                        // we want to split on ; or : but not on ://
+                        String[] pathElems = commandline[++i].trim().split(File.pathSeparator + "(?!//)");
                         IListWriter writer = vf.listWriter();
                         
                         Arrays.stream(pathElems).forEach(e -> {
                             writer.append(parseCommandlineOption(func, tf.sourceLocationType(), commandline[pos]));
                         });
+                    }
+                    else {
+                        IListWriter writer = vf.listWriter();
+
+                        while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+                            writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+                        }
+
+                        params.put(label, writer.done());
                     }
                 }
                 else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
@@ -729,7 +740,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     else {
                         // list[loc] fields get concatenated (ignores, srcs, libs)
                         IList param1 = (IList) cons.asWithKeywordParameters().getParameter(entry.getKey());
+                        if (param1 == null) {
+                            param1 = vf.list();
+                        }
                         IList param2 = (IList) params.get(entry.getKey());
+                        if (param2 == null) {
+                            param2 = vf.list();
+                        }
                         cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), param1.concat(param2));
                     }
                 }
@@ -737,6 +754,64 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         }
 
         return params;
+    }
+
+    private void printMainHelpMessage(Type kwTypes) {
+        StackTraceElement trace[] = Thread.currentThread().getStackTrace();
+        String mainClass = trace[trace.length - 1].getClassName();
+        Map<String, Type> fields = new HashMap<>();
+        
+        var out = getOutPrinter();
+        out.println("Help for " + mainClass + "\n");
+
+        for (int i = 0; i < kwTypes.getArity(); i++) {
+            fields.put(kwTypes.getFieldName(i), kwTypes.getFieldType(callNesting));
+        }
+
+        if (fields.containsValue(PathConfig.PathConfigType)) {
+            fields.putAll(PathConfig.PathConfigFields);
+            fields.put("project", tf.sourceLocationType());
+        }
+
+        if (fields.isEmpty()) {
+            out.println("\t-help    this help message is printed.");
+            out.println();
+            out.println("This command has no further parameters.");
+            return;
+        }
+
+        List<String> keys = fields.keySet().stream().collect(Collectors.toList());
+        keys.sort(String::compareTo);
+        int maxLength = keys.stream().max((a,b) -> Integer.compare(a.length(), b.length())).get().length();
+
+        for (String key : keys) {
+            String explanation = parameterTypeExplanation(key, fields.get(key));
+            out.println("    " + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
+        }
+    }
+
+    private String parameterTypeExplanation(String key, Type type) {
+        if (key.equals("help")) {
+            return "this help message is printed.";
+        }
+        else if (type == tf.stringType()) {
+            return "any string value. Use \" or \' to include spaces.";
+        }
+        else if (type == tf.sourceLocationType()) {
+            return "a file or folder path in OS notation, a URI term or a |scheme://authority/path| Rascal loc value.";
+        }
+        else if (type == tf.listType(tf.sourceLocationType())) {
+            return "a list of files or folders separated by " + File.pathSeparator + ", or a list[loc] Rascal value.";
+        }
+        else if (type.isSubtypeOf(tf.numberType())) {
+            return "a numerical value";
+        }
+        else if (type == PathConfig.PathConfigType) {
+            return "dunno";
+        }
+        else {
+            return "a Rascal value of type " + type;
+        }
     }
 
     private IValue parseCommandlineOption(AbstractFunction main, Type expected, String option) {
