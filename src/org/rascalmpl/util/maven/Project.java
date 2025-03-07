@@ -266,18 +266,9 @@ public class Project {
         }
     }
 
-    public static void main(String[] args) {
-        System.out.println("**** Rascal: ");
-        System.out.println(parseProjectPom(new File("pom.xml").toPath()));
-
-        System.out.println("***** Vallang: ");
-        System.out.println(parseProjectPom(new File("d:/swat.engineering/rascal/vallang/pom.xml").toPath()));
-
-        System.out.println("***** test-project in lsp: ");
-        System.out.println(parseProjectPom(new File("D:\\swat.engineering\\rascal\\rascal-language-servers\\rascal-vscode-extension\\test-workspace\\test-project\\pom.xml").toPath()));
-
-        System.out.println("***** bird-ide: ");
-        System.out.println(parseProjectPom(new File("D:\\swat.engineering\\projects\\sidn\\bird\\bird-ide\\pom.xml").toPath()));
+    public List<ISourceLocation> calculateClassPath(Scope forScope) {
+        // TODO: calculate what the class path is, especially taking into account how maven deals with multiple dependencies of different version
+        // and how provided are dealt with
+        throw new UnsupportedOperationException("Calculate class path not implemented yet");
     }
-
 }
