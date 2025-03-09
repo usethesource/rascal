@@ -1,9 +1,12 @@
 package org.rascalmpl.library;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -32,7 +35,7 @@ public class Messages {
     private static final TypeStore ts = new TypeStore();
 
     // These declarations mirror the data definition in the `Message` root module of the standard library.
-    private static final io.usethesource.vallang.type.Type Message = tf.abstractDataType(ts, "Message");
+    public static final io.usethesource.vallang.type.Type Message = tf.abstractDataType(ts, "Message");
     private static final io.usethesource.vallang.type.Type Message_info = tf.constructor(ts, Message, "info", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
@@ -47,6 +50,18 @@ public class Messages {
 
     public static IValue error(String message, ISourceLocation loc) {
         return vf.constructor(Message_error, vf.string(message), loc);
+    }
+
+    public IString write(IList messsages) {
+        try (var str = new StringWriter(); var writer = new PrintWriter(str)) {
+            write(messsages, writer);
+            writer.flush();
+            return vf.string(str.toString());
+        }
+        catch (IOException e) {
+            // should never happen
+            throw RuntimeExceptionFactory.io(e.getMessage());
+        }
     }
 
     public static void write(IList messages, PrintWriter out) {
