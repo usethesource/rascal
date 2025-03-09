@@ -158,3 +158,35 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
 	
     return toList(ms.messages[qualifiedModuleName] ? {});
 }
+
+void main(
+    PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
+    loc \module = |unknown://|,
+    bool logPathConfig            = false,
+    bool logImports               = false,
+    bool verbose                  = false,
+    bool logWrittenFiles          = false,
+    bool warnUnused               = true,
+    bool warnUnusedFormals        = true,
+    bool warnUnusedVariables      = true,
+    bool warnUnusedPatternFormals = true,
+    bool infoModuleChecked        = false
+    ) {
+    pcfg.resources = pcfg.bin;
+
+    rascalConfig = rascalCompilerConfig(pcfg,
+        logPathConfig            = logPathConfig,
+        verbose                  = verbose,
+        logWrittenFiles          = logWrittenFiles,
+        warnUnused               = warnUnused,
+        warnUnusedFormals        = warnUnusedFormals,
+        warnUnusedVariables      = warnUnusedVariables,
+        warnUnusedPatternFormals = warnUnusedPatternFormals,
+        infoModuleChecked        = infoModuleChecked
+    );
+        
+    messages = compile(\module, rascalConfig);
+    println(write(messages));
+
+    return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
+}
