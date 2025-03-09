@@ -86,7 +86,11 @@ public class Project {
         return dependencies;
     }
 
-    public boolean hadErrors() {
+    /**
+     * During the parsing of the project pom, we found some errors. We still tried to build as good of a model as we could
+     * @return
+     */
+    public boolean hasErrors() {
         return errors;
     }
 

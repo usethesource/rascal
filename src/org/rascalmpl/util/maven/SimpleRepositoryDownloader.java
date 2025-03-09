@@ -50,6 +50,7 @@ import org.apache.maven.model.Repository;
     }
 
     public boolean download(String url, Path target, boolean force) {
+        // TODO also download md5/sha256 files to verify we got the right files.
         try {
             var tempFile = Files.createTempFile("maven-download", null);
             try {
