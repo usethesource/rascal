@@ -133,10 +133,10 @@ public class Dependency {
     private static @Nullable List<Dependency> buildDependencies(org.apache.maven.model.Dependency me, IListWriter messages,
         CurrentResolution context) {
         try {
-            if (me.getVersion() == null) {
-                // TODO: figure out how maven resolves a dependency that has no version number and see if we want to support this
-                throw new UnresolvableModelException("Null version not supported right now", me.getGroupId(), me.getArtifactId(), me.getVersion());
-            }
+            // if (me.getVersion() == null) {
+            //     // TODO: figure out how maven resolves a dependency that has no version number and see if we want to support this
+            //     throw new UnresolvableModelException("Null version not supported right now", me.getGroupId(), me.getArtifactId(), me.getVersion());
+            // }
             var resolvedEntry = context.resolver.resolveModel(me);
             var fullDependencies = Project.parseRepositoryPom(resolvedEntry, context).getDependencies();
             var exclusions = me.getExclusions();

@@ -65,7 +65,7 @@ public class MavenResolverTest {
     }
 
     private static Path getPomsPath(String subPath) {
-        var path = MavenResolverTest.class.getResource("/org/rascalmpl/test/util/maven/poms/" + subPath);
+        var path = MavenResolverTest.class.getResource("/org/rascalmpl/util/maven/poms/" + subPath);
         if (path == null) {
             throw new IllegalStateException("Could not find: " + subPath);
         }
