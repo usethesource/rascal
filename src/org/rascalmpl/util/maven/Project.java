@@ -110,13 +110,8 @@ public class Project {
         this.messages = messages;
         this.errors = errors;
     }
-    /**
-     * We have to have a file name to a pom.xml in a project, it does not work for .pom files in a maven repository.
-     * Sometimes you want to configure where the jars should be stored, in most cases use the other overload
-     * @param rootPath of the maven repo
-     * @return
-     */
-    public static Project parseProjectPom(Path pomFile, Path mavenRoot) {
+
+    /*package for testing*/ static Project parseProjectPom(Path pomFile, Path mavenRoot) {
         var modelBuilder = new DefaultModelBuilderFactory().newInstance();
         var request = new DefaultModelBuildingRequest()
             .setPomFile(pomFile.toFile())
