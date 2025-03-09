@@ -131,12 +131,16 @@ public class Project {
         return parseProjectPom(pomFile, Util.mavenRepository());
     }
 
+    /*package*/ static ModelBuildingResult buildModel(ModelBuildingRequest request, CurrentResolution context) throws ModelBuildingException {
+        request.setModelResolver(context.resolver)
+            .setModelCache(context.modelCache)
+            .setSystemProperties(System.getProperties());
+        return context.builder.build(request);
+    }
+
     private static Project build(ModelBuildingRequest request, CurrentResolution context, boolean isRoot) {
         try {
-            request.setModelResolver(context.resolver)
-                .setSystemProperties(System.getProperties());
-            // TODO: maybe 2 phase bulding is nice ?
-            return translate(context.builder.build(request), context, isRoot);
+            return translate(buildModel(request, context), context, isRoot);
         } catch (ModelBuildingException be) {
             return buildError(be, context, isRoot);
         }
@@ -144,7 +148,9 @@ public class Project {
 
 
     static Project parseRepositoryPom(ModelSource resolvedEntry, CurrentResolution context) {
-        var request = new DefaultModelBuildingRequest().setModelSource(resolvedEntry);
+        var request = new DefaultModelBuildingRequest()
+            .setModelSource(resolvedEntry)
+            .setWorkspaceModelResolver(context.workspaceResolver); // only for repository poms do we setup this extra resolver to help find parent poms
         URI loc;
         if (resolvedEntry instanceof ModelSource2) {
             loc = ((ModelSource2)resolvedEntry).getLocationURI();
@@ -272,6 +278,7 @@ public class Project {
     }
 
     public static void main(String[] args) {
-        System.out.println(parseProjectPom(Path.of("pom.xml")));
+        System.out.println(parseProjectPom(Path.of("C:/Users/Davy/swat.engineering/rascal/rascal/test/org/rascalmpl/util/maven/poms/multi-module/example-core/pom.xml")));
+        //System.out.println(parseProjectPom(Path.of("pom.xml")));
     }
 }
