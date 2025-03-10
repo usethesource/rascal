@@ -436,6 +436,7 @@
             <artifactId>typepal</artifactId>
             <version>0.15.1</version>
            <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
+           <scope>compile</scope>
         </dependency>
 
         <!-- Regular POM Dependencies -->
