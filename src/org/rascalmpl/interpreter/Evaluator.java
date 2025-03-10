@@ -629,6 +629,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
         Map<String, Type> expectedTypes = new HashMap<>();
         Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
+        List<String> pathConfigParam = new LinkedList<>();
 
         for (String kwp : kwTypes.getFieldNames()) {
             var kwtype = kwTypes.getFieldType(kwp);
@@ -638,16 +639,22 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 expectedTypes.putAll(PathConfig.PathConfigFields);    
                 // add project parameter for automatic pathconfig settings
                 expectedTypes.put("project", tf.sourceLocationType());
+                // drop the path config parameter
+                pathConfigParam.add(kwp);
             }
             else {
                 expectedTypes.put(kwp, kwtype);
             }
         }
 
+        for (String param : pathConfigParam) {
+            expectedTypes.remove(param);
+        }
+
         Map<String, IValue> params = new HashMap<>();
 
         for (int i = 0; i < commandline.length; i++) {
-            if (commandline[i].equals("-help") || commandline[i].equals("--help")) {
+            if (List.of("-help", "--help", "/?", "?", "\\?", "-?", "--?").contains(commandline[i].trim())) {
                 printMainHelpMessage(kwTypes);
                 getOutPrinter().flush();
                 getErrorPrinter().flush();
@@ -771,7 +778,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         if (fields.containsValue(PathConfig.PathConfigType)) {
             fields.putAll(PathConfig.PathConfigFields);
             fields.put("project", tf.sourceLocationType());
-            // TODO remove pcfg field
+
+            // drop the pcfg field
+            var pcfgsKeys = fields.entrySet().stream()
+                .filter(e -> e.getValue() == PathConfig.PathConfigType)
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+            pcfgsKeys.stream().forEach(k -> fields.remove(k));
         }
 
         if (fields.isEmpty()) {
@@ -787,12 +800,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         for (String key : keys) {
             String explanation = parameterTypeExplanation(key, fields.get(key));
-            out.println("    " + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
+            out.println("    -" + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
         }
     }
 
     private String parameterTypeExplanation(String key, Type type) {
-        if (key.equals("help")) {
+        if (key.equals("help") || key.equals("h") || key.equals("?")) {
             return "this help message is printed.";
         }
         else if (type == tf.boolType()) {

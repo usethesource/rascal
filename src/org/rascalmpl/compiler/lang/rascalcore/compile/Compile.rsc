@@ -123,6 +123,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     return tm.messages;
 }
 
+list[Message] compile(list[loc] moduleLocs, RascalCompilerConfig compilerConfig) {
+    return [info("not yet implemented", moduleLocs[0])];
+}
+
 @doc{Compile a Rascal source module (given at a location) to Java}
 list[Message] compile(loc moduleLoc, RascalCompilerConfig compilerConfig) {
 
@@ -161,7 +165,7 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
 
 void main(
     PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
-    loc \module = |unknown://|,
+    list[loc] \modules = |unknown://|,
     bool logPathConfig            = false,
     bool logImports               = false,
     bool verbose                  = false,
@@ -185,7 +189,7 @@ void main(
         infoModuleChecked        = infoModuleChecked
     );
         
-    messages = compile(\module, rascalConfig);
+    messages = compile(\modules, rascalConfig);
     println(write(messages));
 
     return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
