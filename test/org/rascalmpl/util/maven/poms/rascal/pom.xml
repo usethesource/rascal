@@ -1,9 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <!-- this file is a copy of the pom.xml of rascal at a certain time, just to have some fixed things that should be resolved -->
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC16-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -173,31 +174,6 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
-
-		    <!-- commented out while bootstrapping the tutor
-                    <execution>
-                        <id>default-cli</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>tutor</goal>
-                        </goals>
-                        <configuration>
-                            <isPackageCourse>false</isPackageCourse>
-                            <enableStandardLibrary>false</enableStandardLibrary>
-                            <errorsAsWarnings>false</errorsAsWarnings>
-                            <bin>${project.build.outputDirectory}</bin>
-                            <license>${project.basedir}/LICENSE</license>
-                            <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
-                            <issues>|http://github.com/usethesource/rascal/issues|</issues>
-                            <srcs>
-                                <src>${project.basedir}/src/org/rascalmpl/library</src>
-                            </srcs>
-                            <ignores>
-                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
-                            </ignores>
-                        </configuration>
-                        </execution>
-		    -->
                 </executions>
             </plugin>
             <plugin>
@@ -242,7 +218,6 @@
                         <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
-                        <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
