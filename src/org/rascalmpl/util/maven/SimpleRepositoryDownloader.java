@@ -51,6 +51,9 @@ import org.apache.maven.model.Repository;
 
     public boolean download(String url, Path target, boolean force) {
         // TODO also download md5/sha256 files to verify we got the right files.
+        // see here on the information in headers instead of a separate file request
+        // https://maven.apache.org/resolver/expected-checksums.html
+        // calculate it during file writing (we have to override BodyHandlers)
         try {
             var tempFile = Files.createTempFile("maven-download", null);
             try {
