@@ -434,6 +434,22 @@ public class PathConfig {
      * Configure paths for the rascal project itself, so if someone has rascal open in their IDE for example, or is starting a REPL for rascal
      */
     private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, IList mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
+        // we want to help rascal devs work on rascal files without having to always open a RascalShell.
+        // note: we accept that if you do changes in Java, you won't see them and might get import errors
+        // errors like:  ClassNotFoundException, MethodNotFoundException, ClassInitializationError
+        // If this happens: please use the RascalShell route
+        srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
+        // add our own jar to the lib path to make sure rascal classes are found 
+        libs.append(resolveCurrentRascalRuntimeJar());
+
+        // compiler & tutor only paths
+        srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/compiler"));
+        srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/tutor"));
+        // test paths
+        srcs.append(URIUtil.getChildLocation(workspaceRascal, "test/org/rascalmpl/test/data"));
+        srcs.append(URIUtil.getChildLocation(workspaceRascal, "test/org/rascalmpl/benchmark"));
+
+        // now figure out where we can get typepal from
         var reg = URIResolverRegistry.getInstance();
         var typepal = URIUtil.correctLocation("project", "typepal","src");
         boolean typepalProjectPresent = reg.exists(typepal);
@@ -455,29 +471,21 @@ public class PathConfig {
         }
 
         if (mode == RascalConfigMode.INTERPRETER) {
-            // we do not want to build an evaluator that gets to the rascal source that a user changed
-            // as we cannot guarantee that the java runtime classes will match up
-            srcs.append(URIUtil.rootLocation("std"));
-            // we know we have a local project with typepal, so lets add that to the source path
+            // add typepal to source path so that the intepreter can find it
             srcs.append(typepal);
         }
         else {
             // we want to be able to typecheck / compiler rascal modules that a user is editing in the editor
             assert mode == RascalConfigMode.COMPILER: "should be compiler mode if not interpreter";
-            srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
             if (typepalProjectPresent) {
+                // pickup the tpls from the target folder of typepal
                 libs.append(URIUtil.correctLocation("target", "typepal", ""));
             }
             else {
+                // pickup the tpls from the jar
                 libs.append(typepal);
             }
         }
-        libs.append(resolveCurrentRascalRuntimeJar()); // add our own jar to the lib path to make sure rascal classes are found
-
-        srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/compiler"));
-        srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/tutor"));
-        srcs.append(URIUtil.getChildLocation(workspaceRascal, "test/org/rascalmpl/test/data"));
-        srcs.append(URIUtil.getChildLocation(workspaceRascal, "test/org/rascalmpl/benchmark"));
     }
 
     /**
