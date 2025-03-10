@@ -765,12 +765,13 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         out.println("Help for " + mainClass + "\n");
 
         for (int i = 0; i < kwTypes.getArity(); i++) {
-            fields.put(kwTypes.getFieldName(i), kwTypes.getFieldType(callNesting));
+            fields.put(kwTypes.getFieldName(i), kwTypes.getFieldType(i));
         }
 
         if (fields.containsValue(PathConfig.PathConfigType)) {
             fields.putAll(PathConfig.PathConfigFields);
             fields.put("project", tf.sourceLocationType());
+            // TODO remove pcfg field
         }
 
         if (fields.isEmpty()) {
@@ -794,23 +795,23 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         if (key.equals("help")) {
             return "this help message is printed.";
         }
+        else if (type == tf.boolType()) {
+            return "true or false or nothing";
+        }
         else if (type == tf.stringType()) {
             return "any string value. Use \" or \' to include spaces.";
         }
         else if (type == tf.sourceLocationType()) {
-            return "a file or folder path in OS notation, a URI term or a |scheme://authority/path| Rascal loc value.";
+            return "a path, a URI, or a Rascal source location";
         }
         else if (type == tf.listType(tf.sourceLocationType())) {
-            return "a list of files or folders separated by " + File.pathSeparator + ", or a list[loc] Rascal value.";
+            return "a list of paths, URIs or Rascal locs separated by " + File.pathSeparator ;
         }
         else if (type.isSubtypeOf(tf.numberType())) {
             return "a numerical value";
         }
-        else if (type == PathConfig.PathConfigType) {
-            return "dunno";
-        }
         else {
-            return "a Rascal value of type " + type;
+            return "a Rascal value expression of " + type;
         }
     }
 
