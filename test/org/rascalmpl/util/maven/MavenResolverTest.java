@@ -42,9 +42,10 @@ import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rascalmpl.util.maven.Dependency;
-import org.rascalmpl.util.maven.Project;
-import org.rascalmpl.util.maven.Scope;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+
+import io.usethesource.vallang.ISourceLocation;
 
 public class MavenResolverTest {
 
@@ -82,7 +83,7 @@ public class MavenResolverTest {
     }
 
     @Test
-    public void rascalPomHasRightDependencies() {
+    public void rascalPomHasRightDependencies() throws URISyntaxException {
         var project = parse("rascal/pom.xml");
         assertEquals("rascal", project.getCoordinate().getArtifactId());
 
@@ -95,6 +96,9 @@ public class MavenResolverTest {
         assertEquals("Vallang should be of right version", "1.0.0-RC15", vallang.getCoordinate().getVersion());
         assertTrue("Vallang should be found/downloaded in the repo", vallang.isFound());
         assertTrue("Vallang should depend on capsule", vallang.getDependencies().stream().anyMatch(d -> d.getCoordinate().getArtifactId().equals("capsule")));
+
+        Path sha1Path = tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15", "vallang-1.0.0-RC15.jar.sha1"));
+        assertTrue("Vallang sha1 should have been downloaded", Files.exists(sha1Path));
     }
 
     @Test
