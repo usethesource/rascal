@@ -42,10 +42,6 @@ import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
-
-import io.usethesource.vallang.ISourceLocation;
 
 public class MavenResolverTest {
 
