@@ -30,17 +30,24 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.maven.model.Repository;
+import org.apache.maven.repository.legacy.ChecksumFailedException;
 
 /*package*/ class SimpleRepositoryDownloader {
     // TODO: what to do about non http(s) respositories?
-    
+
     public final Repository repo;
     private final HttpClient client;
 
@@ -55,13 +62,25 @@ import org.apache.maven.model.Repository;
         // https://maven.apache.org/resolver/expected-checksums.html
         // calculate it during file writing (we have to override BodyHandlers)
         try {
-            var tempFile = Files.createTempFile("maven-download", null);
+            Path tempArtifact = Files.createTempFile("maven-download", null);
             try {
-                var uri = createUri(repo.getUrl(), url);
-                var req = HttpRequest.newBuilder(uri).GET().build();
-                var result = client.send(req, BodyHandlers.ofFile(tempFile));
-                if (result.statusCode() == 200) {
-                    copyFileToTarget(target, force, tempFile);
+                // Try to download checksums first (we want to copy them even when verifying using headers)
+                String sha1Checksum = downloadChecksum(createUri(repo.getUrl(), url + ".sha1"));
+                String md5Checksum = downloadChecksum(createUri(repo.getUrl(), url + ".md5"));
+
+                // Now download the actual artifact
+                var artifactUri = createUri(repo.getUrl(), url);
+                var req = HttpRequest.newBuilder(artifactUri).GET().build();
+                HttpResponse<Path> response = client.send(req, BodyHandlers.ofFile(tempArtifact));
+
+                if (response.statusCode() == 200) {
+                    verifyResult(url, response, sha1Checksum, md5Checksum, tempArtifact);
+
+                    // Only write checksums if the file has changed so the checksums will always match the current file
+                    if (copyFileToTarget(target, force, tempArtifact)) {
+                        writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".sha1"), sha1Checksum);
+                        writeChecksumToTarget(target.resolveSibling(target.getFileName() + ".md5"), md5Checksum);
+                    }
                     return true;
                 }
                 return false;
@@ -69,11 +88,43 @@ import org.apache.maven.model.Repository;
                 Thread.currentThread().interrupt();
                 return false;
             } finally {
-                cleanup(tempFile);
+                cleanup(tempArtifact);
             }
-        } catch (URISyntaxException | IOException e) {
+        } catch (URISyntaxException | IOException | ChecksumFailedException e) {
             return false;
         }
+    }
+
+    private String downloadChecksum(URI uri) throws IOException, InterruptedException {
+        var req = HttpRequest.newBuilder(uri).GET().build();
+        HttpResponse<String> result = client.send(req, BodyHandlers.ofString());
+        return result.statusCode() == 200 ? result.body() : null;
+    }
+
+    private void verifyResult(String url, HttpResponse<Path> response, String sha1Checksum, String md5Checksum, Path artifactFile) throws IOException, ChecksumFailedException {
+        ChecksumVerifier verifier = new ChecksumVerifier();
+        HttpHeaders headers = response.headers();
+        String sha1 = getChecksum(headers, Arrays.asList("x-checksum-sha1", "x-goog-meta-checksum-sha1"), sha1Checksum);
+        if (sha1 != null) {
+            verifier.verifyChecksum(artifactFile, "SHA1", sha1);
+        }
+
+        String md5 = getChecksum(headers, Arrays.asList("x-checksum-md5", "x-goog-meta-checksum-md5"), md5Checksum);
+        if (md5 != null) {
+            verifier.verifyChecksum(artifactFile, "MD5", md5);
+        }
+    }
+
+    // Retrieve the checksum from one of the possible checksum headers. If not found, return defaultChecksum
+    private String getChecksum(HttpHeaders headers, List<String> checksumHeaders, String defaultChecksum) {
+        for (String headerName : checksumHeaders) {
+            Optional<String> value = headers.firstValue(headerName);
+            if (value.isPresent()) {
+                return value.get();
+            }
+        }
+
+        return defaultChecksum;
     }
 
     private URI createUri(String url, String suffix) throws URISyntaxException {
@@ -83,13 +134,24 @@ import org.apache.maven.model.Repository;
         return new URI(url + suffix);
     }
 
-    private void copyFileToTarget(Path target, boolean force, Path tempFile) throws IOException {
+    private boolean copyFileToTarget(Path target, boolean force, Path tempFile) throws IOException {
         var directory = target.getParent();
         if (Files.notExists(directory)) {
             Files.createDirectories(directory);
         }
         if (force || Files.notExists(target)) {
             Files.move(tempFile, target, StandardCopyOption.REPLACE_EXISTING);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void writeChecksumToTarget(Path path, String checksum) throws IOException {
+        if (checksum == null) {
+            Files.delete(path);
+        } else {
+            Files.write(path, checksum.getBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
         }
     }
 
