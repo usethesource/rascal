@@ -58,7 +58,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
         this.client = client;
     }
 
-    private Path calculatePomPath(String groupId, String artifactId, String version) {
+    /*package*/Path calculatePomPath(String groupId, String artifactId, String version) {
         var result = rootRepository;
         for (var path: groupId.split("\\.")) {
             result = result.resolve(path);

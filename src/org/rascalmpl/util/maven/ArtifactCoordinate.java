@@ -31,7 +31,7 @@ import java.util.Objects;
 
 public class ArtifactCoordinate {
 
-    public static ArtifactCoordinate UNKNOWN = new ArtifactCoordinate("unkown", "unknown", "?");
+    public static final ArtifactCoordinate UNKNOWN = new ArtifactCoordinate("unkown", "unknown", "?");
 
     private final String groupId;
     private final String artifactId;
@@ -51,6 +51,33 @@ public class ArtifactCoordinate {
     }
     public String getVersion() {
         return version;
+    }
+
+    /*package*/ Object versionLess() {
+        return new WithoutVersion(this);
+    }
+
+    private static class WithoutVersion {
+        private final ArtifactCoordinate base;
+        public WithoutVersion(ArtifactCoordinate base) {
+            this.base = base;
+        }
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof WithoutVersion)) {
+                return false;
+            }
+            var otherBase = ((WithoutVersion)obj).base;
+            return base.groupId.equals(otherBase.groupId) 
+                && base.artifactId.equals(otherBase.artifactId);
+        }
+        @Override
+        public int hashCode() {
+            return base.groupId.hashCode() 
+                + base.artifactId.hashCode() * 11
+                ;
+        }
+
     }
 
     @Override

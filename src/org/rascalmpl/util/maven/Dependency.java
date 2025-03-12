@@ -26,6 +26,7 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -133,10 +134,21 @@ public class Dependency {
     private static @Nullable List<Dependency> buildDependencies(org.apache.maven.model.Dependency me, IListWriter messages,
         CurrentResolution context) {
         try {
-            // if (me.getVersion() == null) {
-            //     // TODO: figure out how maven resolves a dependency that has no version number and see if we want to support this
-            //     throw new UnresolvableModelException("Null version not supported right now", me.getGroupId(), me.getArtifactId(), me.getVersion());
-            // }
+            if (me.getVersion() == null) {
+                // while rare, this happens when a user has an incomplete dependencyManagement section
+                throw new UnresolvableModelException("Version of dependency missing", me.getGroupId(), me.getArtifactId(), me.getVersion());
+            }
+            if ("provided".equals(me.getScope())) {
+                // current maven behavior seems to be:
+                // - do not download provided dependencies
+                // - if a provided dependency is present in the maven repository it's considered "provided"
+                var pomDep = context.resolver.calculatePomPath(me.getGroupId(), me.getArtifactId(), me.getVersion());
+                if (Files.notExists(pomDep)) {
+                    // ok, doesn't exist yet. so don't download it to calculate dependencies
+                    return null;
+                }
+            }
+            // TODO: resolve system dependencies from system path instead of repositories
             var resolvedEntry = context.resolver.resolveModel(me);
             var fullDependencies = Project.parseRepositoryPom(resolvedEntry, context).getDependencies();
             var exclusions = me.getExclusions();
@@ -186,6 +198,36 @@ public class Dependency {
         }
         Dependency other = (Dependency) obj;
         return Objects.equals(coordinate, other.coordinate) && scope == other.scope && found == other.found && Objects.equals(exclusions, other.exclusions);
+    }
+
+    /*package*/ boolean shouldInclude(Scope forScope) {
+        if (optional) {
+            return false;
+        }
+        if (forScope == scope && scope != Scope.PROVIDED) {
+            return true;
+        }
+        // for the ones where it's not the 
+        switch (forScope) {
+            case TEST:
+                if (scope == Scope.COMPILE) {
+                    return true;
+                }
+                // fall-through
+            case COMPILE:
+                if (scope == Scope.PROVIDED) {
+                    return true;
+
+                }
+                // fall-through
+            case RUNTIME:
+                return scope == Scope.SYSTEM;
+            case SYSTEM: // fall through: not a scope we request
+            case IMPORT: // fall through
+            case PROVIDED: // fall through
+            default:
+                return false;
+        }
     }
 
 }
