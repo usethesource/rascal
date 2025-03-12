@@ -26,7 +26,6 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -35,9 +34,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.maven.model.Model;
@@ -271,14 +273,67 @@ public class Project {
         }
     }
 
-    public List<ISourceLocation> calculateClassPath(Scope forScope) {
-        // TODO: calculate what the class path is, especially taking into account how maven deals with multiple dependencies of different version
-        // and how provided are dealt with
-        throw new UnsupportedOperationException("Calculate class path not implemented yet");
+    /**
+     * Resolve maven classpath based on the algorithm that maven uses
+     * @see {@link https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html} 
+     * @param forScope for which scope, note that interpreter shouldn't use {@link Scope#RUNTIME} but use {@link Scope#COMPILE}.
+     * @return a list of class path entries of the dependencies of this project
+     */
+    public List<Dependency> calculateClassPath(Scope forScope) {
+        var alreadyIncluded = new HashSet<Object>();
+        var result = new ArrayList<Dependency>();
+        calculateClassPath(forScope, alreadyIncluded, result, dependencies);
+        return result;
     }
 
-    public static void main(String[] args) {
-        System.out.println(parseProjectPom(Path.of("C:/Users/Davy/swat.engineering/rascal/rascal/test/org/rascalmpl/util/maven/poms/multi-module/example-core/pom.xml")));
-        //System.out.println(parseProjectPom(Path.of("pom.xml")));
+    /**
+     * First add all dependencies at the current level, and then for all added, go through their dependencies
+     */
+    private static void calculateClassPath(Scope forScope, Set<Object> alreadyIncluded, List<Dependency> result,
+        List<Dependency> currentLevel) {
+        var nextLevel = new ArrayList<Dependency>(currentLevel.size());
+        for (var d : currentLevel) {
+            var withoutVersion = d.getCoordinate().versionLess();
+            if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
+                continue;
+            }
+            result.add(d);
+            nextLevel.add(d);
+            alreadyIncluded.add(withoutVersion);
+        }
+        // now we go through the new dependencies
+        for (var d: nextLevel) {
+            calculateClassPath(forScope, alreadyIncluded, result, d.getDependencies());
+        }
+    }
+
+
+
+    public static void main(String[] args) throws InterruptedException {
+        var start = System.currentTimeMillis();
+        var exampleCore = parseProjectPom(Path.of("C:/Users/Davy/swat.engineering/rascal/rascal/test/org/rascalmpl/util/maven/poms/multi-module/example-core/pom.xml"));
+        System.out.println(exampleCore);
+        var stop = System.currentTimeMillis();
+        System.out.printf("It took %d ms to calculate\n", stop - start);
+        start = System.currentTimeMillis();
+        System.out.println(exampleCore.calculateClassPath(Scope.COMPILE));
+        stop = System.currentTimeMillis();
+        System.out.printf("It took %d ms to calculate\n", stop - start);
+
+        System.out.println("******");
+        System.out.println("******");
+        System.out.println("******");
+
+        /* 
+        start = System.currentTimeMillis();
+        var rascal = parseProjectPom(Path.of("pom.xml"));
+        System.out.println(rascal);
+        stop = System.currentTimeMillis();
+        System.out.printf("It took %d ms to calculate\n", stop - start);
+        start = System.currentTimeMillis();
+        System.out.println(rascal.calculateClassPath(Scope.COMPILE));
+        stop = System.currentTimeMillis();
+        System.out.printf("It took %d ms to calculate\n", stop - start);
+        */
     }
 }
