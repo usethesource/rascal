@@ -3,6 +3,7 @@ package org.rascalmpl.compiler.lang.rascalcore.java;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,7 +19,6 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -31,7 +31,6 @@ public class JavaCompilerForRascal {
 	public JavaCompilerForRascal(IValueFactory vf) {
 		this.vf = vf;
 	}
-
 
 	private ISourceLocation safeResolve(ISourceLocation l) {
 		try {
@@ -62,7 +61,7 @@ public class JavaCompilerForRascal {
 	 * @param classpath  list of depedencies (folders and jars containing .class files)
 	 * @return list of error messages and warnings by the Java compiler
 	 */
-    public IList compileJava(IMap sourcesMap, IList classpath, ISourceLocation bin, IListWriter messages) {
+	public IList compileJava(IMap sourcesMap, ISourceLocation bin, IList classpath) {
 		var cl = new SourceLocationClassLoader(classpath, System.class.getClassLoader());
 
 		try {
@@ -77,6 +76,10 @@ public class JavaCompilerForRascal {
 		} 
 		catch (JavaCompilerException e) {
 			return convertDiagnostics(e.getDiagnostics());
+		}
+		catch (URISyntaxException e) {
+			// TODO, however unlikely this is
+			return vf.list();
 		}
 	}
 
