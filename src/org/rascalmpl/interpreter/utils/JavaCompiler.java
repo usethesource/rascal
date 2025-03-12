@@ -35,7 +35,6 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.Set;
 
-import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
@@ -50,9 +49,6 @@ import javax.tools.ToolProvider;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.IRascalValueFactory;
-
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -270,17 +266,14 @@ public class JavaCompiler<T> {
     *         values are the corresponding Class objects.
     * @throws JavaCompilerException
     *            if the source cannot be compiled
-    */
-    public synchronized void compileTo(final IMap classes, ClassLoader loader, ISourceLocation target, DiagnosticCollector<JavaFileObject> diagnostics)
-      throws JavaCompilerException {
+   * @throws URISyntaxException 
+   */
+   public synchronized void compileTo(final IMap classes, ClassLoader loader, ISourceLocation target, DiagnosticCollector<JavaFileObject> diagnostics)
+      throws JavaCompilerException, URISyntaxException {
       if (diagnostics == null) {
          diagnostics = new DiagnosticCollector<>();
       }
-
-      // reset everything (allow for gc)
-      classLoader = new ClassLoaderImpl(loader)
-      javaFileManager = new FileManagerImpl(null, classLoader);
-      
+ 
       List<JavaFileObject> sources = registerSourceFiles(classes);
 
       // Get a CompliationTask from the compiler and compile the sources
@@ -290,7 +283,6 @@ public class JavaCompiler<T> {
          task.call();
 
       var reg = URIResolverRegistry.getInstance();
-      var vf = IRascalValueFactory.getInstance();
 
       // Write the bytes to their respective file URIs.
       // Notice that there are possible many more .class files then there were java source files,
