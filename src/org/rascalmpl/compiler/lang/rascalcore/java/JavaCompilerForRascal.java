@@ -14,12 +14,15 @@ import javax.tools.SimpleJavaFileObject;
 
 import org.rascalmpl.interpreter.utils.JavaCompiler;
 import org.rascalmpl.interpreter.utils.JavaCompilerException;
+import org.rascalmpl.interpreter.utils.JavaFileObjectImpl;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -61,7 +64,7 @@ public class JavaCompilerForRascal {
 	 * @param classpath  list of depedencies (folders and jars containing .class files)
 	 * @return list of error messages and warnings by the Java compiler
 	 */
-	public IList compileJava(IMap sourcesMap, ISourceLocation bin, IList classpath) {
+	public IList compileJava(ISet sourcesMap, ISourceLocation bin, IList classpath) {
 		var cl = new SourceLocationClassLoader(classpath, System.class.getClassLoader());
 
 		try {
@@ -78,8 +81,7 @@ public class JavaCompilerForRascal {
 			return convertDiagnostics(e.getDiagnostics());
 		}
 		catch (URISyntaxException e) {
-			// TODO, however unlikely this is
-			return vf.list();
+			return vf.list(Messages.error(e.getMessage(), URIUtil.unknownLocation()));
 		}
 	}
 
@@ -105,9 +107,9 @@ public class JavaCompilerForRascal {
 	}
 
 	private ISourceLocation convertToLoc(Diagnostic<? extends JavaFileObject> d) {
-		URI uri = ((SimpleJavaFileObject) d.getSource()).toUri();
+		ISourceLocation uri = ((JavaFileObjectImpl) d.getSource()).getSloc();
 		var offset = (int) d.getStartPosition();
-		return vf.sourceLocation(vf.sourceLocation(uri), offset, ((int) d.getEndPosition()) - offset);
+		return vf.sourceLocation(uri, offset, ((int) d.getEndPosition()) - offset);
 	}
 				
 }
