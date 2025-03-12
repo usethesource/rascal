@@ -277,10 +277,9 @@ public class JavaCompiler<T> {
       List<JavaFileObject> sources = registerSourceFiles(classes);
 
       // Get a CompliationTask from the compiler and compile the sources
-      final CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics,
-            options, null, sources);
+      final CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options, null, sources);
       
-         task.call();
+      task.call();
 
       var reg = URIResolverRegistry.getInstance();
 
