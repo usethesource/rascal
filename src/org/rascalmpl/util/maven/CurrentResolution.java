@@ -50,7 +50,7 @@ import io.usethesource.vallang.ISourceLocation;
     final ISourceLocation pom;
     final Path rootRepository;
     final ModelBuilder builder;
-    final ModelResolver resolver;
+    final SimpleResolver resolver;
     final Map<ArtifactCoordinate, Dependency> dependencyCache;
     final HttpClient client;
     final Set<ArtifactCoordinate> cycleDetection;
