@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MavenParser",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.util.maven.MavenParser",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
+            "name": "Project",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.util.maven.Project",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "Launch DocRunner",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.DocRunner",
