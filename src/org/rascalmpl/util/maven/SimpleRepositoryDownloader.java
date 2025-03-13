@@ -74,7 +74,7 @@ import org.apache.maven.model.Repository;
         return result.isPresent();
     }
 
-    public String downloadPom(String url, Path target, boolean force) {
+    public String downloadAndRead(String url, Path target, boolean force) {
         Optional<String> result = download(url, target, force,
         (InputStream input) -> {
             return IOUtils.toString(input, StandardCharsets.UTF_8.name());
@@ -195,7 +195,7 @@ import org.apache.maven.model.Repository;
         if (checksum == null) {
             Files.delete(path);
         } else {
-            Files.write(path, checksum.getBytes(), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            Files.write(path, checksum.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
         }
     }
 

@@ -45,7 +45,7 @@ public class SimpleRepositoryDownloaderTest {
     public void testPomDownload() throws IOException {
         String url = "com/google/api/api-common/2.9.0/api-common-2.9.0.pom";
         Path target = tempRepo.resolve("test.pom"); // No need to go any deeper for this test
-        String pomContent = downloader.downloadPom(url, target, true);
+        String pomContent = downloader.downloadAndRead(url, target, true);
         Assert.assertTrue(pomContent.startsWith("<?xml version='1.0' encoding='UTF-8'?>"));    
         Assert.assertEquals(pomContent, Files.readString(target));
     }
@@ -56,7 +56,7 @@ public class SimpleRepositoryDownloaderTest {
         Path target = tempRepo.resolve("test.pom"); // No need to go any deeper for this test
         String hello = "Hello World!";
         Files.writeString(target, hello);
-        downloader.downloadPom(url, target, false);
+        downloader.downloadAndRead(url, target, false);
         // File should not have been overwritten because force is false
         Assert.assertEquals(hello, Files.readString(target));
     }
