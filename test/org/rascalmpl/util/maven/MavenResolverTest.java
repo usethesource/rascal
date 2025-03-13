@@ -76,15 +76,17 @@ public class MavenResolverTest {
         }
     }
 
-    private Project parse(String path) {
-        return Project.parseProjectPom(getPomsPath(path), tempRepo);
+    private MavenParser parse(String path) {
+        return new MavenParser(getPomsPath(path), tempRepo);
     }
 
     @Test
-    public void rascalPomHasRightDependencies() {
-        var project = parse("rascal/pom.xml");
+    public void rascalPomHasRightDependencies() throws ModelResolutionError {
+        var parser = parse("rascal/pom.xml");
+        var project = parser.parseProject();
+
         assertEquals("rascal", project.getCoordinate().getArtifactId());
-        var resolved = project.resolveArtifacts(Scope.COMPILE);
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
 
         var maybeVallang = locate(resolved, "vallang");
         assertTrue("Rascal should have vallang", maybeVallang.isPresent());
@@ -98,9 +100,10 @@ public class MavenResolverTest {
     }
 
     @Test
-    public void nestedDependenciesWithParentPomsShouldWork() {
-        var project = parse("multi-module/example-core/pom.xml");
-        var resolved = project.resolveArtifacts(Scope.COMPILE);
+    public void nestedDependenciesWithParentPomsShouldWork() throws ModelResolutionError {
+        var parser = parse("multi-module/example-core/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeJline3Reader = locate(resolved, "jline-reader");
         assertTrue("jline3 should be found as a dependency", maybeJline3Reader.isPresent());
         assertNotNull("jline3 should be resolved to a path", maybeJline3Reader.get().getResolved());
@@ -117,9 +120,10 @@ public class MavenResolverTest {
     }
 
     @Test
-    public void localReferenceIsAvailableInModel() {
-        var project = parse("local-reference/pom.xml");
-        var resolved = project.resolveArtifacts(Scope.COMPILE);
+    public void localReferenceIsAvailableInModel() throws ModelResolutionError {
+        var parser = parse("local-reference/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeTestLib = locate(resolved, "test-lib");
         assertTrue("non-existing test lib should be found", maybeTestLib.isPresent());
         var testLib = maybeTestLib.get();
@@ -129,9 +133,10 @@ public class MavenResolverTest {
     }
 
     @Test
-    public void multiModulePomsWork() {
-        var project = parse("multi-module/example-ide/pom.xml");
-        var resolved = project.resolveArtifacts(Scope.COMPILE);
+    public void multiModulePomsWork() throws ModelResolutionError {
+        var parser = parse("multi-module/example-ide/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
         var maybeRascalLsp = locate(resolved, "rascal-lsp");
 
         assertTrue("Rascal-lsp should be found", maybeRascalLsp.isPresent());

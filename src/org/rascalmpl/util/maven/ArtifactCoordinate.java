@@ -41,6 +41,9 @@ public class ArtifactCoordinate {
     private final String classifier;
 
     ArtifactCoordinate(String groupId, String artifactId, String version, @Nullable String classifier) {
+        Objects.requireNonNull(groupId);
+        Objects.requireNonNull(artifactId);
+        Objects.requireNonNull(version);
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
