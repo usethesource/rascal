@@ -4,16 +4,15 @@ import java.io.File;
 
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.DefaultModelBuildingRequest;
-import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingRequest;
-import org.apache.maven.model.building.ModelBuildingResult;
-import org.apache.maven.model.building.ModelCache;
 import org.apache.maven.model.building.ModelSource2;
-import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.model.resolution.WorkspaceModelResolver;
 
+/**
+ * This class is only used when we're parsing a pom from the repository, and it has a parent pom it needs finding
+ */
 /*package*/ class SimpleWorkspaceResolver implements WorkspaceModelResolver {
 
     private final CurrentResolution context;

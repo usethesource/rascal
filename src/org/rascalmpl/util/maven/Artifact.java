@@ -43,17 +43,23 @@ import io.usethesource.vallang.IValueFactory;
  */
 public class Artifact {
     private final ArtifactCoordinate coordinate;
+    private final @Nullable ArtifactCoordinate parentCoordinate;
     private final @Nullable Path resolved;
     private final List<Dependency> dependencies;
 
-    private Artifact(ArtifactCoordinate coordinate, @Nullable Path resolved, List<Dependency> dependencies) {
+    private Artifact(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate, @Nullable Path resolved, List<Dependency> dependencies) {
         this.coordinate = coordinate;
+        this.parentCoordinate = parentCoordinate;
         this.resolved = resolved;
         this.dependencies = dependencies;
     }
 
     public ArtifactCoordinate getCoordinate() {
         return coordinate;
+    }
+
+    public @Nullable ArtifactCoordinate getParentCoordinate() {
+        return parentCoordinate;
     }
 
     /**
@@ -81,15 +87,23 @@ public class Artifact {
             return null;
         }
         var coordinate = new ArtifactCoordinate(m.getGroupId(), m.getArtifactId(), m.getVersion(), classifier);
+        var parentCoordinate = m.getParent() == null ? null : new ArtifactCoordinate(m.getParent().getGroupId(), m.getParent().getArtifactId(), m.getParent().getVersion(), "");
         var loc = calculateJarLocation(pomLocation, classifier);
+        // TODO: make sure this jar is downloaded, as with the classifier it might not have been downloaded
+        // we might move towards only downloading the jar when we need it, not when we download the pom. 
+        // But then we have to keep track of where we downloaded the pom from (the _remote.repositories file)
         var dependencies = m.getDependencies().stream()
             .filter(d -> !"import".equals(d.getScope()))
             .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
             .map(d -> Dependency.build(d, VF.listWriter(), context))
             .collect(Collectors.toUnmodifiableList())
             ;
-        return new Artifact(coordinate, loc, dependencies);
+        return new Artifact(coordinate,  parentCoordinate, loc, dependencies);
 
+    }
+
+    /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate) {
+        return new Artifact(coordinate, null, null, Collections.emptyList());
     }
 
     private static @Nullable Path calculateJarLocation(@Nullable Path pomLocation, String classifier) {
@@ -111,7 +125,4 @@ public class Artifact {
         return coordinate + "[" + (resolved != null ? "resolved" : "missing" )+ "]";
     }
 
-    public static @Nullable Artifact unresolved(ArtifactCoordinate coordinate) {
-        return new Artifact(coordinate, null, Collections.emptyList());
-    }
 }

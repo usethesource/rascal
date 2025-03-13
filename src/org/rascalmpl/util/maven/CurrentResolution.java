@@ -30,12 +30,10 @@ import java.net.http.HttpClient;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 import org.apache.maven.model.building.ModelBuilder;
 import org.apache.maven.model.building.ModelCache;
-import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.WorkspaceModelResolver;
 
 import com.github.benmanes.caffeine.cache.Cache;
@@ -117,11 +115,11 @@ import io.usethesource.vallang.ISourceLocation;
             public boolean equals(Object obj) {
                 if (this == obj)
                     return true;
-                if (obj == null || !(obj instanceof Key))
+                if (!(obj instanceof Key))
                     return false;
                 Key other = (Key) obj;
                 return groupId.equals(other.groupId)
-                    && artifactId.equals(artifactId)
+                    && artifactId.equals(other.artifactId)
                     && version.equals(other.version)
                     && tag.equals(other.tag);
             }
