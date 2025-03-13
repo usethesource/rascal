@@ -29,18 +29,22 @@ package org.rascalmpl.util.maven;
 
 import java.util.Objects;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 public class ArtifactCoordinate {
 
-    public static final ArtifactCoordinate UNKNOWN = new ArtifactCoordinate("unkown", "unknown", "?");
+    public static final ArtifactCoordinate UNKNOWN = new ArtifactCoordinate("unkown", "unknown", "?", "");
 
     private final String groupId;
     private final String artifactId;
     private final String version;
+    private final String classifier;
 
-    ArtifactCoordinate(String groupId, String artifactId, String version) {
+    ArtifactCoordinate(String groupId, String artifactId, String version, @Nullable String classifier) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
+        this.classifier = classifier == null ? "" : classifier;
     }
 
     public String getArtifactId() {
@@ -53,12 +57,19 @@ public class ArtifactCoordinate {
         return version;
     }
 
+    /**
+     * Often empty, but only applicable for non-pom resolution. Is for example used to package for example a jdk8 and a jdk21 version of a jar.
+     */
+    public String getClassifier() {
+        return classifier;
+    }
+
     /*package*/ WithoutVersion versionLess() {
         return new WithoutVersion(this);
     }
 
     /*package*/ static WithoutVersion versionLess(String groupId, String artifactId) {
-        return new WithoutVersion(new ArtifactCoordinate(groupId, artifactId, "???"));
+        return new WithoutVersion(new ArtifactCoordinate(groupId, artifactId, "???", ""));
     }
 
     /*package*/ static class WithoutVersion {
@@ -73,7 +84,9 @@ public class ArtifactCoordinate {
             }
             var otherBase = ((WithoutVersion)obj).base;
             return base.groupId.equals(otherBase.groupId) 
-                && base.artifactId.equals(otherBase.artifactId);
+                && base.artifactId.equals(otherBase.artifactId)
+                ;
+
         }
         @Override
         public int hashCode() {
@@ -86,12 +99,12 @@ public class ArtifactCoordinate {
 
     @Override
     public String toString() {
-        return groupId + ":" + artifactId + ":" + version;
+        return groupId + ":" + artifactId + ":" + version + (classifier.isEmpty() ? "" : (":" + classifier));
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(groupId, artifactId, version);
+        return Objects.hash(groupId, artifactId, version, classifier);
     }
 
     @Override
@@ -103,8 +116,10 @@ public class ArtifactCoordinate {
             return false;
         }
         ArtifactCoordinate other = (ArtifactCoordinate) obj;
-        return Objects.equals(groupId, other.groupId) && Objects.equals(artifactId, other.artifactId)
-            && Objects.equals(version, other.version);
+        return Objects.equals(groupId, other.groupId) 
+            && Objects.equals(artifactId, other.artifactId)
+            && Objects.equals(version, other.version)
+            && Objects.equals(classifier, other.classifier);
     }
 
 

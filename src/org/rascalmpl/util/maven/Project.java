@@ -221,14 +221,14 @@ public class Project {
     }
 
     private static ArtifactCoordinate translateCoordinate(Model model) {
-        return new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion());
+        return new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion(), "");
     }
 
     private static ArtifactCoordinate translateCoordinate(Parent model) {
         if (model == null || model.getArtifactId() == null || model.getArtifactId().isEmpty()) {
             return null;
         }
-        return new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion());
+        return new ArtifactCoordinate(model.getGroupId(), model.getArtifactId(), model.getVersion(), "");
     }
 
     private static List<Dependency> translateDependencies(Model model, IListWriter messages, CurrentResolution context, boolean isRoot) {
