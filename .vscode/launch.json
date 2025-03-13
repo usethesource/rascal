@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "RascalCheck",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalCheck",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "Launch DocRunner",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.DocRunner",
@@ -31,7 +38,8 @@
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
             "vmArgs": "-Xss80m -Xmx2g -ea",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": "--project |cwd:///|" 
         },
         {
             "type": "java",

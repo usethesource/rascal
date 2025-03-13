@@ -27,8 +27,8 @@
 package org.rascalmpl.util.maven;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -37,6 +37,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.AfterClass;
@@ -74,71 +76,80 @@ public class MavenResolverTest {
         }
     }
 
-    private Project parse(String path) {
-        return Project.parseProjectPom(getPomsPath(path), tempRepo);
+    private MavenParser parse(String path) {
+        return new MavenParser(getPomsPath(path), tempRepo);
     }
 
     @Test
-    public void rascalPomHasRightDependencies() throws URISyntaxException {
-        var project = parse("rascal/pom.xml");
-        assertEquals("rascal", project.getCoordinate().getArtifactId());
+    public void rascalPomHasRightDependencies() throws ModelResolutionError {
+        var parser = parse("rascal/pom.xml");
+        var project = parser.parseProject();
 
-        var maybeVallang = project.getDependencies().stream()
-            .filter(d -> d.getCoordinate().getArtifactId().equals("vallang"))
-            .findFirst();
+        assertEquals("rascal", project.getCoordinate().getArtifactId());
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+
+        var maybeVallang = locate(resolved, "vallang");
         assertTrue("Rascal should have vallang", maybeVallang.isPresent());
 
         var vallang = maybeVallang.get();
         assertEquals("Vallang should be of right version", "1.0.0-RC15", vallang.getCoordinate().getVersion());
-        assertTrue("Vallang should be found/downloaded in the repo", vallang.isFound());
-        assertTrue("Vallang should depend on capsule", vallang.getDependencies().stream().anyMatch(d -> d.getCoordinate().getArtifactId().equals("capsule")));
+        assertNotNull("Vallang should be found/downloaded in the repo", vallang.getResolved());
 
-        Path sha1Path = tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15", "vallang-1.0.0-RC15.jar.sha1"));
+        var maybeCapsule = locate(resolved, "capsule");
+        assertTrue("Vallang should depend on capsule", maybeCapsule.isPresent());
+        Path sha1Path =
+
+        tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15", "vallang-1.0.0-RC15.jar.sha1"));
         assertTrue("Vallang sha1 should have been written", Files.exists(sha1Path));
     }
 
     @Test
-    public void nestedDependenciesWithParentPomsShouldWork() {
-        var project = parse("multi-module/example-core/pom.xml");
-        var maybeJline3Reader = project.getDependencies().stream()
-            .filter(d -> d.getCoordinate().getArtifactId().equals("jline-reader"))
-            .findFirst();
+    public void nestedDependenciesWithParentPomsShouldWork() throws ModelResolutionError {
+        var parser = parse("multi-module/example-core/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeJline3Reader = locate(resolved, "jline-reader");
         assertTrue("jline3 should be found as a dependency", maybeJline3Reader.isPresent());
+        assertNotNull("jline3 should be resolved to a path", maybeJline3Reader.get().getResolved());
 
-        for (var dep: maybeJline3Reader.get().getDependencies()) {
-            assertNotNull("versions should be found for jline-reader dependency: " + dep.getCoordinate().getArtifactId(), dep.getCoordinate().getVersion());
-            assertTrue("we should have been able to download dependency: " + dep.getCoordinate().getArtifactId(), dep.isFound());
-        }
+        var maybeJline3Terminal = locate(resolved, "jline-terminal");
+        assertTrue("jline3 dependencies should be in the resolved list", maybeJline3Terminal.isPresent());
+        assertNotNull("jline3 dependencies should be resolved to a path", maybeJline3Terminal.get().getResolved());
+    }
+
+    private static Optional<Artifact> locate(List<Artifact> resolved, String artifactId) {
+        return resolved.stream()
+            .filter(d -> d.getCoordinate().getArtifactId().equals(artifactId))
+            .findFirst();
     }
 
     @Test
-    public void localReferenceIsAvailableInModel() {
-        var project = parse("local-reference/pom.xml");
-        var maybeTestLib = project.getDependencies().stream()
-            .filter(d ->  d.getCoordinate().getArtifactId().equals("test-lib"))
-            .findFirst();
+    public void localReferenceIsAvailableInModel() throws ModelResolutionError {
+        var parser = parse("local-reference/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeTestLib = locate(resolved, "test-lib");
         assertTrue("non-existing test lib should be found", maybeTestLib.isPresent());
         var testLib = maybeTestLib.get();
 
         assertEquals("0.1.0-SNAPSHOT", testLib.getCoordinate().getVersion());
-        assertEquals(Scope.COMPILE, testLib.getScope());
-        assertFalse("non-existing test lib should not be found", testLib.isFound());
+        assertNull("non-existing test lib should not be found", testLib.getResolved());
     }
 
     @Test
-    public void multiModulePomsWork() {
-        var project = parse("multi-module/example-ide/pom.xml");
+    public void multiModulePomsWork() throws ModelResolutionError {
+        var parser = parse("multi-module/example-ide/pom.xml");
+        var project = parser.parseProject();
+        var resolved = project.resolveDependencies(Scope.COMPILE, parser);
+        var maybeRascalLsp = locate(resolved, "rascal-lsp");
 
-        assertTrue("rascal-lsp should be of the right version", 
-            project.getDependencies().stream()
-                .map(Dependency::getCoordinate)
-                .filter(c -> c.getArtifactId().equals("rascal-lsp"))
-                .anyMatch(c -> c.getVersion().equals("2.21.2")));
+        assertTrue("Rascal-lsp should be found", maybeRascalLsp.isPresent());
+        assertEquals("rascal-lsp should be resolved to the right version", "2.21.2", maybeRascalLsp.get().getCoordinate().getVersion());
 
-        assertTrue("We should have a link to our core project", 
-            project.getDependencies().stream()
-                .map(Dependency::getCoordinate)
-                .anyMatch(c -> c.getArtifactId().equals("example-core")));
+        var maybeCoreLink = locate(resolved, "example-core");
+
+        assertTrue("example-core should be in the list", maybeCoreLink.isPresent());
+        assertNull("example-core should not be resolved to a path", maybeCoreLink.get().getResolved());
     }
 
 

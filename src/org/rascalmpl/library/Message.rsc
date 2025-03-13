@@ -26,3 +26,7 @@ data Message
     | warning(str msg, loc at)
     | info(str msg, loc at)
     ;
+
+@javaClass{org.rascalmpl.library.Messages}
+@synopsis{Call the standard message pretty-printing and sorting code, writing the result to a string}
+java str write(list[Message] messages);
