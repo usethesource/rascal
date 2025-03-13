@@ -97,6 +97,12 @@ public class MavenResolverTest {
 
         var maybeCapsule = locate(resolved, "capsule");
         assertTrue("Vallang should depend on capsule", maybeCapsule.isPresent());
+
+        Path artifactPath = tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15"));
+        Path sha1Path = artifactPath.resolve("vallang-1.0.0-RC15.jar.sha1");
+        assertTrue("Vallang sha1 should have been written", Files.exists(sha1Path));
+        Path jarPath = artifactPath.resolve("vallang-1.0.0-RC15.jar");
+        assertTrue("Vallang jar should have been written", Files.exists(jarPath));
     }
 
     @Test
