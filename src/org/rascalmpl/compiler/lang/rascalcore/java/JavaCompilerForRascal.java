@@ -2,7 +2,6 @@ package org.rascalmpl.compiler.lang.rascalcore.java;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
@@ -10,8 +9,6 @@ import java.util.stream.Collectors;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
-import javax.tools.SimpleJavaFileObject;
-
 import org.rascalmpl.interpreter.utils.JavaCompiler;
 import org.rascalmpl.interpreter.utils.JavaCompilerException;
 import org.rascalmpl.interpreter.utils.JavaFileObjectImpl;
@@ -21,7 +18,6 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;

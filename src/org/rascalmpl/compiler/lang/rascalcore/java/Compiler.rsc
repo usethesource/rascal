@@ -52,7 +52,26 @@ if you need to use less memory then call `compileJava` several times with a smal
 @javaClass{org.rascalmpl.compiler.lang.rascalcore.java.JavaCompilerForRascal}
 java list[Message] compileJava(rel[loc fileName, str qualifiedName, str sourceCode] sources, loc bin, list[loc] libs=[]);
 
-@synopsis{finds the packageName.className fully qualified name for a source path by relativizing with the srcs folder and replaces / by .}
+@synopsis{computes the `packageName.className` fully qualified class name from a source filename `/.../src/packageName/className.java`} 
 private str qualifiedName(loc path, list[loc] srcs)
-    = replaceAll(".", "/", relativize(srcs, path).path[1..]) 
+    = replaceAll(relativize(srcs, path)[extension=""].path[1..], ".", "/") 
     when path.extension == "java";
+
+
+@synopsis{tests folder structure of input .java files against the folder structure of the output .class files}
+test bool basicCompilerIOtest() {
+    writeFile(|memory://tester/A.java|,           "class A { }");
+    writeFile(|memory://tester/B.java|,           "class B extends A { }");
+    writeFile(|memory://tester/pack/C.java|,      "package pack; \npublic class C { }");
+    writeFile(|memory://tester/pack/pack/D.java|, "package pack.pack; \nclass D extends pack.C { }");
+
+    compileJavaSourceFolders([|memory://tester/|], |memory://target|);
+
+    return find(|memory://target|,"class") 
+        ==  {
+                |memory://target/pack/C/java.class|,
+                |memory://target/pack/pack/D/java.class|,
+                |memory://target/B/java.class|,
+                |memory://target/A/java.class|
+        };
+}
