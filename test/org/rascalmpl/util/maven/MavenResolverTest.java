@@ -94,7 +94,7 @@ public class MavenResolverTest {
         assertTrue("Vallang should depend on capsule", vallang.getDependencies().stream().anyMatch(d -> d.getCoordinate().getArtifactId().equals("capsule")));
 
         Path sha1Path = tempRepo.resolve(Path.of("io", "usethesource", "vallang", "1.0.0-RC15", "vallang-1.0.0-RC15.jar.sha1"));
-        assertTrue("Vallang sha1 should have been downloaded", Files.exists(sha1Path));
+        assertTrue("Vallang sha1 should have been written", Files.exists(sha1Path));
     }
 
     @Test
