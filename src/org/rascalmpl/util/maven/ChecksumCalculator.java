@@ -6,12 +6,10 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.apache.maven.repository.legacy.ChecksumFailedException;
-
-public class ChecksumVerifier {
+public class ChecksumCalculator {
     private static final int BUFFER_SIZE = 1024;
 
-    public void verifyChecksum(Path path, String algorithm, String expectedChecksum) throws IOException, ChecksumFailedException {
+    public static String calculateChecksum(Path path, String algorithm) throws IOException {
         try (FileInputStream input = new FileInputStream(path.toFile())) {
             MessageDigest digest;
             try {
@@ -39,11 +37,7 @@ public class ChecksumVerifier {
                 hashBuffer.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
             }
              
-            String actualChecksum = hashBuffer.toString();
-             
-            if (!expectedChecksum.equals(actualChecksum)) {
-                throw new ChecksumFailedException(algorithm + " checksum failed for " + path.toString());
-            }
+            return hashBuffer.toString();
         }
     }
 }
