@@ -28,8 +28,8 @@ package org.rascalmpl.util.maven;
 
 import java.nio.file.Path;
 
-/* package */ class Util {
-    static Path mavenRepository() {
+public class Util {
+    public static Path mavenRepository() {
         // TODO: parse settings.xml and figure out the repo
         return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository2");
     }
