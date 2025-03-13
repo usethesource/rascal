@@ -90,9 +90,7 @@ test bool compilerClasspathTest() {
 
     errors = compileJavaSourceFolders([|memory://tester/|], |memory://target|, libs=[rascalLib]);
 
-    iprintln(errors);
-
-    assert errors == [];
+    assert errors == [] : "no errors expected: <errors>";
 
     return find(|memory://target|,"class") ==  {|memory://target/A/java.class|};
 }
