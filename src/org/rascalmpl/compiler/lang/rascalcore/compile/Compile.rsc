@@ -123,6 +123,10 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     return tm.messages;
 }
 
+list[Message] compile(list[loc] moduleLocs, RascalCompilerConfig compilerConfig) {
+    return [info("not yet implemented", moduleLocs[0])];
+}
+
 @doc{Compile a Rascal source module (given at a location) to Java}
 list[Message] compile(loc moduleLoc, RascalCompilerConfig compilerConfig) {
 
@@ -157,4 +161,36 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
     if(compilerConfig.verbose) { println("Compiled ... <qualifiedModuleName> in <comp_time> ms [total]"); }
 	
     return toList(ms.messages[qualifiedModuleName] ? {});
+}
+
+void main(
+    PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
+    list[loc] \modules = |unknown://|,
+    bool logPathConfig            = false,
+    bool logImports               = false,
+    bool verbose                  = false,
+    bool logWrittenFiles          = false,
+    bool warnUnused               = true,
+    bool warnUnusedFormals        = true,
+    bool warnUnusedVariables      = true,
+    bool warnUnusedPatternFormals = true,
+    bool infoModuleChecked        = false
+    ) {
+    pcfg.resources = pcfg.bin;
+
+    rascalConfig = rascalCompilerConfig(pcfg,
+        logPathConfig            = logPathConfig,
+        verbose                  = verbose,
+        logWrittenFiles          = logWrittenFiles,
+        warnUnused               = warnUnused,
+        warnUnusedFormals        = warnUnusedFormals,
+        warnUnusedVariables      = warnUnusedVariables,
+        warnUnusedPatternFormals = warnUnusedPatternFormals,
+        infoModuleChecked        = infoModuleChecked
+    );
+        
+    messages = compile(\modules, rascalConfig);
+    println(write(messages));
+
+    return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
 }
