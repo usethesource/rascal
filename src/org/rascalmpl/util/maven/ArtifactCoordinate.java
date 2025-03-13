@@ -53,11 +53,15 @@ public class ArtifactCoordinate {
         return version;
     }
 
-    /*package*/ Object versionLess() {
+    /*package*/ WithoutVersion versionLess() {
         return new WithoutVersion(this);
     }
 
-    private static class WithoutVersion {
+    /*package*/ static WithoutVersion versionLess(String groupId, String artifactId) {
+        return new WithoutVersion(new ArtifactCoordinate(groupId, artifactId, "???"));
+    }
+
+    /*package*/ static class WithoutVersion {
         private final ArtifactCoordinate base;
         public WithoutVersion(ArtifactCoordinate base) {
             this.base = base;

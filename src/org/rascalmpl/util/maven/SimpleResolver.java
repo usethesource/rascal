@@ -58,7 +58,12 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
         this.client = client;
     }
 
-    /*package*/Path calculatePomPath(String groupId, String artifactId, String version) {
+    public Path calculatePomPath(ArtifactCoordinate coordinate) {
+        return calculatePomPath(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion());
+    }
+
+
+    public Path calculatePomPath(String groupId, String artifactId, String version) {
         var result = rootRepository;
         for (var path: groupId.split("\\.")) {
             result = result.resolve(path);
@@ -87,6 +92,10 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
     @Override
     public ModelSource resolveModel(Dependency dependency) throws UnresolvableModelException {
         return resolveModel(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+    }
+
+    public ModelSource resolveModel(ArtifactCoordinate coordinate) throws UnresolvableModelException {
+        return resolveModel(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion());
     }
 
     @Override
@@ -155,6 +164,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
     private String getUrl(Path local, String groupId, String artifactId, String version) {
         return String.format("/%s/%s/%s/%s", groupId.replace('.', '/'), artifactId,version, local.getFileName().toString());
     }
+
 
     
 }
