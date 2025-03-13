@@ -38,11 +38,12 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Identifies a listed dependency, not resolved to an artifact yet.
  */
-public class Dependency {
+/*package*/ class Dependency {
     private final ArtifactCoordinate coordinate;
     private final Scope scope;
     private final boolean optional;
@@ -67,11 +68,15 @@ public class Dependency {
         return optional;
     }
 
-    static Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, CurrentResolution context) {
+    public Set<ArtifactCoordinate.WithoutVersion> getExclusions() {
+        return exclusions;
+    }
+
+    static Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pom) {
         var version = d.getVersion();
         if (version == null) {
             // while rare, this happens when a user has an incomplete dependencyManagement section
-            messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", context.pom));
+            messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", pom));
             version = "???";
         }
         var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version, d.getClassifier());
@@ -98,7 +103,7 @@ public class Dependency {
 
     @Override
     public String toString() {
-        return coordinate.toString() + "@" + scope + "["+optional+"]";
+        return coordinate.toString() + "@" + scope + (optional ? "(optional)" : "");
     }
 
     @Override
@@ -150,33 +155,4 @@ public class Dependency {
                 return false;
         }
     }
-
-    public @Nullable Artifact resolve(CurrentResolution context) {
-        try {
-            if (scope == Scope.PROVIDED) {
-                // current maven behavior seems to be:
-                // - do not download provided dependencies
-                // - if a provided dependency is present in the maven repository it's considered "provided"
-                var pomDep = context.resolver.calculatePomPath(this.coordinate);
-                if (Files.notExists(pomDep)) {
-                    // ok, doesn't exist yet. so don't download it to calculate dependencies
-                    return null;
-                }
-            }
-            if (scope == Scope.SYSTEM) {
-                // TODO: resolve system dependencies from system path instead of repositories
-                return null;
-            }
-            var resolvedEntry = context.resolver.resolveModel(coordinate);
-            var model = Project.parseRepositoryPom(resolvedEntry, context);
-            if (model == null) {
-                return Artifact.unresolved(coordinate);
-            }
-            var loc = Path.of(((ModelSource2)resolvedEntry).getLocationURI());
-            return Artifact.build(model, loc, coordinate.getClassifier(), exclusions, context);
-        } catch (UnresolvableModelException e) {
-            return Artifact.unresolved(coordinate);
-        }
-    }
-
 }
