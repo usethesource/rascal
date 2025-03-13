@@ -27,38 +27,31 @@
 package org.rascalmpl.util.maven;
 
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.List;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.maven.model.Exclusion;
+import org.apache.maven.model.building.ModelSource2;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
-import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.ISourceLocation;
 
 /**
- * Identifies a listed dependency
+ * Identifies a listed dependency, not resolved to an artifact yet.
  */
 public class Dependency {
     private final ArtifactCoordinate coordinate;
     private final Scope scope;
-    private final boolean found;
     private final boolean optional;
-    private final List<String> exclusions;
-    private final List<Dependency> dependencies;
+    private final Set<ArtifactCoordinate.WithoutVersion> exclusions;
 
-    private Dependency(ArtifactCoordinate coordinate, Scope scope, boolean found, boolean optional, List<Dependency> dependencies, List<String> exclusions) {
+    private Dependency(ArtifactCoordinate coordinate, Scope scope, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions) {
         this.coordinate = coordinate;
         this.scope = scope;
-        this.found = found;
         this.optional = optional;
-        this.dependencies = dependencies;
         this.exclusions = exclusions;
     }
 
@@ -70,25 +63,20 @@ public class Dependency {
         return scope;
     }
 
-    public boolean isFound() {
-        return found;
-    }
-
     public boolean isOptional() {
         return optional;
     }
 
-    public List<Dependency> getDependencies() {
-        return dependencies;
-    }
-
-    public ISourceLocation getLocation() {
-        return MavenRepositoryURIResolver.make(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion(), "");
-    }
-
     static Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, CurrentResolution context) {
-        var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), d.getVersion());
+        var version = d.getVersion();
+        if (version == null) {
+            // while rare, this happens when a user has an incomplete dependencyManagement section
+            messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", context.pom));
+            version = "???";
+        }
+        var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version);
         Scope scope;
+
 
         switch (d.getScope() == null ? "compile" : d.getScope()) {
             case "provided": scope = Scope.PROVIDED; break;
@@ -101,91 +89,21 @@ public class Dependency {
         }
 
         var exclusions = d.getExclusions().stream()
-            .map(e -> e.getGroupId() + ":" + e.getArtifactId())
-            .collect(Collectors.toUnmodifiableList());
+            .map(e -> ArtifactCoordinate.versionLess(e.getGroupId(), e.getArtifactId()))
+            .collect(Collectors.toUnmodifiableSet());
 
-
-        var existing = context.dependencyCache.get(coodinate);
-        if (existing != null && existing.exclusions.equals(exclusions)) {
-            // do not calculate it again, but reuse for performance (some deps are very common)
-            if (existing.scope == scope) {
-                return existing;
-            }
-            return new Dependency(existing.coordinate, scope, existing.found, existing.optional, existing.dependencies, existing.exclusions);
-        }
-
-        if (context.cycleDetection.contains(coodinate)) {
-            // we're in a cycle, so lets break it by returning a version of ourselves without calculated dependencies (and don't put it in the cache)
-            return new Dependency(coodinate, scope, false, d.isOptional(), Collections.emptyList(), exclusions);
-        }
-        context.cycleDetection.add(coodinate);
-        try {
-            var dependencies = buildDependencies(d, messages, context);
-            var result = new Dependency(coodinate, scope, dependencies != null, d.isOptional(), dependencies == null ? Collections.emptyList() : dependencies, exclusions);
-            if (existing != null) {
-                context.dependencyCache.put(coodinate, result);
-            }
-            return result;
-        } finally {
-            context.cycleDetection.remove(coodinate);
-        }
+        return new Dependency(coodinate, scope, d.isOptional(), exclusions);
     }
 
-    private static @Nullable List<Dependency> buildDependencies(org.apache.maven.model.Dependency me, IListWriter messages,
-        CurrentResolution context) {
-        try {
-            if (me.getVersion() == null) {
-                // while rare, this happens when a user has an incomplete dependencyManagement section
-                throw new UnresolvableModelException("Version of dependency missing", me.getGroupId(), me.getArtifactId(), me.getVersion());
-            }
-            if ("provided".equals(me.getScope())) {
-                // current maven behavior seems to be:
-                // - do not download provided dependencies
-                // - if a provided dependency is present in the maven repository it's considered "provided"
-                var pomDep = context.resolver.calculatePomPath(me.getGroupId(), me.getArtifactId(), me.getVersion());
-                if (Files.notExists(pomDep)) {
-                    // ok, doesn't exist yet. so don't download it to calculate dependencies
-                    return null;
-                }
-            }
-            // TODO: resolve system dependencies from system path instead of repositories
-            var resolvedEntry = context.resolver.resolveModel(me);
-            var fullDependencies = Project.parseRepositoryPom(resolvedEntry, context).getDependencies();
-            var exclusions = me.getExclusions();
-            if (exclusions.isEmpty()) {
-                return fullDependencies;
-            }
-            return fullDependencies.stream()
-                .filter(d -> !d.matches(exclusions))
-                .collect(Collectors.toUnmodifiableList());
-        } catch (UnresolvableModelException e) {
-            var loc = context.pom;
-            var artifactLoc = me.getLocation("artifactId");
-            if (artifactLoc != null) {
-                loc = IRascalValueFactory.getInstance().sourceLocation(loc , 0, 0, artifactLoc.getLineNumber(), artifactLoc.getColumnNumber(), artifactLoc.getLineNumber(), artifactLoc.getColumnNumber() + 1);
-            }
-            messages.append(Messages.warning("I could not resolve dependency in maven repository: " + me.getGroupId() + ":" + me.getArtifactId() + ":" + me.getVersion(), loc));
-            return null;
-        }
-    }
-
-    private boolean matches(List<Exclusion> exclusions) {
-        for (var ex : exclusions) {
-            if (ex.getGroupId().equals(coordinate.getGroupId()) && ex.getArtifactId().equals(coordinate.getArtifactId())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public String toString() {
-        return coordinate.toString() + "@" + scope + "["+found+"]";
+        return coordinate.toString() + "@" + scope + "["+optional+"]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(coordinate, scope, found, optional, dependencies, exclusions);
+        return Objects.hash(coordinate, scope, optional, exclusions);
     }
 
     @Override
@@ -197,14 +115,17 @@ public class Dependency {
             return false;
         }
         Dependency other = (Dependency) obj;
-        return Objects.equals(coordinate, other.coordinate) && scope == other.scope && found == other.found && Objects.equals(exclusions, other.exclusions);
+        return Objects.equals(coordinate, other.coordinate) 
+            && scope == other.scope 
+            && optional == other.optional
+            && Objects.equals(exclusions, other.exclusions);
     }
 
     /*package*/ boolean shouldInclude(Scope forScope) {
         if (optional) {
             return false;
         }
-        if (forScope == scope && scope != Scope.PROVIDED) {
+        if (forScope == scope && scope != Scope.PROVIDED && scope != Scope.TEST) {
             return true;
         }
         // for the ones where it's not the 
@@ -227,6 +148,34 @@ public class Dependency {
             case PROVIDED: // fall through
             default:
                 return false;
+        }
+    }
+
+    public @Nullable Artifact resolve(CurrentResolution context) {
+        try {
+            if (scope == Scope.PROVIDED) {
+                // current maven behavior seems to be:
+                // - do not download provided dependencies
+                // - if a provided dependency is present in the maven repository it's considered "provided"
+                var pomDep = context.resolver.calculatePomPath(this.coordinate);
+                if (Files.notExists(pomDep)) {
+                    // ok, doesn't exist yet. so don't download it to calculate dependencies
+                    return null;
+                }
+            }
+            if (scope == Scope.SYSTEM) {
+                // TODO: resolve system dependencies from system path instead of repositories
+                return null;
+            }
+            var resolvedEntry = context.resolver.resolveModel(coordinate);
+            var model = Project.parseRepositoryPom(resolvedEntry, context);
+            if (model == null) {
+                return null;
+            }
+            var loc  = Path.of(((ModelSource2)resolvedEntry).getLocationURI());
+            return Artifact.build(model, loc,  exclusions, context);
+        } catch (UnresolvableModelException e) {
+            return null;
         }
     }
 
