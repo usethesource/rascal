@@ -26,21 +26,16 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.maven.model.Exclusion;
 import org.apache.maven.model.Model;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
-import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 
 /**
@@ -81,12 +76,12 @@ public class Artifact {
 
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
 
-    /*package*/ static @Nullable Artifact build(Model m, @Nullable Path pomLocation, Set<ArtifactCoordinate.WithoutVersion> exclusions, CurrentResolution context) {
+    /*package*/ static @Nullable Artifact build(Model m, @Nullable Path pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, CurrentResolution context) {
         if (m.getPackaging() != null && !"jar".equals(m.getPackaging())) {
             return null;
         }
-        var coordinate = new ArtifactCoordinate(m.getGroupId(), m.getArtifactId(), m.getVersion());
-        var loc = calculateJarLocation(pomLocation);
+        var coordinate = new ArtifactCoordinate(m.getGroupId(), m.getArtifactId(), m.getVersion(), classifier);
+        var loc = calculateJarLocation(pomLocation, classifier);
         var dependencies = m.getDependencies().stream()
             .filter(d -> !"import".equals(d.getScope()))
             .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
@@ -97,7 +92,7 @@ public class Artifact {
 
     }
 
-    private static @Nullable Path calculateJarLocation(@Nullable Path pomLocation) {
+    private static @Nullable Path calculateJarLocation(@Nullable Path pomLocation, String classifier) {
         if (pomLocation == null) {
             return null;
         }
@@ -105,11 +100,18 @@ public class Artifact {
         if (filename.endsWith(".pom")) {
             filename = filename.substring(0, filename.length() - 4);
         }
+        if (!classifier.isEmpty()) {
+            filename += "-" + classifier;
+        }
         return pomLocation.resolveSibling(filename + ".jar");
     }
 
     @Override
     public String toString() {
         return coordinate + "[" + (resolved != null ? "resolved" : "missing" )+ "]";
+    }
+
+    public static @Nullable Artifact unresolved(ArtifactCoordinate coordinate) {
+        return new Artifact(coordinate, null, Collections.emptyList());
     }
 }

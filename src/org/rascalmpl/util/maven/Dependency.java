@@ -74,7 +74,7 @@ public class Dependency {
             messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", context.pom));
             version = "???";
         }
-        var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version);
+        var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version, d.getClassifier());
         Scope scope;
 
 
@@ -170,12 +170,12 @@ public class Dependency {
             var resolvedEntry = context.resolver.resolveModel(coordinate);
             var model = Project.parseRepositoryPom(resolvedEntry, context);
             if (model == null) {
-                return null;
+                return Artifact.unresolved(coordinate);
             }
-            var loc  = Path.of(((ModelSource2)resolvedEntry).getLocationURI());
-            return Artifact.build(model, loc,  exclusions, context);
+            var loc = Path.of(((ModelSource2)resolvedEntry).getLocationURI());
+            return Artifact.build(model, loc, coordinate.getClassifier(), exclusions, context);
         } catch (UnresolvableModelException e) {
-            return null;
+            return Artifact.unresolved(coordinate);
         }
     }
 
