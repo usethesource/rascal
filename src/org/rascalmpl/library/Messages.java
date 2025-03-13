@@ -49,6 +49,10 @@ public class Messages {
         return vf.constructor(Message_error, vf.string(message), loc);
     }
 
+    public static boolean isError(IValue v) {
+        return v.getType() == Message_error;
+    }
+
     public static void write(IList messages, PrintWriter out) {
         int maxLine = 0;
         int maxColumn = 0;

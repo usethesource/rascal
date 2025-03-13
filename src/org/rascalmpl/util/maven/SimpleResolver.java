@@ -42,6 +42,7 @@ import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
@@ -73,12 +74,25 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
         return result.resolve(String.format("%s-%s.pom", artifactId, version));
     }
 
+    private Path calculateJarPath(ArtifactCoordinate coordinate) {
+        return calculateJarPath(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion(), coordinate.getClassifier());
+    }
+
+    private Path calculateJarPath(String groupId, String artifactId, String version, String classifier) {
+        var pomLocation = calculatePomPath(groupId, artifactId, version);
+        var fileName = artifactId + "-" + version;
+        if (!classifier.isEmpty()) {
+            fileName += "-" + classifier;
+        }
+        return pomLocation.resolveSibling(fileName + ".jar");
+    }
+
     @Override
     public ModelSource resolveModel(String groupId, String artifactId, String version)
         throws UnresolvableModelException {
         var local = calculatePomPath(groupId, artifactId, version);
         if (!Files.exists(local)) {
-            download(local, groupId, artifactId, version);
+            downloadPom(local, groupId, artifactId, version);
         }
         return new FileModelSource(local.toFile());
     }
@@ -118,7 +132,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
         return result;
     }
 
-    private void download(Path local, String groupId, String artifactId, String version) throws UnresolvableModelException {
+    private void downloadPom(Path local, String groupId, String artifactId, String version) throws UnresolvableModelException {
         if (version.endsWith("-SNAPSHOT")) {
             // TODO: snapshot handling, both in downloading and resolving paths?
             throw new UnresolvableModelException("No downloading & updating logic of SNAPSHOTs yet", groupId, artifactId, version);
@@ -126,16 +140,12 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
         downloadArtifact(local, groupId, artifactId, version, false);
     }
 
-    private boolean isTypeJar(Path local, String groupId, String artifactId, String version) throws UnresolvableModelException {
-        try {
-            var result = builder.buildRawModel(local.toFile(), ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0, false).get();
-            if (result == null) {
-                throw new RuntimeException("No result from rawModel");
-            }
-            return result.getPackaging().equals("jar");
-        } catch (RuntimeException e) {
-            throw new UnresolvableModelException("Could not figure out the type of the artifact", groupId, artifactId, version);
+    private void downloadJar(Path local, String groupId, String artifactId, String version) throws UnresolvableModelException {
+        if (version.endsWith("-SNAPSHOT")) {
+            // TODO: snapshot handling, both in downloading and resolving paths?
+            throw new UnresolvableModelException("No downloading & updating logic of SNAPSHOTs yet", groupId, artifactId, version);
         }
+        downloadArtifact(local, groupId, artifactId, version, false);
     }
 
     private void downloadArtifact(Path local, String groupId, String artifactId, String version, boolean force) throws UnresolvableModelException {
@@ -147,14 +157,6 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
                 continue;
             }
             if (r.download(url, local, force)) {
-                // TODO: also setup the other files that maven normally puts in the directory
-                // we found the pom, now let's download the rest from the same repo
-                if (isTypeJar(local, groupId, artifactId, version)) {
-                    var jarFile = local.resolveSibling(String.format("%s-%s.jar", artifactId, version));
-                    if (Files.notExists(jarFile) && !r.download(getUrl(jarFile, groupId, artifactId, version), jarFile, force)) {
-                        throw new UnresolvableModelException("Could not download jar from available repositories", groupId, artifactId, version);
-                    }
-                }
                 return;
             }
         }
@@ -163,6 +165,15 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 
     private String getUrl(Path local, String groupId, String artifactId, String version) {
         return String.format("/%s/%s/%s/%s", groupId.replace('.', '/'), artifactId,version, local.getFileName().toString());
+    }
+
+    public Path resolveJar(ArtifactCoordinate coordinate) throws UnresolvableModelException {
+        var jarPath = calculateJarPath(coordinate);
+        if (Files.notExists(jarPath)) {
+            // lets try downloading
+            downloadJar(jarPath, coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion());
+        }
+        return jarPath;
     }
 
 
