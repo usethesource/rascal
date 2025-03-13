@@ -62,18 +62,19 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 
+// fix: maybe project should not exist, and it's always an artifact?
 /**
  * Represents a maven project identified with a pom.xml
  */
 public class Project {
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
+
     private final ArtifactCoordinate coordinate;
     private final @Nullable ArtifactCoordinate parentCoordinate;
     private final IList messages;
     private final boolean errors;
-
-    /** should be immutable! */
     private final List<Dependency> dependencies;
+    private final CurrentResolution resolutionCache;
     
 
     public ArtifactCoordinate getCoordinate() {
@@ -82,10 +83,6 @@ public class Project {
 
     public @Nullable ArtifactCoordinate getParentCoordinate() {
         return parentCoordinate;
-    }
-
-    public List<Dependency> getDependencies() {
-        return dependencies;
     }
 
     /**
@@ -100,17 +97,14 @@ public class Project {
         return messages;
     }
 
-    public @Nullable String getLicense() {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
     private Project(ArtifactCoordinate coordinate, @Nullable ArtifactCoordinate parentCoordinate,
-        List<Dependency> dependencies, IList messages, boolean errors) {
+        List<Dependency> dependencies, IList messages, boolean errors, CurrentResolution context) {
         this.coordinate = coordinate;
         this.parentCoordinate = parentCoordinate;
         this.dependencies = dependencies;
         this.messages = messages;
         this.errors = errors;
+        this.resolutionCache = context;
     }
 
     /*package for testing*/ static Project parseProjectPom(Path pomFile, Path mavenRoot) {
@@ -149,7 +143,7 @@ public class Project {
     }
 
 
-    static Project parseRepositoryPom(ModelSource resolvedEntry, CurrentResolution context) {
+    /*package*/ static @Nullable Model parseRepositoryPom(ModelSource resolvedEntry, CurrentResolution context) {
         var request = new DefaultModelBuildingRequest()
             .setModelSource(resolvedEntry)
             .setWorkspaceModelResolver(context.workspaceResolver); // only for repository poms do we setup this extra resolver to help find parent poms
@@ -165,7 +159,12 @@ public class Project {
                 loc = URIUtil.unknownLocation().getURI();
             }
         }
-        return build(request, context.newParse(VF.sourceLocation(loc)), false);
+        try {
+            return buildModel(request, context).getEffectiveModel();
+        }
+        catch (ModelBuildingException be) {
+            return be.getModel();
+        }
     }
 
     private static ISourceLocation makeLocation(Path pomFile) {
@@ -188,7 +187,8 @@ public class Project {
             translateCoordinate(m.getParent()),
             translateDependencies(m, messages, context, isRoot),
             messages.done(),
-            errors
+            errors, 
+            context
         );
     }
 
@@ -215,7 +215,7 @@ public class Project {
         var incompleteModel = be.getModel();
         if (incompleteModel == null) {
             messages.append(Messages.error("Could not build an intermediate model", context.pom));
-            return new Project(ArtifactCoordinate.UNKNOWN, null, Collections.emptyList(), messages.done(), true);
+            return new Project(ArtifactCoordinate.UNKNOWN, null, Collections.emptyList(), messages.done(), true, context);
         }
         return translate(incompleteModel, messages, true, context, isRoot);
     }
@@ -234,7 +234,6 @@ public class Project {
     private static List<Dependency> translateDependencies(Model model, IListWriter messages, CurrentResolution context, boolean isRoot) {
         return model.getDependencies()
             .stream()
-            .filter(d -> !"system".equals(d.getScope())) // we don't care about system deps
             .filter(d -> isRoot || !"test".equals(d.getScope())) // unless we're the root, we don't care about downstream test dependencies
             .map(d -> Dependency.build(d, messages, context))
             .collect(Collectors.toUnmodifiableList())
@@ -257,31 +256,23 @@ public class Project {
         target.println(parentCoordinate);
         target.println("Dependencies:");
         for (var d : dependencies) {
-            writeDependencies(target, "", d);
+            target.print("- ");
+            target.println(d);
         }
         target.println("Messages:");
         Messages.write(messages, target);
     }
 
-
-    private void writeDependencies(PrintWriter target, String prefix, Dependency d) {
-        target.print(prefix);
-        target.print("- ");
-        target.println(d);
-        for (var dd : d.getDependencies()) {
-            writeDependencies(target, prefix + "  ", dd);
-        }
-    }
-
     /**
-     * Resolve maven classpath based on the algorithm that maven uses
+     * Resolve maven classpath based on the algorithm that maven uses. This will take the dependancies, 
+     * resolves them and calculates their dependencies. Untill we've resolved all dependencies related for this scope.
      * @see {@link https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html} 
      * @param forScope for which scope, note that interpreter shouldn't use {@link Scope#RUNTIME} but use {@link Scope#COMPILE}.
      * @return a list of class path entries of the dependencies of this project
      */
-    public List<Dependency> calculateClassPath(Scope forScope) {
-        var alreadyIncluded = new HashSet<Object>();
-        var result = new ArrayList<Dependency>();
+    public List<Artifact> resolveArtifacts(Scope forScope) {
+        var alreadyIncluded = new HashSet<ArtifactCoordinate.WithoutVersion>();
+        var result = new ArrayList<Artifact>(dependencies.size());
         calculateClassPath(forScope, alreadyIncluded, result, dependencies);
         return result;
     }
@@ -289,21 +280,28 @@ public class Project {
     /**
      * First add all dependencies at the current level, and then for all added, go through their dependencies
      */
-    private static void calculateClassPath(Scope forScope, Set<Object> alreadyIncluded, List<Dependency> result,
+    private void calculateClassPath(Scope forScope, Set<ArtifactCoordinate.WithoutVersion> alreadyIncluded, List<Artifact> result,
         List<Dependency> currentLevel) {
-        var nextLevel = new ArrayList<Dependency>(currentLevel.size());
+        var nextLevel = new ArrayList<Artifact>(currentLevel.size());
         for (var d : currentLevel) {
             var withoutVersion = d.getCoordinate().versionLess();
             if (alreadyIncluded.contains(withoutVersion) || !d.shouldInclude(forScope)) {
                 continue;
             }
-            result.add(d);
-            nextLevel.add(d);
+            var art = d.resolve(resolutionCache);
+            if (art != null) {
+                result.add(art);
+                nextLevel.add(art);
+            }
             alreadyIncluded.add(withoutVersion);
         }
-        // now we go through the new dependencies
-        for (var d: nextLevel) {
-            calculateClassPath(forScope, alreadyIncluded, result, d.getDependencies());
+        if (forScope == Scope.TEST) {
+            // only do test scope for top level, switch to compile after that
+            forScope = Scope.COMPILE;
+        }
+        // now we go through the new artifacts and make sure we add their dependencies if needed 
+        for (var a: nextLevel) {
+            calculateClassPath(forScope, alreadyIncluded, result, a.getDependencies(forScope));
         }
     }
 
@@ -316,7 +314,7 @@ public class Project {
         var stop = System.currentTimeMillis();
         System.out.printf("It took %d ms to calculate\n", stop - start);
         start = System.currentTimeMillis();
-        System.out.println(exampleCore.calculateClassPath(Scope.COMPILE));
+        System.out.println(exampleCore.resolveArtifacts(Scope.COMPILE));
         stop = System.currentTimeMillis();
         System.out.printf("It took %d ms to calculate\n", stop - start);
 
@@ -324,16 +322,14 @@ public class Project {
         System.out.println("******");
         System.out.println("******");
 
-        /* 
         start = System.currentTimeMillis();
         var rascal = parseProjectPom(Path.of("pom.xml"));
         System.out.println(rascal);
         stop = System.currentTimeMillis();
         System.out.printf("It took %d ms to calculate\n", stop - start);
         start = System.currentTimeMillis();
-        System.out.println(rascal.calculateClassPath(Scope.COMPILE));
+        System.out.println(rascal.resolveArtifacts(Scope.COMPILE));
         stop = System.currentTimeMillis();
         System.out.printf("It took %d ms to calculate\n", stop - start);
-        */
     }
 }
