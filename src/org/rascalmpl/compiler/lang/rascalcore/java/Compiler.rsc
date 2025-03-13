@@ -59,7 +59,10 @@ private str qualifiedName(loc path, list[loc] srcs)
 
 
 @synopsis{tests folder structure of input .java files against the folder structure of the output .class files}
-test bool basicCompilerIOtest() {
+test bool compilerInputOutputFileTest() {
+    remove(|memory://tester|, recursive=true);
+    remove(|memory://target|, recursive=true);
+
     writeFile(|memory://tester/A.java|,           "class A { }");
     writeFile(|memory://tester/B.java|,           "class B extends A { }");
     writeFile(|memory://tester/pack/C.java|,      "package pack; \npublic class C { }");
@@ -74,4 +77,22 @@ test bool basicCompilerIOtest() {
                 |memory://target/B/java.class|,
                 |memory://target/A/java.class|
         };
+}
+
+@synopsis{tests Java compilation with required libraries on the classpath}
+test bool compilerClasspathTest() {
+    remove(|memory://tester|, recursive=true);
+    remove(|memory://target|, recursive=true);
+    
+    writeFile(|memory://tester/Registry.java|, "class A { org.rascalmpl.uri.URIResolverRegistry reg = org.rascalmpl.uri.URIResolverRegistry.getInstance(); }");
+    
+    rascalLib = resolvedCurrentRascalJar();
+
+    errors = compileJavaSourceFolders([|memory://tester/|], |memory://target|, libs=[rascalLib]);
+
+    iprintln(errors);
+
+    assert errors == [];
+
+    return find(|memory://target|,"class") ==  {|memory://target/A/java.class|};
 }
