@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class ChecksumInputStream extends InputStream {
+class ChecksumInputStream extends InputStream {
     private final InputStream wrappedStream;
     private final MessageDigest sha1Digest;
     private final MessageDigest md5Digest;
