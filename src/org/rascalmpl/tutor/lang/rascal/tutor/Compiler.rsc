@@ -66,6 +66,11 @@ public void defaultCompile(bool clean=false) {
   lastErrors = errors;
 }
 
+void main(PathConfig pcfg = getProjectPathConfig(|cwd:///|)) {
+  messages = compile(pcfg);
+  println(write(messages));
+}
+
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
   ind = createConceptIndex(pcfg);
