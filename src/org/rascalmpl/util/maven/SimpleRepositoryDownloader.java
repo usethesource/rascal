@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.maven.model.Repository;
-import org.apache.maven.repository.legacy.ChecksumFailedException;
 
 /*package*/ class SimpleRepositoryDownloader {
     // TODO: what to do about non http(s) respositories?
@@ -57,24 +56,24 @@ import org.apache.maven.repository.legacy.ChecksumFailedException;
     }
 
     public boolean download(String url, Path target, boolean force) {
-        // TODO also download md5/sha256 files to verify we got the right files.
-        // see here on the information in headers instead of a separate file request
-        // https://maven.apache.org/resolver/expected-checksums.html
-        // calculate it during file writing (we have to override BodyHandlers)
+        // For checksum info see: https://maven.apache.org/resolver/expected-checksums.html
         try {
             Path tempArtifact = Files.createTempFile("maven-download", null);
             try {
                 // Try to download checksums first (we want to copy them even when verifying using headers)
-                String sha1Checksum = downloadChecksum(createUri(repo.getUrl(), url + ".sha1"));
-                String md5Checksum = downloadChecksum(createUri(repo.getUrl(), url + ".md5"));
 
                 // Now download the actual artifact
                 var artifactUri = createUri(repo.getUrl(), url);
                 var req = HttpRequest.newBuilder(artifactUri).GET().build();
                 HttpResponse<Path> response = client.send(req, BodyHandlers.ofFile(tempArtifact));
 
+                String sha1Checksum = ChecksumCalculator.calculateChecksum(tempArtifact, "SHA1");
+                String md5Checksum = ChecksumCalculator.calculateChecksum(tempArtifact, "MD5");
+
                 if (response.statusCode() == 200) {
-                    verifyResult(url, response, sha1Checksum, md5Checksum, tempArtifact);
+                    if (!verifyChecksum(url, response.headers(), sha1Checksum, md5Checksum)) {
+                        return false;
+                    }
 
                     // Only write checksums if the file has changed so the checksums will always match the current file
                     if (copyFileToTarget(target, force, tempArtifact)) {
@@ -90,7 +89,7 @@ import org.apache.maven.repository.legacy.ChecksumFailedException;
             } finally {
                 cleanup(tempArtifact);
             }
-        } catch (URISyntaxException | IOException | ChecksumFailedException e) {
+        } catch (URISyntaxException | IOException e) {
             return false;
         }
     }
@@ -101,22 +100,23 @@ import org.apache.maven.repository.legacy.ChecksumFailedException;
         return result.statusCode() == 200 ? result.body() : null;
     }
 
-    private void verifyResult(String url, HttpResponse<Path> response, String sha1Checksum, String md5Checksum, Path artifactFile) throws IOException, ChecksumFailedException {
-        ChecksumVerifier verifier = new ChecksumVerifier();
-        HttpHeaders headers = response.headers();
-        String sha1 = getChecksum(headers, Arrays.asList("x-checksum-sha1", "x-goog-meta-checksum-sha1"), sha1Checksum);
-        if (sha1 != null) {
-            verifier.verifyChecksum(artifactFile, "SHA1", sha1);
+    private boolean verifyChecksum(String url, HttpHeaders headers, String actualSha1, String actualMd5) throws IOException, InterruptedException, URISyntaxException {
+        String expectedSha1 = getChecksum(headers, Arrays.asList("x-checksum-sha1", "x-goog-meta-checksum-sha1"), url + ".sha1");
+        if (expectedSha1 != null) {
+            return expectedSha1.equals(actualSha1);
         }
 
-        String md5 = getChecksum(headers, Arrays.asList("x-checksum-md5", "x-goog-meta-checksum-md5"), md5Checksum);
-        if (md5 != null) {
-            verifier.verifyChecksum(artifactFile, "MD5", md5);
+        String expectedMd5 = getChecksum(headers, Arrays.asList("x-checksum-md5", "x-goog-meta-checksum-md5"), url + ".md5");
+        if (expectedMd5 != null) {
+            return expectedMd5.equals(actualMd5);
         }
+
+        // No checksum to check against
+        return true;
     }
 
-    // Retrieve the checksum from one of the possible checksum headers. If not found, return defaultChecksum
-    private String getChecksum(HttpHeaders headers, List<String> checksumHeaders, String defaultChecksum) {
+    // Retrieve the checksum from one of the possible checksum headers. If not found, try to download it
+    private String getChecksum(HttpHeaders headers, List<String> checksumHeaders, String checksumUrl) throws IOException, InterruptedException, URISyntaxException {
         for (String headerName : checksumHeaders) {
             Optional<String> value = headers.firstValue(headerName);
             if (value.isPresent()) {
@@ -124,7 +124,8 @@ import org.apache.maven.repository.legacy.ChecksumFailedException;
             }
         }
 
-        return defaultChecksum;
+        // Maybe we should return null on an IOException? That would mean no checksum checking in that case.
+        return downloadChecksum(createUri(repo.getUrl(), checksumUrl));
     }
 
     private URI createUri(String url, String suffix) throws URISyntaxException {
