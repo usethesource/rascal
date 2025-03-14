@@ -270,7 +270,7 @@ ModuleStatus updateBOM(str qualifiedModuleName, ModuleStatus ms){
     if(rsc_not_found() in ms.status[qualifiedModuleName]){
         return ms;
     }
-    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=false);
     if(found){
         
         newBom = makeBom(qualifiedModuleName, 
@@ -339,15 +339,17 @@ ModuleStatus  addTModel (str qualifiedModuleName, TModel tm, ModuleStatus ms){
 
 private type[TModel] ReifiedTModel = #TModel;  // precomputed for efficiency
 
-tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms){
+tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, ModuleStatus ms, bool convert = true){
     if(traceTModelCache) println("getTModelForModule: <qualifiedModuleName>");
-    // if(qualifiedModuleName == "analysis::grammars::Ambiguity"){
-    //     println("getTModelForModule: analysis::grammars::Ambiguity");
-    // }
     pcfg = ms.pathConfig;
-    if(ms.tmodels[qualifiedModuleName]?){
-        tm = convertTModel2PhysicalLocs(ms.tmodels[qualifiedModuleName]);
-        ms.tmodels[qualifiedModuleName] = tm;
+    if(qualifiedModuleName in ms.tmodels){
+        tm = ms.tmodels[qualifiedModuleName];
+        realWork = convert && !tm.usesPhysicalLocs ? "WORK" : "NO WORK";
+        println("*** (<realWork>: <convert>, <tm.usesPhysicalLocs>) convertTModel2PhysicalLocs for <qualifiedModuleName>");
+        if(convert && !tm.usesPhysicalLocs){
+            tm = convertTModel2PhysicalLocs(tm);
+            ms.tmodels[qualifiedModuleName] = tm;
+        }
         return <true, tm, ms>;
     }
     while(size(ms.tmodels) >= tmodelCacheSize && size(ms.tmodelLIFO) > 0 && ms.tmodelLIFO[-1] != qualifiedModuleName){
@@ -361,7 +363,9 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
             tm = readBinaryValueFile(ReifiedTModel, tplLoc);
             if(tm.rascalTplVersion? && isValidRascalTplVersion(tm.rascalTplVersion)){
                 tm.usesPhysicalLocs = false; // temporary
-                tm = convertTModel2PhysicalLocs(tm);
+                if(convert){
+                    tm = convertTModel2PhysicalLocs(tm);
+                }
                 ms.tmodels[qualifiedModuleName] = tm;
                 mloc = getRascalModuleLocation(qualifiedModuleName, pcfg);
                 if(isModuleLocationInLibs(qualifiedModuleName, mloc, pcfg)){
