@@ -34,6 +34,7 @@ public class Messages {
     private static final IValueFactory vf = IRascalValueFactory.getInstance();
     private static final TypeStore ts = new TypeStore();
 
+
     // These declarations mirror the data definition in the `Message` root module of the standard library.
     public static final io.usethesource.vallang.type.Type Message = tf.abstractDataType(ts, "Message");
     private static final io.usethesource.vallang.type.Type Message_info = tf.constructor(ts, Message, "info", tf.stringType(), "msg", tf.sourceLocationType(), "at");
@@ -54,6 +55,10 @@ public class Messages {
 
     public static boolean isError(IValue v) {
         return v.getType() == Message_error;
+    }
+
+    // used by the module loader
+    public Messages(IValueFactory ignored) {
     }
 
     public IString write(IList messsages) {
