@@ -26,12 +26,41 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /* package */ class Util {
     static Path mavenRepository() {
-        // TODO: parse settings.xml and figure out the repo
-        return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository2");
+        String repoProp = System.getProperty("maven.repo.local");
+        if (repoProp != null) {
+            return Paths.get(repoProp);
+        }
+
+        SettingsXpp3Reader reader = new SettingsXpp3Reader();
+        Path userHome = Paths.get(System.getProperty("user.home"));
+        Path settingsXml = userHome.resolve(".m2").resolve("settings.xml");
+        if (Files.exists(settingsXml)) {
+            try (FileReader fileReader = new FileReader(settingsXml.toFile())) {
+                Settings settings = reader.read(fileReader);
+                if (settings.getLocalRepository() != null) {
+                    return Paths.get(settings.getLocalRepository());
+                }
+            }
+            catch (XmlPullParserException | IOException e){
+                // Could not read settings.xml, fallback to hard-coded path below
+            }
+        }
+
+        return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository");
     }
+
+
     private Util() {}
 }
