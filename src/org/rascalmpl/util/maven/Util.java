@@ -41,8 +41,8 @@ import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
 import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
-/* package */ class Util {
-    static Path mavenRepository() {
+public class Util {
+    public static Path mavenRepository() {
         String repoProp = System.getProperty("maven.repo.local");
         if (repoProp != null) {
             return Path.of(repoProp);
