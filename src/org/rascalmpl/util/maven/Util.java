@@ -26,39 +26,125 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
+import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
+import org.codehaus.plexus.interpolation.InterpolationException;
+import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
+import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 /* package */ class Util {
     static Path mavenRepository() {
         String repoProp = System.getProperty("maven.repo.local");
         if (repoProp != null) {
-            return Paths.get(repoProp);
+            return Path.of(repoProp);
         }
 
-        SettingsXpp3Reader reader = new SettingsXpp3Reader();
-        Path userHome = Paths.get(System.getProperty("user.home"));
-        Path settingsXml = userHome.resolve(".m2").resolve("settings.xml");
-        if (Files.exists(settingsXml)) {
-            try (FileReader fileReader = new FileReader(settingsXml.toFile())) {
-                Settings settings = reader.read(fileReader);
-                if (settings.getLocalRepository() != null) {
-                    return Paths.get(settings.getLocalRepository());
-                }
+        Path userHome = Path.of(System.getProperty("user.home"));
+        Path userSettingsPath = userHome.resolve(".m2").resolve("settings.xml");
+        Optional<Path> repo = getRepoFromSettings(userSettingsPath);
+        if (repo.isPresent()) {
+            return repo.get();
+        }
+
+        Optional<Path> mavenHome = findMavenHome();
+        if (mavenHome.isPresent()) {
+            Path globalSettingsPath = mavenHome.get().resolve("conf").resolve("settings.xml");
+            repo = getRepoFromSettings(globalSettingsPath);
+            if (repo.isPresent()) {
+                return repo.get();
             }
-            catch (XmlPullParserException | IOException e){
+        }
+
+        return userHome.resolve(".m2").resolve("repository");
+    }
+
+    private static Optional<Path> findMavenHome() {
+        // Traverse the PATH environment variable and locate mvn (or mvn.cmd on Windows)
+        String path = System.getenv("PATH");
+        if (path == null) {
+            return Optional.empty();
+        }
+
+        for (String dirname : System.getenv("PATH").split(File.pathSeparator)) {
+            Path dir = Path.of(dirname);
+            Optional<Path> mvnHome = resolveMavenHome(dir.resolve("mvn.cmd"));
+            if (mvnHome.isPresent()) {
+                return mvnHome;
+            }
+
+            mvnHome = resolveMavenHome(dir.resolve("mvn"));
+            if (mvnHome.isPresent()) {
+                return mvnHome;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static Optional<Path> resolveMavenHome(Path executable) {
+        if (Files.exists(executable) && Files.isExecutable(executable)) {
+            try {
+                return Optional.of(executable.toRealPath().getParent().getParent());
+            }
+            catch (IOException e) {
+                // Ignore
+            }
+        }
+
+        return Optional.empty();
+    }
+    
+    private static Optional<Settings> readSettings(Path settingsXmlFile) {
+        if (Files.exists(settingsXmlFile)) {
+            try (FileReader fileReader = new FileReader(settingsXmlFile.toFile())) {
+                SettingsXpp3Reader reader = new SettingsXpp3Reader();
+                return Optional.of(reader.read(fileReader));
+            }
+            catch (XmlPullParserException | IOException e) {
                 // Could not read settings.xml, fallback to hard-coded path below
             }
         }
 
-        return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository");
+        return Optional.empty();
+    }
+
+    private static Optional<Path> getRepoFromSettings(Path settingsXmlFile) {
+        Optional<Settings> settings = readSettings(settingsXmlFile);
+        if (settings.isPresent()) {
+            String localRepo = settings.get().getLocalRepository();
+            if (localRepo != null) {
+                return Optional.of(Path.of(replaceVariables(localRepo)));
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static String replaceVariables(String input) {
+        RegexBasedInterpolator interpolator = new RegexBasedInterpolator();
+ 
+        interpolator.addValueSource(new PropertiesBasedValueSource(System.getProperties()));
+        try {
+            interpolator.addValueSource(new EnvarBasedValueSource());
+        } catch (IOException e) {
+            // No environment variables if this fails
+        }
+        
+        try {
+            return interpolator.interpolate(input);
+        }
+        catch (InterpolationException e) {
+            return input;
+        }
     }
 
 
