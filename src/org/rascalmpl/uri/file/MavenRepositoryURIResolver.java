@@ -7,12 +7,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.compress.utils.FileNameUtils;
-import org.rascalmpl.library.util.Maven;
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -85,52 +82,10 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
         this.reg = reg;
     }
 
-    /**
-     * This code is supposed to run very quickly in most cases, but still deal with 
-     * the situation that the actual location of the local repository may be configured
-     * in an XML file in the maven installation folder. In that case we run
-     * `mvn help:evaluate` (once) to retrieve the actual location. 
-     * @throws URISyntaxException 
-     */
     private static ISourceLocation inferMavenRepositoryLocation() throws URISyntaxException {
-        String property = System.getProperty("maven.repo.local");
-        if (property != null) {
-            return URIUtil.createFileLocation(property);
-        }
-
-        Path m2HomeFolder = Paths.get(System.getProperty("user.home"), ".m2", "repository");
-        if (!Files.exists(m2HomeFolder)) {
-            // only then we go for the expensive option and retrieve it from maven itself
-            String configuredLocation = getLocalRepositoryLocationFromMavenCommand();
-
-            if (configuredLocation != "") {
-                return URIUtil.createFileLocation(configuredLocation);
-            }
-            
-            // if the above fails we default to the home folder anyway.
-            // note that since it does not exist this will make all downstream resolutions fail
-            // to "file does not exist"
-        }
-        
-        return URIUtil.createFileLocation(m2HomeFolder);
+        return URIUtil.createFileLocation(org.rascalmpl.util.maven.Util.mavenRepository());
     }
 
-    /**
-     * This (slow) code runs only if the ~/.m2 folder does not exist and nobody -D'ed its location either.
-     * That is not necessarily how mvn prioritizes its configuration steps, but it is the way we can 
-     * get a quick enough answer most of the time. It caches its result to make sure repeated calls
-     * to here are faster than the first.
-     */
-    private static String getLocalRepositoryLocationFromMavenCommand() {
-        var mavenOutput = Maven.runCommand(tempFile -> List.of(
-            "-q", 
-            "help:evaluate",
-            "-Dexpression=settings.localRepository",
-            "-Doutput=" + tempFile.toString()
-            ), null /* no current pom.xml file */);
-        
-        return mavenOutput.stream().collect(Collectors.joining()).trim(); 
-    }
  
     /** 
      * @param input   mvn://groupid!artifactId!version/path
