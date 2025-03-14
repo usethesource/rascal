@@ -105,7 +105,12 @@ public class JavaCompilerForRascal {
 	private ISourceLocation convertToLoc(Diagnostic<? extends JavaFileObject> d) {
 		ISourceLocation uri = ((JavaFileObjectImpl) d.getSource()).getSloc();
 		var offset = (int) d.getStartPosition();
-		return vf.sourceLocation(uri, offset, ((int) d.getEndPosition()) - offset);
+		if (offset >= 0) {
+			return vf.sourceLocation(uri, offset, ((int) d.getEndPosition()) - offset);
+		}
+		else {
+			return uri;
+		}
 	}
 				
 }
