@@ -138,12 +138,15 @@ bool checkModuleAndFilter(loc mloc, list[str] expected, bool matchAll = false, b
 	 }
 	 if(!errorsAllowed && !isEmpty(msgs) && any(error(_,_) <- msgs)) return false;
 	 matched = {};
-     for(eitem <- msgs, str exp <- expected){
+     for(Message eitem <- msgs, str exp <- expected){
          if(matches(eitem.msg, exp)){
+			if(contains(exp, "Initialization of _")) println("matching: \"<eitem.msg>\"against \"<exp>\": true");
 		 	if(matchAll){
 				matched += eitem.msg;
 			} else
                return true;
+		 } else {
+			if(contains(exp, "Initialization of _")) println("matching: \"<eitem.msg>\" against \"<exp>\": false");
 		 }
      }
 	 if(matchAll) {
