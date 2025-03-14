@@ -157,7 +157,7 @@ ModuleStatus rascalTModelForLocs(
 
         if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
             for (i <- index(mlocs)) {
-                <found, tm, ms> = getTModelForModule(mnames[i], ms);
+                <found, tm, ms> = getTModelForModule(mnames[i], ms, convert=true);
                 if(!found){
                     throw "TModel for <mnames[i]> not found (no changes)";
                 }
@@ -227,7 +227,7 @@ ModuleStatus rascalTModelForLocs(
                 mi += 1;
                 if(!recheck){
                     if(tpl_uptodate() notin ms.status[m]){
-                        <found, tm, ms> = getTModelForModule(m, ms);
+                        <found, tm, ms> = getTModelForModule(m, ms, convert=false);
                         if(found){
                             ms.status[m] += {tpl_uptodate(), checked()};
                         }
@@ -245,7 +245,7 @@ ModuleStatus rascalTModelForLocs(
             } else {
                 for(m <- component){
                     m_compatible = false;
-                    <found, tm, ms> = getTModelForModule(m, ms);
+                    <found, tm, ms> = getTModelForModule(m, ms, convert=false);
                     if(found && !tplOutdated(m, pcfg)){
                         imports_extends_m = imports_and_extends[m];
                    
@@ -271,7 +271,7 @@ ModuleStatus rascalTModelForLocs(
                 if(ms.compilerConfig.verbose){
                     println("recheck <component>: compatible_with_all_imports: <compatible_with_all_imports>, any_rsc_changed: <any_rsc_changed>, all_tmodels_uptodate: <all_tmodels_uptodate>");
                 }
-
+                
                 <tm, ms> = rascalTModelComponent(component, ms);
                 moduleScopes += getModuleScopes(tm);
                 map[str,TModel] tmodels_for_component = ();
@@ -400,7 +400,7 @@ tuple[set[str], ModuleStatus] loadImportsAndExtends(str moduleName, ModuleStatus
         if(imp notin added){
             if(tpl_uptodate() in ms.status[imp]){
                 added += imp;
-                <found, tm, ms> = getTModelForModule(imp, ms);
+                <found, tm, ms> = getTModelForModule(imp, ms, convert=true);
                 try {
                     c.addTModel(tm);
                 } catch wrongTplVersion(str reason): {
@@ -489,7 +489,7 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
         return <tm, ms>;
     } else {
         ms.status[modelName]? {} += { tpl_saved() };
-        <found, tm, ms> = getTModelForModule(modelName, ms);
+        <found, tm, ms> = getTModelForModule(modelName, ms, convert=false);
         return <tm, ms>;
     }
 }
@@ -548,7 +548,7 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
     pcfg = ms.pathConfig;
     for(candidate <- candidates){
         mname = getRascalModuleName(candidate, pcfg);
-        <found, tm, ms> = getTModelForModule(mname, ms);
+        <found, tm, ms> = getTModelForModule(mname, ms, convert=false);
         imports_and_extends = ms.strPaths<0,2>[mname];
         <compatible, ms> = importsAndExtendsAreBinaryCompatible(tm, imports_and_extends, ms);
         if(!compatible){
