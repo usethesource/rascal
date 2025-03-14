@@ -30,15 +30,84 @@ import IO;
 import ValueIO;
 extend lang::rascalcore::check::CheckerCommon;
 
-void show(loc tplLoc, bool definitions=false){
+loc tplLoc = |file:///Users/paulklint/git/bird/bird-core/target/classes/rascal/lang/bird/$Checker.tpl|;
+TModel tm = {try return readBinaryValueFile(#TModel, tplLoc); catch _: return tmodel();};
+
+void setTPL(loc tpl){
+    tplLoc = tpl;
     tm = readBinaryValueFile(#TModel, tplLoc);
-    if(definitions) iprintln(tm.definitions, lineLimit=10000);
-    else iprintln(tm, lineLimit=10000);
 }
 
-void search(str key, loc tplLoc){
-    tm = readBinaryValueFile(#TModel, tplLoc);
-    for(def <- tm.defines){
-        if(def.id == key) println(def);
+void defines(str search = ""){
+    if(search?){
+        for(def <- tm.defines){
+            if(def.id == search) println(def);
+        }
+    } else {
+        iprintln(tm.defines, lineLimit=10000);
     }
+}
+
+void scopes(){
+    iprintln(tm.scopes, lineLimit=10000);
+}
+
+void paths(){
+    iprintln(tm.paths, lineLimit=10000);
+}
+
+void referPaths(){
+    iprintln(tm.referPaths, lineLimit=10000);
+}
+
+void uses(){
+    iprintln(tm.uses, lineLimit=10000);
+}
+
+void definesMap(){
+    iprintln(tm.definesMap, lineLimit=10000);
+}
+
+void modelName(){
+    iprintln(tm.modelName, lineLimit=10000);
+}
+
+void moduleLocs(){
+    iprintln(tm.moduleLocs, lineLimit=10000);
+}
+
+void facts(){
+    iprintln(tm.facts, lineLimit=10000);
+}
+
+void specializedFacts(){
+    iprintln(tm.specializedFacts, lineLimit=10000);
+}
+
+void useDef(){
+    iprintln(tm.useDef, lineLimit=10000);
+}
+
+void messages(){
+    iprintln(tm.messages, lineLimit=10000);
+}
+
+void store(){
+    iprintln(tm.store, lineLimit=10000);
+}
+
+void definintions(){
+    iprintln(tm.definitions, lineLimit=10000);
+}
+
+void logical2physical(){
+    iprintln(tm.logical2physical, lineLimit=10000);
+}
+
+void usesPhysicalLocs(){
+    iprintln(tm.usesPhysicalLocs, lineLimit=10000);
+}
+
+void config(){
+    iprintln(tm.config, lineLimit=10000);
 }
