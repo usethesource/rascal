@@ -134,7 +134,7 @@ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
  
         interpolator.addValueSource(new PropertiesBasedValueSource(System.getProperties()));
         try {
-            interpolator.addValueSource(new EnvarBasedValueSource());
+            interpolator.addValueSource(new EnvarBasedValueSource(false));
         } catch (IOException e) {
             // No environment variables if this fails
         }
