@@ -39,7 +39,6 @@ before any other class.
 }
 java void runJavaMain(str qualifiedName, list[str] args, list[loc] classpath=[]);
 
-
 @benefits{
 * This function can use class files from any support loc scheme
 }
@@ -49,3 +48,22 @@ before any other class.
 }
 @javaClass{org.rascalmpl.compiler.lang.rascalcore.java.JavaRunner}
 java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath=[]);
+
+test bool factorialMainTest() {
+    source   = |project://rascal/test/org/rascalmpl/benchmark/Factorial/Factorial.java|;
+    qname    = "org.rascalmpl.benchmark.Factorial.Factorial";
+    messages = compileJava(
+        {<source, qname, readFile(source)>}, |memory://target/|, libs=[resolvedCurrentRascalJar()]
+    );
+
+    println(crawl(|memory://target/|));
+    iprintln(messages);
+
+    runJavaMain(
+        qname, 
+        [], 
+        classpath=[|memory://target|, resolvedCurrentRascalJar()]
+    );
+
+    return true;
+}
