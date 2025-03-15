@@ -96,7 +96,7 @@ private str qualifiedName(loc path, list[loc] srcs)
 
 @synopsis{tests folder structure of input .java files against the folder structure of the output .class files}
 test bool compilerInputOutputFileTest() {
-    root = |memory://<uuid().path>|;
+    root = uuid()[scheme="memory"];
     target = root + "target";
 
     writeFile(root + "A.java",           "class A { }");
@@ -116,12 +116,12 @@ test bool compilerInputOutputFileTest() {
         };
 }
 
-@synopsis{tests Java compilation with required libraries on the classpath}
+@synopsis{tests Java compilation with required2 libraries on the classpath}
 test bool compilerClasspathTest() {
-    root = |memory://<uuid().path>|;
-    target = ro ot + "target";
+    root = uuid()[scheme="memory"];
+    target = root + "target";
     
-    writeFile(root + "Registry.java", "class A { org.rascalmpl.uri.URIResolverRegistry reg = org.rascalmpl.uri.URIResolverRegistry.getInstance(); }");
+    writeFile(root + "A.java", "class A { org.rascalmpl.uri.URIResolverRegistry reg = org.rascalmpl.uri.URIResolverRegistry.getInstance(); }");
     
     rascalLib = resolvedCurrentRascalJar();
 
