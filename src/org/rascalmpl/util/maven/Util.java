@@ -27,14 +27,13 @@
 package org.rascalmpl.util.maven;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
 import org.codehaus.plexus.interpolation.InterpolationException;
 import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
@@ -50,83 +49,83 @@ public class Util {
 
         Path userHome = Path.of(System.getProperty("user.home"));
         Path userSettingsPath = userHome.resolve(".m2").resolve("settings.xml");
-        Optional<Path> repo = getRepoFromSettings(userSettingsPath);
-        if (repo.isPresent()) {
-            return repo.get();
+        Path repo = getRepoFromSettings(userSettingsPath);
+        if (repo != null) {
+            return repo;
         }
 
-        Optional<Path> mavenHome = findMavenHome();
-        if (mavenHome.isPresent()) {
-            Path globalSettingsPath = mavenHome.get().resolve("conf").resolve("settings.xml");
+        Path mavenHome = findMavenHome();
+        if (mavenHome != null) {
+            Path globalSettingsPath = mavenHome.resolve("conf").resolve("settings.xml");
             repo = getRepoFromSettings(globalSettingsPath);
-            if (repo.isPresent()) {
-                return repo.get();
+            if (repo != null) {
+                return repo;
             }
         }
 
         return userHome.resolve(".m2").resolve("repository");
     }
 
-    private static Optional<Path> findMavenHome() {
+    private static @Nullable Path findMavenHome() {
         // Traverse the PATH environment variable and locate mvn (or mvn.cmd on Windows)
         String path = System.getenv("PATH");
         if (path == null) {
-            return Optional.empty();
+            return null;
         }
 
-        for (String dirname : System.getenv("PATH").split(File.pathSeparator)) {
+        for (String dirname : path.split(File.pathSeparator)) {
             Path dir = Path.of(dirname);
-            Optional<Path> mvnHome = resolveMavenHome(dir.resolve("mvn.cmd"));
-            if (mvnHome.isPresent()) {
+            Path mvnHome = resolveMavenHome(dir.resolve("mvn.cmd"));
+            if (mvnHome != null) {
                 return mvnHome;
             }
 
             mvnHome = resolveMavenHome(dir.resolve("mvn"));
-            if (mvnHome.isPresent()) {
+            if (mvnHome != null) {
                 return mvnHome;
             }
         }
 
-        return Optional.empty();
+        return null;
     }
 
-    private static Optional<Path> resolveMavenHome(Path executable) {
-        if (Files.exists(executable) && Files.isExecutable(executable)) {
+    private static @Nullable Path resolveMavenHome(Path executable) {
+        if (Files.isExecutable(executable)) {
             try {
-                return Optional.of(executable.toRealPath().getParent().getParent());
+                // Navigate from bin/mvn to the root of the Maven installation
+                return executable.toRealPath().getParent().getParent();
             }
             catch (IOException e) {
                 // Ignore
             }
         }
 
-        return Optional.empty();
+        return null;
     }
     
-    private static Optional<Settings> readSettings(Path settingsXmlFile) {
+    private static @Nullable Settings readSettings(Path settingsXmlFile) {
         if (Files.exists(settingsXmlFile)) {
-            try (FileReader fileReader = new FileReader(settingsXmlFile.toFile())) {
-                SettingsXpp3Reader reader = new SettingsXpp3Reader();
-                return Optional.of(reader.read(fileReader));
+            try (var input = Files.newInputStream(settingsXmlFile)) {
+                return new SettingsXpp3Reader().read(input);
             }
             catch (XmlPullParserException | IOException e) {
-                // Could not read settings.xml, fallback to hard-coded path below
+                // Could not read settings.xml, settings will not be used
             }
         }
 
-        return Optional.empty();
+        return null;
     }
 
-    private static Optional<Path> getRepoFromSettings(Path settingsXmlFile) {
-        Optional<Settings> settings = readSettings(settingsXmlFile);
-        if (settings.isPresent()) {
-            String localRepo = settings.get().getLocalRepository();
+    private static @Nullable Path getRepoFromSettings(Path settingsXmlFile) {
+        Settings settings = readSettings(settingsXmlFile);
+        if (settings != null) {
+            String localRepo = settings.getLocalRepository();
             if (localRepo != null) {
-                return Optional.of(Path.of(replaceVariables(localRepo)));
+                return Path.of(replaceVariables(localRepo));
             }
         }
 
-        return Optional.empty();
+        return null;
     }
 
     private static String replaceVariables(String input) {
