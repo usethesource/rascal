@@ -74,6 +74,9 @@ java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath = []
 
 @synopsis{Locate the right classpath for JUnit}
 @javaClass{org.rascalmpl.library.lang.java.JavaRunner}
+@benefits{
+* Yhis comes in handy for the compiler `libs` parameter, if the test still needs to be compiled from source.
+}
 java loc getJUnitClassPath(JUnitVersion version=junit4());
 
 test bool factorialMainTest() {
