@@ -26,12 +26,126 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.codehaus.plexus.interpolation.EnvarBasedValueSource;
+import org.codehaus.plexus.interpolation.InterpolationException;
+import org.codehaus.plexus.interpolation.PropertiesBasedValueSource;
+import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class Util {
     public static Path mavenRepository() {
-        // TODO: parse settings.xml and figure out the repo
-        return Path.of(System.getProperty("user.home")).resolve(".m2").resolve("repository2");
+        String repoProp = System.getProperty("maven.repo.local");
+        if (repoProp != null) {
+            return Path.of(repoProp);
+        }
+
+        Path userHome = Path.of(System.getProperty("user.home"));
+        Path userSettingsPath = userHome.resolve(".m2").resolve("settings.xml");
+        Path repo = getRepoFromSettings(userSettingsPath);
+        if (repo != null) {
+            return repo;
+        }
+
+        Path mavenHome = findMavenHome();
+        if (mavenHome != null) {
+            Path globalSettingsPath = mavenHome.resolve("conf").resolve("settings.xml");
+            repo = getRepoFromSettings(globalSettingsPath);
+            if (repo != null) {
+                return repo;
+            }
+        }
+
+        return userHome.resolve(".m2").resolve("repository");
     }
+
+    private static @Nullable Path findMavenHome() {
+        // Traverse the PATH environment variable and locate mvn (or mvn.cmd on Windows)
+        String path = System.getenv("PATH");
+        if (path == null) {
+            return null;
+        }
+
+        for (String dirname : path.split(File.pathSeparator)) {
+            Path dir = Path.of(dirname);
+            Path mvnHome = resolveMavenHome(dir.resolve("mvn.cmd"));
+            if (mvnHome != null) {
+                return mvnHome;
+            }
+
+            mvnHome = resolveMavenHome(dir.resolve("mvn"));
+            if (mvnHome != null) {
+                return mvnHome;
+            }
+        }
+
+        return null;
+    }
+
+    private static @Nullable Path resolveMavenHome(Path executable) {
+        if (Files.isExecutable(executable)) {
+            try {
+                // Navigate from bin/mvn to the root of the Maven installation
+                return executable.toRealPath().getParent().getParent();
+            }
+            catch (IOException e) {
+                // Ignore
+            }
+        }
+
+        return null;
+    }
+    
+    private static @Nullable Settings readSettings(Path settingsXmlFile) {
+        if (Files.exists(settingsXmlFile)) {
+            try (var input = Files.newInputStream(settingsXmlFile)) {
+                return new SettingsXpp3Reader().read(input);
+            }
+            catch (XmlPullParserException | IOException e) {
+                // Could not read settings.xml, settings will not be used
+            }
+        }
+
+        return null;
+    }
+
+    private static @Nullable Path getRepoFromSettings(Path settingsXmlFile) {
+        Settings settings = readSettings(settingsXmlFile);
+        if (settings != null) {
+            String localRepo = settings.getLocalRepository();
+            if (localRepo != null) {
+                return Path.of(replaceVariables(localRepo));
+            }
+        }
+
+        return null;
+    }
+
+    private static String replaceVariables(String input) {
+        RegexBasedInterpolator interpolator = new RegexBasedInterpolator();
+ 
+        interpolator.addValueSource(new PropertiesBasedValueSource(System.getProperties()));
+        try {
+            interpolator.addValueSource(new EnvarBasedValueSource(false));
+        } catch (IOException e) {
+            // No environment variables if this fails
+        }
+        
+        try {
+            return interpolator.interpolate(input);
+        }
+        catch (InterpolationException e) {
+            return input;
+        }
+    }
+
+
     private Util() {}
 }
