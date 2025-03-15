@@ -315,7 +315,7 @@ public class JavaCompiler<T> {
          CharSequence javaSource = ((IString) ((ITuple) entry).get(2)).getValue();
 
          if (javaSource != null) {
-            final JavaFileObjectImpl source = new JavaFileObjectImpl(sloc, qname, javaSource);
+            final JavaFileObjectImpl source = new JavaFileObjectImpl(sloc, qname.replaceAll("\\.", "/"), javaSource);
             sources.add(source);
 
             int dotPos = qname.lastIndexOf('.');
@@ -547,10 +547,6 @@ final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
       fileObjects.put(uri(location, packageName, relativeName), file);
    }
 
-   public void putFileForInput(ISourceLocation location, JavaFileObject file) {
-      fileObjects.put(location.getURI(), file);
-   }
-
    /**
     * Convert a location and class name to a URI
     */
@@ -633,6 +629,12 @@ final class ClassLoaderImpl extends ClassLoader {
       super(parentClassLoader);
    }
 
+   /**
+    * This writes all the classes related to one generated parser class to a specific form
+    * of jar file outputstream. The files are not organized in the normal way so this jar
+    * can not be used as a normal jar file! The reason is that generated parser binary format
+    * might change in the future and so the entire format is opaque.
+    */
    public void outputClassesToJar(String qualifiedClassName, OutputStream output) throws IOException {
       Manifest manifest = new Manifest();
       manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
@@ -651,6 +653,10 @@ final class ClassLoaderImpl extends ClassLoader {
       }  
    }
 
+   /**
+    * This reconstructs an executable parser class from a jar that was created 
+    * by {@see outputClassesToJar}.
+    */
    public Class<?> inputClassesFromJar(InputStream in) throws IOException, ClassNotFoundException, URISyntaxException {
       try (JarInputStream jarIn = new JarInputStream(in)) {
          Manifest mf = jarIn.getManifest();
