@@ -3,7 +3,7 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC16-SNAPSHOT</version>
+    <version>0.41.0-RC17-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -314,6 +314,34 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>plugin.xml</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>org.rascalmpl:typepal:*</artifact>
+                                    <excludes>
+                                        <exclude>examples/**</exclude>
+                                        <exclude>src/examples/**</exclude>
+                                        <exclude>src/analysis/typepal/**</exclude>
+                                        <exclude>docs/Packages/Typepal/**</exclude>
+                                        <exclude>docs/**</exclude>
+                                        <exclude>rascal/analysis/typepal/**</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>   
+                                    <pattern>analysis/typepal</pattern>
+                                    <shadedPattern>org/rascalmpl/typepal/analysis/typepal</shadedPattern>
+                                </relocation>
+                            </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
@@ -338,16 +366,6 @@
                                     <addHeader>false</addHeader>
                                 </transformer>
                             </transformers>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -417,7 +435,8 @@
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
             <version>0.15.1</version>
-            <scope>provided</scope>
+           <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
+           <scope>compile</scope>
         </dependency>
 
         <!-- Regular POM Dependencies -->
