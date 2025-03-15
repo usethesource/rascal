@@ -24,11 +24,22 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
-module lang::rascalcore::java::Runner
+@synopsis{Simple Rascal API for executing JVM bytecode, as static main method or as Junit4 test class.}
+@benefits{
+* Run the static `main` method of any .class file in JVM bytecode format, stored anywhere reachable through a `loc` and using any library
+reachable through a `loc`, to JVM bytecode using the current JVM.
+* Run any Junit4 test class in JVM bytecode format, stored anywhere reachable through a `loc` and using
+any library also reachable through a `loc`
+}
+@pitfalls{
+* If you are looking for Java analysis and transformation support in Rascal please go find
+the [java-air](http://www.rascalmpl.org/docs/Packages/RascalAir) package. The current module
+only provides a Java to bytecode compilation API. 
+}
+module lang::java::Runner
 
-extend lang::rascalcore::java::Compiler;
+extend lang::java::Compiler;
 
-@javaClass{org.rascalmpl.library.lang.java.JavaRunner}
 @synopsis{Execute the static main function of a (compiled) java class}
 @benefits{
 * This function can use class files from any support loc scheme
@@ -37,7 +48,11 @@ extend lang::rascalcore::java::Compiler;
 * The current Rascal runtime/interpreter classloaders, including vallang, are always used
 before any other class.
 }
+@javaClass{org.rascalmpl.library.lang.java.JavaRunner}
 java void runJavaMain(str qualifiedName, list[str] args, list[loc] classpath=[]);
+
+data JUnitVersion
+    = junit4();
 
 @benefits{
 * This function can use class files from any support loc scheme
@@ -47,16 +62,19 @@ java void runJavaMain(str qualifiedName, list[str] args, list[loc] classpath=[])
 before any other class.
 }
 @javaClass{org.rascalmpl.library.lang.java.JavaRunner}
-java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath=[]);
+java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath = [], JUnitVersion version = junit4());
 
 test bool factorialMainTest() {
+    remove(|memory://target|, recursive=true);
+    
     source   = |project://rascal/test/org/rascalmpl/benchmark/Factorial/Factorial.java|;
     qname    = "org.rascalmpl.benchmark.Factorial.Factorial";
-    messages = compileJava(
-        {<source, qname, readFile(source)>}, |memory://target/|, libs=[resolvedCurrentRascalJar()]
-    );
 
-    println(crawl(|memory://target/|));
+    messages = compileJavaSourceFile(
+        source, 
+        |memory://target|, 
+        [|project://rascal/test/|]);
+
     iprintln(messages);
 
     runJavaMain(

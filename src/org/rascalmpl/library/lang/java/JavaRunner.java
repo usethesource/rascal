@@ -14,6 +14,7 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -94,7 +95,11 @@ public class JavaRunner {
         }
     }
 
-    public IList runJUnitTestClass(IString qname, IList classpath) {
+    public IList runJUnitTestClass(IString qname, IList classpath, IConstructor version) {
+        if (!version.getName().equals("junit4")) {
+            throw RuntimeExceptionFactory.illegalArgument(version);
+        }
+        
         var loader = new SourceLocationClassLoader(classpath, getClass().getClassLoader());
 
         try {
