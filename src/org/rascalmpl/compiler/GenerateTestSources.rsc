@@ -58,7 +58,7 @@ void generateTestSources(list[str] cmdLineArgs) {
      return;
    }
    
-   genCompilerConfig = getAllSrcREPOCompilerConfig()[logPathConfig=false];
+   genCompilerConfig = getAllSrcPathConfig()[logPathConfig=false];
    
    map[str,int] durations = ();
 
