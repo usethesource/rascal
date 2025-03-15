@@ -23,6 +23,7 @@ import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -131,17 +132,17 @@ public class JavaBridge {
 			throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
 		} 
 		catch (JavaCompilerException e) {
-		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
-		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, config.getRascalJavaClassPathProperty(), e);
-		    }
-		    else {
-		        throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
-		    }
+			if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
+				Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
+				throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), source, config.getRascalJavaClassPathProperty(), e);
+			}
+			else {
+				throw new JavaCompilation(e.getMessage(), 1, 0, source, config.getRascalJavaClassPathProperty(), e);
+			}
 		}
 	}
 
-	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException {
+	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException, URISyntaxException {
 		List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
 		JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), null, commandline);
 		return javaCompiler.load(in);
