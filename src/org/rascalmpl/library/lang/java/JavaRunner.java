@@ -12,6 +12,7 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.library.Messages;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
 import io.usethesource.vallang.IConstructor;
@@ -40,19 +41,40 @@ public class JavaRunner {
             this.messages = messages;
         }
 
+        // TODO: get a more accurate source location for the method under test
+        private ISourceLocation testLoc(Description description) {
+            return URIUtil.correctLocation("java+method", "", description.getClassName() + "/" + description.getMethodName());
+        }
+
+
+        @Override
+        public void testStarted(Description description) throws Exception {
+            messages.append(Messages.info(description.getDisplayName() + " started", testLoc(description)));
+        }
+
         @Override
         public void testFinished(Description description) throws Exception {
-            messages.append(Messages.info(description.getDisplayName() + " succeeded", locForClass(clz)));
+            messages.append(Messages.info(description.getDisplayName() + " finished", testLoc(description)));
         }
 
         @Override
         public void testFailure(Failure failure) throws Exception {
-            messages.append(Messages.error(failure.getDescription().getDisplayName() + " failed", locForClass(clz)));
+            messages.append(Messages.error(failure.getDescription().getDisplayName() + " failed", testLoc(failure.getDescription())));
         }
 
         @Override
         public void testIgnored(Description description) throws Exception {
-            messages.append(Messages.info(description.getDisplayName() + " ignored", locForClass(clz)));
+            messages.append(Messages.info(description.getDisplayName() + " ignored", testLoc(description)));
+        }
+    }
+
+    public ISourceLocation getJUnitClassPath(IConstructor version) {
+        try {
+            assert version.getName().equals("junit4");
+            return vf.sourceLocation(JUnit4.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        }
+        catch (URISyntaxException e) {
+            throw RuntimeExceptionFactory.illegalArgument(vf.string(e.getMessage()));
         }
     }
     
@@ -86,20 +108,11 @@ public class JavaRunner {
         }
     }
 
-    private ISourceLocation locForClass(Class<?> clz) {
-        try {
-            return vf.sourceLocation(clz.getProtectionDomain().getCodeSource().getLocation().toURI());
-        }
-        catch (URISyntaxException e) {
-           throw RuntimeExceptionFactory.illegalArgument(vf.string(e.getMessage()));
-        }
-    }
-
     public IList runJUnitTestClass(IString qname, IList classpath, IConstructor version) {
         if (!version.getName().equals("junit4")) {
             throw RuntimeExceptionFactory.illegalArgument(version);
         }
-        
+
         var loader = new SourceLocationClassLoader(classpath, getClass().getClassLoader());
 
         try {

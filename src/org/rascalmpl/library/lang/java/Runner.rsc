@@ -40,9 +40,11 @@ module lang::java::Runner
 
 import IO;
 import lang::java::Compiler;
+import String;
 import util::FileSystem;
 import util::Reflective;
 import util::UUID;
+import Location;
 
 @synopsis{Execute the static main function of a (compiled) java class}
 @benefits{
@@ -70,6 +72,10 @@ before any other class.
 @javaClass{org.rascalmpl.library.lang.java.JavaRunner}
 java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath = [], JUnitVersion version = junit4());
 
+@synopsis{Locate the right classpath for JUnit}
+@javaClass{org.rascalmpl.library.lang.java.JavaRunner}
+java loc getJUnitClassPath(JUnitVersion version=junit4());
+
 test bool factorialMainTest() {
     root = uuid()[scheme="memory"];
     target = root + "target";
@@ -82,13 +88,63 @@ test bool factorialMainTest() {
         target, 
         [|project://rascal/test/|]);
 
-    iprintln(messages);
-
     runJavaMain(
         qname, 
         [], 
         classpath=[target, resolvedCurrentRascalJar()]
     );
+
+    return true;
+}
+
+test bool junitTestRunTest() {
+    root = uuid()[scheme="memory"];
+    target = root + "target";
+    sources = root + "sources";
+    sourceFile = sources + "TheTestClass.java";
+
+    code = "import org.junit.Test;
+           'import static org.junit.Assert.assertTrue;
+           'public class TheTestClass {
+           '    @Test
+           '    public void aTestExample() {
+           '        assertTrue(true);
+           '    }
+           '}";
+
+    writeFile(sourceFile, code);
+
+    messages = compileJavaSourceFile(sourceFile, target, [sources], libs=[resolvedCurrentRascalJar(), getJUnitClassPath()]);
+
+    assert messages == [] : "example should compile without errors: <messages>";
+
+    qname = replaceAll(relativize([sources], sourceFile)[extension=""].path[1..], "/", ".");
+
+    results = runJUnitTestClass(qname, classpath=[target, getJUnitClassPath()]);
+
+    assert [info("aTestExample(TheTestClass) started", loc x), info("aTestExample(TheTestClass) finished", x)] := results;
+
+    code = "import org.junit.Test;
+           'import static org.junit.Assert.assertTrue;
+           'public class TheTestClass {
+           '    @Test
+           '    public void aTestExample() {
+           '        assertTrue(false);
+           '    }
+           '}";
+
+    writeFile(sourceFile, code);
+
+    messages = compileJavaSourceFile(sourceFile, target, [sources], libs=[resolvedCurrentRascalJar(), getJUnitClassPath()]);
+
+    assert messages == [] : "example should compile without errors: <messages>"; 
+
+    results = runJUnitTestClass(qname, classpath=[target, getJUnitClassPath()]);
+
+    assert [
+        info("aTestExample(TheTestClass) started", loc x), 
+        error("aTestExample(TheTestClass) failed", x),
+        info("aTestExample(TheTestClass) finished", x)] := results;
 
     return true;
 }
