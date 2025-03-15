@@ -458,29 +458,29 @@ void safeRemove(loc l){
 test bool onlyTouchedModulesAreReChecked1(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    Top = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
-    assert checkModuleOK(Top, pathConfig = pcfg);
+    topLoc = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    assert checkModuleOK(topLoc, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
-    assert touchAndCheck(Top, ["Exception"], pcfg);
-    assert touchAndCheck(Top, ["Set"], pcfg);
-    assert touchAndCheck(Top, ["Grammar"], pcfg);
-    return touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg);
+    assert touchAndCheck(topLoc, ["Exception"], pcfg);
+    assert touchAndCheck(topLoc, ["Set"], pcfg);
+    assert touchAndCheck(topLoc, ["Grammar"], pcfg);
+    return touchAndCheck(topLoc, ["Exception", "Set", "Grammar"], pcfg);
 }
 
 @ignore{Very expensive test}
 test bool onlyTouchedModulesAreReChecked2(){
     pcfg = getAllSrcWritablePathConfig();
     safeRemove(pcfg.resources);
-    Top = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
-    assert checkModuleOK(Top, pathConfig = pcfg);
+    topLoc = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    assert checkModuleOK(topLoc, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
-    assert touchAndCheck(Top, ["Exception"], pcfg);
-    assert touchAndCheck(Top, ["Set"], pcfg);
-    assert touchAndCheck(Top, ["Exception", "Set"], pcfg);
-    assert touchAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg);
-    return touchAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg);
+    assert touchAndCheck(topLoc, ["Exception"], pcfg);
+    assert touchAndCheck(topLoc, ["Set"], pcfg);
+    assert touchAndCheck(topLoc, ["Exception", "Set"], pcfg);
+    assert touchAndCheck(topLoc, ["lang::rascalcore::check::CollectType"], pcfg);
+    return touchAndCheck(topLoc, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg);
 }
 
 // ---- change and recheck modules --------------------------------------------
@@ -510,50 +510,39 @@ void restoreModules(list[str] moduleNames, PathConfig pcfg){
     }
 }
 
-bool changeAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg, str injectedError=""){
+bool changeAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg, str injectedError=""){
     println("CHANGE <moduleNames>");
     changeModules(moduleNames, pcfg, injectedError=injectedError);
-    return expectReChecks(Top, moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
-}
-
-value main(){
-    pcfg = getRascalWritablePathConfig();
-    TopName = "Boolean";
-    Top = getRascalModuleLocation(TopName, pcfg);
-    //assert changeAndCheck(Top, [TopName, "Exception"], pcfg, injectedError="int X = false;");
-    changeModules([TopName], pcfg, injectedError="int X = false;");
-    assert unexpectedDeclarationInModule(Top);
-    restoreModules([TopName], pcfg);
-    assert checkModuleOK(Top);
-    return true;
+    return expectReChecks(topLoc, moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
 }
 
 test bool onlyChangedModulesAreReChecked1(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    TopName = "analysis::grammars::Ambiguity";
-    Top = getRascalModuleLocation(TopName, pcfg);
-    assert checkModuleOK(Top, pathConfig = pcfg);
+    str topName = "analysis::grammars::Ambiguity";
+    loc topLoc = getRascalModuleLocation(topName, pcfg);
+    assert checkModuleOK(topLoc, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
-    assert changeAndCheck(Top, ["Exception"], pcfg);
-    assert changeAndCheck(Top, ["Set"], pcfg);
-    assert changeAndCheck(Top, ["Grammar"], pcfg);
-    assert changeAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg);
+    assert changeAndCheck(topLoc, ["Exception"], pcfg);
+    assert changeAndCheck(topLoc, ["Set"], pcfg);
+    assert changeAndCheck(topLoc, ["Grammar"], pcfg);
+    assert changeAndCheck(topLoc, ["Exception", "Set", "Grammar"], pcfg);
     
     assert validateBOMs(pcfg);
 
     restoreModules(["Exception", "Set", "Grammar"], pcfg);
 
     // Error scenario's
-    assert changeAndCheck(Top, [TopName], pcfg, injectedError="int X = false;");
-    assert unexpectedDeclarationInModule(Top, pathConfig=pcfg);
-    restoreModules([TopName], pcfg);
+    assert changeAndCheck(topLoc, [topName], pcfg, injectedError="int X = false;");
+    assert unexpectedDeclarationInModule(topLoc, pathConfig=pcfg);
+    restoreModules([topName], pcfg);
     
-    assert changeAndCheck(Top, ["Exception"], pcfg, injectedError="str S = 10;");
-    assert unexpectedDeclarationInModule(Top, pathConfig=pcfg);
+    loc exceptionLoc = getRascalModuleLocation("Exception", pcfg);
+    assert changeAndCheck(topLoc, ["Exception"], pcfg, injectedError="str S = 10;");
+    assert unexpectedDeclarationInModule(exceptionLoc, pathConfig=pcfg);
     restoreModules(["Exception"], pcfg);
-    assert checkModuleOK(Top, pathConfig=pcfg);
+    assert checkModuleOK(topLoc, pathConfig=pcfg);
 
     return true;
 }
@@ -562,15 +551,15 @@ test bool onlyChangedModulesAreReChecked1(){
 test bool onlyChangedModulesAreReChecked2(){
     pcfg = getAllSrcWritablePathConfig();
     safeRemove(pcfg.resources);
-    Top = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
-    assert checkModuleOK(Top, pathConfig = pcfg);
+    topLoc = getRascalModuleLocation("lang::rascalcore::check::Checker", pcfg);
+    assert checkModuleOK(topLoc, pathConfig = pcfg);
     assert validateBOMs(pcfg);
 
-    assert changeAndCheck(Top, ["Exception"], pcfg);
-    assert changeAndCheck(Top, ["Set"], pcfg);
-    assert changeAndCheck(Top, ["Exception", "Set"], pcfg);
-    assert changeAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg);
-    assert changeAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
+    assert changeAndCheck(topLoc, ["Exception"], pcfg);
+    assert changeAndCheck(topLoc, ["Set"], pcfg);
+    assert changeAndCheck(topLoc, ["Exception", "Set"], pcfg);
+    assert changeAndCheck(topLoc, ["lang::rascalcore::check::CollectType"], pcfg);
+    assert changeAndCheck(topLoc, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal",
                                       "lang::rascalcore::check::CollectType"], pcfg);
      
     assert validateBOMs(pcfg);
@@ -596,11 +585,11 @@ void benchmark(str title, lrel[str, void()] cases){
 void touchOne(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    TopName = "ParseTree";
-    Top = getRascalModuleLocation("ParseTree", pcfg);
+    str topName = "ParseTree";
+    topLoc = getRascalModuleLocation("ParseTree", pcfg);
     cases =
-        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>
-  //       <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>
+        [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>
+  //       <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>
         ];
     benchmark("touchOne", cases);
 }
@@ -608,16 +597,16 @@ void touchOne(){
 void miniBenchmarkRechecking(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    TopName = "ParseTree";
-    Top = getRascalModuleLocation("ParseTree", pcfg);
+    topName = "ParseTree";
+    topLoc = getRascalModuleLocation("ParseTree", pcfg);
 
     cases =
-        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"<TopName>, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>,
-         <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
-         <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
-         <"Exception+Set", void(){ touchAndCheck(Top, ["Exception", "Set"], pcfg); }>
+        [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
+         <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
+         <"Exception+Set", void(){ touchAndCheck(topLoc, ["Exception", "Set"], pcfg); }>
         ];
     benchmark("miniBenchmarkRechecking", cases);
 }
@@ -625,38 +614,38 @@ void miniBenchmarkRechecking(){
 void mediumBenchmarkRechecking(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    TopName = "analysis::grammars::Ambiguity";
-    Top = getRascalModuleLocation(TopName, pcfg);
+    topName = "analysis::grammars::Ambiguity";
+    topLoc = getRascalModuleLocation(topName, pcfg);
 
     cases =
-        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"<TopName>, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>,
-         <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
-         <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
-         <"Grammar", void(){ touchAndCheck(Top, ["Grammar"], pcfg); }>,
-         <"Exception+Set+Grammar", void(){ touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg); }>
+        [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
+         <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
+         <"Grammar", void(){ touchAndCheck(topLoc, ["Grammar"], pcfg); }>,
+         <"Exception+Set+Grammar", void(){ touchAndCheck(topLoc, ["Exception", "Set", "Grammar"], pcfg); }>
         ];
 
     benchmark("mediumBenchmarkRechecking", cases);
 }
 
 void largeBenchmarkRechecking(){
-    pcfg = getAllSrcWritablePathConfig();
+    pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    TopName = "lang::rascalcore::check::Checker";
-    Top = getRascalModuleLocation(TopName, pcfg);
+    topName = "lang::rascalcore::check::Checker";
+    topLoc = getRascalModuleLocation(topName, pcfg);
 
     cases =
-        [<"<TopName>, first", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"<TopName>, nochange", void(){ checkModuleOK(Top, pathConfig = pcfg); }>,
-         <"<TopName>, touched", void(){ touchAndCheck(Top, [TopName], pcfg); }>,
-         <"Exception", void(){ touchAndCheck(Top, ["Exception"], pcfg); }>,
-         <"Set", void(){ touchAndCheck(Top, ["Set"], pcfg); }>,
-         <"Grammar", void(){ touchAndCheck(Top, ["Grammar"], pcfg); }>,
-         <"Exception+Set+Grammar", void(){ touchAndCheck(Top, ["Exception", "Set", "Grammar"], pcfg); }>,
-         <"lang::rascalcore::check::CollectType", void(){ touchAndCheck(Top, ["lang::rascalcore::check::CollectType"], pcfg); }>,
-         <"5 modules changed", void(){ touchAndCheck(Top, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg); }>
+        [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
+         <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
+         <"Grammar", void(){ touchAndCheck(topLoc, ["Grammar"], pcfg); }>,
+         <"Exception+Set+Grammar", void(){ touchAndCheck(topLoc, ["Exception", "Set", "Grammar"], pcfg); }>,
+         <"lang::rascalcore::check::CollectType", void(){ touchAndCheck(topLoc, ["lang::rascalcore::check::CollectType"], pcfg); }>,
+         <"5 modules changed", void(){ touchAndCheck(topLoc, ["Exception", "Set", "ParseTree", "analysis::typepal::TypePal", "lang::rascalcore::check::CollectType"], pcfg); }>
         ];
 
     benchmark("largeBenchmarkRechecking", cases);
