@@ -631,7 +631,7 @@ void mediumBenchmarkRechecking(){
 }
 
 void largeBenchmarkRechecking(){
-    pcfg = getRascalWritablePathConfig();
+    pcfg = getAllSrcREPOCompilerConfig();
     safeRemove(pcfg.resources);
     topName = "lang::rascalcore::check::Checker";
     topLoc = getRascalModuleLocation(topName, pcfg);
