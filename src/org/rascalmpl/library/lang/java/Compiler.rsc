@@ -25,7 +25,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 @synopsis{Provides access to the JDK javac compiler, to compile (generated) Java code.}
-module lang::rascalcore::java::Compiler
+@benefits{
+* Compile any Java code, stored anywhere reachable through a `loc` and using any library
+reachable through a `loc`, to JVM bytecode using the standard JDK compiler.
+}
+@pitfalls{
+* If you are looking for Java analysis and transformation support in Rascal please go find
+the [java-air](http://www.rascalmpl.org/docs/Packages/RascalAir) package. The current module
+only provides a Java to bytecode compilation API. 
+}
+module lang::java::Compiler
 
 extend Message;
 
@@ -80,14 +89,14 @@ java list[Message] compileJava(rel[loc fileName, str qualifiedName, str sourceCo
 
 @synopsis{computes the `packageName.className` fully qualified class name from a source filename `/.../src/packageName/className.java`} 
 private str qualifiedName(loc path, list[loc] srcs)
-    = replaceAll(relativize(srcs, path)[extension=""].path[1..], ".", "/") 
+    = replaceAll(relativize(srcs, path)[extension=""].path[1..], "/", ".") 
     when path.extension == "java";
 
 
 @synopsis{tests folder structure of input .java files against the folder structure of the output .class files}
 test bool compilerInputOutputFileTest() {
     remove(|memory://tester|, recursive=true);
-    remove(|memory://target|, recursive=true);
+    remove(|memory://tester|, recursive=true);
 
     writeFile(|memory://tester/A.java|,           "class A { }");
     writeFile(|memory://tester/B.java|,           "class B extends A { }");
@@ -98,10 +107,10 @@ test bool compilerInputOutputFileTest() {
 
     return find(|memory://target|,"class") 
         ==  {
-                |memory://target/pack/C/java.class|,
-                |memory://target/pack/pack/D/java.class|,
-                |memory://target/B/java.class|,
-                |memory://target/A/java.class|
+                |memory://target/pack/C.class|,
+                |memory://target/pack/pack/D.class|,
+                |memory://target/B.class|,
+                |memory://target/A.class|
         };
 }
 

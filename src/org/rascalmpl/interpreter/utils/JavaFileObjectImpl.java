@@ -67,7 +67,9 @@ import io.usethesource.vallang.ISourceLocation;
     * @throws URISyntaxException 
     */
    JavaFileObjectImpl(ISourceLocation sloc, String baseName, final CharSequence source, Kind kind) throws URISyntaxException {
-      super(JavaCompiler.toURI(baseName + JavaCompiler.JAVA_EXTENSION), kind);
+      // Jurgen Vinju: I find this hard to comprehend. When we simply add kind.extension always, we get double A.class.class extensions.
+      // it has probably something to do with the {@see JavaCompiler.ClassloaderImpl}.
+      super(JavaCompiler.toURI(baseName + ((kind == Kind.SOURCE) ? Kind.SOURCE.extension : "")), kind);
       this.source = source;
       this.sloc = sloc;
    }
