@@ -38,7 +38,10 @@ only provides a Java to bytecode compilation API.
 }
 module lang::java::Runner
 
-extend lang::java::Compiler;
+import IO;
+import lang::java::Compiler;
+import util::FileSystem;
+import util::Reflective;
 
 @synopsis{Execute the static main function of a (compiled) java class}
 @benefits{
@@ -54,8 +57,10 @@ java void runJavaMain(str qualifiedName, list[str] args, list[loc] classpath=[])
 data JUnitVersion
     = junit4();
 
+@synsopsis{Execute JUnit test classes directly from Rascal}
 @benefits{
 * This function can use class files from any support loc scheme
+* Classes are loaded from the `classpath` parameter with any `loc` scheme that supports class loading.
 }
 @pitfalls{
 * The current Rascal runtime/interpreter classloaders, including vallang, are always used
@@ -66,7 +71,7 @@ java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath = []
 
 test bool factorialMainTest() {
     remove(|memory://target|, recursive=true);
-    
+
     source   = |project://rascal/test/org/rascalmpl/benchmark/Factorial/Factorial.java|;
     qname    = "org.rascalmpl.benchmark.Factorial.Factorial";
 
