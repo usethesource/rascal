@@ -28,7 +28,7 @@ module lang::rascalcore::java::Runner
 
 extend lang::rascalcore::java::Compiler;
 
-@javaClass{org.rascalmpl.compiler.lang.rascalcore.java.JavaRunner}
+@javaClass{org.rascalmpl.library.lang.java.JavaRunner}
 @synopsis{Execute the static main function of a (compiled) java class}
 @benefits{
 * This function can use class files from any support loc scheme
@@ -46,7 +46,7 @@ java void runJavaMain(str qualifiedName, list[str] args, list[loc] classpath=[])
 * The current Rascal runtime/interpreter classloaders, including vallang, are always used
 before any other class.
 }
-@javaClass{org.rascalmpl.compiler.lang.rascalcore.java.JavaRunner}
+@javaClass{org.rascalmpl.library.lang.java.JavaRunner}
 java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath=[]);
 
 test bool factorialMainTest() {
