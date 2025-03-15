@@ -42,6 +42,7 @@ import IO;
 import lang::java::Compiler;
 import util::FileSystem;
 import util::Reflective;
+import util::UUID;
 
 @synopsis{Execute the static main function of a (compiled) java class}
 @benefits{
@@ -70,14 +71,15 @@ before any other class.
 java list[Message] runJUnitTestClass(str qualifiedName, list[loc] classpath = [], JUnitVersion version = junit4());
 
 test bool factorialMainTest() {
-    remove(|memory://target|, recursive=true);
+    root = uuid()[scheme="memory"];
+    target = root + "target";
 
     source   = |project://rascal/test/org/rascalmpl/benchmark/Factorial/Factorial.java|;
     qname    = "org.rascalmpl.benchmark.Factorial.Factorial";
 
     messages = compileJavaSourceFile(
         source, 
-        |memory://target|, 
+        target, 
         [|project://rascal/test/|]);
 
     iprintln(messages);
@@ -85,7 +87,7 @@ test bool factorialMainTest() {
     runJavaMain(
         qname, 
         [], 
-        classpath=[|memory://target|, resolvedCurrentRascalJar()]
+        classpath=[target, resolvedCurrentRascalJar()]
     );
 
     return true;
