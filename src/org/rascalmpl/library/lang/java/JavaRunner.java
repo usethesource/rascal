@@ -1,4 +1,4 @@
-package org.rascalmpl.compiler.lang.rascalcore.java;
+package org.rascalmpl.library.lang.java;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
