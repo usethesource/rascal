@@ -125,7 +125,7 @@ test bool junitTestRunTest() {
 
     results = runJUnitTestClass(qname, classpath=[target, getJUnitClassPath()]);
 
-    assert [info("aTestExample(TheTestClass) started", loc x), info("aTestExample(TheTestClass) finished", x)] := results;
+    assert [info("aTestExample(TheTestClass) started", loc _), info("aTestExample(TheTestClass) finished", _)] := results;
 
     code = "import org.junit.Test;
            'import static org.junit.Assert.assertTrue;
@@ -145,9 +145,9 @@ test bool junitTestRunTest() {
     results = runJUnitTestClass(qname, classpath=[target, getJUnitClassPath()]);
 
     assert [
-        info("aTestExample(TheTestClass) started", loc x), 
-        error("aTestExample(TheTestClass) failed", x),
-        info("aTestExample(TheTestClass) finished", x)] := results;
+        info("aTestExample(TheTestClass) started", _), 
+        error("aTestExample(TheTestClass) failed", _),
+        info("aTestExample(TheTestClass) finished", _)] := results;
 
     return true;
 }
