@@ -344,8 +344,6 @@ tuple[bool, TModel, ModuleStatus] getTModelForModule(str qualifiedModuleName, Mo
     pcfg = ms.pathConfig;
     if(qualifiedModuleName in ms.tmodels){
         tm = ms.tmodels[qualifiedModuleName];
-        realWork = convert && !tm.usesPhysicalLocs ? "WORK" : "NO WORK";
-        println("*** (<realWork>: <convert>, <tm.usesPhysicalLocs>) convertTModel2PhysicalLocs for <qualifiedModuleName>");
         if(convert && !tm.usesPhysicalLocs){
             tm = convertTModel2PhysicalLocs(tm);
             ms.tmodels[qualifiedModuleName] = tm;
