@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -309,22 +310,27 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(rtf.reifiedType(parameterType), tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
 
-        @SuppressWarnings({"unchecked"})
-        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
-            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
-          
-        AbstractAST current = ctx.getCurrentAST();
-        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-                
-        return function(
-            functionType, 
-            new ParametrizedParseFunction(() -> getParserGenerator(), 
-            this, 
-            caller, 
-            parser, 
-            allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters)
-        );
+        try {
+            @SuppressWarnings({"unchecked"})
+            final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+                = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                    .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+            
+            AbstractAST current = ctx.getCurrentAST();
+            ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                    
+            return function(
+                functionType, 
+                new ParametrizedParseFunction(() -> getParserGenerator(), 
+                this, 
+                caller, 
+                parser, 
+                allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters)
+            );
+        }
+        catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
     @Override
@@ -335,24 +341,29 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             tf.tupleType(tf.valueType(), tf.sourceLocationType()), 
             tf.tupleEmpty());
       
-        @SuppressWarnings({"unchecked"})
-        final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
-            = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
-                .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
-          
-        AbstractAST current = ctx.getCurrentAST();
-        ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
-                
-        IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
+        try {
+            @SuppressWarnings({"unchecked"})
+            final Class<IGTD<IConstructor, ITree, ISourceLocation>> parser 
+                = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) ctx.getEvaluator()
+                    .__getJavaBridge().loadClass(URIResolverRegistry.getInstance().getInputStream(saveLocation));
+            
+            AbstractAST current = ctx.getCurrentAST();
+            ISourceLocation caller = current != null ? current.getLocation() : URIUtil.rootLocation("unknown");
+                    
+            IConstructor startSort = (IConstructor) ((IConstructor) reifiedGrammar).get("symbol");
 
-        checkPreconditions(startSort, reifiedGrammar.getType());
-        
-        String name = getParserMethodName(startSort);
-        if (name == null) {
-            name = generator.getParserMethodName(startSort);
+            checkPreconditions(startSort, reifiedGrammar.getType());
+            
+            String name = getParserMethodName(startSort);
+            if (name == null) {
+                name = generator.getParserMethodName(startSort);
+            }
+
+            return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters));
         }
-
-        return function(functionType, new ParseFunction(ctx.getValueFactory(), caller, parser, name, allowAmbiguity, allowRecovery, hasSideEffects, firstAmbiguity, filters));
+        catch (URISyntaxException e) {
+            throw new IOException(e);
+        }
     }
 
     /**
