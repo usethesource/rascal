@@ -43,6 +43,7 @@ import Location;
 import String;
 import util::FileSystem;
 import util::Reflective;
+import util::UUID;
 
 @synopsis{Compile all the .java files in source folders in PathConfig}
 list[Message] compileJava(PathConfig pcfg) 
@@ -95,37 +96,38 @@ private str qualifiedName(loc path, list[loc] srcs)
 
 @synopsis{tests folder structure of input .java files against the folder structure of the output .class files}
 test bool compilerInputOutputFileTest() {
-    remove(|memory://tester|, recursive=true);
-    remove(|memory://tester|, recursive=true);
+    root = |memory://<uuid().path>|;
+    target = root + "target";
 
-    writeFile(|memory://tester/A.java|,           "class A { }");
-    writeFile(|memory://tester/B.java|,           "class B extends A { }");
-    writeFile(|memory://tester/pack/C.java|,      "package pack; \npublic class C { }");
-    writeFile(|memory://tester/pack/pack/D.java|, "package pack.pack; \nclass D extends pack.C { }");
+    writeFile(root + "A.java",           "class A { }");
+    writeFile(root + "B.java",           "class B extends A { }");
+    writeFile(root + "pack/C.java",      "package pack; \npublic class C { }");
+    writeFile(root + "pack/pack/D.java", "package pack.pack; \nclass D extends pack.C { }");
 
-    compileJavaSourceFolders([|memory://tester/|], |memory://target|);
+    errors = compileJavaSourceFolders([root], target);
+    assert errors == [] : "unexpected errors: <errors>";
 
-    return find(|memory://target|,"class") 
+    return find(target,"class") 
         ==  {
-                |memory://target/pack/C.class|,
-                |memory://target/pack/pack/D.class|,
-                |memory://target/B.class|,
-                |memory://target/A.class|
+                target + "pack/C.class",
+                target + "pack/pack/D.class",
+                target + "B.class",
+                target + "A.class"
         };
 }
 
 @synopsis{tests Java compilation with required libraries on the classpath}
 test bool compilerClasspathTest() {
-    remove(|memory://tester|, recursive=true);
-    remove(|memory://target|, recursive=true);
+    root = |memory://<uuid().path>|;
+    target = ro ot + "target";
     
-    writeFile(|memory://tester/Registry.java|, "class A { org.rascalmpl.uri.URIResolverRegistry reg = org.rascalmpl.uri.URIResolverRegistry.getInstance(); }");
+    writeFile(root + "Registry.java", "class A { org.rascalmpl.uri.URIResolverRegistry reg = org.rascalmpl.uri.URIResolverRegistry.getInstance(); }");
     
     rascalLib = resolvedCurrentRascalJar();
 
-    errors = compileJavaSourceFolders([|memory://tester/|], |memory://target|, libs=[rascalLib]);
+    errors = compileJavaSourceFolders([root], target, libs=[rascalLib]);
 
     assert errors == [] : "no errors expected: <errors>";
 
-    return find(|memory://target|,"class") ==  {|memory://target/A/java.class|};
+    return find(target,"class") ==  {target + "A.class"};
 }
