@@ -1,4 +1,4 @@
-package org.rascalmpl.compiler.lang.rascalcore.java;
+package org.rascalmpl.library.lang.java;
 
 import java.io.File;
 import java.io.IOException;
