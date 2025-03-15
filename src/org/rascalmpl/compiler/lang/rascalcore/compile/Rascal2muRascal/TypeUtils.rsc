@@ -214,10 +214,11 @@ bool isUse(UID u){
 }
 
 private AType getDefType(UID d){
-    di = definitions[d].defInfo;
-    if(defType(AType atype) := di) return atype;
-    if(defType(Tree tree) := di) return getDefType(getLoc(tree));
-    if(defType(loc l) := di) return facts[l];
+    if(defType(arg) := definitions[d].defInfo){
+        if(AType atype := arg) return atype;
+        if(Tree tree := arg) return getDefType(getLoc(tree));
+        if(loc l := arg) return facts[l];
+    }
     throw "getDefType: <d>";
 }
 
