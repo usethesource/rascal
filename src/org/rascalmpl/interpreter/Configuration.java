@@ -23,45 +23,25 @@ public class Configuration {
 	public static final String RASCAL_MODULE_SEP = "::";
 	public static final String RASCAL_PATH_SEP = "/";
 	
-	private static final String RASCAL_JAVA_COMPILER_CLASSPATH = "rascal.java.classpath";
 	public final static String PROFILING_PROPERTY = "rascal.profiling";
 	public final static String GENERATOR_PROFILING_PROPERTY = "rascal.generatorProfiling";
 	public final static String TRACING_PROPERTY = "rascal.tracing";
 	public final static String ERRORS_PROPERTY = "rascal.errors";
 	
-	private String javaClassPath = getDefaultString(RASCAL_JAVA_COMPILER_CLASSPATH, System.getProperty("java.class.path"));
-  private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
-  private boolean generatorProfiling = getDefaultBoolean(GENERATOR_PROFILING_PROPERTY, false);
-  private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
-  private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
-  
-	private static String getDefaultString(String property, String def) {
-	  String prop = System.getProperty(property);
-	  if (prop == null) {
-	    return def;
-	  }
-	  else {
-	    return prop;
-	  }
-	}
+  	private boolean profiling = getDefaultBoolean(PROFILING_PROPERTY, false);
+  	private boolean generatorProfiling = getDefaultBoolean(GENERATOR_PROFILING_PROPERTY, false);
+  	private boolean tracing = getDefaultBoolean(TRACING_PROPERTY, false);
+  	private boolean errors = getDefaultBoolean(ERRORS_PROPERTY, false);
 	
 	private static boolean getDefaultBoolean(String property, boolean def) {
-    String prop = System.getProperty(property);
-    if (prop == null) {
-      return def;
-    }
-    else {
-      return prop.equals("true");
-    }
-  }
-	
-	public String getRascalJavaClassPathProperty() {
-		return javaClassPath;
-	}
-	
-	public void setRascalJavaClassPathProperty(String path) {
-		javaClassPath = path;
-	}
+		String prop = System.getProperty(property);
+		if (prop == null) {
+			return def;
+		}
+		else {
+		return prop.equals("true");
+		}
+  	}
 	
 	public boolean getProfilingProperty(){
 		return profiling;
@@ -80,16 +60,16 @@ public class Configuration {
 	}
 	
 	public void setErrors(boolean errors) {
-    this.errors = errors;
-  }
+    	this.errors = errors;
+  	}
 	
 	public void setProfiling(boolean profiling) {
-	  this.profiling = profiling;
+	  	this.profiling = profiling;
 	}
 	
 	public void setGeneratorProfiling(boolean profiling) {
-		  this.generatorProfiling = profiling;
-		}
+		this.generatorProfiling = profiling;
+	}
 	
 	public void setTracing(boolean tracing) {
 	  this.tracing = tracing;
