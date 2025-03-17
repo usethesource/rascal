@@ -54,13 +54,6 @@ public class TutorCommandExecutor {
             protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
 
-                try {
-                    eval.getConfiguration().setRascalJavaClassPathProperty(PathConfig.resolveCurrentRascalRuntimeJar().getPath());
-                }
-                catch (IOException e) {
-                    services.warning(e.getMessage(), URIUtil.rootLocation("unknown"));
-                }
-
                 if (!pcfg.getSrcs().isEmpty()) {
                     ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
                     String projectName = new RascalManifest().getProjectName(projectRoot);
