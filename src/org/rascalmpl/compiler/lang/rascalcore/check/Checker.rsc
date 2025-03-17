@@ -139,19 +139,21 @@ ModuleStatus rascalTModelForLocs(
     
     mnames = 
         for(mloc <- mlocs){
-            if(!exists(mloc)){
-                msgs += error("<mloc> does not exist", mloc);
-                append  "LocationDoesNotExist: <mloc>";
-            } else {
+            if(exists(mloc)){
                 try {
                     append getRascalModuleName(mloc, pcfg);
                 } catch e: {
-                    append "NoModuleNameFound: <mloc>";
                     msgs += error("No module name found for <mloc>", mloc);
                 }
+            } else {
+                msgs += error("<mloc> does not exist", mloc);
             }
         };
 
+    if(size(mlocs) != size(mnames)){ // not all mlocs could be mapped to a module
+        ms.messages[qualifiedModuleName] = msgs;
+        return ms;
+    }
     if(allModulesHaveValidTpls(mlocs, pcfg)){
         <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
 
@@ -612,10 +614,16 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
         
-    messages = check(modules, rascalConfig);
-    println(write(messages));
-
-    return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
+    moduleMessages = check(modules, rascalConfig);
+    iprintln(moduleMessages);
+    for(mm <- moduleMessages){
+        for(m <- mm.messages){
+            if(error(_,_) := m || error(_) := m){
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 // ---- Convenience check function during development -------------------------
