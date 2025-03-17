@@ -123,7 +123,7 @@ public class JavaBridge {
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "--release", "11", "-cp", config.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "--release", "11" });
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			return result;
@@ -143,7 +143,7 @@ public class JavaBridge {
 	}
 
 	public Class<?> loadClass(InputStream in) throws IOException, ClassNotFoundException, URISyntaxException {
-		List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+		List<String> commandline = Arrays.asList(new String[] {"-proc:none"} );
 		JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(getClass().getClassLoader(), null, commandline);
 		return javaCompiler.load(in);
 	}
@@ -151,7 +151,7 @@ public class JavaBridge {
 	public <T> void compileJava(ISourceLocation loc, String className, Class<?> parent, String source, OutputStream classBytes) {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", config.getRascalJavaClassPathProperty()});
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none" });
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), null, commandline);
 			javaCompiler.compile(classBytes, className, source, null);
 		} 
