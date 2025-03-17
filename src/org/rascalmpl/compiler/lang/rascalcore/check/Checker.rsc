@@ -139,19 +139,21 @@ ModuleStatus rascalTModelForLocs(
     
     mnames = 
         for(mloc <- mlocs){
-            if(!exists(mloc)){
-                msgs += error("<mloc> does not exist", mloc);
-                append  "LocationDoesNotExist: <mloc>";
-            } else {
+            if(exists(mloc)){
                 try {
                     append getRascalModuleName(mloc, pcfg);
                 } catch e: {
-                    append "NoModuleNameFound: <mloc>";
                     msgs += error("No module name found for <mloc>", mloc);
                 }
+            } else {
+                msgs += error("<mloc> does not exist", mloc);
             }
         };
 
+    if(size(mlocs) != size(mnames)){ // not all mlocs could be mapped to a module
+        ms.messages[qualifiedModuleName] = msgs;
+        return ms;
+    }
     if(allModulesHaveValidTpls(mlocs, pcfg)){
         <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
 
@@ -576,6 +578,52 @@ list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerCo
 
 list[ModuleMessages] checkAll(loc root, RascalCompilerConfig compilerConfig){
     return check(toList(find(root, "rsc")), compilerConfig);
+}
+
+@synopsis{General commandline interface to the Rascal static checker}
+@benefits{
+* The keyword fields of the main function generated commandline options, like `-libs` and `-srcs`
+}
+@pitfalls{
+* This interface is a strong stable contract between the checker and the rascal-maven-plugin. If 
+we remove or rename keyword fields here, then they the client code must be adapted as well.
+}
+int main(
+    list[loc] modules             = [],  // dirty modules to check 
+    PathConfig pcfg               = getProjectPathConfig(|cwd:///|),
+    bool logPathConfig            = false,
+    bool logImports               = false,
+    bool verbose                  = false,
+    bool logWrittenFiles          = false,
+    bool warnUnused               = true,
+    bool warnUnusedFormals        = true,
+    bool warnUnusedVariables      = true,
+    bool warnUnusedPatternFormals = true,
+    bool infoModuleChecked        = false
+) {
+    pcfg.resources = pcfg.bin;
+
+    rascalConfig = rascalCompilerConfig(pcfg,
+        logPathConfig            = logPathConfig,
+        verbose                  = verbose,
+        logWrittenFiles          = logWrittenFiles,
+        warnUnused               = warnUnused,
+        warnUnusedFormals        = warnUnusedFormals,
+        warnUnusedVariables      = warnUnusedVariables,
+        warnUnusedPatternFormals = warnUnusedPatternFormals,
+        infoModuleChecked        = infoModuleChecked
+    );
+        
+    moduleMessages = check(modules, rascalConfig);
+    iprintln(moduleMessages);
+    for(mm <- moduleMessages){
+        for(m <- mm.messages){
+            if(error(_,_) := m || error(_) := m){
+                return 1;
+            }
+        }
+    }
+    return 0;
 }
 
 // ---- Convenience check function during development -------------------------
