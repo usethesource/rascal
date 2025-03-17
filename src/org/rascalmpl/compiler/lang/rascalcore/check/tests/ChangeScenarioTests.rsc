@@ -631,7 +631,7 @@ void mediumBenchmarkRechecking(){
 }
 
 void largeBenchmarkRechecking(){
-    pcfg = getAllSrcREPOCompilerConfig();
+    pcfg = getAllSrcREPOPathConfig();
     safeRemove(pcfg.resources);
     topName = "lang::rascalcore::check::Checker";
     topLoc = getRascalModuleLocation(topName, pcfg);
@@ -652,7 +652,9 @@ void largeBenchmarkRechecking(){
 }
 
 void allBenchmarks(){
+    beginTime = cpuTime();
     miniBenchmarkRechecking();
     mediumBenchmarkRechecking();
-    largeBenchmarkRechecking();
+    //largeBenchmarkRechecking();
+    println("Total time: <(cpuTime() - beginTime)/1000000> ms");
 }
