@@ -41,19 +41,6 @@ public class JavaCompilerForRascal {
 	}	
 
 	/**
-	 * Here we float on the precondition that every element of the classpath
-	 * must point to an absolute file:/// folder or jar file
-	 */
-	private String resolveDependenciesAsClasspath(IList classpath) {
-		return classpath.stream()
-			.map(ISourceLocation.class::cast)
-			.map(this::safeResolve)
-			.filter(l -> l.getScheme().equals("file"))
-			.map(l -> l.getPath())
-			.collect(Collectors.joining(File.pathSeparator));
-	}
-
-	/**
 	 * Main entry method for calling the JavaC compiler from Rascal
 	 * @param sourcesMap  map from fully qualifiedname to the source code of a corresponding Java file
 	 * @param bin        target folder/jar
@@ -65,7 +52,7 @@ public class JavaCompilerForRascal {
 
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
-			List<String> commandline = Arrays.asList(new String[] {"-proc:none", "-cp", resolveDependenciesAsClasspath(classpath)});
+			List<String> commandline = Arrays.asList(new String[] {"-proc:none" });
 			JavaCompiler<?> javaCompiler = new JavaCompiler<Object>(cl, null, commandline);
 			var errors = new DiagnosticCollector<JavaFileObject>();
 
