@@ -48,6 +48,7 @@ import java.util.Random;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.maven.model.Repository;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
  * A note about locking:
@@ -165,7 +166,7 @@ import org.apache.maven.model.Repository;
     }
 
     // Retrieve the checksum from one of the possible checksum headers. If not found, try to download it
-    private String getChecksum(HttpHeaders headers, List<String> checksumHeaders, String checksumUrl)
+    private @Nullable String getChecksum(HttpHeaders headers, List<String> checksumHeaders, String checksumUrl)
         throws IOException, InterruptedException, URISyntaxException {
         for (String headerName : checksumHeaders) {
             Optional<String> value = headers.firstValue(headerName);
@@ -178,7 +179,7 @@ import org.apache.maven.model.Repository;
         return downloadChecksum(createUri(repo.getUrl(), checksumUrl));
     }
 
-    private String downloadChecksum(URI uri) throws IOException, InterruptedException {
+    private @Nullable String downloadChecksum(URI uri) throws IOException, InterruptedException {
         var req = HttpRequest.newBuilder(uri).GET().build();
         HttpResponse<String> result = client.send(req, BodyHandlers.ofString());
         return result.statusCode() == 200 ? result.body() : null;
@@ -221,7 +222,7 @@ import org.apache.maven.model.Repository;
         return moveToTarget(tempTarget, target, force);
     }
 
-    private void writeChecksumToTarget(Path path, String checksum) throws IOException {
+    private void writeChecksumToTarget(Path path,  @Nullable String checksum) throws IOException {
         if (checksum == null) {
             Files.delete(path);
         } else {
