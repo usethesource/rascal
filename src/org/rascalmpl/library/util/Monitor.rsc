@@ -100,6 +100,10 @@ with a parameterized workload and the same label as the job name.
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
 &T job(str label, &T (void (int worked) step) block, int totalWork=1) {
+  if (void (void (int _) _) _ := block) {
+    throw IllegalArgument(block, "`block` argument can not be used by job because it returns `void` and `job` must return something.");
+  }
+
   try {
     jobStart(label, totalWork=totalWork);
     return block(void (int worked) { 
@@ -112,11 +116,6 @@ with a parameterized workload and the same label as the job name.
   finally {
     jobEnd(label);
   }
-}
-
-@synopsis{Captures accidental void closures to throw a better exception than `CallFailed`}
-(&T<:void) job(str label, (&T<:void) (void (int worked) step) block, int totalWork=1) {
-  throw IllegalArgument(block, "`block` argument can not be used by job because it returns `void` and `job` must return something.");
 }
 
 @synopsis{A job block guarantees a start and end, and provides easy access to the stepper interface.}

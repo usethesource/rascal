@@ -38,8 +38,7 @@
             "mainClass": "org.rascalmpl.shell.RascalShell",
             "projectName": "rascal",
             "vmArgs": "-Xss80m -Xmx2g -ea",
-            "console": "integratedTerminal",
-            "args": "--project |cwd:///|" 
+            "console": "integratedTerminal"
         },
         {
             "type": "java",

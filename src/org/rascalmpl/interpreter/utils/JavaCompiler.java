@@ -15,7 +15,6 @@
 package org.rascalmpl.interpreter.utils;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -42,12 +41,17 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
-import javax.tools.SimpleJavaFileObject;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
 
 /**
  * Compile a String or other {@link CharSequence}, returning a Java
@@ -177,9 +181,10 @@ public class JavaCompiler<T> {
 
       Map<String, CharSequence> classes = new HashMap<String, CharSequence>(1);
       classes.put(qualifiedClassName, javaSource);
-      Map<String, Class<T>> compiled = compile(classes, diagnostics);
-      Class<T> newClass = compiled.get(qualifiedClassName);
-      return castable(newClass, types);
+      Map<String, Class<?>> compiled = compile(classes, diagnostics);
+      @SuppressWarnings("unchecked")
+      Class<T> newClass = (Class<T>) compiled.get(qualifiedClassName);
+      return(Class<T>) castable((Class<T>) newClass, types);
    }
 
    /**
@@ -204,60 +209,157 @@ public class JavaCompiler<T> {
     * @throws JavaCompilerException
     *            if the source cannot be compiled
     */
-   public synchronized Map<String, Class<T>> compile(
-         final Map<String, CharSequence> classes,
-         DiagnosticCollector<JavaFileObject> diagnostics)
-         throws JavaCompilerException {
+   public synchronized Map<String, Class<?>> compile(final Map<String, CharSequence> classes, DiagnosticCollector<JavaFileObject> diagnostics) throws JavaCompilerException {
       if (diagnostics == null) {
          diagnostics = new DiagnosticCollector<>();
       }
 
-      List<JavaFileObject> sources = new ArrayList<JavaFileObject>();
-      for (Entry<String, CharSequence> entry : classes.entrySet()) {
-         String qualifiedClassName = entry.getKey();
-         CharSequence javaSource = entry.getValue();
-         if (javaSource != null) {
-            final int dotPos = qualifiedClassName.lastIndexOf('.');
-            final String className = dotPos == -1 ? qualifiedClassName
-                  : qualifiedClassName.substring(dotPos + 1);
-            final String packageName = dotPos == -1 ? "" : qualifiedClassName
-                  .substring(0, dotPos);
-            final JavaFileObjectImpl source = new JavaFileObjectImpl(className,
-                  javaSource);
-            sources.add(source);
-            // Store the source file in the FileManager via package/class
-            // name.
-            // For source files, we add a .java extension
-            javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, packageName,
-                  className + JAVA_EXTENSION, source);
-         }
-      }
-      // Get a CompliationTask from the compiler and compile the sources
-      final CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics,
-            options, null, sources);
-      final Boolean result = task.call();
-      if (result == null || !result.booleanValue()) {
-         throw new JavaCompilerException("Compilation failed.", classes
-               .keySet(), diagnostics);
-      }
       try {
+         List<JavaFileObject> sources = registerSourceFiles(classes);
+
+         // Get a CompliationTask from the compiler and compile the sources
+         CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options, null, sources);
+         Boolean result = task.call();
+         
+         if (result == null || !result.booleanValue()) {
+            throw new JavaCompilerException("Compilation failed.", classes.keySet(), diagnostics);
+         }
+      
          // For each class name in the inpput map, get its compiled
          // class and put it in the output map
-         Map<String, Class<T>> compiled = new HashMap<String, Class<T>>();
+         Map<String, Class<?>> compiled = new HashMap<String, Class<?>>();
          for (String qualifiedClassName : classes.keySet()) {
             final Class<T> newClass = loadClass(qualifiedClassName);
             compiled.put(qualifiedClassName, newClass);
          }
+         
          return compiled;
-      } catch (ClassNotFoundException e) {
+      } 
+      catch (ClassNotFoundException e) {
          throw new JavaCompilerException(classes.keySet(), e, diagnostics);
-      } catch (IllegalArgumentException e) {
+      } 
+      catch (IllegalArgumentException e) {
          throw new JavaCompilerException(classes.keySet(), e, diagnostics);
-      } catch (SecurityException e) {
+      } 
+      catch (SecurityException e) {
+         throw new JavaCompilerException(classes.keySet(), e, diagnostics);
+      }
+      catch (URISyntaxException e) {
          throw new JavaCompilerException(classes.keySet(), e, diagnostics);
       }
    }
 
+   /**
+    * Compile multiple Java source strings and return the error messages
+    * <p>
+    * Thread safety: this method is thread safe if the <var>classes</var> and
+    * <var>diagnosticsList</var> are isolated to this thread.
+    * 
+    * @param classes
+    *           A Map whose keys are source locations and whose values are
+    *           the Java source strings containing the definition of the class.
+    *           A map value may be null, indicating that compiled class is
+    *           expected, although no source exists for it (it may be a
+    *           non-public class contained in one of the other strings.)
+    * @param diagnosticsList
+    *           Any diagnostics generated by compiling the source are added to
+    *           this list.
+    * @param target : where to write the class files to (jar or folder)
+    * @return A mapping of qualified class names to their corresponding classes.
+    *         The map has the same keys as the input <var>classes</var>; the
+    *         values are the corresponding Class objects.
+    * @throws JavaCompilerException
+    *            if the source cannot be compiled
+   * @throws URISyntaxException 
+   */
+   public synchronized void compileTo(ISet classes, ClassLoader loader, ISourceLocation target, DiagnosticCollector<JavaFileObject> diagnostics)
+      throws JavaCompilerException, URISyntaxException {
+      if (diagnostics == null) {
+         diagnostics = new DiagnosticCollector<>();
+      }
+ 
+      List<JavaFileObject> sources = registerSourceFiles(classes);
+
+      // Get a CompliationTask from the compiler and compile the sources
+      final CompilationTask task = compiler.getTask(null, javaFileManager, diagnostics, options, null, sources);
+      
+      task.call();
+
+      var reg = URIResolverRegistry.getInstance();
+
+      // Write the bytes to their respective file URIs.
+      // Notice that there are possible many more .class files then there were java source files,
+      // because of nested and anonymous classes in their source code.
+      for (Entry<JavaFileObjectImpl, byte[]> e : javaFileManager.getAllClassBytes().entrySet()) {
+         var output = URIUtil.getChildLocation(target, e.getKey().toUri().getPath().replaceAll("\\.", "/"));
+         output = URIUtil.changeExtension(output, "class");
+
+         // this is where we implement support for any target scheme
+         try (OutputStream out = reg.getOutputStream(output, false)) {
+            out.write(e.getValue());
+         }
+         catch (IOException x) {
+            throw new JavaCompilerException(java.util.Set.of(e.getKey().toUri().getPath()), x, diagnostics);
+         }
+      }
+
+      return;
+   }
+
+   private List<JavaFileObject> registerSourceFiles(ISet classes) throws URISyntaxException {
+      List<JavaFileObject> sources = new ArrayList<JavaFileObject>();
+      
+      for (IValue entry : classes) {
+         ISourceLocation sloc = (ISourceLocation) ((ITuple) entry).get(0);
+         String qname = ((IString) ((ITuple) entry).get(1)).getValue();
+         CharSequence javaSource = ((IString) ((ITuple) entry).get(2)).getValue();
+
+         if (javaSource != null) {
+            final JavaFileObjectImpl source = new JavaFileObjectImpl(sloc, qname.replaceAll("\\.", "/"), javaSource);
+            sources.add(source);
+
+            int dotPos = qname.lastIndexOf('.');
+            String className = dotPos == -1 ? qname : qname.substring(dotPos + 1);
+            String packageName = dotPos == -1 ? "" : qname.substring(0, dotPos);
+
+            // Store the source file in the FileManager via package/class
+            // name.
+            // For source files, we add a .java extension
+            javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, packageName, className + JAVA_EXTENSION, source);
+         }
+      }
+
+      return sources;
+   }
+
+   private List<JavaFileObject> registerSourceFiles(final Map<String, CharSequence> classes) throws URISyntaxException {
+      List<JavaFileObject> sources = new ArrayList<JavaFileObject>();
+      
+      for (Entry<String, CharSequence> entry : classes.entrySet()) {
+         String qualifiedClassName = entry.getKey();
+         CharSequence javaSource = entry.getValue();
+         if (javaSource != null) {
+            int dotPos = qualifiedClassName.lastIndexOf('.');
+            String className = dotPos == -1 ? qualifiedClassName : qualifiedClassName.substring(dotPos + 1);
+            String packageName = dotPos == -1 ? "" : qualifiedClassName.substring(0, dotPos);
+            
+            JavaFileObjectImpl source = new JavaFileObjectImpl(className, javaSource);
+            sources.add(source);
+            javaFileManager.putFileForInput(StandardLocation.SOURCE_PATH, packageName, className + JAVA_EXTENSION, source);
+         }
+      }
+
+      return sources;
+   }
+
+   /**
+    * This is for the parser generator and saving the generated .class files into an opaqua jar
+    * @param classBytes
+    * @param qualifiedClassName
+    * @param classSource
+    * @param diagnostics
+    * @throws JavaCompilerException
+    */
    public void compile(OutputStream classBytes, String qualifiedClassName, CharSequence classSource, final DiagnosticCollector<JavaFileObject> diagnostics) throws JavaCompilerException {
       Map<String, CharSequence> fileMap = new HashMap<>();
 
@@ -276,7 +378,7 @@ public class JavaCompiler<T> {
       }
    }
 
-   public Class<?> load(InputStream file) throws IOException, ClassNotFoundException {
+   public Class<?> load(InputStream file) throws IOException, ClassNotFoundException, URISyntaxException {
       return classLoader.inputClassesFromJar(file);
    }
 
@@ -335,6 +437,10 @@ public class JavaCompiler<T> {
       }
    }
 
+   static URI toURI(ISourceLocation loc) {
+      return loc.getURI();
+   }
+
    /**
     * @return This compiler's class loader.
     */
@@ -386,6 +492,22 @@ final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
    }
 
    /**
+    * Get access to all te generated bytecode for all classes in this FileManagerImpl
+    * @return
+    */
+   public Map<JavaFileObjectImpl, byte[]> getAllClassBytes() {
+      var result = new HashMap<JavaFileObjectImpl, byte[]>();
+
+      for (JavaFileObjectImpl e : classLoader.files()) {
+         if (e.getKind() == Kind.CLASS) {
+            result.put(e, e.getByteCode());
+         }
+      }
+
+      return result;
+   }
+
+   /**
     * For a given file <var>location</var>, return a FileObject from which the
     * compiler can obtain source or byte code.
     * 
@@ -421,8 +543,7 @@ final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
     * @param file
     *           the file object to store for later retrieval
     */
-   public void putFileForInput(StandardLocation location, String packageName,
-         String relativeName, JavaFileObject file) {
+   public void putFileForInput(StandardLocation location, String packageName, String relativeName, JavaFileObject file) {
       fileObjects.put(uri(location, packageName, relativeName), file);
    }
 
@@ -430,8 +551,7 @@ final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
     * Convert a location and class name to a URI
     */
    private URI uri(Location location, String packageName, String relativeName) {
-      return JavaCompiler.toURI(location.getName() + '/' + packageName + '/'
-            + relativeName);
+      return JavaCompiler.toURI(location.getName() + '/' + packageName + '/' + relativeName);
    }
 
    /**
@@ -445,9 +565,14 @@ final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
    @Override
    public JavaFileObject getJavaFileForOutput(Location location, String qualifiedName,
          Kind kind, FileObject outputFile) throws IOException {
-      JavaFileObject file = new JavaFileObjectImpl(qualifiedName, kind);
-      classLoader.add(qualifiedName, file);
-      return file;
+            try {
+               JavaFileObject file = new JavaFileObjectImpl(qualifiedName, kind);
+               classLoader.add(qualifiedName, file);
+               return file;
+            }
+            catch (URISyntaxException e) {
+               throw new IOException(e);
+            }
    }
 
    @Override
@@ -495,116 +620,28 @@ final class FileManagerImpl extends ForwardingJavaFileManager<JavaFileManager> {
 }
 
 /**
- * A JavaFileObject which contains either the source text or the compiler
- * generated class. This class is used in two cases.
- * <ol>
- * <li>This instance uses it to store the source which is passed to the
- * compiler. This uses the
- * {@link JavaFileObjectImpl#JavaFileObjectImpl(String, CharSequence)}
- * constructor.
- * <li>The Java compiler also creates instances (indirectly through the
- * FileManagerImplFileManager) when it wants to create a JavaFileObject for the
- * .class output. This uses the
- * {@link JavaFileObjectImpl#JavaFileObjectImpl(String, JavaFileObject.Kind)}
- * constructor.
- * </ol>
- * This class does not attempt to reuse instances (there does not seem to be a
- * need, as it would require adding a Map for the purpose, and this would also
- * prevent garbage collection of class byte code.)
- */
-final class JavaFileObjectImpl extends SimpleJavaFileObject {
-   // If kind == CLASS, this stores byte code from openOutputStream
-   private ByteArrayOutputStream byteCode;
-
-   // if kind == SOURCE, this contains the source text
-   private final CharSequence source;
-
-   /**
-    * Construct a new instance which stores source
-    * 
-    * @param baseName
-    *           the base name
-    * @param source
-    *           the source code
-    */
-   JavaFileObjectImpl(final String baseName, final CharSequence source) {
-      super(JavaCompiler.toURI(baseName + JavaCompiler.JAVA_EXTENSION),
-            Kind.SOURCE);
-      this.source = source;
-   }
-
-   /**
-    * Construct a new instance
-    * 
-    * @param name
-    *           the file name
-    * @param kind
-    *           the kind of file
-    */
-   JavaFileObjectImpl(final String name, final Kind kind) {
-      super(JavaCompiler.toURI(name), kind);
-      source = null;
-   }
-
-   /**
-    * Return the source code content
-    * 
-    * @see javax.tools.SimpleJavaFileObject#getCharContent(boolean)
-    */
-   @Override
-   public CharSequence getCharContent(final boolean ignoreEncodingErrors)
-         throws UnsupportedOperationException {
-      if (source == null)
-         throw new UnsupportedOperationException("getCharContent()");
-      return source;
-   }
-
-   /**
-    * Return an input stream for reading the byte code
-    * 
-    * @see javax.tools.SimpleJavaFileObject#openInputStream()
-    */
-   @Override
-   public InputStream openInputStream() {
-      return new ByteArrayInputStream(getByteCode());
-   }
-
-   /**
-    * Return an output stream for writing the bytecode
-    * 
-    * @see javax.tools.SimpleJavaFileObject#openOutputStream()
-    */
-   @Override
-   public OutputStream openOutputStream() {
-      byteCode = new ByteArrayOutputStream();
-      return byteCode;
-   }
-
-   /**
-    * @return the byte code generated by the compiler
-    */
-   byte[] getByteCode() {
-      return byteCode.toByteArray();
-   }
-}
-
-/**
  * A custom ClassLoader which maps class names to JavaFileObjectImpl instances.
  */
 final class ClassLoaderImpl extends ClassLoader {
-   private final Map<String, JavaFileObject> classes = new HashMap<String, JavaFileObject>();
+   private final Map<String, JavaFileObjectImpl> classes = new HashMap<String, JavaFileObjectImpl>();
 
    ClassLoaderImpl(final ClassLoader parentClassLoader) {
       super(parentClassLoader);
    }
 
+   /**
+    * This writes all the classes related to one generated parser class to a specific form
+    * of jar file outputstream. The files are not organized in the normal way so this jar
+    * can not be used as a normal jar file! The reason is that generated parser binary format
+    * might change in the future and so the entire format is opaque.
+    */
    public void outputClassesToJar(String qualifiedClassName, OutputStream output) throws IOException {
       Manifest manifest = new Manifest();
       manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
       manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, qualifiedClassName);
    
       try (JarOutputStream target = new JarOutputStream(output, manifest)) {
-         for (Entry<String, JavaFileObject> entry : classes.entrySet()) {
+         for (Entry<String, JavaFileObjectImpl> entry : classes.entrySet()) {
             String className = entry.getKey();
             JavaFileObjectImpl file = (JavaFileObjectImpl) entry.getValue();
             JarEntry jarEntry = new JarEntry(className);
@@ -616,7 +653,11 @@ final class ClassLoaderImpl extends ClassLoader {
       }  
    }
 
-   public Class<?> inputClassesFromJar(InputStream in) throws IOException, ClassNotFoundException {
+   /**
+    * This reconstructs an executable parser class from a jar that was created 
+    * by {@see outputClassesToJar}.
+    */
+   public Class<?> inputClassesFromJar(InputStream in) throws IOException, ClassNotFoundException, URISyntaxException {
       try (JarInputStream jarIn = new JarInputStream(in)) {
          Manifest mf = jarIn.getManifest();
          String mainClass = (String) mf.getMainAttributes().get(Attributes.Name.MAIN_CLASS);
@@ -647,7 +688,7 @@ final class ClassLoaderImpl extends ClassLoader {
     * @return An collection of JavaFileObject instances for the classes in the
     *         class loader.
     */
-   Collection<JavaFileObject> files() {
+   Collection<JavaFileObjectImpl> files() {
       return Collections.unmodifiableCollection(classes.values());
    }
 
@@ -679,7 +720,7 @@ final class ClassLoaderImpl extends ClassLoader {
     *           the file associated with the name
     */
    void add(final String qualifiedClassName, final JavaFileObject javaFile) {
-      classes.put(qualifiedClassName, javaFile);
+      classes.put(qualifiedClassName, (JavaFileObjectImpl) javaFile);
    }
 
    @Override
