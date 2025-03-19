@@ -116,7 +116,7 @@ test bool compilerInputOutputFileTest() {
         };
 }
 
-@synopsis{tests Java compilation with required2 libraries on the classpath}
+@synopsis{tests Java compilation with required libraries on the classpath}
 test bool compilerClasspathTest() {
     root = uuid()[scheme="memory"];
     target = root + "target";
