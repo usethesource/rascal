@@ -43,35 +43,61 @@ import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.maven.model.Repository;
+
+/**
+ * A note about locking:
+ * Different maven versions use different methods of locking files.
+ * - maven 3.8 uses a lock file <artifact>.part.lock
+ * - maven 3.9 uses a lock file <artifact>.lastUpdated
+ * - maven 4.0 uses a file in a special .locks directory and locks all jars and metadata in a predefined order to avoid deadlocks.
+ * We cannot support them all so for the time being we rely on first creating a temporary file
+ * and then moving the file to the final location.
+ */
 
 /*package*/ class SimpleRepositoryDownloader {
     // TODO: what to do about non http(s) respositories?
 
     public final Repository repo;
     private final HttpClient client;
+    private final Random rand;
 
     public SimpleRepositoryDownloader(Repository repo, HttpClient client) {
         this.repo = repo;
         this.client = client;
+        rand = new Random();
     }
 
     public boolean download(String url, Path target, boolean force) {
+        Path directory = target.getParent();
+        if (Files.notExists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            }
+            catch (IOException e) {
+                return false;
+            }
+        }
+
         Optional<Path> result = download(url, target, force,
         (InputStream input) -> { 
-            Path tempArtifact = Files.createTempFile("maven-download", null);
-            Files.copy(input, tempArtifact, StandardCopyOption.REPLACE_EXISTING);
-            return tempArtifact;
+            Path tempTarget = getTempFile(target);
+            Files.copy(input, tempTarget);
+            return tempTarget;
         },
         (Path tempArtifact) -> {
-            boolean copyResult = copyFileToTarget(target, force, tempArtifact);
-            cleanup(tempArtifact);
-            return copyResult;
+            return moveToTarget(tempArtifact, target, force);
         });
         return result.isPresent();
+    }
+
+    private Path getTempFile(Path target) {
+        String tempFileName = target.getFileName().toString() + String.valueOf(rand.nextInt(Integer.MAX_VALUE)) + ".tmp";
+        return target.resolveSibling(tempFileName);
     }
 
     public String downloadAndRead(String url, Path target, boolean force) {
@@ -80,7 +106,7 @@ import org.apache.maven.model.Repository;
             return IOUtils.toString(input, StandardCharsets.UTF_8.name());
         },
         (String content) -> {
-            return writeToTarget(target, force, content);
+            return writeToTarget(content, target, force);
         });
         return result.orElse(null);
     }
@@ -165,30 +191,34 @@ import org.apache.maven.model.Repository;
         return new URI(url + suffix);
     }
 
-    private boolean copyFileToTarget(Path target, boolean force, Path tempFile) throws IOException {
-        var directory = target.getParent();
-        if (Files.notExists(directory)) {
-            Files.createDirectories(directory);
-        }
-        if (force || Files.notExists(target)) {
-            Files.move(tempFile, target, StandardCopyOption.REPLACE_EXISTING);
+    private boolean moveToTarget(Path from, Path to, boolean force) throws IOException {
+        try {
+            if (force) {
+                Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                Files.move(from, to);
+            }
             return true;
+        } catch (IOException e) {
+            return false;
+        } finally {
+            try {
+                // Delete temperory file if something went wrong
+                Files.deleteIfExists(from);
+            } catch (IOException ignored) {
+                // Beste effort
+            }
         }
-
-        return false;
     }
 
-    private boolean writeToTarget(Path target, boolean force, String content) throws IOException {
-        var directory = target.getParent();
-        if (Files.notExists(directory)) {
-            Files.createDirectories(directory);
+    private boolean writeToTarget(String content, Path target, boolean force) throws IOException {
+        Path tempTarget = getTempFile(target);
+        try {
+            Files.writeString(tempTarget, content);
+        } catch (IOException e) {
+            return false;
         }
-        if (force || Files.notExists(target)) {
-            Files.writeString(target, content);
-            return true;
-        }
-
-        return false;
+        return moveToTarget(tempTarget, target, force);
     }
 
     private void writeChecksumToTarget(Path path, String checksum) throws IOException {
@@ -197,12 +227,6 @@ import org.apache.maven.model.Repository;
         } else {
             Files.write(path, checksum.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
         }
-    }
-
-    private void cleanup(Path tempFile) {
-        try {
-            Files.delete(tempFile);
-        } catch (IOException ignored) {}
     }
 
 }
