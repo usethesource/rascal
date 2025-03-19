@@ -128,8 +128,7 @@ public class Artifact {
                 }
             }
             if (d.getScope() == Scope.SYSTEM) {
-                // TODO: we have to take care of locating this not from our resolver
-                // but from a system resolver for now we're skipping them
+                result.add(createSystemArtifact(d));
                 continue;
             }
 
@@ -149,6 +148,14 @@ public class Artifact {
         for (var a: nextLevel) {
             a.calculateClassPath(forScope, alreadyIncluded, result, parser);
         }
+    }
+
+    private Artifact createSystemArtifact(Dependency d) {
+        var path = d.getSystemPath();
+        if (path == null) {
+            return Artifact.unresolved(d.getCoordinate(), messages.writer());
+        }
+        return new Artifact(d.getCoordinate(), null, Path.of(path), Collections.emptyList(), messages, null);
     }
 
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
