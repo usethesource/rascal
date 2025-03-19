@@ -26,15 +26,10 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.maven.model.building.ModelSource2;
-import org.apache.maven.model.resolution.UnresolvableModelException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 
 import io.usethesource.vallang.IListWriter;
@@ -46,12 +41,14 @@ import io.usethesource.vallang.ISourceLocation;
 /*package*/ class Dependency {
     private final ArtifactCoordinate coordinate;
     private final Scope scope;
+    private final String systemPath;
     private final boolean optional;
     private final Set<ArtifactCoordinate.WithoutVersion> exclusions;
 
-    private Dependency(ArtifactCoordinate coordinate, Scope scope, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions) {
+    private Dependency(ArtifactCoordinate coordinate, Scope scope, String systemPath, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions) {
         this.coordinate = coordinate;
         this.scope = scope;
+        this.systemPath = systemPath;
         this.optional = optional;
         this.exclusions = exclusions;
     }
@@ -62,6 +59,10 @@ import io.usethesource.vallang.ISourceLocation;
 
     public Scope getScope() {
         return scope;
+    }
+
+    public String getSystemPath() {
+        return systemPath;
     }
 
     public boolean isOptional() {
@@ -97,7 +98,7 @@ import io.usethesource.vallang.ISourceLocation;
             .map(e -> ArtifactCoordinate.versionLess(e.getGroupId(), e.getArtifactId()))
             .collect(Collectors.toUnmodifiableSet());
 
-        return new Dependency(coodinate, scope, d.isOptional(), exclusions);
+        return new Dependency(coodinate, scope, d.getSystemPath(), d.isOptional(), exclusions);
     }
 
 
