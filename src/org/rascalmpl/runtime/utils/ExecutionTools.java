@@ -72,10 +72,10 @@ public class ExecutionTools<T> {
 		} catch (JavaCompilerException e) {
 			if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
 		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-		        throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), interfaceModule, classModule, e);
+		        throw new JavaCompilation(msg.getMessage(null), msg.getLineNumber(), msg.getColumnNumber(), classModule, e);
 		    }
 		    else {
-		        throw new JavaCompilation(e.getMessage(), 0, 0, interfaceModule, classModule, e);
+		        throw new JavaCompilation(e.getMessage(), 0, 0, classModule, e);
 		    }
 		}
 	}

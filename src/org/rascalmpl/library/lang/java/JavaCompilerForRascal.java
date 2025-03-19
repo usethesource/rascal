@@ -1,11 +1,8 @@
 package org.rascalmpl.library.lang.java;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
@@ -13,7 +10,6 @@ import org.rascalmpl.interpreter.utils.JavaCompiler;
 import org.rascalmpl.interpreter.utils.JavaCompilerException;
 import org.rascalmpl.interpreter.utils.JavaFileObjectImpl;
 import org.rascalmpl.library.Messages;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 
@@ -29,15 +25,6 @@ public class JavaCompilerForRascal {
 	
 	public JavaCompilerForRascal(IValueFactory vf) {
 		this.vf = vf;
-	}
-
-	private ISourceLocation safeResolve(ISourceLocation l) {
-		try {
-			return URIResolverRegistry.getInstance().logicalToPhysical(l);
-		}
-		catch (IOException e) {
-			return l;
-		}
 	}	
 
 	/**
