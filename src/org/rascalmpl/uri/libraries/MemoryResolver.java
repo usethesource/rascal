@@ -59,7 +59,7 @@ import io.usethesource.vallang.ISourceLocation;
  * If the scheme of a URI ends with `+readonly` the writing part of the resolved throws exceptions. 
  */
 
-public class MemoryResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver {
+public class MemoryResolver implements ISourceLocationInputOutput {
     
     private final class InMemoryFileTree extends FileTree { 
         public ConcurrentNavigableMap<String, FSEntry> getFileSystem() {
@@ -218,47 +218,6 @@ public class MemoryResolver implements ISourceLocationInputOutput, IClassloaderL
 		// clean up the entire map if this was the last entry in the filesystem
 		if (ft.isEmpty()) {
 			fileSystems.remove(uri.getAuthority());
-		}
-	}
-
-	@Override
-	public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
-		return new FromMemoryClassLoader(loc, parent);
-	}
-
-	private static class FromMemoryClassLoader extends ClassLoader {
-		private final ISourceLocation root;
-		private final URIResolverRegistry reg = URIResolverRegistry.getInstance();
-
-		public FromMemoryClassLoader(ISourceLocation root, ClassLoader parent) {
-			super(parent);
-			this.root = root;
-		}
-
-		@Override
-		protected Class<?> findClass(final String qualifiedClassName) throws ClassNotFoundException {
-			var file = URIUtil.getChildLocation(root, qualifiedClassName.replaceAll("\\.", "/") + ".class");
-
-			// TODO this code is surprisingly generic. It might work for _any_ loc scheme.
-			if (reg.exists(file)) {
-				try {
-					byte[] bytes = Prelude.consumeInputStream(reg.getInputStream(file));
-					return defineClass(qualifiedClassName, bytes, 0, bytes.length);
-				}
-				catch (IOException e) {
-					// fall through
-				}
-			}
-			// Workaround for "feature" in Java 6
-			// see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6434149
-			try {
-				Class<?> c = Class.forName(qualifiedClassName);
-				return c;
-			} catch (ClassNotFoundException nf) {
-				// Ignore and fall through
-			}
-
-			return super.findClass(qualifiedClassName);
 		}
 	}
 }
