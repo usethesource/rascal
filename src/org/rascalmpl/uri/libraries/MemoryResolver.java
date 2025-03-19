@@ -25,9 +25,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 
-import javax.tools.JavaFileObject;
-
-import org.rascalmpl.interpreter.utils.JavaFileObjectImpl;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;

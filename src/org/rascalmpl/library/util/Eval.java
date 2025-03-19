@@ -223,8 +223,6 @@ public class Eval {
 			this.eval = new Evaluator(vf, input, stderr, stdout, root, heap, services);
 
 			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-			eval.setMonitor(services);        
-			eval.getConfiguration().setRascalJavaClassPathProperty(PathConfig.resolveCurrentRascalRuntimeJar().getPath());
 			eval.setMonitor(services);
 
 			if (!pcfg.getSrcs().isEmpty()) {
