@@ -73,6 +73,16 @@ import org.apache.maven.model.Repository;
     }
 
     public boolean download(String url, Path target, boolean force) {
+        Path directory = target.getParent();
+        if (Files.notExists(directory)) {
+            try {
+                Files.createDirectories(directory);
+            }
+            catch (IOException e) {
+                return false;
+            }
+        }
+
         Optional<Path> result = download(url, target, force,
         (InputStream input) -> { 
             Path tempTarget = getTempFile(target);
@@ -182,11 +192,7 @@ import org.apache.maven.model.Repository;
     }
 
     private boolean moveToTarget(Path from, Path to, boolean force) throws IOException {
-        var directory = to.getParent();
         try {
-            if (Files.notExists(directory)) {
-                Files.createDirectories(directory);
-            }
             if (force) {
                 Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
             } else {
