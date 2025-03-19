@@ -26,15 +26,10 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.maven.model.building.ModelSource2;
-import org.apache.maven.model.resolution.UnresolvableModelException;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 
 import io.usethesource.vallang.IListWriter;
