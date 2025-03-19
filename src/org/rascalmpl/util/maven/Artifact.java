@@ -86,7 +86,7 @@ public class Artifact {
 
     /**
      * The path where the jar is located, can be null in case we couldn't resolve it
-     * Note, for the root project, it's will always be null.
+     * Note, for the root project, it's will always be null, as we won't resolve it to a location in the repository.
      */
     public @Nullable Path getResolved() {
         return resolved;
@@ -177,20 +177,6 @@ public class Artifact {
 
     /*package*/ static Artifact unresolved(ArtifactCoordinate coordinate, IListWriter messages) {
         return new Artifact(coordinate, null, null, Collections.emptyList(), messages.done(), null);
-    }
-
-    private static @Nullable Path calculateJarLocation(@Nullable Path pomLocation, String classifier) {
-        if (pomLocation == null) {
-            return null;
-        }
-        var filename = pomLocation.getFileName().toString();
-        if (filename.endsWith(".pom")) {
-            filename = filename.substring(0, filename.length() - 4);
-        }
-        if (!classifier.isEmpty()) {
-            filename += "-" + classifier;
-        }
-        return pomLocation.resolveSibling(filename + ".jar");
     }
 
     @Override
