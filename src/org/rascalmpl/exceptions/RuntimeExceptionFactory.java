@@ -16,14 +16,9 @@
 *******************************************************************************/
 package org.rascalmpl.exceptions;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.uri.URIUtil;
-
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -459,18 +454,7 @@ public class RuntimeExceptionFactory {
 	}
 
 	public static Throw javaCompilerException(JavaCompilation e, AbstractAST ast, StackTrace trace) {
-		IList cp = Arrays.stream(e.getClasspath().split(File.pathSeparator))
-			.map(j -> {
-				try {
-					return URIUtil.createFileLocation(j);
-				}
-				catch (URISyntaxException e1) {
-					return URIUtil.rootLocation("failedToParseLocation");
-				}
-			})
-			.collect(VF.listWriter());
-			
-		return new Throw(VF.constructor(JavaCompilation, VF.string(e.getMessage()),  VF.integer(e.getLine()), VF.integer(e.getColumn()), VF.string(e.getSource()), cp), ast != null ? ast.getLocation() : null, trace);
+		return new Throw(VF.constructor(JavaCompilation, VF.string(e.getMessage()),  VF.integer(e.getLine()), VF.integer(e.getColumn()), VF.string(e.getSource())), ast != null ? ast.getLocation() : null, trace);
 	}
 
 	public static Throw javaException(Throwable targetException, AbstractAST ast, StackTrace rascalTrace) throws ImplementationError {
