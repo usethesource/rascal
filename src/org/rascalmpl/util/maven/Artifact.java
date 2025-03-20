@@ -155,7 +155,7 @@ public class Artifact {
         Path path = null;
         if (systemPath != null) {
             path = Path.of(systemPath);
-            if (!Files.exists(path) || !Files.isRegularFile(path)) {
+            if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
                 path = null;
             }
