@@ -57,6 +57,14 @@ public class Messages {
         return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_error;
     }
 
+    public static boolean isWarning(IValue v) {
+        return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_warning;
+    }
+
+    public static boolean isInfo(IValue v) {
+        return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_info;
+    }
+
     // used by the module loader
     public Messages(IValueFactory ignored) {
     }

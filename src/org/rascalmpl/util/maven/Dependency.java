@@ -89,13 +89,7 @@ import io.usethesource.vallang.ISourceLocation;
             case "provided": scope = Scope.PROVIDED; break;
             case "runtime": scope = Scope.RUNTIME; break;
             case "test": scope = Scope.TEST; break;
-            case "system":
-                scope = Scope.SYSTEM;
-                if (d.getSystemPath() == null) {
-                    //messages.append(Messages.error("System dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a system path", pom));
-                    return null;
-                }
-                break;
+            case "system": scope = Scope.SYSTEM; break;
             case "import": scope = Scope.IMPORT; break;
             case "compile": // fall through
             default: scope = Scope.COMPILE; break;
