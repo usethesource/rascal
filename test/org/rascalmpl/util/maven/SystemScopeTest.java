@@ -50,7 +50,6 @@ public class SystemScopeTest {
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
         Assert.assertEquals(1, deps.size());
         IList messages = project.getMessages();
-        System.err.println("messages: " + messages);
 
         Assert.assertEquals(2, project.getMessages().length());
         // We expect two warnings:
