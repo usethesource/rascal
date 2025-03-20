@@ -18,6 +18,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -95,6 +96,10 @@ public class URIUtil {
 	
 	public static ISourceLocation createFileLocation(String path) throws URISyntaxException {
 		return vf.sourceLocation(createFile(path));
+	}
+
+	public static ISourceLocation createFileLocation(Path path) throws URISyntaxException {
+		return vf.sourceLocation(createFile(path.toString()));
 	}
 	
 	private static String fixWindowsPath(String path) {
@@ -182,32 +187,37 @@ public class URIUtil {
 			String path) throws URISyntaxException {
 		return vf.sourceLocation(scheme, authority, path);
 	}
-
-	private static final URI invalidURI = URI.create("unknown:///");
+	
+	private static final ISourceLocation unknownLocation = rootLocation("unknown");
 	
 	/**
-	 * Returns an URI which cannot be read/write to.
-	 * @return
+	 * @deprecated use unknownLocation (an unknown location is not "invalid", just unknown)
 	 */
-	public static URI invalidURI() {
-		return invalidURI;
-	}
-	
-	private static final ISourceLocation invalidLocation = vf.sourceLocation(invalidURI);
-	
+	@Deprecated
 	public static ISourceLocation invalidLocation() {
-		return invalidLocation;
+		return unknownLocation();
+	}
+
+	/**
+	 * @return `|unknown:///|`
+	 */
+	public static ISourceLocation unknownLocation() {
+		return unknownLocation;
 	}
 	
 	/**
 	 * Create a URI with only a scheme part set
 	 * @param scheme
-	 * @return
+	 * @return `<scheme>:///`
 	 */
 	public static URI rootScheme(String scheme) {
 		return URI.create(scheme + ":///");
 	}
 	
+	/**
+	 * @param scheme
+	 * @return `|<scheme>:///|`
+	 */
 	public static ISourceLocation rootLocation(String scheme) {
 		try {
 			return vf.sourceLocation(scheme, "", URI_PATH_SEPARATOR);
@@ -347,7 +357,7 @@ public class URIUtil {
 		File file = new File(uri.getPath());
 		return file.getName();
 	}
-	
+
 	public static String getLocationName(ISourceLocation uri) {
 		File file = new File(uri.getPath());
 		return file.getName();
@@ -443,6 +453,32 @@ public class URIUtil {
     public static ISourceLocation createFromURI(String value) throws URISyntaxException {
         return vf.sourceLocation(createFromEncoded(value));
     }
+
+	/**
+	 * Extracts the extension (the characters after the last . in the file name),
+	 * if any, and otherwise returns the empty string.
+	 * @param loc
+	 * @return
+	 */
+	public static String getExtension(ISourceLocation loc) {
+		String path = loc.getPath();
+		boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
+		if (endsWithSlash) {
+			path = path.substring(0, path.length() - 1);
+		}
+
+		if (path.length() > 1) {
+			int slashIndex = path.lastIndexOf(URIUtil.URI_PATH_SEPARATOR);
+			int index = path.lastIndexOf('.', slashIndex);
+
+			if (index != -1) {
+				return path.substring(index + 1);
+			}
+		}
+
+		return "";
+	}
+
     public static ISourceLocation changeExtension(ISourceLocation location, String ext) throws URISyntaxException {
         String path = location.getPath();
 		boolean endsWithSlash = path.endsWith(URIUtil.URI_PATH_SEPARATOR);
@@ -470,5 +506,9 @@ public class URIUtil {
 		}
 
 		return URIUtil.changePath(location, path);
+    }
+	
+    public static URI invalidURI() {
+        return rootScheme("invalid");
     }
 }

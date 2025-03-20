@@ -1,7 +1,6 @@
 package org.rascalmpl.tutor.lang.rascal.tutor.repl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -11,7 +10,6 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +37,6 @@ import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -56,10 +53,8 @@ public class TutorCommandExecutor {
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         interpreter = new RascalInterpreterREPL() {
             @Override
-            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr,
-                IDEServices services) {
+            protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
-                eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 
                 if (!pcfg.getSrcs().isEmpty()) {
                     ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
@@ -67,18 +62,21 @@ public class TutorCommandExecutor {
                     URIResolverRegistry reg = URIResolverRegistry.getInstance();
                     reg.registerLogical(new ProjectURIResolver(projectRoot, projectName));
                     reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
-                }
 
-                for (IValue path : pcfg.getSrcs()) {
-                    eval.addRascalSearchPath((ISourceLocation) path); 
+                    for (IValue path : pcfg.getSrcs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path); 
+                    }
+        
+                    for (IValue path : pcfg.getLibs()) {
+                        eval.addRascalSearchPath((ISourceLocation) path);
+                    }
+        
+                    ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
+                    eval.addClassLoader(cl);
                 }
-    
-                for (IValue path : pcfg.getLibs()) {
-                    eval.addRascalSearchPath((ISourceLocation) path);
+                else {
+                    services.warning("No src path configured for tutor", URIUtil.rootLocation("unknown"));
                 }
-    
-                ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
-                eval.addClassLoader(cl);
 
                 return eval;
             }
@@ -87,7 +85,6 @@ public class TutorCommandExecutor {
             protected IDEServices buildIDEService(PrintWriter err, IRascalMonitor monitor, Terminal term) {
                 return (monitor instanceof IDEServices) ? (IDEServices)monitor : new TutorIDEServices(err);
             }
-            
         };
 
         var terminal = TerminalBuilder.builder()
@@ -97,8 +94,6 @@ public class TutorCommandExecutor {
             .color(false)
             .encoding(StandardCharsets.UTF_8)
             .build();
-
-        
 
         interpreter.initialize(Reader.nullReader(), outPrinter, errPrinter, new TutorIDEServices(errPrinter), terminal);
         screenshot = loadScreenShotter();
@@ -139,31 +134,6 @@ public class TutorCommandExecutor {
 
         return current;
     }
-
-
-
-    private String javaCompilerPathAsString(IList javaCompilerPath) {
-        StringBuilder b = new StringBuilder();
-
-        for (IValue elem : javaCompilerPath) {
-            ISourceLocation loc = (ISourceLocation) elem;
-
-            if (b.length() != 0) {
-                b.append(File.pathSeparatorChar);
-            }
-
-            // this is the precondition
-            assert loc.getScheme().equals("file");
-
-            // this is robustness in case of experimentation in pom.xml
-            if ("file".equals(loc.getScheme())) {
-                b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
-            }
-        }
-
-        return b.toString();
-    }
-
 
     public void reset() {
         interpreter.cancelRunningCommandRequested();
@@ -220,7 +190,7 @@ public class TutorCommandExecutor {
                 var img = ((IImageCommandOutput)replResult).asImage();
                 result.put(img.mimeType(), uuencode(img));
             }
-            else if (replResult instanceof IWebContentOutput) {
+            else if (replResult instanceof IWebContentOutput && screenshot != null) {
                 var webResult = (IWebContentOutput)replResult;
                 try {
                     String pngImage = screenshot.takeScreenshotAsBase64PNG(webResult.webUri().toASCIIString());

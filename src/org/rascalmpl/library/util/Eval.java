@@ -14,12 +14,10 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +49,6 @@ import org.rascalmpl.values.functions.IFunction;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -226,8 +223,6 @@ public class Eval {
 			this.eval = new Evaluator(vf, input, stderr, stdout, root, heap, services);
 
 			eval.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-			eval.setMonitor(services);        
-			eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 			eval.setMonitor(services);
 
 			if (!pcfg.getSrcs().isEmpty()) {
@@ -246,7 +241,7 @@ public class Eval {
 				eval.addRascalSearchPath((ISourceLocation) path);
 			}
 
-			ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+			ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
 			eval.addClassLoader(cl);
 		}
 
@@ -281,28 +276,6 @@ public class Eval {
 			}
 
 			return current;
-		}
-		
-		private String javaCompilerPathAsString(IList javaCompilerPath) {
-			StringBuilder b = new StringBuilder();
-
-			for (IValue elem : javaCompilerPath) {
-				ISourceLocation loc = (ISourceLocation) elem;
-
-				if (b.length() != 0) {
-					b.append(File.pathSeparatorChar);
-				}
-
-				// this is the precondition
-				assert loc.getScheme().equals("file");
-
-				// this is robustness in case of experimentation in pom.xml
-				if ("file".equals(loc.getScheme())) {
-					b.append(Paths.get(loc.getURI()).toAbsolutePath().toString());
-				}
-			}
-
-			return b.toString();
 		}
 	
 		public void reset() {

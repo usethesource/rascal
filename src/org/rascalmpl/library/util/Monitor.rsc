@@ -13,6 +13,7 @@ module util::Monitor
 
 import util::Math;
 import IO;
+import Exception;
 
 @synopsis{Log the start of a job.}
 @description{
@@ -74,7 +75,7 @@ with a parameterized workload and the same label as the job name.
 &T job(str label, &T (void (str message, int worked) step) block, int totalWork=100) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block((str message, int worked) { 
+    return block(void (str message, int worked) { 
       jobStep(label, message, work=worked);
     });
   }
@@ -99,9 +100,13 @@ with a parameterized workload and the same label as the job name.
 * additional work with ((jobTodo)) is still possible, but you have to repeat the right job label.
 }
 &T job(str label, &T (void (int worked) step) block, int totalWork=1) {
+  if (void (void (int _) _) _ := block) {
+    throw IllegalArgument(block, "`block` argument can not be used by job because it returns `void` and `job` must return something.");
+  }
+
   try {
     jobStart(label, totalWork=totalWork);
-    return block((int worked) { 
+    return block(void (int worked) { 
       jobStep(label, label, work=worked);
     });
   }
@@ -128,7 +133,7 @@ with workload `1` and the same label as the job name.
 &T job(str label, &T (void () step) block, int totalWork=1) {
   try {
     jobStart(label, totalWork=totalWork);
-    return block(() {
+    return block(void () {
       jobStep(label, label, work=1);
     });
   }
