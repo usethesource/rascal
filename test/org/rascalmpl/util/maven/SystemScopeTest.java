@@ -11,9 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.rascalmpl.library.Messages;
 
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.IList;
 
 public class SystemScopeTest {
 
@@ -37,10 +35,29 @@ public class SystemScopeTest {
         var parser = new MavenParser(Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system-no-path.xml"));
         var project = parser.parseProject();
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
-        Assert.assertEquals(0, deps.size());
+        Assert.assertEquals(1, deps.size());
 
+        // We expect one error because systemPath property is missing
         Assert.assertEquals(1, project.getMessages().length());
         Assert.assertTrue(Messages.isError(project.getMessages().get(0)));
+    }
+
+    @Test
+    public void testSystemScopeNoFile() throws ModelResolutionError, MalformedURLException, IOException {
+        var parser =
+            new MavenParser(Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system-no-file.xml"));
+        var project = parser.parseProject();
+        List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
+        Assert.assertEquals(1, deps.size());
+        IList messages = project.getMessages();
+        System.err.println("messages: " + messages);
+
+        Assert.assertEquals(2, project.getMessages().length());
+        // We expect two warnings:
+        // - systemPath should not point within the project directory
+        // - systemPath refers to a non-existing file
+        Assert.assertTrue(Messages.isWarning(project.getMessages().get(0)));
+        Assert.assertTrue(Messages.isWarning(project.getMessages().get(1)));
     }
 
 }
