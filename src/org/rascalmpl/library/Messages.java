@@ -54,7 +54,7 @@ public class Messages {
     }
 
     public static boolean isError(IValue v) {
-        return v.getType() == Message_error;
+        return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_error;
     }
 
     // used by the module loader
