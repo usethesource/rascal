@@ -11,8 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.rascalmpl.library.Messages;
 
-import io.usethesource.vallang.IList;
-
 public class SystemScopeTest {
 
     @Test
@@ -32,31 +30,27 @@ public class SystemScopeTest {
 
     @Test
     public void testSystemScopeNoSystemPath() throws ModelResolutionError, MalformedURLException, IOException {
-        var parser = new MavenParser(Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system-no-path.xml"));
-        var project = parser.parseProject();
-        List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
-        Assert.assertEquals(1, deps.size());
-
-        // We expect one error because systemPath property is missing
-        Assert.assertEquals(1, project.getMessages().length());
-        Assert.assertTrue(Messages.isError(project.getMessages().get(0)));
+        verifyIllegalSystemPath("pom-system-no-path.xml");
     }
 
     @Test
     public void testSystemScopeNoFile() throws ModelResolutionError, MalformedURLException, IOException {
-        var parser =
-            new MavenParser(Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system-no-file.xml"));
+        verifyIllegalSystemPath("pom-system-no-file.xml");
+    }
+
+    private void verifyIllegalSystemPath(String pomFile) throws ModelResolutionError, MalformedURLException, IOException{
+        var parser = new MavenParser(Path.of("test/org/rascalmpl/util/maven/poms/local-reference/" + pomFile));
         var project = parser.parseProject();
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
-        Assert.assertEquals(1, deps.size());
-        IList messages = project.getMessages();
+        Assert.assertEquals("Dependency should not be dropped", 1, deps.size());
 
-        Assert.assertEquals(2, project.getMessages().length());
-        // We expect two warnings:
-        // - systemPath should not point within the project directory
-        // - systemPath refers to a non-existing file
-        Assert.assertTrue(Messages.isWarning(project.getMessages().get(0)));
-        Assert.assertTrue(Messages.isWarning(project.getMessages().get(1)));
+        // Expect a single error at the dependency level
+        Artifact dep = deps.get(0);
+        Assert.assertEquals(1, dep.getMessages().length());
+        Assert.assertTrue(Messages.isError(dep.getMessages().get(0)));
+
+        // Dependency should not be resolved
+        Assert.assertNull("System dependency with invalid systemPath should not be resolved", dep.getResolved());
     }
 
 }

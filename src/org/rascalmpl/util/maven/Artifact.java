@@ -41,6 +41,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -151,17 +152,22 @@ public class Artifact {
     }
 
     private Artifact createSystemArtifact(Dependency d) {
+        var messages = IRascalValueFactory.getInstance().listWriter();
+
         String systemPath = d.getSystemPath();
         Path path = null;
-        if (systemPath != null) {
+        if (systemPath == null) {
+            messages.append(Messages.error("system dependency without a systemPath property", d.getLocation()));
+        } else {
             path = Path.of(systemPath);
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
+                messages.append(Messages.error("systemPath property points to a file that does not exist (or is not a regular file): " + systemPath, d.getLocation()));
                 path = null;
             }
         }
 
-        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages, null);
+        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages.done(), null);
     }
 
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
