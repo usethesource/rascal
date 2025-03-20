@@ -171,7 +171,7 @@ public class Artifact {
     }
 
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
-        if (m.getPackaging() != null && !"jar".equals(m.getPackaging())) {
+        if (m.getPackaging() != null && !("jar".equals(m.getPackaging()) || "eclipse-plugin".equals(m.getPackaging()))) {
             // we do not support non-jar artifacts right now
             return null;
         }
