@@ -153,7 +153,7 @@ public class Artifact {
     private Artifact createSystemArtifact(Dependency d) {
         var path = d.getSystemPath();
         if (path == null) {
-            return Artifact.unresolved(d.getCoordinate(), messages.writer());
+            throw new RuntimeException("missing systemPath?");
         }
         return new Artifact(d.getCoordinate(), null, Path.of(path), Collections.emptyList(), messages, null);
     }
@@ -172,6 +172,7 @@ public class Artifact {
                 .filter(d -> !"import".equals(d.getScope()))
                 .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
                 .map(d -> Dependency.build(d, messages, pomLocation))
+                .filter(d  -> d != null)
                 .collect(Collectors.toUnmodifiableList())
                 ;
             return new Artifact(coordinate, parentCoordinate, loc, dependencies, messages.done(), resolver);
