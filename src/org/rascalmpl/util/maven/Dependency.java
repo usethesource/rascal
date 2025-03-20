@@ -42,16 +42,18 @@ import io.usethesource.vallang.ISourceLocation;
 /*package*/ class Dependency {
     private final ArtifactCoordinate coordinate;
     private final Scope scope;
-    private final String systemPath;
+    private final @Nullable String systemPath;
     private final boolean optional;
     private final Set<ArtifactCoordinate.WithoutVersion> exclusions;
+    private final ISourceLocation location;
 
-    private Dependency(ArtifactCoordinate coordinate, Scope scope, String systemPath, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions) {
+    private Dependency(ArtifactCoordinate coordinate, Scope scope, @Nullable String systemPath, boolean optional, Set<ArtifactCoordinate.WithoutVersion> exclusions, ISourceLocation location) {
         this.coordinate = coordinate;
         this.scope = scope;
         this.systemPath = systemPath;
         this.optional = optional;
         this.exclusions = exclusions;
+        this.location = location;
     }
 
     public ArtifactCoordinate getCoordinate() {
@@ -74,11 +76,15 @@ import io.usethesource.vallang.ISourceLocation;
         return exclusions;
     }
 
-    static @Nullable Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pom) {
+    public ISourceLocation getLocation() {
+        return location;
+    }
+
+    static @Nullable Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation location) {
         var version = d.getVersion();
         if (version == null) {
             // while rare, this happens when a user has an incomplete dependencyManagement section
-            messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", pom));
+            messages.append(Messages.error("Dependency " + d.getGroupId() + ":" + d.getArtifactId() + "is missing", location));
             version = "???";
         }
         var coodinate = new ArtifactCoordinate(d.getGroupId(), d.getArtifactId(), version, d.getClassifier());
@@ -99,7 +105,7 @@ import io.usethesource.vallang.ISourceLocation;
             .map(e -> ArtifactCoordinate.versionLess(e.getGroupId(), e.getArtifactId()))
             .collect(Collectors.toUnmodifiableSet());
 
-        return new Dependency(coodinate, scope, d.getSystemPath(), d.isOptional(), exclusions);
+        return new Dependency(coodinate, scope, d.getSystemPath(), d.isOptional(), exclusions, location);
     }
 
 
@@ -110,7 +116,7 @@ import io.usethesource.vallang.ISourceLocation;
 
     @Override
     public int hashCode() {
-        return Objects.hash(coordinate, scope, optional, exclusions);
+        return Objects.hash(coordinate, scope, systemPath, optional, exclusions, location);
     }
 
     @Override
@@ -124,8 +130,10 @@ import io.usethesource.vallang.ISourceLocation;
         Dependency other = (Dependency) obj;
         return Objects.equals(coordinate, other.coordinate) 
             && scope == other.scope 
+            && Objects.equals(systemPath, other.systemPath)
             && optional == other.optional
-            && Objects.equals(exclusions, other.exclusions);
+            && Objects.equals(exclusions, other.exclusions)
+            && Objects.equals(location, other.location);
     }
 
     /*package*/ boolean shouldInclude(Scope forScope) {
