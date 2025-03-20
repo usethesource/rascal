@@ -151,8 +151,17 @@ public class Artifact {
     }
 
     private Artifact createSystemArtifact(Dependency d) {
-        var path = d.getSystemPath();
-        return new Artifact(d.getCoordinate(), null, path == null ? null : Path.of(path), Collections.emptyList(), messages, null);
+        String systemPath = d.getSystemPath();
+        Path path = null;
+        if (systemPath != null) {
+            path = Path.of(systemPath);
+            if (!Files.exists(path) || !Files.isRegularFile(path)) {
+                // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
+                path = null;
+            }
+        }
+
+        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages, null);
     }
 
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
