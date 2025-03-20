@@ -8,6 +8,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -24,6 +25,10 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
+import org.rascalmpl.util.maven.Artifact;
+import org.rascalmpl.util.maven.MavenParser;
+import org.rascalmpl.util.maven.ModelResolutionError;
+import org.rascalmpl.util.maven.Scope;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -433,14 +438,18 @@ public class PathConfig {
     /**
      * Configure paths for the rascal project itself, so if someone has rascal open in their IDE for example, or is starting a REPL for rascal
      */
-    private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, IList mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        // we want to help rascal devs work on rascal files without having to always open a RascalShell.
-        // note: we accept that if you do changes in Java, you won't see them and might get import errors
-        // errors like:  ClassNotFoundException, MethodNotFoundException, ClassInitializationError
-        // If this happens: please use the RascalShell route
-        srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
-        // add our own jar to the lib path to make sure rascal classes are found 
-        libs.append(resolveCurrentRascalRuntimeJar());
+    private static void buildRascalConfig(ISourceLocation workspaceRascal, RascalConfigMode mode, List<Artifact> mavenClassPath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
+        if (mode == RascalConfigMode.INTERPRETER) {
+            // if you want to test rascal changes, use RascalShell class and run it as a java process
+            srcs.append(URIUtil.rootLocation("std"));
+            // add our own jar to the lib path to make sure rascal classes are found 
+            libs.append(resolveCurrentRascalRuntimeJar());
+        }
+        else {
+            // we want to help rascal devs work on rascal to at least get type-check errors, so if we're in compile mode, you get the source path
+            // but otherwise, you alway get the `std:///` in your repl
+            srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/library"));
+        }
 
         // compiler & tutor only paths
         srcs.append(URIUtil.getChildLocation(workspaceRascal, "src/org/rascalmpl/compiler"));
@@ -491,22 +500,10 @@ public class PathConfig {
     /**
      * Configure paths for the rascal-lsp project when it's open in the IDE (the runtime inside rascal-lsp is not configured here)
      */
-    private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, IList mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
-        // for typepal we'll follow the pom.xml, but for the rest we'll (for now) follow the runtime dependencies
-        // until we go pom.xml is leading path
-        var typepalDependency = mavenClasspath.stream()
-            .map(ISourceLocation.class::cast)
-            .filter(l -> new RascalManifest().getProjectName(l).equals("typepal"))
-            .map(MavenRepositoryURIResolver::mavenize)
-            .map(JarURIResolver::jarify)
-            .findFirst();
-
-        if (!typepalDependency.isPresent()) {
-            messages.append(Messages.error("Did not find a typepal dependency", manifestRoot));
-            return;
-        }
-
-        var rascalCompiler = URIUtil.getChildLocation(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar()), "org/rascalmpl/compiler");
+    private static void buildRascalLSPConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
+        var insideRascalJar = JarURIResolver.jarify(resolveCurrentRascalRuntimeJar());
+        var rascalCompiler = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/compiler");
+        var typepal = URIUtil.getChildLocation(insideRascalJar, "org/rascalmpl/typepal");
 
         if (mode == RascalConfigMode.INTERPRETER) {
             // we're building a repl for the rascal-lsp project
@@ -514,19 +511,28 @@ public class PathConfig {
             // most stuff flows from the
             srcs.append(URIUtil.rootLocation("std"));
             srcs.append(rascalCompiler);
-            srcs.append(typepalDependency.get());
+            srcs.append(typepal);
         }
         else {
             libs.append(JarURIResolver.jarify(resolveCurrentRascalRuntimeJar()));
-            libs.append(typepalDependency.get());
             // while it's tempting to see if the rascal project is there, and we might be able to get the rascal compiler tpls from the target folder.
             // as long as we're hard wiring the rascal compler to follow the runtime
             // we have to let the type-checker for rascal-lsp re-type-check rascal compiler
+            // this allows developers in rascal-lsp to get typechecking for parts even if they import rascal compiler/typepal modules
             srcs.append(rascalCompiler);
+            srcs.append(typepal);
         }
         libs.append(resolveCurrentRascalRuntimeJar()); // add our own jar to the lib path to make sure rascal classes are found
 
         translateSources(manifestRoot, srcs, messages);
+
+        for (var art: mavenClasspath) {
+            var artId = art.getCoordinate().getArtifactId();
+            if (!artId.equals("rascal") && !artId.equals("typepal")) {
+                addArtifactToPathConfig(art, manifestRoot, mode, srcs, libs, messages);
+            }
+        }
+
     }
 
     private static void translateSources(ISourceLocation manifestRoot, IListWriter srcs, IListWriter messages) {
@@ -543,7 +549,7 @@ public class PathConfig {
         }
     }
 
-    private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, IList mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException {
+    private static void buildNormalProjectConfig(ISourceLocation manifestRoot, RascalConfigMode mode, List<Artifact> mavenClasspath, boolean isRoot, IListWriter srcs, IListWriter libs, IListWriter messages) throws IOException, URISyntaxException {
         if (isRoot) {
             if (mode == RascalConfigMode.INTERPRETER) {
                 srcs.append(URIUtil.rootLocation("std")); // you'll always get rascal from standard in case of interpreter mode
@@ -557,45 +563,67 @@ public class PathConfig {
             }
         }
 
-        RascalManifest manifest = new RascalManifest();
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
 
         // This processes Rascal libraries we can find in maven dependencies,
         // and we add them to the srcs unless a project is open with the same name, then we defer to its srcs
         // to make it easier to edit projects in the IDE
-        for (IValue elem : mavenClasspath) {
-            ISourceLocation dep = (ISourceLocation) elem;
-            if (!reg.exists(dep)) {
-                messages.append(Messages.error("Declared dependency does not exist: " + dep, getPomXmlLocation(manifestRoot)));
-                continue;
+        for (var art : mavenClasspath) {
+            addArtifactToPathConfig(art, manifestRoot, mode, srcs, libs, messages);
+        }
+        if (isRoot || mode == RascalConfigMode.INTERPRETER) {
+            // we have to fill our own src folder
+            translateSources(manifestRoot, srcs, messages);
+        }
+        else /* for clarity these conditions hold true: if (!isRoot && mode == RascalConfigMode.COMPILER)*/ {
+            // we have to write our own target folder to the lib path of the parent
+            libs.append(URIUtil.correctLocation("target", new RascalManifest().getProjectName(manifestRoot), ""));
+        }
+    }
+
+    private static void addArtifactToPathConfig(Artifact art, ISourceLocation manifestRoot, RascalConfigMode mode, IListWriter srcs,
+        IListWriter libs, IListWriter messages) throws IOException {
+        RascalManifest manifest = new RascalManifest();
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        try {
+            var resolvedLocation = art.getResolved();
+            if (resolvedLocation == null) {
+                // maven could not resolve it, so lets skip this
+                // unless this is a local project (that never got added to m2 repo)
+                ISourceLocation projectLoc = URIUtil.correctLocation("project", art.getCoordinate().getArtifactId(), "");
+                if (reg.exists(projectLoc)) {
+                    messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                    addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
+                }
+                else {
+                    messages.append(Messages.error("Declared dependency does not exist: " + art.getCoordinate(), getPomXmlLocation(manifestRoot)));
+                }
+                return;
             }
+            ISourceLocation dep = MavenRepositoryURIResolver.mavenize(URIUtil.createFileLocation(resolvedLocation));
             String libProjectName = manifest.getManifestProjectName(manifest.manifest(dep));
 
             if (libProjectName == null || libProjectName.isEmpty()) {
                 // this is a jar without Rascal meta-data, we need it for the classpath
                 libs.append(dep);
-                continue;
+                return;
             }
             if (libProjectName.equals("rascal")) {
-                // for now we ignore this entry in your dependencies
-                // in the future for compiler mode we might support something else
-                continue; 
+                return; 
             }
             boolean dependsOnRascalLSP = libProjectName.equals("rascal-lsp");
             if (dependsOnRascalLSP) {
                 checkLSPVersionsMatch(manifestRoot, messages, dep);
             }
-
             ISourceLocation projectLoc = URIUtil.correctLocation("project", libProjectName, "");
+
             if (reg.exists(projectLoc) && !dependsOnRascalLSP) {
                 // The project we depend on is available in the current workspace. 
                 // so we configure for using the current state of that project.
-                IList childMavenClasspath = getPomXmlCompilerClasspath(projectLoc);
-                buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages);
+                messages.append(Messages.info("Redirected: " + art.getCoordinate() + " to: " + projectLoc, getPomXmlLocation(manifestRoot)));
+                addProjectAndItsDependencies(mode, srcs, libs, messages, projectLoc);
             }
             else {
                 // just a pre-installed dependency in the local maven repository
-                dep = MavenRepositoryURIResolver.mavenize(dep);
                 libs.append(dep); // for classloading purposes
                 if (mode == RascalConfigMode.COMPILER) {
                     // find tpls inside of the jar
@@ -609,15 +637,15 @@ public class PathConfig {
                     addLibraryToSourcePath(reg, srcs, messages, dep);
                 }
             }
-        }
-        if (isRoot || mode == RascalConfigMode.INTERPRETER) {
-            // we have to fill our own src folder
-            translateSources(manifestRoot, srcs, messages);
-        }
-        else /* for clarity these conditions hold true: if (!isRoot && mode == RascalConfigMode.COMPILER)*/ {
-            // we have to write our own target folder to the lib path of the parent
-            libs.append(URIUtil.correctLocation("target", manifest.getProjectName(manifestRoot), ""));
-        }
+        } catch (URISyntaxException e) {
+            messages.append(Messages.error("Could not convert " + art.getCoordinate() + " to a loc: " + e, manifestRoot));
+        } 
+    }
+
+    private static void addProjectAndItsDependencies(RascalConfigMode mode, IListWriter srcs, IListWriter libs,
+        IListWriter messages, ISourceLocation projectLoc) throws IOException, URISyntaxException {
+        var childMavenClasspath = getPomXmlCompilerClasspath(projectLoc, messages);
+        buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages);
     }
 
     private static void checkLSPVersionsMatch(ISourceLocation manifestRoot, IListWriter messages, ISourceLocation dep) throws IOException {
@@ -689,11 +717,17 @@ public class PathConfig {
             messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
         }
 
-        ISourceLocation target = URIUtil.correctLocation("target", projectName, "");
-        ISourceLocation generatedSources = URIUtil.correctLocation("project", projectName, "target/generatedSources");
+        ISourceLocation target;
+        if (manifestRoot.getScheme().equals("project")) {
+            target = URIUtil.correctLocation("target", projectName, "");
+        } 
+        else {
+            target = URIUtil.getChildLocation(manifestRoot, "target/classes");
+        }
+        ISourceLocation generatedSources = URIUtil.getChildLocation(manifestRoot, "target/generatedSources");
 
         try {
-            IList mavenClasspath = getPomXmlCompilerClasspath(manifestRoot);
+            var mavenClasspath = getPomXmlCompilerClasspath(manifestRoot, messages);
 
             if (projectName.equals("rascal")) {
                 messages.append(Messages.info("Detected Rascal project self-application", getPomXmlLocation(manifestRoot)));
@@ -706,11 +740,13 @@ public class PathConfig {
                 buildNormalProjectConfig(manifestRoot, mode, mavenClasspath, isRoot, srcsWriter, libsWriter, messages);
             }
         }
-        catch (IOException e) {
+        catch (IOException | URISyntaxException e) {
             messages.append(Messages.warning(e.getMessage(), getPomXmlLocation(manifestRoot)));
         }
 
-        validateProjectName(manifestRoot, projectName, messages);
+        if (!projectName.isEmpty()) {
+            validateProjectName(manifestRoot, projectName, messages);
+        }
         
         return new PathConfig(
                 srcsWriter.done(), 
@@ -797,28 +833,33 @@ public class PathConfig {
      * @param manifestRoot
      * @return
      */
-	private static IList getPomXmlCompilerClasspath(ISourceLocation manifestRoot) {
+    private static List<Artifact> getPomXmlCompilerClasspath(ISourceLocation manifestRoot, IListWriter messages) {
         try {
-            var mavenOutput = Maven.runCommand(tempFile -> List.of("--quiet", "org.apache.maven.plugins:maven-dependency-plugin:3.8.1:build-classpath", "-DincludeScope=compile", "-Dmdep.outputFile=" + tempFile.toString()), manifestRoot);
-
-            // The classpath will be written to the temp file on a single line
-            return Arrays.stream(mavenOutput.get(0).split(File.pathSeparator))
-                .filter(fileName -> new File(fileName).exists())
-                .map(elem -> {
-                    try {
-                        return MavenRepositoryURIResolver.mavenize(URIUtil.createFileLocation(elem));
+            var reg = URIResolverRegistry.getInstance();
+            if (!manifestRoot.getScheme().equals("file")) {
+                var resolved = reg.logicalToPhysical(manifestRoot);
+                if (resolved != null) {
+                    if (!resolved.getScheme().equals("file")) {
+                        return Collections.emptyList();
                     }
-                    catch (URISyntaxException e) {
-                        return null;
-                    }
-                })
-                // we get rascal from the runtime engine
-                .filter(x -> !x.getAuthority().startsWith("org.rascalmpl--rascal--"))
-                .filter(x -> x != null) // Objects.nonNull is probably from a higher java version?
-                .collect(vf.listWriter());
+                    manifestRoot = resolved;
+                }
+            }
+            if (!manifestRoot.getPath().endsWith("pom.xml")) {
+                manifestRoot = URIUtil.getChildLocation(manifestRoot, "pom.xml");
+            }
+            var mavenParser = new MavenParser(Path.of(manifestRoot.getURI()));
+            var rootProject = mavenParser.parseProject();
+            messages.appendAll(rootProject.getMessages());
+            var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);
+            for (var a : result) {
+                // errors of the artifacts downloaded should be propogated as well
+                messages.appendAll(a.getMessages());
+            }
+            return result;
         }
-        catch (RuntimeException e) {
-            return vf.list();
+        catch (RuntimeException | IOException | ModelResolutionError e) {
+            return Collections.emptyList();
         }
     }
 

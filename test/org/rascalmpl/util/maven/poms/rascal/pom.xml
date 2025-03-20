@@ -1,9 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <!-- this file is a copy of the pom.xml of rascal at a certain time, just to have some fixed things that should be resolved -->
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC17-SNAPSHOT</version>
+    <version>0.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
@@ -173,31 +174,6 @@
                             <goal>package</goal>
                         </goals>
                     </execution>
-
-		    <!-- commented out while bootstrapping the tutor
-                    <execution>
-                        <id>default-cli</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>tutor</goal>
-                        </goals>
-                        <configuration>
-                            <isPackageCourse>false</isPackageCourse>
-                            <enableStandardLibrary>false</enableStandardLibrary>
-                            <errorsAsWarnings>false</errorsAsWarnings>
-                            <bin>${project.build.outputDirectory}</bin>
-                            <license>${project.basedir}/LICENSE</license>
-                            <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
-                            <issues>|http://github.com/usethesource/rascal/issues|</issues>
-                            <srcs>
-                                <src>${project.basedir}/src/org/rascalmpl/library</src>
-                            </srcs>
-                            <ignores>
-                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
-                            </ignores>
-                        </configuration>
-                        </execution>
-		    -->
                 </executions>
             </plugin>
             <plugin>
@@ -242,7 +218,6 @@
                         <include>**/org/rascalmpl/test/library/LibraryLangPaths.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
-                        <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
@@ -315,35 +290,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.DSA</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>plugin.xml</exclude>
-                                    </excludes>
-                                </filter>
-                                <filter>
-                                    <artifact>org.rascalmpl:typepal:*</artifact>
-                                    <excludes>
-                                        <exclude>examples/**</exclude>
-                                        <exclude>src/examples/**</exclude>
-                                        <exclude>src/analysis/typepal/**</exclude>
-                                        <exclude>docs/Packages/Typepal/**</exclude>
-                                        <exclude>docs/**</exclude>
-                                        <exclude>rascal/analysis/typepal/**</exclude>
-                                        <exclude>**/*.tpl</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <relocations>
-                                <relocation>   
-                                    <pattern>analysis/typepal</pattern>
-                                    <shadedPattern>org/rascalmpl/typepal/analysis/typepal</shadedPattern>
-                                </relocation>
-                            </relocations>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
@@ -368,6 +314,16 @@
                                     <addHeader>false</addHeader>
                                 </transformer>
                             </transformers>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
@@ -437,8 +393,7 @@
             <groupId>org.rascalmpl</groupId>
             <artifactId>typepal</artifactId>
             <version>0.15.1</version>
-           <!-- <scope>provided</scope> for shade plugin it can't be provided. At least the rascal dependency in typepal should be provided -->
-           <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Regular POM Dependencies -->
@@ -466,11 +421,6 @@
             <groupId>com.github.luben</groupId>
             <artifactId>zstd-jni</artifactId>
             <version>1.5.6-8</version>
-        </dependency>
-        <dependency> <!-- needed by commons-compress for compressed+...://...xz -->
-            <groupId>org.tukaani</groupId>
-            <artifactId>xz</artifactId>
-            <version>1.10</version>
         </dependency>
         <dependency> <!-- used for base32 encoding in IO and String, needed anyway for commons-compress -->
             <groupId>commons-codec</groupId>
@@ -544,19 +494,38 @@
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model-builder</artifactId>
+            <artifactId>maven-embedder</artifactId>
             <version>${maven-version}</version>
-            <exclusions>
-                <exclusion> <!-- we won't be needing this, so let's keep the jar small -->
-                    <groupId>org.eclipse.sisu</groupId>
-                    <artifactId>org.eclipse.sisu.inject</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>3.8.1</version>
+        </dependency>
+        <dependency> <!-- needed for maven-embedder-->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-nop</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency> <!-- needed for maven-embedder-->
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings</artifactId>
+            <artifactId>maven-compat</artifactId>
             <version>${maven-version}</version>
+        </dependency>
+        <dependency> <!-- needed for maven-embedder-->
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-transport-http</artifactId>
+            <version>1.9.22</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.resolver</groupId>
+            <artifactId>maven-resolver-connector-basic</artifactId>
+            <version>1.9.22</version>
         </dependency>
     </dependencies>
     <profiles>
