@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.function.FailableFunction;
 import org.apache.maven.model.Repository;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -85,14 +84,13 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         }
 
         Optional<Path> result = download(url, target, force,
-        (InputStream input) -> { 
-            Path tempTarget = getTempFile(target);
-            Files.copy(input, tempTarget);
-            return tempTarget;
-        },
-        (Path tempArtifact) -> {
-            return moveToTarget(tempArtifact, target, force);
-        });
+            (InputStream input) -> { 
+                Path tempTarget = getTempFile(target);
+                Files.copy(input, tempTarget);
+                return tempTarget;
+            },
+            (Path tempArtifact) -> moveToTarget(tempArtifact, target, force)
+        );
         return result.isPresent();
     }
 
@@ -101,28 +99,23 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return target.resolveSibling(tempFileName);
     }
 
-    public String downloadAndRead(String url, Path target, boolean force) {
-        Optional<String> result = download(url, target, force,
-        (InputStream input) -> {
-            return IOUtils.toString(input, StandardCharsets.UTF_8.name());
-        },
-        (String content) -> {
-            return writeToTarget(content, target, force);
-        });
-        return result.orElse(null);
+    public @Nullable String downloadAndRead(String url, Path target, boolean force) {
+        return download(url, target, force,
+            (InputStream input) -> new String(input.readAllBytes(), StandardCharsets.UTF_8),
+            (String content) -> writeToTarget(content, target, force)
+        ).orElse(null);
     }
 
     public <R> Optional<R> download(String url, Path target, boolean force, 
         FailableFunction<InputStream, R, IOException> resultCreator,
         FailableFunction<R, Boolean, IOException> resultWriter) {
         try {
-            try {
-                var artifactUri = createUri(repo.getUrl(), url);
-                var req = HttpRequest.newBuilder(artifactUri).GET().build();
-                HttpResponse<InputStream> response = client.send(req, BodyHandlers.ofInputStream());
+            var artifactUri = createUri(repo.getUrl(), url);
+            var req = HttpRequest.newBuilder(artifactUri).GET().build();
+            HttpResponse<InputStream> response = client.send(req, BodyHandlers.ofInputStream());
 
-                if (response.statusCode() == 200) {
-                    ChecksumInputStream input = new ChecksumInputStream(response.body());
+            if (response.statusCode() == 200) {
+                try (var input = new ChecksumInputStream(response.body())) {
                     R result = resultCreator.apply(input);
 
                     String sha1Checksum = input.getSha1Checksum();
@@ -139,11 +132,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
                     }
                     return Optional.of(result);
                 }
-                return Optional.empty();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return Optional.empty();
             }
+            else {
+                // at least we have to close the input stream
+                var body = response.body();
+                if (body != null) {
+                    body.close();
+                }
+            }
+            return Optional.empty();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Optional.empty();
         } catch (URISyntaxException | IOException e) {
             return Optional.empty();
         }
@@ -222,11 +222,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
         return moveToTarget(tempTarget, target, force);
     }
 
-    private void writeChecksumToTarget(Path path,  @Nullable String checksum) throws IOException {
+    private void writeChecksumToTarget(Path path, @Nullable String checksum) throws IOException {
         if (checksum == null) {
             Files.delete(path);
         } else {
-            Files.write(path, checksum.getBytes(StandardCharsets.UTF_8), StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+            Files.writeString(path, checksum, StandardCharsets.UTF_8, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
         }
     }
 
