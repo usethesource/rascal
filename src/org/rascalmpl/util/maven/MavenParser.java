@@ -142,17 +142,12 @@ public class MavenParser {
 
     private static void translateProblems(List<ModelProblem> problems, ISourceLocation loc, IListWriter messages) {
         for (var problem : problems) {
-            var pos = loc;
-            if (problem.getLineNumber() >= 0) {
-                // TODO: generate proper locations, since 0,0 is invalid!
-                // but also we have to figure out how to configure the maven parser to report proper locations
-                pos = VF.sourceLocation(pos, 0,0, problem.getLineNumber(),  problem.getLineNumber(), problem.getColumnNumber(), problem.getColumnNumber() + 1);
-            }
+            // TODO: figure out how we can get correct offset & length from the xml parser (right now it has line & column, but they're always 0)
             var message = problem.getMessage();
             switch (problem.getSeverity()) {
                 case ERROR: // fall through
-                case FATAL: messages.append(Messages.error(message, pos)); break;
-                case WARNING: messages.append(Messages.warning(message, pos)); break;
+                case FATAL: messages.append(Messages.error(message, loc)); break;
+                case WARNING: messages.append(Messages.warning(message, loc)); break;
                 default: throw new UnsupportedOperationException("Missing case: " + problem.getSeverity());
             }
         }

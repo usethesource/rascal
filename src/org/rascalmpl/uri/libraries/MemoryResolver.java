@@ -27,7 +27,6 @@ import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
-
 import io.usethesource.vallang.ISourceLocation;
 
 /**
