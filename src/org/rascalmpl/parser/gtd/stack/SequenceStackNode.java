@@ -71,7 +71,7 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 	}
 	
 	public AbstractStackNode<P> getCleanCopy(int startLocation){
-		return new SequenceStackNode<P>(this, startLocation);
+		return new SequenceStackNode<>(this, startLocation);
 	}
 	
 	public AbstractStackNode<P>[] getChildren(){
@@ -86,6 +86,12 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public String toShortString() {
+		return name;
+	}
+
+	@Override
 	public String toString(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("seq");
@@ -97,10 +103,16 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		return sb.toString();
 	}
 	
+	@Override
 	public int hashCode(){
 		return production.hashCode();
 	}
 	
+	@Override
+	public boolean equals(Object peer) {
+		return super.equals(peer);
+	}
+
 	public boolean isEqual(AbstractStackNode<P> stackNode){
 		if(!(stackNode instanceof SequenceStackNode)) return false;
 		
@@ -110,4 +122,10 @@ public class SequenceStackNode<P> extends AbstractExpandableStackNode<P>{
 		
 		return hasEqualFilters(stackNode);
 	}
+
+	@Override
+	public <R> R accept(StackNodeVisitor<P,R> visitor) {
+		return visitor.visit(this);
+	}
+
 }

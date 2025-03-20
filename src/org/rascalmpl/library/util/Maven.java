@@ -18,9 +18,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 import org.apache.maven.cli.CliRequest;
 import org.apache.maven.cli.MavenCli;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.codehaus.plexus.classworlds.ClassWorld;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -29,7 +31,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class Maven {
     /**
-     * Calls maven with the provided arguments. The working directory will be set to `manifestRoot`,
+     * Calls Maven with the provided arguments. The working directory will be set to `manifestRoot`,
      * which should contain a `pom.xml` file. If `outputFile` refers to an existing file, its contents
      * will the read and returned after Maven concludes.
      * 
@@ -37,17 +39,17 @@ public class Maven {
      * to a file. For instance, the output of `mvn dependency:build-classpath` can be redicted to a file
      * by providing an additional argument `-Dmdep.outputFile=/path/to/file`.
      */
-    public static List<String> runCommand(List<String> args, ISourceLocation manifestRoot, Path outputFile) {
+    public static List<String> runCommand(List<String> args, @Nullable ISourceLocation manifestRoot, Path outputFile) {
         try {
-            ISourceLocation pomxml = URIUtil.getChildLocation(manifestRoot, "pom.xml");
-            pomxml = URIResolverRegistry.getInstance().logicalToPhysical(pomxml);
-            manifestRoot = URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot);
+            ISourceLocation pomxml = manifestRoot != null ? URIUtil.getChildLocation(manifestRoot, "pom.xml") : null;
+            pomxml = pomxml != null ? URIResolverRegistry.getInstance().logicalToPhysical(pomxml) : null;
+            manifestRoot = manifestRoot != null ? URIResolverRegistry.getInstance().logicalToPhysical(manifestRoot) : null;
             
-            if (!"file".equals(manifestRoot.getScheme())) {
+            if (manifestRoot != null && !"file".equals(manifestRoot.getScheme())) {
                 throw new IllegalArgumentException("`manifestRoot` could not be resolved");
             }
 
-            if (!URIResolverRegistry.getInstance().exists(pomxml)) {
+            if (pomxml != null && !URIResolverRegistry.getInstance().exists(pomxml)) {
                 throw new IllegalArgumentException("`manifestRoot` does not contain pom.xml");
             }
 
@@ -65,7 +67,26 @@ public class Maven {
     }
 
     /**
-     * Calls maven with the provided arguments. The working directory will be set to `manifestRoot`,
+     * Calls Maven with the provided arguments. The working directory will be set to `manifestRoot`,
+     * which should contain a `pom.xml` file. A temporary file is created, applied to the first argument for
+     * consumption, and its contents will be read and returned after Maven concludes.
+     * 
+     * Maven's output is fully suppressed. However, it is often possible to redirect (parts of) the output
+     * to a file. For instance, the output of `mvn dependency:build-classpath` can be redicted to a file
+     * by providing an additional argument `-Dmdep.outputFile=/path/to/file`.
+     */
+    public static List<String> runCommand(Function<Path, List<String>> args, @Nullable ISourceLocation manifestRoot) {
+        try {
+            var tempFile = Maven.getTempFile();
+            return runCommand(args.apply(tempFile), manifestRoot, tempFile);
+        }
+        catch (IOException e) {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * Calls Maven with the provided arguments. The working directory will be set to `manifestRoot`,
      * which should contain a `pom.xml` file. Maven's output is fully suppressed.
      */
     public static void runCommand(List<String> args, ISourceLocation manifestRoot) {
@@ -78,19 +99,31 @@ public class Maven {
         field.set(req, value);
     }
     
-    private static CliRequest buildRequest(String[] args, ISourceLocation manifestRoot) throws ReflectiveOperationException {
+    private static CliRequest buildRequest(String[] args, @Nullable ISourceLocation manifestRoot) throws ReflectiveOperationException {
         // we need to set a field that the default class doesn't set
         // it's a work around around a bug in the MavenCli code
         var cons = CliRequest.class.getDeclaredConstructor(String[].class, ClassWorld.class);
         cons.setAccessible(true);
         var result = cons.newInstance(args, null);
-        var manifestRootFile = new File(manifestRoot.getPath());
-        setField(result, "workingDirectory", manifestRootFile.getPath());
-        setField(result, "multiModuleProjectDirectory", manifestRootFile);
+
+        if (manifestRoot != null) {
+            var manifestRootFile = new File(manifestRoot.getPath());
+            setField(result, "workingDirectory", manifestRootFile.getPath());
+            setField(result, "multiModuleProjectDirectory", manifestRootFile);
+        }
+        else {
+            try {
+                setField(result, "multiModuleProjectDirectory", File.createTempFile("dummy", ""));
+            }
+            catch (ReflectiveOperationException | IOException e) {
+                // ignore for robustness sake, since we don't have a manifestRoot
+            }
+        }
+
         return result;
     }
 
-    public static Path getTempFile(String kind) throws IOException {
-        return Files.createTempFile("rascal-maven-" + kind + "-", ".tmp");
+    public static Path getTempFile() throws IOException {
+        return Files.createTempFile("rascal-maven-", ".tmp");
     }
 }

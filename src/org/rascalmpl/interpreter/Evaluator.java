@@ -21,12 +21,15 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.semantics.dynamic.Import.parseFragments;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -37,10 +40,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.Stack;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
@@ -87,6 +90,8 @@ import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.ParserGenerator;
@@ -264,10 +269,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         updateProperties();
 
         if (stderr == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stderr is null");
         }
         if (stdout == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("stdout is null");
         }
 
         // default event trigger to swallow events
@@ -623,16 +628,36 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
         Map<String, Type> expectedTypes = new HashMap<>();
         Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
+        List<String> pathConfigParam = new LinkedList<>();
 
         for (String kwp : kwTypes.getFieldNames()) {
-            expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
+            var kwtype = kwTypes.getFieldType(kwp);
+
+            if (kwtype == PathConfig.PathConfigType) {
+                // special case for PathConfig unfolds into the respective fields of PathConfig
+                expectedTypes.putAll(PathConfig.PathConfigFields);    
+                // add project parameter for automatic pathconfig settings
+                expectedTypes.put("project", tf.sourceLocationType());
+                // drop the path config parameter
+                pathConfigParam.add(kwp);
+            }
+            else {
+                expectedTypes.put(kwp, kwtype);
+            }
+        }
+
+        for (String param : pathConfigParam) {
+            expectedTypes.remove(param);
         }
 
         Map<String, IValue> params = new HashMap<>();
 
         for (int i = 0; i < commandline.length; i++) {
-            if (commandline[i].equals("-help")) {
-                throw new CommandlineError("Help", func);
+            if (List.of("-help", "--help", "/?", "?", "\\?", "-?", "--?").contains(commandline[i].trim())) {
+                printMainHelpMessage(kwTypes);
+                getOutPrinter().flush();
+                getErrorPrinter().flush();
+                System.exit(0);
             }
             else if (commandline[i].startsWith("-")) {
                 String label = commandline[i].replaceFirst("^-+", "");
@@ -661,6 +686,28 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 else if (i == commandline.length - 1 || commandline[i+1].startsWith("-")) {
                     throw new CommandlineError("expected option for " + label, func);
                 }
+                else if (expected.isSubtypeOf(tf.listType(tf.sourceLocationType()))) {
+                    if (!commandline[i+1].startsWith("-") && commandline[i+1].matches(".*" + File.pathSeparator + "(?!//).*")) {
+                        i++;
+        
+                        // we want to split on ; or : but not on ://
+                        String[] pathElems = commandline[i].trim().split(File.pathSeparator + "(?!//)");
+                        IListWriter writer = vf.listWriter();
+                        
+                        Arrays.stream(pathElems).forEach(e -> {
+                            writer.append(parseCommandlineOption(func, tf.sourceLocationType(), e));
+                        });
+                    }
+                    else {
+                        IListWriter writer = vf.listWriter();
+
+                        while (i + 1 < commandline.length && !commandline[i+1].startsWith("-")) {
+                            writer.append(parseCommandlineOption(func, expected.getElementType(), commandline[++i]));
+                        }
+
+                        params.put(label, writer.done());
+                    }
+                }
                 else if (expected.isSubtypeOf(tf.listType(tf.valueType()))) {
                     IListWriter writer = vf.listWriter();
 
@@ -685,22 +732,154 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
 
+        if (params.get("project") != null) {
+            // we have a project that can use automatic detection of PathConfig parameters.
+            var pcfg = PathConfig.fromSourceProjectRascalManifest((ISourceLocation) params.get("project"), RascalConfigMode.INTERPRETER, true);
+            var cons = pcfg.asConstructor();
+
+            for (Entry<String, Type> entry : PathConfig.PathConfigFields.entrySet()) {
+                if (params.get(entry.getKey()) != null) {
+                    if (entry.getValue() == tf.sourceLocationType()) {
+                        // normal loc fields overwrite the automatic ones (bin, generatedSources)
+                        cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), params.get(entry.getKey()));
+                    }
+                    else {
+                        // list[loc] fields get concatenated (ignores, srcs, libs)
+                        IList param1 = (IList) cons.asWithKeywordParameters().getParameter(entry.getKey());
+                        if (param1 == null) {
+                            param1 = vf.list();
+                        }
+                        IList param2 = (IList) params.get(entry.getKey());
+                        if (param2 == null) {
+                            param2 = vf.list();
+                        }
+                        cons = cons.asWithKeywordParameters().setParameter(entry.getKey(), param1.concat(param2));
+                    }
+                }
+            }
+        }
+
         return params;
+    }
+
+    private void printMainHelpMessage(Type kwTypes) {
+        StackTraceElement trace[] = Thread.currentThread().getStackTrace();
+        String mainClass = trace[trace.length - 1].getClassName();
+        Map<String, Type> fields = new HashMap<>();
+        
+        var out = getOutPrinter();
+        out.println("Help for " + mainClass + "\n");
+
+        for (int i = 0; i < kwTypes.getArity(); i++) {
+            fields.put(kwTypes.getFieldName(i), kwTypes.getFieldType(i));
+        }
+
+        if (fields.containsValue(PathConfig.PathConfigType)) {
+            fields.putAll(PathConfig.PathConfigFields);
+            fields.put("project", tf.sourceLocationType());
+
+            // drop the pcfg field
+            var pcfgsKeys = fields.entrySet().stream()
+                .filter(e -> e.getValue() == PathConfig.PathConfigType)
+                .map(e -> e.getKey())
+                .collect(Collectors.toList());
+            pcfgsKeys.stream().forEach(k -> fields.remove(k));
+        }
+
+        if (fields.isEmpty()) {
+            out.println("\t-help    this help message is printed.");
+            out.println();
+            out.println("This command has no further parameters.");
+            return;
+        }
+
+        List<String> keys = fields.keySet().stream().collect(Collectors.toList());
+        keys.sort(String::compareTo);
+        int maxLength = keys.stream().max((a,b) -> Integer.compare(a.length(), b.length())).get().length();
+
+        for (String key : keys) {
+            String explanation = parameterTypeExplanation(key, fields.get(key));
+            out.println("    -" + String.format("%-" + maxLength + "." + key.length() + "s", key) + ": " + explanation);
+        }
+    }
+
+    private String parameterTypeExplanation(String key, Type type) {
+        if (key.equals("help") || key.equals("h") || key.equals("?")) {
+            return "this help message is printed.";
+        }
+        else if (type == tf.boolType()) {
+            return "true or false or nothing";
+        }
+        else if (type == tf.stringType()) {
+            return "any string value. Use \" or \' to include spaces.";
+        }
+        else if (type == tf.sourceLocationType()) {
+            return "a path, a URI, or a Rascal source location";
+        }
+        else if (type == tf.listType(tf.sourceLocationType())) {
+            return "a list of paths, URIs or Rascal locs separated by " + File.pathSeparator ;
+        }
+        else if (type.isSubtypeOf(tf.numberType())) {
+            return "a numerical value";
+        }
+        else {
+            return "a Rascal value expression of " + type;
+        }
     }
 
     private IValue parseCommandlineOption(AbstractFunction main, Type expected, String option) {
         if (expected.isSubtypeOf(tf.stringType())) {
+            // this accepts anything as a (unquoted, unescaped) string
             return vf.string(option);
         }
-        else {
-            StringReader reader = new StringReader(option);
+        else if (expected.isSubtypeOf(tf.sourceLocationType())) {
+            // locations are for file and folder paths. in 3 different notations
             try {
-                return new StandardTextReader().read(vf, expected, reader);
-            } catch (FactTypeUseException e) {
+                if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
+                    // vallang syntax for locs with |scheme:///|
+                    return new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
+                }
+                else if (option.contains("://")) {
+                    // encoded URI notation
+                    return URIUtil.createFromURI(option.trim());
+                }
+                else {
+                    // basic support for current and parent directory notation
+                    if (option.trim().equals(".")) {
+                        return URIUtil.rootLocation("cwd");
+                    }
+                    else if (option.trim().equals("..")) {
+                        return URIUtil.correctLocation("cwd", "", "..");
+                    }
+                    else if (option.trim().startsWith(".." + File.separatorChar)) {
+                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + File.separatorChar + option);
+                    }
+                    else if (option.trim().startsWith("." + File.separatorChar)) {
+                        return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
+                    }
+                    // OS specific notation for file paths
+                    return URIUtil.createFileLocation(option.trim());
+                }
+            }  
+            catch (FactTypeUseException e) {
                 throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
-            } catch (IOException e) {
+            } 
+            catch (IOException e) {
                 throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
+            }     
+            catch (URISyntaxException e) {
+                throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
             }
+        }
+    
+        // otherwise we use the vallang parser:
+        StringReader reader = new StringReader(option);
+        try {
+            return new StandardTextReader().read(vf, expected, reader);
+        } catch (FactTypeUseException e) {
+            throw new CommandlineError("expected " + expected + " but got " + option + " (" + e.getMessage() + ")", main);
+        } catch (IOException e) {
+            throw new CommandlineError("unxped problem while parsing commandline:" + e.getMessage(), main);
         }
     }
 
@@ -742,14 +921,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
         return func.call(getMonitor(), types, args, kwArgs).getValue();
     }
-
-    // @Override	
-    // public ITree parseObject(IConstructor grammar, ISet filters, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
-    //     RascalFunctionValueFactory vf = new RascalFunctionValueFactory(this);
-    //     IFunction parser = vf.parser(grammar, vf.bool(allowAmbiguity), vf.bool(hasSideEffects), vf.bool(false), filters);
-
-    //     return (ITree) parser.call(vf.string(new String(input)), location);
-    // }
 
     @Override
     public IConstructor getGrammar(Environment env) {
@@ -964,7 +1135,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
         IMap syntaxDefinition = curMod.getSyntaxDefinition();
         IMap grammar = (IMap) getParserGenerator().getGrammarFromModules(getMonitor(), curMod.getName(), syntaxDefinition).get("rules");
         IConstructor reifiedType = vf.reifiedType(dummy, grammar);
-        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
+        return vf.parsers(reifiedType, vf.bool(false), vf.bool(false), vf.bool(false), vf.bool(false), vf.set()); 
     }
 
     private Result<IValue> evalMore(String command, ISourceLocation location)
@@ -1149,6 +1320,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * @param string
      */
     public void doImport(IRascalMonitor monitor, String... string) {
+        assert monitor != null;
         IRascalMonitor old = setMonitor(monitor);
         interrupt = false;
         try {

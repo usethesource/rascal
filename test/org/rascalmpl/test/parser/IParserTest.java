@@ -15,12 +15,13 @@ import java.io.IOException;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.parsetrees.ITree;
 
 public interface IParserTest{
 	public final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-	
+
 	ITree executeParser();
 	
 	IValue getExpectedResult() throws IOException;

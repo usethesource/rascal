@@ -599,3 +599,16 @@ test bool stackoverflow() {
     catch StackOverflow():
         return true;
 }
+
+@synopsis{Nested clones in different scopes are acceptable}
+int fun_with_clone(int n){
+    if(n > 0){
+        int h(int n) = 2*n;
+        return h(n);
+    } else {
+        int h(int n) = 2*n;
+        return h(n);
+    }
+}
+
+test bool noCodeClone() = fun_with_clone(3) == 6;
