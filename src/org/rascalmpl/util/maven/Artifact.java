@@ -151,18 +151,18 @@ public class Artifact {
         }
     }
 
-    private Artifact createSystemArtifact(Dependency d) {
+    private static Artifact createSystemArtifact(Dependency d) {
         var messages = IRascalValueFactory.getInstance().listWriter();
 
         String systemPath = d.getSystemPath();
         Path path = null;
         if (systemPath == null) {
-            messages.append(Messages.error("system dependency without a systemPath property", d.getLocation()));
+            messages.append(Messages.error("system dependency " + d + " without a systemPath property", d.getPomLocation()));
         } else {
             path = Path.of(systemPath);
             if (Files.notExists(path) || !Files.isRegularFile(path)) {
                 // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
-                messages.append(Messages.error("systemPath property points to a file that does not exist (or is not a regular file): " + systemPath, d.getLocation()));
+                messages.append(Messages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d.getPomLocation()));
                 path = null;
             }
         }

@@ -129,12 +129,12 @@ public class Util {
     }
 
     private static String replaceVariables(String input) {
-        RegexBasedInterpolator interpolator = new RegexBasedInterpolator();
+        var interpolator = new RegexBasedInterpolator();
  
         interpolator.addValueSource(new PropertiesBasedValueSource(System.getProperties()));
         try {
             interpolator.addValueSource(new EnvarBasedValueSource(false));
-        } catch (IOException e) {
+        } catch (IOException ignored) {
             // No environment variables if this fails
         }
         
