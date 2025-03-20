@@ -44,10 +44,10 @@ import lang::rascal::\syntax::Rascal;
 
 public PathConfig defaultConfig
   = pathConfig(
-  bin=|target://rascal-tutor/docs|,
-  libs=[|lib://rascal|],
+  bin=|target://rascal/docs|,
+  libs=[],
   srcs=[
-    |project://rascal-tutor/src/lang/rascal/tutor/examples/Test|
+    |project://rascal/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/Test|
   ]);
 
 public list[Message] lastErrors = [];
@@ -64,6 +64,11 @@ public void defaultCompile(bool clean=false) {
   }
 
   lastErrors = errors;
+}
+
+void main(PathConfig pcfg = getProjectPathConfig(|cwd:///|)) {
+  messages = compile(pcfg);
+  println(write(messages));
 }
 
 @synopsis{compiles each pcfg.srcs folder as a course root}

@@ -28,4 +28,9 @@ public class ExpandableContainerNode<P> extends AbstractContainerNode<P>{
 	public int getTypeIdentifier(){
 		return ID;
 	}
+
+	@Override
+	public String toString() {
+		return "ExpandableContainerNode[" + super.toString() + "]";
+	}
 }

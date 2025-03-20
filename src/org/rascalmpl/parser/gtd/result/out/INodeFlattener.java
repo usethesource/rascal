@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012-2013 CWI
+ * Copyright (c) 2012-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,37 +21,20 @@ import org.rascalmpl.parser.gtd.util.IndexedStack;
  * trees to some other representation.
  */
 public interface INodeFlattener<T, P>{
+	public enum CacheMode { CACHE_MODE_NONE, CACHE_MODE_SHARING_ONLY, CACHE_MODE_FULL };
+
+	public static INodeFlattener.CacheMode getCacheMode(boolean cacheable, boolean hasSideEffects) {
+		if (hasSideEffects) {
+			return CacheMode.CACHE_MODE_SHARING_ONLY;
+		} else {
+			return cacheable ? CacheMode.CACHE_MODE_FULL : CacheMode.CACHE_MODE_SHARING_ONLY;
+		}
+	}
+
 	/**
 	 * Convert the given parse result.
 	 */
 	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
 	
-	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, CycleMark cycleMark, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment);
-	
-	/**
-	 * Internal helper structure for cycle detection and handling.
-	 */
-	static class CycleMark{
-		public int depth = Integer.MAX_VALUE;
-		
-		public CycleMark(){
-			super();
-		}
-		
-		/**
-		 * Marks the depth at which a cycle was detected.
-		 */
-		public void setMark(int depth){
-			if(depth < this.depth){
-				this.depth = depth;
-			}
-		}
-		
-		/**
-		 * Resets the mark.
-		 */
-		public void reset(){
-			depth = Integer.MAX_VALUE;
-		}
-	}
+	T convert(INodeConstructorFactory<T, P> nodeConstructorFactory, AbstractNode parseTree, IndexedStack<AbstractNode> stack, int depth, PositionStore positionStore, FilteringTracker filteringTracker, IActionExecutor<T> actionExecutor, Object rootEnvironment, CacheMode cacheMode);	
 }

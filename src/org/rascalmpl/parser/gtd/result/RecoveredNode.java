@@ -26,4 +26,9 @@ public class RecoveredNode<P> extends SortContainerNode<P>{
 	public int getTypeIdentifier(){
 		return ID;
 	}
+
+	@Override
+	public String toString() {
+		return "RecoveredNode[" + super.toString() + "]";
+	}	
 }

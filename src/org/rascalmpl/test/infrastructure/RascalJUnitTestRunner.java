@@ -12,7 +12,6 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
@@ -23,13 +22,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.jline.terminal.impl.DumbTerminal;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
-import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TestEvaluator;
@@ -38,6 +35,7 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.utils.RascalManifest;
+import org.rascalmpl.library.Messages;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.library.util.PathConfig.RascalConfigMode;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
@@ -52,24 +50,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 
 public class RascalJUnitTestRunner extends Runner {
-    private static class InstanceHolder {
-		final static IRascalMonitor monitor;
-        static {
-            try {
-                // jline is to smart, it intersects with junit runners that also interact with the stream
-                // so instead of that we direct all the messages to stderr, and disable any smart stuff
-                monitor = IRascalMonitor.buildConsoleMonitor(new DumbTerminal(InputStream.nullInputStream(), System.out));
-            }
-            catch (IOException e1) {
-                throw new IllegalStateException("Could not create a terminal representation");
-            }
-        }
-    }
-   
-   	public static IRascalMonitor getCommonMonitor() {
-	    return InstanceHolder.monitor;
-   	}
-
     private static Evaluator evaluator;
     private static GlobalEnvironment heap;
     private static ModuleEnvironment root;
@@ -83,7 +63,7 @@ public class RascalJUnitTestRunner extends Runner {
         try {
             heap = new GlobalEnvironment();
             root = heap.addModule(new ModuleEnvironment("___junit_test___", heap));
-            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, getCommonMonitor());
+            evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), new PrintWriter(System.err, true), new PrintWriter(System.out, false), root, heap, RascalJunitConsoleMonitor.getInstance());
         
             evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
             evaluator.getConfiguration().setErrors(true);
@@ -118,26 +98,34 @@ public class RascalJUnitTestRunner extends Runner {
         reg.registerLogical(new TargetURIResolver(projectRoot, projectName));
         
         try {
-            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPETER);
+            PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
             
+            
+            System.err.println("Source path:");
             for (IValue path : pcfg.getSrcs()) {
-
                 evaluator.addRascalSearchPath((ISourceLocation) path); 
+                System.err.println("- " + path);
+            }
+
+            System.err.println("Class loader path:");
+            for (IValue p: pcfg.getLibsAndTarget()) {
+                System.err.println("- " + p);
             }
             
-            ClassLoader cl = new SourceLocationClassLoader(pcfg.getClassloaders(), ShellEvaluatorFactory.class.getClassLoader());
+            ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
             evaluator.addClassLoader(cl);
+
+            Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
+            
         }
         catch (AssertionError e) {
             e.printStackTrace();
             throw e;
         }
-        catch (IOException e) {
-            System.err.println(e);
-        }
     }
 
     public static ISourceLocation inferProjectRoot(Class<?> clazz) {
+        
         try {
             String file = clazz.getProtectionDomain().getCodeSource().getLocation().getPath();
             if (file.endsWith(".jar")) {

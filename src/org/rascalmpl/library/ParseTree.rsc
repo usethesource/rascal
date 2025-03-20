@@ -143,7 +143,6 @@ extend Type;
 extend Message;
 extend List;
 
-
 @synopsis{The Tree data type as produced by the parser.}
 @description{
 A `Tree` defines the trees normally found after parsing; additional constructors exist for execptional cases:
@@ -177,6 +176,8 @@ construct ordered and un-ordered compositions, and associativity groups.
 <4> `assoc`  means all alternatives are acceptable, but nested on the declared side;
 <5> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
+<6> `error` means a node produced by error recovery.
+<7> `skipped` means characters skipped during error recovery, always the last child of an `appl` with a `error` production.
 } 
 data Production 
      = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
@@ -189,6 +190,9 @@ data Production
      | \reference(Symbol def, str cons) // <5>
      ;
 
+data Production
+     = \error(Symbol def, Production prod, int dot)
+     | \skipped(Symbol def);
 
 @synopsis{Attributes in productions.}
 @description{
@@ -236,7 +240,7 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 <4>  Layout symbols
 <5>  Terminal symbols that are keywords
 <6>  Parameterized context-free non-terminal
-<7> Parameterized lexical non-terminal
+<7>  Parameterized lexical non-terminal
 <8>  Terminal.
 <9>  Case-insensitive terminal.
 <10> Character class
@@ -348,6 +352,15 @@ The latter option terminates much faster, i.e. always in cubic time, and always 
 while constructing ambiguous parse forests may grow to O(n^p+1), where p is the length of the longest production rule and n 
 is the length of the input.
 
+The `allowRecovery` can be set to `true` to enable error recovery. This is an experimental feature.
+When error recovery is enabled, the parser will attempt to recover from parse errors and continue parsing.
+If successful, a parse tree with error and skipped productions is returned (see the definition of `Production` above).
+The `util::ErrorRecovery` module contains a number of functions to analyze trees with errors, for example `hasErrors`, `getSkipped`, and `getErrorText`.
+Note that the resulting parse forest can contain a lot of ambiguities. Any code that processes error trees must be aware of this,
+for instance a simple traversal of all subtrees will be too expensive in most cases. `disambiguateErrors` can be used to 
+efficiently prune the forest and leave a tree with a single (or even zero) errors based on simple heuristics, but these heuristics
+are somewhat arbitrary so the usability of this function is limited.
+
 The `filters` set contains functions which may be called optionally after the parse algorithm has finished and just before
 the Tree representation is built. The set of functions contain alternative functions, only on of them is successfully applied
 to each node in a tree. If such a function fails to apply, the other ones are tried. There is no fixed-point computation, so
@@ -392,14 +405,15 @@ catch ParseError(loc l): {
 }
 ```
 }
-&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
 
-&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
+&T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, |unknown:///|);
+
+&T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, origin);
   
-&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
-  = parser(begin, allowAmbiguity=allowAmbiguity, hasSideEffects=hasSideEffects, filters=filters)(input, input);
+&T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={})
+  = parser(begin, allowAmbiguity=allowAmbiguity, allowRecovery=allowRecovery, hasSideEffects=hasSideEffects, filters=filters)(input, input);
 
 
 @synopsis{Generates a parser from an input grammar.}
@@ -415,15 +429,18 @@ So the parse function reads either directly from a str or via the contents of a 
 which leads to the prefix of the `src` fields of the resulting tree.
 
 The parse function behaves differently depending of the given keyword parameters:
-     *  `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
+     * `allowAmbiguity`: if true then no exception is thrown in case of ambiguity and a parse forest is returned. if false,
                          the parser throws an exception during tree building and produces only the first ambiguous subtree in its message.
                          if set to `false`, the parse constructs trees in linear time. if set to `true` the parser constructs trees in polynomial time.
-     * 
+     * 'allowRecovery`: ***experimental*** if true, the parser tries to recover when it encounters a parse error. if a parse error is encountered that can be recovered from,
+                         special `error` and `skipped` productions are included in the resulting parse tree. More documentation will be added here when this feature matures.
+                         Note that if `allowRecovery` is set to true, the resulting tree can still contain ambiguity nodes related to recovered parse errors, even if `allowAmbiguity`
+                         is set to false. When a 'regular` (non-error) ambiguity is found an exception is still thrown in this case.
      *  `hasSideEffects`: if false then the parser is a lot faster when constructing trees, since it does not execute the parse _actions_ in an
                          interpreted environment to make side effects (like a symbol table) and it can share more intermediate results as a result.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+java &T (value input, loc origin) parser(type[&T] grammar, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -436,7 +453,7 @@ the tree that exhibits ambiguity. This can be done very quickly, while the whole
 * The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
 The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
 }
-java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
+java Tree (value input, loc origin) firstAmbiguityFinder(type[Tree] grammar, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={}); 
 
 @synopsis{Generates parsers from a grammar (reified type), where all non-terminals in the grammar can be used as start-symbol.}
 @description{
@@ -444,7 +461,7 @@ This parser generator behaves the same as the `parser` function, but it produces
 nonterminal parameter. This can be used to select a specific non-terminal from the grammar to use as start-symbol for parsing.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+java &U (type[&U] nonterminal, value input, loc origin) parsers(type[&T] grammar, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @javaClass{org.rascalmpl.library.Prelude}
 @synopsis{Generates a parser function that can be used to find the left-most deepest ambiguous sub-sentence.}
@@ -457,7 +474,7 @@ the tree that exhibits ambiguity. This can be done very quickly, while the whole
 * The returned sub-tree usually has a different type than the parameter of the type[] symbol that was passed in. 
 The reason is that sub-trees typically have a different non-terminal than the start non-terminal of a grammar.
 }
-java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
+java Tree (type[Tree] nonterminal, value input, loc origin) firstAmbiguityFinders(type[Tree] grammar, bool allowRecovery=false, bool hasSideEffects=false,  set[Tree(Tree)] filters={}); 
 
 @synopsis{Parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.}
 @description{
@@ -535,7 +552,7 @@ p(type(sort("E"), ()), "e+e", |src:///|);
 * reifiying types (use of `#`) will trigger the loading of a parser generator anyway. You have to use
 this notation for types to avoid that: `type(\start(sort("MySort")), ())` to avoid the computation for `#start[A]`
 }
-java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+java &U (type[&U] nonterminal, value input, loc origin) loadParsers(loc savedParsers, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Load a previously serialized parser, for a specific non-terminal, from disk for usage}
 @description{
@@ -543,7 +560,7 @@ This loader behaves just like ((loadParsers)), except that the resulting parser 
 bound to a specific non-terminal. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
+java &U (value input, loc origin) loadParser(type[&U] nonterminal, loc savedParsers, bool allowAmbiguity=false, bool allowRecovery=false, bool hasSideEffects=false, set[Tree(Tree)] filters={});
 
 @synopsis{Yield the string of characters that form the leafs of the given parse tree.}
 @description{
