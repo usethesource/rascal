@@ -30,6 +30,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 
 import io.usethesource.vallang.IListWriter;
@@ -61,7 +62,7 @@ import io.usethesource.vallang.ISourceLocation;
         return scope;
     }
 
-    public String getSystemPath() {
+    public @Nullable String getSystemPath() {
         return systemPath;
     }
 
@@ -73,7 +74,7 @@ import io.usethesource.vallang.ISourceLocation;
         return exclusions;
     }
 
-    static Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pom) {
+    static @Nullable Dependency build(org.apache.maven.model.Dependency d, IListWriter messages, ISourceLocation pom) {
         var version = d.getVersion();
         if (version == null) {
             // while rare, this happens when a user has an incomplete dependencyManagement section
@@ -88,7 +89,13 @@ import io.usethesource.vallang.ISourceLocation;
             case "provided": scope = Scope.PROVIDED; break;
             case "runtime": scope = Scope.RUNTIME; break;
             case "test": scope = Scope.TEST; break;
-            case "system": scope = Scope.SYSTEM; break;
+            case "system":
+                scope = Scope.SYSTEM;
+                if (d.getSystemPath() == null) {
+                    //messages.append(Messages.error("System dependency " + d.getGroupId() + ":" + d.getArtifactId() + " is missing a system path", pom));
+                    return null;
+                }
+                break;
             case "import": scope = Scope.IMPORT; break;
             case "compile": // fall through
             default: scope = Scope.COMPILE; break;
