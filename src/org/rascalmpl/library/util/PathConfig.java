@@ -717,8 +717,14 @@ public class PathConfig {
             messages.append(Messages.info("Rascal version:" + RascalManifest.getRascalVersionNumber(), manifestRoot));
         }
 
-        ISourceLocation target = URIUtil.correctLocation("target", projectName, "");
-        ISourceLocation generatedSources = URIUtil.correctLocation("project", projectName, "target/generatedSources");
+        ISourceLocation target;
+        if (manifestRoot.getScheme().equals("project")) {
+            target = URIUtil.correctLocation("target", projectName, "");
+        } 
+        else {
+            target = URIUtil.getChildLocation(manifestRoot, "target/classes");
+        }
+        ISourceLocation generatedSources = URIUtil.getChildLocation(manifestRoot, "target/generatedSources");
 
         try {
             var mavenClasspath = getPomXmlCompilerClasspath(manifestRoot, messages);
