@@ -128,7 +128,7 @@ public class Artifact {
                 }
             }
             if (d.getScope() == Scope.SYSTEM) {
-                result.add(createSystemArtifact(d));
+                result.add(createSystemArtifact(d));                
                 continue;
             }
 
@@ -152,10 +152,7 @@ public class Artifact {
 
     private Artifact createSystemArtifact(Dependency d) {
         var path = d.getSystemPath();
-        if (path == null) {
-            throw new RuntimeException("missing systemPath?");
-        }
-        return new Artifact(d.getCoordinate(), null, Path.of(path), Collections.emptyList(), messages, null);
+        return new Artifact(d.getCoordinate(), null, path == null ? null : Path.of(path), Collections.emptyList(), messages, null);
     }
 
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
@@ -172,7 +169,6 @@ public class Artifact {
                 .filter(d -> !"import".equals(d.getScope()))
                 .filter(d -> !exclusions.contains(ArtifactCoordinate.versionLess(d.getGroupId(), d.getArtifactId())))
                 .map(d -> Dependency.build(d, messages, pomLocation))
-                .filter(d  -> d != null)
                 .collect(Collectors.toUnmodifiableList())
                 ;
             return new Artifact(coordinate, parentCoordinate, loc, dependencies, messages.done(), resolver);
