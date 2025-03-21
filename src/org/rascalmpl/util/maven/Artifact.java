@@ -41,6 +41,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.util.maven.ArtifactCoordinate.WithoutVersion;
+import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -128,8 +129,7 @@ public class Artifact {
                 }
             }
             if (d.getScope() == Scope.SYSTEM) {
-                // TODO: we have to take care of locating this not from our resolver
-                // but from a system resolver for now we're skipping them
+                result.add(createSystemArtifact(d));                
                 continue;
             }
 
@@ -151,8 +151,27 @@ public class Artifact {
         }
     }
 
+    private static Artifact createSystemArtifact(Dependency d) {
+        var messages = IRascalValueFactory.getInstance().listWriter();
+
+        String systemPath = d.getSystemPath();
+        Path path = null;
+        if (systemPath == null) {
+            messages.append(Messages.error("system dependency " + d + " without a systemPath property", d.getPomLocation()));
+        } else {
+            path = Path.of(systemPath);
+            if (Files.notExists(path) || !Files.isRegularFile(path)) {
+                // We have a system path, but it doesn't exist or is not a file, so keep the dependency unresolved.
+                messages.append(Messages.error("systemPath property (of" + d + ") points to a file that does not exist (or is not a regular file): " + systemPath, d.getPomLocation()));
+                path = null;
+            }
+        }
+
+        return new Artifact(d.getCoordinate(), null, path, Collections.emptyList(), messages.done(), null);
+    }
+
     /*package*/ static @Nullable Artifact build(Model m, boolean isRoot, Path pom, ISourceLocation pomLocation, String classifier, Set<ArtifactCoordinate.WithoutVersion> exclusions, IListWriter messages, SimpleResolver resolver) {
-        if (m.getPackaging() != null && !"jar".equals(m.getPackaging())) {
+        if (m.getPackaging() != null && !("jar".equals(m.getPackaging()) || "eclipse-plugin".equals(m.getPackaging()))) {
             // we do not support non-jar artifacts right now
             return null;
         }

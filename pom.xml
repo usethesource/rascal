@@ -334,6 +334,7 @@
                                         <exclude>docs/Packages/Typepal/**</exclude>
                                         <exclude>docs/**</exclude>
                                         <exclude>rascal/analysis/typepal/**</exclude>
+                                        <exclude>**/*.tpl</exclude>
                                     </excludes>
                                 </filter>
                             </filters>
