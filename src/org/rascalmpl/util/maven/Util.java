@@ -47,23 +47,44 @@ public class Util {
             return Path.of(repoProp);
         }
 
+        Settings settings = readSettings();
+        if (settings.getLocalRepository() != null) {
+            return Path.of(replaceVariables(settings.getLocalRepository()));
+        }
+
+        Path userHome = Path.of(System.getProperty("user.home"));
+        return userHome.resolve(".m2").resolve("repository");
+    }
+
+    private static Settings readSettings() {
         Path userHome = Path.of(System.getProperty("user.home"));
         Path userSettingsPath = userHome.resolve(".m2").resolve("settings.xml");
-        Path repo = getRepoFromSettings(userSettingsPath);
-        if (repo != null) {
-            return repo;
+        Settings settings = readSettings(userSettingsPath);
+        if (settings != null) {
+            return settings;
         }
 
         Path mavenHome = findMavenHome();
         if (mavenHome != null) {
             Path globalSettingsPath = mavenHome.resolve("conf").resolve("settings.xml");
-            repo = getRepoFromSettings(globalSettingsPath);
-            if (repo != null) {
-                return repo;
+            return readSettings(globalSettingsPath);
+        }
+
+        // Just use empty settings
+        return new Settings();
+    }
+
+    private static @Nullable Settings readSettings(Path settingsXmlFile) {
+        if (Files.exists(settingsXmlFile)) {
+            try (var input = Files.newInputStream(settingsXmlFile)) {
+                return new SettingsXpp3Reader().read(input);
+            }
+            catch (XmlPullParserException | IOException e) {
+                // Could not read settings.xml, settings will not be used
             }
         }
 
-        return userHome.resolve(".m2").resolve("repository");
+        return null;
     }
 
     private static @Nullable Path findMavenHome() {
@@ -97,31 +118,6 @@ public class Util {
             }
             catch (IOException e) {
                 // Ignore
-            }
-        }
-
-        return null;
-    }
-    
-    private static @Nullable Settings readSettings(Path settingsXmlFile) {
-        if (Files.exists(settingsXmlFile)) {
-            try (var input = Files.newInputStream(settingsXmlFile)) {
-                return new SettingsXpp3Reader().read(input);
-            }
-            catch (XmlPullParserException | IOException e) {
-                // Could not read settings.xml, settings will not be used
-            }
-        }
-
-        return null;
-    }
-
-    private static @Nullable Path getRepoFromSettings(Path settingsXmlFile) {
-        Settings settings = readSettings(settingsXmlFile);
-        if (settings != null) {
-            String localRepo = settings.getLocalRepository();
-            if (localRepo != null) {
-                return Path.of(replaceVariables(localRepo));
             }
         }
 
