@@ -30,11 +30,11 @@ syntax Statement
 
 syntax Expression 
 	= variable: Identifier 
-	| @category="Constant" HexadecimalConstant 
-	| @category="Constant" IntegerConstant 
-	| @category="Constant" CharacterConstant 
-	| @category="Constant" FloatingPointConstant 
-	| @category="Constant" StringConstant 
+	| @category="constant" HexadecimalConstant 
+	| @category="constant" IntegerConstant 
+	| @category="constant" CharacterConstant 
+	| @category="constant" FloatingPointConstant 
+	| @category="constant" StringConstant 
 	| Expression "[" Expression "]" 
 	| Expression "(" {NonCommaExpression ","}* ")" 
 	| "sizeof" "(" TypeName ")" 
@@ -309,5 +309,5 @@ layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r];
 
 lexical LAYOUT 
 	= whitespace: [\ \t\n\r] 
-	| @category="Comment" comment: Comment
+	| @category="comment" comment: Comment
 	;
