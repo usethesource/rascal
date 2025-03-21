@@ -30,7 +30,9 @@ import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Parent;
@@ -41,6 +43,7 @@ import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.apache.maven.settings.Mirror;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
@@ -51,10 +54,17 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
     private final ModelBuilder builder;
     private final HttpClient client;
 
+    private Map<String, Mirror> mirrors;
+
     public SimpleResolver(Path rootRepository, ModelBuilder builder, HttpClient client) {
         this.rootRepository = rootRepository;
         this.builder = builder;
         this.client = client;
+
+        mirrors = new HashMap<>();
+        for (Mirror mirror : Util.getMirrors()) {
+            mirrors.put(mirror.getMirrorOf(), mirror);
+        }
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
@@ -120,7 +130,7 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
         if (replace) {
             this.availableRepostories.removeIf(r -> r.repo.getId().equals(repository.getId()));
         }
-        this.availableRepostories.add(new SimpleRepositoryDownloader(repository, client));
+        this.availableRepostories.add(new SimpleRepositoryDownloader(new RepositoryRepo(repository), client));
     }
 
     @Override
@@ -149,12 +159,17 @@ import org.apache.maven.model.resolution.UnresolvableModelException;
     private void downloadArtifact(Path local, String groupId, String artifactId, String version, boolean force) throws UnresolvableModelException {
         // TODO: deal with repository filters etc in settings.xml
         var url = getUrl(local, groupId, artifactId, version);
-        for (var r : availableRepostories) {
-            if (r.repo.getLayout().equals("legacy")) {
+        for (SimpleRepositoryDownloader repoDownloader : availableRepostories) {
+            Repo originalRepo = repoDownloader.getRepo();
+            Mirror mirror = mirrors.get(originalRepo.getId());
+            if (mirror != null) {
+                repoDownloader = new SimpleRepositoryDownloader(new MirrorRepo(mirror, originalRepo.getRepository()), client);
+            }
+            if (originalRepo.getLayout().equals("legacy")) {
                 // TODO: support legacy repo
                 continue;
             }
-            if (r.download(url, local, force)) {
+            if (repoDownloader.download(url, local, force)) {
                 return;
             }
         }
