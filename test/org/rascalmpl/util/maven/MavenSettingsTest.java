@@ -18,6 +18,7 @@ package org.rascalmpl.util.maven;
 
 import java.nio.file.Path;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class MavenSettingsTest {
         System.setProperty(TEST_SYSTEM_PROP, TEST_SYSTEM_PROP_VALUE);
     }
 
+    @After
     public void cleanupEnv() {
         System.setProperty("user.home", originalHome);
     }    
