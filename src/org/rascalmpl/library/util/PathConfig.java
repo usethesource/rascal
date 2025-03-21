@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.jar.Manifest;
 
+import org.jline.utils.OSUtils;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.Messages;
@@ -576,7 +577,12 @@ public class PathConfig {
         }
         else /* for clarity these conditions hold true: if (!isRoot && mode == RascalConfigMode.COMPILER)*/ {
             // we have to write our own target folder to the lib path of the parent
-            libs.append(URIUtil.correctLocation("target", new RascalManifest().getProjectName(manifestRoot), ""));
+            if (manifestRoot.getScheme().equals("project")) {
+                libs.append(URIUtil.correctLocation("target", manifestRoot.getAuthority(), ""));
+            }
+            else {
+                libs.append(URIUtil.getChildLocation(manifestRoot, "target/classes"));
+            }
         }
     }
 
@@ -644,6 +650,7 @@ public class PathConfig {
 
     private static void addProjectAndItsDependencies(RascalConfigMode mode, IListWriter srcs, IListWriter libs,
         IListWriter messages, ISourceLocation projectLoc) throws IOException, URISyntaxException {
+        projectLoc = safeResolve(projectLoc); // for now, remove the project loc, later we can undo this and keep the project loc around
         var childMavenClasspath = getPomXmlCompilerClasspath(projectLoc, messages);
         buildNormalProjectConfig(projectLoc, mode, childMavenClasspath, false, srcs, libs, messages);
     }
@@ -706,6 +713,9 @@ public class PathConfig {
      * @throws nothing, because all errors are collected in a messages field of  the PathConfig.
      */
     public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot, RascalConfigMode mode, boolean isRoot)  {
+        manifestRoot = safeResolve(manifestRoot);
+        // once we have proper support for poject locs we should do this instead:
+        //manifestRoot = upgradeToProjectScheme(manifestRoot, projectName);
         RascalManifest manifest = new RascalManifest();
         IRascalValueFactory vf = IRascalValueFactory.getInstance();
         String projectName = manifest.getProjectName(manifestRoot);
@@ -756,6 +766,62 @@ public class PathConfig {
                 generatedSources, 
                 messages.done());
     }
+
+    // right now cannot be called, since we have to wait for VS Code to be able to mix these project and file locs
+    private static ISourceLocation upgradeToProjectScheme(ISourceLocation loc, String projectName) {
+        if (loc.getScheme().equals("project") || projectName == null || projectName.isBlank()) {
+            return loc;
+        }
+        var projectScheme = URIUtil.correctLocation("project", projectName, "");
+        var originalResolved = safeResolve(loc);
+        var projectResolved = safeResolve(projectScheme);
+
+        if (semanticallySame(originalResolved, projectResolved)) {
+            return projectScheme;
+        }
+        return loc;
+
+    }
+
+    private static boolean semanticallySame(ISourceLocation a, ISourceLocation b) {
+        if (!a.getScheme().equals("file")) {
+            return a.equals(b);
+        }
+        if (!b.getScheme().equals("file")) {
+            return false;
+        }
+        // now we know they're a file path, so we can just look at the path part
+        var aPath = a.getPath();
+        var bPath = b.getPath();
+        if (aPath.endsWith("/")) {
+            if (!bPath.endsWith("/")) {
+                bPath += "/";
+            }
+        }
+        else if (bPath.endsWith("/")) {
+            aPath += "/";
+        }
+        if (OSUtils.IS_WINDOWS || OSUtils.IS_OSX) {
+            // on Windows and Mac we have case-insensitive file systems
+            // so to over approximate, we use the caseinsensitive compare
+            return aPath.equalsIgnoreCase(bPath);
+        }
+        return aPath.equals(bPath);
+    }
+
+    private static ISourceLocation safeResolve(ISourceLocation loc) {
+        try {
+            var result = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+            if (result != null) {
+                return result;
+            }
+            return loc;
+        }
+        catch (IOException ignored) {
+            return loc;
+        }
+    }
+
 
     private static void validateProjectName(ISourceLocation manifestRoot, String projectName, IListWriter messages) {
         try {
