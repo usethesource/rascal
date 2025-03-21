@@ -30,7 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
+import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -54,6 +56,10 @@ public class Util {
 
         Path userHome = Path.of(System.getProperty("user.home"));
         return userHome.resolve(".m2").resolve("repository");
+    }
+
+    public static List<Mirror> getMirrors() {
+        return readSettings().getMirrors();
     }
 
     private static Settings readSettings() {

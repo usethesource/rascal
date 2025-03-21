@@ -42,6 +42,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -154,5 +155,23 @@ public class MavenResolverTest {
         assertNull("example-core should not be resolved to a path", maybeCoreLink.get().getResolved());
     }
 
+    @Test
+    public void testMirrorDownload() throws ModelResolutionError {
+        // Set "user.home" system property so we can read the settings.xml that contains mirror settings
+        String originalHome = System.getProperty("user.home");
+        try {
+            Path cwd = Path.of(System.getProperty("user.dir"));
+            Path mirrorHome = cwd.resolve(Path.of("test", "org", "rascalmpl", "util", "maven", "mirrorhomedir"));
+            System.setProperty("user.home", mirrorHome.toString());
+
+            MavenParser parser = parse("local-reference/pom-mirror.xml");
+            Artifact project = parser.parseProject();
+            List<Artifact> resolved = project.resolveDependencies(Scope.COMPILE, parser);
+            Assert.assertNotNull("Dependency hast not been resolved by mirror", resolved.get(0).getResolved());
+        }
+        finally {
+            System.setProperty("user.home", originalHome);
+        }
+    }
 
 }
