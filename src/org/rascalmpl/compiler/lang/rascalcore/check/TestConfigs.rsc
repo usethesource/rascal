@@ -151,6 +151,10 @@ public PathConfig getAllSrcPathConfig(bool keep = false) {
                         keep=keep);
 }
 
+public RascalCompilerConfig getAllSrcCompilerConfig(PathConfig pcfg, bool keep=keep){
+    return rascalCompilerConfig(pcfg, keep=keep)[verbose = true][logWrittenFiles=true];
+}
+
 public RascalCompilerConfig getAllSrcCompilerConfig(bool keep=true){
     return rascalCompilerConfig(getAllSrcPathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
 }
@@ -164,6 +168,10 @@ public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
                         ],
                         [ ], 
                         keep=keep);
+}
+
+public RascalCompilerConfig getAllSrcREPOCompilerConfig(PathConfig pcfg, bool keep=true){
+    return rascalCompilerConfig(pcfg)[verbose = true][logWrittenFiles=true];
 }
 
 public RascalCompilerConfig getAllSrcREPOCompilerConfig(bool keep=true){

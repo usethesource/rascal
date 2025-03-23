@@ -57,6 +57,8 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import java.util.stream.Stream;
            'import io.usethesource.vallang.*;
            'import io.usethesource.vallang.type.*;
+           'import java.io.InputStreamReader;
+           'import java.io.PrintWriter;
            '
            'import static org.junit.Assert.fail;
            'import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,7 +80,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '    final GenerateActuals generator = new GenerateActuals(5, 5, 10);
            '
            '    public <className>Tests(){
-           '        super(new RascalExecutionContext(System.in, System.out, System.err, null, null, <packageName>.<className>.class));
+           '        super(new RascalExecutionContext(new InputStreamReader(System.in), new PrintWriter(System.out), new PrintWriter(System.err), null, null, <packageName>.<className>.class));
            '        ModuleStore store = rex.getModuleStore();
            '        store.importModule(<className>.class, this.rex, <className>::new);   
            '        $me = store.getModule(<className>.class);                     
