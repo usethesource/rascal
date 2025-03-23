@@ -29,6 +29,7 @@ import org.rascalmpl.util.maven.Artifact;
 import org.rascalmpl.util.maven.MavenParser;
 import org.rascalmpl.util.maven.ModelResolutionError;
 import org.rascalmpl.util.maven.Scope;
+import org.rascalmpl.util.maven.Util;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -848,7 +849,7 @@ public class PathConfig {
             if (!manifestRoot.getPath().endsWith("pom.xml")) {
                 manifestRoot = URIUtil.getChildLocation(manifestRoot, "pom.xml");
             }
-            var mavenParser = new MavenParser(Path.of(manifestRoot.getURI()));
+            var mavenParser = new MavenParser(Util.readSettings(), Path.of(manifestRoot.getURI()));
             var rootProject = mavenParser.parseProject();
             messages.appendAll(rootProject.getMessages());
             var result = rootProject.resolveDependencies(Scope.COMPILE, mavenParser);

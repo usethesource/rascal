@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.maven.settings.Settings;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -78,7 +79,7 @@ public class MavenResolverTest {
     }
 
     private MavenParser parse(String path) {
-        return new MavenParser(getPomsPath(path), tempRepo);
+        return new MavenParser(new Settings(), getPomsPath(path), tempRepo);
     }
 
     @Test
