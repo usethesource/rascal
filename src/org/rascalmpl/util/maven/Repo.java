@@ -3,7 +3,7 @@ package org.rascalmpl.util.maven;
 import org.apache.maven.model.Repository;
 
 public class Repo {
-    private Repository repository;
+    private final Repository repository;
 
     public Repo(Repository repository) {
         this.repository = repository;

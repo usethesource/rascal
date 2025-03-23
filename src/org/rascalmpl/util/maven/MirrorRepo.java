@@ -3,8 +3,8 @@ package org.rascalmpl.util.maven;
 import org.apache.maven.model.Repository;
 import org.apache.maven.settings.Mirror;
 
-public class MirrorRepo extends Repo {
-    private Mirror mirror;
+class MirrorRepo extends Repo {
+    private final Mirror mirror;
 
     public MirrorRepo(Mirror mirror, Repository repository) {
         super(repository);
