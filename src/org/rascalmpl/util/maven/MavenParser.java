@@ -50,6 +50,7 @@ import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.building.ModelSource2;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
+import org.apache.maven.settings.Settings;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIUtil;
@@ -65,6 +66,7 @@ import io.usethesource.vallang.IValueFactory;
 public class MavenParser {
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
 
+    private final Settings settings;
     private final Path projectPom;
     private final ISourceLocation projectPomLocation;
     private final ModelBuilder builder;
@@ -72,10 +74,12 @@ public class MavenParser {
     private final ModelCache modelCache;
     private final Path rootMavenRepo;
 
-    public MavenParser(Path projectPom) {
-        this(projectPom, Util.mavenRepository());
+    public MavenParser(Settings settings, Path projectPom) {
+        this(settings, projectPom, Util.mavenRepository(settings));
     }
-    /*package*/ MavenParser(Path projectPom, Path rootMavenRepo) {
+
+    /*package*/ MavenParser(Settings settings, Path projectPom, Path rootMavenRepo) {
+        this.settings = settings;
         this.projectPom = projectPom;
         this.rootMavenRepo = rootMavenRepo;
         try {
@@ -98,7 +102,7 @@ public class MavenParser {
             .setPomFile(projectPom.toFile())
             .setValidationLevel(ModelBuildingRequest.VALIDATION_LEVEL_MAVEN_3_0); // TODO: figure out if we need this
 
-        var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient);
+        var resolver = new SimpleResolver(settings, rootMavenRepo, builder, httpClient);
         var messages = VF.listWriter();
 
         var model = getBestModel(projectPomLocation, request, resolver, messages);
@@ -120,7 +124,7 @@ public class MavenParser {
             var pomLocation = calculateLocation(modelSource);
             var pomPath = Path.of(pomLocation.getURI());
 
-            var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient);
+            var resolver = new SimpleResolver(settings, rootMavenRepo, builder, httpClient);
             // we need to use the original resolver to be able to resolve parent poms
             var workspaceResolver = new SimpleWorkspaceResolver(originalResolver, builder, this);
             
@@ -248,7 +252,7 @@ public class MavenParser {
 
     private static void test(Path target) throws ModelResolutionError {
         var start = System.currentTimeMillis();
-        var parser = new MavenParser(target);
+        var parser = new MavenParser(new Settings(), target);
         var project = parser.parseProject();
         var stop = System.currentTimeMillis();
         var out = new PrintWriter(System.out);

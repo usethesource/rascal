@@ -30,9 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
-import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -43,13 +41,12 @@ import org.codehaus.plexus.interpolation.RegexBasedInterpolator;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
 public class Util {
-    public static Path mavenRepository() {
+    public static Path mavenRepository(Settings settings) {
         String repoProp = System.getProperty("maven.repo.local");
         if (repoProp != null) {
             return Path.of(repoProp);
         }
 
-        Settings settings = readSettings();
         if (settings.getLocalRepository() != null) {
             return Path.of(replaceVariables(settings.getLocalRepository()));
         }
@@ -58,11 +55,7 @@ public class Util {
         return userHome.resolve(".m2").resolve("repository");
     }
 
-    public static List<Mirror> getMirrors() {
-        return readSettings().getMirrors();
-    }
-
-    private static Settings readSettings() {
+    public static Settings readSettings() {
         Path userHome = Path.of(System.getProperty("user.home"));
         Path userSettingsPath = userHome.resolve(".m2").resolve("settings.xml");
         Settings settings = readSettings(userSettingsPath);

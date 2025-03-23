@@ -44,11 +44,13 @@ import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
+import org.apache.maven.settings.Settings;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
 
 
+    private final Settings settings;
     private final List<SimpleRepositoryDownloader> availableRepostories = new ArrayList<>();
     private final Path rootRepository;
     private final ModelBuilder builder;
@@ -56,13 +58,14 @@ import org.apache.maven.settings.Mirror;
 
     private Map<String, Mirror> mirrors;
 
-    public SimpleResolver(Path rootRepository, ModelBuilder builder, HttpClient client) {
+    public SimpleResolver(Settings settings, Path rootRepository, ModelBuilder builder, HttpClient client) {
+        this.settings = settings;
         this.rootRepository = rootRepository;
         this.builder = builder;
         this.client = client;
 
         mirrors = new HashMap<>();
-        for (Mirror mirror : Util.getMirrors()) {
+        for (Mirror mirror : settings.getMirrors()) {
             mirrors.put(mirror.getMirrorOf(), mirror);
         }
     }
@@ -130,12 +133,14 @@ import org.apache.maven.settings.Mirror;
         if (replace) {
             this.availableRepostories.removeIf(r -> r.repo.getId().equals(repository.getId()));
         }
-        this.availableRepostories.add(new SimpleRepositoryDownloader(new Repo(repository), client));
+        Mirror mirror = mirrors.get(repository.getId());
+        Repo repo = mirror == null ?  new Repo(repository) : new MirrorRepo(mirror,repository);
+        this.availableRepostories.add(new SimpleRepositoryDownloader(repo, client));
     }
 
     @Override
     public ModelResolver newCopy() {
-        var result = new SimpleResolver(rootRepository, builder, client);
+        var result = new SimpleResolver(settings, rootRepository, builder, client);
         result.availableRepostories.addAll(this.availableRepostories);
         return result;
     }
@@ -160,12 +165,7 @@ import org.apache.maven.settings.Mirror;
         // TODO: deal with repository filters etc in settings.xml
         var url = getUrl(local, groupId, artifactId, version);
         for (SimpleRepositoryDownloader repoDownloader : availableRepostories) {
-            Repo originalRepo = repoDownloader.getRepo();
-            Mirror mirror = mirrors.get(originalRepo.getId());
-            if (mirror != null) {
-                repoDownloader = new SimpleRepositoryDownloader(new MirrorRepo(mirror, originalRepo.getMavenRepository()), client);
-            }
-            if (originalRepo.getLayout().equals("legacy")) {
+            if (repoDownloader.getRepo().getLayout().equals("legacy")) {
                 // TODO: support legacy repo
                 continue;
             }
