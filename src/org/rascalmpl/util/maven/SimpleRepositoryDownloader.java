@@ -46,7 +46,6 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.lang3.function.FailableFunction;
-import org.apache.maven.model.Repository;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**

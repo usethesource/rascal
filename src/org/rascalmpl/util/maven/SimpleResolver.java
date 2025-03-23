@@ -130,7 +130,7 @@ import org.apache.maven.settings.Mirror;
         if (replace) {
             this.availableRepostories.removeIf(r -> r.repo.getId().equals(repository.getId()));
         }
-        this.availableRepostories.add(new SimpleRepositoryDownloader(new RepositoryRepo(repository), client));
+        this.availableRepostories.add(new SimpleRepositoryDownloader(new Repo(repository), client));
     }
 
     @Override
@@ -163,7 +163,7 @@ import org.apache.maven.settings.Mirror;
             Repo originalRepo = repoDownloader.getRepo();
             Mirror mirror = mirrors.get(originalRepo.getId());
             if (mirror != null) {
-                repoDownloader = new SimpleRepositoryDownloader(new MirrorRepo(mirror, originalRepo.getRepository()), client);
+                repoDownloader = new SimpleRepositoryDownloader(new MirrorRepo(mirror, originalRepo.getMavenRepository()), client);
             }
             if (originalRepo.getLayout().equals("legacy")) {
                 // TODO: support legacy repo
