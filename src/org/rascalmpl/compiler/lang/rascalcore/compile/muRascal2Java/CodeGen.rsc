@@ -217,7 +217,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     
       main_method = "public static void main(String[] args) {
                     '  long start_time = System.currentTimeMillis();
-                    '  RascalExecutionContext rex = new RascalExecutionContext(System.in, System.out, System.err, null, null, <packageName>.<baseClassName>.class);
+                    '  RascalExecutionContext rex = new RascalExecutionContext(new InputStreamReader(System.in), new PrintWriter(System.out), new PrintWriter(System.err), null, null, <packageName>.<baseClassName>.class);
                     '  <baseClassName> instance = new <baseClassName>(rex);
                     '  long init_time = System.currentTimeMillis();
                     '  <if (!hasListStrArgs && !hasDefaultArgs) {>
@@ -241,6 +241,8 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
     the_class =         "<if(!isEmpty(packageName)){>package <packageName>;<}>
                         'import java.io.PrintWriter;
                         'import java.io.StringWriter;
+                        'import java.io.InputStreamReader;
+                        'import java.io.PrintWriter;
                         'import java.util.*;
                         'import java.util.regex.Matcher;
                         'import io.usethesource.vallang.*;
@@ -252,6 +254,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                         'import org.rascalmpl.runtime.utils.*;
                         'import org.rascalmpl.exceptions.RuntimeExceptionFactory;
                         'import org.rascalmpl.exceptions.Throw; 
+                        'import org.rascalmpl.runtime.RascalExecutionContext;
                         'import org.rascalmpl.interpreter.control_exceptions.Filtered;
                         'import org.rascalmpl.types.NonTerminalType;
                         'import org.rascalmpl.types.RascalTypeFactory;
