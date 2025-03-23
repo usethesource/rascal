@@ -45,7 +45,7 @@ public class SimpleRepositoryDownloaderTest {
             .version(Version.HTTP_2) // upgrade where possible
             .connectTimeout(Duration.ofSeconds(10)) // don't wait longer than 10s to connect to a repo
             .build();
-        downloader = new SimpleRepositoryDownloader(new RepositoryRepo(remoteRepo), httpClient);
+        downloader = new SimpleRepositoryDownloader(new Repo(remoteRepo), httpClient);
     }
 
     @AfterClass
