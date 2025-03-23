@@ -47,8 +47,8 @@ void main() = main([]);
 
 loc REPO = |file:///Users/paulklint/git/|;
 
-list[str] getRascalModules(loc rootFolder)
-  = [ replaceAll(file[extension=""].path[1..], "/", "::") 
+list[str] getRascalModules(loc rootFolder, PathConfig pcfg)
+  = [ getModuleName(file, pcfg) //replaceAll(file[extension=""].path[1..], "/", "::") 
     | loc file <- find(rootFolder, "rsc") 
     ];        
 
@@ -58,7 +58,8 @@ void generateTestSources(list[str] cmdLineArgs) {
      return;
    }
    
-   genCompilerConfig = getAllSrcPathConfig()[logPathConfig=false];
+   pcfg = getAllSrcREPOPathConfig(keep=true);
+   genCompilerConfig = getAllSrcREPOCompilerConfig(pcfg, keep=true);
    
    map[str,int] durations = ();
 
@@ -67,19 +68,17 @@ void generateTestSources(list[str] cmdLineArgs) {
    if("all" in cmdLineArgs){
       modulesToCompile = getRascalModules(|std:///|);     
    } else {              
-       testFolders = [ |std:///lang/rascal/tests|,
-                       //REPO + "/rascal-core/lang/rascalcore/check::tests"
-                       REPO + "/typepal/src/"
+       testFolders = [ REPO + "rascal/src/org/rascalmpl/library/lang/rascal/tests"
                      ];
        
-       modulesToCompile = [ *getRascalModules(testFolder)
+       modulesToCompile = [ *getRascalModules(testFolder, pcfg)
                           | testFolder <- testFolders
                           ];
    }  
 
    ignored = ["lang::rascal::tests::concrete::Patterns3",
-              "lang::rascal::syntax::tests::ExpressionGrammars"
-             ];           
+               "lang::rascal::syntax::tests::ExpressionGrammars"
+              ];           
    modulesToCompile -= ignored;    
    
    list[str] exceptions = [];
@@ -87,7 +86,7 @@ void generateTestSources(list[str] cmdLineArgs) {
    for (i <- index(modulesToCompile)) {
       m = modulesToCompile[i];
       println("Compiling module <m> [<i>/<n>]");
-      e = safeCompile(m, genCompilerConfig, (int d) { durations[m] = d; });
+      e = safeCompile(m, genCompilerConfig, void (int d) { durations[m] = d; });
       if(!isEmpty(e)){
         exceptions += e;
       }

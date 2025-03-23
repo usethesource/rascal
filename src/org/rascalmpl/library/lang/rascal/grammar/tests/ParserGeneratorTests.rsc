@@ -58,6 +58,15 @@ test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
           {})})
   ));
   
+  value main() {
+    g = grammar({sort("S")}, ());
+    el = compose(g, grammar({}, {literal(s) | /lit(s) <- g}));
+    println("el:"); iprintln(el);
+    println("g"); iprintln(g);
+    println("g == el: <g == el>");
+  return 0;
+  }
+
 test bool tstUnique2() = makeUnique(GEXP)== grammar(
   {sort("E")},
   (

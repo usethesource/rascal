@@ -26,10 +26,82 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst6
  
-import List;
+ //import Grammar;
+ //import lang::rascal::grammar::definition::Literals;
+ import IO;
+ import ParseTree;
+ import String;
 
- 
+ data Grammar 
+  = \grammar(set[Symbol] starts, map[Symbol sort, Production def] rules)
+  ;
+
+
+// public Grammar literals(Grammar g) {
+//   return compose(g, grammar({}, {/*literal(s) | /lit(s) <- g*/}));
+// }
+
+// public Production literal(str s) = prod(lit(s),str2syms(s),{});
+
+// public list[Symbol] str2syms(str x) {
+//   if (x == "") return [];
+//   return [\char-class([range(c,c)]) | i <- [0..size(x)], int c:= charAt(x,i)]; 
+// }
+
+public Grammar grammar(set[Symbol] starts, set[Production] prods) {
+  map[Symbol, Production] rules = ();
+
+  for (p <- prods) {
+    t = (p.def is label) ? p.def.symbol : p.def;
+
+    if (t in rules) {
+        if (choice(_, existing) := rules[t]) {
+            rules[t] = choice(t, existing + p);
+        }
+        else {
+            rules[t] = choice(t, {p, rules[t]});
+        }
+    }
+    else {
+        rules[t] = choice(t, {p});
+    }
+  } 
+  return grammar(starts, rules);
+} 
+
+public Grammar compose(Grammar g1, Grammar g2) {
+  println("g1 == ...: <g1 == grammar({sort("S")},())>");
+  for (s <- g2.rules)
+    if (g1.rules[s]?)
+      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
+    else
+      g1.rules[s] = g2.rules[s];
+  g1.starts += g2.starts;
+
+  reduced_rules = ();
+  for(s <- g1.rules){
+  	  c = g1.rules[s];
+  	  if (c is choice) {
+  	    c.alternatives -= { *choices | priority(_, choices) <- c.alternatives } +
+  		                  { *alts | associativity(_, _, alts) <- c.alternatives};
+  	  }	                
+  	  reduced_rules[s] = c;
+  }
+  println("g1 == ...: <g1 == grammar({sort("S")},())>");
+  println("g1.starts: <g1.starts>, <g1.starts == {sort("S")}>");
+  println("reduced_rules: <reduced_rules>, <reduced_rules == ()>");
+  
+  res = grammar(g1.starts, reduced_rules);
+  println("res == g1: <res == g1>");
+  return res;
+}    
 value main() {
-  L = [1,2,3];
-  return size(L[1..2]);
+    g = grammar({sort("S")}, ());
+    g2 = grammar({sort("S")}, ());
+    println("g == g2: <g == g2>");
+    el = compose(g, grammar({}, {/*literal(s) | /lit(s) <- g*/}));
+    println("el:"); iprintln(el);
+    println("g"); iprintln(g);
+    println("g == el: <g == el>");
+  return 0;
 }

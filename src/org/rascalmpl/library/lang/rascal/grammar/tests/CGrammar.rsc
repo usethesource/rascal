@@ -76,10 +76,11 @@ void warmup(){
 
 int generateAndTimeCParser() { 
 	warmup();
-	println("GenerateAndTimeCParser");
 	t = cpuTime(); 
 	generateCParser();
-	return (cpuTime() - t)/1000000;
+	used = (cpuTime() - t)/1000000;
+	println("GenerateAndTimeCParser: <used> ms");
+	return used;
 }	
 
 value main() { return generateAndTimeCParser(); }
