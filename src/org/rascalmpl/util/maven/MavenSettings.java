@@ -78,14 +78,15 @@ public class MavenSettings {
     Map<String, Mirror> getMirrors() {
         Map<String, Mirror> mirrors = new HashMap<>();;
 
-        if (userSettings != null) {
-            for (Mirror mirror : userSettings.getMirrors()) {
+        if (systemSettings != null) {
+            for (Mirror mirror : systemSettings.getMirrors()) {
                 mirrors.put(mirror.getMirrorOf(), mirror);
             }
         }
 
-        if (systemSettings != null) {
-            for (Mirror mirror : systemSettings.getMirrors()) {
+        // Mirrors in userSettings override ones defined in systemSettings
+        if (userSettings != null) {
+            for (Mirror mirror : userSettings.getMirrors()) {
                 mirrors.put(mirror.getMirrorOf(), mirror);
             }
         }
