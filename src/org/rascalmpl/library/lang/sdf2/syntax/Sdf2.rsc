@@ -135,8 +135,8 @@ layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r%]
                     ;
 
 lexical LAYOUT = Whitespace: [\ \t\n\r] |
-                 @category="Comment" Line: "%%" ![\n]* [\n] |
-                 @category="Comment" Nested: "%" ![%\n] "%"
+                 @category="comment" Line: "%%" ![\n]* [\n] |
+                 @category="comment" Nested: "%" ![%\n] "%"
                 ;
 
 syntax Alias = Alias: Sym "-\>" Sym
