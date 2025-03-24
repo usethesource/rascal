@@ -58,7 +58,7 @@ public class MavenSettingsTest {
 
     @Test
     public void testMavenSettings() throws Exception {
-        Path repo = Util.mavenRepository(Util.readSettings());
+        Path repo = MavenSettings.mavenRepository();
         Assert.assertEquals("HelloWorld", repo.toString());
     }
 

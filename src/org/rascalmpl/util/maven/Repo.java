@@ -28,6 +28,10 @@ package org.rascalmpl.util.maven;
 
 import org.apache.maven.model.Repository;
 
+/* 
+ * A simple wrapper around the Maven Repository class that only exposes the methods we actually need.
+ * MirrorRepo extends this class to shadow the id and url properties.
+  */
 public class Repo {
     private final Repository repository;
 
