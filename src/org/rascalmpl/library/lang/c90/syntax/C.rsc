@@ -30,11 +30,11 @@ syntax Statement
 
 syntax Expression 
 	= variable: Identifier 
-	| @category="constant" HexadecimalConstant 
-	| @category="constant" IntegerConstant 
-	| @category="constant" CharacterConstant 
-	| @category="constant" FloatingPointConstant 
-	| @category="constant" StringConstant 
+	| @category="number" HexadecimalConstant 
+	| @category="number" IntegerConstant 
+	| @category="string" CharacterConstant 
+	| @category="number" FloatingPointConstant 
+	| @category="string" StringConstant 
 	| Expression "[" Expression "]" 
 	| Expression "(" {NonCommaExpression ","}* ")" 
 	| "sizeof" "(" TypeName ")" 
