@@ -44,36 +44,28 @@ import org.apache.maven.model.resolution.InvalidRepositoryException;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
 import org.apache.maven.settings.Mirror;
-import org.apache.maven.settings.Settings;
 
 /*package*/ class SimpleResolver implements ModelResolver {
     // TODO: support repository overrides with settings.xml
 
 
-    private final Settings settings;
     private final List<SimpleRepositoryDownloader> availableRepostories = new ArrayList<>();
     private final Path rootRepository;
     private final ModelBuilder builder;
     private final HttpClient client;
 
-    private Map<String, Mirror> mirrors;
+    private final Map<String, Mirror> mirrors;
 
-    public SimpleResolver(Settings settings, Path rootRepository, ModelBuilder builder, HttpClient client) {
-        this.settings = settings;
+    public SimpleResolver(Path rootRepository, ModelBuilder builder, HttpClient client, Map<String, Mirror> mirrors) {
         this.rootRepository = rootRepository;
         this.builder = builder;
         this.client = client;
-
-        mirrors = new HashMap<>();
-        for (Mirror mirror : settings.getMirrors()) {
-            mirrors.put(mirror.getMirrorOf(), mirror);
-        }
+        this.mirrors = new HashMap<>(mirrors);
     }
 
     public Path calculatePomPath(ArtifactCoordinate coordinate) {
         return calculatePomPath(coordinate.getGroupId(), coordinate.getArtifactId(), coordinate.getVersion());
     }
-
 
     public Path calculatePomPath(String groupId, String artifactId, String version) {
         var result = rootRepository;
@@ -140,7 +132,7 @@ import org.apache.maven.settings.Settings;
 
     @Override
     public ModelResolver newCopy() {
-        var result = new SimpleResolver(settings, rootRepository, builder, client);
+        var result = new SimpleResolver(rootRepository, builder, client, mirrors);
         result.availableRepostories.addAll(this.availableRepostories);
         return result;
     }
@@ -164,7 +156,7 @@ import org.apache.maven.settings.Settings;
     private void downloadArtifact(Path local, String groupId, String artifactId, String version, boolean force) throws UnresolvableModelException {
         // TODO: deal with repository filters etc in settings.xml
         var url = getUrl(local, groupId, artifactId, version);
-        for (SimpleRepositoryDownloader repoDownloader : availableRepostories) {
+        for (var repoDownloader : availableRepostories) {
             if (repoDownloader.getRepo().getLayout().equals("legacy")) {
                 // TODO: support legacy repo
                 continue;

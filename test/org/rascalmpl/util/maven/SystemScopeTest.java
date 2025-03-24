@@ -34,7 +34,6 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.maven.settings.Settings;
 import org.junit.Assert;
 import org.junit.Test;
 import org.rascalmpl.library.Messages;
@@ -43,7 +42,7 @@ public class SystemScopeTest {
 
     @Test
     public void testSystemScope() throws ModelResolutionError, MalformedURLException, IOException {
-        var parser = new MavenParser(new Settings(), Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system.xml"));
+        var parser = new MavenParser(new MavenSettings(), Path.of("test/org/rascalmpl/util/maven/poms/local-reference/pom-system.xml"));
         var project = parser.parseProject();
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
         Assert.assertEquals(1, deps.size());
@@ -67,7 +66,7 @@ public class SystemScopeTest {
     }
 
     private void verifyIllegalSystemPath(String pomFile) throws ModelResolutionError, MalformedURLException, IOException{
-        var parser = new MavenParser(new Settings(), Path.of("test/org/rascalmpl/util/maven/poms/local-reference/" + pomFile));
+        var parser = new MavenParser(new MavenSettings(), Path.of("test/org/rascalmpl/util/maven/poms/local-reference/" + pomFile));
         var project = parser.parseProject();
         List<Artifact> deps = project.resolveDependencies(Scope.RUNTIME, parser);
         Assert.assertEquals("Dependency should not be dropped", 1, deps.size());
