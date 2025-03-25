@@ -42,7 +42,7 @@ This function takes care of some typical responsibilities of `main` functions:
 With `errorsAsWarnings` we do not fail while we are still developing experimental code. The process
 of testing and deployment may continue even if (fatal) errors were detected.
 
-With `warningsAsErrors` we can signal a higher level of stability and compliance that the default.
+With `warningsAsErrors` we can signal a higher level of stability and compliance than the default.
 Every new warnings will lead to a failing build, making sure that new issues can not creep in anymore.
 }
 @benefits{
