@@ -68,7 +68,7 @@ int mainMessageHandler(list[Message] messages, bool errorsAsWarnings = false, bo
   hasErrors   = error  (_, _) <- messages;
   hasWarnings = warning(_, _) <- messages;
 
-  switch (<hasErrors, hasWarnings, errorsAsWarnings, warningsAsErrors) {
+  switch (<hasErrors, hasWarnings, errorsAsWarnings, warningsAsErrors>) {
     case <true, _    , false, _    > :
       return FAILURE;
     case <true, _    , true , _    > : 
