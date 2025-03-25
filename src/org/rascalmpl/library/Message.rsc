@@ -19,6 +19,8 @@ be published in an IDE. See ((util::IDEServices)).
 }
 module Message
 
+import IO;
+
 @synopsis{Symbolic representation of error messages with a source location of the cause.}
 data Message 
     = error(str msg, loc at)
@@ -59,7 +61,7 @@ int mainMessageHandler(list[Message] messages, bool errorsAsWarnings = false, bo
   int SUCCESS = 0;
 
   if (errorsAsWarnings && warningsAsErrors) {
-    println("[ERROR] the error handler is confused because both errorsAsWarnings and warningsAsErrors are set to true.")
+    println("[ERROR] the error handler is confused because both errorsAsWarnings and warningsAsErrors are set to true.");
     return FAILURE;
   }
 
@@ -71,14 +73,17 @@ int mainMessageHandler(list[Message] messages, bool errorsAsWarnings = false, bo
   switch (<hasErrors, hasWarnings, errorsAsWarnings, warningsAsErrors>) {
     case <true, _    , false, _    > :
       return FAILURE;
-    case <true, _    , true , _    > : 
+    case <true, _    , true , _    > : {
       println("[INFO] errors have been de-escalated to warnings.");
       return SUCCESS;
-    case <_   , true , _    , true > :
+    }
+    case <_   , true , _    , true > : {
       println("[INFO] warnings have been escalated to errors");
       return FAILURE;
-    case <_   , false, _    , false> :
+    }
+    case <_   , false, _    , false> : {
       return SUCCESS;
+    }
     default:
       return hasErrors ? FAILURE : SUCCESS;
   }
