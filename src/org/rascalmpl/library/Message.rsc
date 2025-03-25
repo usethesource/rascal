@@ -76,9 +76,9 @@ int mainMessageHandler(list[Message] messages, bool errorsAsWarnings = false, bo
       return SUCCESS;
     case <_   , true , _    , true > :
       println("[INFO] warnings have been escalated to errors");
-      return SUCCESS;
-    case <_   , false, _    , false> :
       return FAILURE;
+    case <_   , false, _    , false> :
+      return SUCCESS;
     default:
       return hasErrors ? FAILURE : SUCCESS;
   }
