@@ -46,7 +46,6 @@ import java.util.Optional;
 import java.util.Random;
 
 import org.apache.commons.lang3.function.FailableFunction;
-import org.apache.maven.model.Repository;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -62,14 +61,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /*package*/ class SimpleRepositoryDownloader {
     // TODO: what to do about non http(s) respositories?
 
-    public final Repository repo;
+    public final Repo repo;
     private final HttpClient client;
     private final Random rand;
 
-    public SimpleRepositoryDownloader(Repository repo, HttpClient client) {
+    public SimpleRepositoryDownloader(Repo repo, HttpClient client) {
         this.repo = repo;
         this.client = client;
         rand = new Random();
+    }
+
+    public Repo getRepo() {
+        return repo;
     }
 
     public boolean download(String url, Path target, boolean force) {

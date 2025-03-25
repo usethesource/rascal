@@ -15,6 +15,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.uri.jar.JarURIResolver;
+import org.rascalmpl.util.maven.MavenSettings;
 
 import io.usethesource.vallang.ISourceLocation;
 
@@ -83,9 +84,8 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     }
 
     private static ISourceLocation inferMavenRepositoryLocation() throws URISyntaxException {
-        return URIUtil.createFileLocation(org.rascalmpl.util.maven.Util.mavenRepository());
+        return URIUtil.createFileLocation(MavenSettings.mavenRepository());
     }
-
  
     /** 
      * @param input   mvn://groupid!artifactId!version/path
