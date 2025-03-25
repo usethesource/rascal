@@ -26,40 +26,32 @@
  */
 package org.rascalmpl.util.maven;
 
-import java.nio.file.Path;
+import org.apache.maven.model.Repository;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+/* 
+ * A simple wrapper around the Maven Repository class that only exposes the methods we actually need.
+ * MirrorRepo extends this class to shadow the id and url properties.
+  */
+public class Repo {
+    private final Repository repository;
 
-public class MavenSettingsTest {
-    private static final String TEST_SYSTEM_PROP = "TEST_SYSTEM_PROP";
-    private static final String TEST_SYSTEM_PROP_VALUE = "HelloWorld";
-
-    private String originalHome;
-
-    @Before
-    public void setupEnv() throws Exception {
-        // Set "user.home" system property so we can read the test settings.xml
-        Path cwd = Path.of(System.getProperty("user.dir"));
-        Path testM2 = cwd.resolve(Path.of( "test", "org", "rascalmpl", "util", "maven", "testhomedir"));
-        originalHome = System.getProperty("user.home");
-        System.setProperty("user.home", testM2.toString());
-
-        // Set a test property so we can check if the settings.xml was read and replacements succeeded
-        System.setProperty(TEST_SYSTEM_PROP, TEST_SYSTEM_PROP_VALUE);
+    public Repo(Repository repository) {
+        this.repository = repository;
     }
 
-    @After
-    public void cleanupEnv() {
-        System.setProperty("user.home", originalHome);
-    }    
-
-    @Test
-    public void testMavenSettings() throws Exception {
-        Path repo = MavenSettings.mavenRepository();
-        Assert.assertEquals("HelloWorld", repo.toString());
+    public Repository getMavenRepository() {
+        return repository;
     }
 
+    public String getId() {
+        return repository.getId();
+    }
+
+    public String getLayout() {
+        return repository.getLayout();
+    }
+
+    public String getUrl() {
+        return repository.getUrl();
+    }
 }
