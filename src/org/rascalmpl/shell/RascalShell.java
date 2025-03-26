@@ -48,7 +48,7 @@ public class RascalShell  {
 
     public static Terminal connectToTerminal() throws IOException {
         setupJavaProcessForREPL();
-        System.err.println("connectToTerminal");
+      
         var termBuilder = TerminalBuilder.builder();
         if (OSUtils.IS_WINDOWS) {
             termBuilder.encoding(StandardCharsets.UTF_8);
