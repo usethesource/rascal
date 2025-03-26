@@ -31,7 +31,7 @@ data Message
 
 @javaClass{org.rascalmpl.library.Messages}
 @synopsis{Call the standard message pretty-printing and sorting code, writing the result to a string}
-java str write(list[Message] messages);
+java str write(list[Message] messages, list[loc] roots=[]);
 
 @synopsis{Reusable message handler for commandline `main` functions}
 @description{
