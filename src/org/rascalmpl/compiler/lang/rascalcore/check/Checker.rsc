@@ -615,8 +615,9 @@ int main(
     );
         
     messages = check(modules, rascalConfig);
-   
-    return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
+    flatMessages = [*msgs | program(_, msgs) <- messages];
+    
+    return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
 // ---- Convenience check function during development -------------------------
