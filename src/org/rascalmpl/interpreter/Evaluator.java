@@ -570,8 +570,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
      * a set depending on the type of the respective keyword parameter.
      */
     public IValue main(IRascalMonitor monitor, String module, String function, String[] commandline) {
-        System.err.println("main:" + Arrays.stream(commandline).collect(Collectors.joining("\n")));
-        
         IRascalMonitor old = setMonitor(monitor);
         Environment oldEnv = getCurrentEnvt();
 
@@ -628,7 +626,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
     }
 
     public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-        System.err.println("Received commandline: " + Arrays.stream(commandline).collect(Collectors.joining(" ")));
         Map<String, Type> expectedTypes = new HashMap<>();
         Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
         List<String> pathConfigParam = new LinkedList<>();
