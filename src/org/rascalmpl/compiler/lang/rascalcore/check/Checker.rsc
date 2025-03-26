@@ -597,7 +597,9 @@ int main(
     bool warnUnusedFormals        = true,
     bool warnUnusedVariables      = true,
     bool warnUnusedPatternFormals = true,
-    bool infoModuleChecked        = false
+    bool infoModuleChecked        = false,
+    bool errorsAsWarnings         = false,
+    bool warningsAsErrors         = false
 ) {
     pcfg.resources = pcfg.bin;
 
@@ -613,9 +615,8 @@ int main(
     );
         
     messages = check(modules, rascalConfig);
-    println(write(messages));
-
-    return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
+   
+    return mainMessageHandler(messages, roots=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
 // ---- Convenience check function during development -------------------------
