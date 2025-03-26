@@ -68,7 +68,6 @@ public class RascalShell  {
     }
 
     public static void setupJavaProcessForREPL() {
-        System.err.println("setupJavaProcessForREPL");
         // configure jline3 to avoid reflective access warnings printed by jdk
         System.setProperty("org.jline.terminal.exec.redirectPipeCreationMode", "native");
         // avoid getting a separate icon in OSX
