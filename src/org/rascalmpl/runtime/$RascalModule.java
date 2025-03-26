@@ -535,10 +535,10 @@ public abstract class $RascalModule /*extends ATypeFactory*/ {
         if (registry.supportsReadableFileChannel(loc)) {
             FileChannel channel = registry.getReadableFileChannel(loc);
             if (channel != null) {
-                return new IValueInputStream(channel, $VF, TYPE_STORE_SUPPLIER);
+                return new IValueInputStream(channel, $RVF, TYPE_STORE_SUPPLIER);
             }
         }
-        return new IValueInputStream(registry.getInputStream(loc), $VF, TYPE_STORE_SUPPLIER);
+        return new IValueInputStream(registry.getInputStream(loc), $RVF, TYPE_STORE_SUPPLIER);
     }
 	
 	/*************************************************************************/
