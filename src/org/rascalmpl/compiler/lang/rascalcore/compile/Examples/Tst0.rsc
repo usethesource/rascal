@@ -31,7 +31,7 @@ import String;
 import IO;
 import util::Reflective;
 import Grammar;
-
+  
 value main() {
     GEMPTY0 =  grammar({sort("S")}, ());
     s = sort("S");

@@ -188,7 +188,7 @@ private MuExp tcc("except", [muCon(str label)]) = muCon(ParseTree::except(label)
 
 // Grammar
 
-private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)]) = muCon(Grammar::grammar(starts, rules));
+//private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)]) = muCon(Grammar::grammar(starts, rules));
   
 
 default MuExp tcc(str name, list[MuExp] args) { 
