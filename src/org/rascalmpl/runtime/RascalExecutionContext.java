@@ -162,7 +162,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public RascalTypeFactory getRascalTypeFactory() { return $RTF; }
 	
-	public IValueFactory getIValueFactory() { return $VF; }
+	public IValueFactory getIValueFactory() { return $RVF; }
 	
 	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
 
