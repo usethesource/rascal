@@ -82,6 +82,6 @@ public class ShellEvaluatorFactory {
         ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
         evaluator.addClassLoader(cl);  
         
-        Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
+        Messages.write(pcfg.getMessages(), pcfg.getSrcs(), evaluator.getOutPrinter());
     }
 }

@@ -17,7 +17,7 @@ we can specialize for more cases more easily than in the original paper. For exa
 comment styles are automatically recognized.
 
 The current algorithm, not extended, additionally guarantees that no comments are lost as long as their grammar
-rules have been tagged with `@category="Comment"`
+rules have been tagged with `@category="comment"` or the legacy `@category="Comment"`
 
 Another new feature is the normalization of case-insensitive literals. By providing ((toUpper)) or ((toLower))
 the mapping algorithm will change every instance of a case-insensitive literal accordingly before translating
@@ -138,20 +138,20 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
         // comments, then layout positions are reduced to U([]) which dissappears
         // by splicing the empty list.
         case <prod(layouts(_), _, _), list[Tree] content>:
-            return U([toBox(u, opts=opts) | /u:appl(prod(_, _, {*_,\tag("category"("Comment"))}), _) <- content]);
+            return U([toBox(u, opts=opts) | /u:appl(prod(_, _, {*_,\tag("category"(/^[Cc]omment$/))}), _) <- content]);
 
         // single line comments are special, since they have the newline in a literal
         // we must guarantee that the formatter will print the newline, but we don't 
         // want an additional newline due to the formatter. We do remove any unnecessary
         // spaces
-        case <prod(_, [lit(_), *_, lit("\n")], {*_, /\tag("category"("Comment"))}), list[Tree] elements>:
+        case <prod(_, [lit(_), *_, lit("\n")], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return V([
                     H([toBox(elements[0], opts=opts), 
                         H([L(e) | e <- words("<elements[..-1]>")], hs=1)
                     ], hs=1)
                 ]);
 
-        case <prod(_, [lit(_),conditional(\iter-star(notNl),{\end-of-line()})], {*_, /\tag("category"("Comment"))}), list[Tree] elements>:
+        case <prod(_, [lit(_),conditional(\iter-star(notNl),{\end-of-line()})], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return V([
                     H([toBox(elements[0], opts=opts), 
                         H([L(w) | e <- elements[1..], w <- words("<e>")], hs=1)
@@ -159,7 +159,7 @@ default Box toBox(t:appl(Production p, list[Tree] args), FO opts = fo()) {
                 ]);
 
         // multiline comments are rewrapped for the sake of readability and fitting on the page
-        case <prod(_, [lit(_), *_, lit(_)], {*_, /\tag("category"("Comment"))}), list[Tree] elements>:
+        case <prod(_, [lit(_), *_, lit(_)], {*_, /\tag("category"(/^[Cc]omment$/))}), list[Tree] elements>:
             return HV([toBox(elements[0], opts=opts),                     // recurse in case its a ci literal 
                       *[L(w) | e <- elements[1..-1], w <- words("<e>")], // wrap a nice paragraph
                       toBox(elements[-1], opts=opts)                     // recurse in case its a ci literal 

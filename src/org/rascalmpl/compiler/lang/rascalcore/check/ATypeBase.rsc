@@ -341,9 +341,9 @@ data AType
 //public AType \iter-star-seps(AType atype, [])  = \iter-star(atype);
 
 // flattening rules
-public AType seq([*AType a, seq(list[AType] b), *AType c]) = seq(a + b + c);
+public AType seq([*AType a, seq(list[AType] b), *AType c]) = AType::seq(a + b + c);
 
-public AType alt({*AType a, alt(set[AType] b)}) = alt(a + b);
+public AType alt({*AType a, alt(set[AType] b)}) = AType::alt(a + b);
 
 data AType // <19>
      = \conditional(AType atype, set[ACondition] conditions);

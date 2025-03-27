@@ -94,5 +94,5 @@ layout LAYOUTLIST = LAYOUT* !>> [\ \t\n\r] !>> "//" !>> "/*"
                    
 
 lexical LAYOUT = Whitespace: [\ \t\n\r] 
-               | @category="Comment" Comment
+               | @category="comment" Comment
                ;
