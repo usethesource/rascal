@@ -54,6 +54,12 @@ import ParseTree;
 hostname, share name and path segment names. Also all superfluous path separators are skipped.
 3. uses `loc + str` path concatenation with its builtin character encoding to construct the URI. Also
 the right path separators are introduced. 
+
+This conversion supports generic Unix path syntax, including:
+* Absolute: `/usr/local/bin`
+* Relative: `hello.txt`
+* Home: `~/hello.txt`
+* User: `~userName\hello.txt`
 }
 loc parseUnixPath(str input, loc src=|unknown:///|) = mapPathToLoc(parse(#UnixPath, input, src));
 

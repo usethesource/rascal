@@ -566,7 +566,7 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
 data ModuleMessages = program(loc src, set[Message] messages);
 
 list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
-    pcfg1 = compilerConfig.typepalPathConfig; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+    pcfg1 = compilerConfig.typepalPathConfig;
     compilerConfig.typepalPathConfig = pcfg1;
     ms = rascalTModelForLocs(moduleLocs, compilerConfig, dummy_compile1);
     messagesNoModule = {};
@@ -599,7 +599,9 @@ int main(
     bool warnUnusedFormals        = true,
     bool warnUnusedVariables      = true,
     bool warnUnusedPatternFormals = true,
-    bool infoModuleChecked        = false
+    bool infoModuleChecked        = false,
+    bool errorsAsWarnings         = false,
+    bool warningsAsErrors         = false
 ) {
     pcfg.resources = pcfg.bin;
 
@@ -614,16 +616,10 @@ int main(
         infoModuleChecked        = infoModuleChecked
     );
         
-    moduleMessages = check(modules, rascalConfig);
-    iprintln(moduleMessages);
-    for(mm <- moduleMessages){
-        for(m <- mm.messages){
-            if(error(_,_) := m || error(_) := m){
-                return 1;
-            }
-        }
-    }
-    return 0;
+    messages = check(modules, rascalConfig);
+    flatMessages = [*msgs | program(_, msgs) <- messages];
+    
+    return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
 // ---- Convenience check function during development -------------------------
