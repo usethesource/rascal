@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "RascalCheck",
+            "request": "launch",
+            "mainClass": "org.rascalmpl.shell.RascalCheck",
+            "projectName": "rascal"
+        },
+        {
+            "type": "java",
             "name": "Launch DocRunner",
             "request": "launch",
             "mainClass": "org.rascalmpl.shell.DocRunner",

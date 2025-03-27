@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,19 +48,13 @@ public class TutorCommandExecutor {
     private final StringWriter errWriter = new StringWriter();
     private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
     private final ITutorScreenshotFeature screenshot;
+    private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
         interpreter = new RascalInterpreterREPL() {
             @Override
             protected Evaluator buildEvaluator(Reader input, PrintWriter stdout, PrintWriter stderr, IDEServices services) {
                 var eval = super.buildEvaluator(input, stdout, stderr, services);
-
-                try {
-                    eval.getConfiguration().setRascalJavaClassPathProperty(PathConfig.resolveCurrentRascalRuntimeJar().getPath());
-                }
-                catch (IOException e) {
-                    services.warning(e.getMessage(), URIUtil.rootLocation("unknown"));
-                }
 
                 if (!pcfg.getSrcs().isEmpty()) {
                     ISourceLocation projectRoot = inferProjectRoot((ISourceLocation) pcfg.getSrcs().get(0));
@@ -147,12 +142,47 @@ public class TutorCommandExecutor {
         outWriter.getBuffer().setLength(0);
         errPrinter.flush();
         errWriter.getBuffer().setLength(0);
+        currentInput = "";
+    }
+
+
+    private String collectFullCommand(String line) {
+        if (!this.currentInput.isEmpty()) {
+            this.currentInput += "\n" + line;
+        }
+        else {
+            this.currentInput = line;
+        }
+        return this.currentInput;
+    }
+
+    private boolean isValidCommand(String cmd) {
+        try {
+            return interpreter.parseCommand(cmd) != null;
+        } catch (ParseError pe) {
+            return false;
+        }
+    }
+
+    public String prompt() {
+        if (this.currentInput.isEmpty()) {
+            return "rascal>";
+        }
+        long lines = this.currentInput.codePoints()
+            .filter(ch -> ch == '\n')
+            .count() + 1;
+        return String.format("|%d %s", lines, ">".repeat(lines > 10 ? 3 : 4));
     }
     
     public Map<String, String> eval(String line) throws InterruptedException, IOException {
+        var input = collectFullCommand(line);
+        if (!isValidCommand(input) && !line.isBlank()) {
+            // continuation
+            return Collections.emptyMap();
+        }
         Map<String, String> result = new HashMap<>();
         try {
-            var replResult = interpreter.handleInput(line);
+            var replResult = interpreter.handleInput(input);
             if (replResult instanceof IErrorCommandOutput) {
                 ((IErrorCommandOutput)replResult).asPlain().write(errPrinter, true);
             }
@@ -191,6 +221,7 @@ public class TutorCommandExecutor {
         catch (StopREPLException e1) {
             errWriter.write("Quiting REPL");
         } finally {
+            this.currentInput = "";
             result.put("application/rascal+stdout", getPrintedOutput());
             result.put("application/rascal+stderr", getErrorOutput());
         }
