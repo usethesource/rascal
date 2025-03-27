@@ -38,7 +38,7 @@ lexical Concrete
 lexical ConcretePart
   = @category="string" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
-  | @category="string" hole : ConcreteHole hole
+  | @category="variable" hole : ConcreteHole hole
   | @category="string" lt: "\\\<"
   | @category="string" gt: "\\\>"
   | @category="string" bq: "\\`"

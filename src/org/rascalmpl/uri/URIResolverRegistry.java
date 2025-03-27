@@ -39,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
@@ -857,12 +858,56 @@ public class URIResolverRegistry {
 	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
 		IClassloaderLocationResolver resolver = getClassloaderResolver(safeResolve(uri).getScheme());
 
-		if (resolver == null) {
-			throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
+		if (resolver != null) {
+			// we always try the most specific implementation for efficiency's sake
+			return resolver.getClassLoader(uri, parent);
+		}
+		else {
+			// the generic class loader can always produces the byte[] of any class file
+			return new GenericSourceLocationClassLoader(uri, parent);
+		}
+	}
+
+
+	/**
+	 * Generic implementation of a ClassLoader that uses the registry's ability
+	 * to open an InputStream for any existing location. It is much fast if a {@see IClassloaderLocationResolver}
+	 * exists for any scheme, since that could produce an index a URLClassLoader instance.
+	 */
+	private class GenericSourceLocationClassLoader extends ClassLoader {
+		private final ISourceLocation root;
+
+		public GenericSourceLocationClassLoader(ISourceLocation root, ClassLoader parent) {
+			super(parent);
+			this.root = root;
 		}
 
-		return resolver.getClassLoader(uri, parent);
+		@Override
+		protected Class<?> findClass(final String qualifiedClassName) throws ClassNotFoundException {
+			var file = URIUtil.getChildLocation(root, qualifiedClassName.replaceAll("\\.", "/") + ".class");
+
+			if (exists(file)) {
+				try {
+					byte[] bytes = Prelude.consumeInputStream(getInputStream(file));
+					return defineClass(qualifiedClassName, bytes, 0, bytes.length);
+				}
+				catch (IOException e) {
+					// fall through
+				}
+			}
+			// Workaround for "feature" in Java 6
+			// see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6434149
+			try {
+				Class<?> c = Class.forName(qualifiedClassName);
+				return c;
+			} catch (ClassNotFoundException nf) {
+				// Ignore and fall through
+			}
+
+			return super.findClass(qualifiedClassName);
+		}
 	}
+
 
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
