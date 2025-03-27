@@ -44,10 +44,10 @@ import lang::rascal::\syntax::Rascal;
 
 public PathConfig defaultConfig
   = pathConfig(
-  bin=|target://rascal-tutor/docs|,
-  libs=[|lib://rascal|],
+  bin=|target://rascal/docs|,
+  libs=[],
   srcs=[
-    |project://rascal-tutor/src/lang/rascal/tutor/examples/Test|
+    |project://rascal/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/Test|
   ]);
 
 public list[Message] lastErrors = [];
@@ -64,6 +64,20 @@ public void defaultCompile(bool clean=false) {
   }
 
   lastErrors = errors;
+}
+
+int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
+  loc license=|unknown:///|, loc citation = |unknown:///|, loc funding=|unknown:///|, loc releaseNotes=|unknown:///|,
+  loc errorsAsWarnings=false, loc warningsAsErrors=false) {
+
+  if (license?) pcfg.license = license;
+  if (citation?) pcfg.citation = citation;
+  if (funding?) pcfg.funding = funding;
+  if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
+
+  messages = compile(pcfg);
+  
+  return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
@@ -109,7 +123,7 @@ void storeImportantProjectMetaData(PathConfig pcfg) {
     copy(pcfg.releaseNotes, pcfg.bin + "RELEASE-NOTES_<pcfg.packageName>.md");
   }
 
-  dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
+  dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
 
   if (dependencies != []) {
     writeFile(pcfg.bin + "DEPENDENCIES_<pcfg.packageName>.txt",
@@ -174,7 +188,7 @@ void generatePackageIndex(PathConfig pcfg) {
       '<readFile(pcfg.releaseNotes)>");
   }
 
-  dependencies = [ f | f <- pcfg.classloaders, exists(f), f.extension=="jar"];
+  dependencies = [ f | f <- pcfg.libs, exists(f), f.extension=="jar"];
 
   if (dependencies != []) {
     writeFile(targetFile.parent + "Dependencies.md",
@@ -799,8 +813,7 @@ list[Output] compileRascalShell(list[str] block, bool allowErrors, bool isContin
       append OUT : out("```rascal-shell");
       continue OUT;
     }
-    // TODO: make this work again: append out("<exec.prompt()><line>");
-    append out("rascal\><line>");
+    append out("<exec.prompt()><line>");
     
     output = exec.eval(line);
     str result = output["text/plain"]?"";

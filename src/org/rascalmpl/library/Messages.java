@@ -1,9 +1,13 @@
 package org.rascalmpl.library;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -31,8 +35,9 @@ public class Messages {
     private static final IValueFactory vf = IRascalValueFactory.getInstance();
     private static final TypeStore ts = new TypeStore();
 
+
     // These declarations mirror the data definition in the `Message` root module of the standard library.
-    private static final io.usethesource.vallang.type.Type Message = tf.abstractDataType(ts, "Message");
+    public static final io.usethesource.vallang.type.Type Message = tf.abstractDataType(ts, "Message");
     private static final io.usethesource.vallang.type.Type Message_info = tf.constructor(ts, Message, "info", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_warning = tf.constructor(ts, Message, "warning", tf.stringType(), "msg", tf.sourceLocationType(), "at");
     private static final io.usethesource.vallang.type.Type Message_error = tf.constructor(ts, Message, "error", tf.stringType(), "msg", tf.sourceLocationType(), "at");
@@ -49,7 +54,39 @@ public class Messages {
         return vf.constructor(Message_error, vf.string(message), loc);
     }
 
+    public static boolean isError(IValue v) {
+        return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_error;
+    }
+
+    public static boolean isWarning(IValue v) {
+        return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_warning;
+    }
+
+    public static boolean isInfo(IValue v) {
+        return v instanceof IConstructor && ((IConstructor) v).getConstructorType() == Message_info;
+    }
+
+    // used by the module loader
+    public Messages(IValueFactory ignored) {
+    }
+
+    public IString write(IList messsages, IList srcs) {
+        try (var str = new StringWriter(); var writer = new PrintWriter(str)) {
+            write(messsages, srcs, writer);
+            writer.flush();
+            return vf.string(str.toString());
+        }
+        catch (IOException e) {
+            // should never happen
+            throw RuntimeExceptionFactory.io(e.getMessage());
+        }
+    }
+    
     public static void write(IList messages, PrintWriter out) {
+        write(messages, IRascalValueFactory.getInstance().list(), out);
+    }
+
+    public static void write(IList messages, IList srcs, PrintWriter out) {
         int maxLine = 0;
         int maxColumn = 0;
 
@@ -116,6 +153,9 @@ public class Messages {
                 line = loc.getBeginLine();
             }
 
+            // this shortens the location strings
+            loc = relativize(srcs, loc);
+
             String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
                 ? ((IString) msg.get("msg")).getValue()
                 : loc.getPath()
@@ -140,5 +180,14 @@ public class Messages {
 
         out.flush();
 		return;
+    }
+
+    private static ISourceLocation relativize(IList outside, ISourceLocation inside) {
+        return outside.stream()
+            .map(ISourceLocation.class::cast)
+            .filter(o -> URIUtil.isParentOf(o, inside))
+            .map(o -> URIUtil.relativize(o, inside))
+            .findAny()
+            .orElse(inside);
     }
 }

@@ -6,7 +6,6 @@ the (documented) standard library, and the Rascal language reference documentati
 
 Other relevant repositories:
 
-* https://github.com/usethesource/rascal-eclipse
 * https://github.com/usethesource/rascal-language-servers
 * https://github.com/usethesource/vallang
 
