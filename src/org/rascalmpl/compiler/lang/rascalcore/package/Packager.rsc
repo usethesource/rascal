@@ -59,11 +59,11 @@ value rewriteTypeModel(value model, map[loc,str] paths, loc sourceLookup)
   = visit(model) {
       // any location in the wild:
       case loc l => inheritPosition(sourceLookup + paths[l.top], l)
-        when paths[l.top]?
+        when l.top in paths
         
       // \loc annotations on Trees are not visited by `visit` automatically
       case Tree t => t[@\loc = inheritPosition(sourceLookup + paths[Top], t@\loc)]
-        when t@\loc?, loc Top := t@\loc.top, paths[Top]?
+        when t@\loc?, loc Top := t@\loc.top, Top in paths
   };
 
 // compute a relative path of a file for a given base folder, if the file is indeed nested inside the given folder

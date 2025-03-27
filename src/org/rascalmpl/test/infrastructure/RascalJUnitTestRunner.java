@@ -42,6 +42,7 @@ import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.SourceLocationClassLoader;
+import org.rascalmpl.uri.file.MavenRepositoryURIResolver;
 import org.rascalmpl.uri.project.ProjectURIResolver;
 import org.rascalmpl.uri.project.TargetURIResolver;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -100,14 +101,25 @@ public class RascalJUnitTestRunner extends Runner {
         try {
             PathConfig pcfg = PathConfig.fromSourceProjectRascalManifest(projectRoot, RascalConfigMode.INTERPRETER, true);
             
+            System.err.println("Source path:");
             for (IValue path : pcfg.getSrcs()) {
-                evaluator.addRascalSearchPath((ISourceLocation) path); 
+                ISourceLocation locPath = MavenRepositoryURIResolver.mavenize((ISourceLocation)path);
+                evaluator.addRascalSearchPath(locPath); 
+                System.err.println("- " + locPath);
+            }
+
+            System.err.println("Class loader path:");
+            for (IValue p: pcfg.getLibsAndTarget()) {
+                System.err.println("- " + p);
             }
             
             ClassLoader cl = new SourceLocationClassLoader(pcfg.getLibsAndTarget(), ShellEvaluatorFactory.class.getClassLoader());
             evaluator.addClassLoader(cl);
 
-            Messages.write(pcfg.getMessages(), evaluator.getOutPrinter());
+            if (pcfg.getMessages().length() > 0) {
+                System.err.println("Messages:");
+                Messages.write(pcfg.getMessages(), pcfg.getSrcs(), new PrintWriter(System.err, true));
+            }
             
         }
         catch (AssertionError e) {

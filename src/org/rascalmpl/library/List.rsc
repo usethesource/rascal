@@ -259,7 +259,7 @@ intercalate(", ", ["zebra", "elephant", "snake", "owl"]);
 ```
 }
 str intercalate(str sep, list[value] l) = 
-	(isEmpty(l)) ? "" : ( "<head(l)>" | it + "<sep><x>" | x <- tail(l) );
+  "<for(int i <- index(l)){><i == 0 ? "" : sep><l[i]><}>";
 
 
 @synopsis{Intersperses a list of values with a separator.}
