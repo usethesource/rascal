@@ -697,6 +697,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         Arrays.stream(pathElems).forEach(e -> {
                             writer.append(parseCommandlineOption(func, tf.sourceLocationType(), e));
                         });
+
+                        params.put(label, writer.done());
                     }
                     else {
                         IListWriter writer = vf.listWriter();
