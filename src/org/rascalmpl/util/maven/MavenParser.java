@@ -26,13 +26,17 @@
  */
 package org.rascalmpl.util.maven;
 
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.ProxySelector;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Version;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +54,6 @@ import org.apache.maven.model.building.ModelSource;
 import org.apache.maven.model.building.ModelSource2;
 import org.apache.maven.model.resolution.ModelResolver;
 import org.apache.maven.model.resolution.UnresolvableModelException;
-import org.apache.maven.settings.Settings;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.rascalmpl.library.Messages;
 import org.rascalmpl.uri.URIUtil;
@@ -61,6 +64,7 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class MavenParser {
@@ -73,6 +77,7 @@ public class MavenParser {
     private final HttpClient httpClient;
     private final ModelCache modelCache;
     private final Path rootMavenRepo;
+    private final List<IValue> settingMessages;
 
     public MavenParser(Path projectPom) {
         this(MavenSettings.readSettings(), projectPom);
@@ -93,11 +98,17 @@ public class MavenParser {
             throw new IllegalArgumentException("Project pom is an illegal path", e);
         }
 
+        settingMessages = new ArrayList<>();
+
+        var proxySelector = new MavenProxySelector(settings.getProxies(), settingMessages);
+
         builder = new DefaultModelBuilderFactory().newInstance();
         httpClient = HttpClient.newBuilder()
             .version(Version.HTTP_2) // upgrade where possible
-            .connectTimeout(Duration.ofSeconds(10)) // don't wait longer than 10s to connect to a repo
+            .connectTimeout(Duration.ofSeconds(10))
+            .proxy(proxySelector)
             .build();
+
         modelCache = new CaffeineModelCache();
     }
 
@@ -108,6 +119,7 @@ public class MavenParser {
 
         var resolver = new SimpleResolver(rootMavenRepo, builder, httpClient, settings.getMirrors());
         var messages = VF.listWriter();
+        messages.appendAll(settingMessages);
 
         var model = getBestModel(projectPomLocation, request, resolver, messages);
         if (model == null) {
@@ -177,7 +189,7 @@ public class MavenParser {
     private static void translateProblems(List<ModelProblem> problems, ISourceLocation loc, IListWriter messages) {
         for (var problem : problems) {
             // TODO: figure out how we can get correct offset & length from the xml parser (right now it has line & column, but they're always 0)
-            var message = problem.getMessage();
+            String message = problem.getMessage();
             switch (problem.getSeverity()) {
                 case ERROR: // fall through
                 case FATAL: messages.append(Messages.error(message, loc)); break;
