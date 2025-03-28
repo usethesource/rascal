@@ -45,6 +45,7 @@ module lang::rascalcore::check::ATypeInstantiation
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::NameUtils;
 
+import List;
 import Map;
 import Set;
 import Node;
