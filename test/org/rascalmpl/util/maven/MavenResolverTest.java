@@ -181,7 +181,7 @@ public class MavenResolverTest {
     * Configure the proxy address in proxyhomedir/.m2/settings.xml
     * This test should now run and download artifacts using the proxy server.
     */
-    //@Ignore
+    @Ignore
     @Test
     public void testProxyDownload() throws ModelResolutionError {
         // Set "user.home" system property so we can read the settings.xml that contains proxy settings
