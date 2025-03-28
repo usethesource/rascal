@@ -69,7 +69,7 @@ all other state and returning to an initial runtime.
 }
 @pitfalls{
 * To turn a value string into an actual value, it's better and faster to use ((readTextValueString)) or ((readTextValueFile)).
-* Parsing file paths is better done using ((locFromUnixPath)) and ((locFromWindowsPath)).
+* Parsing file paths is better done using ((lang::paths::Unix::parseUnixPath)) and ((lang::paths::Windows::parseWindowsPath)).
 * A ((RascalRuntime)) is neither thread-safe nor thread-friendly. 
 * `staticTypeOf` is an abstract interpreter which can take as much time as running the program. 
 }

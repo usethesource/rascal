@@ -118,7 +118,7 @@ public class RascalJUnitTestRunner extends Runner {
 
             if (pcfg.getMessages().length() > 0) {
                 System.err.println("Messages:");
-                Messages.write(pcfg.getMessages(), new PrintWriter(System.err, true));
+                Messages.write(pcfg.getMessages(), pcfg.getSrcs(), new PrintWriter(System.err, true));
             }
             
         }
