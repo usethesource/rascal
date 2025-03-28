@@ -13,6 +13,8 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.jar.JarURIResolver;
 
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
 
 /**
@@ -50,19 +52,35 @@ public abstract class AbstractCommandlineTool {
                 }
 
                 eval.doImport(monitor, mainModule);
-                eval.main(monitor, mainModule, "main", args);
+                
+                IValue result = eval.main(monitor, mainModule, "main", args);
+                
+                if (result.getType().isInteger()) {
+                    System.exit(((IInteger) result).intValue());
+                }
+                else {
+                    System.exit(0);
+                }
             }
             catch (Throw e) {
                 try {
+                    err.println(e.getLocalizedMessage());
                     e.getTrace().prettyPrintedString(err, new StandardTextWriter());
                 }
                 catch (IOException ioe) {
                     err.println(ioe.getMessage());
                 }
+
+                System.exit(1);
+            }
+            catch (Throwable e) {
+                e.printStackTrace();
+                System.exit(1);
             }
         }
         catch (IOException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 

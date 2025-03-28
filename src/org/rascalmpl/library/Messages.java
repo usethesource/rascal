@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.rascalmpl.exceptions.RuntimeExceptionFactory;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.IRascalValueFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -69,9 +70,9 @@ public class Messages {
     public Messages(IValueFactory ignored) {
     }
 
-    public IString write(IList messsages) {
+    public IString write(IList messsages, IList srcs) {
         try (var str = new StringWriter(); var writer = new PrintWriter(str)) {
-            write(messsages, writer);
+            write(messsages, srcs, writer);
             writer.flush();
             return vf.string(str.toString());
         }
@@ -80,8 +81,12 @@ public class Messages {
             throw RuntimeExceptionFactory.io(e.getMessage());
         }
     }
-
+    
     public static void write(IList messages, PrintWriter out) {
+        write(messages, IRascalValueFactory.getInstance().list(), out);
+    }
+
+    public static void write(IList messages, IList srcs, PrintWriter out) {
         int maxLine = 0;
         int maxColumn = 0;
 
@@ -148,6 +153,9 @@ public class Messages {
                 line = loc.getBeginLine();
             }
 
+            // this shortens the location strings
+            loc = relativize(srcs, loc);
+
             String output = (loc.getPath().equals("/") || loc.getPath().isEmpty()) 
                 ? ((IString) msg.get("msg")).getValue()
                 : loc.getPath()
@@ -172,5 +180,14 @@ public class Messages {
 
         out.flush();
 		return;
+    }
+
+    private static ISourceLocation relativize(IList outside, ISourceLocation inside) {
+        return outside.stream()
+            .map(ISourceLocation.class::cast)
+            .filter(o -> URIUtil.isParentOf(o, inside))
+            .map(o -> URIUtil.relativize(o, inside))
+            .findAny()
+            .orElse(inside);
     }
 }

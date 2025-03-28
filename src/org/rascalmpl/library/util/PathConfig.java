@@ -418,7 +418,7 @@ public class PathConfig {
 
             ISourceLocation bin = (ISourceLocation) kwp.getParameter("bin");
 
-            PathConfig pcfg = new PathConfig(
+            return new PathConfig(
                 srcs != null ? srcs : vf.list(), 
                 libs != null ? libs : vf.list(),
                 bin != null ? bin : URIUtil.rootLocation("cwd"),
@@ -426,8 +426,6 @@ public class PathConfig {
                 generated != null ? generated : null,
                 messages != null ? messages : vf.list()
             );
-
-            return pcfg;
         } 
         catch (FactTypeUseException e) {
             throw new IOException(e);
@@ -460,8 +458,7 @@ public class PathConfig {
         // now figure out where we can get typepal from
         var reg = URIResolverRegistry.getInstance();
         var typepal = URIUtil.correctLocation("project", "typepal","src");
-        boolean typepalProjectPresent = reg.exists(typepal);
-        if (typepalProjectPresent) {
+        if (reg.exists(typepal)) {
             // make sure to resolve the typepal location
             // such that in VS Code the full (local) path names are visible
             typepal = reg.logicalToPhysical(typepal);
@@ -478,22 +475,9 @@ public class PathConfig {
             }
         }
 
-        if (mode == RascalConfigMode.INTERPRETER) {
-            // add typepal to source path so that the intepreter can find it
-            srcs.append(typepal);
-        }
-        else {
-            // we want to be able to typecheck / compiler rascal modules that a user is editing in the editor
-            assert mode == RascalConfigMode.COMPILER: "should be compiler mode if not interpreter";
-            if (typepalProjectPresent) {
-                // pickup the tpls from the target folder of typepal
-                libs.append(URIUtil.correctLocation("target", "typepal", ""));
-            }
-            else {
-                // pickup the tpls from the jar
-                libs.append(typepal);
-            }
-        }
+        // the interpreter should pick up the typepal sources
+        // and so should the typechecker, otherwise it might get type-checked against the wrong `std:///` jar (namely from it's pom.xml)
+        srcs.append(typepal);
     }
 
     /**
