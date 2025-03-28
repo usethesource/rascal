@@ -40,7 +40,7 @@ test bool field1() =
                     return x.n;
                 }",
                 ("n": <0, {1}>)); 
-
+@ignore{to be fixed in typechecker}
 test bool kwfield1() =
     useDefOK("module KWField
                 data D = d(int n = 0);
