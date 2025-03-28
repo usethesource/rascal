@@ -44,6 +44,7 @@ import java.util.stream.Stream;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MavenResolverTest {
@@ -173,5 +174,38 @@ public class MavenResolverTest {
             System.setProperty("user.home", originalHome);
         }
     }
+
+    /**
+    * This tests requires a proxy to be setup so it is disabled by default.
+    * To run this test, setup a proxy server for instance using tinyprox: https://tinyproxy.github.io/
+    * Configure the proxy address in proxyhomedir/.m2/settings.xml
+    * This test should now run and download artifacts using the proxy server.
+    */
+    //@Ignore
+    @Test
+    public void testProxyDownload() throws ModelResolutionError {
+        // Set "user.home" system property so we can read the settings.xml that contains proxy settings
+        String originalHome = System.getProperty("user.home");
+        try {
+            Path cwd = Path.of(System.getProperty("user.dir"));
+            Path mirrorHome = cwd.resolve(Path.of("test", "org", "rascalmpl", "util", "maven", "proxyhomedir"));
+            System.setProperty("user.home", mirrorHome.toString());
+
+            var parser = new MavenParser(MavenSettings.readSettings(), getPomsPath("local-reference/pom-proxy.xml"), tempRepo);
+
+            var project = parser.parseProject();
+
+            assertEquals("test-project", project.getCoordinate().getArtifactId());
+            List<Artifact> resolved = project.resolveDependencies(Scope.COMPILE, parser);
+            Assert.assertNotNull("Dependency has not been resolved using proxy", resolved.get(0).getResolved());
+            Path jarPath = tempRepo.resolve(Path.of("org", "rascalmpl", "rascal", "0.40.17", "rascal-0.40.17.jar"));
+            assertTrue("Rascal jar should have been written", Files.exists(jarPath));
+        }
+        finally {
+            System.setProperty("user.home", originalHome);
+        }
+    }
+
+
 
 }
