@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC3</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC6-SNAPSHOT</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <rascalBootstrapVersion>0.40.1-RC21</rascalBootstrapVersion>
+                    <rascalBootstrapVersion>0.41.0-RC22-SNAPSHOT</rascalBootstrapVersion>
                     <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
@@ -160,6 +160,7 @@
                     </parallelPreChecks>
                 </configuration>
                 <executions>
+                    <!-- commented out for bootstrap purposes
                     <execution>
                         <id>it-compile</id>
                         <phase>compile</phase>
@@ -173,7 +174,7 @@
                         <goals>
                             <goal>package</goal>
                         </goals>
-                    </execution>
+                    </execution> -->
 
 		    <!-- commented out while bootstrapping the tutor
                     <execution>
