@@ -30,8 +30,8 @@ import org.rascalmpl.uri.ISourceLocationInputOutput;
 import io.usethesource.vallang.ISourceLocation;
 
 /**
- * This resolver implements the scheme "memory" scheme, which implements
- * in-memory file systems for use during testing.
+ * This resolver implements the scheme "memory", which implements
+ * in-memory file systems for use during testing (for example).
  * 
  * The in-memory "file system" that we use to implement this feature guarantees
  * that "lastModified" is monotone increasing, i.e. after a write to a file lastModified
@@ -41,14 +41,16 @@ import io.usethesource.vallang.ISourceLocation;
  * So if you are writing temporary files very frequently and use lastModified to mark the fields 
  * as dirty, use an instance of this resolver to guarantee the dirty marking.
  * 
- * The locations should not use the autority field, as that is ignored.
+ * A new file system is allocated for every different value of the ://authority/ field.
+ * The entire file system is garbage collected when "remove" is called on the authority root.
  * 
- * BE AWARE that the information in this in-memory file system is volatile and does not survive:
- * - program execution
- * - replacement by another in-memory filesystem for the same scheme
+ * BE AWARE that the information in this in-memory file system is volatile and does not survive
+ * the end of JVM program execution; after system exit everything is gone.
  * 
  * ALSO BE AWARE that during the existence of the JVM files stored in this scheme
- * are never garbage collected. Use `rm` to clean up after yourselves.
+ * are never garbage collected. Use `rm` to clean up after yourselves. For maximum 
+ * efficient, use the authority field to encapsulate collections of files that can be removed together. 
+ * This halps the generational garbage collector to keep old files together as much as possible.
  *
  * The resolver supports the following trick to simulate readonly files, used for testing purposes:
  * If the scheme of a URI ends with `+readonly` the writing part of the resolved throws exceptions. 
