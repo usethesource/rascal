@@ -616,7 +616,7 @@ int main(
         
     messages = check(modules, rascalConfig);
     flatMessages = [*msgs | program(_, msgs) <- messages];
-    
+
     return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
