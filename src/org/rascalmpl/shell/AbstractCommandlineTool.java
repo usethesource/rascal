@@ -38,7 +38,7 @@ public abstract class AbstractCommandlineTool {
             var out = (monitor instanceof PrintWriter) ? (PrintWriter) monitor : new PrintWriter(System.out, false);
         
             try {   
-                var eval = ShellEvaluatorFactory.getDefaultEvaluator(term.reader(), out, err, monitor);
+                var eval = ShellEvaluatorFactory.getEvaluatorForMain(term.reader(), out, err, monitor);
                 var rascalJar = JarURIResolver.jarify(PathConfig.resolveCurrentRascalRuntimeJar());
 
                 for (String folder : sourceFolders) {
