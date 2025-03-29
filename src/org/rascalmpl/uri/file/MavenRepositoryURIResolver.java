@@ -21,7 +21,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Finds jar files (and what's inside) relative to the root of the LOCAL Maven repository.
- * For a discussion REMOTE repositories see below.
+ * For a discussion om REMOTE repositories see below.
  * 
  * We use `mvn://<groupid>--<name>--<version>/<path-inside-jar>` as the scheme;
  * 
