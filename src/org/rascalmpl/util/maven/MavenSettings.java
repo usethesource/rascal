@@ -30,10 +30,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.maven.settings.Mirror;
+import org.apache.maven.settings.Proxy;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.io.xpp3.SettingsXpp3Reader;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -102,7 +105,7 @@ public class MavenSettings {
     }
 
     Map<String, Mirror> getMirrors() {
-        Map<String, Mirror> mirrors = new HashMap<>();;
+        Map<String, Mirror> mirrors = new HashMap<>();
 
         if (systemSettings != null) {
             for (Mirror mirror : systemSettings.getMirrors()) {
@@ -119,6 +122,22 @@ public class MavenSettings {
 
         return mirrors;
     }
+
+    List<Proxy> getProxies() {
+        List<Proxy> proxies = new ArrayList<>();
+
+        // Proxies in userSettings come before ones defined in systemSettings
+        if (userSettings != null) {
+            proxies.addAll(userSettings.getProxies());
+        }
+
+        if (systemSettings != null) {
+            proxies.addAll(systemSettings.getProxies());
+        }
+
+        return proxies;
+    }
+
 
     private static String replaceVariables(String input) {
         var interpolator = new RegexBasedInterpolator();
