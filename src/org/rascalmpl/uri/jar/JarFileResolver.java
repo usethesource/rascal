@@ -84,11 +84,7 @@ public class JarFileResolver  {
         if (!path.endsWith("/") && !path.isEmpty()) {
             path = path + "/";
         }
-        try {
-            return getFileHierchyCache(jar).directChildren(path);
-        }
-        catch (IOException e) {
-            return new String[0];
-        }
+        
+        return getFileHierchyCache(jar).directChildren(path);
     }
 }
