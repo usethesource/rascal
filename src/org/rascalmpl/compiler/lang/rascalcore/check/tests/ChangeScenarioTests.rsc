@@ -594,7 +594,24 @@ void touchOne(){
     benchmark("touchOne", cases);
 }
 
-void miniBenchmarkRechecking(){
+void miniBenchmarkRechecking1(){
+    pcfg = getRascalWritablePathConfig();
+    safeRemove(pcfg.resources);
+    topName = "Type";
+    topLoc = getRascalModuleLocation("Type", pcfg);
+
+    cases =
+        [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
+         <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
+         <"Map", void(){ touchAndCheck(topLoc, ["Map"], pcfg); }>,
+         <"Exception+Map", void(){ touchAndCheck(topLoc, ["Exception", "Map"], pcfg); }>
+        ];
+    benchmark("miniBenchmarkRechecking1", cases);
+}
+
+void miniBenchmarkRechecking2(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
     topName = "ParseTree";
@@ -608,7 +625,7 @@ void miniBenchmarkRechecking(){
          <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
          <"Exception+Set", void(){ touchAndCheck(topLoc, ["Exception", "Set"], pcfg); }>
         ];
-    benchmark("miniBenchmarkRechecking", cases);
+    benchmark("miniBenchmarkRechecking2", cases);
 }
 
 void mediumBenchmarkRechecking(){
@@ -653,7 +670,8 @@ void largeBenchmarkRechecking(){
 
 void allBenchmarks(){
     beginTime = cpuTime();
-    miniBenchmarkRechecking();
+    miniBenchmarkRechecking1();
+    miniBenchmarkRechecking2();
     mediumBenchmarkRechecking();
     //largeBenchmarkRechecking();
     println("Total time: <(cpuTime() - beginTime)/1000000> ms");
