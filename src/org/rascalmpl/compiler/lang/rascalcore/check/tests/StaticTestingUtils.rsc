@@ -52,7 +52,7 @@ PathConfig pathConfigForTesting() {
   return getDefaultTestingPathConfig();
 }
 
-str abbrev(str s) { return size(s) < 120 ? s : "<s[0..117]> ..."; }
+str abbrev(str s) { return size(s) < 220 ? s : "<s[0..217]> ..."; }
 
 bool matches(str subject, str pat){
     pat = uncapitalize(pat);
