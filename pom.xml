@@ -232,6 +232,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <<forkCount>0</forkCount>
                     <argLine>
                                 -ea
                                 -Xmx${rascal.test.memory}G
