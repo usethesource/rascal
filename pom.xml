@@ -8,7 +8,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC21</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC6-SNAPSHOT</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC5</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <rascalBootstrapVersion>0.41.0-RC22-SNAPSHOT</rascalBootstrapVersion>
+                    <rascalBootstrapVersion>0.41.0-RC21</rascalBootstrapVersion>
                     <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
