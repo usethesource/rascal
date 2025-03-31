@@ -702,12 +702,12 @@ final class ClassLoaderImpl extends ClassLoader {
       }
       // Workaround for "feature" in Java 6
       // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6434149
-      try {
-         Class<?> c = Class.forName(qualifiedClassName);
-         return c;
-      } catch (ClassNotFoundException nf) {
-         // Ignore and fall through
-      }
+      // try {
+      //    Class<?> c = Class.forName(qualifiedClassName);
+      //    return c;
+      // } catch (ClassNotFoundException nf) {
+      //    // Ignore and fall through
+      // }
       return super.findClass(qualifiedClassName);
    }
 
