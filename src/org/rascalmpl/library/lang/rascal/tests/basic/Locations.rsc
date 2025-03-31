@@ -665,7 +665,7 @@ private loc findFile(loc l, str ext = "") {
         }
     }
     for (f <- l.ls) {
-        return findFile(f);
+        return findFile(f, ext= ext);
     }
     fail;
 }
