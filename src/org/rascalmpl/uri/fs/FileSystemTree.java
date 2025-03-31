@@ -42,6 +42,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 /**
  * Track a set of files (and directories) in memory. 
  * This is used by the in memory filesystem, and also by the jar & zip resolvers
+ * 
+ * Note, path should be relative, so no leading `/`
  */
 public class FileSystemTree<T extends FSEntry> {
     private final Directory<T> root;
