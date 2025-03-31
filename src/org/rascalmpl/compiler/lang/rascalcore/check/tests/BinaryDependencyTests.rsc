@@ -335,6 +335,8 @@ test bool incompatibleWithBinaryLibraryAfterChange(){
     lib = addModule("M1", "int f(int n, int m) = n+m;", lib);
     assert checkExpectNoErrors("M1", lib.pcfg);
 
+    // Update M2's modifcation time to make sure it will rechecked
+    touch(getRascalModuleLocation("M2", client.pcfg));
     // Call of "f" in M2 no longer complies with "f"'s signature in M1
     return checkExpectErrors("M2", ["Expected 2 argument(s), found 1"], client.pcfg, remove = [lib, client]);
 }
@@ -394,6 +396,8 @@ test bool incompatibleVersionsOfBinaryLibrary(){
 
     // Important: we do not recompile TP (and thus it will contain the outdated version of IO)
 
+    // Update Checks' modifcation time to make sure it will rechecked
+    touch(getRascalModuleLocation("Check", core.pcfg));
     // Recompile Check and discover the error
     return checkExpectErrors("Check", ["Recompilation or reconfiguration needed: binary module `TP` uses incompatible module(s)"], core.pcfg, remove = [rascal, typepal, core]);
 }

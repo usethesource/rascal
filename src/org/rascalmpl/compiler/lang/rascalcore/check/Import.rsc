@@ -128,7 +128,7 @@ ModuleStatus getImportAndExtendGraph(str qualifiedModuleName, ModuleStatus ms){
     }
     ms.status[qualifiedModuleName] += module_dependencies_extracted();
 
-    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms);
+    <found, tm, ms> = getTModelForModule(qualifiedModuleName, ms, convert=true);
     if(found){
         ms.paths = tm.paths;
         allImportsAndExtendsValid = true;
@@ -246,7 +246,7 @@ tuple[list[str], ModuleStatus] isCompatibleBinaryLibrary(TModel lib, ModuleStatu
     set[str] libDependsOnModules = { getModuleFromLogical(l) | l <- libDependsOn };
     set[loc] dependentsProvide = {};
     for(m <- libDependsOnModules){
-       <found, tm, ms> = getTModelForModule(m, ms);
+       <found, tm, ms> = getTModelForModule(m, ms, convert=false);
        if(found){
            dependentsProvide += domain(tm.logical2physical);
        }
@@ -283,7 +283,7 @@ tuple[bool, ModuleStatus] importsAndExtendsAreBinaryCompatible(TModel tm, set[st
     provided = {};
     if(!isEmpty(modRequires)){
         for(m <- importsAndExtends){
-            <found, tm, ms> = getTModelForModule(m, ms);
+            <found, tm, ms> = getTModelForModule(m, ms, convert=false);
             if(found){
                 provided += domain(tm.logical2physical);
             }

@@ -31,6 +31,8 @@ import util::Reflective;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascalcore::check::RascalConfig;
 
+import lang::rascalcore::check::ModuleLocations;
+
 // Duplicate in lang::rascalcore::compile::util::Names, factor out
 data PathConfig(
     loc generatedSources=|unknown:///|,
@@ -42,11 +44,10 @@ data PathConfig(
 // ----  Various PathConfigs  ---------------------------------------------
 // use the `download-test-jars.sh` to download these dependencies (and make sure to keep the versions up to date)
 
-public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.40.17/|;
+public loc RASCAL        = |mvn://org.rascalmpl--rascal--0.41.0-RC15/|;
 public loc TYPEPAL       = |mvn://org.rascalmpl--typepal--0.14.8/|;
 public loc OUTDATED_TYPEPAL 
                   = |mvn://org.rascalmpl--typepal--0.14.1/|;
-public loc RASCAL_CORE   = |mvn://org.rascalmpl--rascal-core--0.12.17/|;
 
 public loc DRAMBIGUITY   = |mvn://org.rascalmpl--drambiguity--0.1.2/|;
 public loc FLYBYTES      = |mvn://org.rascalmpl--flybytes--0.1.5/|;
@@ -74,7 +75,7 @@ public PathConfig getDefaultTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [ |memory:///test-modules/|, |std:///|  ],
-        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|,
+        bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
         resources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ ]
@@ -92,7 +93,7 @@ public PathConfig getReleasedStandardLibraryTestingPathConfig() {
     snpc = "<npc>";
     return pathConfig(
         srcs = [ |memory:///test-modules/| ],
-        bin = |memory:///test-modules/rascal-core-tests-bin-<snpc>|,
+        bin = |memory:///test-modules/rascal-tests-bin-<snpc>|,
         generatedSources = |memory:///test-modules/generated-test-sources-<snpc>|,
         resources = |memory:///test-modules/generated-test-resources-<snpc>|,
         libs = [ |lib://rascal| ]
@@ -143,7 +144,7 @@ public PathConfig makePathConfig(list[loc] sources, list[loc] libraries, bool ke
 public PathConfig getAllSrcPathConfig(bool keep = false) {
     return makePathConfig([ RASCAL + "org/rascalmpl/library",
                             RASCAL + "org/rascalmpl/benchmark/",
-                            RASCAL_CORE + "org/rascalmpl/core/library",
+                            RASCAL + "org/rascalmpl/compiler",
                             TYPEPAL
                         ],
                         [ ], 
@@ -158,7 +159,7 @@ public RascalCompilerConfig getAllSrcCompilerConfig(bool keep=true){
 public PathConfig getAllSrcREPOPathConfig(bool keep = false) {
     return makePathConfig([ REPO + "rascal/src/org/rascalmpl/library",
                             REPO + "rascal/test/org/rascalmpl/benchmark/",
-                            REPO + "rascal-core/src/org/rascalmpl/core/library",
+                            REPO + "rascal/src/org/rascalmpl/compiler",
                             REPO + "typepal/src"
                         ],
                         [ ], 
@@ -171,14 +172,12 @@ public RascalCompilerConfig getAllSrcREPOCompilerConfig(bool keep=true){
 // ----
 public PathConfig getAllSrcWritablePathConfig(bool keep = false) {
     TMP_RASCAL = |tmp:///rascal/|;
-    TMP_RASCAL_CORE = |tmp:///rascal-core/|;
     TMP_TYPEPAL = |tmp:///typepal/|;
     copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
-    copy(RASCAL_CORE, TMP_RASCAL_CORE, recursive=true, overwrite=true);
     copy(TYPEPAL, TMP_TYPEPAL, recursive=true, overwrite=true);
     return makePathConfig([ TMP_RASCAL + "org/rascalmpl/library",
                             TMP_RASCAL + "org/rascalmpl/benchmark/",
-                            TMP_RASCAL_CORE + "org/rascalmpl/core/library",
+                            TMP_RASCAL + "org/rascalmpl/compiler",
                             TMP_TYPEPAL
                         ],
                         [ ], 
@@ -213,50 +212,29 @@ public PathConfig getRascalAsLibPathConfig(bool keep = false) {
 }
 
 public PathConfig getRascalWritablePathConfig(bool keep = false) {
-    TMP_RASCAL = |tmp:///rascal/|;
-    copy(RASCAL, TMP_RASCAL, recursive=true, overwrite=true);
-    return makePathConfig([ TMP_RASCAL + "org/rascalmpl/library"
-                          //, RASCAL + "test/org/rascalmpl/benchmark/"
+    TMP_RASCAL = //|project://rascal/|; ////REPO + "rascal"; 
+                |tmp:///rascal/|;
+    copy(|project://rascal/|, TMP_RASCAL, recursive=true, overwrite=true);
+    
+    pcfg = makePathConfig([ TMP_RASCAL + "src/org/rascalmpl/library",
+                            TMP_RASCAL + "test/org/rascalmpl/benchmark/",
+                            TMP_RASCAL + "src/org/rascalmpl/compiler"
                           ],
                           [], 
                           keep=keep);
+    // println("exists1: <exists(TMP_RASCAL + "src/org/rascalmpl/library")>");
+    // println("exists2: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis")>");
+    // println("exists3: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis/grammars")>");
+    // println("exists4: <exists(TMP_RASCAL + "src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc")>");
+    // //
+    // iprintln(find("Ambiguity.rsc", [TMP_RASCAL +  "src/org/rascalmpl/library/analysis/grammars"]));
+    // Top = getRascalModuleLocation("analysis::grammars::Ambiguity", pcfg);
+    return pcfg;
 }
+
 
 public RascalCompilerConfig getRascalWritableCompilerConfig(bool keep=true){
     return rascalCompilerConfig(getRascalWritablePathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
-}
-
-// ---- rascal-core -----------------------------------------------------------
-
-@synopsis{PathConfig for type-checking test modules in the rascal-core project}
-@description{
-* sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
-* binaries will be stored the target folder of the rascal-core project
-* has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
-}
-public PathConfig getRascalCorePathConfig(bool keep = false) {
-   return makePathConfig([ RASCAL_CORE + "org/rascalmpl/core/library" ],
-                         [ RASCAL, TYPEPAL ], 
-                         keep=keep);
-}
-
-public RascalCompilerConfig getRascalCoreCompilerConfig(bool keep=true){
-    return rascalCompilerConfig(getRascalCorePathConfig(keep=keep))[verbose = true][logWrittenFiles=true];
-}
-
-@synopsis{Developers version: PathConfig for type-checking modules in other (named) Rascal projects}
-@description{
-* sources have to be in `|project://rascal-core/src/org/rascalmpl/core/library|`
-* binaries will be stored the target folder of the rascal-core project
-* has the standard library and typepal on the library path, in case you accidentally want to test a module in rascal-core which depends on typepal.
-* Included projects: rascal-tutor, flybytes, rascal-lsp
-}
-public PathConfig getRascalCorePathConfigDev(bool keep = false) {
-    return makePathConfig([ RASCAL_CORE ], [ RASCAL, TYPEPAL ], keep=keep);
-}
-
-public RascalCompilerConfig getRascalCoreCompilerConfigDev(bool keep=true){
-    return rascalCompilerConfig(getRascalCorePathConfigDev())[verbose = true][logWrittenFiles=true];
 }
 
 // ---- typepal ---------------------------------------------------------------
@@ -332,7 +310,6 @@ public RascalCompilerConfig getPHPCompilerConfig(bool keep = false){
 public PathConfig getVSCodePathConfig() {
     VS_RASCAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.41.0-RC10/rascal-0.41.0-RC10.jar!/|;
     VS_TYPEPAL_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.15.1-SNAPSHOT/typepal-0.15.1-SNAPSHOT.jar!/|;
-    VS_RASCAL_CORE_JAR = |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal-core/0.12.14-SNAPSHOT/rascal-core-0.12.14-SNAPSHOT.jar!/|;
     return 
     pathConfig(
   ignores=[],
@@ -341,7 +318,6 @@ public PathConfig getVSCodePathConfig() {
   generatedSources=|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/generated-sources|,
   libs=[
     |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal/0.41.0-RC10/rascal-0.41.0-RC10.jar!/|,
-    |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/rascal-core/0.12.13/rascal-core-0.12.13.jar!/|,
     |jar+file:///Users/paulklint/.m2/repository/org/rascalmpl/typepal/0.15.0/typepal-0.15.0.jar!/|
   ],
   srcs=[|file:///Users/paulklint/git/rascal-language-servers/rascal-lsp/src/main/rascal/|]);
@@ -362,8 +338,7 @@ public RascalCompilerConfig getVSCodeCompilerConfig(){
 // ---- Outdated TypePal Usage -----------------------------------------------------------------
 
 public PathConfig getOutdatedTPLPathConfig(bool keep = false) {
-    return makePathConfig(RASCAL_CORE,
-                          [RASCAL_CORE + "src/org/rascalmpl/core/library"],
+    return makePathConfig([RASCAL + "src/org/rascalmpl/core/library"],
                           [ RASCAL, OUTDATED_TYPEPAL ],
                           keep=keep);
 }
