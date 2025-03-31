@@ -253,7 +253,7 @@ public class FileSystemTree<T extends FSEntry> {
             else {
                 // we have to replace a file of our own
                 children.computeIfPresent(childPath, (s, c) -> {
-                    if (c.file != null) {
+                    if (c.file == null) {
                         throw new IllegalArgumentException(s + " is not a file");
                     }
                     return new Child<>(replacer.apply(c.file));
