@@ -130,10 +130,10 @@ bool checkStatementsAndFilter(str stmts, list[str] expected) {
 }
 bool checkModuleAndFilter(str moduleText, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
 	mloc = writeModule(moduleText);
-	return checkModuleAndFilter(mloc, expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
+	return checkModuleAndFilter([mloc], expected, matchAll=matchAll, errorsAllowed=errorsAllowed, pathConfig=pathConfig);
 }
-bool checkModuleAndFilter(loc mloc, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
-    ms = rascalTModelForLocs([mloc], rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
+bool checkModuleAndFilter(list[loc] mlocs, list[str] expected, bool matchAll = false, bool errorsAllowed = true, PathConfig pathConfig = pathConfigForTesting()) {
+    ms = rascalTModelForLocs(mlocs, rascalCompilerConfig(pathConfig)[infoModuleChecked=true], dummy_compile1);
 	msgs = getAllMessages(ms);
 	if (verbose) {
      	println(msgs);
@@ -427,7 +427,7 @@ bool unexpectedDeclarationInModule(str moduleText, PathConfig pathConfig = pathC
 	= checkModuleAndFilter(moduleText, unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
 bool unexpectedDeclarationInModule(loc mloc, PathConfig pathConfig = pathConfigForTesting())
-	= checkModuleAndFilter(mloc, unexpectedDeclarationMsgs, pathConfig=pathConfig);
+	= checkModuleAndFilter([mloc], unexpectedDeclarationMsgs, pathConfig=pathConfig);
 
 bool unexpectedDeclaration(str stmts, PathConfig pathConfig = pathConfigForTesting()) =
 	checkStatementsAndFilter(stmts, unexpectedDeclarationMsgs);
@@ -500,12 +500,13 @@ bool unsupported(str stmts) =
 bool expectReChecks(str moduleText, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting(), bool errorsAllowed=false){
 	mloc = writeModule(moduleText);
 	pathConfig.srcs +=  pathConfigForTesting().srcs;
-	return expectReChecks(mloc, moduleNames, pathConfig=pathConfig, errorsAllowed=errorsAllowed);
+	mlocs = mloc + [ getModuleLocation(mn, pathConfig) | mn <- moduleNames ];
+	return expectReChecks(mlocs, moduleNames, pathConfig=pathConfig, errorsAllowed=errorsAllowed);
 }
 
-bool expectReChecks(loc mloc, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting(), bool errorsAllowed=false){
+bool expectReChecks(list[loc] mlocs, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting(), bool errorsAllowed=false){
 	msgs = [ "Checked <nm>" | nm <- moduleNames ];
-	return checkModuleAndFilter(mloc, msgs, matchAll=true, errorsAllowed=errorsAllowed, pathConfig = pathConfig);
+	return checkModuleAndFilter(mlocs, msgs, matchAll=true, errorsAllowed=errorsAllowed, pathConfig = pathConfig);
 }
 
 bool expectReChecksWithErrors(str moduleText, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting()){
@@ -515,5 +516,6 @@ bool expectReChecksWithErrors(str moduleText, list[str] moduleNames, PathConfig 
 
 bool expectReChecksWithErrors(loc mloc, list[str] moduleNames, PathConfig pathConfig = pathConfigForTesting()){
 	msgs = [ "Checked <nm>" | nm <- moduleNames ];
-	return checkModuleAndFilter(mloc, msgs, matchAll=true, errorsAllowed=true, pathConfig=pathConfig);
+	mlocs = mloc + [ getModuleLocation(mn, pathConfig) | mn <- moduleNames ];
+	return checkModuleAndFilter(mlocs, msgs, matchAll=true, errorsAllowed=true, pathConfig=pathConfig);
 }
