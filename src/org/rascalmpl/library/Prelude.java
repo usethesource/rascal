@@ -3710,6 +3710,10 @@ public class Prelude {
 		return URIUtil.relativize(outside, inside);
 	}
 
+	public ISet capabilities(ISourceLocation loc) {
+		return URIResolverRegistry.getInstance().capabilities(loc);
+	}
+
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 

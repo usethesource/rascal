@@ -757,3 +757,42 @@ java void watch(loc src, bool recursive, void (LocationChangeEvent event) watche
 
 @javaClass{org.rascalmpl.library.Prelude}
 java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watcher);
+
+@synopsis{Categories of IO capabilities for loc schemes}
+@description{
+* `read` includes at least these functions:
+   * ((readFile))
+   * ((lastModified)) and ((created))
+   * ((exists))
+   * ((isFile)) and ((isDirectory))
+   * `loc.ls`, and ((listEntries)) 
+* `write` includes at least these functions:
+   * ((writeFile))
+   * ((mkDirectory))
+   * ((remove))
+   * ((rename))
+* `classloader` means that for this scheme a specialized/optimized ClassLoader can be produced at run-time. By
+default an abstract (slower) ClassLoader can be built using `read` capabilities on `.class` files.
+* `watch` means that for this scheme a native file watcher can be instantiated. By default 
+a slower more generic file watcher is created based on capturing `write` actions.
+   * ((logical)) schemes provide a transparent facade for more abstract URIs. The abstract URI is 
+rewritten to a more concrete URI on-demand. Logical URIs can be nested arbitrarily.
+
+These capabilities extend naturally to other IO functions that use the internal versions of the above functionality, 
+such as used in ((ValueIO)) and ((lang::json::IO)), etc.
+}
+@pitfalls{
+* IO capabilities are not to be confused with file _permissions_. It is still possible that a file
+has write capabilities, but writing is denied by the OS due to a lack of permissions.
+}
+data IOCapability
+  = read()
+  | write()
+  | classloader()
+  | logical()
+  | watch()
+  ;
+
+@javaClass{org.rascalmpl.library.Prelude}
+@synopsis{List the IO capabilities of a loc (URI) scheme}
+java set[IOCapability] capabilities(loc location);
