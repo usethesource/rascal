@@ -200,12 +200,18 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * @throws IOException if the root of the repo is gone or not permitted
      */
     private String[] listAllMainArtifacts() throws IOException {
-        try (Stream<Path> files = Files.walk(Paths.get(root.getPath()))) {
+        try (Stream<Path> files = Files.walk(Path.of(root.getURI()))) {
             return files.filter(f -> FileNameUtils.getExtension(f).equals("jar"))
             .filter(f -> !f.toString().endsWith("-sources.jar"))
             .filter(f -> !f.toString().endsWith("-javadoc.jar"))
             .map(f -> {
-                var fl = URIUtil.correctLocation("file", "", f.toString());
+                try {
+                    return URIUtil.createFileLocation(f);
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("Could nog convert path to source location", e);
+                }
+            })
+            .map(fl -> {
                 var parent = URIUtil.getParentLocation(fl);
                 var version = URIUtil.getLocationName(parent);
                 var grandParent = URIUtil.getParentLocation(parent);
