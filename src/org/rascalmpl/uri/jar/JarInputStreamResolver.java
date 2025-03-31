@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2015 CWI
+ * Copyright (c) 2015-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,11 +17,13 @@ import java.net.URISyntaxException;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 
-import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.zip.CompressedFSTree;
+
 import io.usethesource.vallang.ISourceLocation;
 
+// TODO: in the future, merge these with the Zip counterparts
 public class JarInputStreamResolver extends JarFileResolver {
 	private final URIResolverRegistry CTX;
 	
@@ -30,12 +32,12 @@ public class JarInputStreamResolver extends JarFileResolver {
     }
 	
 	@Override
-    protected FileTree getFileHierchyCache(ISourceLocation jarLocation) {
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation jarLocation) {
         try {
             final ISourceLocation lookupKey = URIUtil.changeQuery(jarLocation, "mod=" + CTX.lastModified(jarLocation));
             return fsCache.get(lookupKey, j -> {
                 try {
-                    return new JarInputStreamFileTree(CTX.getInputStream(jarLocation));
+                    return new JarInputStreamFileTree(CTX.getInputStream(jarLocation), CTX.created(jarLocation), CTX.lastModified(jarLocation));
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);
@@ -48,7 +50,7 @@ public class JarInputStreamResolver extends JarFileResolver {
     }
 
     private JarEntry skipToEntry(JarInputStream stream, ISourceLocation jarLocation, String subPath) throws IOException {
-        int pos = ((JarInputStreamFileTree)getFileHierchyCache(jarLocation)).getPosition(subPath);
+        int pos = getFileHierchyCache(jarLocation).getPosition(subPath);
 
         if (pos != -1) {
             JarEntry entry;

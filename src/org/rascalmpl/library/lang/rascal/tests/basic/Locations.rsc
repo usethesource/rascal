@@ -607,3 +607,95 @@ test bool mvnSchemeTest() {
     return true;
 }
 
+
+test bool fileWorks() = testLocWorksRoot(resolveLocation(|home:///|));
+
+test bool memoryWorks() {
+    loc memTest = |memory://locations-loc-test|;
+    writeFile(memTest + "/a/a.txt", "Hoi");
+    return testLocWorksRoot(memTest);
+}
+
+test bool jarWorks() {
+    for (f := findFile(|home:///.m2/repository|, ext = "jar")) {
+        return testLocWorksRoot(f[scheme="jar+<f.scheme>"][path = "<f.path>!/"]);
+    }
+    return false;
+}
+
+test bool mavenWorks() {
+    for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>|);
+    }
+    return false;
+}
+test bool mavenWorks2() {
+    for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>/|);
+    }
+    return false;
+}
+
+private bool testLocWorksRoot(loc existing) {
+    println("Start file path: <existing>");
+    assert exists(existing) : "Start loc should exist";
+    testLocWorks(existing);
+
+    loc subPath = findFile(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath);
+
+    subPath = findDirectory(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath);
+
+    loc nonExisting = existing + "not$__$there";
+    println("Not existing: <nonExisting>");
+    assert !exists(nonExisting) : "Subpath should exist";
+    testLocWorks(nonExisting);
+    return true;
+}
+
+private loc findFile(loc l, str ext = "") {
+    for (f <- l.ls) {
+        if (isFile(f) && (ext == "" || f.extension == ext)) {
+            return f;
+        }
+    }
+    for (f <- l.ls) {
+        return findFile(f);
+    }
+    fail;
+}
+
+private loc findDirectory(loc l) {
+    for (f <- l.ls) {
+        if (isDirectory(f)) {
+            return f;
+        }
+    }
+    throw "There should be at least a single directory inside of it";
+}
+
+private void testLocWorks(loc l) {
+    println("\texists: <exists(l)>");
+    println("\tisFile: <isFile(l)>");
+    println("\tisDirectory: <isDirectory(l)>");
+    if (exists(l)) {
+        println("\tlastModified: <lastModified(l)>");
+        if (isDirectory(l)) {
+            println("\tcontents: <l.ls>");
+            println("\tcontents: <listEntries(l)>");
+        }
+    }
+
+    if (!exists(l) || !isDirectory(l)) {
+        try {
+            println("\tcontents: <l.ls>");
+            assert false: "ls on a non-directory should have thrown an IO exception";
+        }
+        catch IO(_) : return;
+    }
+}
