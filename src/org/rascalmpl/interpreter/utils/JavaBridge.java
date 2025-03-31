@@ -50,6 +50,7 @@ import org.rascalmpl.exceptions.RuntimeExceptionFactory;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
@@ -108,11 +109,11 @@ public class JavaBridge {
 	}
 
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, String source) {
-		return compileJava(loc, className, getClass(), source);
+		return compileJava(loc, className, Evaluator.class, source);
 	}
 
 	public void compileJava(ISourceLocation loc, String className, String source, OutputStream classBytes) {
-		compileJava(loc, className, getClass(), source, classBytes);
+		compileJava(loc, className, Evaluator.class, source, classBytes);
 	}
 	
 	public <T> Class<T> compileJava(ISourceLocation loc, String className, Class<?> parent, String source) {
