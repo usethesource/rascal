@@ -1098,11 +1098,11 @@ public class URIResolverRegistry {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeStore capabilitiesStore = new TypeStore();
 	private final Type IOcapability = tf.abstractDataType(capabilitiesStore, "IOCapability");
-	private final Type readCap = tf.constructor(capabilitiesStore, IOcapability, "read");
-	private final Type writeCap = tf.constructor(capabilitiesStore, IOcapability, "write");
-	private final Type loadCap = tf.constructor(capabilitiesStore, IOcapability, "classloader");
-	private final Type logicalCap = tf.constructor(capabilitiesStore, IOcapability, "logical");
-	private final Type watchCap = tf.constructor(capabilitiesStore, IOcapability, "watch");
+	private final Type readCap = tf.constructor(capabilitiesStore, IOcapability, "reading");
+	private final Type writeCap = tf.constructor(capabilitiesStore, IOcapability, "writing");
+	private final Type loadCap = tf.constructor(capabilitiesStore, IOcapability, "classloading");
+	private final Type logicalCap = tf.constructor(capabilitiesStore, IOcapability, "resolving");
+	private final Type watchCap = tf.constructor(capabilitiesStore, IOcapability, "watching");
 
 	public ISet capabilities(ISourceLocation loc) {
 		var vf = IRascalValueFactory.getInstance();
