@@ -786,11 +786,11 @@ such as used in ((ValueIO)) and ((lang::json::IO)), etc.
 has write capabilities, but writing is denied by the OS due to a lack of permissions.
 }
 data IOCapability
-  = read()
-  | write()
-  | classloader()
-  | logical()
-  | watch()
+  = reading()
+  | writing()
+  | classloading()
+  | resolving()
+  | watching()
   ;
 
 @javaClass{org.rascalmpl.library.Prelude}
