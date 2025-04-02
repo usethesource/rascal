@@ -100,6 +100,19 @@ public class FileSystemTreeTest {
         target.remove("a");
     }
 
+    @Test
+    public void filesAreNotDirectories() throws IOException {
+        addFile("a");
+        assertThrows(IOException.class, () -> addFile("a/b.txt"));
+        assertThrows(IOException.class, () -> target.lastModified("a/b.txt"));
+        assertThrows(IOException.class, () -> target.directChildren("a/"));
+
+        addFile("b/c");
+        assertThrows(IOException.class, () -> addFile("b/c/d.txt"));
+        assertThrows(IOException.class, () -> target.lastModified("b/c/d.txt"));
+        assertThrows(IOException.class, () -> target.directChildren("b/c"));
+    }
+
     private static String[] sorted(String [] input) {
         Arrays.sort(input);
         return input;
