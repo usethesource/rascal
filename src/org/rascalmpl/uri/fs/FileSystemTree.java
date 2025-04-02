@@ -35,8 +35,9 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -66,18 +67,18 @@ public class FileSystemTree<T extends FSEntry> {
         root.add(parsePath(path), entry, inferDirectory, false);
     }
 
-    public void replaceFile(String path, Function<T, T> replacer) throws IOException {
-        root.replaceEntry(parsePath(path), replacer);
+    public void replaceFile(String path, UnaryOperator<T> replacer) throws IOException {
+        Directory.replaceFile(root, parsePath(path), replacer);
     }
 
     public void remove(String path) throws IOException {
-        root.remove(parsePath(path));
+        Directory.remove(root, parsePath(path));
     }
 
 
     public T getEntry(String path) throws IOException {
         throwDelayed();
-        var result = root.getEntry(parsePath(path));
+        var result = Directory.getEntry(root, parsePath(path));
         if (result == null) {
             throw new FileNotFoundException(path + " could not be found");
         }
@@ -100,7 +101,7 @@ public class FileSystemTree<T extends FSEntry> {
 
     public boolean exists(String path) {
         try {
-            return root.getEntry(parsePath(path)) != null;
+            return Directory.getEntry(root, parsePath(path)) != null;
         }
         catch (IOException e) {
             return false;
@@ -108,7 +109,7 @@ public class FileSystemTree<T extends FSEntry> {
     }
     public boolean isFile(String path) {
         try {
-            var result = root.getEntry(parsePath(path));
+            var result = Directory.getEntry(root, parsePath(path));
             return result != null && result.file != null;
         }
         catch (IOException e) {
@@ -117,7 +118,7 @@ public class FileSystemTree<T extends FSEntry> {
     }
     public boolean isDirectory(String path) {
         try {
-            var result = root.getEntry(parsePath(path));
+            var result = Directory.getEntry(root, parsePath(path));
             return result != null && result.directory != null;
         }
         catch (IOException e) {
@@ -135,7 +136,7 @@ public class FileSystemTree<T extends FSEntry> {
 
     public String[] directChildren(String path) throws IOException {
         throwDelayed();
-        var entry = root.getEntry(parsePath(path));
+        var entry = Directory.getEntry(root, parsePath(path));
         if (entry == null) {
             throw new FileNotFoundException(path);
         }
@@ -161,7 +162,7 @@ public class FileSystemTree<T extends FSEntry> {
         }
         return new Iterator<String>() {
             String nextString = null;
-            int prevIndex = firstNonSlash(path);
+            int prevIndex = nextNonSlash(path, 0);
             @Override
             public boolean hasNext() {
                 if (nextString == null && prevIndex != -1 && prevIndex < path.length() ) {
@@ -172,7 +173,7 @@ public class FileSystemTree<T extends FSEntry> {
                     }
                     else {
                         nextString = path.substring(prevIndex, nextIndex);
-                        prevIndex = nextIndex + 1;
+                        prevIndex = nextNonSlash(path, nextIndex + 1);
                     }
                 }
                 return nextString != null;
@@ -190,8 +191,8 @@ public class FileSystemTree<T extends FSEntry> {
         };
     }
 
-    private static int firstNonSlash(String path) {
-        int result = 0;
+    private static int nextNonSlash(String path, int offset) {
+        int result = offset;
         while (result < path.length() && path.charAt(result) == '/') {
             result++;
         }
@@ -227,73 +228,61 @@ public class FileSystemTree<T extends FSEntry> {
             }
         }
 
-        public @Nullable Child<T> getEntry(Iterator<String> path) throws IOException {
-            if (!path.hasNext()) {
-                return new Child<>(this);
+        public static <T extends FSEntry> @Nullable Child<T> getEntry(Directory<T> root, Iterator<String> path) throws IOException {
+            var cursor = root.findDirectory(path);
+            var directory = cursor.getLeft();
+            var entry = cursor.getRight();
+            if (entry.isEmpty()) {
+                return new Child<>(directory);
             }
-            var childPath = path.next();
-            var result = children.get(childPath);
-            if (result == null) {
-                return null;
-            }
-            if (result.file != null) {
-                if (path.hasNext()) {
-                    throw new NotDirectoryException(prefix + "/" + childPath);
-                }
-                return result;
-            }
-            assert result.directory != null;
-            return result.directory.getEntry(path);
-        }
 
-        public void replaceEntry(Iterator<String> path, Function<T,T> replacer) throws IOException {
+            return directory.children.get(entry);
+        }
+        
+        private Pair<Directory<T>, String> findDirectory(Iterator<String> path) throws IOException {
             if (!path.hasNext()) {
-                throw new FileNotFoundException();
+                return Pair.of(this, "");
             }
             var childPath = path.next();
             if (path.hasNext()) {
+                var result = children.get(childPath);
                 // we're looking for a subdirectory
-                var result = children.get(childPath);
                 if (result == null || result.directory == null) {
                     throw new NotDirectoryException(prefix + "/" + childPath);
                 }
-                result.directory.replaceEntry(path, replacer);
+                return result.directory.findDirectory(path);
             }
-            else {
-                // we have to replace a file of our own
-                children.computeIfPresent(childPath, (s, c) -> {
-                    if (c.file == null) {
-                        throw new IllegalArgumentException(s + " is not a file");
-                    }
-                    return new Child<>(replacer.apply(c.file));
-                });
-            }
+            // we're at the right place
+            return Pair.of(this, childPath);
         }
 
-        public void remove(Iterator<String> path) throws IOException {
-            if (!path.hasNext()) {
-                throw new FileNotFoundException();
-            }
-            var childPath = path.next();
-            if (path.hasNext()) {
-                // our down stream has to deal with remove
-                var result = children.get(childPath);
-                if (result == null || result.directory == null) {
-                    throw new NotDirectoryException(prefix + "/" + childPath);
+        public static <T extends FSEntry> void replaceFile(Directory<T> root, Iterator<String> path, UnaryOperator<T> replacer) throws IOException {
+            var cursor = root.findDirectory(path);
+            var directory = cursor.getLeft();
+            var entry = cursor.getRight();
+            directory.children.computeIfPresent(entry, (s, c) -> {
+                if (c.file == null) {
+                    throw new IllegalArgumentException(s + " is not a file");
                 }
-                result.directory.remove(path);
-            }
-            else {
-                // we have to remove something
-                var existing = children.remove(childPath);
+                return new Child<>(replacer.apply(c.file));
+            });
+        }
+
+        public static <T extends FSEntry> void remove(Directory<T> root, Iterator<String> path) throws IOException {
+            var cursor = root.findDirectory(path);
+            var directory = cursor.getLeft();
+            var entry = cursor.getRight();
+            synchronized(directory.children) {
+                var existing = directory.children.remove(entry);
                 if (existing == null) {
-                    throw new FileNotFoundException(prefix + "/" + childPath);
+                    throw new FileNotFoundException(directory.prefix + "/" + entry);
                 }
                 if (existing.directory != null && !existing.directory.children.isEmpty()) {
-                    children.put(childPath, existing);
-                    throw new DirectoryNotEmptyException(prefix + "/" + childPath);
+                    // put it back, we shouldn't have removed it
+                    directory.children.put(entry, existing);
+                    throw new DirectoryNotEmptyException(directory.prefix + "/" + entry);
                 }
-                self.lastModified = Math.max(self.lastModified +1, System.currentTimeMillis());
+                directory.self.lastModified = Math.max(directory.self.lastModified +1, System.currentTimeMillis());
             }
         }
         

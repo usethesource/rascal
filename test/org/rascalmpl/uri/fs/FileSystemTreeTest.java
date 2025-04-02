@@ -14,7 +14,7 @@ public class FileSystemTreeTest {
     private long currentTime = 0;
 
     @Before
-    public void initTarget() throws IOException {
+    public void initTarget() {
         target = new FileSystemTree<FSEntry>(new FSEntry(0, 0));
         currentTime = 0;
     }
