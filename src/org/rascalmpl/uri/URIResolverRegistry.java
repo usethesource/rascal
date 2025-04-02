@@ -46,10 +46,16 @@ import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.ISourceLocationWatcher.ISourceLocationChanged;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class URIResolverRegistry {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -1086,6 +1092,49 @@ public class URIResolverRegistry {
 			}
 		}
 
+	}
+
+	// these types must align with their correspondig types in IO.rsc
+	private final TypeFactory tf = TypeFactory.getInstance();
+	private final TypeStore capabilitiesStore = new TypeStore();
+	private final Type IOcapability = tf.abstractDataType(capabilitiesStore, "IOCapability");
+	private final Type readCap = tf.constructor(capabilitiesStore, IOcapability, "reading");
+	private final Type writeCap = tf.constructor(capabilitiesStore, IOcapability, "writing");
+	private final Type loadCap = tf.constructor(capabilitiesStore, IOcapability, "classloading");
+	private final Type logicalCap = tf.constructor(capabilitiesStore, IOcapability, "resolving");
+	private final Type watchCap = tf.constructor(capabilitiesStore, IOcapability, "watching");
+
+	public ISet capabilities(ISourceLocation loc) {
+		var vf = IRascalValueFactory.getInstance();
+		var scheme = loc.getScheme();
+		ISetWriter result = vf.setWriter();
+
+		if (logicalResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(logicalCap));
+			var resolved = safeResolve(loc);
+
+			if (resolved != loc) {
+				result.insertAll(capabilities(resolved));
+			}
+		}
+
+		if (inputResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(readCap));
+		}
+
+		if (outputResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(writeCap));
+		}
+
+		if (classloaderResolvers.containsKey(scheme)) {
+			result.insert(vf.constructor(loadCap));
+		}
+
+		if (watchers.containsKey(scheme)) {
+			result.insert(vf.constructor(watchCap));
+		}
+	
+		return result.done();
 	}
 
 }
