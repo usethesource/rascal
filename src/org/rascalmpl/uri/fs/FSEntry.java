@@ -37,7 +37,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class FSEntry {
     final long created;
 
-    long lastModified;
+    volatile long lastModified;
 
 
     public FSEntry(long created, long lastModified) {
