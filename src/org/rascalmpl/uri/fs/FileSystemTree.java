@@ -43,7 +43,6 @@ import org.checkerframework.checker.nullness.qual.Nullable;
  * Track a set of files (and directories) in memory. 
  * This is used by the in memory filesystem, and also by the jar & zip resolvers
  * 
- * Note, path should be relative, so no leading `/`
  */
 public class FileSystemTree<T extends FSEntry> {
     private final Directory<T> root;
@@ -162,7 +161,7 @@ public class FileSystemTree<T extends FSEntry> {
         }
         return new Iterator<String>() {
             String nextString = null;
-            int prevIndex = 0;
+            int prevIndex = firstNonSlash(path);
             @Override
             public boolean hasNext() {
                 if (nextString == null && prevIndex != -1 && prevIndex < path.length() ) {
@@ -189,6 +188,14 @@ public class FileSystemTree<T extends FSEntry> {
                 return result;
             }
         };
+    }
+
+    private static int firstNonSlash(String path) {
+        int result = 0;
+        while (result < path.length() && path.charAt(result) == '/') {
+            result++;
+        }
+        return result;
     }
 
     private static class Directory<T extends FSEntry> {
