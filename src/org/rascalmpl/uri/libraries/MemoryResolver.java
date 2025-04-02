@@ -105,12 +105,8 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 		return fileSystems.computeIfAbsent(authority, a -> new FileSystemTree<MemoryEntry>(new MemoryEntry()));
 	}
 
-	private static String getPath(ISourceLocation loc) {
-		return loc.getPath().substring(1); // remove the leading '/'
-	}
-
 	private MemoryEntry get(ISourceLocation uri) throws IOException {
-	    return getFS(uri).getEntry(getPath(uri));
+	    return getFS(uri).getEntry(uri.getPath());
 	}
 	
 	@Override
@@ -144,10 +140,10 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 				byte[] content = this.toByteArray();
 				var fs = getFS(uri);
 				if (entry == null) {
-					fs.addFile(getPath(uri), new MemoryEntry(content), MemoryEntry::new);
+					fs.addFile(uri.getPath(), new MemoryEntry(content), MemoryEntry::new);
 				}
 				else {
-					fs.replaceFile(getPath(uri), old -> old.newContents(content));
+					fs.replaceFile(uri.getPath(), old -> old.newContents(content));
 				}
 				super.close();
 			}
@@ -158,7 +154,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 			    throw new FileNotFoundException();
 			}
 			if (file.contents == null) {
-				throw new NoSuchFileException(getPath(uri), null, "not a file, but a directory");
+				throw new NoSuchFileException(uri.getPath(), null, "not a file, but a directory");
 			}
 			// load data to write, makes the closing code simpler
 			result.write(file.contents);
@@ -168,12 +164,12 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	
 	@Override
 	public long lastModified(ISourceLocation uri) throws IOException {
-		return getFS(uri).lastModified(getPath(uri));
+		return getFS(uri).lastModified(uri.getPath());
 	}
 	
 	@Override
 	public void setLastModified(ISourceLocation uri, long timestamp) throws IOException {
-		getFS(uri).touch(getPath(uri), timestamp);
+		getFS(uri).touch(uri.getPath(), timestamp);
 	}
 	
 	@Override
@@ -183,22 +179,22 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public boolean exists(ISourceLocation uri) {
-		return getFS(uri).exists(getPath(uri));
+		return getFS(uri).exists(uri.getPath());
 	}
 
 	@Override
 	public boolean isDirectory(ISourceLocation uri) {
-	    return getFS(uri).isDirectory(getPath(uri));
+	    return getFS(uri).isDirectory(uri.getPath());
 	}
 
 	@Override
 	public boolean isFile(ISourceLocation uri) {
-		return getFS(uri).isFile(getPath(uri));
+		return getFS(uri).isFile(uri.getPath());
 	}
 
 	@Override
 	public String[] list(ISourceLocation uri) throws IOException {
-	    return getFS(uri).directChildren(getPath(uri));
+	    return getFS(uri).directChildren(uri.getPath());
 	}
 
 	@Override
@@ -211,7 +207,7 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	    if (uri.getScheme().endsWith("+readonly")) {
             throw new AccessDeniedException(uri.toString());
         }
-		getFS(uri).addDirectory(getPath(uri), new MemoryEntry(), MemoryEntry::new);
+		getFS(uri).addDirectory(uri.getPath(), new MemoryEntry(), MemoryEntry::new);
 	}
 
 	@Override
@@ -222,9 +218,9 @@ public class MemoryResolver implements ISourceLocationInputOutput {
 	  
 		var ft = getFS(uri.getAuthority());
 
-		var path = getPath(uri);
+		var path = uri.getPath();
 
-		if (!path.isEmpty()) {
+		if (!path.isEmpty() && !path.equals("/")) {
 			// remove the specific file
 			ft.remove(path);
 		}
