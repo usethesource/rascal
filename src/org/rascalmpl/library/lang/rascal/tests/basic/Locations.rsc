@@ -618,43 +618,37 @@ test bool memoryWorks() {
 
 test bool jarWorks() {
     for (f := findFile(|home:///.m2/repository|, ext = "jar")) {
-        return testLocWorksRoot(f[scheme="jar+<f.scheme>"][path = "<f.path>!/"]);
+        return testLocWorksRoot(f[scheme="jar+<f.scheme>"][path = "<f.path>!/"], isWritable = false);
     }
     return false;
 }
 
 test bool mavenWorks() {
     for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
-        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>|);
-    }
-    return false;
-}
-test bool mavenWorks2() {
-    for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
-        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>/|);
+        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>|, isWritable = false);
     }
     return false;
 }
 
-private bool testLocWorksRoot(loc existing) {
+private bool testLocWorksRoot(loc existing,bool isWritable = true) {
     println("Start file path: <existing>");
     assert exists(existing) : "Start loc should exist";
-    testLocWorks(existing);
+    testLocWorks(existing, isWritable);
 
     loc subPath = findFile(existing);
     println("Sub path: <subPath>");
     assert exists(subPath) : "Subpath should exist";
-    testLocWorks(subPath);
+    testLocWorks(subPath, isWritable);
 
     subPath = findDirectory(existing);
     println("Sub path: <subPath>");
     assert exists(subPath) : "Subpath should exist";
-    testLocWorks(subPath);
+    testLocWorks(subPath, isWritable);
 
     loc nonExisting = existing + "not$__$there";
     println("Not existing: <nonExisting>");
     assert !exists(nonExisting) : "Subpath should exist";
-    testLocWorks(nonExisting);
+    testLocWorks(nonExisting, isWritable);
     return true;
 }
 
@@ -678,7 +672,7 @@ private loc findDirectory(loc l) {
     throw "There should be at least a single directory inside of it";
 }
 
-private void testLocWorks(loc l) {
+private void testLocWorks(loc l, bool isWritable) {
     println("\texists: <exists(l)>");
     println("\tisFile: <isFile(l)>");
     println("\tisDirectory: <isDirectory(l)>");
@@ -689,7 +683,7 @@ private void testLocWorks(loc l) {
             println("\tcontents: <listEntries(l)>");
         }
     }
-    else {
+    else if (isWritable) {
         try {
             remove(l);
         }
