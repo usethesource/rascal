@@ -131,52 +131,37 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <rascalBootstrapVersion>0.41.0-RC21</rascalBootstrapVersion>
-                    <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
-                    <bin>${project.build.outputDirectory}</bin>
-                    <srcs>
-                        <src>${project.basedir}/src/org/rascalmpl/library</src>
-                        <!-- do not typecheck the checker or the tutor yet 
-                        <src>${project.basedir}/src/org/rascalmpl/tutor</src>
-                        <src>${project.basedir}/src/org/rascalmpl/compiler</src>
-                        -->
-                    </srcs>
-                    <sourceLookup>|std:///|</sourceLookup>
-                    <funding>${project.basedir}/FUNDING</funding>
-                    <citation>${project.basedir}/CITATION.md</citation>
-                    <issues>|https://github.com/usethesource/rascal/issues|</issues>
-                    <srcIgnores>
-                        <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
-                        <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
-                    </srcIgnores>
-                    <enableStandardLibrary>false</enableStandardLibrary>
-                    <parallel>true</parallel>
-                    <parallelPreChecks>
-                        <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
-                    </parallelPreChecks>
+                    <bootstrapRascalVersion>0.41.0-RC22</bootstrapRascalVersion>
                 </configuration>
                 <executions>
-                    <!-- commented out for bootstrap purposes
                     <execution>
                         <id>it-compile</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
+                        <configuration>
+                            <!-- only allowed during intermediate bootstrap cycles -->
+                            <errorsAsWarnings>false</errorsAsWarnings> 
+                            <bin>${project.build.outputDirectory}</bin>
+                            <srcs>
+                                <src>${project.basedir}/src/org/rascalmpl/library</src>
+                            </srcs>
+                            <srcIgnores>
+                                <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
+                                <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
+                            </srcIgnores>
+                            <enableStandardLibrary>false</enableStandardLibrary>
+                            <parallel>true</parallel>
+                            <parallelPreChecks>
+                                <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
+                            </parallelPreChecks>
+                        </configuration>
                     </execution>
-                    <execution>
-                        <id>it-package</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution> -->
-
-		    <!-- commented out while bootstrapping the tutor
                     <execution>
                         <id>default-cli</id>
                         <phase>compile</phase>
@@ -188,6 +173,8 @@
                             <enableStandardLibrary>false</enableStandardLibrary>
                             <errorsAsWarnings>false</errorsAsWarnings>
                             <bin>${project.build.outputDirectory}</bin>
+                            <funding>${project.basedir}/FUNDING</funding>
+                            <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
                             <sources>|http://github.com/usethesource/rascal/blob/main|</sources>
                             <issues>|http://github.com/usethesource/rascal/issues|</issues>
@@ -198,8 +185,17 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
                             </ignores>
                         </configuration>
-                        </execution>
-		    -->
+                    </execution>
+                    <execution>
+                        <id>it-package</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <sourceLookup>|std:///|</sourceLookup>
+                        </configuration>
+                    </execution> 
                 </executions>
             </plugin>
             <plugin>
