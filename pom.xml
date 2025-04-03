@@ -245,6 +245,7 @@
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
                         <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
+                        <include>**/org/rascalmpl/uri/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
