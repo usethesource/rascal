@@ -2,10 +2,18 @@ package org.rascalmpl.uri.fs;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.commons.io.FileExistsException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -112,6 +120,59 @@ public class FileSystemTreeTest {
         assertThrows(IOException.class, () -> addFile("b/c/d.txt"));
         assertThrows(IOException.class, () -> target.lastModified("b/c/d.txt"));
         assertThrows(IOException.class, () -> target.directChildren("b/c"));
+    }
+
+    @Test
+    public void multiThreadingNothingLost() throws IOException, InterruptedException, BrokenBarrierException {
+        var written = new ConcurrentLinkedDeque<String>();
+        int threads = Runtime.getRuntime().availableProcessors();
+        var anyException = new AtomicReference<IOException>();
+        var done = new AtomicBoolean(false);
+        var start = new CyclicBarrier(threads + 1);
+        var finished = new CyclicBarrier(threads + 1);
+        for (int i = 0; i < threads; i++) {
+            var r = new Random(i * System.currentTimeMillis());
+            var t = new Thread(() -> {
+                try {
+                    start.await();
+                    while (!done.get()) {
+                        for (int j = 5; j < 1000; j++) { 
+                            var file = String.format("%s/%s.txt", r.nextInt(j / 2), r.nextInt(j));
+                            try {
+                                target.addFile(file, new FSEntry(j, j), FSEntry::new);
+                                written.add(file);
+                            } catch (FileExistsException ignored) {
+                            }
+                            var dir = String.format("%s/%s/%s", r.nextInt(j / 2), r.nextInt(j / 3), r.nextInt(j));
+                            try {
+                                target.addDirectory(dir, new FSEntry(j, j), FSEntry::new);
+                                written.add(dir);
+                            } catch (FileExistsException ignored) {
+                            }
+                        }
+                    }
+                } catch (InterruptedException | BrokenBarrierException e) {
+                    return;
+                } catch (IOException e) {
+                    anyException.compareAndSet(null, e);
+                } finally {
+                    try {
+                        finished.await();
+                    }
+                    catch (InterruptedException | BrokenBarrierException e) {
+                        return;
+                    }
+                }
+            });
+            t.start();
+        }
+        start.await();
+        Thread.sleep(2000);
+        done.set(true);
+        finished.await();
+        for (var p : written) {
+            assertTrue(p + " should exist", target.exists(p));
+        }
     }
 
     private static String[] sorted(String [] input) {
