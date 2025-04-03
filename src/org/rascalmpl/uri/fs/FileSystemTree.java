@@ -73,7 +73,11 @@ public class FileSystemTree<T extends FSEntry> {
     }
 
     public void remove(String path) throws IOException {
-        Directory.remove(root, parsePath(path));
+        try {
+            Directory.remove(root, parsePath(path));
+        } catch (FileNotFoundException ignored) {
+            // file not found exceptions are no problem, the file/dir was apparantly already removed
+        }
     }
 
 

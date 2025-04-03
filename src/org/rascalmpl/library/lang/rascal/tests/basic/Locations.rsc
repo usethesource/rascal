@@ -689,12 +689,18 @@ private void testLocWorks(loc l) {
             println("\tcontents: <listEntries(l)>");
         }
     }
+    else {
+        try {
+            remove(l);
+        }
+        catch IO(_): throw "Removing file that does not exist should not cause an exception";
+    }
 
     if (!exists(l) || !isDirectory(l)) {
         try {
             println("\tcontents: <l.ls>");
             assert false: "ls on a non-directory should have thrown an IO exception";
         }
-        catch IO(_) : return;
+        catch IO(_) : true;
     }
 }
