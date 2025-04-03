@@ -98,6 +98,7 @@ public class FileSystemTreeTest {
         assertArrayEquals(new String[0], target.directChildren("a/b"));
         target.remove("a/b");
         target.remove("a");
+        target.remove("c"); // should not throw even though it does not exist
     }
 
     @Test
