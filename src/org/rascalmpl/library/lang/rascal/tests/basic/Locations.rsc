@@ -659,22 +659,21 @@ private bool testLocWorksRoot(loc existing) {
 }
 
 private loc findFile(loc l, str ext = "") {
-    for (f <- l.ls) {
-        if (isFile(f) && (ext == "" || f.extension == ext)) {
-            return f;
-        }
+    for (f <- l.ls, isFile(f) && (ext == "" || f.extension == ext)) {
+        return f;
     }
     for (f <- l.ls, isDirectory(f)) {
-        return findFile(f, ext= ext);
+        result = findFile(f, ext= ext);
+        if (result.scheme != "invalid") {
+            return result;
+        }
     }
-    fail;
+    return |invalid:///file|;
 }
 
 private loc findDirectory(loc l) {
-    for (f <- l.ls) {
-        if (isDirectory(f)) {
-            return f;
-        }
+    for (f <- l.ls, isDirectory(f)) {
+        return f;
     }
     throw "There should be at least a single directory inside of it";
 }
