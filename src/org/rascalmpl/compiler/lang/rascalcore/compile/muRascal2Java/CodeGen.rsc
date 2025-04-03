@@ -223,7 +223,7 @@ tuple[JCode, JCode, JCode, list[value]] muRascal2Java(MuModule m, map[str,TModel
                     '  <if (!hasListStrArgs && !hasDefaultArgs) {>
                     '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>();
                     '  <}><if (hasListStrArgs) {>
-                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>(java.util.Arrays.stream(args).map(a -\> instance.$VF.string(a)).collect(instance.$VF.listWriter()));
+                    '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>(java.util.Arrays.stream(args).map(a -\> instance.$RVF.string(a)).collect(instance.$RVF.listWriter()));
                     '  <}><if (hasDefaultArgs) {>
                     '  <if (!mainIsVoid) {>IValue res = <}>instance.<mainName>($parseCommandlineParameters(\"<baseClassName>\", args, <atype2vtype(atuple(atypeList([kw.fieldType | Keyword kw <- mainFunction.ftype.kwFormals])), jg)>));
                     '  <}>
@@ -340,9 +340,9 @@ JCode makeConstructorCall(AType consType, list[str] actuals, list[str] kwargs, J
     acc = jg.getATypeAccessor(consType);
     a2i = atype2idpart(consType);
     if(!isEmpty(kwargs)){
-        return "$VF.constructor(<jg.getATypeAccessor(consType)><atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>}, <kwargs[0]>)";
+        return "$RVF.constructor(<jg.getATypeAccessor(consType)><atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>}, <kwargs[0]>)";
     } else {
-     return "$VF.constructor(<jg.getATypeAccessor(consType)><atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>})";
+     return "$RVF.constructor(<jg.getATypeAccessor(consType)><atype2idpart(consType)>, new IValue[]{<intercalate(", ", actuals)>})";
     }
 }
 
@@ -670,7 +670,7 @@ str trans(muTreeAppl(MuExp p, MuExp argList, loc src), JGenie jg) {
 }
 
 str trans(muTreeAppl(MuExp p, list[MuExp] args, loc src), JGenie jg) {
-  return "$RVF.appl(<trans(p, jg)>, $VF.list(<intercalate(",", [trans(a, jg) | a <- args])>)).asWithKeywordParameters().setParameter(\"src\", <jg.shareConstant(src)>)";
+  return "$RVF.appl(<trans(p, jg)>, $RVF.list(<intercalate(",", [trans(a, jg) | a <- args])>)).asWithKeywordParameters().setParameter(\"src\", <jg.shareConstant(src)>)";
 }  
 str trans(muTreeChar(int ch), JGenie jg) 
   = "$RVF.character(<ch>)";  
@@ -687,8 +687,8 @@ str trans(muTreeGetArgs(MuExp t), JGenie jg) {
     return "((org.rascalmpl.values.parsetrees.ITree) <trans(t, jg)>).getArgs()";
 }
 
-str trans(muTreeUnparse(MuExp t), JGenie jg) = "$VF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>))";
-str trans(muTreeUnparseToLowerCase(MuExp t), JGenie jg) = "$VF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>).toLowerCase())";
+str trans(muTreeUnparse(MuExp t), JGenie jg) = "$RVF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>))";
+str trans(muTreeUnparseToLowerCase(MuExp t), JGenie jg) = "$RVF.string(org.rascalmpl.values.parsetrees.TreeAdapter.yield(<trans(t, jg)>).toLowerCase())";
 
 // ---- Type parameters ---------------------------------------------------------
 
@@ -846,13 +846,13 @@ str transWithCast(AType atype, kwp:muKwpActuals(_), JGenie jg) = trans(kwp, jg);
 default str transWithCast(AType atype, MuExp exp, JGenie jg) {
     code = trans(exp, jg);
     if(producesNativeBool(exp)){
-        return "$VF.bool(<code>)";
+        return "$RVF.bool(<code>)";
     }
     if(producesNativeInt(exp)){
-        return "$VF.integer(<code>)";
+        return "$RVF.integer(<code>)";
     }
     if(producesNativeStr(exp)){
-        return "$VF.string(<code>)";
+        return "$RVF.string(<code>)";
     }
     
     if(producesFunctionInstance(code)){
@@ -946,10 +946,10 @@ tuple[list[JCode], list[JCode]] getPositionalAndKeywordActuals(funType:afunc(ATy
         varElemType = getElementType(funType.formals[-1]);
         vargs = [ trans(e, jg) | e <- actuals[n .. ] ];
         if(isEmpty(vargs)){
-            resulting_actuals += "$VF.list()";
+            resulting_actuals += "$RVF.list()";
         } else {
             lastArgIsList = size(actuals) == size(formals) && isListAType(getType(actuals[-1]));
-            resulting_actuals += lastArgIsList ? vargs : "$VF.list(<intercalate(",", vargs)>)";
+            resulting_actuals += lastArgIsList ? vargs : "$RVF.list(<intercalate(",", vargs)>)";
         }
     } else {
         resulting_actuals = getActuals(formals, actuals, jg);
@@ -1041,7 +1041,7 @@ JCode trans(muReturnFirstSucceeds(list[str] formals, list[MuExp] exps), JGenie j
     '} catch (Throw e) {
     '   if(!((IConstructor)e.getException()).getName().equals(\"CallFailed\")) throw e;
     '}<}>
-    'throw RuntimeExceptionFactory.callFailed($VF.list(<intercalate(", ", formals)>));
+    'throw RuntimeExceptionFactory.callFailed($RVF.list(<intercalate(", ", formals)>));
     ";
 }
 
@@ -1631,7 +1631,7 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
            '    <trans2Void(body, jg)>}";
            
     if(!isEmpty(deltaContrib)){
-        loop =  "if(<dir> ? $lessequal(<delta>, $VF.integer(0)).not().getValue() : $less(<delta>, $VF.integer(0)).getValue()) {
+        loop =  "if(<dir> ? $lessequal(<delta>, $RVF.integer(0)).not().getValue() : $less(<delta>, $RVF.integer(0)).getValue()) {
                 '   <loop>
                 '}";
     }
@@ -1671,7 +1671,7 @@ JCode trans(muSwitch(str label, MuExp exp, list[MuCase] cases, MuExp defaultExp,
 }
 
 JCode genDescendantDescriptor(DescendantDescriptor descendant, JGenie jg){
-    useConcreteFingerprint = "$VF.bool(<descendant.useConcreteFingerprint>)";
+    useConcreteFingerprint = "$RVF.bool(<descendant.useConcreteFingerprint>)";
     
     if(anode([]) in descendant.reachable_atypes || avalue() in descendant.reachable_atypes){
         return "new DescendantDescriptorAlwaysTrue(<useConcreteFingerprint>)";
@@ -1757,7 +1757,7 @@ JCode trans(muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs
 JCode trans(muMemoReturn0(AType funType, list[MuExp] args), JGenie jg){
     cache = getMemoCache(jg.getFunction());
     kwpActuals = isEmpty(funType.kwFormals) ? "Collections.emptyMap()" : "$kwpActuals";
-    return "$memoVal = $VF.bool(true);
+    return "$memoVal = $RVF.bool(true);
            '<cache>.store($actuals, <kwpActuals>, $memoVal);
            'return;";
 }
@@ -1838,10 +1838,10 @@ default JCode trans2NativeInt(MuExp exp, JGenie jg)
     //= "<trans(exp, jg)><producesNativeInt(exp) ? "" : ".intValue()">";
     
 JCode trans2IInteger(MuExp exp, JGenie jg)
-    = producesNativeInt(exp) ? "$VF.integer(<trans(exp, jg)>)" : trans(exp, jg);
+    = producesNativeInt(exp) ? "$RVF.integer(<trans(exp, jg)>)" : trans(exp, jg);
     
 JCode trans2IBool(MuExp exp, JGenie jg)
-    = producesNativeBool(exp) ? "$VF.bool(<trans(exp, jg)>)" : trans(exp, jg);
+    = producesNativeBool(exp) ? "$RVF.bool(<trans(exp, jg)>)" : trans(exp, jg);
 
 // ----
 
@@ -2077,7 +2077,7 @@ JCode trans(muRegExpSetRegion(MuExp matcher, int begin, int end), JGenie jg)
     =  "<trans(matcher, jg)>.region(<begin>, <end>)";
 
 JCode trans(muRegExpGroup(MuExp matcher, int n), JGenie jg)
-    = "$VF.string(<trans(matcher, jg)>.group(<n>))";
+    = "$RVF.string(<trans(matcher, jg)>.group(<n>))";
  
  JCode trans(muRegExpSetRegionInVisit(MuExp matcher), JGenie jg)
     = "<trans(matcher, jg)>.region($traversalState.getBegin(),$traversalState.getEnd());\n";
@@ -2092,7 +2092,7 @@ JCode trans(muStringSetMatchedInVisit(int len), JGenie jg)
 // String templates
 
 JCode trans(muTemplate(str initial), JGenie jg){
-    return "new Template($VF, \"<escapeAsJavaString(initial)>\")";
+    return "new Template($RVF, \"<escapeAsJavaString(initial)>\")";
 }
 
 JCode trans(muTemplateBeginIndent(MuExp template, str indent), JGenie jg)
@@ -2122,10 +2122,10 @@ default JCode transMuTemplateAdd(MuExp template, AType atype, MuExp exp, JGenie 
         return "<trans(template, jg)>.addStr(<transWithCast(atype, exp, jg)>.getValue());\n";
     }
     if(producesNativeBool(exp)){
-        return "<trans(template, jg)>.addVal($VF.bool(<trans(exp,jg)>));\n";
+        return "<trans(template, jg)>.addVal($RVF.bool(<trans(exp,jg)>));\n";
     }
     if(producesNativeInt(exp)){
-        return "<trans(template, jg)>.addVal($VF.integer(<trans(exp,jg)>));\n";
+        return "<trans(template, jg)>.addVal($RVF.integer(<trans(exp,jg)>));\n";
     }
     return "<trans(template, jg)>.addVal(<trans(exp,jg)>);\n";
 }
