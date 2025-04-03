@@ -700,14 +700,7 @@ final class ClassLoaderImpl extends ClassLoader {
          byte[] bytes = ((JavaFileObjectImpl) file).getByteCode();
          return defineClass(qualifiedClassName, bytes, 0, bytes.length);
       }
-      // Workaround for "feature" in Java 6
-      // see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6434149
-      try {
-         Class<?> c = Class.forName(qualifiedClassName);
-         return c;
-      } catch (ClassNotFoundException nf) {
-         // Ignore and fall through
-      }
+      
       return super.findClass(qualifiedClassName);
    }
 
