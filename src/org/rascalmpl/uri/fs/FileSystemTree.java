@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiFunction;
 import java.util.function.UnaryOperator;
 
+import org.apache.commons.io.FileExistsException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -223,8 +224,11 @@ public class FileSystemTree<T extends FSEntry> {
                 }
             }
             else {
+                var existing = children.putIfAbsent(currentPart, new Child<>(entry));
+                if (existing != null) {
+                    throw new FileExistsException(prefix + "/" + currentPart);
+                }
                 self.lastModified = Math.max(self.lastModified, entry.lastModified);
-                children.put(currentPart, new Child<>(entry));
             }
         }
 
