@@ -613,11 +613,11 @@ JGenie makeJGenie(MuModule m,
                                 } else {
                                     if(s in parameterized_ADTs || all(p <- parameters, !isTypeParameter(p))){
                                         params = intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters]);
-                                        paramsV = "$VF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
+                                        paramsV = "$RVF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
                                         switch(sr){
                                              case dataSyntax():        adtdef = "$TF.abstractDataType($TS, \"<adtName>\", <params>)";
-                                             case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $VF.string(\"<adtName>\"), <paramsV>))";
-                                             case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $VF.string(\"<adtName>\"), <paramsV>))";
+                                             case contextFreeSyntax(): adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(\"<adtName>\"), <paramsV>))";
+                                             case lexicalSyntax():     adtdef = "new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $RVF.string(\"<adtName>\"), <paramsV>))";
                                          }
                                         adtinits_param += "<type2id[s]> = <adtdef>;\n";
                                     } else {
