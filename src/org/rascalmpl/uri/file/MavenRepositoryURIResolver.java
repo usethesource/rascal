@@ -208,7 +208,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 try {
                     return URIUtil.createFileLocation(f);
                 } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException("Could nog convert path to source location", e);
+                    throw new IllegalArgumentException("Could not convert path to source location", e);
                 }
             })
             .map(fl -> {
@@ -219,7 +219,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 var groupId = URIUtil.relativize(root, URIUtil.getParentLocation(grandParent))
                     .getPath()
                     .substring(1)
-                    .replaceAll("/", ".");
+                    .replace("/", ".");
 
                 if ((artifact + "-" + version + ".jar").equals(URIUtil.getLocationName(fl))) {
                     return make(groupId, artifact, version, "").getAuthority();
@@ -268,11 +268,11 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
             if (isFileInRepo) { 
                 relative = URIUtil.getParentLocation(relative);
-                String version    = URIUtil.getLocationName(relative);
+                String version = URIUtil.getLocationName(relative);
                 relative = URIUtil.getParentLocation(relative);
                 String artifactId = URIUtil.getLocationName(relative);
                 relative = URIUtil.getParentLocation(relative);
-                String groupId    = relative.getPath().substring(1).replaceAll("/", ".");
+                String groupId = relative.getPath().substring(1).replace("/", ".");
             
                 return make(groupId, artifactId, version, "");
             }
