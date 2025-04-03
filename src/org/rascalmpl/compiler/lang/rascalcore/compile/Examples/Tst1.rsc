@@ -26,21 +26,14 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
 
-/*
-    Perform a path analysis on the Rascal source code of a function.
-    On the fly it will report dead code.
-*/
+import IO;
+import ParseTree;
 
-extend lang::rascalcore::check::CheckerCommon;
- 
-import lang::rascal::\syntax::Rascal;
+syntax A = "a";
+layout WS = [\ \t\n\r]*;
 
-// import String;
-
-/********************************************************************/
-/*       Return path analysis                                       */
-/********************************************************************/
-
-
-bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
-    = true;
+value main(){ //test bool strExpr() 
+    pt = parse(#A,"a");
+    iprintln(pt);   
+    return  (A) `a` := parse(#A,"a");
+}

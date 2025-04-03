@@ -31,12 +31,12 @@ import String;
 import IO;
 import util::Reflective;
 import Grammar;
-  
+          
 value main() {
     GEMPTY0 =  grammar({sort("S")}, ());
     s = sort("S");
     GEMPTY1 = grammar({s}, ());
-    println("GEMPTY0, <getHashCode(GEMPTY0)>, <GEMPTY0>");
-    println("GEMPTY1, <getHashCode(GEMPTY1)>, <GEMPTY1>");
+    println("GEMPTY0, <getHashCode(GEMPTY0)>, <typeOf(GEMPTY0)>, <GEMPTY0>");
+    println("GEMPTY1, <getHashCode(GEMPTY1)>, <typeOf(GEMPTY1)>, <GEMPTY1>");
     return -1;
 }
