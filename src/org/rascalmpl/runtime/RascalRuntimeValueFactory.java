@@ -118,11 +118,6 @@ public class RascalRuntimeValueFactory extends RascalValueFactory {
 
     private Class<IGTD<IConstructor, ITree, ISourceLocation>> generateParser(IMap grammar) {
         try {
-        	System.err.println("generateParser: " + grammar.hashCode());
-//        	for(IValue key : grammar) {
-//        		System.err.println(key + ":\n\t" + grammar.get(key));
-//        	}
-        	
             return getParserGenerator().getNewParser(rex, URIUtil.rootLocation("parser-generator"), "$GENERATED_PARSER$" + Math.abs(grammar.hashCode()), grammar);
         } 
         catch (ExceptionInInitializerError e) {
