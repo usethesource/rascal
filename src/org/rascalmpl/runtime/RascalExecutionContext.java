@@ -67,7 +67,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final TypeStore $TS;
 	private final TypeFactory $TF;
 	private final RascalTypeFactory $RTF;
-	private IValueFactory $VF;
 	private RascalSearchPath rascalSearchPath;
 
 	public RascalExecutionContext(
@@ -88,7 +87,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.pcfg = pcfg == null ? new PathConfig() : pcfg;
 		this.ideServices = ideServices == null ? new BasicIDEServices(errwriter, this, null) : ideServices;
 		$RVF = new RascalRuntimeValueFactory(this);
-		$VF = ValueFactoryFactory.getValueFactory();
 		$TF = TypeFactory.getInstance();
 		$RTF = RascalTypeFactory.getInstance();
 		$TRAVERSE = new Traverse($RVF);
@@ -118,7 +116,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 						if(URIResolverRegistry.getInstance().isDirectory(entryRoot)) {
 							reg.registerLogical(new ProjectURIResolver(entryRoot, entryName));
 							reg.registerLogical(new TargetURIResolver(entryRoot, entryName));
-							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $VF.list(entryRoot)));
+							rascalSearchPath.addPathContributor(new SourceLocationListContributor(entryName, $RVF.list(entryRoot)));
 							//System.err.print(entryName + " ");
 						}
 					}
@@ -161,8 +159,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public TypeFactory getTypeFactory() { return $TF; }
 	
 	public RascalTypeFactory getRascalTypeFactory() { return $RTF; }
-	
-	public IValueFactory getIValueFactory() { return $RVF; }
 	
 	public RascalSearchPath getRascalSearchPath() { return rascalSearchPath; }
 
