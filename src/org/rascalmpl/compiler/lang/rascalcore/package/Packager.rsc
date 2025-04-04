@@ -31,7 +31,7 @@ import IO;
 import ValueIO;
 import ParseTree;
 
-int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), str sourceLookup = "") {
+void main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), str sourceLookup = "") {
   loc lookupTarget = readTextValueString(#loc, sourceLookup);
   package(pcfg.srcs, pcfg.bin, lookupTarget);
 }
