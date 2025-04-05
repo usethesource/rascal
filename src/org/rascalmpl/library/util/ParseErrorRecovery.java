@@ -21,9 +21,11 @@ import java.util.Set;
 import java.util.Map;
 import java.util.Objects;
 
+import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.values.IRascalValueFactory;
 import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
 import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import org.rascalmpl.values.parsetrees.TreeAdapter;
@@ -33,6 +35,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -68,7 +71,20 @@ public class ParseErrorRecovery {
     */
 
     public IConstructor disambiguateParseErrors(IConstructor arg, IBool allowAmbiguity) {
+        System.err.println("allowAmbiguity: " + allowAmbiguity);
         return disambiguate(arg, allowAmbiguity.getValue(), true, new HashMap<>()).tree;
+    }
+
+    public IConstructor disambParseErrorsNoAmbiguity(IConstructor arg) {
+        return disambiguate(arg, false, true, new HashMap<>()).tree;
+    }
+
+    public IFunction curry(IFunction func, IMap keywordParams, IEvaluatorContext ctx) {    
+        return CurriedFunction.create(ctx.getEvaluator(), func, null, keywordParams);
+    }
+
+    public IFunction curry(IFunction func, IValue arg, IMap keywordParams, IEvaluatorContext ctx) {
+        return CurriedFunction.create(ctx.getEvaluator(), func, arg, keywordParams);
     }
 
     private ScoredTree disambiguate(IConstructor tree, boolean allowAmbiguity, boolean buildTree, Map<IConstructor, ScoredTree> processedTrees) {

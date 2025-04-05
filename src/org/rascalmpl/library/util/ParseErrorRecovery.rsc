@@ -73,3 +73,27 @@ list[Tree] findBestParseErrors(Tree tree) = findAllParseErrors(disambiguateParse
 @synopsis{Create a parse filter based on `disambiguateErrors` with or without `allowAmbiguity`.}
 Tree(Tree) createParseErrorFilter(bool allowAmbiguity) =
     Tree(Tree t)  { return disambiguateParseErrors(t, allowAmbiguity=allowAmbiguity); };
+
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java &T<:Tree disambParseErrorsNoAmbiguity(&T<:Tree t);
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+@synopsis{"curry" just the keyword parameters in a function with one argument.}
+@reflect{Needs to create a function}
+java &T () curry(&T () func, map[str, value] keywordParams=());
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+@synopsis{"curry" just the keyword parameters in a function with one argument.}
+@reflect{Needs to create a function}
+java &T (&A param) curry(&T (&A param) func, map[str, value] keywordParams=());
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+@synopsis{Curry a single argument function.}
+@reflect{Needs to create a function}
+java &T () curry(&T (&A param) func, &A arg, map[str, value] keywordParams=());
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+@synopsis{Curry a two argument function.}
+@reflect{Needs to create a function}
+java &T (&A param) curry(&T (&A param1, &B param2) func, &B arg2, map[str, value] keywordParams=());

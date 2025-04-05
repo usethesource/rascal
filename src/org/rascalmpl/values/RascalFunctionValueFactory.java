@@ -37,10 +37,12 @@ import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.JavaMethod;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredNonTerminal;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.CurriedFunction;
 import org.rascalmpl.library.util.ParseErrorRecovery;
 import org.rascalmpl.parser.ParserGenerator;
 import org.rascalmpl.parser.gtd.IGTD;
@@ -53,6 +55,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.gtd.util.StackNodeIdDispenser;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.parser.uptr.action.JavaFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
 import org.rascalmpl.parser.uptr.recovery.ToTokenRecoverer;
@@ -585,8 +588,8 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
             }
         }
 
-        private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects,  ISet filters) {
-            IActionExecutor<ITree> exec = filters.isEmpty() ?  new NoActionExecutor() : new RascalFunctionActionExecutor(filters, !hasSideEffects);
+        private ITree parseObject(String methodName, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean allowRecovery, boolean hasSideEffects, ISet filters) {
+            IActionExecutor<ITree> exec = createFilterExecutor(filters, hasSideEffects);
             IGTD<IConstructor, ITree, ISourceLocation> parserInstance = getParser();
             IRecoverer<IConstructor> recoverer = null;
             IDebugListener<IConstructor> debugListener = null;
@@ -604,6 +607,32 @@ public class RascalFunctionValueFactory extends RascalValueFactory {
 
             return parseForest;
         }
+    }
+
+    private static IActionExecutor<ITree> createFilterExecutor(ISet filters, boolean hasSideEffects) {
+        if (filters.isEmpty()) {
+            return new NoActionExecutor();
+        }
+
+        if (!hasSideEffects && filters.size() == 1) {
+            IValue filter = filters.iterator().next();
+            if (filter instanceof JavaMethod) {
+                // We can use the Java method directly
+                System.err.println("using pure java function");
+                return new JavaFunctionActionExecutor((JavaMethod) filters.iterator().next(), new IValue[0], Collections.emptyMap());
+            }
+
+            if (filter instanceof CurriedFunction) {
+                CurriedFunction curried = (CurriedFunction) filter;
+                if (curried.isJavaFunction()) {
+                    System.err.println("using curried java function");
+                    return new JavaFunctionActionExecutor((JavaMethod) curried.getFunction(),
+                        curried.getExtraArgs(), curried.getKeywordParams());
+                }
+            }
+        }
+
+        return new RascalFunctionActionExecutor(filters, !hasSideEffects);
     }
     
     /**
