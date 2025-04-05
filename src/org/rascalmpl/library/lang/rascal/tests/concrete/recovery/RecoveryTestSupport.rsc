@@ -77,6 +77,11 @@ public data TestStats = testStats(
     FrequencyTable errorSizes=());
 
 
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java int countUniqueTreeNodes(Tree tree);
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java int countTreeNodes(Tree tree);
+
 private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input, loc origin) standardParser, &T (value input, loc origin) recoveryParser, str input, loc source, int referenceParseTime) {
     int startTime = 0;
     int duration = 0;
@@ -120,6 +125,16 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                     measurement = recovered(source=source, duration=duration, errorCount=errorCount, errorSize=errorSize);
                 }
                 result = "recovery";
+
+                // amb filtering stats
+                print("Unpruned: <countTreeNodes(tree)>/<countUniqueTreeNodes(tree)>");
+                for (int i <- [0..10]) {
+                    Tree pruned = pruneAmbiguities(tree, maxDepth=i);
+                    int unique = countUniqueTreeNodes(pruned);
+                    int total= countTreeNodes(pruned);
+                    print(", pruned(<i>): <countTreeNodes(pruned)>/<countUniqueTreeNodes(pruned)>");
+                }
+                println();
             }
         } catch ParseError(_): {
             result = "error"; 
