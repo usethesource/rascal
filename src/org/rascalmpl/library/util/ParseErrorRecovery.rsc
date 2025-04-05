@@ -79,6 +79,9 @@ Tree(Tree) createParseErrorFilter(bool allowAmbiguity) =
 java &T<:Tree disambParseErrorsNoAmbiguity(&T<:Tree t);
 
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java &T<:Tree pruneAmbiguities(&T<:Tree t, int maxDepth=3);
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 @synopsis{"curry" just the keyword parameters in a function with one argument.}
 @reflect{Needs to create a function}
 java &T () curry(&T () func, map[str, value] keywordParams=());
