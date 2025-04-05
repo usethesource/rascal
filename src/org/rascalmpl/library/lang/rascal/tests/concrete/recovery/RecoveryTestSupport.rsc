@@ -567,43 +567,6 @@ TestStats runBatchRecoveryTest(RecoveryTestConfig config, TestStats cumulativeSt
     return cumulativeStats;
 }
 
-bool checkRecovery(type[&T<:Tree] begin, str input, list[str] expectedErrors, bool visualize=false) {
-    Tree t = parser(begin, allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);
-    return checkErrors(t, expectedErrors);
-}
-
-// Print a list of errors
-void printErrors(list[Tree] errors) {
-    for (Tree error <- errors) {
-        println("\'<getErrorText(error)>\'");
-    }
-}
-
-// Check a tree contains exactly the expected error
-bool checkError(Tree t, str expectedError) = checkErrors(t, [expectedError]);
-
-// Check if a tree contains exactly the expected errors
-bool checkErrors(Tree t, list[str] expectedErrors) {
-    list[Tree] errors = findBestParseErrors(t);
-    if (size(errors) != size(expectedErrors)) {
-        println("Expected <size(expectedErrors)> errors, found <size(errors)>");
-        printErrors(errors);
-        return false;
-    }
-
-    for (error <- errors) {
-        str errorText = getErrorText(error);
-        if (errorText notin expectedErrors) {
-            println("Unexpected error: \'<errorText>\'");
-            println("All errors found:");
-            printErrors(errors);
-            return false;
-        }
-    }
-
-    return true;
-}
-
 str getTestInput(loc testUri) {
     str query = testUri.query;
     loc file = testUri[query = ""];

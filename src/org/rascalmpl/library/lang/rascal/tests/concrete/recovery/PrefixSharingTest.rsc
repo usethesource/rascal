@@ -8,7 +8,7 @@ syntax N = [0-9];
 
 import ParseTree;
 import util::ParseErrorRecovery;
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 import vis::Text;
 import IO;
 
