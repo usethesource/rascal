@@ -529,3 +529,26 @@ test bool Issue480() = checkModuleOK("
 
  		value my_main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));
 	");
+
+test bool clashingFieldNames()
+    = unexpectedDeclarationInModule("
+            module A
+                data D = d1(int x) | d2(str x);
+                ");
+
+test bool clashingFieldNamesInImport(){
+    writeModule("module A data D = d1(int x);");
+
+    return unexpectedDeclarationInModule("
+        module B
+            import A;
+            data D = d2(str x);
+        ");
+}
+
+test bool clashingFieldNamesInImports(){
+    writeModule("module A data D = d1(int x);");
+    writeModule("module B data D = d2(str x);");
+
+    return unexpectedDeclarationInModule("module C import A;import B;");
+}

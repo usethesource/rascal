@@ -446,10 +446,11 @@ void checkOverloading(map[str,Tree] namedTrees, Solver s){
         }
     }
     try {
-        matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, d.scope in moduleScopes, t := s.getType(d)];
+        matchingConds = [ <d, t, t.adt> | <_, Define d> <- consNameDef, /*d.scope in moduleScopes,*/ t := s.getType(d)];
         for(<Define d1, AType t1, same_adt> <- matchingConds, <Define d2, AType t2, same_adt> <- matchingConds, d1.defined != d2.defined){
             for(fld1 <- t1.fields, fld2 <- t2.fields, fld1.alabel == fld2.alabel, !isEmpty(fld1.alabel), !comparable(fld1, fld2)){
-                msgs = [ info("Field `<fld1.alabel>` is declared with different types in constructors `<d1.id>` and `<d2.id>` for `<t1.adt.adtName>`", d1.defined)
+                msgs = [ error("Incompatible field `<fld1.alabel>` in `<t1.adt.adtName>`: `<prettyAType(fld1)> <fld1.alabel>` in constructor `<d1.id>` clashes with `<prettyAType(fld2)> <fld2.alabel>` in constructor `<d2.id>`", d1.defined)
+                       , error("Incompatible field `<fld2.alabel>` in `<t2.adt.adtName>`: `<prettyAType(fld2)> <fld2.alabel>` in constructor `<d2.id>` clashes with `<prettyAType(fld1)> <fld1.alabel>` in constructor `<d1.id>`", d2.defined)
                        ];
                 s.addMessages(msgs);
             }
