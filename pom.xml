@@ -131,10 +131,9 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC23</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-RC24</bootstrapRascalVersion>
                 </configuration>
                 <executions>
-                    <!--
                     <execution>
                         <id>it-compile</id>
                         <phase>compile</phase>
@@ -193,7 +192,6 @@
                             <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
                         </execution> 
-                    -->
                 </executions>
             </plugin>
             <plugin>
