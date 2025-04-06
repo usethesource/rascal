@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC8</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC9-SNAPSHOT</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -184,9 +184,9 @@
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
-                            <ignores>
+                            <srcIgnores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal</ignore>
-                            </ignores>
+                            </srcIgnores>
                         </configuration>
                     </execution>
                     <execution>
