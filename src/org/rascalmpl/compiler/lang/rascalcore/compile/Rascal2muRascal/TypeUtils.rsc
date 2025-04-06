@@ -698,22 +698,22 @@ public rel[loc fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
 }
 
 set[loc] getDefiningScopes(AType root)
-    =  { definitions[defloc].scope
-       | defloc <- definitions,
-         getDefType(defloc) == root,
-         def := definitions[defloc],
-         def.idRole in syntaxRoles
+    =  { def.scope
+       | defLoc <- definitions,
+         def := definitions[defLoc],
+         def.idRole in syntaxRoles,
+         dt := getDefType(defLoc),
+         dt == root || dt == \start(root)
        } & module_scopes;
 
 // Get the governing layout rule
 AType getLayouts(AType root, set[AType] adts){
     root_scopes = getDefiningScopes(root);
     accessible_scopes = root_scopes + (current_tmodel.paths<0,2>*)[root_scopes];
-
     for(adt <- adts){
         if(isLayoutAType(adt)) {
             layout_scopes = getDefiningScopes(adt);
-            if(layout_scopes <= accessible_scopes) return layouts(getADTName(adt));
+            if(!isEmpty(layout_scopes) && layout_scopes <= accessible_scopes) return layouts(getADTName(adt));
         }
     }
     return layouts("$default$");
