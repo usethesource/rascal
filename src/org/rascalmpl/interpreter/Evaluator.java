@@ -736,7 +736,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             }
         }
 
-        if (params.get("project") != null) {
+        if (params.get("project") != null && pathConfigName != null) {
             // we have a project that can use automatic detection of PathConfig parameters.
             var pcfg = PathConfig.fromSourceProjectRascalManifest((ISourceLocation) params.get("project"), RascalConfigMode.INTERPRETER, true);
             var cons = pcfg.asConstructor();
@@ -761,6 +761,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                     }
                 }
             }
+
+            params.put(pathConfigName, cons);
         }
         else if (pathConfigName != null) {
             // Fold back the PathConfig-specific parameters,
