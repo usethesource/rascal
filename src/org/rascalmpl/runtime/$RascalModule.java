@@ -416,8 +416,10 @@ public abstract class $RascalModule {
 		return left.isSubtypeOf(right);
 	}
 	
-	public boolean $isTreeProductionEqual(IValue tree, IConstructor production) {
-	    return (tree instanceof ITree) && ((org.rascalmpl.values.parsetrees.ITree) tree).isAppl() && (production).equals(((org.rascalmpl.values.parsetrees.ITree) tree).getProduction());
+	public boolean $isTreeProductionEqual(IValue tree, IConstructor production) {	    
+		if(!(tree instanceof ITree)) return false;
+		ITree itree = (ITree) tree;
+		return itree.isAppl() ? production.equals(itree.getProduction()) : false;
 	}
 	
 	public boolean $isNonTerminal(Type treeType, IConstructor expected) {
