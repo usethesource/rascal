@@ -134,6 +134,7 @@
                     <bootstrapRascalVersion>0.41.0-RC23</bootstrapRascalVersion>
                 </configuration>
                 <executions>
+                    <!--
                     <execution>
                         <id>it-compile</id>
                         <phase>compile</phase>
@@ -141,12 +142,13 @@
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <!-- only allowed during intermediate bootstrap cycles -->
                             <errorsAsWarnings>false</errorsAsWarnings> 
                             <bin>${project.build.outputDirectory}</bin>
                             <srcs>
                                 <src>${project.basedir}/src/org/rascalmpl/library</src>
                             </srcs>
+                            <libs>
+                            </libs>
                             <srcIgnores>
                                 <ignore>${project.basedir}/src/org/rascalmpl/tutor/lang/rascal/tutor/examples/</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
@@ -155,11 +157,6 @@
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/grammar/tests</ignore>
                                 <ignore>${project.basedir}/src/org/rascalmpl/library/lang/rascal/syntax/tests</ignore>
                             </srcIgnores>
-                            <enableStandardLibrary>false</enableStandardLibrary>
-                            <parallel>true</parallel>
-                            <parallelPreChecks>
-                                <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
-                            </parallelPreChecks>
                         </configuration>
                     </execution>
                     <execution>
@@ -195,7 +192,8 @@
                         <configuration>
                             <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
-                    </execution> 
+                        </execution> 
+                    -->
                 </executions>
             </plugin>
             <plugin>
