@@ -131,13 +131,12 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC24</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-RC25</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                     </parallelPreChecks>
                 </configuration>
-                <!--
                 <executions>
                     <execution>
                         <id>it-compile</id>
@@ -206,7 +205,6 @@
                         </configuration>
                         </execution> 
                     </executions>
-                -->
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
