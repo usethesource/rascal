@@ -132,7 +132,6 @@ rel[int position, str artist, str title, int year] R1 = {
 };
 // we can write the CSV with a header row:
 writeCSV(#rel[int position, str artist, str title, int year], R1, |tmp:///ex1a.csv|);
-
 // or write it without the header row:
 writeCSV(#rel[int, str, str, int], R1, |tmp:///ex1b.csv|, header = false, separator = ";");
 ```
