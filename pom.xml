@@ -621,6 +621,7 @@
                                 <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
                                 <include>**/org/rascalmpl/compiler/**/*Test.java</include>
                             </includes>
+
                         </configuration>
                     </plugin>
                 </plugins>
