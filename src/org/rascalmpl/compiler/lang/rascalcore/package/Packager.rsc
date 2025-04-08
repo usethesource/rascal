@@ -64,7 +64,7 @@ value rewriteTypeModel(value model, map[loc,str] paths, loc sourceLookup)
     = visit(model) {
           // any location in the wild:
           case loc l => inheritPosition(sourceLookup + paths[l.top], l)
-               l.top in paths
+              when l.top in paths
             
           // \loc annotations on Trees are not visited by `visit` automatically
           case Tree t => t[@\loc = inheritPosition(sourceLookup + paths[Top], t@\loc)]
