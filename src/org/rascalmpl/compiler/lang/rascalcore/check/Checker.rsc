@@ -132,7 +132,7 @@ ModuleStatus rascalTModelForLocs(
     list[Message](str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] transient_tms, ModuleStatus ms, RascalCompilerConfig compilerConfig) codgen
 ){
     pcfg = compilerConfig.typepalPathConfig;
-   
+    
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
     set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
