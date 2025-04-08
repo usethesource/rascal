@@ -136,6 +136,12 @@ public class ZipURIResolver implements ISourceLocationInput, IClassloaderLocatio
         ISourceLocation zipUri = getResolvedZipPath(uri);
         return getTargetResolver(zipUri).lastModified(zipUri, getInsideZipPath(uri));
     }
+
+    @Override
+    public long created(ISourceLocation uri) throws IOException {
+        ISourceLocation zipUri = getResolvedZipPath(uri);
+        return getTargetResolver(zipUri).created(zipUri, getInsideZipPath(uri));
+    }
     
     @Override
     public String[] list(ISourceLocation uri) throws IOException {

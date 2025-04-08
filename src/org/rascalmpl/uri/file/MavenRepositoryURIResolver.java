@@ -200,12 +200,18 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
      * @throws IOException if the root of the repo is gone or not permitted
      */
     private String[] listAllMainArtifacts() throws IOException {
-        try (Stream<Path> files = Files.walk(Paths.get(root.getPath()))) {
+        try (Stream<Path> files = Files.walk(Path.of(root.getURI()))) {
             return files.filter(f -> FileNameUtils.getExtension(f).equals("jar"))
             .filter(f -> !f.toString().endsWith("-sources.jar"))
             .filter(f -> !f.toString().endsWith("-javadoc.jar"))
             .map(f -> {
-                var fl = URIUtil.correctLocation("file", "", f.toString());
+                try {
+                    return URIUtil.createFileLocation(f);
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("Could not convert path to source location", e);
+                }
+            })
+            .map(fl -> {
                 var parent = URIUtil.getParentLocation(fl);
                 var version = URIUtil.getLocationName(parent);
                 var grandParent = URIUtil.getParentLocation(parent);
@@ -213,7 +219,7 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
                 var groupId = URIUtil.relativize(root, URIUtil.getParentLocation(grandParent))
                     .getPath()
                     .substring(1)
-                    .replaceAll("/", ".");
+                    .replace("/", ".");
 
                 if ((artifact + "-" + version + ".jar").equals(URIUtil.getLocationName(fl))) {
                     return make(groupId, artifact, version, "").getAuthority();
@@ -262,11 +268,11 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
 
             if (isFileInRepo) { 
                 relative = URIUtil.getParentLocation(relative);
-                String version    = URIUtil.getLocationName(relative);
+                String version = URIUtil.getLocationName(relative);
                 relative = URIUtil.getParentLocation(relative);
                 String artifactId = URIUtil.getLocationName(relative);
                 relative = URIUtil.getParentLocation(relative);
-                String groupId    = relative.getPath().substring(1).replaceAll("/", ".");
+                String groupId = relative.getPath().substring(1).replace("/", ".");
             
                 return make(groupId, artifactId, version, "");
             }
