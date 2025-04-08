@@ -76,6 +76,11 @@ public data TestStats = testStats(
     FrequencyTable errorCounts=(),
     FrequencyTable errorSizes=());
 
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java int countTreeNodes(&T<:Tree tree);
+
+@javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
+java int countUniqueTreeNodes(&T<:Tree tree);
 
 @javaClass{org.rascalmpl.library.util.ParseErrorRecovery}
 java int countUniqueTreeNodes(Tree tree);
@@ -89,6 +94,10 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int errorCount = 0;
     int errorSize=0;
     str result = "?";
+    int nodeCount = 0;
+    int nodeCountUnique = 0;
+    int disambNodeCount = 0;
+    int disambNodeCountUnique = 0;
 
     TestMeasurement measurement = successfulParse();
     try {
@@ -97,6 +106,10 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
         duration = realTime() - startTime;
         measurement = successfulParse(source=source, duration=duration);
         result = "success";
+        nodeCount = countTreeNodes(tree);
+        nodeCountUnique = countUniqueTreeNodes(tree);
+        disambNodeCount = nodeCount;
+        disambNodeCountUnique = nodeCountUnique;
     } catch ParseError(_): {
         startTime = realTime();
         try {
@@ -112,9 +125,16 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                 result = "skipped";
                 measurement = skipped(source=source);
             } else {
-                list[Tree] errors = findBestParseErrors(tree);
-                errorCount = size(errors);
+                Tree disambTree = disambiguateParseErrors(tree);
                 disambDuration = realTime() - parseEndTime;
+                
+                nodeCount = countTreeNodes(tree);
+                nodeCountUnique = countUniqueTreeNodes(tree);
+                disambNodeCount = countTreeNodes(disambTree);
+                disambNodeCountUnique = countUniqueTreeNodes(disambTree);
+
+                list[Tree] errors = findAllParseErrors(disambTree);
+                errorCount = size(errors);
                 if ("<tree>" != input) {
                     throw "Yield of recovered tree does not match the original input";
                 }
@@ -145,7 +165,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
 
     if (config.statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>\n");
+        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
     }
 
     return measurement;
@@ -524,7 +544,7 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
-        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize\n");
+        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
     }
 
     return runBatchRecoveryTest(config, testStats());

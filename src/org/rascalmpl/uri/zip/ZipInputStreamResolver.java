@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2015 CWI
+ * Copyright (c) 2015-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,9 +17,9 @@ import java.net.URISyntaxException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class ZipInputStreamResolver extends ZipFileResolver {
@@ -30,12 +30,12 @@ public class ZipInputStreamResolver extends ZipFileResolver {
     }
 	
 	@Override
-    protected FileTree getFileHierchyCache(ISourceLocation zipLocation) {
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation zipLocation) {
         try {
             final ISourceLocation lookupKey = URIUtil.changeQuery(zipLocation, "mod=" + CTX.lastModified(zipLocation));
             return fsCache.get(lookupKey, j -> {
                 try {
-                    return new ZipInputStreamFileTree(CTX.getInputStream(zipLocation));
+                    return new ZipInputStreamFileTree(CTX.getInputStream(zipLocation), CTX.created(zipLocation), CTX.lastModified(zipLocation));
                 }
                 catch (IOException e) {
                     throw new RuntimeException(e);
@@ -48,7 +48,7 @@ public class ZipInputStreamResolver extends ZipFileResolver {
     }
 
     private ZipEntry skipToEntry(ZipInputStream stream, ISourceLocation jarLocation, String subPath) throws IOException {
-        int pos = ((ZipInputStreamFileTree)getFileHierchyCache(jarLocation)).getPosition(subPath);
+        int pos = getFileHierchyCache(jarLocation).getPosition(subPath);
 
         if (pos != -1) {
             ZipEntry entry;
