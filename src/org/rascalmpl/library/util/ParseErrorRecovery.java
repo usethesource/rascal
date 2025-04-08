@@ -13,6 +13,8 @@
  **/
 package org.rascalmpl.library.util;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -414,19 +416,21 @@ public class ParseErrorRecovery {
     }
 
     public IInteger countUniqueTreeNodes(IConstructor tree) {
-        return rascalValues.integer(countNodes((ITree) tree, true, new IdentityHashMap<>()));
+        BigInteger count = countNodes((ITree) tree, true, new IdentityHashMap<>());
+        return rascalValues.integer(count.toByteArray());
     }
 
     public IInteger countTreeNodes(IConstructor tree) {
-        return rascalValues.integer(countNodes((ITree) tree, false, new IdentityHashMap<>()));
+        BigInteger count = countNodes((ITree) tree, false, new IdentityHashMap<>());
+        return rascalValues.integer(count.toByteArray());
     }
 
-    private long countNodes(ITree tree, boolean unique, Map<IConstructor, Long> processedNodes) {
+    private BigInteger countNodes(ITree tree, boolean unique, Map<IConstructor, BigInteger> processedNodes) {
         Type type = tree.getConstructorType();
         if (type == RascalValueFactory.Tree_Appl || type == RascalValueFactory.Tree_Amb) {
-            Long result = processedNodes.get(tree);
+            BigInteger result = processedNodes.get(tree);
             if (result != null) {
-                return unique ? 0 : result;
+                return unique ? BigInteger.ZERO : result;
             }
 
             if (type == RascalValueFactory.Tree_Appl) {
@@ -439,24 +443,24 @@ public class ParseErrorRecovery {
 
             return result;
         } else {
-            return 1;
+            return BigInteger.ONE; // Cycle and char trees are counted as one node
         }
     }
 
-    private long countApplNodes(ITree appl, boolean unique, Map<IConstructor, Long> processedNodes) {
-        long count = 1;
+    private BigInteger countApplNodes(ITree appl, boolean unique, Map<IConstructor, BigInteger> processedNodes) {
+        BigInteger count = BigInteger.ONE;
         IList args = TreeAdapter.getArgs(appl);
         for (int i=args.size()-1; i>=0; i--) {
-            count += countNodes((ITree) args.get(i), unique, processedNodes);
+            count = count.add(countNodes((ITree) args.get(i), unique, processedNodes));
         }
         return count;
     }
 
-    private long countAmbNodes(ITree amb, boolean unique, Map<IConstructor, Long> processedNodes) {
-        long count = 1;
+    private BigInteger countAmbNodes(ITree amb, boolean unique, Map<IConstructor, BigInteger> processedNodes) {
+        BigInteger count = BigInteger.ONE;
         ISet originalAlts = (ISet) amb.get(0);
         for (IValue alt : originalAlts) {
-            count += countNodes((ITree) alt, unique, processedNodes);
+            count = count.add(countNodes((ITree) alt, unique, processedNodes));
         }
         return count;
     }

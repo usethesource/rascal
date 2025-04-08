@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC23-SNAPSHOT</version>
+    <version>0.41.0-RC24-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC22</tag>
+        <tag>v0.41.0-RC23</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -245,6 +245,7 @@
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
                         <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
+                        <include>**/org/rascalmpl/uri/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
