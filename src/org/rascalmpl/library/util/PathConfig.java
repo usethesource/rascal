@@ -312,7 +312,7 @@ public class PathConfig {
      * are, which libraries to reference and which classpath entries to add. If this PathConfig is
      * for the interpreter it adds more folders to the source path than if its for the compiler.
      * 
-     * If library dependencies exist for open projects in the same IDE, via the lib://libName, project://libName
+     * If library dependencies exist for open projects in the same IDE, via the pom artifactId == libName and project://libName
      * correspondence, then the target and source folders of the projects are added rather then
      * the jar files. For compiler configs this works differently than for interpreter configs.
      * The latter adds source folders to the sources while the former adds target folders to the libraries.
