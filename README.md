@@ -9,7 +9,7 @@ Other relevant repositories:
 * https://github.com/usethesource/rascal-language-servers - for the Rascal's IDE features
 * https://github.com/usethesource/rascal-maven-plugin - for Rascal via Maven commands
 * https://github.com/usethesource/rascal-website - for the online documentation
-* https://github.com/usethesource/vallang - for the core of the Rascal runtime values, binary and textual IO, and the core of the dynamic type system.
+* https://github.com/usethesource/vallang - for the core of the Rascal runtime values, types and IO.
 
 Please visit http://www.rascal-mpl.org for all information regarding Rascal.
 
