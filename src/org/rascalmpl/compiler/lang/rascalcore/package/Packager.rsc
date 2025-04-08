@@ -31,8 +31,13 @@ import IO;
 import ValueIO;
 import ParseTree;
 import Location;
+import util::Reflective;
 
-void main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), loc sourceLookup = "") {
+void main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), loc sourceLookup = |unknown:///|) {
+    if (!(sourceLookup?)) {
+      throw "sourceLookup is not an optional parameter. The packager needs something like `|mvn://groupId--artifactId--version|`";
+    }
+
     package(pcfg.srcs, pcfg.bin, sourceLookup);
 }
 
@@ -43,7 +48,7 @@ void package(list[loc] srcs, loc bin, loc sourceLookup) {
 
 void packageSourceFiles(list[loc] srcs, loc bin) {
     for (folder <- srcs, file <- find(folder, "rsc")) {
-      copyFile(file, bin + relativize(folder, file).path);
+      copy(file, bin + relativize(folder, file).path);
     }
 }
 
