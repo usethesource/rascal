@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [buildjet-4vcpu-ubuntu-2204-arm, buildjet-2vcpu-ubuntu-2204]
-        retry: [1,2]
+        os: [buildjet-4vcpu-ubuntu-2204-arm] #, buildjet-2vcpu-ubuntu-2204]
+        retry: [1,2,3,4,5,6]
     env:
       MAVEN_OPTS: "-Xmx1G -Dhttps.protocols=TLSv1.2 -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
     steps: 
@@ -34,5 +34,4 @@ jobs:
           cache: 'maven'
 
       - name: Run Tests
-          # maven gets 1GB, the forked junit runner gets 2GB
         run: mvn '-Drascal.test.memory=2' -B '-Drascal.compile.skip' '-Drascal.tutor.skip'  test
