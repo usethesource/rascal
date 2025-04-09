@@ -73,7 +73,6 @@ public class ParseErrorRecovery {
     */
 
     public IConstructor disambiguateParseErrors(IConstructor arg, IBool allowAmbiguity) {
-        System.err.println("allowAmbiguity: " + allowAmbiguity);
         return disambiguate(arg, allowAmbiguity.getValue(), true, new HashMap<>()).tree;
     }
 
