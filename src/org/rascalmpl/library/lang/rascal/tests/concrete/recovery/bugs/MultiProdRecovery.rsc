@@ -12,7 +12,7 @@
 **/
 module lang::rascal::tests::concrete::recovery::bugs::MultiProdRecovery
 
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 layout Layout = [\ ]* !>> [\ ];
 
