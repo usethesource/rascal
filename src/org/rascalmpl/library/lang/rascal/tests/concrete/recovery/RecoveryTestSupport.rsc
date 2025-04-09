@@ -30,6 +30,8 @@ import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
+bool measureAmbPruning = true;
+
 public data RecoveryTestConfig = recoveryTestConfig(
     loc syntaxFile = |unknown:///|,
     str topSort = "",
@@ -98,6 +100,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
     int nodeCountUnique = 0;
     int disambNodeCount = 0;
     int disambNodeCountUnique = 0;
+    str prunedStats = "";
 
     TestMeasurement measurement = successfulParse();
     try {
@@ -147,14 +150,14 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                 result = "recovery";
 
                 // amb filtering stats
-                print("Unpruned: <countTreeNodes(tree)>/<countUniqueTreeNodes(tree)>");
-                for (int i <- [0..10]) {
-                    Tree pruned = pruneAmbiguities(tree, maxDepth=i);
-                    int unique = countUniqueTreeNodes(pruned);
-                    int total= countTreeNodes(pruned);
-                    print(", pruned(<i>): <countTreeNodes(pruned)>/<countUniqueTreeNodes(pruned)>");
+                if (measureAmbPruning) {
+                    for (int i <- [0..10]) {
+                        Tree pruned = pruneAmbiguities(tree, maxDepth=i);
+                        int unique = countUniqueTreeNodes(pruned);
+                        int total= countTreeNodes(pruned);
+                        prunedStats += ",<total>,<unique>";
+                    }
                 }
-                println();
             }
         } catch ParseError(_): {
             result = "error"; 
@@ -165,7 +168,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
 
     if (config.statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
-        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique>\n");
+        appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique><prunedStats>\n");
     }
 
     return measurement;
@@ -544,7 +547,13 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
     fileNr = 0;
 
     if (config.statFile != |unknown:///|) {
-        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes\n");
+        str pruneHeader = "";
+        if (measureAmbPruning) {
+            for (int i <- [0..10]) {
+                pruneHeader += ",prune0,uprune0";
+            }
+        }
+        writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes<pruneHeader>\n");
     }
 
     return runBatchRecoveryTest(config, testStats());
