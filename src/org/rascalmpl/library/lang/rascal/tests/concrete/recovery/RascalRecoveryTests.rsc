@@ -16,7 +16,7 @@ module lang::rascal::tests::concrete::recovery::RascalRecoveryTests
 
 import lang::rascal::\syntax::Rascal;
 
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 bool debugging = false;
 
