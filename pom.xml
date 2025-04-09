@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC11</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC13-SNAPSHOT</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -131,12 +131,12 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC25</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-RC29</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
                     </parallelPreChecks>
-                    </configuration> <!--
+                    </configuration> 
                 <executions>
                     <execution>
                         <id>it-compile</id>
@@ -203,7 +203,7 @@
                             <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
                         </execution> 
-                    </executions>-->
+                    </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
