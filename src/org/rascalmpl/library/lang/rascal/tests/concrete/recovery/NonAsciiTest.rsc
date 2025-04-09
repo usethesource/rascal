@@ -14,7 +14,7 @@
 
 module lang::rascal::tests::concrete::recovery::NonAsciiTest
 
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 
 syntax S = T;
