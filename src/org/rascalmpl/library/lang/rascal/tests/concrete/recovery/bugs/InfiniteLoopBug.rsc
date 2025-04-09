@@ -12,7 +12,7 @@
 **/
 module lang::rascal::tests::concrete::recovery::bugs::InfiniteLoopBug
 
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 import IO;
