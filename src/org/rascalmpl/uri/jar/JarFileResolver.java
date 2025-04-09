@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2009-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,23 +21,24 @@ import java.util.concurrent.TimeUnit;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
+import org.rascalmpl.uri.zip.CompressedFSTree;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import io.usethesource.vallang.ISourceLocation;
+
 public class JarFileResolver  {
 
-    protected final Cache<ISourceLocation, FileTree> fsCache = Caffeine.newBuilder()
-            .weigher((ISourceLocation e, FileTree v) -> (int) (v.totalSize() / 1024))
+    protected final Cache<ISourceLocation, CompressedFSTree> fsCache = Caffeine.newBuilder()
+            .weigher((ISourceLocation e, CompressedFSTree v) -> (int) (v.getTotalSize() / 1024))
             .maximumWeight((Runtime.getRuntime().maxMemory() / 100) / 1024) // let's never consume more
             // than 1% of the memory
             .expireAfterAccess(10, TimeUnit.MINUTES) // 10 minutes after last access, drop it
             .softValues().build();
 
-    protected FileTree getFileHierchyCache(ISourceLocation jar) {
+    protected CompressedFSTree getFileHierchyCache(ISourceLocation jar) {
         try {
             final File jarFile = new File(jar.getPath());
             return fsCache.get(URIUtil.changeQuery(jar, "mod=" + jarFile.lastModified()), j -> new JarFileTree(jarFile));
@@ -77,7 +78,11 @@ public class JarFileResolver  {
     }
 
     public long lastModified(ISourceLocation jar, String path) throws IOException {
-        return getFileHierchyCache(jar).getLastModified(path);
+        return getFileHierchyCache(jar).lastModified(path);
+    }
+
+    public long created(ISourceLocation jar, String path) throws IOException {
+        return getFileHierchyCache(jar).created(path);
     }
 
     public String[] list(ISourceLocation jar, String path) throws IOException {

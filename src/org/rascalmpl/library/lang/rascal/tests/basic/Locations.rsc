@@ -607,3 +607,94 @@ test bool mvnSchemeTest() {
     return true;
 }
 
+
+test bool fileWorks() = testLocWorksRoot(resolveLocation(|home:///|));
+
+test bool memoryWorks() {
+    loc memTest = |memory://locations-loc-test|;
+    writeFile(memTest + "/a/a.txt", "Hoi");
+    return testLocWorksRoot(memTest);
+}
+
+test bool jarWorks() {
+    for (f := findFile(|home:///.m2/repository|, ext = "jar")) {
+        return testLocWorksRoot(f[scheme="jar+<f.scheme>"][path = "<f.path>!/"], isWritable = false);
+    }
+    return false;
+}
+
+test bool mavenWorks() {
+    for (jar := findFile(|home:///.m2/repository|, ext = "jar"), path(groupId, artifactId, version) := parseMavenLocalRepositoryPath(jar)) {
+        return testLocWorksRoot(|mvn://<groupId>--<artifactId>--<version>|, isWritable = false);
+    }
+    return false;
+}
+
+private bool testLocWorksRoot(loc existing,bool isWritable = true) {
+    println("Start file path: <existing>");
+    assert exists(existing) : "Start loc should exist";
+    testLocWorks(existing, isWritable);
+
+    loc subPath = findFile(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath, isWritable);
+
+    subPath = findDirectory(existing);
+    println("Sub path: <subPath>");
+    assert exists(subPath) : "Subpath should exist";
+    testLocWorks(subPath, isWritable);
+
+    loc nonExisting = existing + "not$__$there";
+    println("Not existing: <nonExisting>");
+    assert !exists(nonExisting) : "Subpath should exist";
+    testLocWorks(nonExisting, isWritable);
+    return true;
+}
+
+private loc findFile(loc l, str ext = "") {
+    for (f <- l.ls, isFile(f) && (ext == "" || f.extension == ext)) {
+        return f;
+    }
+    for (f <- l.ls, isDirectory(f)) {
+        result = findFile(f, ext= ext);
+        if (result.scheme != "invalid") {
+            return result;
+        }
+    }
+    return |invalid:///file|;
+}
+
+private loc findDirectory(loc l) {
+    for (f <- l.ls, isDirectory(f)) {
+        return f;
+    }
+    throw "There should be at least a single directory inside of it";
+}
+
+private void testLocWorks(loc l, bool isWritable) {
+    println("\texists: <exists(l)>");
+    println("\tisFile: <isFile(l)>");
+    println("\tisDirectory: <isDirectory(l)>");
+    if (exists(l)) {
+        println("\tlastModified: <lastModified(l)>");
+        if (isDirectory(l)) {
+            println("\tcontents: <l.ls>");
+            println("\tcontents: <listEntries(l)>");
+        }
+    }
+    else if (isWritable) {
+        try {
+            remove(l);
+        }
+        catch IO(_): throw "Removing file that does not exist should not cause an exception";
+    }
+
+    if (!exists(l) || !isDirectory(l)) {
+        try {
+            println("\tcontents: <l.ls>");
+            assert false: "ls on a non-directory should have thrown an IO exception";
+        }
+        catch IO(_) : true;
+    }
+}
