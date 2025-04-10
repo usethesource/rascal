@@ -822,8 +822,10 @@ default str value2outertype(AType t) = "IValue";
 /*  Convert an AType to an equivalent type ("VType") in the Vallang type store */
 /*******************************************************************************/
           
-str refType(AType t, JGenie jg, bool inTest)
-    = inTest ? "$me.<jg.shareType(t)>" : jg.shareType(t);
+str refType(AType t, JGenie jg, bool inTest){
+    base = isNonTerminalAType(t) ? asNTName(jg.shareType(t)) : jg.shareType(t);
+    return inTest ? "$me.<base>" : base;
+}
     
 str atype2vtype(aint(), JGenie jg, bool inTest=false) = "$TF.integerType()";
 str atype2vtype(abool(), JGenie jg, bool inTest=false) = "$TF.boolType()";
@@ -869,9 +871,11 @@ str atype2vtype(a:aadt(str adtName, list[AType] parameters, dataSyntax()), JGeni
     if(isEmpty(parameters)){
         return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>";
     } else {
-        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<size(parameters)>";
-        //return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<intercalate("_", [atype2idpart(p) | p <- parameters])>";
-    }
+        uninstantiated = all(p <- parameters, isTypeParameter(p));
+        suffix = uninstantiated ? "<size(parameters)>"
+                                : intercalate("_", [atype2idpart(p) | p <- parameters]);
+        return (inTest ? "$me." : "") + "<jg.getATypeAccessor(a)><asADTName(adtName)>_<suffix>";
+     }
  }   
 str atype2vtype(a:aadt(str adtName, list[AType] parameters, contextFreeSyntax()), JGenie jg, bool inTest=false)   {
     if(isEmpty(parameters)){
