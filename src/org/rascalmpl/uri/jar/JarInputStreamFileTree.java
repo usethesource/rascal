@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015-2015 CWI
+ * Copyright (c) 2015-2025 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,56 +11,56 @@
  *******************************************************************************/
 package org.rascalmpl.uri.jar;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import java.util.zip.ZipEntry;
 
-import org.rascalmpl.uri.FileTree;
+import org.rascalmpl.uri.zip.CompressedFSTree;
+import org.rascalmpl.uri.zip.EntryEnumerator;
+import org.rascalmpl.uri.zip.IndexedFSEntry;
 
-public class JarInputStreamFileTree extends FileTree {
+public class JarInputStreamFileTree extends CompressedFSTree {
 
-  private static class IndexFSEntry extends FSEntry {
-    public int position;
-
-    public IndexFSEntry(long lastModified, int position) {
-      super(lastModified);
-      this.position = position;
+  public JarInputStreamFileTree(InputStream in, long created, long lastModified) {
+        super(new IndexedFSEntry(created, lastModified), openStream(in));
     }
 
-  }
+    private static EntryEnumerator openStream(InputStream jarStream) {
+        return () -> {
+            var stream = new JarInputStream(jarStream);
+            return new EntryEnumerator.CloseableIterator() {
+                JarEntry next = null;
 
-  public JarInputStreamFileTree(InputStream in) {
-    super();
-    totalSize = 0;
+                @Override
+                public void close() throws IOException {
+                    stream.close();
+                }
 
-    try (JarInputStream stream = new JarInputStream(in)) {
-      JarEntry next = null;
-      int pos = 0;
 
-      while ((next = stream.getNextJarEntry()) != null) {
-        if (!next.isDirectory()) {
-          String name = next.getName();
-          totalSize += 16 + (name.length() * 2);
-          fs.put(name, new IndexFSEntry(next.getTime(), pos++));
-        }
-        else {
-          pos++; // we don't store directories
-        }
-      }
+                @Override
+                public boolean hasNext() throws IOException {
+                    if (next == null) {
+                        next = stream.getNextJarEntry();
+                    }
+                    return next != null;
+                }
+
+
+
+                @Override
+                public ZipEntry next() throws IOException {
+                    if (!hasNext()) {
+                        throw new EOFException("No more entries in the stream");
+                    }
+                    var result = next;
+                    next = null;
+                    return result;
+                }
+                
+            };
+        };
     }
-    catch (IOException e) {
-      throwMe = e;
-      fs.clear();
-    }
-  }
-
-  public int getPosition(String path) {
-    IndexFSEntry ent = (IndexFSEntry) fs.get(path);
-    if (ent == null) {
-      return -1;
-    }
-    return ent.position;
-  }
-
 }

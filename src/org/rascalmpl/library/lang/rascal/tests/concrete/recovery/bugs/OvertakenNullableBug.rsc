@@ -13,6 +13,7 @@
 module lang::rascal::tests::concrete::recovery::bugs::OvertakenNullableBug
 
 
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
