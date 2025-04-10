@@ -68,7 +68,7 @@ public abstract class AbstractCommandlineTool {
             }
             catch (Throw e) {
                 try {
-                    err.println(e.getLocalizedMessage());
+                    err.println(e.getException());
                     e.getTrace().prettyPrintedString(err, new StandardTextWriter());
                 }
                 catch (IOException ioe) {

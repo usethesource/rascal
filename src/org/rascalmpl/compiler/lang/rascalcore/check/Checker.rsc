@@ -579,7 +579,7 @@ we remove or rename keyword fields here, then they the client code must be adapt
 }
 int main(
     list[loc] modules             = [],  // dirty modules to check 
-    PathConfig pcfg               = getProjectPathConfig(|cwd:///|),
+    PathConfig pcfg               = pathConfig(),
     bool logPathConfig            = false,
     bool logImports               = false,
     bool verbose                  = false,
@@ -604,8 +604,17 @@ int main(
         warnUnusedPatternFormals = warnUnusedPatternFormals,
         infoModuleChecked        = infoModuleChecked
     );
-        
-    messages = check(modules, rascalConfig);
+
+    messages = [];
+    
+    if (modules == []) {
+        messages = [info("No modules to check.", |unknown:///|)];
+        return 0;
+    }
+    else {
+        messages = check(modules, rascalConfig);
+    }
+
     flatMessages = [*msgs | program(_, msgs) <- messages];
 
     return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
