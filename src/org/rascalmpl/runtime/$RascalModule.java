@@ -431,12 +431,17 @@ public abstract class $RascalModule {
 		if(treeType == expected) return true;
 		if(treeType instanceof NonTerminalType) {
 			NonTerminalType givenNT = (NonTerminalType) treeType;
-			NonTerminalType expectedNT = (NonTerminalType)  expected;
-		    return givenNT.getSymbol().equals(expectedNT.getSymbol()); // && givenNT.getArity() == expectedNT.getArity();
+			if(expected instanceof NonTerminalType){
+				NonTerminalType expectedNT = (NonTerminalType)  expected;
+		    	return givenNT.getSymbol().equals(expectedNT.getSymbol());
+			} else {
+				String lname = ((IConstructor) givenNT.getSymbol().getChildren()).get(0).toString();
+				lname = lname.substring(1,lname.length()-1); // remove quotes
+				String rname = expected.getName();
+				return  lname.equals(rname);
+			}
 		}
 		return false;
-
-		//		return treeType instanceof NonTerminalType && (((NonTerminalType) treeType).toString()).equals(expected.toString());
 	}
 	
 	public io.usethesource.vallang.type.Type $adt(String adtName){
@@ -462,7 +467,7 @@ public abstract class $RascalModule {
 	public io.usethesource.vallang.type.Type $layouts(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		$TS.declareAbstractDataType(adtType);
-//		return adtType;
+		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $RVF.string(adtName)));
 	}
 	public io.usethesource.vallang.type.Type $keywords(String adtName){
@@ -472,21 +477,27 @@ public abstract class $RascalModule {
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $RVF.string(adtName)));
 	}
 	
-//	private Type[] paramsAsArray(IList params) {
-//		Type[] paramsAsArray = new Type[params.length()];
-//		for(int i = 0; i < params.length(); i++) paramsAsArray[i] = (Type) params.get(i);
-//		return paramsAsArray;
-//	}
-//	
-//	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, IList params){
-//		$TF.abstractDataType($TS, adtName, paramsAsArray(params));
-//		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(adtName), params));
-//	}
-//	
-//	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, IList params){
-//		$TF.abstractDataType($TS, adtName, paramsAsArray(params));
-//		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $RVF.string(adtName), params));
-//	}
+	// private Type[] paramsAsArray(IList params) {
+	// 	Type[] paramsAsArray = new Type[params.length()];
+	// 	for(int i = 0; i < params.length(); i++) paramsAsArray[i] = (Type) params.get(i);
+	// 	return paramsAsArray;
+	// }
+	
+	public io.usethesource.vallang.type.Type $adt(String adtName, Type[] tparams){
+		Type adtType = $TF.abstractDataType($TS, adtName, tparams);
+		//$TS.declareAbstractDataType(adtType);
+		return adtType;
+	}
+
+	public io.usethesource.vallang.type.Type $parameterizedSort(String adtName, Type[] tparams, IList vparams){
+		$TF.abstractDataType($TS, adtName, tparams);
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedSort, $RVF.string(adtName), vparams));
+	}
+	
+	public io.usethesource.vallang.type.Type $parameterizedLex(String adtName, Type[] tparams, IList vparams){
+		$TF.abstractDataType($TS, adtName, tparams);
+		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_ParameterizedLex, $RVF.string(adtName), vparams));
+	}
 	
 	 public IList readBinaryConstantsFile(Class<?> c, String path, int expected_length, String expected_md5Hash) {
 		// The constants file has the structure: <int nconstants, str md5Hash, list[value] constants>
@@ -1881,8 +1892,12 @@ public abstract class $RascalModule {
 	public final boolean $nonterminal_has_name_and_arity(final IValue v, final String name, final int arity) {
 		if(v instanceof IConstructor &&TreeAdapter.isTree((IConstructor)v)) {
 			ITree tree = (ITree) v;
+			if(TreeAdapter.isTop(tree)){
+				tree = (ITree) org.rascalmpl.values.parsetrees.TreeAdapter.getArg(tree, "top");
+			}
 			// Count the non-literal symbols in the argument list
 			IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
+			
 			int prod_arity = 0;
 			for(IValue varg : args) {
 				if(org.rascalmpl.values.parsetrees.TreeAdapter.isLexical((ITree)varg) ||
@@ -1926,16 +1941,17 @@ public abstract class $RascalModule {
 					if(!TreeAdapter.isAppl(tree)) return false;
 					return arity == 2;
 				}
-//				if(consType.getArity() == arity) {
-//					System.err.println(true + " 3");
-					return true;
-//				}
+
+				return true;
 			}
 		}
 		return false;
 	}
 	
-	public final IValue $nonterminal_get_arg(final ITree tree, final int idx) {
+	public final IValue $nonterminal_get_arg(ITree tree, final int idx) {
+		if(TreeAdapter.isTop(tree)){
+			tree = TreeAdapter.getArg(tree, "top");
+		}
 		// Find idx-th nonterminal symbol in the argument list
 		IList args = org.rascalmpl.values.parsetrees.TreeAdapter.getArgs(tree);
 		int i = 0;

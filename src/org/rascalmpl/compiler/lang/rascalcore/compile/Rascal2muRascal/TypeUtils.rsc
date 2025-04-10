@@ -775,14 +775,17 @@ map[AType,set[AType]] collectNeededDefs(AType t){
         }
         return t;
     }
-    adt_constructors1 = uncloseTypeParams(adt_constructors);
 
+    adt_constructors1 = uncloseTypeParams(adt_constructors);
     my_definitions =
         ( adt1 : syntaxRole == dataSyntax() ? adt_constructors1[adt1] : (my_grammar_rules[adt1]? ? {aprod(my_grammar_rules[adt1])} : {})
         | /adt:aadt(str _, list[AType] _, SyntaxRole syntaxRole) := base_t,
           adt1 := unset(uninstantiate(adt), "alabel")
 
-        );
+        )
+        +
+        (adt1 : adt_constructors1[adt1] | adt1 <- parameterized_uninstantiated_ADTs, adt1 in adt_constructors1)
+        ;
 
     if(syntax_type){
      // Auxiliary rules for uses of instantiated parameterized nonterminals are never used, add them explicitly
