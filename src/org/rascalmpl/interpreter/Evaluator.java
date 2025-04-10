@@ -979,7 +979,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             synchronized (self) {
                 if (parserGenerator == null) {
 
-                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof PrintWriter) ? (PrintWriter)monitor : getErrorPrinter(), classLoaders, getValueFactory(), config);
+                    parserGenerator = new ParserGenerator(getMonitor(), (monitor instanceof PrintWriter) ? (PrintWriter)monitor : getErrorPrinter(), getValueFactory(), config);
                 }
             }
         }

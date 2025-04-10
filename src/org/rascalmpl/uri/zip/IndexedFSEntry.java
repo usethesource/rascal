@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
+ * Copyright (c) 2025, Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,32 +24,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.runtime;
+package org.rascalmpl.uri.zip;
 
-import java.util.Collections;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.util.zip.ZipEntry;
 
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.values.RascalValueFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.rascalmpl.uri.fs.FSEntry;
 
-public class ParserGeneratorFactory {
-	private @MonotonicNonNull ParserGenerator generator;
-	
-	private static RascalExecutionContext rex;
-	
-	private static class InstanceHolder {
-	    public static final ParserGeneratorFactory sInstance = new ParserGeneratorFactory();
-	}
-	public static ParserGeneratorFactory getInstance(RascalExecutionContext arex) {
-		rex = arex;
-	    return InstanceHolder.sInstance;
-	}
-	
-	public ParserGenerator getParserGenerator(RascalValueFactory VF) {
-		if (this.generator == null) {
-			this.generator = new ParserGenerator(rex, rex.getOutWriter(), VF, new Configuration());
-		}
-		return generator;
-	 }
+public class IndexedFSEntry extends FSEntry {
+    final int offset;
+
+    public IndexedFSEntry(long created, long lastModified, int offset) {
+        super(created, lastModified);
+        this.offset = offset;
+    }
+
+    public IndexedFSEntry(@Nullable FileTime created, long lastModified, int offset) {
+        this(created == null ? lastModified : created.toMillis(), lastModified, offset);
+    }
+
+    public IndexedFSEntry(long created, long lastModified) {
+        this(created, lastModified, -1);
+    }
+
+    public IndexedFSEntry(FSEntry e) {
+        this(e.getCreated(), e.getLastModified());
+    }
+
+
+    public IndexedFSEntry(ZipEntry ze, int offset) {
+        this(ze.getCreationTime(), ze.getTime(), offset);
+    }
+
+    public static IndexedFSEntry forFile(File file) {
+        return forFile(file.toPath());
+    }
+
+    public static IndexedFSEntry forFile(Path file) {
+        return new IndexedFSEntry(FSEntry.forFile(file));
+    }
+    
 }

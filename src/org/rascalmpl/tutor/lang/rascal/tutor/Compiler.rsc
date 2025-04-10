@@ -68,7 +68,7 @@ public void defaultCompile(bool clean=false) {
 
 int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
   loc license=|unknown:///|, loc citation = |unknown:///|, loc funding=|unknown:///|, loc releaseNotes=|unknown:///|,
-  loc errorsAsWarnings=false, loc warningsAsErrors=false) {
+  bool errorsAsWarnings=false, bool warningsAsErrors=false) {
 
   if (license?) pcfg.license = license;
   if (citation?) pcfg.citation = citation;

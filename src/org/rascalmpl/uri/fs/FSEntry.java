@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
+ * Copyright (c) 2025, Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,32 +24,45 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.runtime;
+package org.rascalmpl.uri.fs;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.values.RascalValueFactory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
-public class ParserGeneratorFactory {
-	private @MonotonicNonNull ParserGenerator generator;
-	
-	private static RascalExecutionContext rex;
-	
-	private static class InstanceHolder {
-	    public static final ParserGeneratorFactory sInstance = new ParserGeneratorFactory();
-	}
-	public static ParserGeneratorFactory getInstance(RascalExecutionContext arex) {
-		rex = arex;
-	    return InstanceHolder.sInstance;
-	}
-	
-	public ParserGenerator getParserGenerator(RascalValueFactory VF) {
-		if (this.generator == null) {
-			this.generator = new ParserGenerator(rex, rex.getOutWriter(), VF, new Configuration());
-		}
-		return generator;
-	 }
+public class FSEntry {
+    final long created;
+
+    volatile long lastModified;
+
+
+    public FSEntry(long created, long lastModified) {
+        this.created = created;
+        this.lastModified = lastModified;
+    }
+
+    public FSEntry(@Nullable FileTime created, long lastModified) {
+        this(created == null ? lastModified : created.toMillis(), lastModified);
+    }
+
+    public long getCreated() {
+        return created;
+    }
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    public static FSEntry forFile(Path file) {
+        try {
+            var attr = Files.readAttributes(file, BasicFileAttributes.class);
+            return new FSEntry(attr.creationTime().toMillis(), attr.lastModifiedTime().toMillis());
+        }
+        catch (IOException e) {
+            return new FSEntry(0, 0);
+        }
+    }
 }

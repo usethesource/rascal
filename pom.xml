@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC22-SNAPSHOT</version>
+    <version>0.41.0-RC24-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC21</tag>
+        <tag>v0.41.0-RC23</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.28.9-BOOT1</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC5</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -131,6 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>${rascal-maven.version}</version>
                 <configuration>
+                    <rascalBootstrapVersion>0.41.0-RC21</rascalBootstrapVersion>
                     <errorsAsWarnings>false</errorsAsWarnings> <!-- only allowed during intermediate bootstrap cycles -->
                     <bin>${project.build.outputDirectory}</bin>
                     <srcs>
@@ -159,6 +160,7 @@
                     </parallelPreChecks>
                 </configuration>
                 <executions>
+                    <!-- commented out for bootstrap purposes
                     <execution>
                         <id>it-compile</id>
                         <phase>compile</phase>
@@ -172,7 +174,7 @@
                         <goals>
                             <goal>package</goal>
                         </goals>
-                    </execution>
+                    </execution> -->
 
 		    <!-- commented out while bootstrapping the tutor
                     <execution>
@@ -233,7 +235,6 @@
                     <argLine>
                                 -ea
                                 -Xmx${rascal.test.memory}G
-                                -Xss128m
                                 -Dfile.encoding=UTF-8
                                 ${argLine}
                         </argLine>
@@ -243,6 +244,7 @@
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
                         <include>**/org/rascalmpl/test/repl/*Test.java</include>
                         <include>**/org/rascalmpl/util/maven/**/*Test.java</include>
+                        <include>**/org/rascalmpl/uri/**/*Test.java</include>
                         <include>**/org/rascalmpl/*Test.java</include>
                     </includes>
                 </configuration>
