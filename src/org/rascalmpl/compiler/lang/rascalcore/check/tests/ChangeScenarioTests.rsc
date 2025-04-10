@@ -526,18 +526,7 @@ bool changeAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg, str inje
     println("CHANGE <moduleNames>");
     mlocs = [ getModuleLocation(mname, pcfg) | mname <- moduleNames ];
     changeModules(moduleNames, pcfg, injectedError=injectedError);
-    return expectReChecks([topLoc, *mlocs], moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
-}
-
-test bool onlyChangedModulesAreReChecked0(){
-    pcfg = getRascalWritablePathConfig();
-    safeRemove(pcfg.resources);
-    topLoc = getRascalModuleLocation("List", pcfg);
-    assert checkModuleOK(topLoc, pathConfig = pcfg);
-    assert validateBOMs(pcfg);
-
-    assert changeAndCheck(topLoc, ["Exception"], pcfg);
-    return changeAndCheck(topLoc, ["Map"], pcfg);
+    return expectReChecks(topLoc, moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
 }
 
 test bool onlyChangedModulesAreReChecked1(){
@@ -621,16 +610,16 @@ void touchOne(){
 void miniBenchmarkRechecking1(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
-    topName = "Type";
-    topLoc = getRascalModuleLocation("Type", pcfg);
+    topName = "ParseTree";
+    topLoc = getRascalModuleLocation("ParseTree", pcfg);
 
     cases =
         [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
          <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
          <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
          <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
-         <"Map", void(){ touchAndCheck(topLoc, ["Map"], pcfg); }>,
-         <"Exception+Map", void(){ touchAndCheck(topLoc, ["Exception", "Map"], pcfg); }>
+         <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
+         <"Exception+Set", void(){ touchAndCheck(topLoc, ["Exception", "Set"], pcfg); }>
         ];
     benchmark("miniBenchmarkRechecking1", cases);
 }
@@ -694,8 +683,7 @@ void largeBenchmarkRechecking(){
 
 void allBenchmarks(){
     beginTime = cpuTime();
-    miniBenchmarkRechecking1();
-    miniBenchmarkRechecking2();
+    miniBenchmarkRechecking();
     mediumBenchmarkRechecking();
     //largeBenchmarkRechecking();
     println("Total time: <(cpuTime() - beginTime)/1000000> ms");

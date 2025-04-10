@@ -25,22 +25,13 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
-
-/*
-    Perform a path analysis on the Rascal source code of a function.
-    On the fly it will report dead code.
-*/
-
-extend lang::rascalcore::check::CheckerCommon;
  
-import lang::rascal::\syntax::Rascal;
+syntax OptTestGrammar = A? a B b;
 
-// import String;
+syntax A = "a";
+syntax B = "b";
 
-/********************************************************************/
-/*       Return path analysis                                       */
-/********************************************************************/
-
-
-bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`)
-    = true;
+value main() //test bool optionalNotPresentIsFalse() 
+  { b = ((A)`a` <- ([OptTestGrammar] "b").a);
+  return !b;
+  }

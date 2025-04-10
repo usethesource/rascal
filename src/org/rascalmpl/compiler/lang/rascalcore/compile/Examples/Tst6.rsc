@@ -25,11 +25,16 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst6
- 
-import List;
+  
+import ParseTree;
 
- 
-value main() {
-  L = [1,2,3];
-  return size(L[1..2]);
+syntax A = a: "a";
+
+syntax As = as: A+ alist;
+
+syntax C = c: A a "x" As as;
+    
+value main(){ //test bool testMatchC(){
+    pt = parse(#C, "axaaa");
+    return c(A _, As _) := pt;
 }

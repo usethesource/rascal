@@ -153,19 +153,18 @@ ModuleStatus rascalTModelForLocs(
         };
 
     if(size(mlocs) != size(mnames)){ // not all mlocs could be mapped to a module
-        for(mn <- mnames){
-             ms.messages[mn] = msgs;
-        }
+        ms.messages[qualifiedModuleName] = msgs;
         return ms;
     }
- 
-    <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
+    if(allModulesHaveValidTpls(mlocs, pcfg)){
+        <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
 
-    if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
-        for (i <- index(mlocs)) {
-            <found, tm, ms> = getTModelForModule(mnames[i], ms, convert=true);
-            if(!found){
-                throw "TModel for <mnames[i]> not found (no changes)";
+        if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
+            for (i <- index(mlocs)) {
+                <found, tm, ms> = getTModelForModule(mnames[i], ms, convert=true);
+                if(!found){
+                    throw "TModel for <mnames[i]> not found (no changes)";
+                }
             }
         }
         return ms;
@@ -483,9 +482,9 @@ tuple[TModel, ModuleStatus] rascalTModelComponent(set[str] moduleNames, ModuleSt
             tm = s.run();
         }
         tm.usesPhysicalLocs = true;
-        // for(mname <- moduleNames){
-        //     ms.messages[mname] = tm.messages;
-        // }
+        for(mname <- moduleNames){
+            ms.messages[mname] = toSet(tm.messages);
+        }
         //iprintln(tm.messages);
 
         check_time = (cpuTime() - start_check)/1000000;

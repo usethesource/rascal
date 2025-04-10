@@ -919,7 +919,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    if(!isOverloadedAType(ftype) || fname in { "achoice", "priority", "associativity"}){
         // Try to reduce non-overloaded function call (and three selected overloaded ones) to a constant
    		try {
-   			return translateConstantCall(fname, args); //TODO: kwargs?
+   			return translateConstantCall(fname, args, kwargs);
    		}
    		catch "NotConstant":  /* not a constant, generate an ordinary call instead */;
    }
