@@ -25,7 +25,17 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-void main(){ 
-    node f = "foo"();
-    str hey = /"foo"() := f ? "kk" : "ll";          
-}
+     
+import List;
+syntax C = "c";
+syntax Cs0 = {C ","}* cs0;
+syntax Cs1 = {C ","}+ cs1;
+
+syntax AroundCs0 = "OPENCs0" {C ","}* "CLOSE";
+syntax AroundCs1 = "OPENCs1" {C ","}+ "CLOSE";
+
+int cntCs0({C ","}* cs) = size([c | C c <- cs ]);
+int cntAroundCs0((AroundCs0) `OPENCs0<{C ","}* cs0>CLOSE`) = cntCs0(cs0);
+
+value main() //test bool around1() 
+    = cntAroundCs0([AroundCs0] "OPENCs0CLOSE") == 0;
