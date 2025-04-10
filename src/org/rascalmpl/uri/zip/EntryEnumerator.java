@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
+ * Copyright (c) 2025, Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,32 +24,18 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.runtime;
+package org.rascalmpl.uri.zip;
 
-import java.util.Collections;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.zip.ZipEntry;
 
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.values.RascalValueFactory;
+public interface EntryEnumerator {
+    CloseableIterator openZip() throws IOException;
 
-public class ParserGeneratorFactory {
-	private @MonotonicNonNull ParserGenerator generator;
-	
-	private static RascalExecutionContext rex;
-	
-	private static class InstanceHolder {
-	    public static final ParserGeneratorFactory sInstance = new ParserGeneratorFactory();
-	}
-	public static ParserGeneratorFactory getInstance(RascalExecutionContext arex) {
-		rex = arex;
-	    return InstanceHolder.sInstance;
-	}
-	
-	public ParserGenerator getParserGenerator(RascalValueFactory VF) {
-		if (this.generator == null) {
-			this.generator = new ParserGenerator(rex, rex.getOutWriter(), VF, new Configuration());
-		}
-		return generator;
-	 }
+    public static interface CloseableIterator extends Closeable {
+        boolean hasNext() throws IOException;
+        ZipEntry next() throws IOException;
+    }
 }
+

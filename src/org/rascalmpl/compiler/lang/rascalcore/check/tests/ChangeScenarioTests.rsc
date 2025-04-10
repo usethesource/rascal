@@ -443,16 +443,28 @@ test bool breakingChange1(){
 
 // ---- touch and recheck modules ---------------------------------------------
 
-bool touchAndCheck(loc Top, list[str] moduleNames, PathConfig pcfg){
+bool touchAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg){
     println("TOUCH <moduleNames>");
-    for(mname <- moduleNames){
-        touch(getRascalModuleLocation(mname, pcfg));
+    mlocs = [ getRascalModuleLocation(mname, pcfg) | mname <- moduleNames ];
+    for(mloc <- mlocs){
+            touch(mloc);
     }
-    return expectReChecks(Top, moduleNames, pathConfig=pcfg);
+    return expectReChecks([topLoc, *mlocs], moduleNames + getModuleName(topLoc, pcfg), pathConfig=pcfg);
 }
 
 void safeRemove(loc l){
     try remove(l, recursive=true); catch _:;
+}
+
+test bool onlyTouchedModulesAreReChecked0(){
+    pcfg = getRascalWritablePathConfig();
+    safeRemove(pcfg.resources);
+    topLoc = getRascalModuleLocation("List", pcfg);
+    assert checkModuleOK(topLoc, pathConfig = pcfg);
+    assert validateBOMs(pcfg);
+
+    assert touchAndCheck(topLoc, ["Exception"], pcfg);
+    return touchAndCheck(topLoc, ["Map"], pcfg);
 }
 
 test bool onlyTouchedModulesAreReChecked1(){
@@ -512,6 +524,7 @@ void restoreModules(list[str] moduleNames, PathConfig pcfg){
 
 bool changeAndCheck(loc topLoc, list[str] moduleNames, PathConfig pcfg, str injectedError=""){
     println("CHANGE <moduleNames>");
+    mlocs = [ getModuleLocation(mname, pcfg) | mname <- moduleNames ];
     changeModules(moduleNames, pcfg, injectedError=injectedError);
     return expectReChecks(topLoc, moduleNames, pathConfig=pcfg, errorsAllowed = injectedError?);
 }
@@ -594,7 +607,7 @@ void touchOne(){
     benchmark("touchOne", cases);
 }
 
-void miniBenchmarkRechecking(){
+void miniBenchmarkRechecking1(){
     pcfg = getRascalWritablePathConfig();
     safeRemove(pcfg.resources);
     topName = "ParseTree";
@@ -608,7 +621,24 @@ void miniBenchmarkRechecking(){
          <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
          <"Exception+Set", void(){ touchAndCheck(topLoc, ["Exception", "Set"], pcfg); }>
         ];
-    benchmark("miniBenchmarkRechecking", cases);
+    benchmark("miniBenchmarkRechecking1", cases);
+}
+
+void miniBenchmarkRechecking2(){
+    pcfg = getRascalWritablePathConfig();
+    safeRemove(pcfg.resources);
+    topName = "ParseTree";
+    topLoc = getRascalModuleLocation("ParseTree", pcfg);
+
+    cases =
+        [<"<topName>, first", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, nochange", void(){ checkModuleOK(topLoc, pathConfig = pcfg); }>,
+         <"<topName>, touched", void(){ touchAndCheck(topLoc, [topName], pcfg); }>,
+         <"Exception", void(){ touchAndCheck(topLoc, ["Exception"], pcfg); }>,
+         <"Set", void(){ touchAndCheck(topLoc, ["Set"], pcfg); }>,
+         <"Exception+Set", void(){ touchAndCheck(topLoc, ["Exception", "Set"], pcfg); }>
+        ];
+    benchmark("miniBenchmarkRechecking2", cases);
 }
 
 void mediumBenchmarkRechecking(){

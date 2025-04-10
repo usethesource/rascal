@@ -19,8 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
-import java.util.List;
-
+import java.util.Collections;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.exceptions.ImplementationError;
 import org.rascalmpl.exceptions.Throw;
@@ -54,14 +53,14 @@ public class ParserGenerator {
 	private static final String packageName = "org.rascalmpl.java.parser.object";
 	private static final boolean debug = false;
 
-	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, List<ClassLoader> loaders, IValueFactory factory, Configuration config) {
+	public ParserGenerator(IRascalMonitor monitor, PrintWriter out, IValueFactory factory, Configuration config) {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment scope = new ModuleEnvironment("$parsergenerator$", heap);
 		this.evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), Reader.nullReader(), out, out, scope, heap, monitor);
 		this.evaluator.getConfiguration().setGeneratorProfiling(config.getGeneratorProfilingProperty());
 		evaluator.addRascalSearchPathContributor(StandardLibraryContributor.getInstance());		
 		this.evaluator.setBootstrapperProperty(true);
-		this.bridge = new JavaBridge(loaders, factory, config);
+		this.bridge = new JavaBridge(Collections.singletonList(Evaluator.class.getClassLoader()), factory, config);
 		this.vf = factory;
 		
 		evaluator.doImport(monitor, 

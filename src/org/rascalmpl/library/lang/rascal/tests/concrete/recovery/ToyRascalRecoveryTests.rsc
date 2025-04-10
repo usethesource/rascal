@@ -19,9 +19,8 @@ import lang::rascal::tests::concrete::recovery::ToyRascal;
 import ParseTree;
 import util::ParseErrorRecovery;
 import IO;
-import util::Maybe;
 
-import lang::rascal::tests::concrete::recovery::RecoveryTestSupport;
+import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
 
 Tree parseToyRascal(str input, bool visualize=false) {
     Tree result = parser(#start[FunctionDeclaration], allowRecovery=true, allowAmbiguity=true)(input, |unknown:///?visualize=<"<visualize>">|);

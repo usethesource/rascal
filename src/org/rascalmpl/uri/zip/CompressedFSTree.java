@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2025, NWO-I CWI, Swat.engineering and Paul Klint
+ * Copyright (c) 2025, Swat.engineering
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,32 +24,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-package org.rascalmpl.runtime;
+package org.rascalmpl.uri.zip;
 
-import java.util.Collections;
+import java.io.IOException;
 
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
-import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.parser.ParserGenerator;
-import org.rascalmpl.values.RascalValueFactory;
+import org.rascalmpl.uri.fs.FileSystemTree;
 
-public class ParserGeneratorFactory {
-	private @MonotonicNonNull ParserGenerator generator;
-	
-	private static RascalExecutionContext rex;
-	
-	private static class InstanceHolder {
-	    public static final ParserGeneratorFactory sInstance = new ParserGeneratorFactory();
-	}
-	public static ParserGeneratorFactory getInstance(RascalExecutionContext arex) {
-		rex = arex;
-	    return InstanceHolder.sInstance;
-	}
-	
-	public ParserGenerator getParserGenerator(RascalValueFactory VF) {
-		if (this.generator == null) {
-			this.generator = new ParserGenerator(rex, rex.getOutWriter(), VF, new Configuration());
-		}
-		return generator;
-	 }
+public class CompressedFSTree extends FileSystemTree<IndexedFSEntry> {
+    private final long totalSize;
+
+    public CompressedFSTree(IndexedFSEntry root, EntryEnumerator openEntries) {
+        super(root);
+        long totalSize = 0;
+        int pos = 0;
+        try (var entries = openEntries.openZip()) {
+            while (entries.hasNext()) {
+                var je = entries.next();
+                var childEntry = new IndexedFSEntry(je, pos);
+                String name = je.getName();
+                if (je.isDirectory()) {
+                    addDirectory(je.getName(), childEntry, IndexedFSEntry::new);
+                }
+                else {
+                    totalSize += 24 + (name.length() * 2);
+                    addFile(name, childEntry, IndexedFSEntry::new);
+                }
+                pos++;
+            }
+        }
+        catch (IOException e) {
+            this.delayedException = e;
+        }
+        finally {
+            this.totalSize = totalSize;
+        }
+    }
+
+    public long getTotalSize() {
+        return totalSize;
+    }
+
+    public int getPosition(String path) throws IOException {
+        return getEntry(path).offset;
+    }
 }

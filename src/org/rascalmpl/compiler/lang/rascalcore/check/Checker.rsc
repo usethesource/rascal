@@ -81,8 +81,8 @@ void rascalPreCollectInitialization(map[str, Tree] _namedTrees, Collector c){
     c.push(key_allow_use_before_def, <|none:///|(0,0,<0,0>,<0,0>), |none:///|(0,0,<0,0>,<0,0>)>);
 }
 
-list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
-    msgs = [];
+set[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
+    msgs = {};
 
     if(isEmpty(pcfg.srcs)) msgs += error("PathConfig: `srcs` is empty", mloc);
     for(src <- pcfg.srcs){
@@ -103,7 +103,7 @@ list[Message] validatePathConfigForChecker(PathConfig pcfg, loc mloc) {
     return msgs;
 }
 
-list[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
+set[Message] validatePathConfigForCompiler(PathConfig pcfg, loc mloc) {
     msgs = validatePathConfigForChecker(pcfg, mloc);
     if(!exists(pcfg.bin)){
         try {
@@ -123,6 +123,8 @@ list[Message] dummy_compile1(str _qualifiedModuleName, lang::rascal::\syntax::Ra
     = [];
 
 // rascalTModelForLocs is the basic work horse
+// Essential assumption: all changed modules are included in mlocs.
+// If this is not the case, changed modules not in mlocs will not be checked.
 
 ModuleStatus rascalTModelForLocs(
     list[loc] mlocs,
@@ -133,7 +135,7 @@ ModuleStatus rascalTModelForLocs(
    
     if(compilerConfig.logPathConfig) { iprintln(pcfg); }
 
-    msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
+    set[Message] msgs = validatePathConfigForChecker(pcfg, mlocs[0]);
 
     ModuleStatus ms = newModuleStatus(compilerConfig);
     
@@ -164,8 +166,8 @@ ModuleStatus rascalTModelForLocs(
                     throw "TModel for <mnames[i]> not found (no changes)";
                 }
             }
-         return ms;
         }
+        return ms;
     }
 
     for (int i <- index(mlocs)) {
@@ -176,7 +178,7 @@ ModuleStatus rascalTModelForLocs(
         }
        
         ms.moduleLocs[mname] = mloc;
-        msgs += toList(ms.messages[mname] ? {});
+        msgs += (ms.messages[mname] ? {});
     }
 
     str jobName = "";
@@ -342,8 +344,8 @@ ModuleStatus rascalTModelForLocs(
                 for(str m <- component, MStatus::ignored() notin ms.status[m]){
                     <success, pt, ms> = getModuleParseTree(m, ms);
                     if(success){
-                        msgs = codgen(m, pt, transient_tms, ms, compilerConfig);
-                        ms.messages[m] += toSet(msgs);
+                        lmsgs = codgen(m, pt, transient_tms, ms, compilerConfig);
+                        ms.messages[m] += toSet(lmsgs);
                         ms.status[m] += {code_generated()};
                     }
                 }
@@ -529,23 +531,6 @@ bool uptodateTPls(list[loc] candidates, list[str] mnames, PathConfig pcfg){
     return true;
 }
 
-bool allModulesHaveValidTpls(list[loc] candidates, PathConfig pcfg){
-    for(srcdir <- pcfg.srcs){
-        for(loc mloc <- find(srcdir, "rsc")){
-            try {
-                mname = getRascalModuleName(mloc, pcfg);
-                <found, tpl> = getTPLReadLoc(mname, pcfg);
-                if(found && (mloc notin candidates) && (lastModified(mloc) > lastModified(tpl))){
-                    return false;
-                }
-            } catch e:{
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
 tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates, ModuleStatus ms){
     pcfg = ms.pathConfig;
     for(candidate <- candidates){
@@ -564,6 +549,9 @@ tuple[bool, ModuleStatus] libraryDependenciesAreCompatible(list[loc] candidates,
 
 // name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
+
+// Essential assumption: all changed modules are included in moduleLocs.
+// If this is not the case, changed modules not in mlocs will not be checked.
 
 list[ModuleMessages] check(list[loc] moduleLocs, RascalCompilerConfig compilerConfig){
     pcfg1 = compilerConfig.typepalPathConfig;
@@ -618,7 +606,7 @@ int main(
         
     messages = check(modules, rascalConfig);
     flatMessages = [*msgs | program(_, msgs) <- messages];
-    
+
     return mainMessageHandler(flatMessages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors);
 }
 
