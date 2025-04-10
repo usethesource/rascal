@@ -331,7 +331,7 @@
                                     </excludes>
                                 </filter>
                                 <filter>
-                                    <artifact>org.rascalmpl:typepal:*</artifact>
+                                    <artifact>org.rascalmpl:typepal</artifact>
                                     <excludes>
                                         <exclude>META-INF/*</exclude>
                                         <exclude>examples/**</exclude>
