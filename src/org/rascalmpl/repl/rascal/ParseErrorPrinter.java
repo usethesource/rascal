@@ -113,6 +113,11 @@ public class ParseErrorPrinter {
         if (column >= 0) {
             ansi = ansi.cursorToColumn(column);
         }
+        if (offset >= line.length()) {
+            // If the error is at the end of the line, we need to add a space so that the underline is not empty
+            line += " ";
+            length = 1;
+        }
         out.write(ansi
             .reset()
             .fgRed()
@@ -139,7 +144,7 @@ public class ParseErrorPrinter {
                             @Override
                             public void write(PrintWriter target, boolean unicodeSupported) {
                                 target.write(unicodeSupported ? "❌ " : "! ");
-                                target.write("Rascal could not recognize this command");
+                                target.write("Rascal could not recognize this command, ");
                                 writeUnderLine(target, -1, "beyond line " + pe.getBeginLine() + " and column " + pe.getBeginColumn());
                                 target.println();
 
