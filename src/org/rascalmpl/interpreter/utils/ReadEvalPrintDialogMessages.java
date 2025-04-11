@@ -206,4 +206,9 @@ public class ReadEvalPrintDialogMessages {
 	    out.println(e.getMessage());
 	    out.flush();
 	}
+
+	public static void cancelledMessage(PrintWriter out) {
+		out.println("Cancelled");
+		out.flush();
+	}
 }
