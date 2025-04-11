@@ -119,6 +119,11 @@ public interface IREPLService {
     String interruptedPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
 
     /**
+     * What to print when a command was cancelled (by pressing "Enter" twice)
+     */
+    public String cancelledPrompt(boolean ansiColorsSupported, boolean unicodeSupported);
+
+    /**
      * Connect the REPL to the Terminal, most likely want to keep the instance of the around {@link Terminal#writer()}.
      * @return a IDE service that the REPL can use for IDE features like opening a URL
      */
