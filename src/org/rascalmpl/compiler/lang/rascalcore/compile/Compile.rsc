@@ -164,8 +164,8 @@ list[Message] compile(str qualifiedModuleName, RascalCompilerConfig compilerConf
 }
 
 void main(
-    PathConfig pcfg = getProjectPathConfig(|cwd:///|), 
-    list[loc] \modules = |unknown://|,
+    PathConfig pcfg               = pathConfig(), 
+    list[loc] \modules            = [],
     bool logPathConfig            = false,
     bool logImports               = false,
     bool verbose                  = false,
@@ -174,8 +174,11 @@ void main(
     bool warnUnusedFormals        = true,
     bool warnUnusedVariables      = true,
     bool warnUnusedPatternFormals = true,
-    bool infoModuleChecked        = false
+    bool infoModuleChecked        = false,
+    bool errorsAsWarnings         = false,
+    bool warningsAsErrors         = false
     ) {
+
     pcfg.resources = pcfg.bin;
 
     rascalConfig = rascalCompilerConfig(pcfg,
@@ -188,9 +191,14 @@ void main(
         warnUnusedPatternFormals = warnUnusedPatternFormals,
         infoModuleChecked        = infoModuleChecked
     );
-        
-    messages = compile(\modules, rascalConfig);
-    println(write(messages));
 
-    return (error(_,_) <- messages || error(_) <- messages) ? 1 : 0;
+    if (\modules == []) {
+        // the `compile` function throws EmptyList() on an empty list of modules
+        messages = info("No modules to compile.");
+    }
+    else {      
+        messages = compile(\modules, rascalConfig);
+    }
+    
+    return mainMessageHandler(messages, srcs=pcfg.srcs, errorsAsWarnings=errorsAsWarnings, warningsAsErrors=warningsAsErrors); 
 }

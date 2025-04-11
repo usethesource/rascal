@@ -55,7 +55,11 @@ public abstract class AbstractCommandlineTool {
                 
                 IValue result = eval.main(monitor, mainModule, "main", args);
                 
-                if (result.getType().isInteger()) {
+                if (result == null) {
+                    // void main
+                    System.exit(0);
+                }
+                else if (result.getType().isInteger()) {
                     System.exit(((IInteger) result).intValue());
                 }
                 else {
@@ -64,7 +68,7 @@ public abstract class AbstractCommandlineTool {
             }
             catch (Throw e) {
                 try {
-                    err.println(e.getLocalizedMessage());
+                    err.println(e.getException());
                     e.getTrace().prettyPrintedString(err, new StandardTextWriter());
                 }
                 catch (IOException ioe) {

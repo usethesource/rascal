@@ -37,7 +37,6 @@ public class BatchProgressMonitor implements IRascalMonitor {
 
 	@Override
 	public int jobEnd(String name, boolean succeeded) {
-		out.println("\tJob done: "  + name);
 		return 0;
 	}
 
@@ -48,7 +47,7 @@ public class BatchProgressMonitor implements IRascalMonitor {
 
 	@Override
 	public void jobStart(String name, int workShare, int totalWork) {
-		out.println("Job started: " + name);
+		out.println("Job: " + name);
 		out.flush();
 	}
 

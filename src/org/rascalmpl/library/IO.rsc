@@ -775,7 +775,7 @@ java void unwatch(loc src, bool recursive, void (LocationChangeEvent event) watc
 default an abstract (slower) ClassLoader can be built using `read` capabilities on `.class` files.
 * `watch` means that for this scheme a native file watcher can be instantiated. By default 
 a slower more generic file watcher is created based on capturing `write` actions.
-   * ((logical)) schemes provide a transparent facade for more abstract URIs. The abstract URI is 
+   * ((resolving)) schemes provide a transparent facade for more abstract URIs. The abstract URI is 
 rewritten to a more concrete URI on-demand. Logical URIs can be nested arbitrarily.
 
 These capabilities extend naturally to other IO functions that use the internal versions of the above functionality, 
