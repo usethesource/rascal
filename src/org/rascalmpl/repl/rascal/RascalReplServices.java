@@ -70,7 +70,7 @@ public class RascalReplServices implements IREPLService {
     
 
     public RascalReplServices(IRascalLanguageProtocol lang, @Nullable Path historyFile) {
-        this.lang=  lang;
+        this.lang = lang;
         this.historyFile = historyFile;
     }
 
@@ -154,6 +154,21 @@ public class RascalReplServices implements IREPLService {
         if (unicodeSupported) {
             prompt = prompt.replace(">", "»");
         }
+        if (ansiColorsSupported) {
+            return Ansi.ansi()
+                .reset()
+                .fgRed()
+                .bold()
+                .a(prompt)
+                .reset()
+                .toString();
+        }
+        return prompt;
+    }
+
+    @Override
+    public String cancelledPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+        String prompt = "Cancelled";
         if (ansiColorsSupported) {
             return Ansi.ansi()
                 .reset()
