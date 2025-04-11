@@ -27,7 +27,6 @@
 package org.rascalmpl.repl.rascal;
 
 
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.cancelledMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
@@ -139,11 +138,6 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
-        if (command.isEmpty() || command.charAt(command.length()-1) == '\n') {
-            return printer.outputError((w, _sw, _u) -> {
-                cancelledMessage(w);
-            });
-        }
         synchronized(eval) {
             try {
                 return printer.outputResult(eval.eval(eval.getMonitor(), command, PROMPT_LOCATION));
