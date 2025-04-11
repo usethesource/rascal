@@ -566,6 +566,7 @@
         </dependency>
     </dependencies>
     <profiles>
+        <!-- this is preventing a bootstrap and perhaps we do not need it anymore at all?
         <profile>
             <id>unshaded</id>
             <build>
@@ -595,7 +596,8 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+            </profile>
+        -->
         <profile>
             <id>compiler-tests</id>
             <build>
@@ -618,7 +620,6 @@
                                 <include>**/org/rascalmpl/compiler/**/*Tests.java</include>
                                 <include>**/org/rascalmpl/compiler/**/*Test.java</include>
                             </includes>
-
                         </configuration>
                     </plugin>
                 </plugins>
