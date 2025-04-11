@@ -135,7 +135,6 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         return services;
     }
 
-
     @Override
     public ICommandOutput handleInput(String command) throws InterruptedException, ParseError, StopREPLException {
         Objects.requireNonNull(eval, "Not initialized yet");
