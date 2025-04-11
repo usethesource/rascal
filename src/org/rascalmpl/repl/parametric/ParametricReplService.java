@@ -122,6 +122,11 @@ public class ParametricReplService implements IREPLService {
         return ">> Interrupted";
     }
 
+    @Override
+    public String cancelledPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
+        return "Cancelled";
+    }
+
 
     @Override
     public boolean supportsCompletion() {
