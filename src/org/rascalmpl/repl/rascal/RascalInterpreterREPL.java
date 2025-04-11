@@ -141,7 +141,8 @@ public class RascalInterpreterREPL implements IRascalLanguageProtocol {
         Objects.requireNonNull(eval, "Not initialized yet");
         if (command.equals("\n")) {
             return printer.outputError((w, _sw, _u) -> {
-                cancelledMessage(w);
+                w.println("Cancelled");
+                w.flush();
             });
         }
         synchronized(eval) {
