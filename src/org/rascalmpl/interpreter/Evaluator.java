@@ -102,6 +102,8 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import static org.rascalmpl.uri.file.MavenRepositoryURIResolver.mavenize;
+import static org.rascalmpl.uri.file.JarURIResolver.jarify;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
@@ -858,11 +860,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             try {
                 if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
                     // vallang syntax for locs with |scheme:///|
-                    return new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
+                    return jarify(mavenize(new StandardTextReader().read(vf, expected, new StringReader(option.trim()))));
                 }
                 else if (option.contains("://")) {
                     // encoded URI notation
-                    return URIUtil.createFromURI(option.trim());
+                    return jarify(mavenize(URIUtil.createFromURI(option.trim())));
                 }
                 else {
                     // basic support for current and parent directory notation
@@ -879,7 +881,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
                     }
                     // OS specific notation for file paths
-                    return URIUtil.createFileLocation(option.trim());
+                    return jarify(mavenize(URIUtil.createFileLocation(option.trim())));
                 }
             }  
             catch (FactTypeUseException e) {
