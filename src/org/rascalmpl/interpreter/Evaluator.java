@@ -860,7 +860,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             try {
                 if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
                     // vallang syntax for locs with |scheme:///|
-                    return jarify(mavenize(new StandardTextReader().read(vf, expected, new StringReader(option.trim()))));
+                    return jarify(mavenize((ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()))));
                 }
                 else if (option.contains("://")) {
                     // encoded URI notation
