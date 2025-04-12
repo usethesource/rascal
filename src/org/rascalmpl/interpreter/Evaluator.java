@@ -103,7 +103,7 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import static org.rascalmpl.uri.file.MavenRepositoryURIResolver.mavenize;
-import static org.rascalmpl.uri.file.JarURIResolver.jarify;
+import static org.rascalmpl.uri.jar.JarURIResolver.jarify;
 import org.rascalmpl.values.RascalFunctionValueFactory;
 import org.rascalmpl.values.functions.IFunction;
 import org.rascalmpl.values.parsetrees.ITree;
