@@ -123,12 +123,6 @@ public class ParametricReplService implements IREPLService {
     }
 
     @Override
-    public String cancelledPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
-        return "Cancelled";
-    }
-
-
-    @Override
     public boolean supportsCompletion() {
         return lang.supportsCompletion();
     }
