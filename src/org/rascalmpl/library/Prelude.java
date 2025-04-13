@@ -79,6 +79,8 @@ import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -3948,30 +3950,39 @@ public class Prelude {
 		private final int hash;
 
 		private final IValueFactory values;
-		private final Type deleted;
-		private final Type created;
-		private final Type modified;
-		private final Type file;
-		private final Type directory;
-		private final Type changeEvent;
+
+		private static final Type deleted;
+		private static final Type created;
+		private static final Type modified;
+		private static final Type file;
+		private static final Type directory;
+		private static final Type changeEvent;
+		static {
+			var store = new TypeStore();
+			var tf = TypeFactory.getInstance();
+
+			var locationChangeType = tf.abstractDataType(store, "LocationChangeType");
+			created = tf.constructor(store, locationChangeType, "created");
+			modified = tf.constructor(store, locationChangeType, "modified");
+			deleted = tf.constructor(store, locationChangeType, "deleted");
+
+			var locationType = tf.abstractDataType(store, "LocationType");
+			file = tf.constructor(store, locationType, "file");
+			directory = tf.constructor(store, locationType, "directory");
+
+			var changeEventType = tf.abstractDataType(store, "LocationChangeEvent");
+			changeEvent = tf.constructor(store, changeEventType, "changeEvent", 
+				tf.sourceLocationType(), "src", locationChangeType, "changeType", locationType, "type");
+		}
 
 
-		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
 			this.src = src;
 			this.recursive = recursive;
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
 			this.values = values;
-			this.deleted = getFirstConstructor(store, "deleted");
-			this.created = getFirstConstructor(store, "created");
-			this.modified = getFirstConstructor(store, "modified");
-			this.file = getFirstConstructor(store, "file");
-			this.directory = getFirstConstructor(store, "directory");
-			this.changeEvent = getFirstConstructor(store, "changeEvent");
-		}
-
-		private static Type getFirstConstructor(TypeStore store, String name) {
-			return store.lookupConstructors(name).iterator().next();
 		}
 
 		@Override
@@ -4048,7 +4059,7 @@ public class Prelude {
 
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values);
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it
