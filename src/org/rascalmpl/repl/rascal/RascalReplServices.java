@@ -197,21 +197,6 @@ public class RascalReplServices implements IREPLService {
     }
 
     @Override
-    public String cancelledPrompt(boolean ansiColorsSupported, boolean unicodeSupported) {
-        String prompt = "Cancelled";
-        if (ansiColorsSupported) {
-            return Ansi.ansi()
-                .reset()
-                .fgRed()
-                .bold()
-                .a(prompt)
-                .reset()
-                .toString();
-        }
-        return prompt;
-    }
-
-    @Override
     public PrintWriter errorWriter() {
         return err;
     }
