@@ -139,7 +139,7 @@
                     </configuration> 
                 <executions>
                     <execution>
-                        <id>it-compile</id>
+                        <id>default-compile</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
@@ -166,7 +166,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>default-cli</id>
+                        <id>default-resources</id>
                         <phase>compile</phase>
                         <goals>
                             <goal>tutor</goal>
@@ -194,7 +194,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>it-package</id>
+                        <id>default-package</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>package</goal>
@@ -202,8 +202,8 @@
                         <configuration>
                             <sourceLookup>|std:///|</sourceLookup>
                         </configuration>
-                        </execution> 
-                    </executions>
+                    </execution> 
+                </executions>
             </plugin>
             <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
