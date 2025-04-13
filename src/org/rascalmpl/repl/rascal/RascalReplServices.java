@@ -47,7 +47,13 @@ import org.rascalmpl.repl.completers.RascalIdentifierCompletion;
 import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
+import org.rascalmpl.repl.output.IAnsiCommandOutput;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.IErrorCommandOutput;
+import org.rascalmpl.repl.output.IOutputPrinter;
+import org.rascalmpl.repl.output.MimeTypes;
+import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
+import org.rascalmpl.repl.streams.ReplTextWriter;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 /**
@@ -105,12 +111,36 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException {
+        if (input.equals("\n")) {
+            return createCancelledOutput();
+        }
         try {
             return lang.handleInput(input);
         }
         catch (ParseError pe) {
             return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, term, prompt(false, unicodeSupported).length() + 1);
         }
+    }
+
+    private ICommandOutput createCancelledOutput() {
+        return new IErrorCommandOutput() {
+            private final IOutputPrinter cancelledPrinter = new AsciiStringOutputPrinter("Cancelled");
+
+            @Override
+            public ICommandOutput getError() {
+                return new ICommandOutput() {
+                    @Override
+                    public IOutputPrinter asPlain() {
+                        return cancelledPrinter;
+                    }
+                };
+            }
+
+            @Override
+            public IOutputPrinter asPlain() {
+                return cancelledPrinter;
+            }
+        };
     }
 
 
