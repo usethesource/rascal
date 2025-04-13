@@ -3948,7 +3948,13 @@ public class Prelude {
 		private final int hash;
 
 		private final IValueFactory values;
-		private final TypeStore store;
+		private final Type deleted;
+		private final Type created;
+		private final Type modified;
+		private final Type file;
+		private final Type directory;
+		private final Type changeEvent;
+
 
 		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
 			this.src = src;
@@ -3956,7 +3962,16 @@ public class Prelude {
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
 			this.values = values;
-			this.store = store;
+			this.deleted = getFirstConstructor(store, "deleted");
+			this.created = getFirstConstructor(store, "created");
+			this.modified = getFirstConstructor(store, "modified");
+			this.file = getFirstConstructor(store, "file");
+			this.directory = getFirstConstructor(store, "directory");
+			this.changeEvent = getFirstConstructor(store, "changeEvent");
+		}
+
+		private static Type getFirstConstructor(TypeStore store, String name) {
+			return store.lookupConstructors(name).iterator().next();
 		}
 
 		@Override
@@ -3977,7 +3992,6 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
 			
 			
 			return values.constructor(changeEvent, 
@@ -3988,8 +4002,6 @@ public class Prelude {
 		}
 
 		private IValue convertFileType(ISourceLocationType type) {
-			Type file = store.lookupConstructors("file").iterator().next();
-			Type directory = store.lookupConstructors("directory").iterator().next();
 			
 			switch (type) {
 				case FILE:
@@ -4002,9 +4014,6 @@ public class Prelude {
 		}
 
 		private IValue convertChangeType(ISourceLocationChangeType changeType) {
-			Type deleted = store.lookupConstructors("deleted").iterator().next();
-			Type created = store.lookupConstructors("created").iterator().next();
-			Type modified = store.lookupConstructors("modified").iterator().next();
 
 			switch (changeType) {
 				case DELETED:
