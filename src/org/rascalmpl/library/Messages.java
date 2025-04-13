@@ -86,12 +86,6 @@ public class Messages {
         write(messages, IRascalValueFactory.getInstance().list(), out);
     }
 
-    private static boolean isContainedIn(IList srcs, ISourceLocation src) {
-        return srcs.stream()
-            .map(ISourceLocation.class::cast)
-            .anyMatch(f -> URIUtil.isParentOf(f, src));
-    }
-
     public static void write(IList messages, IList srcs, PrintWriter out) {
         int maxLine = 0;
         int maxColumn = 0;
@@ -109,7 +103,6 @@ public class Messages {
 
         Stream<IConstructor> sortedStream = messages.stream()
             .map(IConstructor.class::cast)
-            .filter(m -> srcs.isEmpty() || isContainedIn(srcs, (ISourceLocation) m.get("at")))
             .sorted((m1, m2) -> {
                 ISourceLocation l1 = (ISourceLocation) m1.get("at");
                 ISourceLocation l2 = (ISourceLocation) m2.get("at");
