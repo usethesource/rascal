@@ -147,16 +147,14 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
-	private final TypeStore store;
 	private final IRascalMonitor monitor;
 	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
-		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
