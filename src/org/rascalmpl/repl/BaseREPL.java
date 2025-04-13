@@ -127,12 +127,7 @@ public class BaseREPL {
                         break;
                     }
                     running.set(true);
-                    if (line.equals("\n")) {
-                        reader.printAbove(replService.cancelledPrompt(ansiColorsSupported, unicodeSupported));
-                        term.flush();
-                    } else {
-                        handleInput(line);
-                    }
+                    handleInput(line);
                 }
                 catch (UserInterruptException u) {
                     // only thrown while `readLine` is active
