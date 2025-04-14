@@ -201,6 +201,7 @@ public class TutorCommandExecutor {
                 }
                 catch (Throwable e) {
                     errPrinter.write(e.getMessage());
+                    e.printStackTrace(errPrinter);
                 }
             }
             // we ignore IAnsiCommandOutput, as we know that we cannot render that. 
