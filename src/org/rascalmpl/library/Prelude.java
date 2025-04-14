@@ -79,6 +79,8 @@ import org.rascalmpl.exceptions.Throw;
 import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.interpreter.utils.IResourceLocationProvider;
 import org.rascalmpl.repl.streams.LimitedLineWriter;
+import org.rascalmpl.types.RascalType;
+import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.types.TypeReifier;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
@@ -145,16 +147,14 @@ public class Prelude {
 	
 	private final boolean trackIO = System.getenv("TRACKIO") != null;
     private final PrintWriter out;
-	private final TypeStore store;
 	private final IRascalMonitor monitor;
 	private final IResourceLocationProvider resourceProvider;
 	
-	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, TypeStore store, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
+	public Prelude(IValueFactory values, IRascalValueFactory rascalValues, PrintWriter out, IRascalMonitor monitor, IResourceLocationProvider resourceProvider) {
 		super();
 		
 		this.values = values;
 		this.rascalValues = rascalValues;
-		this.store = store;
 		this.out = out;
 		this.tr = new TypeReifier(values);
 		this.monitor = monitor;
@@ -3948,15 +3948,36 @@ public class Prelude {
 		private final int hash;
 
 		private final IValueFactory values;
-		private final TypeStore store;
 
-		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values, TypeStore store) {
+		private final Type deleted;
+		private final Type created;
+		private final Type modified;
+		private final Type file;
+		private final Type directory;
+		private final Type changeEvent;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
 			this.src = src;
 			this.recursive = recursive;
 			this.target = new WeakReference<>(target);
 			this.hash = src.hashCode() + 7 * target.hashCode();
 			this.values = values;
-			this.store = store;
+
+			var store = new TypeStore();
+			var tf = TypeFactory.getInstance();
+
+			var locationChangeType = tf.abstractDataType(store, "LocationChangeType");
+			created = tf.constructor(store, locationChangeType, "created");
+			modified = tf.constructor(store, locationChangeType, "modified");
+			deleted = tf.constructor(store, locationChangeType, "deleted");
+
+			var locationType = tf.abstractDataType(store, "LocationType");
+			file = tf.constructor(store, locationType, "file");
+			directory = tf.constructor(store, locationType, "directory");
+
+			var changeEventType = tf.abstractDataType(store, "LocationChangeEvent");
+			changeEvent = tf.constructor(store, changeEventType, "changeEvent", 
+				tf.sourceLocationType(), "src", locationChangeType, "changeType", locationType, "type");
 		}
 
 		@Override
@@ -3977,9 +3998,6 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			Type changeEvent = store.lookupConstructors("changeEvent").iterator().next();
-			
-			
 			return values.constructor(changeEvent, 
 				e.getLocation(),
 				convertChangeType(e.getChangeType()),
@@ -3988,23 +4006,16 @@ public class Prelude {
 		}
 
 		private IValue convertFileType(ISourceLocationType type) {
-			Type file = store.lookupConstructors("file").iterator().next();
-			Type directory = store.lookupConstructors("directory").iterator().next();
-			
 			switch (type) {
 				case FILE:
 					return values.constructor(file);
 				case DIRECTORY:
 					return values.constructor(directory);
 			}
-
 			throw RuntimeExceptionFactory.illegalArgument();
 		}
 
 		private IValue convertChangeType(ISourceLocationChangeType changeType) {
-			Type deleted = store.lookupConstructors("deleted").iterator().next();
-			Type created = store.lookupConstructors("created").iterator().next();
-			Type modified = store.lookupConstructors("modified").iterator().next();
 
 			switch (changeType) {
 				case DELETED:
@@ -4039,7 +4050,7 @@ public class Prelude {
 
 	public void watch(ISourceLocation src, IBool recursive, IFunction callback) {
 		try {
-			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values, store);
+			ReleasableCallback wrappedCallback = new ReleasableCallback(src, recursive.getValue(), callback, values);
 			Set<ReleasableCallback> registered = registeredWatchers.computeIfAbsent(src, k -> ConcurrentHashMap.newKeySet());
 			if (registered.add(wrappedCallback)) {
 				// it wasn't registered before, so let's register it
