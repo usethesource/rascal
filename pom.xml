@@ -131,7 +131,7 @@
                 <artifactId>rascal-maven-plugin</artifactId>
                 <version>0.30.0-RC18-SNAPSHOT</version>
                 <configuration>
-                    <bootstrapRascalVersion>0.41.0-RC29</bootstrapRascalVersion>
+                    <bootstrapRascalVersion>0.41.0-RC34</bootstrapRascalVersion>
                     <parallel>true</parallel>
                     <parallelPreChecks>
                         <pre>${project.basedir}/src/org/rascalmpl/library/Prelude.rsc</pre>
@@ -174,7 +174,7 @@
                         <configuration>
                             <isPackageCourse>false</isPackageCourse>
                             <errorsAsWarnings>false</errorsAsWarnings>
-                            <bin>${project.build.outputDirectory}/docs</bin> <!-- remove docs after release of version RC34 -->
+                            <bin>${project.build.outputDirectory}</bin>
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
