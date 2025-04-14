@@ -180,16 +180,15 @@ public class TermREPL {
                         case "jsonResponse":
                             return handleJSONResponse(response);
                         default: 
-                            return PrinterErrorCommandOutput.errorMessage(
-                                "Unexpected constructor: " + response.getName());
+                            return new PrinterErrorCommandOutput("Unexpected constructor: " + response.getName());
                     }
                 }
             }
             catch (IOException e) {
-                return PrinterErrorCommandOutput.errorMessage(e.getMessage());
+                return new PrinterErrorCommandOutput(e.getMessage());
             }
             catch (Throwable e) {
-                return PrinterErrorCommandOutput.errorMessage(e.getMessage());
+                return new PrinterErrorCommandOutput(e.getMessage());
             }
         }
 
