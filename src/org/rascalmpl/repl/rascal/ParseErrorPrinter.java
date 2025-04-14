@@ -43,6 +43,7 @@ import org.rascalmpl.repl.output.IErrorCommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.MimeTypes;
 import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
+import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -67,22 +68,7 @@ public class ParseErrorPrinter {
             // it's a prompt root
             return buildPromptError(pe, input, term.writer(), promptOffset);
         }
-        return new IErrorCommandOutput() {
-            @Override
-            public ICommandOutput getError() {
-                return new ICommandOutput() {
-                    @Override
-                    public IOutputPrinter asPlain() {
-                        return defaultPrinter(pe, promptRoot, input);
-                    }
-                };
-            }
-            @Override
-            public IOutputPrinter asPlain() {
-                return defaultPrinter(pe, promptRoot, input);
-            }
-            
-        };
+        return new PrinterErrorCommandOutput(defaultPrinter(pe, promptRoot, input));
     }
 
     private static boolean ansiSupported(Terminal term) {
