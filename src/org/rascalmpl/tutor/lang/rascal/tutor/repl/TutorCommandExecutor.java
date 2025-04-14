@@ -47,7 +47,9 @@ public class TutorCommandExecutor {
     private final PrintWriter outPrinter = new PrintWriter(outWriter);
     private final StringWriter errWriter = new StringWriter();
     private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
-    private final ITutorScreenshotFeature screenshot;
+
+    // this must be static because we can't start and kill selenium sessions that quickly
+    private static final ITutorScreenshotFeature screenshot = loadScreenShotter();
     private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
@@ -96,12 +98,11 @@ public class TutorCommandExecutor {
             .build();
 
         interpreter.initialize(Reader.nullReader(), outPrinter, errPrinter, new TutorIDEServices(errPrinter), terminal);
-        screenshot = loadScreenShotter();
     }
 
-    private ITutorScreenshotFeature loadScreenShotter() {
+    private static ITutorScreenshotFeature loadScreenShotter() {
         try {
-            return (ITutorScreenshotFeature) getClass()
+            return (ITutorScreenshotFeature) ITutorScreenshotFeature.class
                 .getClassLoader()
                 .loadClass("org.rascalmpl.tutor.Screenshotter")
                 .getDeclaredConstructor()
