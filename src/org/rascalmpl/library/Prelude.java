@@ -3949,13 +3949,20 @@ public class Prelude {
 
 		private final IValueFactory values;
 
-		private static final Type deleted;
-		private static final Type created;
-		private static final Type modified;
-		private static final Type file;
-		private static final Type directory;
-		private static final Type changeEvent;
-		static {
+		private final Type deleted;
+		private final Type created;
+		private final Type modified;
+		private final Type file;
+		private final Type directory;
+		private final Type changeEvent;
+
+		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
+			this.src = src;
+			this.recursive = recursive;
+			this.target = new WeakReference<>(target);
+			this.hash = src.hashCode() + 7 * target.hashCode();
+			this.values = values;
+
 			var store = new TypeStore();
 			var tf = TypeFactory.getInstance();
 
@@ -3971,16 +3978,6 @@ public class Prelude {
 			var changeEventType = tf.abstractDataType(store, "LocationChangeEvent");
 			changeEvent = tf.constructor(store, changeEventType, "changeEvent", 
 				tf.sourceLocationType(), "src", locationChangeType, "changeType", locationType, "type");
-		}
-
-
-
-		public ReleasableCallback(ISourceLocation src, boolean recursive, IFunction target, IValueFactory values) {
-			this.src = src;
-			this.recursive = recursive;
-			this.target = new WeakReference<>(target);
-			this.hash = src.hashCode() + 7 * target.hashCode();
-			this.values = values;
 		}
 
 		@Override
@@ -4001,8 +3998,6 @@ public class Prelude {
 		}
 
 		private IValue convertChangeEvent(ISourceLocationChanged e) {
-			
-			
 			return values.constructor(changeEvent, 
 				e.getLocation(),
 				convertChangeType(e.getChangeType()),
@@ -4011,14 +4006,12 @@ public class Prelude {
 		}
 
 		private IValue convertFileType(ISourceLocationType type) {
-			
 			switch (type) {
 				case FILE:
 					return values.constructor(file);
 				case DIRECTORY:
 					return values.constructor(directory);
 			}
-
 			throw RuntimeExceptionFactory.illegalArgument();
 		}
 
