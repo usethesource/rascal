@@ -14,8 +14,8 @@ public class PrinterErrorCommandOutput implements IErrorCommandOutput {
     private IOutputPrinter errorPrinter;
 
 
-    public static IErrorCommandOutput errorMessage(String message) {
-        return new PrinterErrorCommandOutput(new AsciiStringOutputPrinter(message));
+    public PrinterErrorCommandOutput(String message) {
+        this(new AsciiStringOutputPrinter(message));
     }
 
     public PrinterErrorCommandOutput(IOutputPrinter printer) {
