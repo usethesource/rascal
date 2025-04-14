@@ -43,6 +43,7 @@ import org.rascalmpl.repl.output.IErrorCommandOutput;
 import org.rascalmpl.repl.output.IOutputPrinter;
 import org.rascalmpl.repl.output.MimeTypes;
 import org.rascalmpl.repl.output.impl.AsciiStringOutputPrinter;
+import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -67,22 +68,7 @@ public class ParseErrorPrinter {
             // it's a prompt root
             return buildPromptError(pe, input, term.writer(), promptOffset);
         }
-        return new IErrorCommandOutput() {
-            @Override
-            public ICommandOutput getError() {
-                return new ICommandOutput() {
-                    @Override
-                    public IOutputPrinter asPlain() {
-                        return defaultPrinter(pe, promptRoot, input);
-                    }
-                };
-            }
-            @Override
-            public IOutputPrinter asPlain() {
-                return defaultPrinter(pe, promptRoot, input);
-            }
-            
-        };
+        return new PrinterErrorCommandOutput(defaultPrinter(pe, promptRoot, input));
     }
 
     private static boolean ansiSupported(Terminal term) {
@@ -113,6 +99,11 @@ public class ParseErrorPrinter {
         if (column >= 0) {
             ansi = ansi.cursorToColumn(column);
         }
+        if (offset >= line.length()) {
+            // If the error is at the end of the line, we need to add a space so that the underline is not empty
+            line += " ";
+            length = 1;
+        }
         out.write(ansi
             .reset()
             .fgRed()
@@ -139,7 +130,7 @@ public class ParseErrorPrinter {
                             @Override
                             public void write(PrintWriter target, boolean unicodeSupported) {
                                 target.write(unicodeSupported ? "❌ " : "! ");
-                                target.write("Rascal could not recognize this command");
+                                target.write("Rascal could not recognize this command, ");
                                 writeUnderLine(target, -1, "beyond line " + pe.getBeginLine() + " and column " + pe.getBeginColumn());
                                 target.println();
 
