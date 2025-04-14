@@ -30,7 +30,7 @@ import vis::Text;
 
 import lang::rascal::grammar::definition::Modules;
 
-bool measureAmbPruning = true;
+int pruneCount = 10;
 
 public data RecoveryTestConfig = recoveryTestConfig(
     loc syntaxFile = |unknown:///|,
@@ -123,7 +123,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
             tree = t;
             parseEndTime = realTime();
             duration = parseEndTime - startTime;
-
+                        
             if (tree == char(0)) {
                 result = "skipped";
                 measurement = skipped(source=source);
@@ -150,13 +150,11 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
                 result = "recovery";
 
                 // amb filtering stats
-                if (measureAmbPruning) {
-                    for (int i <- [0..10]) {
-                        Tree pruned = pruneAmbiguities(tree, maxDepth=i);
-                        int unique = countUniqueTreeNodes(pruned);
-                        int total= countTreeNodes(pruned);
-                        prunedStats += ",<total>,<unique>";
-                    }
+                for (int i <- [0..pruneCount]) {
+                    Tree pruned = pruneAmbiguities(tree, maxDepth=i);
+                    int unique = countUniqueTreeNodes(pruned);
+                    int total= countTreeNodes(pruned);
+                    prunedStats += ",<total>,<unique>";
                 }
             }
         } catch ParseError(_): {
@@ -168,6 +166,12 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
 
     if (config.statFile != |unknown:///|) {
         int ratio = percent(duration, referenceParseTime);
+        if (prunedStats == "") {
+            for (int i <- [0..pruneCount]) {
+                prunedStats += "<nodeCount>,<nodeCountUnique>";
+            }
+        }
+
         appendToFile(config.statFile, "<source>,<size(input)>,<result>,<duration>,<ratio>,<disambDuration>,<errorCount>,<errorSize>,<nodeCount>,<nodeCountUnique>,<disambNodeCount>,<disambNodeCountUnique><prunedStats>\n");
     }
 
@@ -548,10 +552,8 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
 
     if (config.statFile != |unknown:///|) {
         str pruneHeader = "";
-        if (measureAmbPruning) {
-            for (int i <- [0..10]) {
-                pruneHeader += ",prune0,uprune0";
-            }
+        for (int i <- [0..pruneCount]) {
+            pruneHeader += ",prune" + i + ",uprune" + i;
         }
         writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes<pruneHeader>\n");
     }
