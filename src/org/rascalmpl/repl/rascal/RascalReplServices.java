@@ -107,7 +107,7 @@ public class RascalReplServices implements IREPLService {
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException {
         if (input.equals("\n")) {
-            return PrinterErrorCommandOutput.errorMessage("Cancelled");
+            return new PrinterErrorCommandOutput("Cancelled");
         }
         try {
             return lang.handleInput(input);
