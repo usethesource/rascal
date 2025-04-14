@@ -81,6 +81,7 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
   if (funding?) pcfg.funding = funding;
   if (releaseNotes?) pcfg.releaseNotes = releaseNotes;
   if (isPackageCourse?) pcfg.isPackageCourse = isPackageCourse;
+
   if (packageName?) pcfg.packageName = packageName;
 
   messages = compile(pcfg);
@@ -90,6 +91,9 @@ int main(PathConfig pcfg = getProjectPathConfig(|cwd:///|),
 
 @synopsis{compiles each pcfg.srcs folder as a course root}
 list[Message] compile(PathConfig pcfg, CommandExecutor exec = createExecutor(pcfg)) {
+  // all documentation ends up nested under the `docs` folder in the target
+  pcfg.bin = pcfg.bin + "docs";
+
   ind = createConceptIndex(pcfg);
   
   if (pcfg.isPackageCourse) {
