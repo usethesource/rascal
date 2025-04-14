@@ -32,7 +32,7 @@
         <exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>3</rascal.test.memory>
         <maven.compiler.release>11</maven.compiler.release>
-        <rascal-maven.version>0.30.0-RC17</rascal-maven.version>
+        <rascal-maven.version>0.30.0-RC18-SNAPSHOT</rascal-maven.version>
         <jline.version>3.27.0</jline.version>
     </properties>
 
@@ -174,7 +174,7 @@
                         <configuration>
                             <isPackageCourse>false</isPackageCourse>
                             <errorsAsWarnings>false</errorsAsWarnings>
-                            <bin>${project.build.outputDirectory}</bin>
+                            <bin>${project.build.outputDirectory}/docs</bin> <!-- remove docs after release of version RC34 -->
                             <funding>${project.basedir}/FUNDING</funding>
                             <citation>${project.basedir}/CITATION.md</citation>
                             <license>${project.basedir}/LICENSE</license>
