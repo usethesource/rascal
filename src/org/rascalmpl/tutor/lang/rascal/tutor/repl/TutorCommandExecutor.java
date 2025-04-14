@@ -43,10 +43,10 @@ import io.usethesource.vallang.io.StandardTextWriter;
 
 public class TutorCommandExecutor {
     private final RascalInterpreterREPL interpreter;
-    private final StringWriter outWriter = new StringWriter();
-    private final PrintWriter outPrinter = new PrintWriter(outWriter);
-    private final StringWriter errWriter = new StringWriter();
-    private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
+    private final static StringWriter outWriter = new StringWriter();
+    private final static PrintWriter outPrinter = new PrintWriter(outWriter);
+    private final static StringWriter errWriter = new StringWriter();
+    private final static PrintWriter errPrinter = new PrintWriter(errWriter, true);
 
     // this must be static because we can't start and kill selenium sessions that quickly
     private static final ITutorScreenshotFeature screenshot = loadScreenShotter();
@@ -112,8 +112,12 @@ public class TutorCommandExecutor {
             // that is normal; we just don't have the feature available.
             return null;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
-            throw new Error("WARNING: Could not load screenshot feature from org.rascalmpl.tutor.Screenshotter", e);
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {   
+            // this is not normal, but since the screenshot feature is quirky we rather have it robustly continuing 
+            // without the feature, then crashing here and now.
+            errPrinter.println("Error: failed to load screenshot feature due to:" + e.getMessage());
+            e.printStackTrace(errPrinter);
+            return null;
         }
     }
 
