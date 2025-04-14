@@ -3,12 +3,12 @@
 
     <groupId>org.rascalmpl</groupId>
     <artifactId>rascal</artifactId>
-    <version>0.41.0-RC35-SNAPSHOT</version>
+    <version>0.41.0-RC35</version>
     <packaging>jar</packaging>
 
     <scm>
         <developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-        <tag>v0.41.0-RC33</tag>
+        <tag>v0.41.0-RC35</tag>
     </scm>
 
     <!-- dependency resolution configuration (usethesource) -->
@@ -129,7 +129,7 @@
             <plugin>
                 <groupId>org.rascalmpl</groupId>
                 <artifactId>rascal-maven-plugin</artifactId>
-                <version>0.30.0-RC18-SNAPSHOT</version>
+                <version>0.30.0-RC17</version>
                 <configuration>
                     <bootstrapRascalVersion>0.41.0-RC34</bootstrapRascalVersion>
                     <parallel>true</parallel>
