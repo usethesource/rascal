@@ -122,7 +122,6 @@ public class ParametricReplService implements IREPLService {
         return ">> Interrupted";
     }
 
-
     @Override
     public boolean supportsCompletion() {
         return lang.supportsCompletion();
