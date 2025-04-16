@@ -48,8 +48,7 @@ public class TutorCommandExecutor {
     private final static StringWriter errWriter = new StringWriter();
     private final static PrintWriter errPrinter = new PrintWriter(errWriter, true);
 
-    // this must be static because we can't start and kill selenium sessions that quickly
-    private static final ITutorScreenshotFeature screenshot = loadScreenShotter();
+    private final ITutorScreenshotFeature screenshot = loadScreenShotter();
     private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
@@ -115,8 +114,8 @@ public class TutorCommandExecutor {
         catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {   
             // this is not normal, but since the screenshot feature is quirky we rather have it robustly continuing 
             // without the feature, then crashing here and now.
-            errPrinter.println("Error: failed to load screenshot feature due to:" + e.getMessage());
-            e.printStackTrace(errPrinter);
+            System.err.println("Error: failed to load screenshot feature due to:" + e.getCause().getMessage());
+            e.getCause().printStackTrace(System.err);
             return null;
         }
     }
