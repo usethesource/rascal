@@ -48,6 +48,7 @@ import org.rascalmpl.repl.completers.RascalKeywordCompletion;
 import org.rascalmpl.repl.completers.RascalLocationCompletion;
 import org.rascalmpl.repl.completers.RascalModuleCompletion;
 import org.rascalmpl.repl.output.ICommandOutput;
+import org.rascalmpl.repl.output.impl.PrinterErrorCommandOutput;
 import org.rascalmpl.repl.streams.StreamUtil;
 
 /**
@@ -70,7 +71,7 @@ public class RascalReplServices implements IREPLService {
     
 
     public RascalReplServices(IRascalLanguageProtocol lang, @Nullable Path historyFile) {
-        this.lang=  lang;
+        this.lang = lang;
         this.historyFile = historyFile;
     }
 
@@ -105,6 +106,9 @@ public class RascalReplServices implements IREPLService {
 
     @Override
     public ICommandOutput handleInput(String input) throws InterruptedException, StopREPLException {
+        if (input.equals("\n")) {
+            return new PrinterErrorCommandOutput("Cancelled");
+        }
         try {
             return lang.handleInput(input);
         }
@@ -112,7 +116,6 @@ public class RascalReplServices implements IREPLService {
             return ParseErrorPrinter.parseErrorMaybePrompt(pe, lang.promptRootLocation(), input, term, prompt(false, unicodeSupported).length() + 1);
         }
     }
-
 
     @Override
     public void handleInterrupt() throws InterruptedException {

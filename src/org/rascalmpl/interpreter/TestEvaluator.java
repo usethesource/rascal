@@ -116,7 +116,7 @@ public class TestEvaluator {
                     } 
                     TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
                         try {
-                            IValue testResult = test.call(actuals, args, null).getValue();
+                            IValue testResult = test.call(args);
                             if ((testResult instanceof IBool) && ((IBool)testResult).getValue()) {
                                 return QuickCheck.SUCCESS;
                             }
