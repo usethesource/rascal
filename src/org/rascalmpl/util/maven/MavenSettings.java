@@ -157,8 +157,8 @@ public class MavenSettings {
         }
     }
 
-    private static @Nullable Settings readSettingsFile(Path settingsXmlFile) {
-        if (Files.exists(settingsXmlFile)) {
+    private static @Nullable Settings readSettingsFile(@Nullable Path settingsXmlFile) {
+        if (settingsXmlFile != null && Files.exists(settingsXmlFile)) {
             try (var input = Files.newInputStream(settingsXmlFile)) {
                 return new SettingsXpp3Reader().read(input);
             }
