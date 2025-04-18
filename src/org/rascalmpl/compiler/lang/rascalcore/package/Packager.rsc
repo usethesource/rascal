@@ -33,7 +33,7 @@ import ParseTree;
 import Location;
 import util::Reflective;
 
-void main(PathConfig pcfg = getProjectPathConfig(|cwd:///|), loc sourceLookup = |unknown:///|) {
+void main(PathConfig pcfg = pathConfig(), loc sourceLookup = |unknown:///|) {
     if (!(sourceLookup?)) {
       throw "sourceLookup is not an optional parameter. The packager needs something like `|mvn://groupId--artifactId--version|`";
     }
