@@ -553,7 +553,7 @@ TestStats batchRecoveryTest(RecoveryTestConfig config) {
     if (config.statFile != |unknown:///|) {
         str pruneHeader = "";
         for (int i <- [0..pruneCount]) {
-            pruneHeader += ",prune" + i + ",uprune" + i;
+            pruneHeader += ",prune<i>,uprune<i>";
         }
         writeFile(config.statFile, "source,size,result,duration,ratio,disambiguationDuration,errorCount,errorSize,nodes,unodes,disambNodes,udisambNodes<pruneHeader>\n");
     }
