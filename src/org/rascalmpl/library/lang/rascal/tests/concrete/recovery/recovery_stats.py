@@ -1,7 +1,8 @@
 # Simple script to extract some statistics from ErrorRecoveryBenchmark statistics
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy
+import numpy as np
+import seaborn as sns
 
 print("Pandas version: ", pd.__version__)
 
@@ -11,8 +12,14 @@ dtypes={
     'prune0': float,'prune1': float,'prune2': float,'prune3': float,'prune4': float,'prune5': float,'prune6': float,'prune7': float,'prune8': float,'prune9': float
 }
 
-data = pd.read_csv("D:/stats/benchmark-stats-2025-04-09-amb-pruning-rascal-0-10240.txt",dtype=dtypes)
+dir = "D:/stats/"
+file = "benchmark-stats-2025-04-09-amb-pruning-rascal-0-10240";
+#data = pd.read_csv(dir +  file + ".txt",dtype=dtypes)
+#data.to_pickle(dir +  + file + "".pkl")
+data = pd.read_pickle(dir + file + ".pkl")
 print(data.describe())
+
+
 
 recovered = data[data["result"] == "recovery"].sort_values("size")
 
@@ -41,24 +48,31 @@ print(recovered["unodes"].describe(), flush=True)
 
 #duration_plot = recovered.plot(style=".", y="duration",x="size",kind="scatter",logy=True)
 
-recovered_filtered = recovered[recovered.duration < 1000]
-#recovered_filtered = recovered
+range = np.arange(0, 11264, 1024)
+
+recovered["bsize"] = pd.cut(recovered["size"], range, labels=range[1:])
+#sns.scatterplot(data=recovered, x="size", y="duration")
+
+recovered_filtered = recovered[recovered.duration < 500]
 
 
 size = recovered_filtered["size"]
 duration = recovered_filtered["duration"]
-plt.scatter(recovered_filtered["size"], recovered_filtered["duration"], s=3)
+#plt.scatter(recovered_filtered["size"], recovered_filtered["duration"], s=3)
 #rolling_mean = recovered_filtered.rolling(window=100)["duration"].mean()
 #plt.plot(rolling_mean)
+
+recovered_filtered["bsize"] = pd.cut(recovered_filtered["size"], range, labels=range[1:])
+
+sns.violinplot(
+    data=recovered_filtered,
+    x="bsize", y="duration",
+    density_norm="width"
+)
 
 plt.ylabel("Recovery parse time (ms.)")
 plt.xlabel("File size (bytes)")
 ax = plt.gca()
 
-z = numpy.polyfit(size, duration, 2)
-p = numpy.poly1d(z)
-
-plt.plot(size,p(size),"r--")
-plt.yscale('log')
-
+#plt.yscale('log')
 plt.show()

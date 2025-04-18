@@ -22,8 +22,10 @@ import java.util.Set;
 import org.apache.commons.lang3.tuple.Triple;
 import org.rascalmpl.parser.gtd.ExpectsProvider;
 import org.rascalmpl.parser.gtd.recovery.IRecoverer;
+import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
 import org.rascalmpl.parser.gtd.result.AbstractNode;
 import org.rascalmpl.parser.gtd.result.SkippedNode;
+import org.rascalmpl.parser.gtd.result.struct.Link;
 import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
 import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
 import org.rascalmpl.parser.gtd.stack.CaseInsensitiveLiteralStackNode;
@@ -372,14 +374,82 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 				unmatchableMidProductionNodes.getSecond(i).getCleanCopy(location); // Clone it to prevent by-reference updates of the static version
 
 			// Merge the information on the predecessors into the failed node.
+			boolean allAmbs = failedNodePredecessors.size() >= 1;
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
+				//allAmbs &= hasAmbParents(predecessor, 3, new HashSet<>());
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
-			
-			failedNodes.add(failedNode);
+
+			if (true || !allAmbs) {
+				failedNodes.add(failedNode);
+			}
 		}
+	}
+
+	private static boolean hasAmbParents(AbstractStackNode<IConstructor> node, int max, Set<Integer> visited) {
+		if (visited.contains(node.getId())) {
+			return true;
+		}
+		visited.add(node.getId());
+
+		IntegerObjectList<EdgesSet<IConstructor>> edges = node.getEdges();
+		if (edges != null && edges.size() > 0) {
+			for (int i = edges.size() - 1; i >= 0; --i) {
+				EdgesSet<IConstructor> edgesList = edges.getValue(i);
+				if (edgesList == null) {
+					return false;
+				}
+				int newMax = edgesList.size() > 1 ? max-1 : max;
+				if (newMax == 0) {
+					continue;
+				}
+				for (int j = edgesList.size() - 1; j >= 0; --j) {
+					AbstractStackNode<IConstructor> parent = edgesList.get(j);
+					if (!hasAmbParents(parent, newMax, visited)) {
+						return false;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private static boolean hasAmbParents(AbstractNode node, int max) {
+		if (!(node instanceof AbstractContainerNode)) {
+			return false;
+		}
+
+		@SuppressWarnings("unchecked")
+		AbstractContainerNode<IConstructor> container = (AbstractContainerNode<IConstructor>) node;
+
+		ArrayList<Link> alternatives = container.getAdditionalAlternatives();
+		if (alternatives == null || alternatives.size() == 0) {
+			Link firstAlternative = container.getFirstAlternative();
+			if (firstAlternative == null) {
+				return false;
+			}
+			return hasAmbParents(firstAlternative.getNode(), max);
+		}
+
+		max -= 1;
+		if (max == 0) {
+			return true;
+		}
+
+		if (!hasAmbParents(container.getFirstAlternative().getNode(), max)) {
+			return false;
+		}
+
+		for (int i=alternatives.size()-1; i>=0; i--) {
+			if (!hasAmbParents(alternatives.get(i).getNode(), max)) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**
