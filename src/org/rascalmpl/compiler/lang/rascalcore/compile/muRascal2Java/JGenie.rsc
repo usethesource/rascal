@@ -620,7 +620,7 @@ JGenie makeJGenie(MuModule m,
                                         tparams = "new Type[] { <intercalate(", ", [ type2id[unset(par, "alabel")] | par <- parameters])> }";
                                         vparams = "$RVF.list(<intercalate(", ", [ atype2IValue(par, ()) | par <- parameters])>)";
                                         switch(sr){
-                                             case dataSyntax():        adtdef = "$adt(\"<adtName>\", <tparams>)";
+                                             case dataSyntax():        adtdef = "$parameterizedAdt(\"<adtName>\", <tparams>)";
                                              case contextFreeSyntax(): adtdef = "$parameterizedSort(\"<adtName>\", <tparams>, <vparams>)";
                                              case lexicalSyntax():     adtdef = "$parameterizedLex(\"<adtName>\", <tparams>, <vparams>)";
                                          }
