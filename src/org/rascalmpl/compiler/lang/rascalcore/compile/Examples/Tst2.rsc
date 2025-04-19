@@ -26,8 +26,8 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 //@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst2
-
+  
 import IO;
 
 value main() //test bool findResourcesWorks() 
-  = findResources("$IO.tpl") != {};
+  = findResources("lang/pico/examples/fac.pico") != {};

@@ -25,14 +25,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
-
-syntax Name = "a";
  
-syntax KeywordArguments[&T]
-    = \default: {KeywordArgument[&T] ","}+ keywordArgumentList
-    | none: ()
-    ;
-    
-syntax KeywordArgument[&T] = \default: Name name "=" &T expression ;
+import IO;
 
-value main() = 42;              
+@synopsis{Symbolic representation of error messages with a source location of the cause.}
+data Message 
+    = error(str msg, loc at)
+    | error(str msg)  
+    | warning(str msg, loc at)
+    | info(str msg, loc at)
+    ;
+
+bool hasErrors(list[Message] messages) {
+    
+    bool h = error(_,_) <- messages;
+    return true;
+}

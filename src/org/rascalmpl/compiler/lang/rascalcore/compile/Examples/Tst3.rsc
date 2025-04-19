@@ -25,17 +25,29 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-     
-import List;
-syntax C = "c";
-syntax Cs0 = {C ","}* cs0;
-syntax Cs1 = {C ","}+ cs1;
 
-syntax AroundCs0 = "OPENCs0" {C ","}* "CLOSE";
-syntax AroundCs1 = "OPENCs1" {C ","}+ "CLOSE";
+import Type;
+import IO;
+layout Layout = " "*;
 
-int cntCs0({C ","}* cs) = size([c | C c <- cs ]);
-int cntAroundCs0((AroundCs0) `OPENCs0<{C ","}* cs0>CLOSE`) = cntCs0(cs0);
+syntax AB = "a" | "b";
+syntax ABStar = AB* abs;
 
-value main() //test bool around1() 
-    = cntAroundCs0([AroundCs0] "OPENCs0CLOSE") == 0;
+void main(){
+    pt = ([ABStar]"a a").abs;
+    println("typeOf pt:"); iprintln(typeOf(pt));
+    println("pt:"); iprintln(pt);
+}
+
+// int size(&E* l) {
+//     println("size1:"); iprintln(typeOf(l)) ; iprintln(l);
+//     return (0 | it + 1 | _ <- l);
+// }
+
+// value main() = size(([ABStar]"a a").abs);
+
+
+// int size({&E &S}* l){
+//     println("size2:");  iprintln(typeOf(l))  ; iprintln(l);
+//     return (0 | it + 1 | _ <- l);
+// }
