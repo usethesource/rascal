@@ -25,13 +25,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst1
- 
-syntax OptTestGrammar = A? a B b;
 
-syntax A = "a";
-syntax B = "b";
+import ParseTree;
 
-value main() //test bool optionalNotPresentIsFalse() 
-  { b = ((A)`a` <- ([OptTestGrammar] "b").a);
-  return !b;
-  }
+
+start syntax A = "a";
+
+
+value main() //test bool strExpr() 
+  = (A) `a` := parse(#A,"a");
