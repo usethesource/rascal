@@ -25,36 +25,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
+ 
+import IO;
 
-start syntax A = "a";
+@synopsis{Symbolic representation of error messages with a source location of the cause.}
+data Message 
+    = error(str msg, loc at)
+    | error(str msg)  
+    | warning(str msg, loc at)
+    | info(str msg, loc at)
+    ;
 
-// test bool Stat3() = checkOK("value zz = { n = 1; n = true; }; ");
-
-// value main()  { n = 1; n = true; return n; }
-
-// void main()
-//    { n = 1; n = 1.5; n + 2;}
-
-// void main(){
-//     n = 1;
-//     n = 1.5;
-//     //return n;
-// }
-
-// Stat6() = checkOK("value zz = { n = 1; m = n;  m = 1.5; n + 2;}; ");
-
-// void main() {
-//     n = 1;
-//     m = n;
-//     n + 2;
-// }
-
-// Stat 4
-
-    // value zz = { l = []; l = l + 1.5; };
-
-// value main()
-//  { n = 1;
-//    n = "a";
-//    return n;
-// }
+bool hasErrors(list[Message] messages) {
+    
+    bool h = error(_,_) <- messages;
+    return true;
+}

@@ -43,8 +43,11 @@ import lang::rascalcore::check::ATypeUtils;
  *  See lang::rascalcore::compile::muRascal::Primitives for constant folding of muPrimitives
  */
 
-MuExp translateConstantCall(str name, list[MuExp] args) {
-	return tcc(name, args);
+MuExp translateConstantCall(str name, list[MuExp] args, lrel[str, MuExp] kwargs) {
+    if(isEmpty(kwargs)){
+	    return tcc(name, args);
+    }
+    throw "NotConstant";
 }
 
 private MuExp tcc("size", [muCon(value v)]){
@@ -185,7 +188,9 @@ private MuExp tcc("except", [muCon(str label)]) = muCon(ParseTree::except(label)
 
 // Grammar
 
-private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)]) = muCon(Grammar::grammar(starts, rules));
+// TODO: this should be excluded as long as IValues in the constants file are being created
+// in another IValueFactory than the RascalRuntimeValueFactory.
+//private MuExp tcc("grammar", [muCon(set[Symbol] starts), muCon(map[Symbol sort, Production def] rules)]) = muCon(Grammar::grammar(starts, rules));
   
 
 default MuExp tcc(str name, list[MuExp] args) { 

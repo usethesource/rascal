@@ -25,7 +25,29 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst3
-void main(){ 
-    node f = "foo"();
-    str hey = /"foo"() := f ? "kk" : "ll";          
+
+import Type;
+import IO;
+layout Layout = " "*;
+
+syntax AB = "a" | "b";
+syntax ABStar = AB* abs;
+
+void main(){
+    pt = ([ABStar]"a a").abs;
+    println("typeOf pt:"); iprintln(typeOf(pt));
+    println("pt:"); iprintln(pt);
 }
+
+// int size(&E* l) {
+//     println("size1:"); iprintln(typeOf(l)) ; iprintln(l);
+//     return (0 | it + 1 | _ <- l);
+// }
+
+// value main() = size(([ABStar]"a a").abs);
+
+
+// int size({&E &S}* l){
+//     println("size2:");  iprintln(typeOf(l))  ; iprintln(l);
+//     return (0 | it + 1 | _ <- l);
+// }

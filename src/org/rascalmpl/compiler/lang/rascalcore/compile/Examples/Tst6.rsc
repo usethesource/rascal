@@ -25,11 +25,14 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst6
- 
-import List;
-
- 
-value main() {
-  L = [1,2,3];
-  return size(L[1..2]);
+  
+             
+value main() {//test bool visit8() {
+	return visit({ <1,1>, <2,2>, <3,3> }) {
+				// case set[tuple[int,int]] s => s + { <4,5> }
+				case tuple[int,int] t => { elem = ( 0 | it + i | int i <- t); <elem,elem>; }
+				//case int i => i + 100
+			};
+			//== {}; //{<204,204>, <202,202>, <206,206>, <4,5>};
+			
 }
