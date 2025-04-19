@@ -183,6 +183,9 @@ jobs:
       - name: Run Tests
         run: mvn -B -Pcompiler-tests -Drascal.compile.skip -Drascal.tutor.skip -Drascal.test.memory=6 test
 
+      - name: clean up dirty target folder (TODO remove after leaky tests are fixed)
+        run: mvn -B clean
+        
       - uses: codecov/codecov-action@v4
         continue-on-error: true # sometimes this one fails, that shouldn't stop a build
         with:
