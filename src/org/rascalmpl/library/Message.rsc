@@ -18,7 +18,7 @@ other data types (syntax trees), or collected in sets or lists of errors to
 be published in an IDE. See ((util::IDEServices)).
 }
 module Message
-
+ 
 import IO;
 
 @synopsis{Symbolic representation of error messages with a source location of the cause.}
@@ -66,9 +66,11 @@ int mainMessageHandler(list[Message] messages, list[loc] srcs=[], bool errorsAsW
   }
 
   println(write(messages, roots=srcs));
-
-  hasErrors   = error  (_, _) <- messages;
-  hasWarnings = warning(_, _) <- messages;
+  hasErrors = hasWarnings = false;
+  if(messages != []){
+    hasErrors   = any(error  (_, _) <- messages);
+    hasWarnings = any(warning(_, _) <- messages);
+  }
 
   switch (<hasErrors, hasWarnings, errorsAsWarnings, warningsAsErrors>) {
     case <true, _    , false, _    > :
