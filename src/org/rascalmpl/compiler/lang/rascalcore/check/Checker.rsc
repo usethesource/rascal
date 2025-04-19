@@ -153,18 +153,19 @@ ModuleStatus rascalTModelForLocs(
         };
 
     if(size(mlocs) != size(mnames)){ // not all mlocs could be mapped to a module
-        ms.messages[qualifiedModuleName] = msgs;
+        for(mn <- mnames){
+             ms.messages[mn] = msgs;
+        }
         return ms;
     }
-    if(allModulesHaveValidTpls(mlocs, pcfg)){
-        <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
+ 
+    <compatibleLibs, ms> = libraryDependenciesAreCompatible(mlocs, ms);
 
-        if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
-            for (i <- index(mlocs)) {
-                <found, tm, ms> = getTModelForModule(mnames[i], ms, convert=true);
-                if(!found){
-                    throw "TModel for <mnames[i]> not found (no changes)";
-                }
+    if(compatibleLibs && uptodateTPls(mlocs, mnames, pcfg)){
+        for (i <- index(mlocs)) {
+            <found, tm, ms> = getTModelForModule(mnames[i], ms, convert=true);
+            if(!found){
+                throw "TModel for <mnames[i]> not found (no changes)";
             }
         }
         return ms;
