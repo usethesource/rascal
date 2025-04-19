@@ -387,7 +387,6 @@ syntax Exp
     = Number
     | left Exp "+" Exp
     ;
-
 import ParseTree;
 ```
 Seeing that `parse` returns a parse tree:
