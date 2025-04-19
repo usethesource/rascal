@@ -26,15 +26,13 @@ POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst6
   
-import ParseTree;
-
-syntax A = a: "a";
-
-syntax As = as: A+ alist;
-
-syntax C = c: A a "x" As as;
-    
-value main(){ //test bool testMatchC(){
-    pt = parse(#C, "axaaa");
-    return c(A _, As _) := pt;
+             
+value main() {//test bool visit8() {
+	return visit({ <1,1>, <2,2>, <3,3> }) {
+				// case set[tuple[int,int]] s => s + { <4,5> }
+				case tuple[int,int] t => { elem = ( 0 | it + i | int i <- t); <elem,elem>; }
+				//case int i => i + 100
+			};
+			//== {}; //{<204,204>, <202,202>, <206,206>, <4,5>};
+			
 }
