@@ -59,6 +59,7 @@ import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.runtime.traverse.Traverse;
 import org.rascalmpl.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.types.NonTerminalType;
+import org.rascalmpl.types.RascalType;
 import org.rascalmpl.types.RascalTypeFactory;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -446,46 +447,34 @@ public abstract class $RascalModule {
 	
 	public io.usethesource.vallang.type.Type $adt(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
-		//$TS.declareAbstractDataType(adtType);
 		return adtType;
 	}
 	
 	public io.usethesource.vallang.type.Type $sort(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		$TS.declareAbstractDataType(adtType);
-		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Sort, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $lex(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		$TS.declareAbstractDataType(adtType);
-		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Lex, $RVF.string(adtName)));
 	}
 	
 	public io.usethesource.vallang.type.Type $layouts(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		$TS.declareAbstractDataType(adtType);
-		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Layouts, $RVF.string(adtName)));
 	}
 	public io.usethesource.vallang.type.Type $keywords(String adtName){
 		Type adtType = $TF.abstractDataType($TS, adtName);
 		$TS.declareAbstractDataType(adtType);
-		//return adtType;
 		return new NonTerminalType($RVF.constructor(RascalValueFactory.Symbol_Keywords, $RVF.string(adtName)));
 	}
 	
-	// private Type[] paramsAsArray(IList params) {
-	// 	Type[] paramsAsArray = new Type[params.length()];
-	// 	for(int i = 0; i < params.length(); i++) paramsAsArray[i] = (Type) params.get(i);
-	// 	return paramsAsArray;
-	// }
-	
-	public io.usethesource.vallang.type.Type $adt(String adtName, Type[] tparams){
+	public io.usethesource.vallang.type.Type $parameterizedAdt(String adtName, Type[] tparams){
 		Type adtType = $TF.abstractDataType($TS, adtName, tparams);
-		//$TS.declareAbstractDataType(adtType);
 		return adtType;
 	}
 
