@@ -168,7 +168,7 @@ private TestMeasurement testRecovery(RecoveryTestConfig config, &T (value input,
         int ratio = percent(duration, referenceParseTime);
         if (prunedStats == "") {
             for (int i <- [0..pruneCount]) {
-                prunedStats += "<nodeCount>,<nodeCountUnique>";
+                prunedStats += ",<nodeCount>,<nodeCountUnique>";
             }
         }
 
