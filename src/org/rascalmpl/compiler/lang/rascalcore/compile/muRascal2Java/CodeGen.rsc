@@ -695,7 +695,7 @@ str trans(muTreeUnparseToLowerCase(MuExp t), JGenie jg) = "$RVF.string(org.rasca
 str trans(muTypeParameterMap(set[AType] parameters), JGenie jg){
     return "HashMap\<io.usethesource.vallang.type.Type,io.usethesource.vallang.type.Type\> $typeBindings = new HashMap\<\>();
            '<for(p <- parameters){>
-           '$typeBindings.put(<atype2vtype(p, jg)>, $TF.voidType());
+           '$typeBindings.put(<jg.accessType(p)>, $TF.voidType());
            '<}>";
 }
 
@@ -1879,7 +1879,7 @@ JCode trans(muMatch(MuExp exp1, MuExp exp2), JGenie jg)
     
     
 JCode trans(muMatchAndBind(MuExp exp1, AType tp), JGenie jg){
-   return "<atype2vtype(tp, jg)>.match(<trans(exp1, jg)>.getType(), $typeBindings)";
+   return "<jg.accessType(tp)>.match(<trans(exp1, jg)>.getType(), $typeBindings)";
 }
       
 JCode trans(muEqualNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
