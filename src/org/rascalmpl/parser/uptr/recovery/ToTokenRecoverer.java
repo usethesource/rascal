@@ -50,11 +50,29 @@ import org.rascalmpl.values.parsetrees.ProductionAdapter;
 import io.usethesource.vallang.IConstructor;
 
 public class ToTokenRecoverer implements IRecoverer<IConstructor> {
+	private static final int DEFAULT_RECOVERY_LIMIT = Integer.MAX_VALUE;
 	private URI uri;
 	private IdDispenser stackNodeIdDispenser;
 	private ExpectsProvider<IConstructor> expectsProvider;
 
 	private Set<Long> processedNodes = new HashSet<>();
+
+	private int recoveryCount = 0;
+	private static int recoveryLimit = setRecoveryLimit();
+	
+	private static int setRecoveryLimit() {
+		String limit = System.getenv("ERROR_RECOVERY_LIMIT");
+		recoveryLimit = DEFAULT_RECOVERY_LIMIT;
+		if (limit != null) {
+			try {
+				recoveryLimit = Integer.parseInt(limit);
+			} catch (NumberFormatException e) {
+				System.err.println("Invalid ERROR_RECOVERY_LIMIT value, using default: " + e.getMessage());
+			}
+		}
+		System.err.println("Error recovery limit: " + recoveryLimit);
+		return recoveryLimit; // Default limit
+	}
 
 	public ToTokenRecoverer(URI uri, ExpectsProvider<IConstructor> expectsProvider, IdDispenser stackNodeIdDispenser) {
 		this.uri = uri;
@@ -68,6 +86,12 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			Stack<AbstractStackNode<IConstructor>> unmatchableLeafNodes,
 			DoubleStack<DoubleArrayList<AbstractStackNode<IConstructor>, AbstractNode>, AbstractStackNode<IConstructor>> unmatchableMidProductionNodes,
 			DoubleStack<AbstractStackNode<IConstructor>, AbstractNode> filteredNodes) {
+
+		if (recoveryCount > recoveryLimit) {
+			System.err.print("A");
+			return new DoubleArrayList<>();
+		}
+
 
 		// For now we ignore unmatchable leaf nodes and filtered nodes. At some point we might use those to
 		// improve error recovery.
@@ -126,6 +150,10 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 					continuer.setIncomingEdges(edges);
 
 					skippingNode.addEdges(edges, startLocation);
+
+					if (recoveryCount++ > recoveryLimit) {
+						return recoveredNodes;
+					}
 				}
 			}
 		}
@@ -378,14 +406,42 @@ public class ToTokenRecoverer implements IRecoverer<IConstructor> {
 			for(int j = failedNodePredecessors.size() - 1; j >= 0; --j) {
 				AbstractStackNode<IConstructor> predecessor = failedNodePredecessors.getFirst(j);
 				AbstractNode predecessorResult = failedNodePredecessors.getSecond(j);
-				//allAmbs &= hasAmbParents(predecessor, 3, new HashSet<>());
+				allAmbs &= hasAmbAncestors(predecessor, 3, new HashSet<>());
 				failedNode.updateNode(predecessor, predecessorResult);
 			}
 
-			if (true || !allAmbs) {
+			if (!allAmbs) {
 				failedNodes.add(failedNode);
 			}
 		}
+	}
+
+	private static boolean hasAmbAncestors(AbstractStackNode<IConstructor>node, int max, Set<Integer>visited) {
+		if (visited.contains(node.getId())) {
+			return true;
+		}
+		visited.add(node.getId());
+
+		EdgesSet<IConstructor> edges = node.getIncomingEdges();
+		if (edges == null || edges.size() == 0) {
+			return false;
+		}
+
+		for (int i = edges.size() - 1; i >= 0; --i) {
+			AbstractStackNode<IConstructor> parent = edges.get(i);
+			if (parent == null) {
+				return false;
+			}
+			int newMax = edges.size() > 1 ? max-1 : max;
+			if (newMax == 0) {
+				continue;
+			}
+			if (!hasAmbAncestors(parent, newMax, visited)) {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	private static boolean hasAmbParents(AbstractStackNode<IConstructor> node, int max, Set<Integer> visited) {
