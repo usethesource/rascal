@@ -1,14 +1,16 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.values.functions.IFunction;
+
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class CommandlineError extends RuntimeException {
   private static final long serialVersionUID = -5679812063174925071L;
-  private final AbstractFunction main;
+  private final IFunction main;
   
-  public CommandlineError(String message, AbstractFunction main) {
+  public CommandlineError(String message, IFunction main) {
     super(message);
     this.main = main;
   }
@@ -20,7 +22,7 @@ public class CommandlineError extends RuntimeException {
     b.append("Usage: ");
     b.append(command);
     
-    Type kwargs = main.getKeywordArgumentTypes(main.getEnv());
+    Type kwargs = main.getType().getKeywordParameterTypes();
     
     if (kwargs.getArity() > 1) {
       b.append(" [options]\n\nOptions:\n");
