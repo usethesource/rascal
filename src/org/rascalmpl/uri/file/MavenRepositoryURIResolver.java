@@ -256,15 +256,15 @@ public class MavenRepositoryURIResolver implements ISourceLocationInput, IClassl
     public static ISourceLocation mavenize(ISourceLocation loc) {
         try {
             // the registry may not have been initialized yet.
-            loc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().logicalToPhysical(loc) : loc;
+            var nloc = URIResolverRegistry.getInstance() != null ? URIResolverRegistry.getInstance().logicalToPhysical(loc) : loc;
 
-            if (!URIUtil.getExtension(loc).equals("jar")) {
+            if (!URIUtil.getExtension(nloc).equals("jar")) {
                 return loc;
             }
 
             ISourceLocation repo = inferMavenRepositoryLocation();
-            ISourceLocation relative = URIUtil.relativize(repo, loc);
-            boolean isFileInRepo = loc.getScheme().equals("file") && relative.getScheme().equals("relative");  
+            ISourceLocation relative = URIUtil.relativize(repo, nloc);
+            boolean isFileInRepo = nloc.getScheme().equals("file") && relative.getScheme().equals("relative");  
 
             if (isFileInRepo) { 
                 relative = URIUtil.getParentLocation(relative);
