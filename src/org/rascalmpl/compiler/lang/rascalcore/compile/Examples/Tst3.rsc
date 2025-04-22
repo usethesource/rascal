@@ -32,22 +32,27 @@ layout Layout = " "*;
 
 syntax AB = "a" | "b";
 syntax ABStar = AB* abs;
+syntax ABPlus = AB+ abs;
 
-void main(){
-    pt = ([ABStar]"a a").abs;
-    println("typeOf pt:"); iprintln(typeOf(pt));
-    println("pt:"); iprintln(pt);
+// void main(){
+//     pt = ([ABStar]"a a").abs;
+//     println("typeOf pt:"); iprintln(typeOf(pt));
+//     println("pt:"); iprintln(pt);
+// }
+
+int size(&E* l) {
+    println("size1:"); iprintln(typeOf(l)) ; iprintln(l);
+    return (0 | it + 1 | _ <- l);
 }
 
-// int size(&E* l) {
-//     println("size1:"); iprintln(typeOf(l)) ; iprintln(l);
-//     return (0 | it + 1 | _ <- l);
-// }
-
-// value main() = size(([ABStar]"a a").abs);
+// value main() = size(([ABStar]"a a").abs) == 2;
 
 
-// int size({&E &S}* l){
-//     println("size2:");  iprintln(typeOf(l))  ; iprintln(l);
-//     return (0 | it + 1 | _ <- l);
-// }
+int size({&E &S}* l){
+    println("size2:");  iprintln(typeOf(l))  ; iprintln(l);
+    return (0 | it + 1 | _ <- l);
+}
+
+//value main() /*test bool sizeABPlus2()*/ = size(([ABPlus]"a b").abs) == 2;
+
+value main() /*test bool sizeABPlus3()*/ = size(([ABPlus]"a b a").abs) == 3;

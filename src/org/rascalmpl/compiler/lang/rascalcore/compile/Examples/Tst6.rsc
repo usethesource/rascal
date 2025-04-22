@@ -24,15 +24,46 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
+@bootstrapParser
 module lang::rascalcore::compile::Examples::Tst6
   
-             
-value main() {//test bool visit8() {
-	return visit({ <1,1>, <2,2>, <3,3> }) {
-				// case set[tuple[int,int]] s => s + { <4,5> }
-				case tuple[int,int] t => { elem = ( 0 | it + i | int i <- t); <elem,elem>; }
-				//case int i => i + 100
-			};
-			//== {}; //{<204,204>, <202,202>, <206,206>, <4,5>};
-			
-}
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+import IO;
+import ValueIO;
+import Map;
+import util::Reflective;
+
+//import lang::rascal::tests::concrete::recovery::RecoveryCheckSupport;
+
+// void main(){
+//     writeBinaryValueFile(|home:///rascal-gram-comp|, #Module.definitions);
+// }
+
+// value main(){
+//     gram_i = readBinaryValueFile(#map[Symbol,Production], |home:///rascal-gram-int|);
+//     gram_c = readBinaryValueFile(#map[Symbol,Production], |home:///rascal-gram-comp|);
+
+//     println("size gram_i: <size(gram_i)>, gram_c: <size(gram_c)>");
+//     println("Not in gram_c: <domain(gram_i) - domain(gram_c)>");
+//     for(s <- gram_c, s != adt("Tree", [])){
+//         if(gram_i[s] != gram_c[s]){
+//             println("Difference for <s>:
+//                     'gram_i: <gram_i[s]>
+//                     'gram_c: <gram_c[s]>
+//                     ");
+//             if(/Production p := gram_c[s]){
+//                 if(/p !:= gram_i[s]){
+//                         println("notin alts_i: <p>");
+//                 }
+//             }
+//         }
+//     }
+//     return true;
+// }
+
+value main() //test bool rascalOk() 
+	= parse(#start[Module], "
+    module A
+    public int x = 42;
+    ");
