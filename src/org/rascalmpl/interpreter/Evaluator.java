@@ -764,6 +764,16 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
             }
 
+            // normalize (only) the library locs
+            IList libs = (IList) cons.asWithKeywordParameters().getParameter("libs");
+            if (libs != null) {
+                libs = libs.stream()
+                    .map(ISourceLocation.class::cast)
+                    .map(c -> mavenize(c))
+                    .collect(vf.listWriter());
+                cons = cons.asWithKeywordParameters().setParameter("libs", libs);
+            }
+
             params.put(pathConfigName, cons);
         }
         else if (pathConfigName != null) {
@@ -860,11 +870,11 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
             try {
                 if (option.trim().startsWith("|") && option.trim().endsWith("|")) {
                     // vallang syntax for locs with |scheme:///|
-                    return jarify(mavenize((ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()))));
+                    return (ISourceLocation) new StandardTextReader().read(vf, expected, new StringReader(option.trim()));
                 }
                 else if (option.contains("://")) {
                     // encoded URI notation
-                    return jarify(mavenize(URIUtil.createFromURI(option.trim())));
+                    return URIUtil.createFromURI(option.trim()));
                 }
                 else {
                     // basic support for current and parent directory notation
@@ -881,7 +891,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                         return parseCommandlineOption(main, expected, System.getProperty("user.dir") + option.substring(1));
                     }
                     // OS specific notation for file paths
-                    return jarify(mavenize(URIUtil.createFileLocation(option.trim())));
+                    return URIUtil.createFileLocation(option.trim());
                 }
             }  
             catch (FactTypeUseException e) {
