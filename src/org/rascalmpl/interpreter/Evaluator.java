@@ -874,7 +874,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
                 }
                 else if (option.contains("://")) {
                     // encoded URI notation
-                    return URIUtil.createFromURI(option.trim()));
+                    return URIUtil.createFromURI(option.trim());
                 }
                 else {
                     // basic support for current and parent directory notation
