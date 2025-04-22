@@ -43,11 +43,12 @@ import io.usethesource.vallang.io.StandardTextWriter;
 
 public class TutorCommandExecutor {
     private final RascalInterpreterREPL interpreter;
-    private final StringWriter outWriter = new StringWriter();
-    private final PrintWriter outPrinter = new PrintWriter(outWriter);
-    private final StringWriter errWriter = new StringWriter();
-    private final PrintWriter errPrinter = new PrintWriter(errWriter, true);
-    private final ITutorScreenshotFeature screenshot;
+    private final static StringWriter outWriter = new StringWriter();
+    private final static PrintWriter outPrinter = new PrintWriter(outWriter);
+    private final static StringWriter errWriter = new StringWriter();
+    private final static PrintWriter errPrinter = new PrintWriter(errWriter, true);
+
+    private final ITutorScreenshotFeature screenshot = loadScreenShotter();
     private String currentInput = "";
 
     public TutorCommandExecutor(PathConfig pcfg) throws IOException, URISyntaxException{
@@ -96,12 +97,11 @@ public class TutorCommandExecutor {
             .build();
 
         interpreter.initialize(Reader.nullReader(), outPrinter, errPrinter, new TutorIDEServices(errPrinter), terminal);
-        screenshot = loadScreenShotter();
     }
 
-    private ITutorScreenshotFeature loadScreenShotter() {
+    private static ITutorScreenshotFeature loadScreenShotter() {
         try {
-            return (ITutorScreenshotFeature) getClass()
+            return (ITutorScreenshotFeature) ITutorScreenshotFeature.class
                 .getClassLoader()
                 .loadClass("org.rascalmpl.tutor.Screenshotter")
                 .getDeclaredConstructor()
@@ -111,8 +111,12 @@ public class TutorCommandExecutor {
             // that is normal; we just don't have the feature available.
             return null;
         }
-        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {
-            throw new Error("WARNING: Could not load screenshot feature from org.rascalmpl.tutor.Screenshotter", e);
+        catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException  e) {   
+            // this is not normal, but since the screenshot feature is quirky we rather have it robustly continuing 
+            // without the feature, then crashing here and now.
+            System.err.println("Error: failed to load screenshot feature due to:" + e.getCause().getMessage());
+            e.getCause().printStackTrace(System.err);
+            return null;
         }
     }
 
@@ -201,6 +205,7 @@ public class TutorCommandExecutor {
                 }
                 catch (Throwable e) {
                     errPrinter.write(e.getMessage());
+                    e.printStackTrace(errPrinter);
                 }
             }
             // we ignore IAnsiCommandOutput, as we know that we cannot render that. 
