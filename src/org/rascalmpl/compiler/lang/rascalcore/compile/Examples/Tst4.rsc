@@ -25,19 +25,19 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::compile::Examples::Tst4
- 
-import IO;
 
-@synopsis{Symbolic representation of error messages with a source location of the cause.}
-data Message 
-    = error(str msg, loc at)
-    | error(str msg)  
-    | warning(str msg, loc at)
-    | info(str msg, loc at)
-    ;
+lexical TimePartNoTZ
+	= [0-2] [0-9] [0-5] [0-9] [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
+	| [0-2] [0-9] ":" [0-5] [0-9] ":" [0-5] [0-9] ([, .] [0-9] ([0-9] [0-9]?)?)? 
+	;
 
-bool hasErrors(list[Message] messages) {
-    
-    bool h = error(_,_) <- messages;
-    return true;
-}
+layout LAYOUTLIST
+	= LAYOUT* !>> [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] !>> "//" !>> "/*";
+
+lexical LAYOUT
+	=
+	// all the white space chars defined in Unicode 6.0 
+    [\u0009-\u000D \u0020 \u0085 \u00A0 \u1680 \u180E \u2000-\u200A \u2028 \u2029 \u202F \u205F \u3000] 
+	;
+
+value main() = #TimePartNoTZ;
